@@ -39,14 +39,13 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 	if(pduel->game_field->is_location_useable(playerid, location, sequence)) {
 		card* pcard = pduel->new_card(code);
 		pcard->owner = owner;
+		pcard->operation_param = position << 24;
 		pduel->game_field->add_card(playerid, pcard, location, sequence);
 		pcard->current.position = position;
 		if(!(location & LOCATION_ONFIELD) || (position & POS_FACEUP)) {
 			pcard->enable_field_effect(TRUE);
 			pduel->game_field->adjust_instant();
 		}
-		if((pcard->data.type & TYPE_PENDULUM) && (location == LOCATION_EXTRA) && (position & POS_FACEUP))
-			pduel->game_field->player[playerid].extra_p_count += 1;
 		if(proc)
 			pcard->set_status(STATUS_PROC_COMPLETE, TRUE);
 		interpreter::card2value(L, pcard);

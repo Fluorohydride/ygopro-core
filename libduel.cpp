@@ -1256,7 +1256,6 @@ int32 scriptlib::duel_negate_effect(lua_State *L) {
 	lua_pushboolean(L, pduel->game_field->disable_chain(c));
 	return 1;
 }
-// negate the effects activated on field
 int32 scriptlib::duel_negate_related_chain(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -1270,7 +1269,7 @@ int32 scriptlib::duel_negate_related_chain(lua_State *L) {
 	effect* negeff = pduel->new_effect();
 	negeff->owner = pduel->game_field->core.reason_effect->handler;
 	negeff->type = EFFECT_TYPE_SINGLE;
-	negeff->code = EFFECT_DISABLE_CHAIN_FIELD;
+	negeff->code = EFFECT_DISABLE_CHAIN;
 	negeff->reset_flag = RESET_CHAIN | RESET_EVENT | reset_flag;
 	pcard->add_effect(negeff);
 	return 0;

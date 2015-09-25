@@ -315,6 +315,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
 		*buf++ = ptduel->game_field->player[playerid].list_grave.size();
 		*buf++ = ptduel->game_field->player[playerid].list_remove.size();
 		*buf++ = ptduel->game_field->player[playerid].list_extra.size();
+		*buf++ = ptduel->game_field->player[playerid].extra_p_count;
 	}
 	*buf++ = ptduel->game_field->core.current_chain.size();
 	for(auto chit = ptduel->game_field->core.current_chain.begin(); chit != ptduel->game_field->core.current_chain.end(); ++chit) {

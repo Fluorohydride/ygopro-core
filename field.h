@@ -72,6 +72,7 @@ struct player_info {
 	uint32 used_location;
 	uint32 disabled_location;
 	uint32 extra_p_count;
+	uint32 tag_extra_p_count;
 	card_vector list_mzone;
 	card_vector list_szone;
 	card_vector list_main;
