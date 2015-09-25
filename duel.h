@@ -17,17 +17,19 @@ class group;
 class effect;
 class field;
 class interpreter;
+class ygoAdapter;
 
 struct duel_arg {
 	int16 start_lp;
 	int8 start_hand;
 	int8 draw_count;
 };
+
 class duel {
 public:
 	typedef std::set<card*, card_sort> card_set;
 	char strbuffer[256];
-	byte buffer[0x1000];
+	byte buffer[0x2000];
 	uint32 bufferlen;
 	byte* bufferp;
 	interpreter* lua;
@@ -39,7 +41,8 @@ public:
 	std::set<group*> sgroups;
 	std::set<effect*> effects;
 	std::set<effect*> uncopy;
-	
+	ygoAdapter* adapter;
+
 	duel();
 	~duel();
 	void clear();
@@ -58,6 +61,7 @@ public:
 	void write_buffer32(uint32 value);
 	void write_buffer16(uint16 value);
 	void write_buffer8(uint8 value);
+	void rollback_buffer(uint32 len);
 	void clear_buffer();
 	void set_responsei(uint32 resp);
 	void set_responseb(byte* resp);
@@ -86,4 +90,5 @@ private:
 #define DUEL_PSEUDO_SHUFFLE		0x10
 #define DUEL_TAG_MODE			0x20
 #define DUEL_SIMPLE_AI			0x40
+
 #endif /* DUEL_H_ */

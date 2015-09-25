@@ -18,6 +18,9 @@ duel::duel() {
 	lua = new interpreter(this);
 	game_field = new field(this);
 	game_field->temp_card = new_card(0);
+	bufferlen = 0;
+	bufferp = buffer;
+	adapter = &defaultAdapter;
 	clear_buffer();
 }
 duel::~duel() {
@@ -48,7 +51,7 @@ card* duel::new_card(uint32 code) {
 	card* pcard = new card(this);
 	cards.insert(pcard);
 	if(code)
-		::read_card(code, &(pcard->data));
+		adapter->ReadCard(code, &(pcard->data));
 	pcard->data.code = code;
 	lua->register_card(pcard);
 	return pcard;
@@ -129,6 +132,15 @@ void duel::write_buffer8(uint8 value) {
 	*((uint8*)bufferp) = value;
 	bufferp += 1;
 	bufferlen += 1;
+}
+void duel::rollback_buffer(uint32 len) {
+	if(bufferlen >= len) {
+		bufferlen -= len;
+		bufferp -= len;
+	} else {
+		bufferlen = 0;
+		bufferp = buffer;
+	}
 }
 void duel::clear_buffer() {
 	bufferlen = 0;
