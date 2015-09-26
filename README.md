@@ -64,3 +64,6 @@ These functions create the game itself and then manipulate it.
 - `void set_responsei(ptr pduel, int32 value);`
 - `void set_responseb(ptr pduel, byte* buf);`
 - `int32 preload_script(ptr pduel, char* script, int32 len);`
+
+#Lua functions
+`interpreter.cpp`
