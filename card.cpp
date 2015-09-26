@@ -527,14 +527,14 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 			break;
 		}
 		if (!rev) {
-			if (temp.attack != -1)
+			if (swap || patk)
 				temp.attack = base_atk + up_atk + upc_atk;
-			if (temp.defence != -1)
+			if (swap || pdef)
 				temp.defence = base_def + up_def + upc_def;
 		} else {
-			if (temp.attack != -1)
+			if (swap || patk)
 				temp.attack = base_atk - up_atk - upc_atk;
-			if (temp.defence != -1)
+			if (swap || pdef)
 				temp.defence = base_def - up_def - upc_def;
 		}
 	}
