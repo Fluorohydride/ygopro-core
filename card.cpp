@@ -2175,6 +2175,8 @@ effect* card::check_indestructable_by_effect(effect* peffect, uint8 playerid) {
 	effect_set eset;
 	filter_effect(EFFECT_INDESTRUCTABLE_EFFECT, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
+		if(peffect->id < eset[i]->id)
+			continue;
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
