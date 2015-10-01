@@ -1340,15 +1340,18 @@ void field::get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc) {
 		core.xmaterial_lst.erase(core.xmaterial_lst.begin(), iter);
 	}
 }
-void field::get_overlay_group(uint8 self, uint8 s, uint8 o, card_set* pset) {
+void field::get_overlay_group(uint8 self, uint8 s, uint8 o, card_set* pset, card_set* xset) {
 	uint8 c = s;
 	card* pcard;
 	for(int p = 0; p < 2; ++p) {
 		if(c) {
 			for(int i = 0; i < 5; ++i) {
 				pcard = player[self].list_mzone[i];
-				if(pcard && !pcard->is_status(STATUS_SUMMONING) && pcard->xyz_materials.size())
+				if(pcard && !pcard->is_status(STATUS_SUMMONING) && pcard->xyz_materials.size()) {
 					pset->insert(pcard->xyz_materials.begin(), pcard->xyz_materials.end());
+					if(xset)
+						xset->insert(pcard);
+				}
 			}
 		}
 		self = 1 - self;
