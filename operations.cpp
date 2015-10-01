@@ -741,14 +741,27 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 		}
 		core.select_cards.clear();
 		if(pcard) {
-			for(auto cit = pcard->xyz_materials.begin(); cit != pcard->xyz_materials.end(); ++cit)
-				core.select_cards.push_back(*cit);
+			core.select_cards.push_back(pcard);
+			returns.bvalue[1] = 0;
 		} else {
 			card_set cset;
-			get_overlay_group(rplayer, s, o, &cset);
-			for(auto cit = cset.begin(); cit != cset.end(); ++cit)
+			card_set xset;
+			get_overlay_group(rplayer, s, o, &cset, &xset);
+			for(auto cit = xset.begin(); cit != xset.end(); ++cit)
 				core.select_cards.push_back(*cit);
+			pduel->write_buffer8(MSG_HINT);
+			pduel->write_buffer8(HINT_SELECTMSG);
+			pduel->write_buffer8(rplayer);
+			pduel->write_buffer32(532);
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, rplayer, 0x10001);
 		}
+		return FALSE;
+	}
+	case 2: {
+		card* xcard = core.select_cards[returns.bvalue[1]];
+		core.select_cards.clear();
+		for(auto cit = xcard->xyz_materials.begin(); cit != xcard->xyz_materials.end(); ++cit)
+			core.select_cards.push_back(*cit);
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(rplayer);
@@ -756,14 +769,11 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, rplayer, min + (max << 16));
 		return FALSE;
 	}
-	case 2: {
+	case 3: {
 		card_set cset;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i)
 			cset.insert(core.select_cards[returns.bvalue[i + 1]]);
 		send_to(&cset, core.reason_effect, reason, rplayer, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
-		return FALSE;
-	}
-	case 3: {
 		return FALSE;
 	}
 	case 4: {
