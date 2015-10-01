@@ -1336,7 +1336,6 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			peffect->o_range = peffect->handler->current.sequence;
 			if(!peffect->is_activateable(check_player, nil_event))
 				continue;
-			peffect->id = infos.field_id++;
 			newchain.triggering_effect = peffect;
 			core.select_chains.push_back(newchain);
 			tf_count++;
@@ -1347,7 +1346,6 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			++pr.first;
 			if(peffect->get_handler_player() != check_player || !peffect->is_activateable(check_player, nil_event))
 				continue;
-			peffect->id = infos.field_id++;
 			newchain.triggering_effect = peffect;
 			core.select_chains.push_back(newchain);
 			cn_count++;
@@ -1379,7 +1377,6 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 				peffect->o_range = peffect->handler->current.sequence;
 				if(!peffect->is_activateable(check_player, nil_event))
 					continue;
-				peffect->id = infos.field_id++;
 				newchain.triggering_effect = peffect;
 				core.select_chains.push_back(newchain);
 				to_count++;
@@ -1399,7 +1396,6 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 				peffect->o_range = peffect->handler->current.sequence;
 				if(!peffect->is_chainable(check_player) || !peffect->is_activateable(check_player, nil_event))
 					continue;
-				peffect->id = infos.field_id++;
 				newchain.triggering_effect = peffect;
 				if(check_hint_timing(peffect))
 					core.spe_effect[check_player]++;
@@ -1413,7 +1409,6 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 				peffect->o_range = peffect->handler->current.sequence;
 				if(!peffect->is_chainable(check_player) || !peffect->is_activateable(check_player, nil_event))
 					continue;
-				peffect->id = infos.field_id++;
 				newchain.triggering_effect = peffect;
 				if(check_hint_timing(peffect))
 					core.spe_effect[check_player]++;
@@ -1491,6 +1486,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			newchain.triggering_sequence = peffect->handler->current.sequence;
 			newchain.triggering_player = check_player;
 			core.new_chains.push_back(newchain);
+			peffect->id = infos.field_id++;
 			peffect->handler->set_status(STATUS_CHAINING, TRUE);
 			peffect->dec_count(check_player);
 			core.select_chains.clear();
@@ -1637,6 +1633,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 					core.tpchain.push_back(*clit);
 				else
 					core.ntpchain.push_back(*clit);
+				peffect->id = infos.field_id++;
 				peffect->handler->set_status(STATUS_CHAINING, TRUE);
 				peffect->dec_count(tp);
 			}
@@ -1815,6 +1812,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		}
 		clit = core.new_ochain_s.begin();
 		peffect = clit->triggering_effect;
+		peffect->id = infos.field_id++;
 		peffect->handler->set_status(STATUS_CHAINING, TRUE);
 		peffect->dec_count(tp);
 		if(tp == infos.turn_player)
@@ -1913,6 +1911,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		std::advance(clit, index);
 		effect* peffect = clit->triggering_effect;
 		uint8 tp = clit->triggering_player;
+		peffect->id = infos.field_id++;
 		peffect->handler->set_status(STATUS_CHAINING, TRUE);
 		peffect->dec_count(tp);
 		if(tp == infos.turn_player)
@@ -1962,6 +1961,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 					}
 					if(act) {
 						core.tpchain.push_back(ifit->second);
+						peffect->id = infos.field_id++;
 						peffect->handler->set_status(STATUS_CHAINING, TRUE);
 						peffect->dec_count(infos.turn_player);
 					}
@@ -1984,6 +1984,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 					}
 					if(act) {
 						core.ntpchain.push_back(ifit->second);
+						peffect->id = infos.field_id++;
 						peffect->handler->set_status(STATUS_CHAINING, TRUE);
 						peffect->dec_count(1 - infos.turn_player);
 					}
@@ -2158,6 +2159,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 			core.new_chains.push_back(newchain);
 			effect* peffect = newchain.triggering_effect;
 			core.delayed_quick.erase(make_pair(peffect, newchain.evt));
+			peffect->id = infos.field_id++;
 			peffect->handler->set_status(STATUS_CHAINING, TRUE);
 			peffect->dec_count(priority);
 			add_process(PROCESSOR_ADD_CHAIN, 0, 0, 0, 0, 0);
@@ -2548,6 +2550,7 @@ int32 field::process_idle_command(uint16 step) {
 			newchain.triggering_sequence = peffect->handler->current.sequence;
 			newchain.triggering_player = infos.turn_player;
 			core.new_chains.push_back(newchain);
+			peffect->id = infos.field_id++;
 			peffect->handler->set_status(STATUS_CHAINING, TRUE);
 			peffect->dec_count(infos.turn_player);
 			core.select_chains.clear();
@@ -2813,6 +2816,7 @@ int32 field::process_battle_command(uint16 step) {
 			newchain.triggering_sequence = peffect->handler->current.sequence;
 			newchain.triggering_player = infos.turn_player;
 			core.new_chains.push_back(newchain);
+			peffect->id = infos.field_id++;
 			peffect->handler->set_status(STATUS_CHAINING, TRUE);
 			peffect->dec_count(infos.turn_player);
 			core.select_chains.clear();
