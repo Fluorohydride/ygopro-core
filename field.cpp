@@ -1416,6 +1416,7 @@ void field::adjust_disable_check_list() {
 		}
 	} while(effects.disable_check_list.size());
 }
+// adjust check_unique_onfield(), EFFECT_SELF_DESTROY, EFFECT_SELF_TOGRAVE
 void field::adjust_self_destroy_set() {
 	if(core.selfdes_disabled || !core.self_destroy_set.empty() || !core.self_tograve_set.empty())
 		return;
