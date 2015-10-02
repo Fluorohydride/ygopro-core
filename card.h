@@ -168,7 +168,6 @@ public:
 	void equip(card *target, uint32 send_msg = TRUE);
 	void unequip();
 	int32 get_union_count();
-	void xyz_overlay(card_set* materials);
 	void xyz_add(card* mat, card_set* des);
 	void xyz_remove(card* mat);
 	void apply_field_effect();
