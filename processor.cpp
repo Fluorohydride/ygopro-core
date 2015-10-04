@@ -467,6 +467,13 @@ int32 field::process() {
 			it->step++;
 		return pduel->bufferlen;
 	}
+	case PROCESSOR_XYZ_OVERLAY: {
+		if(xyz_overlay(it->step, (card*)it->arg1, it->ptarget, it->arg2)) {
+			core.units.pop_front();
+		} else
+			it->step++;
+		return pduel->bufferlen;
+	}
 	case PROCESSOR_PAY_LPCOST: {
 		if (pay_lp_cost(it->step, it->arg1, it->arg2))
 			core.units.pop_front();

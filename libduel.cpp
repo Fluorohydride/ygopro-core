@@ -2467,14 +2467,18 @@ int32 scriptlib::duel_overlay(lua_State *L) {
 		pgroup = *(group**) lua_touserdata(L, 2);
 	} else
 		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
+	uint32 overlay = FALSE;
+	if(lua_gettop(L) >= 3)
+		overlay = lua_toboolean(L, 3);
+	duel* pduel = target->pduel;
 	if(pcard) {
 		card::card_set cset;
 		cset.insert(pcard);
-		target->xyz_overlay(&cset);
+		pduel->game_field->xyz_overlay(target, &cset, overlay);
 	} else
-		target->xyz_overlay(&pgroup->container);
+		pduel->game_field->xyz_overlay(target, &pgroup->container, overlay);
 	if(target->current.location == LOCATION_MZONE)
-		target->pduel->game_field->adjust_all();
+		pduel->game_field->adjust_all();
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_get_overlay_group(lua_State *L) {
