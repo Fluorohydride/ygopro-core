@@ -1131,7 +1131,7 @@ int32 field::xyz_overlay(uint16 step, card * target, group * material, uint32 ov
 				pcard->unequip();
 			target->xyz_add(pcard, &des);
 		} else {
-			field::card_vector cv;
+			card_vector cv;
 			for(auto cit = material->container.begin(); cit != material->container.end(); ++cit)
 				cv.push_back(*cit);
 			std::sort(cv.begin(), cv.end(), card::card_operation_sort);
