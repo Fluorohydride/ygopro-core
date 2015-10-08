@@ -165,8 +165,7 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 	}
 	if(query_flag & QUERY_COUNTERS) {
 		*p++ = counters.size();
-		counter_map::iterator cmit;
-		for(cmit = counters.begin(); cmit != counters.end(); ++cmit)
+		for(auto cmit = counters.begin(); cmit != counters.end(); ++cmit)
 			*p++ = cmit->first + (cmit->second << 16);
 	}
 	if(query_flag & QUERY_OWNER)
@@ -1408,7 +1407,7 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count) {
 	return TRUE;
 }
 int32 card::remove_counter(uint16 countertype, uint16 count) {
-	counter_map::iterator cmit = counters.find(countertype);
+	auto cmit = counters.find(countertype);
 	if(cmit == counters.end())
 		return FALSE;
 	if(cmit->second <= count)
@@ -1434,7 +1433,7 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count)
 		return FALSE;
 	int32 limit = -1;
 	int32 cur = 0;
-	counter_map::iterator cmit = counters.find(countertype);
+	auto cmit = counters.find(countertype);
 	if(cmit != counters.end())
 		cur = cmit->second;
 	filter_effect(EFFECT_COUNTER_LIMIT + countertype, &eset);
@@ -1445,7 +1444,7 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count)
 	return TRUE;
 }
 int32 card::get_counter(uint16 countertype) {
-	counter_map::iterator cmit = counters.find(countertype);
+	auto cmit = counters.find(countertype);
 	if(cmit == counters.end())
 		return 0;
 	return cmit->second;

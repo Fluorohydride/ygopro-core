@@ -3925,8 +3925,7 @@ int32 field::operation_replace(uint16 step, effect * replace_effect, group * tar
 	case 3: {
 		if(core.continuous_chain.rbegin()->target_cards)
 			pduel->delete_group(core.continuous_chain.rbegin()->target_cards);
-		chain::opmap::iterator oit;
-		for(oit = core.continuous_chain.rbegin()->opinfos.begin(); oit != core.continuous_chain.rbegin()->opinfos.end(); ++oit) {
+		for(auto oit = core.continuous_chain.rbegin()->opinfos.begin(); oit != core.continuous_chain.rbegin()->opinfos.end(); ++oit) {
 			if(oit->second.op_cards)
 				pduel->delete_group(oit->second.op_cards);
 		}
@@ -3995,8 +3994,7 @@ int32 field::operation_replace(uint16 step, effect * replace_effect, group * tar
 	case 8: {
 		if(core.continuous_chain.rbegin()->target_cards)
 			pduel->delete_group(core.continuous_chain.rbegin()->target_cards);
-		chain::opmap::iterator oit;
-		for(oit = core.continuous_chain.rbegin()->opinfos.begin(); oit != core.continuous_chain.rbegin()->opinfos.end(); ++oit) {
+		for(auto oit = core.continuous_chain.rbegin()->opinfos.begin(); oit != core.continuous_chain.rbegin()->opinfos.end(); ++oit) {
 			if(oit->second.op_cards)
 				pduel->delete_group(oit->second.op_cards);
 		}

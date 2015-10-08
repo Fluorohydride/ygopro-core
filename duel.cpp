@@ -21,21 +21,21 @@ duel::duel() {
 	clear_buffer();
 }
 duel::~duel() {
-	for(std::set<card*>::iterator cit = cards.begin(); cit != cards.end(); ++cit)
+	for(auto cit = cards.begin(); cit != cards.end(); ++cit)
 		delete *cit;
-	for(std::set<group*>::iterator git = groups.begin(); git != groups.end(); ++git)
+	for(auto git = groups.begin(); git != groups.end(); ++git)
 		delete *git;
-	for(std::set<effect*>::iterator eit = effects.begin(); eit != effects.end(); ++eit)
+	for(auto eit = effects.begin(); eit != effects.end(); ++eit)
 		delete *eit;
 	delete lua;
 	delete game_field;
 }
 void duel::clear() {
-	for(std::set<card*>::iterator cit = cards.begin(); cit != cards.end(); ++cit)
+	for(auto cit = cards.begin(); cit != cards.end(); ++cit)
 		delete *cit;
-	for(std::set<group*>::iterator git = groups.begin(); git != groups.end(); ++git)
+	for(auto git = groups.begin(); git != groups.end(); ++git)
 		delete *git;
-	for(std::set<effect*>::iterator eit = effects.begin(); eit != effects.end(); ++eit)
+	for(auto eit = effects.begin(); eit != effects.end(); ++eit)
 		delete *eit;
 	delete game_field;
 	cards.clear();
@@ -98,8 +98,7 @@ int32 duel::read_buffer(byte* buf) {
 	return bufferlen;
 }
 void duel::release_script_group() {
-	std::set<group*>::iterator sit;
-	for(sit = sgroups.begin(); sit != sgroups.end(); ++sit) {
+	for(auto sit = sgroups.begin(); sit != sgroups.end(); ++sit) {
 		group* pgroup = *sit;
 		if(pgroup->is_readonly == 0) {
 			lua->unregister_group(pgroup);
@@ -110,8 +109,7 @@ void duel::release_script_group() {
 	sgroups.clear();
 }
 void duel::restore_assumes() {
-	std::set<card*>::iterator sit;
-	for(sit = assumes.begin(); sit != assumes.end(); ++sit)
+	for(auto sit = assumes.begin(); sit != assumes.end(); ++sit)
 		(*sit)->assume_type = 0;
 	assumes.clear();
 }

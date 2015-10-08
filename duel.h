@@ -11,6 +11,7 @@
 #include "common.h"
 #include "mtrandom.h"
 #include <set>
+#include <unordered_set>
 
 class card;
 class group;
@@ -33,12 +34,12 @@ public:
 	interpreter* lua;
 	field* game_field;
 	mtrandom random;
-	std::set<card*> cards;
-	std::set<card*> assumes;
-	std::set<group*> groups;
-	std::set<group*> sgroups;
-	std::set<effect*> effects;
-	std::set<effect*> uncopy;
+	std::unordered_set<card*> cards;
+	std::unordered_set<card*> assumes;
+	std::unordered_set<group*> groups;
+	std::unordered_set<group*> sgroups;
+	std::unordered_set<effect*> effects;
+	std::unordered_set<effect*> uncopy;
 	
 	duel();
 	~duel();

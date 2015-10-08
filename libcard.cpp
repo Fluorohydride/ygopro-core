@@ -743,8 +743,7 @@ int32 scriptlib::card_get_attacked_group(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	group* pgroup = pcard->pduel->new_group();
-	card::attacker_map::iterator cit;
-	for(cit = pcard->attacked_cards.begin(); cit != pcard->attacked_cards.end(); ++cit) {
+	for(auto cit = pcard->attacked_cards.begin(); cit != pcard->attacked_cards.end(); ++cit) {
 		if(cit->second)
 			pgroup->container.insert(cit->second);
 	}
@@ -770,8 +769,7 @@ int32 scriptlib::card_get_battled_group(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	group* pgroup = pcard->pduel->new_group();
-	card::attacker_map::iterator cit;
-	for(cit = pcard->battled_cards.begin(); cit != pcard->battled_cards.end(); ++cit) {
+	for(auto cit = pcard->battled_cards.begin(); cit != pcard->battled_cards.end(); ++cit) {
 		if(cit->second)
 			pgroup->container.insert(cit->second);
 	}

@@ -44,7 +44,7 @@ struct optarget {
 	int32 op_param;
 };
 struct chain {
-	typedef std::map<uint32, optarget > opmap;
+	typedef std::unordered_map<uint32, optarget> opmap;
 	uint16 chain_id;
 	uint8 chain_count;
 	uint8 triggering_player;
@@ -86,9 +86,9 @@ struct player_info {
 };
 struct field_effect {
 	typedef std::multimap<uint32, effect*> effect_container;
-	typedef std::map<effect*, effect_container::iterator> effect_indexer;
-	typedef std::map<effect*, effect*> oath_effects;
-	typedef std::set<effect*> effect_collection;
+	typedef std::unordered_map<effect*, effect_container::iterator> effect_indexer;
+	typedef std::unordered_map<effect*, effect*> oath_effects;
+	typedef std::unordered_set<effect*> effect_collection;
 
 	effect_container aura_effect;
 	effect_container ignition_effect;
@@ -106,7 +106,7 @@ struct field_effect {
 	effect_collection spsummon_count_eff;
 	
 	std::list<card*> disable_check_list;
-	std::set<card*, card_sort> disable_check_set;
+	std::unordered_set<card*> disable_check_set;
 };
 struct field_info {
 	int32 field_id;
@@ -148,7 +148,6 @@ struct processor {
 	typedef std::vector<chain> chain_array;
 	typedef std::list<processor_unit> processor_list;
 	typedef std::set<card*, card_sort> card_set;
-	typedef std::set<effect*> effect_collection;
 	typedef std::set<std::pair<effect*, tevent> > delayed_effect_collection;
 
 	processor_list units;
@@ -299,7 +298,6 @@ struct processor {
 class field {
 public:
 	typedef std::multimap<uint32, effect*> effect_container;
-	typedef std::map<effect*, effect_container::iterator> effect_indexer;
 	typedef std::set<card*, card_sort> card_set;
 	typedef std::vector<effect*> effect_vector;
 	typedef std::vector<card*> card_vector;
@@ -309,7 +307,6 @@ public:
 	typedef std::map<effect*, chain> instant_f_list;
 	typedef std::vector<chain> chain_array;
 	typedef std::list<processor_unit> processor_list;
-	typedef std::map<effect*, effect*> oath_effects;
 
 	duel* pduel;
 	player_info player[2];
