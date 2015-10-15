@@ -1676,8 +1676,6 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			if((!(peffect->flag & (EFFECT_FLAG_EVENT_PLAYER | EFFECT_FLAG_BOTH_SIDE)) && peffect->handler->is_has_relation(peffect))
 			        || (!(peffect->flag & EFFECT_FLAG_FIELD_ONLY) && (peffect->type & EFFECT_TYPE_FIELD)
 			            && (peffect->range & LOCATION_HAND) && peffect->handler->current.location == LOCATION_HAND)) {
-				if(!peffect->handler->is_has_relation(peffect))
-					peffect->handler->create_relation(peffect);
 				clit->triggering_player = peffect->handler->current.controler;
 				clit->triggering_controler = peffect->handler->current.controler;
 				clit->triggering_location = peffect->handler->current.location;
