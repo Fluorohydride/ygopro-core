@@ -4261,7 +4261,7 @@ int32 field::add_chain(uint16 step) {
 			core.chain_limit = 0;
 		}
 		effect* deffect;
-		if(!(peffect->flag & EFFECT_FLAG_FIELD_ONLY) && (deffect = phandler->is_affected_by_effect(EFFECT_DISABLE_EFFECT))) {
+		if(!(peffect->flag & EFFECT_FLAG_FIELD_ONLY) && phandler->is_has_relation(phandler) && (deffect = phandler->is_affected_by_effect(EFFECT_DISABLE_EFFECT))) {
 			effect* negeff = pduel->new_effect();
 			negeff->owner = deffect->owner;
 			negeff->type = EFFECT_TYPE_SINGLE;
