@@ -949,32 +949,11 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_DISCARD_HAND_S: {
-		if(it->step == 0) {
-			pduel->write_buffer8(MSG_HINT);
-			pduel->write_buffer8(HINT_SELECTMSG);
-			pduel->write_buffer8(it->arg1);
-			if(((ptr)it->ptarget) & REASON_DISCARD)
-				pduel->write_buffer32(501);
-			else
-				pduel->write_buffer32(504);
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, it->arg1, it->arg2);
-			it->step++;
-		} else if(it->step == 1) {
-			card_set cset;
-			card* pcard;
-			for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-				pcard = core.select_cards[returns.bvalue[i + 1]];
-				cset.insert(pcard);
-			}
-			if(cset.size())
-				send_to(&cset, core.reason_effect, (ptr)(it->ptarget), core.reason_player, it->arg1, LOCATION_GRAVE, 0, POS_FACEUP);
-			else
-				returns.ivalue[0] = 0;
-			it->step++;
-		} else {
-			pduel->lua->add_param(returns.ivalue[0], PARAM_TYPE_INT);
+		if(discard_hand(it->step, it->arg1, it->arg2 & 0xffff, (it->arg2 >> 16) & 0xffff, (ptr)it->ptarget)) {
+			pduel->lua->add_param(returns.ivalue[0], PARAM_TYPE_BOOLEAN);
 			core.units.pop_front();
-		}
+		} else
+			it->step++;
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_DISCARD_DECK_S: {
