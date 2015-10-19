@@ -3481,6 +3481,53 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 	}
 	return TRUE;
 }
+int32 field::discard_hand(uint16 step, uint8 playerid, uint16 min, uint16 max, uint32 reason) {
+	switch(step) {
+	case 0: {
+		effect_set eset;
+		filter_player_effect(playerid, EFFECT_DISCARD_HAND_CHANGE, &eset);
+		for(int32 i = 0; i < eset.size(); ++i) {
+			pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(reason, PARAM_TYPE_INT);
+			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+			if(eset[i]->get_value(3)) {
+				returns.ivalue[0] = TRUE;
+				return TRUE;
+			}
+		}
+		if(core.select_cards.size() == 0) {
+			returns.ivalue[0] = 0;
+			return TRUE;
+		}
+		return FALSE;
+	}
+	case 1: {
+		pduel->write_buffer8(MSG_HINT);
+		pduel->write_buffer8(HINT_SELECTMSG);
+		pduel->write_buffer8(playerid);
+		if(reason & REASON_DISCARD)
+			pduel->write_buffer32(501);
+		else
+			pduel->write_buffer32(504);
+		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, min + (max << 16));
+		return FALSE;
+	}
+	case 2: {
+		card_set cset;
+		card* pcard;
+		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
+			pcard = core.select_cards[returns.bvalue[i + 1]];
+			cset.insert(pcard);
+		}
+		if(cset.size())
+			send_to(&cset, core.reason_effect, reason, core.reason_player, playerid, LOCATION_GRAVE, 0, POS_FACEUP);
+		else
+			returns.ivalue[0] = 0;
+		return TRUE;
+	}
+	}
+	return TRUE;
+}
 int32 field::discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reason) {
 	switch(step) {
 	case 0: {
