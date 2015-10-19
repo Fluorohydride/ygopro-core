@@ -3477,6 +3477,82 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 	}
 	return TRUE;
 }
+int32 field::discard_hand(uint16 step, uint8 playerid, uint16 min, uint16 max, uint32 reason) {
+	switch(step) {
+	case 0: {
+		core.select_options.clear();
+		core.select_effects.clear();
+		if(player[playerid].list_hand.size() >= min) {
+			core.select_options.push_back(13);
+			core.select_effects.push_back(0);
+		}
+		auto pr = effects.continuous_effect.equal_range(EFFECT_DISCARD_HAND_REPLACE);
+		tevent e;
+		e.event_cards = 0;
+		e.event_player = playerid;
+		e.event_value = min;
+		e.reason = reason;
+		e.reason_effect = core.reason_effect;
+		e.reason_player = playerid;
+		for(; pr.first != pr.second; ++pr.first) {
+			effect* peffect = pr.first->second;
+			if(peffect->is_activateable(peffect->get_handler_player(), e)) {
+				core.select_options.push_back(peffect->description);
+				core.select_effects.push_back(peffect);
+			}
+		}
+		returns.ivalue[0] = FALSE;
+		if(core.select_options.size() == 0)
+			return TRUE;
+		if(core.select_options.size() == 1)
+			returns.ivalue[0] = 0;
+		else if(core.select_effects[0] == 0 && core.select_effects.size() == 2)
+			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.select_effects[1]->handler, playerid, 0);
+		else
+			add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, playerid, 0);
+		return FALSE;
+	}
+	case 1: {
+		effect* peffect = core.select_effects[returns.ivalue[0]];
+		if(!peffect) {
+			pduel->write_buffer8(MSG_HINT);
+			pduel->write_buffer8(HINT_SELECTMSG);
+			pduel->write_buffer8(playerid);
+			if(reason & REASON_DISCARD)
+				pduel->write_buffer32(501);
+			else
+				pduel->write_buffer32(504);
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, min + (max << 16));
+			return FALSE;
+		}
+		tevent e;
+		e.event_cards = 0;
+		e.event_player = playerid;
+		e.event_value = min + (max << 16);
+		e.reason = reason;
+		e.reason_effect = core.reason_effect;
+		e.reason_player = playerid;
+		core.sub_solving_event.push_back(e);
+		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, playerid, 0);
+		returns.ivalue[0] = TRUE;
+		return TRUE;
+	}
+	case 2: {
+		card_set cset;
+		card* pcard;
+		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
+			pcard = core.select_cards[returns.bvalue[i + 1]];
+			cset.insert(pcard);
+		}
+		if(cset.size())
+			send_to(&cset, core.reason_effect, reason, core.reason_player, playerid, LOCATION_GRAVE, 0, POS_FACEUP);
+		else
+			returns.ivalue[0] = 0;
+		return TRUE;
+	}
+	}
+	return TRUE;
+}
 int32 field::discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reason) {
 	switch(step) {
 	case 0: {
