@@ -2998,6 +2998,8 @@ int32 field::send_to(uint16 step, group * targets, card * target) {
 	return TRUE;
 }
 // PROCESSOR_SENDTO goes here
+// step 1: call PROCESSOR_SENDTO_STEP
+// step 6: move cards
 int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint32 reason, uint8 reason_player) {
 	struct exargs {
 		group* targets;
@@ -3255,7 +3257,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		} else if(dest == LOCATION_REMOVED) {
 			core.hint_timing[pcard->current.controler] |= TIMING_REMOVE;
 		}
-		//move card
+		//call move_card()
 		if(pcard->current.controler != playerid || pcard->current.location != dest) {
 			pduel->write_buffer8(MSG_MOVE);
 			pduel->write_buffer32(pcard->data.code);

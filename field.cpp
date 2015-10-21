@@ -143,7 +143,8 @@ void field::reload_field_info() {
 		pduel->write_buffer32(peffect->description);
 	}
 }
-
+// Debug.AddCard() will call this function directly
+// check Fusion/S/X monster redirection by the rule
 void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence) {
 	if (pcard->current.location != 0)
 		return;
@@ -260,6 +261,8 @@ void field::remove_card(card* pcard) {
 	pcard->current.location = 0;
 	pcard->current.sequence = 0;
 }
+// check Fusion/S/X monster redirection by the rule
+// it will call remove_card(), add_card()
 void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence) {
 	if (!is_location_useable(playerid, location, sequence))
 		return;
