@@ -328,6 +328,7 @@ public:
 	static int32 duel_special_summon_complete(lua_State *L);
 	static int32 duel_sendto_hand(lua_State *L);
 	static int32 duel_sendto_deck(lua_State *L);
+	static int32 duel_sendto_extra(lua_State *L);
 	static int32 duel_get_operated_group(lua_State *L);
 	static int32 duel_remove_counter(lua_State *L);
 	static int32 duel_is_can_remove_counter(lua_State *L);
