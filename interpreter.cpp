@@ -322,7 +322,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "SendtoGrave", scriptlib::duel_sendto_grave },
 	{ "SendtoHand", scriptlib::duel_sendto_hand },
 	{ "SendtoDeck", scriptlib::duel_sendto_deck },
-	{ "SendPtoExtra", scriptlib::duel_sendto_extra },
+	{ "PSendtoExtra", scriptlib::duel_sendto_extra },
 	{ "GetOperatedGroup", scriptlib::duel_get_operated_group },
 	{ "Summon", scriptlib::duel_summon },
 	{ "SpecialSummonRule", scriptlib::duel_special_summon_rule },
