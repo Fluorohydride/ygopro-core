@@ -235,8 +235,12 @@ void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uin
 	if(destination & LOCATION_ONFIELD)
 		return;
 	uint32 p, pos;
-	for(auto cit = targets->begin(); cit != targets->end(); ++cit) {
-		card* pcard = *cit;
+	for(auto cit = targets->begin(); cit != targets->end(); ) {
+		card* pcard = *cit++;
+		if((destination & LOCATION_EXTRA) && !(pcard->data.type & TYPE_PENDULUM)) {
+			targets->erase(pcard);
+			continue;
+		}
 		pcard->temp.reason = pcard->current.reason;
 		pcard->temp.reason_effect = pcard->current.reason_effect;
 		pcard->temp.reason_player = pcard->current.reason_player;
@@ -247,7 +251,7 @@ void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uin
 		// send to hand from deck  & playerid not given => send to the hand of controler
 		if(p == PLAYER_NONE && (destination & LOCATION_HAND) && (pcard->current.location & LOCATION_DECK) && pcard->current.controler == reason_player)
 			p = reason_player;
-		if(destination & (LOCATION_GRAVE + LOCATION_REMOVED) || p == PLAYER_NONE)
+		if(destination & (LOCATION_GRAVE + LOCATION_REMOVED + LOCATION_EXTRA) || p == PLAYER_NONE)
 			p = pcard->owner;
 		if(destination != LOCATION_REMOVED)
 			pos = POS_FACEUP;

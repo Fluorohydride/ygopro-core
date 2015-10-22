@@ -455,7 +455,7 @@ int32 scriptlib::duel_sendto_deck(lua_State *L) {
 }
 int32 scriptlib::duel_sendto_extra(lua_State *L) {
 	check_action_permission(L);
-	check_param_count(L, 3);
+	check_param_count(L, 2);
 	card* pcard = 0;
 	group* pgroup = 0;
 	duel* pduel = 0;
@@ -467,14 +467,11 @@ int32 scriptlib::duel_sendto_extra(lua_State *L) {
 		pduel = pgroup->pduel;
 	} else
 		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
-	uint32 playerid = lua_tointeger(L, 2);
-	if(lua_isnil(L, 2) || (playerid != 0 && playerid != 1))
-		playerid = PLAYER_NONE;
-	uint32 reason = lua_tointeger(L, 3);
+	uint32 reason = lua_tointeger(L, 2);
 	if(pcard)
-		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, playerid, LOCATION_EXTRA, 0, POS_FACEUP);
+		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, PLAYER_NONE, LOCATION_EXTRA, 0, POS_FACEUP);
 	else
-		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, playerid, LOCATION_EXTRA, 0, POS_FACEUP);
+		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, PLAYER_NONE, LOCATION_EXTRA, 0, POS_FACEUP);
 	pduel->game_field->core.subunits.begin()->type = PROCESSOR_SENDTO_S;
 	return lua_yield(L, 0);
 }
