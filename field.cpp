@@ -541,18 +541,14 @@ void field::shuffle(uint8 playerid, uint8 location) {
 		pduel->write_buffer8(MSG_SHUFFLE_DECK);
 		pduel->write_buffer8(playerid);
 		core.shuffle_deck_check[playerid] = FALSE;
-		if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
-			card* ptop = svector.back();
-			if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENCE)) {
-				pduel->write_buffer8(MSG_DECK_TOP);
-				pduel->write_buffer8(playerid);
-				pduel->write_buffer8(0);
-				if(ptop->current.position != POS_FACEUP_DEFENCE)
-					pduel->write_buffer32(ptop->data.code);
-				else
-					pduel->write_buffer32(ptop->data.code | 0x80000000);
-			}
-		}
+        card* ptop = svector.back();
+		if((core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) && (core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENCE))) {
+            if(ptop->current.position != POS_FACEUP_DEFENCE)
+                pduel->write_buffer32(ptop->data.code);
+            else
+                pduel->write_buffer32(ptop->data.code | 0x80000000);
+		} else
+            pduel->write_buffer32(0);
 	}
 }
 void field::reset_sequence(uint8 playerid, uint8 location) {

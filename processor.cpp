@@ -5243,25 +5243,24 @@ int32 field::adjust_step(uint16 step) {
 				if(res) {
 					if(player[0].list_main.size()) {
 						card* ptop = player[0].list_main.back();
-						pduel->write_buffer8(MSG_DECK_TOP);
-						pduel->write_buffer8(0);
-						pduel->write_buffer8(0);
 						if(ptop->current.position != POS_FACEUP_DEFENCE)
 							pduel->write_buffer32(ptop->data.code);
 						else
 							pduel->write_buffer32(ptop->data.code | 0x80000000);
-					}
+					} else
+                        pduel->write_buffer32(0);
 					if(player[1].list_main.size()) {
 						card* ptop = player[1].list_main.back();
-						pduel->write_buffer8(MSG_DECK_TOP);
-						pduel->write_buffer8(1);
-						pduel->write_buffer8(0);
 						if(ptop->current.position != POS_FACEUP_DEFENCE)
 							pduel->write_buffer32(ptop->data.code);
 						else
 							pduel->write_buffer32(ptop->data.code | 0x80000000);
-					}
-				}
+					} else
+                        pduel->write_buffer32(0);
+                } else {
+                    pduel->write_buffer32(0);
+                    pduel->write_buffer32(0);
+                }
 			}
 			core.deck_reversed = res;
 		}
