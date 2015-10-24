@@ -950,7 +950,10 @@ int32 field::process() {
 	}
 	case PROCESSOR_DISCARD_HAND_S: {
 		if(discard_hand(it->step, it->arg1, it->arg2 & 0xffff, (it->arg2 >> 16) & 0xffff, (ptr)it->ptarget)) {
-			pduel->lua->add_param(returns.ivalue[0], PARAM_TYPE_BOOLEAN);
+			if((ptr)it->ptarget & REASON_COST)
+				pduel->lua->add_param(returns.ivalue[0], PARAM_TYPE_BOOLEAN);
+			else
+				pduel->lua->add_param(returns.ivalue[0], PARAM_TYPE_INT);
 			core.units.pop_front();
 		} else
 			it->step++;

@@ -3523,6 +3523,9 @@ int32 field::discard_hand(uint16 step, uint8 playerid, uint16 min, uint16 max, u
 			send_to(&cset, core.reason_effect, reason, core.reason_player, playerid, LOCATION_GRAVE, 0, POS_FACEUP);
 		else
 			returns.ivalue[0] = 0;
+		return FALSE;
+	}
+	case 3: {
 		return TRUE;
 	}
 	}
