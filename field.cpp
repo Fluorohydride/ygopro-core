@@ -1611,7 +1611,7 @@ int32 field::check_lp_cost(uint8 playerid, uint32 lp) {
 	e.reason_effect = core.reason_effect;
 	e.reason_player = playerid;
 	if(effect_replace_check(EFFECT_LPCOST_REPLACE, e))
-		return true;
+		return TRUE;
 	cost[playerid].amount += val;
 	if(cost[playerid].amount <= player[playerid].lp)
 		return TRUE;
@@ -1936,6 +1936,26 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 		get_xyz_material(scard, findex, lv, max);
 	return (int32)core.xmaterial_lst.size() >= min;
 }
+int32 field::check_discard_hand(uint8 playerid, int32 findex, int32 min, uint32 reason, card* exp, uint32 exarg) {
+	effect_set eset;
+	filter_player_effect(playerid, EFFECT_DISCARD_HAND_CHANGE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(reason, PARAM_TYPE_INT);
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		if(eset[i]->get_value(3))
+			return TRUE;
+	}
+	for(uint32 i = 0; i < player[playerid].list_hand.size(); ++i) {
+		card* pcard = player[playerid].list_hand[i];
+		if(pcard && pcard != exp && pduel->lua->check_matching(pcard, findex, exarg)) {
+			min--;
+			if(min == 0)
+				return TRUE;
+		}
+	}
+	return FALSE;
+}
 int32 field::is_player_can_draw(uint8 playerid) {
 	return !is_player_affected_by_effect(playerid, EFFECT_CANNOT_DRAW);
 }
@@ -2134,9 +2154,6 @@ int32 field::is_player_can_place_counter(uint8 playerid, card * pcard, uint16 co
 int32 field::is_player_can_remove_counter(uint8 playerid, card * pcard, uint8 s, uint8 o, uint16 countertype, uint16 count, uint32 reason) {
 	if((pcard && pcard->get_counter(countertype) >= count) || (!pcard && get_field_counter(playerid, s, o, countertype) >= count))
 		return TRUE;
-	pair<effect_container::iterator, effect_container::iterator> pr;
-	pr = effects.continuous_effect.equal_range(EFFECT_RCOUNTER_REPLACE + countertype);
-	effect* peffect;
 	tevent e;
 	e.event_cards = 0;
 	e.event_player = playerid;
@@ -2144,19 +2161,13 @@ int32 field::is_player_can_remove_counter(uint8 playerid, card * pcard, uint8 s,
 	e.reason = reason;
 	e.reason_effect = core.reason_effect;
 	e.reason_player = playerid;
-	for (; pr.first != pr.second; ++pr.first) {
-		peffect = pr.first->second;
-		if(peffect->is_activateable(peffect->get_handler_player(), e))
-			return TRUE;
-	}
+	if(effect_replace_check(EFFECT_RCOUNTER_REPLACE + countertype, e))
+		return TRUE;
 	return FALSE;
 }
 int32 field::is_player_can_remove_overlay_card(uint8 playerid, card * pcard, uint8 s, uint8 o, uint16 min, uint32 reason) {
 	if((pcard && pcard->xyz_materials.size() >= min) || (!pcard && get_overlay_count(playerid, s, o) >= min))
 		return TRUE;
-	pair<effect_container::iterator, effect_container::iterator> pr;
-	pr = effects.continuous_effect.equal_range(EFFECT_OVERLAY_REMOVE_REPLACE);
-	effect* peffect;
 	tevent e;
 	e.event_cards = 0;
 	e.event_player = playerid;
@@ -2164,11 +2175,8 @@ int32 field::is_player_can_remove_overlay_card(uint8 playerid, card * pcard, uin
 	e.reason = reason;
 	e.reason_effect = core.reason_effect;
 	e.reason_player = playerid;
-	for (; pr.first != pr.second; ++pr.first) {
-		peffect = pr.first->second;
-		if(peffect->is_activateable(peffect->get_handler_player(), e))
-			return TRUE;
-	}
+	if(effect_replace_check(EFFECT_OVERLAY_REMOVE_REPLACE, e))
+		return TRUE;
 	return FALSE;
 }
 int32 field::is_player_can_send_to_grave(uint8 playerid, card * pcard) {

@@ -1048,6 +1048,28 @@ int32 scriptlib::duel_discard_deck(lua_State *L) {
 	pduel->game_field->add_process(PROCESSOR_DISCARD_DECK_S, 0, 0, 0, playerid + (count << 16), reason);
 	return lua_yield(L, 0);
 }
+int32 scriptlib::duel_check_discard_hand(lua_State *L) {
+	check_param_count(L, 5);
+	uint32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	if(!lua_isnil(L, 2))
+		check_param(L, PARAM_TYPE_FUNCTION, 2);
+	card* pexception = 0;
+	uint32 extraargs = 0;
+	if(lua_gettop(L) >= 5) {
+		if(!lua_isnil(L, 5)) {
+			check_param(L, PARAM_TYPE_CARD, 5);
+			pexception = *(card**)lua_touserdata(L, 5);
+		}
+		extraargs = lua_gettop(L) - 5;
+	}
+	duel* pduel = interpreter::get_duel_info(L);
+	uint32 min = lua_tointeger(L, 3);
+	uint32 reason = lua_tointeger(L, 4);
+	lua_pushboolean(L, pduel->game_field->check_discard_hand(playerid, 2, min, reason, pexception, extraargs));
+	return 1;
+}
 int32 scriptlib::duel_discard_hand(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 5);
@@ -1070,10 +1092,6 @@ int32 scriptlib::duel_discard_hand(lua_State *L) {
 	group* pgroup = pduel->new_group();
 	pduel->game_field->filter_matching_card(2, playerid, LOCATION_HAND, 0, pgroup, pexception, extraargs);
 	pduel->game_field->core.select_cards.assign(pgroup->container.begin(), pgroup->container.end());
-	if(pduel->game_field->core.select_cards.size() == 0) {
-		lua_pushinteger(L, 0);
-		return 1;
-	}
 	pduel->game_field->add_process(PROCESSOR_DISCARD_HAND_S, 0, 0, (group*)(size_t)reason, playerid, min + (max << 16));
 	return lua_yield(L, 0);
 }
