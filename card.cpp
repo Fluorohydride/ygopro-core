@@ -2481,13 +2481,16 @@ int32 card::is_capable_be_effect_target(effect* peffect, uint8 playerid) {
 	}
 	return TRUE;
 }
-int32 card::is_can_be_fusion_material(uint8 ignore_mon) {
+int32 card::is_can_be_fusion_material(card* fcard, uint8 ignore_mon) {
 	if(!ignore_mon && !(get_type() & TYPE_MONSTER))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_FORBIDDEN))
 		return FALSE;
-	if(is_affected_by_effect(EFFECT_CANNOT_BE_FUSION_MATERIAL))
-		return FALSE;
+	effect_set eset;
+	filter_effect(EFFECT_CANNOT_BE_FUSION_MATERIAL, &eset);
+	for(int32 i = 0; i < eset.size(); ++i)
+		if(eset[i]->get_value(fcard))
+			return FALSE;
 	return TRUE;
 }
 int32 card::is_can_be_synchro_material(card* scard, card* tuner) {
