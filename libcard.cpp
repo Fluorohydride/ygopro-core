@@ -1859,7 +1859,7 @@ int32 scriptlib::card_is_can_be_fusion_material(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	card* fcard = 0;
 	uint32 ign = FALSE;
-	if(lua_gettop(L) >= 2) {
+	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
 		check_param(L, PARAM_TYPE_CARD, 2);
 		fcard = *(card**)lua_touserdata(L, 2);
 	}
