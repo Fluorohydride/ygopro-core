@@ -1676,6 +1676,8 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			if((!(peffect->flag & (EFFECT_FLAG_EVENT_PLAYER | EFFECT_FLAG_BOTH_SIDE)) && peffect->handler->is_has_relation(peffect))
 			        || (!(peffect->flag & EFFECT_FLAG_FIELD_ONLY) && (peffect->type & EFFECT_TYPE_FIELD)
 			            && (peffect->range & LOCATION_HAND) && peffect->handler->current.location == LOCATION_HAND)) {
+				if(!peffect->handler->is_has_relation(peffect))
+					peffect->handler->create_relation(peffect);
 				clit->triggering_player = peffect->handler->current.controler;
 				clit->triggering_controler = peffect->handler->current.controler;
 				clit->triggering_location = peffect->handler->current.location;
@@ -4260,15 +4262,6 @@ int32 field::add_chain(uint16 step) {
 			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, core.chain_limit);
 			core.chain_limit = 0;
 		}
-		effect* deffect;
-		if(!(peffect->flag & EFFECT_FLAG_FIELD_ONLY) && phandler->is_has_relation(phandler) && (deffect = phandler->is_affected_by_effect(EFFECT_DISABLE_EFFECT))) {
-			effect* negeff = pduel->new_effect();
-			negeff->owner = deffect->owner;
-			negeff->type = EFFECT_TYPE_SINGLE;
-			negeff->code = EFFECT_DISABLE_CHAIN;
-			negeff->reset_flag = RESET_CHAIN | RESET_EVENT | deffect->get_value();
-			phandler->add_effect(negeff);
-		}
 		peffect->card_type = peffect->handler->get_type();
 		if((peffect->card_type & 0x5) == 0x5)
 			peffect->card_type -= TYPE_TRAP;
@@ -4289,6 +4282,16 @@ int32 field::add_chain(uint16 step) {
 			peffect->handler->create_relation(peffect);
 		}
 		peffect->effect_owner = clit.triggering_player;
+		// DISABLE_CHAIN should be check before cost
+		effect* deffect;
+		if(!(peffect->flag & EFFECT_FLAG_FIELD_ONLY) && phandler->is_has_relation(phandler) && (deffect = phandler->is_affected_by_effect(EFFECT_DISABLE_EFFECT))) {
+			effect* negeff = pduel->new_effect();
+			negeff->owner = deffect->owner;
+			negeff->type = EFFECT_TYPE_SINGLE;
+			negeff->code = EFFECT_DISABLE_CHAIN;
+			negeff->reset_flag = RESET_CHAIN | RESET_EVENT | deffect->get_value();
+			phandler->add_effect(negeff);
+		}
 		if(peffect->cost) {
 			core.sub_solving_event.push_back(clit.evt);
 			add_process(PROCESSOR_EXECUTE_COST, 0, peffect, 0, clit.triggering_player, 0);
