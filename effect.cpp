@@ -443,8 +443,8 @@ int32 effect::is_chainable(uint8 tp) {
 	if(!(type & EFFECT_TYPE_ACTIONS))
 		return FALSE;
 	int32 sp = get_speed();
-	// Curse of Field(12470447) is the exception
-	if((type & EFFECT_TYPE_ACTIVATE) && (sp <= 1) && handler->data.code != 12470447)
+	// Curse of Field is the exception
+	if((type & EFFECT_TYPE_ACTIVATE) && (sp <= 1) && handler->data.code != CARD_COF)
 		return FALSE;
 	if(pduel->game_field->core.current_chain.size()) {
 		if(!(flag & EFFECT_FLAG_FIELD_ONLY) && (type & EFFECT_TYPE_TRIGGER_O) 
