@@ -343,8 +343,9 @@ int32 scriptlib::effect_get_property(lua_State *L) {
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	if (peffect) {
-		lua_pushunsigned(L, peffect->flag);
-		return 1;
+		lua_pushunsigned(L, peffect->flag[0]);
+		lua_pushunsigned(L, peffect->flag[1]);
+		return 2;
 	}
 	return 0;
 }
