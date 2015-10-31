@@ -397,7 +397,7 @@ void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 r
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_SET_CONTROL;
 	peffect->value = playerid;
-	peffect->flag = EFFECT_FLAG_CANNOT_DISABLE;
+	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 	peffect->reset_flag = RESET_EVENT | 0xc6c0000;
 	if(reset_count) {
 		peffect->reset_flag |= RESET_PHASE | reset_phase;
@@ -709,7 +709,7 @@ void field::tag_swap(uint8 playerid) {
 }
 void field::add_effect(effect* peffect, uint8 owner_player) {
 	if (!peffect->handler) {
-		peffect->flag |= EFFECT_FLAG_FIELD_ONLY;
+		peffect->flag[0] |= EFFECT_FLAG_FIELD_ONLY;
 		peffect->handler = peffect->owner;
 		peffect->effect_owner = owner_player;
 		peffect->id = infos.field_id++;
@@ -740,14 +740,14 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 			it = effects.continuous_effect.insert(make_pair(peffect->code, peffect));
 	}
 	effects.indexer.insert(make_pair(peffect, it));
-	if((peffect->flag & EFFECT_FLAG_FIELD_ONLY)) {
-		if(peffect->flag & EFFECT_FLAG_OATH)
+	if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))) {
+		if(peffect->is_flag(EFFECT_FLAG_OATH))
 			effects.oath.insert(make_pair(peffect, core.reason_effect));
 		if(peffect->reset_flag & RESET_PHASE)
 			effects.pheff.insert(peffect);
 		if(peffect->reset_flag & RESET_CHAIN)
 			effects.cheff.insert(peffect);
-		if(peffect->flag & EFFECT_FLAG_COUNT_LIMIT)
+		if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 			effects.rechargeable.insert(peffect);
 	}
 }
@@ -777,14 +777,14 @@ void field::remove_effect(effect* peffect) {
 			effects.continuous_effect.erase(it);
 	}
 	effects.indexer.erase(peffect);
-	if((peffect->flag & EFFECT_FLAG_FIELD_ONLY)) {
-		if(peffect->flag & EFFECT_FLAG_OATH)
+	if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))) {
+		if(peffect->is_flag(EFFECT_FLAG_OATH))
 			effects.oath.erase(peffect);
 		if(peffect->reset_flag & RESET_PHASE)
 			effects.pheff.erase(peffect);
 		if(peffect->reset_flag & RESET_CHAIN)
 			effects.cheff.erase(peffect);
-		if(peffect->flag & EFFECT_FLAG_COUNT_LIMIT)
+		if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 			effects.rechargeable.erase(peffect);
 		core.reseted_effects.insert(peffect);
 	}
@@ -795,7 +795,7 @@ void field::remove_oath_effect(effect* reason_effect) {
 		if(rm->second == reason_effect) {
 			effect* peffect = rm->first;
 			effects.oath.erase(rm);
-			if(peffect->flag & EFFECT_FLAG_FIELD_ONLY)
+			if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 				remove_effect(peffect);
 			else
 				peffect->handler->remove_effect(peffect);
@@ -808,7 +808,7 @@ void field::reset_effect(uint32 id, uint32 reset_type) {
 		auto rm = it++;
 		auto peffect = rm->first;
 		auto pit = rm->second;
-		if (!(peffect->flag & EFFECT_FLAG_FIELD_ONLY))
+		if (!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)))
 			continue;
 		result = peffect->reset(id, reset_type);
 		if (result) {
@@ -841,7 +841,7 @@ void field::reset_phase(uint32 phase) {
 	for(auto eit = effects.pheff.begin(); eit != effects.pheff.end();) {
 		auto rm = eit++;
 		if((*rm)->reset(phase, RESET_PHASE)) {
-			if((*rm)->flag & EFFECT_FLAG_FIELD_ONLY)
+			if((*rm)->is_flag(EFFECT_FLAG_FIELD_ONLY))
 				remove_effect((*rm));
 			else
 				(*rm)->handler->remove_effect((*rm));
@@ -851,7 +851,7 @@ void field::reset_phase(uint32 phase) {
 void field::reset_chain() {
 	for(auto eit = effects.cheff.begin(); eit != effects.cheff.end();) {
 		auto rm = eit++;
-		if((*rm)->flag & EFFECT_FLAG_FIELD_ONLY)
+		if((*rm)->is_flag(EFFECT_FLAG_FIELD_ONLY))
 			remove_effect((*rm));
 		else
 			(*rm)->handler->remove_effect((*rm));
@@ -889,7 +889,7 @@ void field::filter_field_effect(uint32 code, effect_set* eset, uint8 sort) {
 		eset->sort();
 }
 void field::filter_affected_cards(effect* peffect, card_set* cset) {
-	if ((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD) || (peffect->flag & EFFECT_FLAG_PLAYER_TARGET))
+	if ((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD) || (peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET)))
 		return;
 	uint8 self = peffect->get_handler_player();
 	if(self == PLAYER_NONE)
@@ -1252,7 +1252,7 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 			rcount += pcard->operation_param;
 		} else {
 			effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_SUM);
-			if(!peffect || ((peffect->flag & EFFECT_FLAG_COUNT_LIMIT) && (peffect->reset_count & 0xf00) == 0))
+			if(!peffect || ((peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT)) && (peffect->reset_count & 0xf00) == 0))
 				continue;
 			if(ex_list_sum)
 				ex_list_sum->insert(pcard);
@@ -2236,9 +2236,9 @@ int32 field::is_chain_negatable(uint8 chaincount, uint8 naga_check) {
 		peffect = core.current_chain.back().triggering_effect;
 	else
 		peffect = core.current_chain[chaincount - 1].triggering_effect;
-	if(naga_check && peffect->flag & EFFECT_FLAG_NAGA)
+	if(naga_check && peffect->is_flag(EFFECT_FLAG2_NAGA))
 		return FALSE;
-	if(peffect->flag & EFFECT_FLAG_CANNOT_DISABLE)
+	if(peffect->is_flag(EFFECT_FLAG_CANNOT_DISABLE))
 		return FALSE;
 	filter_field_effect(EFFECT_CANNOT_INACTIVATE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
@@ -2257,9 +2257,9 @@ int32 field::is_chain_disablable(uint8 chaincount, uint8 naga_check) {
 		peffect = core.current_chain.back().triggering_effect;
 	else
 		peffect = core.current_chain[chaincount - 1].triggering_effect;
-	if(naga_check && peffect->flag & EFFECT_FLAG_NAGA)
+	if(naga_check && peffect->is_flag(EFFECT_FLAG2_NAGA))
 		return FALSE;
-	if(peffect->flag & EFFECT_FLAG_CANNOT_DISABLE)
+	if(peffect->is_flag(EFFECT_FLAG_CANNOT_DISABLE))
 		return FALSE;
 	filter_field_effect(EFFECT_CANNOT_DISEFFECT, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
@@ -2279,7 +2279,7 @@ int32 field::check_chain_target(uint8 chaincount, card * pcard) {
 		pchain = &core.current_chain[chaincount - 1];
 	effect* peffect = pchain->triggering_effect;
 	uint8 tp = pchain->triggering_player;
-	if(!(peffect->flag & EFFECT_FLAG_CARD_TARGET) || !peffect->target)
+	if(!(peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) || !peffect->target)
 		return FALSE;
 	if(!pcard->is_capable_be_effect_target(peffect, tp))
 		return false;

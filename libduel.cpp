@@ -95,7 +95,7 @@ int32 scriptlib::duel_register_flag_effect(lua_State *L) {
 	peffect->type = EFFECT_TYPE_FIELD;
 	peffect->code = code;
 	peffect->reset_flag = reset;
-	peffect->flag = flag | EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_PLAYER_TARGET | EFFECT_FLAG_FIELD_ONLY;
+	peffect->flag[0] = flag | EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_PLAYER_TARGET | EFFECT_FLAG_FIELD_ONLY;
 	peffect->s_range = 1;
 	peffect->o_range = 0;
 	peffect->reset_count |= count & 0xff;
@@ -1521,7 +1521,7 @@ int32 scriptlib::duel_skip_phase(lua_State *L) {
 	peffect->type = EFFECT_TYPE_FIELD;
 	peffect->code = code;
 	peffect->reset_flag = (reset & 0xff) | RESET_PHASE | RESET_SELF_TURN;
-	peffect->flag = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_PLAYER_TARGET;
+	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_PLAYER_TARGET;
 	peffect->s_range = 1;
 	peffect->o_range = 0;
 	peffect->reset_count |= count & 0xff;
@@ -2255,7 +2255,7 @@ int32 scriptlib::duel_set_target_card(lua_State *L) {
 			for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit)
 				(*cit)->create_relation(peffect);
 		}
-		if(peffect->flag & EFFECT_FLAG_CARD_TARGET) {
+		if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
 			if(pcard) {
 				if(pcard->current.location & 0x30)
 					pduel->game_field->move_card(pcard->current.controler, pcard, pcard->current.location, 0);
@@ -3242,7 +3242,7 @@ int32 scriptlib::duel_venom_swamp_check(lua_State *L) {
 	for (int32 i = 0; i < eset.size(); ++i) {
 		switch (eset[i]->code) {
 		case EFFECT_UPDATE_ATTACK: {
-			if (eset[i]->type & EFFECT_TYPE_SINGLE && !(eset[i]->flag & EFFECT_FLAG_SINGLE_RANGE))
+			if (eset[i]->type & EFFECT_TYPE_SINGLE && !(eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 				up += eset[i]->get_value(pcard);
 			else
 				upc += eset[i]->get_value(pcard);
@@ -3252,11 +3252,11 @@ int32 scriptlib::duel_venom_swamp_check(lua_State *L) {
 		}
 		case EFFECT_SET_ATTACK:
 			base = eset[i]->get_value(pcard);
-			if (eset[i]->type & EFFECT_TYPE_SINGLE && !(eset[i]->flag & EFFECT_FLAG_SINGLE_RANGE))
+			if (eset[i]->type & EFFECT_TYPE_SINGLE && !(eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 				up = 0;
 			break;
 		case EFFECT_SET_ATTACK_FINAL:
-			if (eset[i]->type & EFFECT_TYPE_SINGLE && !(eset[i]->flag & EFFECT_FLAG_SINGLE_RANGE)) {
+			if (eset[i]->type & EFFECT_TYPE_SINGLE && !(eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))) {
 				base = eset[i]->get_value(pcard);
 				up = 0;
 				upc = 0;
@@ -3301,14 +3301,14 @@ int32 scriptlib::duel_majestic_copy(lua_State *L) {
 		}
 		effect* peffect = eit->second;
 		if(!(peffect->type & 0x7c)) continue;
-		if(!(peffect->flag & EFFECT_FLAG_INITIAL)) continue;
+		if(!(peffect->is_flag(EFFECT_FLAG_INITIAL))) continue;
 		effect* ceffect = pduel->new_effect();
 		int32 ref = ceffect->ref_handle;
 		*ceffect = *peffect;
 		ceffect->ref_handle = ref;
 		ceffect->owner = pcard;
 		ceffect->handler = 0;
-		ceffect->flag &= ~EFFECT_FLAG_INITIAL;
+		ceffect->flag[0] &= ~EFFECT_FLAG_INITIAL;
 		ceffect->effect_owner = PLAYER_NONE;
 		if(peffect->condition) {
 			lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->condition);
@@ -3332,7 +3332,7 @@ int32 scriptlib::duel_majestic_copy(lua_State *L) {
 		if(ceffect->type & EFFECT_TYPE_TRIGGER_F) {
 			ceffect->type &= ~EFFECT_TYPE_TRIGGER_F;
 			ceffect->type |= EFFECT_TYPE_TRIGGER_O;
-			ceffect->flag |= EFFECT_FLAG_DELAY;
+			ceffect->flag[0] |= EFFECT_FLAG_DELAY;
 		}
 		if(ceffect->type & EFFECT_TYPE_QUICK_F) {
 			ceffect->type &= ~EFFECT_TYPE_QUICK_F;

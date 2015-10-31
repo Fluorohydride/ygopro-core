@@ -309,7 +309,7 @@ int32 field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 fo
 			card* pcard = peffect->handler;
 			if(!(peffect->type & EFFECT_TYPE_ACTIONS))
 				pcard = peffect->owner;
-			if(peffect->flag & EFFECT_FLAG_FIELD_ONLY)
+			if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 				pduel->write_buffer32(1000000000 + pcard->data.code);
 			else
 				pduel->write_buffer32(pcard->data.code);

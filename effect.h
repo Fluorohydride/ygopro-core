@@ -24,6 +24,8 @@ class effect;
 struct tevent;
 struct effect_set;
 struct effect_set_v;
+enum effect_flag;
+enum effect_flag2;
 
 class effect {
 public:
@@ -35,7 +37,7 @@ public:
 	uint8 effect_owner;
 	uint32 description;
 	uint32 code;
-	uint32 flag;
+	uint32 flag[2];
 	uint32 id;
 	uint16 type;
 	uint16 copy_id;
@@ -86,6 +88,12 @@ public:
 	uint8 get_owner_player();
 	uint8 get_handler_player();
 	int32 in_range(int32 loc, int32 seq);
+	bool is_flag(effect_flag flag) const {
+		return !!(this->flag[0] & flag);
+	}
+	bool is_flag(effect_flag2 flag) const {
+		return !!(this->flag[1] & flag);
+	}
 };
 
 //special cards
@@ -144,38 +152,48 @@ public:
 #define EFFECT_TYPE_CONTINUOUS		0x0800	//
 
 //========== Flags ==========
-#define EFFECT_FLAG_INITIAL			0x0001	//
-#define EFFECT_FLAG_FUNC_VALUE		0x0002	//
-#define EFFECT_FLAG_COUNT_LIMIT		0x0004	//
-#define EFFECT_FLAG_FIELD_ONLY		0x0008	//
-#define EFFECT_FLAG_CARD_TARGET		0x0010	//
-#define EFFECT_FLAG_IGNORE_RANGE	0x0020	//
-#define EFFECT_FLAG_ABSOLUTE_TARGET	0x0040	//
-#define EFFECT_FLAG_IGNORE_IMMUNE	0x0080	//
-#define EFFECT_FLAG_SET_AVAILABLE	0x0100	//
-#define EFFECT_FLAG_CONTINUOUS		0x0200	//
-#define EFFECT_FLAG_CANNOT_DISABLE	0x0400	//
-#define EFFECT_FLAG_PLAYER_TARGET	0x0800	//
-#define EFFECT_FLAG_BOTH_SIDE		0x1000	//
-#define EFFECT_FLAG_COPY_INHERIT	0x2000	//
-#define EFFECT_FLAG_DAMAGE_STEP		0x4000	//
-#define EFFECT_FLAG_DAMAGE_CAL		0x8000	//
-#define EFFECT_FLAG_DELAY			0x10000	//
-#define EFFECT_FLAG_SINGLE_RANGE	0x20000	//
-#define EFFECT_FLAG_UNCOPYABLE		0x40000	//
-#define EFFECT_FLAG_OATH			0x80000	//
-#define EFFECT_FLAG_SPSUM_PARAM		0x100000	//
-#define EFFECT_FLAG_REPEAT			0x200000	//
-#define EFFECT_FLAG_NO_TURN_RESET	0x400000	//
-#define EFFECT_FLAG_EVENT_PLAYER	0x800000	//
-#define EFFECT_FLAG_OWNER_RELATE	0x1000000	//
-#define EFFECT_FLAG_AVAILABLE_BD	0x2000000	//
-#define EFFECT_FLAG_CLIENT_HINT		0x4000000	//
-#define EFFECT_FLAG_CHAIN_UNIQUE	0x8000000	//
-#define EFFECT_FLAG_NAGA			0x10000000	//
-#define EFFECT_FLAG_COF				0x20000000	//
-#define EFFECT_FLAG_CVAL_CHECK		0x40000000	//
-#define EFFECT_FLAG_IMMEDIATELY_APPLY	0x80000000	//
+enum effect_flag {
+	EFFECT_FLAG_INITIAL				= 0x0001,
+	EFFECT_FLAG_FUNC_VALUE			= 0x0002,
+	EFFECT_FLAG_COUNT_LIMIT			= 0x0004,
+	EFFECT_FLAG_FIELD_ONLY			= 0x0008,
+	EFFECT_FLAG_CARD_TARGET			= 0x0010,
+	EFFECT_FLAG_IGNORE_RANGE		= 0x0020,
+	EFFECT_FLAG_ABSOLUTE_TARGET		= 0x0040,
+	EFFECT_FLAG_IGNORE_IMMUNE		= 0x0080,
+	EFFECT_FLAG_SET_AVAILABLE		= 0x0100,
+	EFFECT_FLAG_CONTINUOUS			= 0x0200,
+	EFFECT_FLAG_CANNOT_DISABLE		= 0x0400,
+	EFFECT_FLAG_PLAYER_TARGET		= 0x0800,
+	EFFECT_FLAG_BOTH_SIDE			= 0x1000,
+	EFFECT_FLAG_COPY_INHERIT		= 0x2000,
+	EFFECT_FLAG_DAMAGE_STEP			= 0x4000,
+	EFFECT_FLAG_DAMAGE_CAL			= 0x8000,
+	EFFECT_FLAG_DELAY				= 0x10000,
+	EFFECT_FLAG_SINGLE_RANGE		= 0x20000,
+	EFFECT_FLAG_UNCOPYABLE			= 0x40000,
+	EFFECT_FLAG_OATH				= 0x80000,
+	EFFECT_FLAG_SPSUM_PARAM			= 0x100000,
+	EFFECT_FLAG_REPEAT				= 0x200000,
+	EFFECT_FLAG_NO_TURN_RESET		= 0x400000,
+	EFFECT_FLAG_EVENT_PLAYER		= 0x800000,
+	EFFECT_FLAG_OWNER_RELATE		= 0x1000000,
+	EFFECT_FLAG_AVAILABLE_BD		= 0x2000000,
+	EFFECT_FLAG_CLIENT_HINT			= 0x4000000,
+	EFFECT_FLAG_CHAIN_UNIQUE		= 0x8000000,
+//	EFFECT_FLAG_NAGA				= 0x10000000,
+//	EFFECT_FLAG_COF					= 0x20000000,
+	EFFECT_FLAG_CVAL_CHECK			= 0x40000000,
+	EFFECT_FLAG_IMMEDIATELY_APPLY	= 0x80000000,
+};
+enum effect_flag2 {
+	EFFECT_FLAG2_NAGA				= 0x0001,
+	EFFECT_FLAG2_COF				= 0x0002,
+};
+inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
+{
+	return static_cast<effect_flag>(static_cast<uint32>(flag1) | static_cast<uint32>(flag2));
+}
 //========== Codes ==========
 #define EFFECT_IMMUNE_EFFECT			1	//
 #define EFFECT_DISABLE					2	//

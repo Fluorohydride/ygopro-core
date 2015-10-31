@@ -474,7 +474,7 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 	for (int32 i = 0; i < eset.size(); ++i) {
 		switch (eset[i]->code) {
 		case EFFECT_UPDATE_ATTACK:
-			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !(eset[i]->flag & EFFECT_FLAG_SINGLE_RANGE))
+			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !(eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 				up_atk += eset[i]->get_value(this);
 			else
 				upc_atk += eset[i]->get_value(this);
@@ -485,7 +485,7 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 				up_atk = 0;
 			break;
 		case EFFECT_SET_ATTACK_FINAL:
-			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !(eset[i]->flag & EFFECT_FLAG_SINGLE_RANGE)) {
+			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !(eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))) {
 				base_atk = eset[i]->get_value(this);
 				up_atk = 0;
 				upc_atk = 0;
@@ -493,7 +493,7 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 				effects_atk.add_item(eset[i]);
 			break;
 		case EFFECT_UPDATE_DEFENCE:
-			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !(eset[i]->flag & EFFECT_FLAG_SINGLE_RANGE))
+			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !(eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 				up_def += eset[i]->get_value(this);
 			else
 				upc_def += eset[i]->get_value(this);
@@ -504,7 +504,7 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 				up_def = 0;
 			break;
 		case EFFECT_SET_DEFENCE_FINAL:
-			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !(eset[i]->flag & EFFECT_FLAG_SINGLE_RANGE)) {
+			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !(eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))) {
 				base_def = eset[i]->get_value(this);
 				up_def = 0;
 				upc_def = 0;
@@ -512,7 +512,7 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 				effects_def.add_item(eset[i]);
 			break;
 		case EFFECT_SWAP_AD:
-			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !(eset[i]->flag & EFFECT_FLAG_SINGLE_RANGE)) {
+			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !(eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))) {
 				int32 a = base_atk + up_atk + upc_atk;
 				int32 d = base_def + up_def + upc_def;
 				base_atk = d;
@@ -584,7 +584,7 @@ uint32 card::get_level() {
 	for (int32 i = 0; i < effects.size(); ++i) {
 		switch (effects[i]->code) {
 		case EFFECT_UPDATE_LEVEL:
-			if ((effects[i]->type & EFFECT_TYPE_SINGLE) && !(effects[i]->flag & EFFECT_FLAG_SINGLE_RANGE))
+			if ((effects[i]->type & EFFECT_TYPE_SINGLE) && !(effects[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 				up += effects[i]->get_value(this);
 			else
 				upc += effects[i]->get_value(this);
@@ -626,7 +626,7 @@ uint32 card::get_rank() {
 	for (int32 i = 0; i < effects.size(); ++i) {
 		switch (effects[i]->code) {
 		case EFFECT_UPDATE_RANK:
-			if ((effects[i]->type & EFFECT_TYPE_SINGLE) && !(effects[i]->flag & EFFECT_FLAG_SINGLE_RANGE))
+			if ((effects[i]->type & EFFECT_TYPE_SINGLE) && !(effects[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 				up += effects[i]->get_value(this);
 			else
 				upc += effects[i]->get_value(this);
@@ -767,7 +767,7 @@ uint32 card::get_lscale() {
 	filter_effect(EFFECT_CHANGE_LSCALE, &effects);
 	for (int32 i = 0; i < effects.size(); ++i) {
 		if (effects[i]->code == EFFECT_UPDATE_LSCALE) {
-			if ((effects[i]->type & EFFECT_TYPE_SINGLE) && !(effects[i]->flag & EFFECT_FLAG_SINGLE_RANGE))
+			if ((effects[i]->type & EFFECT_TYPE_SINGLE) && !(effects[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 				up += effects[i]->get_value(this);
 			else
 				upc += effects[i]->get_value(this);
@@ -794,7 +794,7 @@ uint32 card::get_rscale() {
 	filter_effect(EFFECT_CHANGE_RSCALE, &effects);
 	for (int32 i = 0; i < effects.size(); ++i) {
 		if (effects[i]->code == EFFECT_UPDATE_RSCALE) {
-			if ((effects[i]->type & EFFECT_TYPE_SINGLE) && !(effects[i]->flag & EFFECT_FLAG_SINGLE_RANGE))
+			if ((effects[i]->type & EFFECT_TYPE_SINGLE) && !(effects[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 				up += effects[i]->get_value(this);
 			else
 				upc += effects[i]->get_value(this);
@@ -980,7 +980,7 @@ void card::enable_field_effect(int32 enabled) {
 		set_status(STATUS_EFFECT_ENABLED, TRUE);
 		effect_container::iterator it;
 		for (it = single_effect.begin(); it != single_effect.end(); ++it) {
-			if ((it->second->flag & EFFECT_FLAG_SINGLE_RANGE) && it->second->in_range(current.location, current.sequence))
+			if ((it->second->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && it->second->in_range(current.location, current.sequence))
 				it->second->id = pduel->game_field->infos.field_id++;
 		}
 		for (it = field_effect.begin(); it != field_effect.end(); ++it) {
@@ -1002,7 +1002,7 @@ void card::enable_field_effect(int32 enabled) {
 }
 int32 card::add_effect(effect* peffect) {
 	effect_container::iterator it, rm;
-	if (get_status(STATUS_COPYING_EFFECT) && (peffect->flag & EFFECT_FLAG_UNCOPYABLE)) {
+	if (get_status(STATUS_COPYING_EFFECT) && (peffect->is_flag(EFFECT_FLAG_UNCOPYABLE))) {
 		pduel->uncopy.insert(peffect);
 		return 0;
 	}
@@ -1010,35 +1010,35 @@ int32 card::add_effect(effect* peffect) {
 		return 0;
 	card* check_target = this;
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
-		if((peffect->code == EFFECT_SET_ATTACK || peffect->code == EFFECT_SET_BASE_ATTACK) && !(peffect->flag & EFFECT_FLAG_SINGLE_RANGE)) {
+		if((peffect->code == EFFECT_SET_ATTACK || peffect->code == EFFECT_SET_BASE_ATTACK) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))) {
 			for(it = single_effect.begin(); it != single_effect.end();) {
 				rm = it++;
 				if((rm->second->code == EFFECT_SET_ATTACK || rm->second->code == EFFECT_SET_ATTACK_FINAL)
-				        && !(rm->second->flag & EFFECT_FLAG_SINGLE_RANGE))
+				        && !(rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 					remove_effect(rm->second);
 			}
 		}
-		if(peffect->code == EFFECT_SET_ATTACK_FINAL && !(peffect->flag & EFFECT_FLAG_SINGLE_RANGE)) {
+		if(peffect->code == EFFECT_SET_ATTACK_FINAL && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))) {
 			for(it = single_effect.begin(); it != single_effect.end();) {
 				rm = it++;
 				if((rm->second->code == EFFECT_UPDATE_ATTACK || rm->second->code == EFFECT_SET_ATTACK
-				        || rm->second->code == EFFECT_SET_ATTACK_FINAL) && !(rm->second->flag & EFFECT_FLAG_SINGLE_RANGE))
+				        || rm->second->code == EFFECT_SET_ATTACK_FINAL) && !(rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 					remove_effect(rm->second);
 			}
 		}
-		if((peffect->code == EFFECT_SET_DEFENCE || peffect->code == EFFECT_SET_BASE_DEFENCE) && !(peffect->flag & EFFECT_FLAG_SINGLE_RANGE)) {
+		if((peffect->code == EFFECT_SET_DEFENCE || peffect->code == EFFECT_SET_BASE_DEFENCE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))) {
 			for(it = single_effect.begin(); it != single_effect.end();) {
 				rm = it++;
 				if((rm->second->code == EFFECT_SET_DEFENCE || rm->second->code == EFFECT_SET_DEFENCE_FINAL)
-				        && !(rm->second->flag & EFFECT_FLAG_SINGLE_RANGE))
+				        && !(rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 					remove_effect(rm->second);
 			}
 		}
-		if(peffect->code == EFFECT_SET_DEFENCE_FINAL && !(peffect->flag & EFFECT_FLAG_SINGLE_RANGE)) {
+		if(peffect->code == EFFECT_SET_DEFENCE_FINAL && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))) {
 			for(it = single_effect.begin(); it != single_effect.end();) {
 				rm = it++;
 				if((rm->second->code == EFFECT_UPDATE_DEFENCE || rm->second->code == EFFECT_SET_DEFENCE
-				        || rm->second->code == EFFECT_SET_DEFENCE_FINAL) && !(rm->second->flag & EFFECT_FLAG_SINGLE_RANGE))
+				        || rm->second->code == EFFECT_SET_DEFENCE_FINAL) && !(rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 					remove_effect(rm->second);
 			}
 		}
@@ -1056,13 +1056,13 @@ int32 card::add_effect(effect* peffect) {
 	peffect->id = pduel->game_field->infos.field_id++;
 	peffect->card_type = data.type;
 	if(get_status(STATUS_INITIALIZING))
-		peffect->flag |= EFFECT_FLAG_INITIAL;
+		peffect->flag[0] |= EFFECT_FLAG_INITIAL;
 	if (get_status(STATUS_COPYING_EFFECT)) {
 		peffect->copy_id = pduel->game_field->infos.copy_id;
 		peffect->reset_flag |= pduel->game_field->core.copy_reset;
 		peffect->reset_count = (peffect->reset_count & 0xffffff00) | pduel->game_field->core.copy_reset_count;
 	}
-	if((peffect->flag & EFFECT_FLAG_COPY_INHERIT) && pduel->game_field->core.reason_effect
+	if((peffect->is_flag(EFFECT_FLAG_COPY_INHERIT)) && pduel->game_field->core.reason_effect
 	        && (pduel->game_field->core.reason_effect->copy_id)) {
 		peffect->copy_id = pduel->game_field->core.reason_effect->copy_id;
 		peffect->reset_flag |= pduel->game_field->core.reason_effect->reset_flag;
@@ -1080,7 +1080,7 @@ int32 card::add_effect(effect* peffect) {
 		if (peffect->is_disable_related())
 			pduel->game_field->add_to_disable_check_list(check_target);
 	}
-	if(peffect->flag & EFFECT_FLAG_OATH) {
+	if(peffect->is_flag(EFFECT_FLAG_OATH)) {
 		effect* reason_effect = pduel->game_field->core.reason_effect;
 		pduel->game_field->effects.oath.insert(make_pair(peffect, reason_effect));
 	}
@@ -1091,15 +1091,15 @@ int32 card::add_effect(effect* peffect) {
 	}
 	if(peffect->reset_flag & RESET_CHAIN)
 		pduel->game_field->effects.cheff.insert(peffect);
-	if(peffect->flag & EFFECT_FLAG_COUNT_LIMIT)
+	if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 		pduel->game_field->effects.rechargeable.insert(peffect);
-	if(peffect->flag & EFFECT_FLAG_CLIENT_HINT) {
+	if(peffect->is_flag(EFFECT_FLAG_CLIENT_HINT)) {
 		pduel->write_buffer8(MSG_CARD_HINT);
 		pduel->write_buffer32(get_info_location());
 		pduel->write_buffer8(CHINT_DESC_ADD);
 		pduel->write_buffer32(peffect->description);
 	}
-	if(peffect->type & EFFECT_TYPE_SINGLE && peffect->code == EFFECT_UPDATE_LEVEL && !(peffect->flag & EFFECT_FLAG_SINGLE_RANGE)) {
+	if(peffect->type & EFFECT_TYPE_SINGLE && peffect->code == EFFECT_UPDATE_LEVEL && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))) {
 		int32 val = peffect->get_value(this);
 		if(val > 0) {
 			pduel->game_field->raise_single_event(this, 0, EVENT_LEVEL_UP, peffect, 0, 0, 0, val);
@@ -1139,13 +1139,13 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			pduel->game_field->add_to_disable_check_list(check_target);
 	}
 	indexer.erase(peffect);
-	if(peffect->flag & EFFECT_FLAG_OATH)
+	if(peffect->is_flag(EFFECT_FLAG_OATH))
 		pduel->game_field->effects.oath.erase(peffect);
 	if(peffect->reset_flag & RESET_PHASE)
 		pduel->game_field->effects.pheff.erase(peffect);
 	if(peffect->reset_flag & RESET_CHAIN)
 		pduel->game_field->effects.cheff.erase(peffect);
-	if(peffect->flag & EFFECT_FLAG_COUNT_LIMIT)
+	if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 		pduel->game_field->effects.rechargeable.erase(peffect);
 	if(((peffect->code & 0xf0000) == EFFECT_COUNTER_PERMIT) && (peffect->type & EFFECT_TYPE_SINGLE)) {
 		auto cmit = counters.find(peffect->code & 0xffff);
@@ -1159,7 +1159,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			counters.erase(cmit);
 		}
 	}
-	if(peffect->flag & EFFECT_FLAG_CLIENT_HINT) {
+	if(peffect->is_flag(EFFECT_FLAG_CLIENT_HINT)) {
 		pduel->write_buffer8(MSG_CARD_HINT);
 		pduel->write_buffer32(get_info_location());
 		pduel->write_buffer8(CHINT_DESC_REMOVE);
@@ -1231,7 +1231,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 				for(auto it = pcard->single_effect.begin(); it != pcard->single_effect.end();) {
 					auto rm = it++;
 					peffect = rm->second;
-					if((peffect->owner == this) && (peffect->flag & EFFECT_FLAG_OWNER_RELATE))
+					if((peffect->owner == this) && (peffect->is_flag(EFFECT_FLAG_OWNER_RELATE)))
 						pcard->remove_effect(peffect, rm);
 				}
 			}
@@ -1270,7 +1270,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 				new_effect->type = EFFECT_TYPE_SINGLE;
 				new_effect->code = EFFECT_SET_CONTROL;
 				new_effect->value = current.controler;
-				new_effect->flag = EFFECT_FLAG_CANNOT_DISABLE;
+				new_effect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 				new_effect->reset_flag = RESET_EVENT | 0xec0000;
 				this->add_effect(new_effect);
 			}
@@ -1287,7 +1287,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 void card::reset_effect_count() {
 	for (auto i = indexer.begin(); i != indexer.end(); ++i) {
 		effect* peffect = i->first;
-		if (peffect->flag & EFFECT_FLAG_COUNT_LIMIT)
+		if (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 			peffect->recharge();
 	}
 }
@@ -1485,7 +1485,7 @@ void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {
 	auto rg = single_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
-		if (peffect->is_available() && (!(peffect->flag & EFFECT_FLAG_SINGLE_RANGE) || is_affect_by_effect(peffect)))
+		if (peffect->is_available() && (!(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) || is_affect_by_effect(peffect)))
 			eset->add_item(peffect);
 	}
 	for (auto cit = equiping_cards.begin(); cit != equiping_cards.end(); ++cit) {
@@ -1499,7 +1499,7 @@ void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {
 	rg = pduel->game_field->effects.aura_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
-		if (!(peffect->flag & EFFECT_FLAG_PLAYER_TARGET) && peffect->is_available()
+		if (!(peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET)) && peffect->is_available()
 		        && peffect->is_target(this) && is_affect_by_effect(peffect))
 			eset->add_item(peffect);
 	}
@@ -1511,7 +1511,7 @@ void card::filter_single_effect(int32 code, effect_set* eset, uint8 sort) {
 	auto rg = single_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
-		if (peffect->is_available() && !(peffect->flag & EFFECT_FLAG_SINGLE_RANGE))
+		if (peffect->is_available() && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 			eset->add_item(peffect);
 	}
 	if(sort)
@@ -1656,7 +1656,7 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 s
 	effect* peffect;
 	for(; pr.first != pr.second; ++pr.first) {
 		peffect = pr.first->second;
-		if(peffect->flag & EFFECT_FLAG_SPSUM_PARAM) {
+		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
 			topos = peffect->s_range;
 			if(peffect->o_range == 0)
 				toplayer = playerid;
@@ -1681,7 +1681,7 @@ void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset) {
 		effect* peffect = pr.first->second;
 		if(!peffect->is_available() || !peffect->check_count_limit(playerid))
 			continue;
-		if(current.controler != playerid && !(peffect->flag & EFFECT_FLAG_BOTH_SIDE))
+		if(current.controler != playerid && !(peffect->is_flag(EFFECT_FLAG_BOTH_SIDE)))
 			continue;
 		effect* oreason = pduel->game_field->core.reason_effect;
 		uint8 op = pduel->game_field->core.reason_player;
@@ -1702,7 +1702,7 @@ effect* card::is_affected_by_effect(int32 code) {
 	auto rg = single_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
-		if (peffect->is_available() && (!(peffect->flag & EFFECT_FLAG_SINGLE_RANGE) || is_affect_by_effect(peffect)))
+		if (peffect->is_available() && (!(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) || is_affect_by_effect(peffect)))
 			return peffect;
 	}
 	for (auto cit = equiping_cards.begin(); cit != equiping_cards.end(); ++cit) {
@@ -1716,7 +1716,7 @@ effect* card::is_affected_by_effect(int32 code) {
 	rg = pduel->game_field->effects.aura_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
-		if (!(peffect->flag & EFFECT_FLAG_PLAYER_TARGET) && peffect->is_available()
+		if (!(peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET)) && peffect->is_available()
 		        && peffect->is_target(this) && is_affect_by_effect(peffect))
 			return peffect;
 	}
@@ -1727,7 +1727,7 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 	auto rg = single_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
-		if (peffect->is_available() && (!(peffect->flag & EFFECT_FLAG_SINGLE_RANGE) || is_affect_by_effect(peffect))
+		if (peffect->is_available() && (!(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) || is_affect_by_effect(peffect))
 		        && peffect->get_value(target))
 			return peffect;
 	}
@@ -1742,7 +1742,7 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 	rg = pduel->game_field->effects.aura_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
-		if (!(peffect->flag & EFFECT_FLAG_PLAYER_TARGET) && peffect->is_available()
+		if (!(peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET)) && peffect->is_available()
 		        && peffect->is_target(this) && is_affect_by_effect(peffect) && peffect->get_value(target))
 			return peffect;
 	}
@@ -1761,7 +1761,7 @@ effect* card::check_control_effect() {
 	auto rg = single_effect.equal_range(EFFECT_SET_CONTROL);
 	for (; rg.first != rg.second; ++rg.first) {
 		effect* peffect = rg.first->second;
-		if(!(peffect->flag & EFFECT_FLAG_SINGLE_RANGE))
+		if(!(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
 			continue;
 		if(!ret_effect || peffect->id > ret_effect->id)
 			ret_effect = peffect;
@@ -1888,7 +1888,7 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 		if(!ignore_count && !pduel->game_field->core.extra_summon[playerid]
 		        && pduel->game_field->core.summon_count[playerid] >= pduel->game_field->get_summon_count_limit(playerid)) {
 			effect* pextra = is_affected_by_effect(EFFECT_EXTRA_SUMMON_COUNT);
-			if(pextra && !(pextra->flag & EFFECT_FLAG_FUNC_VALUE)) {
+			if(pextra && !(pextra->is_flag(EFFECT_FLAG_FUNC_VALUE))) {
 				int32 count = pextra->get_value();
 				if(min_tribute < count)
 					min_tribute = count;
@@ -1919,7 +1919,7 @@ int32 card::get_summon_tribute_count() {
 	filter_effect(EFFECT_DECREASE_TRIBUTE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		int32 dec = eset[i]->get_value(this);
-		if(!(eset[i]->flag & EFFECT_FLAG_COUNT_LIMIT)) {
+		if(!(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT))) {
 			if(minul < (dec & 0xffff))
 				minul = dec & 0xffff;
 			if(maxul < (dec >> 16))
@@ -2103,7 +2103,7 @@ int32 card::is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect
 	if(!ignore_count && !pduel->game_field->core.extra_summon[playerid]
 	        && pduel->game_field->core.summon_count[playerid] >= pduel->game_field->get_summon_count_limit(playerid)) {
 		effect* pextra = is_affected_by_effect(EFFECT_EXTRA_SET_COUNT);
-		if(pextra && !(pextra->flag & EFFECT_FLAG_FUNC_VALUE)) {
+		if(pextra && !(pextra->is_flag(EFFECT_FLAG_FUNC_VALUE))) {
 			int32 count = pextra->get_value();
 			if(min_tribute < count)
 				min_tribute = count;
@@ -2148,7 +2148,7 @@ int32 card::is_setable_szone(uint8 playerid, uint8 ignore_fd) {
 int32 card::is_affect_by_effect(effect* peffect) {
 	if(is_status(STATUS_SUMMONING))
 		return FALSE;
-	if(!peffect || (peffect->flag & EFFECT_FLAG_IGNORE_IMMUNE))
+	if(!peffect || (peffect->is_flag(EFFECT_FLAG_IGNORE_IMMUNE)))
 		return TRUE;
 	if(peffect->is_immuned(&immune_effect))
 		return FALSE;
