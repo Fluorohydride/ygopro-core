@@ -96,9 +96,6 @@ public:
 	}
 };
 
-//special cards
-#define CARD_COF 12470447
-
 //status
 #define EFFECT_STATUS_AVAILABLE	0x0001
 #define EFFECT_STATUS_ACTIVATED	0x0002
