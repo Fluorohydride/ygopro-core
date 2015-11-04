@@ -3594,14 +3594,11 @@ int32 field::process_battle_command(uint16 step) {
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 1);
 		raise_event((card*)0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 0);
+		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
+		if(core.attack_target)
+			core.attack_target->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 		process_single_event();
 		process_instant_event();
-		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
-		core.attacker->set_status(STATUS_OPPO_BATTLE, FALSE);
-		if(core.attack_target) {
-			core.attack_target->set_status(STATUS_BATTLE_DESTROYED, FALSE);
-			core.attack_target->set_status(STATUS_OPPO_BATTLE, FALSE);
-		}
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(0);
@@ -3627,6 +3624,9 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 39: {
 		//end of damage step
+		core.attacker->set_status(STATUS_OPPO_BATTLE, FALSE);
+		if(core.attack_target)
+			core.attack_target->set_status(STATUS_OPPO_BATTLE, FALSE);
 		core.units.begin()->step = -1;
 		infos.phase = PHASE_BATTLE;
 		pduel->write_buffer8(MSG_DAMAGE_STEP_END);
