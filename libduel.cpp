@@ -660,12 +660,8 @@ int32 scriptlib::duel_confirm_decktop(lua_State *L) {
 	pduel->write_buffer8(MSG_CONFIRM_DECKTOP);
 	pduel->write_buffer8(playerid);
 	pduel->write_buffer8(count);
-	for(uint32 i = 0; i < count && cit != pduel->game_field->player[playerid].list_main.rend(); ++i, ++cit) {
+	for(uint32 i = 0; i < count && cit != pduel->game_field->player[playerid].list_main.rend(); ++i, ++cit)
 		pduel->write_buffer32((*cit)->data.code);
-		pduel->write_buffer8((*cit)->current.controler);
-		pduel->write_buffer8((*cit)->current.location);
-		pduel->write_buffer8((*cit)->current.sequence);
-	}
 	pduel->game_field->add_process(PROCESSOR_WAIT, 0, 0, 0, 0, 0);
 	return lua_yield(L, 0);
 }
@@ -692,16 +688,12 @@ int32 scriptlib::duel_confirm_cards(lua_State *L) {
 	if(pcard) {
 		pduel->write_buffer8(1);
 		pduel->write_buffer32(pcard->data.code);
-		pduel->write_buffer8(pcard->current.controler);
-		pduel->write_buffer8(pcard->current.location);
-		pduel->write_buffer8(pcard->current.sequence);
+		pduel->write_buffer32(pcard->get_info_location());
 	} else {
 		pduel->write_buffer8(pgroup->container.size());
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 			pduel->write_buffer32((*cit)->data.code);
-			pduel->write_buffer8((*cit)->current.controler);
-			pduel->write_buffer8((*cit)->current.location);
-			pduel->write_buffer8((*cit)->current.sequence);
+			pduel->write_buffer32((*cit)->get_info_location());
 		}
 	}
 	pduel->game_field->add_process(PROCESSOR_WAIT, 0, 0, 0, 0, 0);

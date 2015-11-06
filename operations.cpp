@@ -368,9 +368,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 				pduel->write_buffer8(drawed_set->size());
 				for(auto& cit : *drawed_set) {
 					pduel->write_buffer32(cit->data.code);
-					pduel->write_buffer8(cit->current.controler);
-					pduel->write_buffer8(cit->current.location);
-					pduel->write_buffer8(cit->current.sequence);
+					pduel->write_buffer32(cit->get_info_location());
 				}
 				shuffle(playerid, LOCATION_HAND);
 			}
