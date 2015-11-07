@@ -57,6 +57,8 @@ int32 effect::is_disable_related() {
 		return TRUE;
 	return FALSE;
 }
+// check if a single/field/field effect is available
+// check range, EFFECT_FLAG_OWNER_RELATE, STATUS_BATTLE_DESTROYED, STATUS_EFFECT_ENABLED
 int32 effect::is_available() {
 	if (type & EFFECT_TYPE_ACTIONS)
 		return FALSE;
@@ -251,7 +253,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 	pduel->game_field->restore_lp_cost();
 	return result;
 }
-// check EFFECT_CANNOT_ACTIVATE
+// check EFFECT_CANNOT_ACTIVATE, EFFECT_ACTIVATE_COST
 int32 effect::is_action_check(uint8 playerid) {
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, EFFECT_CANNOT_ACTIVATE, &eset);
@@ -363,6 +365,7 @@ int32 effect::is_activate_check(uint8 playerid, const tevent& e, int32 neglect_c
 	pduel->game_field->restore_lp_cost();
 	return result;
 }
+// check if pcard is the target of a field effect
 int32 effect::is_target(card* pcard) {
 	if(type & EFFECT_TYPE_ACTIONS)
 		return FALSE;
