@@ -372,7 +372,7 @@ int32 effect::is_target(card* pcard) {
 			&& !pcard->is_position(POS_FACEUP))
 		return FALSE;
 	if(!(is_flag(EFFECT_FLAG_IGNORE_RANGE))) {
-		if(pcard->get_status(STATUS_SUMMONING + STATUS_SUMMON_DISABLED))
+		if(pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED))
 			return FALSE;
 		if(is_flag(EFFECT_FLAG_ABSOLUTE_TARGET)) {
 			if(pcard->current.controler == 0) {
