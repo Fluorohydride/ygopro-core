@@ -138,6 +138,9 @@ int32 effect::check_count_limit(uint8 playerid) {
 	}
 	return TRUE;
 }
+// check if an EFFECT_TYPE_ACTIONS effect can be activated
+// for triggering effects, it checks EFFECT_FLAG_DAMAGE_STEP, EFFECT_FLAG_SET_AVAILABLE
+// for continuous effect, it checks EFFECT_FLAG_AVAILABLE_BD
 int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_cond, int32 neglect_cost, int32 neglect_target) {
 	if(!(type & EFFECT_TYPE_ACTIONS))
 		return FALSE;
