@@ -1102,17 +1102,18 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 		}
 	}
 	pduel->write_buffer8(MSG_SHUFFLE_SET_CARD);
-	pduel->write_buffer8(ct);
+	pduel->write_buffer8(tp);
+    pduel->write_buffer8(ct);
 	for(uint32 i = 0; i < ct; ++i) {
-		pduel->write_buffer32(ms[i]->get_info_location());
+		pduel->write_buffer8(ms[i]->current.sequence);
 		pduel->game_field->player[tp].list_mzone[seq[i]] = ms[i];
 		ms[i]->current.sequence = seq[i];
 	}
 	for(uint32 i = 0; i < ct; ++i) {
 		if(ms[i]->xyz_materials.size())
-			pduel->write_buffer32(ms[i]->get_info_location());
+			pduel->write_buffer8(0x10 | ms[i]->current.sequence);
 		else
-			pduel->write_buffer32(0);
+			pduel->write_buffer8(ms[i]->current.sequence);
 	}
 	return 0;
 }
