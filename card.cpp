@@ -1800,11 +1800,14 @@ int32 card::is_equipable(card* pcard) {
 			return TRUE;
 	return FALSE;
 }
+// check EFFECT_UNSUMMONABLE_CARD
 int32 card::is_summonable() {
 	if(!(data.type & TYPE_MONSTER))
 		return FALSE;
 	return !is_affected_by_effect(EFFECT_UNSUMMONABLE_CARD);
 }
+// check if this can be summoned/sp_summoned by procedure peffect
+// check the condition of peffect
 int32 card::is_summonable(effect* peffect) {
 	effect* oreason = pduel->game_field->core.reason_effect;
 	uint8 op = pduel->game_field->core.reason_player;
@@ -1989,6 +1992,8 @@ int32 card::is_can_be_flip_summoned(uint8 playerid) {
 	pduel->game_field->restore_lp_cost();
 	return TRUE;
 }
+// check if this can be sp_summoned by EFFECT_SPSUMMON_PROC
+// call filter_spsummon_procedure()
 int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 	if(!(data.type & TYPE_MONSTER))
 		return FALSE;

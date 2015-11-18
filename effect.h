@@ -401,6 +401,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_UNSUMMONABLE_CARD		336
 #define EFFECT_DISABLE_CHAIN_FIELD		337
 #define EFFECT_DISCARD_COST_CHANGE		338
+#define EFFECT_HAND_SYNCHRO				339
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

@@ -2035,6 +2035,7 @@ int32 field::is_player_can_sset(uint8 playerid, card * pcard) {
 	}
 	return TRUE;
 }
+// check player-effect EFFECT_CANNOT_SPECIAL_SUMMON without target
 int32 field::is_player_can_spsummon(uint8 playerid) {
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_CANNOT_SPECIAL_SUMMON, &eset);
