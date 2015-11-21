@@ -591,7 +591,7 @@ int32 scriptlib::card_enable_dual_state(lua_State *L) {
 	deffect->owner = pcard;
 	deffect->code = EFFECT_DUAL_STATUS;
 	deffect->type = EFFECT_TYPE_SINGLE;
-	deffect->flag = EFFECT_FLAG_CANNOT_DISABLE;
+	deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 	deffect->reset_flag = RESET_EVENT + 0x1fe0000;
 	pcard->add_effect(deffect);
 	return 0;
@@ -743,8 +743,7 @@ int32 scriptlib::card_get_attacked_group(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	group* pgroup = pcard->pduel->new_group();
-	card::attacker_map::iterator cit;
-	for(cit = pcard->attacked_cards.begin(); cit != pcard->attacked_cards.end(); ++cit) {
+	for(auto cit = pcard->attacked_cards.begin(); cit != pcard->attacked_cards.end(); ++cit) {
 		if(cit->second)
 			pgroup->container.insert(cit->second);
 	}
@@ -770,8 +769,7 @@ int32 scriptlib::card_get_battled_group(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	group* pgroup = pcard->pduel->new_group();
-	card::attacker_map::iterator cit;
-	for(cit = pcard->battled_cards.begin(); cit != pcard->battled_cards.end(); ++cit) {
+	for(auto cit = pcard->battled_cards.begin(); cit != pcard->battled_cards.end(); ++cit) {
 		if(cit->second)
 			pgroup->container.insert(cit->second);
 	}
@@ -989,7 +987,7 @@ int32 scriptlib::card_register_flag_effect(lua_State *L) {
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = code;
 	peffect->reset_flag = reset;
-	peffect->flag = flag | EFFECT_FLAG_CANNOT_DISABLE;
+	peffect->flag[0] = flag | EFFECT_FLAG_CANNOT_DISABLE;
 	peffect->reset_count |= count & 0xff;
 	peffect->label = lab;
 	peffect->description = desc;
@@ -1143,7 +1141,7 @@ int32 scriptlib::card_enable_unsummonable(lua_State *L) {
 		peffect->owner = pcard;
 		peffect->code = EFFECT_UNSUMMONABLE_CARD;
 		peffect->type = EFFECT_TYPE_SINGLE;
-		peffect->flag = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_UNCOPYABLE;
+		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_UNCOPYABLE;
 		pcard->add_effect(peffect);
 	}
 	return 0;
@@ -1158,13 +1156,13 @@ int32 scriptlib::card_enable_revive_limit(lua_State *L) {
 		peffect1->owner = pcard;
 		peffect1->code = EFFECT_UNSUMMONABLE_CARD;
 		peffect1->type = EFFECT_TYPE_SINGLE;
-		peffect1->flag = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_UNCOPYABLE;
+		peffect1->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_UNCOPYABLE;
 		pcard->add_effect(peffect1);
 		effect* peffect2 = pduel->new_effect();
 		peffect2->owner = pcard;
 		peffect2->code = EFFECT_REVIVE_LIMIT;
 		peffect2->type = EFFECT_TYPE_SINGLE;
-		peffect2->flag = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_UNCOPYABLE;
+		peffect2->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_UNCOPYABLE;
 		pcard->add_effect(peffect2);
 	}
 	return 0;
@@ -1808,7 +1806,7 @@ int32 scriptlib::card_enable_counter_permit(lua_State *L) {
 	peffect->owner = pcard;
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_COUNTER_PERMIT | countertype;
-	peffect->flag = EFFECT_FLAG_SINGLE_RANGE;
+	peffect->flag[0] = EFFECT_FLAG_SINGLE_RANGE;
 	peffect->range = prange;
 	pcard->add_effect(peffect);
 	return 0;
@@ -1859,10 +1857,15 @@ int32 scriptlib::card_is_can_be_fusion_material(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
+	card* fcard = 0;
 	uint32 ign = FALSE;
-	if(lua_gettop(L) >= 2)
-		ign = lua_toboolean(L, 2);
-	lua_pushboolean(L, pcard->is_can_be_fusion_material(ign));
+	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
+		check_param(L, PARAM_TYPE_CARD, 2);
+		fcard = *(card**)lua_touserdata(L, 2);
+	}
+	if(lua_gettop(L) >= 3)
+		ign = lua_toboolean(L, 3);
+	lua_pushboolean(L, pcard->is_can_be_fusion_material(fcard, ign));
 	return 1;
 }
 int32 scriptlib::card_is_can_be_synchro_material(lua_State *L) {
@@ -1973,7 +1976,7 @@ int32 scriptlib::card_add_trap_monster_attribute(lua_State *L) {
 	peffect->owner = pcard;
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_ADD_TYPE;
-	peffect->flag = EFFECT_FLAG_CANNOT_DISABLE;
+	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 	peffect->reset_flag = RESET_EVENT + 0x47e0000;
 	peffect->value = TYPE_MONSTER | TYPE_TRAPMONSTER | extra_type;
 	pcard->add_effect(peffect);
@@ -1982,7 +1985,7 @@ int32 scriptlib::card_add_trap_monster_attribute(lua_State *L) {
 	peffect->owner = pcard;
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_ADD_ATTRIBUTE;
-	peffect->flag = EFFECT_FLAG_CANNOT_DISABLE;
+	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 	peffect->reset_flag = RESET_EVENT + 0x47e0000;
 	peffect->value = attribute;
 	pcard->add_effect(peffect);
@@ -1991,7 +1994,7 @@ int32 scriptlib::card_add_trap_monster_attribute(lua_State *L) {
 	peffect->owner = pcard;
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_ADD_RACE;
-	peffect->flag = EFFECT_FLAG_CANNOT_DISABLE;
+	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 	peffect->reset_flag = RESET_EVENT + 0x47e0000;
 	peffect->value = race;
 	pcard->add_effect(peffect);
@@ -2000,7 +2003,7 @@ int32 scriptlib::card_add_trap_monster_attribute(lua_State *L) {
 	peffect->owner = pcard;
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_CHANGE_LEVEL;
-	peffect->flag = EFFECT_FLAG_CANNOT_DISABLE;
+	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 	peffect->reset_flag = RESET_EVENT + 0x47e0000;
 	peffect->value = level;
 	pcard->add_effect(peffect);
@@ -2009,7 +2012,7 @@ int32 scriptlib::card_add_trap_monster_attribute(lua_State *L) {
 	peffect->owner = pcard;
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_SET_BASE_ATTACK;
-	peffect->flag = EFFECT_FLAG_CANNOT_DISABLE;
+	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 	peffect->reset_flag = RESET_EVENT + 0x47e0000;
 	peffect->value = atk;
 	pcard->add_effect(peffect);
@@ -2018,7 +2021,7 @@ int32 scriptlib::card_add_trap_monster_attribute(lua_State *L) {
 	peffect->owner = pcard;
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_SET_BASE_DEFENCE;
-	peffect->flag = EFFECT_FLAG_CANNOT_DISABLE;
+	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 	peffect->reset_flag = RESET_EVENT + 0x47e0000;
 	peffect->value = def;
 	pcard->add_effect(peffect);
@@ -2036,7 +2039,7 @@ int32 scriptlib::card_trap_monster_block(lua_State *L) {
 	peffect->type = EFFECT_TYPE_FIELD;
 	peffect->range = LOCATION_MZONE;
 	peffect->code = EFFECT_USE_EXTRA_SZONE;
-	peffect->flag = EFFECT_FLAG_CANNOT_DISABLE;
+	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 	peffect->reset_flag = RESET_EVENT + 0x5fe0000;
 	peffect->value = 1 + (0x10000 << pcard->previous.sequence);
 	pcard->add_effect(peffect);
@@ -2133,7 +2136,7 @@ int32 scriptlib::card_set_unique_onfield(lua_State *L) {
 	peffect->owner = pcard;
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_UNIQUE_CHECK;
-	peffect->flag = EFFECT_FLAG_COPY_INHERIT;
+	peffect->flag[0] = EFFECT_FLAG_COPY_INHERIT;
 	pcard->add_effect(peffect);
 	pcard->unique_effect = peffect;
 	if(pcard->current.location & LOCATION_ONFIELD)

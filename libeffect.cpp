@@ -57,7 +57,7 @@ int32 scriptlib::effect_clone(lua_State *L) {
 		lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->operation);
 		ceffect->operation = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
-	if(peffect->value && (peffect->flag & EFFECT_FLAG_FUNC_VALUE)) {
+	if(peffect->value && (peffect->is_flag(EFFECT_FLAG_FUNC_VALUE))) {
 		lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->value);
 		ceffect->value = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
@@ -70,7 +70,7 @@ int32 scriptlib::effect_reset(lua_State *L) {
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	if(peffect->owner == 0)
 		return 0;
-	if(peffect->flag & EFFECT_FLAG_FIELD_ONLY)
+	if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 		peffect->pduel->game_field->remove_effect(peffect);
 	else
 		peffect->handler->remove_effect(peffect);
@@ -115,7 +115,7 @@ int32 scriptlib::effect_set_target_range(lua_State *L) {
 	int32 o = lua_tointeger(L, 3);
 	peffect->s_range = s;
 	peffect->o_range = o;
-	peffect->flag &= ~EFFECT_FLAG_ABSOLUTE_TARGET;
+	peffect->flag[0] &= ~EFFECT_FLAG_ABSOLUTE_TARGET;
 	return 0;
 }
 int32 scriptlib::effect_set_absolute_range(lua_State *L) {
@@ -132,7 +132,7 @@ int32 scriptlib::effect_set_absolute_range(lua_State *L) {
 		peffect->s_range = o;
 		peffect->o_range = s;
 	}
-	peffect->flag |= EFFECT_FLAG_ABSOLUTE_TARGET;
+	peffect->flag[0] |= EFFECT_FLAG_ABSOLUTE_TARGET;
 	return 0;
 }
 int32 scriptlib::effect_set_count_limit(lua_State *L) {
@@ -145,7 +145,7 @@ int32 scriptlib::effect_set_count_limit(lua_State *L) {
 		code = lua_tointeger(L, 3);
 	if(v == 0)
 		v = 1;
-	peffect->flag |= EFFECT_FLAG_COUNT_LIMIT;
+	peffect->flag[0] |= EFFECT_FLAG_COUNT_LIMIT;
 	peffect->reset_count |= ((v << 12) & 0xf000) | ((v << 8) & 0xf00);
 	peffect->count_code = code;
 	return 0;
@@ -189,8 +189,10 @@ int32 scriptlib::effect_set_property(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 v = lua_tounsigned(L, 2);
-	peffect->flag = (peffect->flag & 0x4f) | (v & ~0x4f);
+	uint32 v1 = lua_tounsigned(L, 2);
+	uint32 v2 = lua_tounsigned(L, 3);
+	peffect->flag[0] = (peffect->flag[0] & 0x4f) | (v1 & ~0x4f);
+	peffect->flag[1] = v2;
 	return 0;
 }
 int32 scriptlib::effect_set_label(lua_State *L) {
@@ -269,13 +271,13 @@ int32 scriptlib::effect_set_value(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	if(peffect->value && (peffect->flag & EFFECT_FLAG_FUNC_VALUE))
+	if(peffect->value && (peffect->is_flag(EFFECT_FLAG_FUNC_VALUE)))
 		luaL_unref(L, LUA_REGISTRYINDEX, peffect->value);
 	if (lua_isfunction(L, 2)) {
 		peffect->value = interpreter::get_function_handle(L, 2);
-		peffect->flag |= EFFECT_FLAG_FUNC_VALUE;
+		peffect->flag[0] |= EFFECT_FLAG_FUNC_VALUE;
 	} else {
-		peffect->flag &= ~EFFECT_FLAG_FUNC_VALUE;
+		peffect->flag[0] &= ~EFFECT_FLAG_FUNC_VALUE;
 		if(lua_isboolean(L, 2))
 			peffect->value = lua_toboolean(L, 2);
 		else
@@ -341,8 +343,9 @@ int32 scriptlib::effect_get_property(lua_State *L) {
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	if (peffect) {
-		lua_pushunsigned(L, peffect->flag);
-		return 1;
+		lua_pushunsigned(L, peffect->flag[0]);
+		lua_pushunsigned(L, peffect->flag[1]);
+		return 2;
 	}
 	return 0;
 }
@@ -437,7 +440,7 @@ int32 scriptlib::effect_get_value(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	if(peffect->flag & EFFECT_FLAG_FUNC_VALUE)
+	if(peffect->is_flag(EFFECT_FLAG_FUNC_VALUE))
 		interpreter::function2value(L, peffect->value);
 	else
 		lua_pushinteger(L, (int32)peffect->value);
@@ -489,8 +492,9 @@ int32 scriptlib::effect_is_has_property(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 tflag = lua_tounsigned(L, 2);
-	if (peffect && (peffect->flag & tflag))
+	uint32 tflag1 = lua_tounsigned(L, 2);
+	uint32 tflag2 = lua_tounsigned(L, 3);
+	if (peffect && (!tflag1 || (peffect->flag[0] & tflag1)) && (!tflag2 || (peffect->flag[1] & tflag2)))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);

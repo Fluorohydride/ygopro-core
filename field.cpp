@@ -42,6 +42,7 @@ field::field(duel* pduel) {
 		player[i].disabled_location = 0;
 		player[i].used_location = 0;
 		player[i].extra_p_count = 0;
+		player[i].tag_extra_p_count = 0;
 		player[i].list_mzone.reserve(5);
 		player[i].list_szone.reserve(8);
 		player[i].list_main.reserve(45);
@@ -140,7 +141,8 @@ void field::reload_field_info() {
 		pduel->write_buffer32(peffect->description);
 	}
 }
-
+// Debug.AddCard() will call this function directly
+// check Fusion/S/X monster redirection by the rule
 void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence) {
 	if (pcard->current.location != 0)
 		return;
@@ -196,6 +198,8 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 	case LOCATION_EXTRA:
 		player[playerid].list_extra.push_back(pcard);
 		pcard->current.sequence = player[playerid].list_extra.size() - 1;
+		if((pcard->data.type & TYPE_PENDULUM) && ((pcard->operation_param >> 24) & POS_FACEUP))
+			++player[playerid].extra_p_count;
 		break;
 	}
 	pcard->apply_field_effect();
@@ -239,6 +243,8 @@ void field::remove_card(card* pcard) {
 	case LOCATION_EXTRA:
 		player[playerid].list_extra.erase(player[playerid].list_extra.begin() + pcard->current.sequence);
 		reset_sequence(playerid, LOCATION_EXTRA);
+		if((pcard->data.type & TYPE_PENDULUM) && (pcard->current.position & POS_FACEUP))
+			--player[playerid].extra_p_count;
 		break;
 	}
 	pcard->cancel_field_effect();
@@ -254,6 +260,8 @@ void field::remove_card(card* pcard) {
 	pcard->current.location = 0;
 	pcard->current.sequence = 0;
 }
+// check Fusion/S/X monster redirection by the rule
+// it will call remove_card(), add_card()
 void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence) {
 	if (!is_location_useable(playerid, location, sequence))
 		return;
@@ -388,7 +396,7 @@ void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 r
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_SET_CONTROL;
 	peffect->value = playerid;
-	peffect->flag = EFFECT_FLAG_CANNOT_DISABLE;
+	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 	peffect->reset_flag = RESET_EVENT | 0xc6c0000;
 	if(reset_count) {
 		peffect->reset_flag |= RESET_PHASE | reset_phase;
@@ -673,6 +681,7 @@ void field::tag_swap(uint8 playerid) {
 		clit->cancel_field_effect();
 	}
 	std::swap(player[playerid].list_extra, player[playerid].tag_list_extra);
+    std::swap(player[playerid].extra_p_count, player[playerid].tag_extra_p_count);
 	for(auto& clit : player[playerid].list_extra) {
 		clit->apply_field_effect();
 		clit->enable_field_effect(true);
@@ -681,6 +690,7 @@ void field::tag_swap(uint8 playerid) {
 	pduel->write_buffer8(playerid);
 	pduel->write_buffer8(player[playerid].list_main.size());
 	pduel->write_buffer8(player[playerid].list_extra.size());
+	pduel->write_buffer8(player[playerid].extra_p_count);
 	pduel->write_buffer8(player[playerid].list_hand.size());
 	if(core.deck_reversed && player[playerid].list_main.size())
 		pduel->write_buffer32(player[playerid].list_main.back()->data.code);
@@ -690,10 +700,12 @@ void field::tag_swap(uint8 playerid) {
 		pduel->write_buffer32(cit->data.code | (cit->is_position(POS_FACEUP) ? 0x80000000 : 0));
 	for(auto& cit : player[playerid].list_hand)
 		cit->update_infos_nocache(0x3ffe);
+    for(auto cit : player[playerid].list_extra)
+        pduel->write_buffer32(cit->data.code | (cit->is_position(POS_FACEUP) ? 0x80000000 : 0));
 }
 void field::add_effect(effect* peffect, uint8 owner_player) {
 	if (!peffect->handler) {
-		peffect->flag |= EFFECT_FLAG_FIELD_ONLY;
+		peffect->flag[0] |= EFFECT_FLAG_FIELD_ONLY;
 		peffect->handler = peffect->owner;
 		peffect->effect_owner = owner_player;
 		peffect->id = infos.field_id++;
@@ -724,14 +736,14 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 			it = effects.continuous_effect.insert(make_pair(peffect->code, peffect));
 	}
 	effects.indexer.insert(make_pair(peffect, it));
-	if((peffect->flag & EFFECT_FLAG_FIELD_ONLY)) {
-		if(peffect->flag & EFFECT_FLAG_OATH)
+	if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))) {
+		if(peffect->is_flag(EFFECT_FLAG_OATH))
 			effects.oath.insert(make_pair(peffect, core.reason_effect));
 		if(peffect->reset_flag & RESET_PHASE)
 			effects.pheff.insert(peffect);
 		if(peffect->reset_flag & RESET_CHAIN)
 			effects.cheff.insert(peffect);
-		if(peffect->flag & EFFECT_FLAG_COUNT_LIMIT)
+		if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 			effects.rechargeable.insert(peffect);
 	}
 }
@@ -761,14 +773,14 @@ void field::remove_effect(effect* peffect) {
 			effects.continuous_effect.erase(it);
 	}
 	effects.indexer.erase(peffect);
-	if((peffect->flag & EFFECT_FLAG_FIELD_ONLY)) {
-		if(peffect->flag & EFFECT_FLAG_OATH)
+	if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))) {
+		if(peffect->is_flag(EFFECT_FLAG_OATH))
 			effects.oath.erase(peffect);
 		if(peffect->reset_flag & RESET_PHASE)
 			effects.pheff.erase(peffect);
 		if(peffect->reset_flag & RESET_CHAIN)
 			effects.cheff.erase(peffect);
-		if(peffect->flag & EFFECT_FLAG_COUNT_LIMIT)
+		if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 			effects.rechargeable.erase(peffect);
 		core.reseted_effects.insert(peffect);
 	}
@@ -779,7 +791,7 @@ void field::remove_oath_effect(effect* reason_effect) {
 		if(rm->second == reason_effect) {
 			effect* peffect = rm->first;
 			effects.oath.erase(rm);
-			if(peffect->flag & EFFECT_FLAG_FIELD_ONLY)
+			if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 				remove_effect(peffect);
 			else
 				peffect->handler->remove_effect(peffect);
@@ -792,7 +804,7 @@ void field::reset_effect(uint32 id, uint32 reset_type) {
 		auto rm = it++;
 		auto peffect = rm->first;
 		auto pit = rm->second;
-		if (!(peffect->flag & EFFECT_FLAG_FIELD_ONLY))
+		if (!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)))
 			continue;
 		result = peffect->reset(id, reset_type);
 		if (result) {
@@ -825,7 +837,7 @@ void field::reset_phase(uint32 phase) {
 	for(auto eit = effects.pheff.begin(); eit != effects.pheff.end();) {
 		auto rm = eit++;
 		if((*rm)->reset(phase, RESET_PHASE)) {
-			if((*rm)->flag & EFFECT_FLAG_FIELD_ONLY)
+			if((*rm)->is_flag(EFFECT_FLAG_FIELD_ONLY))
 				remove_effect((*rm));
 			else
 				(*rm)->handler->remove_effect((*rm));
@@ -835,7 +847,7 @@ void field::reset_phase(uint32 phase) {
 void field::reset_chain() {
 	for(auto eit = effects.cheff.begin(); eit != effects.cheff.end();) {
 		auto rm = eit++;
-		if((*rm)->flag & EFFECT_FLAG_FIELD_ONLY)
+		if((*rm)->is_flag(EFFECT_FLAG_FIELD_ONLY))
 			remove_effect((*rm));
 		else
 			(*rm)->handler->remove_effect((*rm));
@@ -873,7 +885,7 @@ void field::filter_field_effect(uint32 code, effect_set* eset, uint8 sort) {
 		eset->sort();
 }
 void field::filter_affected_cards(effect* peffect, card_set* cset) {
-	if ((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD) || (peffect->flag & EFFECT_FLAG_PLAYER_TARGET))
+	if ((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD) || (peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET)))
 		return;
 	uint8 self = peffect->get_handler_player();
 	if(self == PLAYER_NONE)
@@ -1213,7 +1225,7 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 			rcount += pcard->operation_param;
 		} else {
 			effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_SUM);
-			if(!peffect || ((peffect->flag & EFFECT_FLAG_COUNT_LIMIT) && (peffect->reset_count & 0xf00) == 0))
+			if(!peffect || ((peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT)) && (peffect->reset_count & 0xf00) == 0))
 				continue;
 			if(ex_list_sum)
 				ex_list_sum->insert(pcard);
@@ -1373,6 +1385,7 @@ void field::adjust_disable_check_list() {
 		}
 	} while(effects.disable_check_list.size());
 }
+// adjust check_unique_onfield(), EFFECT_SELF_DESTROY, EFFECT_SELF_TOGRAVE
 void field::adjust_self_destroy_set() {
 	if(core.selfdes_disabled || !core.self_destroy_set.empty() || !core.self_tograve_set.empty())
 		return;
@@ -1984,6 +1997,7 @@ int32 field::is_player_can_sset(uint8 playerid, card * pcard) {
 	}
 	return TRUE;
 }
+// check player-effect EFFECT_CANNOT_SPECIAL_SUMMON without target
 int32 field::is_player_can_spsummon(uint8 playerid) {
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_CANNOT_SPECIAL_SUMMON, &eset);
@@ -2185,9 +2199,9 @@ int32 field::is_chain_negatable(uint8 chaincount, uint8 naga_check) {
 		peffect = core.current_chain.back().triggering_effect;
 	else
 		peffect = core.current_chain[chaincount - 1].triggering_effect;
-	if(naga_check && peffect->flag & EFFECT_FLAG_NAGA)
+	if(naga_check && peffect->is_flag(EFFECT_FLAG2_NAGA))
 		return FALSE;
-	if(peffect->flag & EFFECT_FLAG_CANNOT_DISABLE)
+	if(peffect->is_flag(EFFECT_FLAG_CANNOT_DISABLE))
 		return FALSE;
 	filter_field_effect(EFFECT_CANNOT_INACTIVATE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
@@ -2206,9 +2220,9 @@ int32 field::is_chain_disablable(uint8 chaincount, uint8 naga_check) {
 		peffect = core.current_chain.back().triggering_effect;
 	else
 		peffect = core.current_chain[chaincount - 1].triggering_effect;
-	if(naga_check && peffect->flag & EFFECT_FLAG_NAGA)
+	if(naga_check && peffect->is_flag(EFFECT_FLAG2_NAGA))
 		return FALSE;
-	if(peffect->flag & EFFECT_FLAG_CANNOT_DISABLE)
+	if(peffect->is_flag(EFFECT_FLAG_CANNOT_DISABLE))
 		return FALSE;
 	filter_field_effect(EFFECT_CANNOT_DISEFFECT, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
@@ -2228,7 +2242,7 @@ int32 field::check_chain_target(uint8 chaincount, card * pcard) {
 		pchain = &core.current_chain[chaincount - 1];
 	effect* peffect = pchain->triggering_effect;
 	uint8 tp = pchain->triggering_player;
-	if(!(peffect->flag & EFFECT_FLAG_CARD_TARGET) || !peffect->target)
+	if(!(peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) || !peffect->target)
 		return FALSE;
 	if(!pcard->is_capable_be_effect_target(peffect, tp))
 		return false;

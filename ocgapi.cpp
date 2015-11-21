@@ -127,6 +127,7 @@ void duelAdapter::new_tag_card(uint32 code, uint8 owner, uint8 location) {
 		pcard->current.controler = owner;
 		pcard->current.location = LOCATION_DECK;
 		pcard->current.sequence = pduel->game_field->player[owner].tag_list_main.size() - 1;
+		pcard->current.position = POS_FACEDOWN_DEFENCE;
 		break;
 	case LOCATION_EXTRA:
 		pduel->game_field->player[owner].tag_list_extra.push_back(pcard);
@@ -134,6 +135,7 @@ void duelAdapter::new_tag_card(uint32 code, uint8 owner, uint8 location) {
 		pcard->current.controler = owner;
 		pcard->current.location = LOCATION_EXTRA;
 		pcard->current.sequence = pduel->game_field->player[owner].tag_list_extra.size() - 1;
+		pcard->current.position = POS_FACEDOWN_DEFENCE;
 		break;
 	}
 }
@@ -167,6 +169,7 @@ int32 duelAdapter::query_field_info( byte* buf) {
 		*buf++ = pduel->game_field->player[playerid].list_grave.size();
 		*buf++ = pduel->game_field->player[playerid].list_remove.size();
 		*buf++ = pduel->game_field->player[playerid].list_extra.size();
+        *buf++ = pduel->game_field->player[playerid].extra_p_count;
 	}
 	*buf++ = pduel->game_field->core.current_chain.size();
 	for(auto chit = pduel->game_field->core.current_chain.begin(); chit != pduel->game_field->core.current_chain.end(); ++chit) {

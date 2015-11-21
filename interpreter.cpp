@@ -322,6 +322,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "SendtoGrave", scriptlib::duel_sendto_grave },
 	{ "SendtoHand", scriptlib::duel_sendto_hand },
 	{ "SendtoDeck", scriptlib::duel_sendto_deck },
+	{ "PSendtoExtra", scriptlib::duel_sendto_extra },
 	{ "GetOperatedGroup", scriptlib::duel_get_operated_group },
 	{ "Summon", scriptlib::duel_summon },
 	{ "SpecialSummonRule", scriptlib::duel_special_summon_rule },
@@ -602,7 +603,7 @@ void interpreter::unregister_effect(effect *peffect) {
 		luaL_unref(lua_state, LUA_REGISTRYINDEX, peffect->target);
 	if(peffect->operation)
 		luaL_unref(lua_state, LUA_REGISTRYINDEX, peffect->operation);
-	if(peffect->value && (peffect->flag & EFFECT_FLAG_FUNC_VALUE))
+	if(peffect->value && (peffect->is_flag(EFFECT_FLAG_FUNC_VALUE)))
 		luaL_unref(lua_state, LUA_REGISTRYINDEX, peffect->value);
 	luaL_unref(lua_state, LUA_REGISTRYINDEX, peffect->ref_handle);
 	peffect->ref_handle = 0;
