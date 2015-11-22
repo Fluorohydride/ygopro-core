@@ -869,7 +869,6 @@ int32 field::swap_control(uint16 step, effect * reason_effect, uint8 reason_play
 		pcard2->filter_disable_related_cards();
 		pcard1->set_status(STATUS_ATTACK_CANCELED, TRUE);
 		pcard2->set_status(STATUS_ATTACK_CANCELED, TRUE);
-		adjust_instant();
 		return FALSE;
 	}
 	case 1: {
@@ -884,6 +883,7 @@ int32 field::swap_control(uint16 step, effect * reason_effect, uint8 reason_play
 		pduel->write_buffer8(pcard1->current.location);
 		pduel->write_buffer8(pcard1->current.sequence);
 		pduel->write_buffer8(pcard1->current.position);
+		adjust_instant();
 		raise_single_event(pcard1, 0, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, pcard1->current.controler, 0);
 		raise_single_event(pcard2, 0, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, pcard2->current.controler, 0);
 		process_single_event();
