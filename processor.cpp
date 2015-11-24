@@ -733,7 +733,6 @@ int32 field::process() {
 						if(pcard->current.location & 0x30)
 							move_card(pcard->current.controler, pcard, pcard->current.location, 0);
 						pduel->write_buffer8(MSG_BECOME_TARGET);
-						pduel->write_buffer8(1);
 						pduel->write_buffer32(pcard->get_info_location());
 					}
 				}

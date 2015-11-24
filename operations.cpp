@@ -79,7 +79,6 @@ void field::change_target(uint8 chaincount, group* targets) {
 				if(cit->current.location & 0x30)
 					move_card(cit->current.controler, cit, cit->current.location, 0);
 				pduel->write_buffer8(MSG_BECOME_TARGET);
-				pduel->write_buffer8(1);
 				pduel->write_buffer32(cit->get_info_location());
 			}
 		}

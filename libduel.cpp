@@ -2253,14 +2253,12 @@ int32 scriptlib::duel_set_target_card(lua_State *L) {
 				if(pcard->current.location & 0x30)
 					pduel->game_field->move_card(pcard->current.controler, pcard, pcard->current.location, 0);
 				pduel->write_buffer8(MSG_BECOME_TARGET);
-				pduel->write_buffer8(1);
 				pduel->write_buffer32(pcard->get_info_location());
 			} else {
 				for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 					if((*cit)->current.location & 0x30)
 						pduel->game_field->move_card((*cit)->current.controler, (*cit), (*cit)->current.location, 0);
 					pduel->write_buffer8(MSG_BECOME_TARGET);
-					pduel->write_buffer8(1);
 					pduel->write_buffer32((*cit)->get_info_location());
 				}
 			}
@@ -2573,7 +2571,6 @@ int32 scriptlib::duel_hint_selection(lua_State *L) {
 		if(pcard->current.location & 0x30)
 			pduel->game_field->move_card(pcard->current.controler, pcard, pcard->current.location, 0);
 		pduel->write_buffer8(MSG_BECOME_TARGET);
-		pduel->write_buffer8(1);
 		pduel->write_buffer32(pcard->get_info_location());
 	}
 	return 0;
