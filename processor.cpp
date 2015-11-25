@@ -871,7 +871,6 @@ int32 field::process() {
 		}
 		pduel->lua->add_param(newgroup, PARAM_TYPE_GROUP);
 		pduel->write_buffer8(MSG_RANDOM_SELECTED);
-		pduel->write_buffer8(it->arg1);
 		pduel->write_buffer8(count);
 		for(auto& pcard : newgroup->container)
 			pduel->write_buffer32(pcard->get_info_location());
@@ -4254,8 +4253,8 @@ int32 field::add_chain(uint16 step) {
 		pduel->write_buffer8(clit.triggering_controler);
 		pduel->write_buffer8(clit.triggering_location);
 		pduel->write_buffer8(clit.triggering_sequence);
+        pduel->write_buffer8(0);
 		pduel->write_buffer32(peffect->description);
-		pduel->write_buffer8(core.current_chain.size() + 1);
 		break_effect();
 		if(core.chain_limit) {
 			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, core.chain_limit);

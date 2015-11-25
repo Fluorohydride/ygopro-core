@@ -286,8 +286,8 @@ struct card_data {
 #define MSG_DRAW				90
 #define MSG_DAMAGE				91
 #define MSG_RECOVER				92
-#define MSG_EQUIP				93
-#define MSG_LPUPDATE			94
+#define MSG_LPUPDATE			93
+#define MSG_EQUIP				94
 #define MSG_UNEQUIP				95
 #define MSG_CARD_TARGET			96
 #define MSG_CANCEL_TARGET		97

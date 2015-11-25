@@ -1252,9 +1252,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		if(cmit != counters.end()) {
 			pduel->write_buffer8(MSG_REMOVE_COUNTER);
 			pduel->write_buffer16(cmit->first);
-			pduel->write_buffer8(current.controler);
-			pduel->write_buffer8(current.location);
-			pduel->write_buffer8(current.sequence);
+			pduel->write_buffer32(get_info_location());
 			pduel->write_buffer8(cmit->second);
 			counters.erase(cmit);
 		}
@@ -1352,9 +1350,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 				if(rm->first & COUNTER_NEED_ENABLE) {
 					pduel->write_buffer8(MSG_REMOVE_COUNTER);
 					pduel->write_buffer16(rm->first);
-					pduel->write_buffer8(current.controler);
-					pduel->write_buffer8(current.location);
-					pduel->write_buffer8(current.sequence);
+					pduel->write_buffer32(get_info_location());
 					pduel->write_buffer8(rm->second);
 					counters.erase(rm);
 				}
@@ -1500,9 +1496,7 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count) {
 	counters[countertype] += count;
 	pduel->write_buffer8(MSG_ADD_COUNTER);
 	pduel->write_buffer16(countertype);
-	pduel->write_buffer8(current.controler);
-	pduel->write_buffer8(current.location);
-	pduel->write_buffer8(current.sequence);
+	pduel->write_buffer32(get_info_location());
 	pduel->write_buffer8(count);
 	return TRUE;
 }
@@ -1515,9 +1509,7 @@ int32 card::remove_counter(uint16 countertype, uint16 count) {
 	else cmit->second -= count;
 	pduel->write_buffer8(MSG_REMOVE_COUNTER);
 	pduel->write_buffer16(countertype);
-	pduel->write_buffer8(current.controler);
-	pduel->write_buffer8(current.location);
-	pduel->write_buffer8(current.sequence);
+	pduel->write_buffer32(get_info_location());
 	pduel->write_buffer8(count);
 	return TRUE;
 }

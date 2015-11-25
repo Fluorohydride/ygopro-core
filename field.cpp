@@ -539,7 +539,6 @@ void field::shuffle(uint8 playerid, uint8 location) {
 	if(location == LOCATION_HAND) {
 		pduel->write_buffer8(MSG_SHUFFLE_HAND);
 		pduel->write_buffer8(playerid);
-		pduel->write_buffer8(player[playerid].list_hand.size());
 		for(auto& cit : svector)
 			pduel->write_buffer32(cit->data.code);
 		core.shuffle_hand_check[playerid] = FALSE;
