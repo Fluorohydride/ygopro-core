@@ -1612,7 +1612,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			bool act = true;
 			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 			        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x3) 
-						|| !(peffect->handler->current.location & 0x3) || peffect->handler->is_status(STATUS_IS_PUBLIC))) {
+						|| !(peffect->handler->current.location & 0x3) || peffect->handler->is_position(POS_FACEUP))) {
 				if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) {
 					if(tp == infos.turn_player) {
 						for(auto tpit = core.tpchain.begin(); tpit != core.tpchain.end(); ++tpit) {
@@ -1715,7 +1715,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		bool act = true;
 		if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 		        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x3)
-		            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_status(STATUS_IS_PUBLIC))) {
+		            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_position(POS_FACEUP))) {
 			if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
 			        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(peffect))
 			            || (peffect->range & LOCATION_HAND))) {
@@ -1776,7 +1776,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			bool act = true;
 			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 			        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x3)
-			            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_status(STATUS_IS_PUBLIC))) {
+			            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_position(POS_FACEUP))) {
 				if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
 				        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(peffect))
 				            || (peffect->range & LOCATION_HAND))) {
@@ -4668,7 +4668,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 	case 10: {
 		effect* peffect = cait->triggering_effect;
 		card* pcard = peffect->handler;
-		if((cait->flag & CHAIN_HAND_EFFECT) && !pcard->is_status(STATUS_IS_PUBLIC) && (pcard->current.location == LOCATION_HAND))
+		if((cait->flag & CHAIN_HAND_EFFECT) && !pcard->is_position(POS_FACEUP) && (pcard->current.location == LOCATION_HAND))
 			shuffle(pcard->current.controler, LOCATION_HAND);
 		if(cait->target_cards && cait->target_cards->container.size()) {
 			for(auto cit = cait->target_cards->container.begin(); cit != cait->target_cards->container.end(); ++cit)
@@ -5220,16 +5220,16 @@ int32 field::adjust_step(uint16 step) {
 		for(uint32 i = 0; i < player[0].list_hand.size(); ++i) {
 			card* pcard = player[0].list_hand[i];
 			int32 pub = pcard->is_affected_by_effect(EFFECT_PUBLIC) ? TRUE : FALSE;
-			if(!pub && (pcard->status & STATUS_IS_PUBLIC))
+			if(!pub && pcard->is_position(POS_FACEUP))
 				core.shuffle_hand_check[0] = TRUE;
-			pcard->set_status(STATUS_IS_PUBLIC, pub);
+			pcard->current.position = pub ? POS_FACEUP : POS_FACEDOWN;
 		}
 		for(uint32 i = 0; i < player[1].list_hand.size(); ++i) {
 			card* pcard = player[1].list_hand[i];
 			int32 pub = pcard->is_affected_by_effect(EFFECT_PUBLIC) ? TRUE : FALSE;
-			if(!pub && (pcard->status & STATUS_IS_PUBLIC))
+			if(!pub && pcard->is_position(POS_FACEUP))
 				core.shuffle_hand_check[1] = TRUE;
-			pcard->set_status(STATUS_IS_PUBLIC, pub);
+			pcard->current.position = pub ? POS_FACEUP : POS_FACEDOWN;
 		}
 		if(core.shuffle_hand_check[infos.turn_player])
 			shuffle(infos.turn_player, LOCATION_HAND);

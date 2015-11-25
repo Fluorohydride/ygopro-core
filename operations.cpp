@@ -316,6 +316,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 				core.overdraw[playerid] = TRUE;
 				break;
 			}
+			bool is_public = false;
 			drawed++;
 			pcard = *(player[playerid].list_main.rbegin());
 			pcard->enable_field_effect(FALSE);
@@ -330,12 +331,15 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			pcard->current.reason_player = reason_player;
 			pcard->current.reason = reason | REASON_DRAW;
 			pcard->current.location = 0;
+			if(pcard->current.position == POS_FACEUP_ATTACK)
+				is_public = true;
 			add_card(playerid, pcard, LOCATION_HAND, 0);
 			pcard->enable_field_effect(TRUE);
-			if((pcard->current.position == POS_FACEUP_ATTACK) || pcard->is_affected_by_effect(EFFECT_PUBLIC)) {
+			if(pcard->is_affected_by_effect(EFFECT_PUBLIC))
+				is_public = true;
+			if(is_public) {
 				public_count++;
-				if(pcard->current.position != POS_FACEUP_ATTACK)
-					pcard->set_status(STATUS_IS_PUBLIC, TRUE);
+				pcard->current.position = POS_FACEUP;
 			}
 			cv.push_back(pcard);
 			pcard->reset(RESET_TOHAND, RESET_EVENT);
@@ -365,7 +369,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			pduel->write_buffer8(playerid);
 			pduel->write_buffer8(drawed);
 			for(uint32 i = 0; i < drawed; ++i)
-				pduel->write_buffer32(cv[i]->data.code | (cv[i]->is_status(STATUS_IS_PUBLIC) ? 0x80000000 : 0));
+				pduel->write_buffer32(cv[i]->data.code | (cv[i]->is_position(POS_FACEUP) ? 0x80000000 : 0));
 			if(core.deck_reversed && (public_count < drawed)) {
 				pduel->write_buffer8(MSG_CONFIRM_CARDS);
 				pduel->write_buffer8(1 - playerid);

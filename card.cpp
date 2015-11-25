@@ -179,7 +179,7 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 			query_flag &= ~QUERY_IS_DISABLED;
 	}
 	if(query_flag & QUERY_IS_PUBLIC)
-		*p++ = (status & STATUS_IS_PUBLIC) ? 1 : 0;
+		*p++ = is_position(POS_FACEUP) ? 1 : 0;
 	if(!use_cache) {
 		if(query_flag & QUERY_LSCALE) q_cache.lscale = *p++ = get_lscale();
 		if(query_flag & QUERY_RSCALE) q_cache.rscale = *p++ = get_rscale();

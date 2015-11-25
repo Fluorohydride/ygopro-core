@@ -157,15 +157,17 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 	pcard->current.controler = playerid;
 	pcard->current.location = location;
 	switch (location) {
-	case LOCATION_MZONE:
+	case LOCATION_MZONE: {
 		player[playerid].list_mzone[sequence] = pcard;
 		pcard->current.sequence = sequence;
 		break;
-	case LOCATION_SZONE:
+	}
+	case LOCATION_SZONE: {
 		player[playerid].list_szone[sequence] = pcard;
 		pcard->current.sequence = sequence;
 		break;
-	case LOCATION_DECK:
+	}
+	case LOCATION_DECK: {
 		if (sequence == 0) {		//deck top
 			player[playerid].list_main.push_back(pcard);
 			pcard->current.sequence = player[playerid].list_main.size() - 1;
@@ -182,26 +184,33 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 			pcard->current.position = POS_FACEDOWN;
 		}
 		break;
-	case LOCATION_HAND:
+	}
+	case LOCATION_HAND: {
 		player[playerid].list_hand.push_back(pcard);
 		pcard->current.sequence = player[playerid].list_hand.size() - 1;
+		uint32 pos = pcard->is_affected_by_effect(EFFECT_PUBLIC) ? POS_FACEUP : POS_FACEDOWN;
+		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (pos << 24);
 		if(!(pcard->current.reason & REASON_DRAW) && !core.shuffle_check_disabled)
 			core.shuffle_hand_check[playerid] = TRUE;
 		break;
-	case LOCATION_GRAVE:
+	}
+	case LOCATION_GRAVE: {
 		player[playerid].list_grave.push_back(pcard);
 		pcard->current.sequence = player[playerid].list_grave.size() - 1;
 		break;
-	case LOCATION_REMOVED:
+	}
+	case LOCATION_REMOVED: {
 		player[playerid].list_remove.push_back(pcard);
 		pcard->current.sequence = player[playerid].list_remove.size() - 1;
 		break;
-	case LOCATION_EXTRA:
+	}
+	case LOCATION_EXTRA: {
 		player[playerid].list_extra.push_back(pcard);
 		pcard->current.sequence = player[playerid].list_extra.size() - 1;
 		if((pcard->data.type & TYPE_PENDULUM) && ((pcard->operation_param >> 24) & POS_FACEUP))
 			++player[playerid].extra_p_count;
 		break;
+	}
 	}
 	pcard->apply_field_effect();
 	pcard->fieldid = infos.field_id++;
@@ -518,7 +527,7 @@ void field::shuffle(uint8 playerid, uint8 location) {
 	if(location == LOCATION_HAND) {
 		bool shuffle = false;
 		for(auto cit = svector.begin(); cit != svector.end(); ++cit)
-			if(!(*cit)->is_status(STATUS_IS_PUBLIC))
+			if(!(*cit)->is_position(POS_FACEUP))
 				shuffle = true;
 		if(!shuffle) {
 			core.shuffle_hand_check[playerid] = FALSE;
@@ -703,7 +712,7 @@ void field::tag_swap(uint8 playerid) {
 	else
 		pduel->write_buffer32(0);
 	for(auto cit = player[playerid].list_hand.begin(); cit != player[playerid].list_hand.end(); ++cit)
-		pduel->write_buffer32((*cit)->data.code | ((*cit)->is_status(STATUS_IS_PUBLIC) ? 0x80000000 : 0));
+		pduel->write_buffer32((*cit)->data.code | ((*cit)->is_position(POS_FACEUP) ? 0x80000000 : 0));
 	for(auto cit = player[playerid].list_extra.begin(); cit != player[playerid].list_extra.end(); ++cit)
 		pduel->write_buffer32((*cit)->data.code | ((*cit)->is_position(POS_FACEUP) ? 0x80000000 : 0));
 }
