@@ -4361,7 +4361,6 @@ int32 field::add_chain(uint16 step) {
 			}
 		}
 		pduel->write_buffer8(MSG_CHAINED);
-		pduel->write_buffer8(clit.chain_count);
 		raise_event(peffect->handler, EVENT_CHAINING, peffect, 0, clit.triggering_player, clit.triggering_player, clit.chain_count);
 		process_instant_event();
 		if(core.new_chains.size())
@@ -4657,7 +4656,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		else
 			core.conti_player = PLAYER_NONE;
 		pduel->write_buffer8(MSG_CHAIN_SOLVED);
-		pduel->write_buffer8(cait->chain_count);
 		raise_event((card*)0, EVENT_CHAIN_SOLVED, cait->triggering_effect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
 		adjust_instant();
 		process_instant_event();
