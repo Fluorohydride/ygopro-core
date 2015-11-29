@@ -166,7 +166,7 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 	if(query_flag & QUERY_COUNTERS) {
 		*p++ = counters.size();
 		for(auto cmit = counters.begin(); cmit != counters.end(); ++cmit)
-			*p++ = cmit->first + (cmit->second << 16);
+			*p++ = cmit->first + ((cmit->second[0] + cmit->second[1]) << 16);
 	}
 	if(query_flag & QUERY_OWNER)
 		*p++ = owner;
@@ -1155,7 +1155,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			pduel->write_buffer8(current.controler);
 			pduel->write_buffer8(current.location);
 			pduel->write_buffer8(current.sequence);
-			pduel->write_buffer8(cmit->second);
+			pduel->write_buffer8(cmit->second[0] + cmit->second[1]);
 			counters.erase(cmit);
 		}
 	}
@@ -1249,14 +1249,16 @@ void card::reset(uint32 id, uint32 reset_type) {
 		if(id & RESET_DISABLE) {
 			for(auto cmit = counters.begin(); cmit != counters.end();) {
 				auto rm = cmit++;
-				if(rm->first & COUNTER_NEED_ENABLE) {
+				if(rm->second[1] > 0) {
 					pduel->write_buffer8(MSG_REMOVE_COUNTER);
 					pduel->write_buffer16(rm->first);
 					pduel->write_buffer8(current.controler);
 					pduel->write_buffer8(current.location);
 					pduel->write_buffer8(current.sequence);
-					pduel->write_buffer8(rm->second);
-					counters.erase(rm);
+					pduel->write_buffer8(rm->second[1]);
+					rm->second[1] = 0;
+					if(rm->second[0] == 0)
+						counters.erase(rm);
 				}
 			}
 		}
@@ -1397,9 +1399,21 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count) {
 	if(!is_can_add_counter(playerid, countertype, count))
 		return FALSE;
-	counters[countertype] += count;
+	uint16 cttype = countertype;
+	if((countertype & COUNTER_NEED_ENABLE) && !(countertype & COUNTER_NEED_PERMIT))
+		cttype &= 0xfff;
+	auto pr = counters.insert(std::make_pair(cttype, counter_map::mapped_type()));
+	auto cmit = pr.first;
+	if(pr.second) {
+		cmit->second[0] = 0;
+		cmit->second[1] = 0;
+	}
+	if(!(countertype & COUNTER_NEED_ENABLE))
+		cmit->second[0] += count;
+	else
+		cmit->second[1] += count;
 	pduel->write_buffer8(MSG_ADD_COUNTER);
-	pduel->write_buffer16(countertype);
+	pduel->write_buffer16(cttype);
 	pduel->write_buffer8(current.controler);
 	pduel->write_buffer8(current.location);
 	pduel->write_buffer8(current.sequence);
@@ -1410,9 +1424,16 @@ int32 card::remove_counter(uint16 countertype, uint16 count) {
 	auto cmit = counters.find(countertype);
 	if(cmit == counters.end())
 		return FALSE;
-	if(cmit->second <= count)
-		counters.erase(cmit);
-	else cmit->second -= count;
+	if(cmit->second[1] <= count) {
+		uint16 remains = count;
+		remains -= cmit->second[1];
+		cmit->second[1] = 0;
+		if(cmit->second[0] <= remains)
+			counters.erase(cmit);
+		else cmit->second[0] -= remains;
+	} else {
+		cmit->second[1] -= count;
+	}
 	pduel->write_buffer8(MSG_REMOVE_COUNTER);
 	pduel->write_buffer16(countertype);
 	pduel->write_buffer8(current.controler);
@@ -1431,12 +1452,15 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count)
 		return FALSE;
 	if((countertype & COUNTER_NEED_PERMIT) && !is_affected_by_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff)))
 		return FALSE;
+	uint16 cttype = countertype;
+	if((countertype & COUNTER_NEED_ENABLE) && !(countertype & COUNTER_NEED_PERMIT))
+		cttype &= 0xfff;
 	int32 limit = -1;
 	int32 cur = 0;
-	auto cmit = counters.find(countertype);
+	auto cmit = counters.find(cttype);
 	if(cmit != counters.end())
-		cur = cmit->second;
-	filter_effect(EFFECT_COUNTER_LIMIT + countertype, &eset);
+		cur = cmit->second[0] + cmit->second[1];
+	filter_effect(EFFECT_COUNTER_LIMIT + cttype, &eset);
 	for(int32 i = 0; i < eset.size(); ++i)
 		limit = eset[i]->get_value();
 	if(limit > 0 && (cur + count > limit))
@@ -1447,7 +1471,7 @@ int32 card::get_counter(uint16 countertype) {
 	auto cmit = counters.find(countertype);
 	if(cmit == counters.end())
 		return 0;
-	return cmit->second;
+	return cmit->second[0] + cmit->second[1];
 }
 void card::set_material(card_set* materials) {
 	if(!materials) {
