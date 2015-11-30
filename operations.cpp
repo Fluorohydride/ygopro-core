@@ -879,15 +879,9 @@ int32 field::swap_control(uint16 step, effect * reason_effect, uint8 reason_play
 	case 1: {
 		pduel->write_buffer8(MSG_SWAP);
 		pduel->write_buffer32(pcard1->data.code);
-		pduel->write_buffer8(pcard2->current.controler);
-		pduel->write_buffer8(pcard2->current.location);
-		pduel->write_buffer8(pcard2->current.sequence);
-		pduel->write_buffer8(pcard2->current.position);
+		pduel->write_buffer32(pcard2->get_info_location());
 		pduel->write_buffer32(pcard2->data.code);
-		pduel->write_buffer8(pcard1->current.controler);
-		pduel->write_buffer8(pcard1->current.location);
-		pduel->write_buffer8(pcard1->current.sequence);
-		pduel->write_buffer8(pcard1->current.position);
+		pduel->write_buffer32(pcard1->get_info_location());
 		raise_single_event(pcard1, 0, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, pcard1->current.controler, 0);
 		raise_single_event(pcard2, 0, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, pcard2->current.controler, 0);
 		process_single_event();
@@ -995,15 +989,9 @@ int32 field::control_adjust(uint16 step) {
 			pcard2->reset(RESET_CONTROL, RESET_EVENT);
 			pduel->write_buffer8(MSG_SWAP);
 			pduel->write_buffer32(pcard1->data.code);
-			pduel->write_buffer8(pcard2->current.controler);
-			pduel->write_buffer8(pcard2->current.location);
-			pduel->write_buffer8(pcard2->current.sequence);
-			pduel->write_buffer8(pcard2->current.position);
+			pduel->write_buffer32(pcard2->get_info_location());
 			pduel->write_buffer32(pcard2->data.code);
-			pduel->write_buffer8(pcard1->current.controler);
-			pduel->write_buffer8(pcard1->current.location);
-			pduel->write_buffer8(pcard1->current.sequence);
-			pduel->write_buffer8(pcard1->current.position);
+			pduel->write_buffer32(pcard1->get_info_location());
 		}
 		card_set* adjust_set = new card_set;
 		core.units.begin()->ptarget = (group*)adjust_set;

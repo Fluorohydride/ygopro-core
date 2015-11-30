@@ -4515,7 +4515,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			core.spsummon_rst = false;
 		}
 		pduel->write_buffer8(MSG_CHAIN_SOLVING);
-		pduel->write_buffer8(cait->chain_count);
 		add_to_disable_check_list(cait->triggering_effect->handler);
 		adjust_instant();
 		raise_event((card*)0, EVENT_CHAIN_ACTIVATING, cait->triggering_effect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
