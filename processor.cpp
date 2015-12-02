@@ -5043,12 +5043,15 @@ int32 field::adjust_step(uint16 step) {
 			core.overdraw[0] = core.overdraw[1] = FALSE;
 			core.win_player = 5;
 			core.win_reason = 0;
+			core.win_code = 0;
 		} else if(core.win_player != 5) {
 			pduel->write_buffer8(MSG_WIN);
 			pduel->write_buffer8(core.win_player);
 			pduel->write_buffer8(core.win_reason);
+			pduel->write_buffer32(core.win_code);
 			core.win_player = 5;
 			core.win_reason = 0;
+			core.win_code = 0;
 			core.overdraw[0] = core.overdraw[1] = FALSE;
 		}
 		return FALSE;
