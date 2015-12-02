@@ -2279,6 +2279,16 @@ int32 card::is_capable_send_to_grave(uint8 playerid) {
 		return FALSE;
 	if(!pduel->game_field->is_player_can_send_to_grave(playerid, this))
 		return FALSE;
+	uint32 reason = current.reason;
+	uint32 dest = LOCATION_GRAVE;
+	uint32 loc = current.location;
+	if (loc & dest)
+		return FALSE;
+	uint32 set[3]={LOCATION_HAND,LOCATION_DECK,LOCATION_REMOVED};
+	for(int i = 0; i < 3; i++) {
+		if ((loc & set[i]) && ((destination_redirect(dest, reason) & 0xffff) == set[i]))
+			return FALSE;
+	}
 	return TRUE;
 }
 int32 card::is_capable_send_to_hand(uint8 playerid) {
@@ -2290,6 +2300,16 @@ int32 card::is_capable_send_to_hand(uint8 playerid) {
 		return FALSE;
 	if(!pduel->game_field->is_player_can_send_to_hand(playerid, this))
 		return FALSE;
+	uint32 reason = current.reason;
+	uint32 dest = LOCATION_HAND;
+	uint32 loc = current.location;
+	if (loc & dest)
+		return FALSE;
+	uint32 set[3]={LOCATION_DECK,LOCATION_GRAVE,LOCATION_REMOVED};
+	for(int i = 0; i < 3; i++) {
+		if ((loc & set[i]) && ((destination_redirect(dest, reason) & 0xffff) == set[i]))
+			return FALSE;
+	}
 	return TRUE;
 }
 int32 card::is_capable_send_to_deck(uint8 playerid) {
@@ -2301,6 +2321,16 @@ int32 card::is_capable_send_to_deck(uint8 playerid) {
 		return FALSE;
 	if(!pduel->game_field->is_player_can_send_to_deck(playerid, this))
 		return FALSE;
+	uint32 reason = current.reason;
+	uint32 dest = LOCATION_DECK;
+	uint32 loc = current.location;
+	if (loc & dest)
+		return FALSE;
+	uint32 set[3]={LOCATION_HAND,LOCATION_GRAVE,LOCATION_REMOVED};
+	for(int i = 0; i < 3; i++) {
+		if ((loc & set[i]) && ((destination_redirect(dest, reason) & 0xffff) == set[i]))
+			return FALSE;
+	}
 	return TRUE;
 }
 int32 card::is_capable_send_to_extra(uint8 playerid) {
@@ -2310,6 +2340,16 @@ int32 card::is_capable_send_to_extra(uint8 playerid) {
 		return FALSE;
 	if(!pduel->game_field->is_player_can_send_to_deck(playerid, this))
 		return FALSE;
+	uint32 reason = current.reason;
+	uint32 dest = LOCATION_DECK;
+	uint32 loc = current.location;
+	if (loc & LOCATION_EXTRA)
+		return FALSE;
+	uint32 set[3]={LOCATION_HAND,LOCATION_GRAVE,LOCATION_REMOVED};
+	for(int i = 0; i < 3; i++) {
+		if ((loc & set[i]) && ((destination_redirect(dest, reason) & 0xffff) == set[i]))
+			return FALSE;
+	}
 	return TRUE;
 }
 int32 card::is_capable_cost_to_grave(uint8 playerid) {
