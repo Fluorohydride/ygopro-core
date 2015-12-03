@@ -5219,14 +5219,14 @@ int32 field::adjust_step(uint16 step) {
 		//shuffle check
 		for(uint32 i = 0; i < player[0].list_hand.size(); ++i) {
 			card* pcard = player[0].list_hand[i];
-			int32 pub = pcard->is_affected_by_effect(EFFECT_PUBLIC) ? TRUE : FALSE;
+			effect* pub = pcard->is_affected_by_effect(EFFECT_PUBLIC);
 			if(!pub && pcard->is_position(POS_FACEUP))
 				core.shuffle_hand_check[0] = TRUE;
 			pcard->current.position = pub ? POS_FACEUP : POS_FACEDOWN;
 		}
 		for(uint32 i = 0; i < player[1].list_hand.size(); ++i) {
 			card* pcard = player[1].list_hand[i];
-			int32 pub = pcard->is_affected_by_effect(EFFECT_PUBLIC) ? TRUE : FALSE;
+			effect* pub = pcard->is_affected_by_effect(EFFECT_PUBLIC);
 			if(!pub && pcard->is_position(POS_FACEUP))
 				core.shuffle_hand_check[1] = TRUE;
 			pcard->current.position = pub ? POS_FACEUP : POS_FACEDOWN;

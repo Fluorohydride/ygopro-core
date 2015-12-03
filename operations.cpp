@@ -316,9 +316,8 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 				core.overdraw[playerid] = TRUE;
 				break;
 			}
-			bool is_public = false;
 			drawed++;
-			pcard = *(player[playerid].list_main.rbegin());
+			pcard = player[playerid].list_main.back();
 			pcard->enable_field_effect(FALSE);
 			pcard->cancel_field_effect();
 			player[playerid].list_main.pop_back();
@@ -331,16 +330,12 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			pcard->current.reason_player = reason_player;
 			pcard->current.reason = reason | REASON_DRAW;
 			pcard->current.location = 0;
-			if(pcard->current.position == POS_FACEUP_ATTACK)
-				is_public = true;
 			add_card(playerid, pcard, LOCATION_HAND, 0);
 			pcard->enable_field_effect(TRUE);
-			if(pcard->is_affected_by_effect(EFFECT_PUBLIC))
-				is_public = true;
-			if(is_public) {
+			effect* pub = pcard->is_affected_by_effect(EFFECT_PUBLIC);
+			if(pub || pcard->current.position == POS_FACEUP_ATTACK)
 				public_count++;
-				pcard->current.position = POS_FACEUP;
-			}
+			pcard->current.position = pub ? POS_FACEUP : POS_FACEDOWN;
 			cv.push_back(pcard);
 			pcard->reset(RESET_TOHAND, RESET_EVENT);
 		}
@@ -353,7 +348,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 		if(drawed) {
 			if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
 				if(player[playerid].list_main.size()) {
-					card* ptop = *player[playerid].list_main.rbegin();
+					card* ptop = player[playerid].list_main.back();
 					if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENCE)) {
 						pduel->write_buffer8(MSG_DECK_TOP);
 						pduel->write_buffer8(playerid);
