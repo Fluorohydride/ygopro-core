@@ -174,6 +174,8 @@ void field::special_summon_complete(effect* reason_effect, uint8 reason_player) 
 	//core.special_summoning.clear();
 	add_process(PROCESSOR_SPSUMMON_COMP_S, 0, reason_effect, ng, reason_player, 0);
 }
+// destroy in script: here->PROCESSOR_DESTROY, step 0
+// set current.reason
 void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence) {
 	uint32 p;
 	for(auto cit = targets->begin(); cit != targets->end();) {
@@ -230,7 +232,8 @@ void field::release(card* target, effect* reason_effect, uint32 reason, uint32 r
 	tset.insert(target);
 	release(&tset, reason_effect, reason, reason_player);
 }
-// send to locations other than LOCATION_ONFIELD
+// set current.reason and send to locations other than LOCATION_ONFIELD
+// send-to in scripts: here->PROCESSOR_SENDTO, step 0
 void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence, uint32 position) {
 	if(destination & LOCATION_ONFIELD)
 		return;
@@ -3058,9 +3061,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		card_set leave_p, destroying;
 		for(auto cit = targets->container.begin(); cit != targets->container.end(); ++cit) {
 			card* pcard = *cit;
-			if((pcard->current.location == LOCATION_MZONE) && pcard->is_status(STATUS_BATTLE_DESTROYED) 
-					&& !(pcard->current.reason & REASON_RULE) 
-					&& (pcard->current.reason & (REASON_DESTROY | REASON_EFFECT)) != (REASON_DESTROY | REASON_EFFECT)) {
+			if((pcard->current.location == LOCATION_MZONE) && pcard->is_status(STATUS_BATTLE_DESTROYED) && !(pcard->current.reason & REASON_RULE)
+					&& (pcard->current.reason & (REASON_EFFECT + REASON_DESTROY)) != (REASON_EFFECT + REASON_DESTROY) && !(pcard->current.reason & REASON_BATTLE)) {
 				pcard->current.reason |= REASON_DESTROY | REASON_BATTLE;
 				raise_single_event(pcard, 0, EVENT_DESTROY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 				destroying.insert(pcard);
@@ -3442,7 +3444,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				released.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_RELEASE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
-			if(pcard->current.reason & REASON_DESTROY && !pcard->is_status(STATUS_BATTLE_DESTROYED)) {
+			// non-battle destroy
+			if(pcard->current.reason & REASON_DESTROY && !(pcard->current.reason & REASON_BATTLE)) {
 				destroyed.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_DESTROYED, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}

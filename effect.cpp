@@ -57,7 +57,7 @@ int32 effect::is_disable_related() {
 		return TRUE;
 	return FALSE;
 }
-// check if a single/field/field effect is available
+// check if a single/field/equip effect is available
 // check range, EFFECT_FLAG_OWNER_RELATE, STATUS_BATTLE_DESTROYED, STATUS_EFFECT_ENABLED
 int32 effect::is_available() {
 	if (type & EFFECT_TYPE_ACTIONS)
