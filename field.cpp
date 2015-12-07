@@ -2244,6 +2244,8 @@ int32 field::is_chain_triggerable(chain pchain) {
 	if(pchain.triggering_location & (LOCATION_DECK | LOCATION_HAND))
 		return TRUE;
 	card* pcard = peffect->handler;
+	if((peffect->active_type & TYPE_MONSTER) && !(pcard->get_type() & TYPE_MONSTER))
+		return FALSE;
 	if(!(pcard->current.location & (LOCATION_DECK | LOCATION_HAND)) || pcard->is_position(POS_FACEUP))
 		return TRUE;
 	return FALSE;
