@@ -2245,7 +2245,7 @@ int32 field::is_chain_triggerable(chain pchain) {
 		return TRUE;
 	card* pcard = peffect->handler;
 	if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && (peffect->type & EFFECT_TYPE_FIELD)
-		&& !peffect->in_range(pcard->current.location, pcard->current.sequence))
+		&& !pcard->is_has_relation(peffect))
 		return FALSE;
 	if(!(pcard->current.location & (LOCATION_DECK | LOCATION_HAND)) || pcard->is_position(POS_FACEUP))
 		return TRUE;
