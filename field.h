@@ -387,7 +387,7 @@ public:
 	void attack_all_target_check();
 	int32 check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
 	int32 check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
-	int32 check_with_sum_limit(card_vector* mats, int32 acc, int32 index, int32 count, int32 min, int32 max);
+	static int32 check_with_sum_limit(card_vector* mats, int32 acc, int32 index, int32 count, int32 min, int32 max);
 	int32 check_xyz_material(card* pcard, int32 findex, int32 lv, int32 min, int32 max, group* mg);
 	
 	int32 is_player_can_draw(uint8 playerid);

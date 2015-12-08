@@ -291,7 +291,7 @@ int32 scriptlib::group_check_with_sum_equal(lua_State *L) {
 		(*cit)->operation_param = pduel->lua->get_operation_value(*cit, 2, extraargs);
 		cv.push_back(*cit);
 	}
-	lua_pushboolean(L, pduel->game_field->check_with_sum_limit(&cv, acc, 0, 1, min, max));
+	lua_pushboolean(L, field::check_with_sum_limit(&cv, acc, 0, 1, min, max));
 	return 1;
 }
 int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
