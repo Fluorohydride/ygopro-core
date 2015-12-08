@@ -876,15 +876,9 @@ int32 field::swap_control(uint16 step, effect * reason_effect, uint8 reason_play
 	case 1: {
 		pduel->write_buffer8(MSG_SWAP);
 		pduel->write_buffer32(pcard1->data.code);
-		pduel->write_buffer8(pcard2->current.controler);
-		pduel->write_buffer8(pcard2->current.location);
-		pduel->write_buffer8(pcard2->current.sequence);
-		pduel->write_buffer8(pcard2->current.position);
+		pduel->write_buffer32(pcard2->get_info_location());
 		pduel->write_buffer32(pcard2->data.code);
-		pduel->write_buffer8(pcard1->current.controler);
-		pduel->write_buffer8(pcard1->current.location);
-		pduel->write_buffer8(pcard1->current.sequence);
-		pduel->write_buffer8(pcard1->current.position);
+		pduel->write_buffer32(pcard1->get_info_location());
 		adjust_instant();
 		raise_single_event(pcard1, 0, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, pcard1->current.controler, 0);
 		raise_single_event(pcard2, 0, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, pcard2->current.controler, 0);
@@ -992,15 +986,9 @@ int32 field::control_adjust(uint16 step) {
 			pcard2->reset(RESET_CONTROL, RESET_EVENT);
 			pduel->write_buffer8(MSG_SWAP);
 			pduel->write_buffer32(pcard1->data.code);
-			pduel->write_buffer8(pcard2->current.controler);
-			pduel->write_buffer8(pcard2->current.location);
-			pduel->write_buffer8(pcard2->current.sequence);
-			pduel->write_buffer8(pcard2->current.position);
+			pduel->write_buffer32(pcard2->get_info_location());
 			pduel->write_buffer32(pcard2->data.code);
-			pduel->write_buffer8(pcard1->current.controler);
-			pduel->write_buffer8(pcard1->current.location);
-			pduel->write_buffer8(pcard1->current.sequence);
-			pduel->write_buffer8(pcard1->current.position);
+			pduel->write_buffer32(pcard1->get_info_location());
 		}
 		card_set* adjust_set = new card_set;
 		core.units.begin()->ptarget = (group*)adjust_set;
@@ -1512,10 +1500,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		target->summon_player = sumplayer;
 		pduel->write_buffer8(MSG_SUMMONING);
 		pduel->write_buffer32(target->data.code);
-		pduel->write_buffer8(target->current.controler);
-		pduel->write_buffer8(target->current.location);
-		pduel->write_buffer8(target->current.sequence);
-		pduel->write_buffer8(target->current.position);
+		pduel->write_buffer32(target->get_info_location());
 		core.summon_state_count[sumplayer]++;
 		core.normalsummon_state_count[sumplayer]++;
 		check_card_counter(target, 1, sumplayer);
@@ -1638,10 +1623,7 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target) {
 		check_card_counter(target, 4, sumplayer);
 		pduel->write_buffer8(MSG_FLIPSUMMONING);
 		pduel->write_buffer32(target->data.code);
-		pduel->write_buffer8(target->current.controler);
-		pduel->write_buffer8(target->current.location);
-		pduel->write_buffer8(target->current.sequence);
-		pduel->write_buffer8(target->current.position);
+		pduel->write_buffer32(target->get_info_location());
 		if(target->is_affected_by_effect(EFFECT_CANNOT_DISABLE_FLIP_SUMMON))
 			core.units.begin()->step = 2;
 		else {
@@ -1914,10 +1896,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 		target->set_status(STATUS_SUMMON_TURN, TRUE);
 		pduel->write_buffer8(MSG_SET);
 		pduel->write_buffer32(target->data.code);
-		pduel->write_buffer8(target->current.controler);
-		pduel->write_buffer8(target->current.location);
-		pduel->write_buffer8(target->current.sequence);
-		pduel->write_buffer8(target->current.position);
+		pduel->write_buffer32(target->get_info_location());
 		adjust_instant();
 		raise_event(target, EVENT_MSET, proc, 0, setplayer, setplayer, 0);
 		process_instant_event();
@@ -1975,10 +1954,7 @@ int32 field::sset(uint16 step, uint8 setplayer, uint8 toplayer, card * target) {
 		}
 		pduel->write_buffer8(MSG_SET);
 		pduel->write_buffer32(target->data.code);
-		pduel->write_buffer8(target->current.controler);
-		pduel->write_buffer8(target->current.location);
-		pduel->write_buffer8(target->current.sequence);
-		pduel->write_buffer8(target->current.position);
+		pduel->write_buffer32(target->get_info_location());
 		adjust_instant();
 		raise_event(target, EVENT_SSET, 0, 0, setplayer, setplayer, 0);
 		process_instant_event();
@@ -2040,10 +2016,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		}
 		pduel->write_buffer8(MSG_SET);
 		pduel->write_buffer32(target->data.code);
-		pduel->write_buffer8(target->current.controler);
-		pduel->write_buffer8(target->current.location);
-		pduel->write_buffer8(target->current.sequence);
-		pduel->write_buffer8(target->current.position);
+		pduel->write_buffer32(target->get_info_location());
 		core.operated_set.insert(target);
 		set_cards->erase(target);
 		if(!set_cards->empty())
@@ -2184,10 +2157,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		core.summoning_card = target;
 		pduel->write_buffer8(MSG_SPSUMMONING);
 		pduel->write_buffer32(target->data.code);
-		pduel->write_buffer8(target->current.controler);
-		pduel->write_buffer8(target->current.location);
-		pduel->write_buffer8(target->current.sequence);
-		pduel->write_buffer8(target->current.position);
+		pduel->write_buffer32(target->get_info_location());
 		return FALSE;
 	}
 	case 6: {
@@ -2492,10 +2462,7 @@ int32 field::special_summon_step(uint16 step, group * targets, card * target) {
 	case 2: {
 		pduel->write_buffer8(MSG_SPSUMMONING);
 		pduel->write_buffer32(target->data.code);
-		pduel->write_buffer8(target->current.controler);
-		pduel->write_buffer8(target->current.location);
-		pduel->write_buffer8(target->current.sequence);
-		pduel->write_buffer8(target->current.position);
+		pduel->write_buffer32(target->get_info_location());
 		return FALSE;
 	}
 	case 3: {
