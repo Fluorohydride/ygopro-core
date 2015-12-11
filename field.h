@@ -199,7 +199,7 @@ struct processor {
 	card_set release_cards_ex_sum;
 	card_set destroy_set;
 	card_set battle_destroy_rep;
-	card_set fusion_materials;
+	group* fusion_materials;
 	card_set synchro_materials;
 	card_set operated_set;
 	card_set discarded_set;
@@ -358,6 +358,7 @@ public:
 	int32 get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum, group* mg = 0, uint32 ex = 0);
 	int32 get_summon_count_limit(uint8 playerid);
 	int32 get_draw_count(uint8 playerid);
+	void get_fusion_matierial(card* fcard, group* fusion_m);
 	void get_ritual_material(uint8 playerid, effect* peffect, card_set* material);
 	void ritual_release(card_set* material);
 	void get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc);

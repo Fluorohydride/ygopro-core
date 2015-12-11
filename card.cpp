@@ -1778,18 +1778,15 @@ int32 card::fusion_check(group* fusion_m, card* cg, int32 chkf) {
 	if(cg && !cg->is_can_be_fusion_material(this))
 		return FALSE;
 	if(fusion_m) {
-		for(auto cit = fusion_m->container.begin(); cit != fusion_m->container.end(); ) {
-			card* pcard = *cit++;
-			if(!pcard->is_can_be_fusion_material(this)) {
-				fusion_m->container.erase(pcard);
-				continue;
-			}
-		}
-		if(!fusion_m->container.size())
+		pduel->game_field->get_fusion_matierial(this, fusion_m);
+		if(!pduel->game_field->core.fusion_materials->container.size())
 			return FALSE;
 	}
 	pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
-	pduel->lua->add_param(fusion_m, PARAM_TYPE_GROUP);
+	if(fusion_m) {
+		pduel->lua->add_param(pduel->game_field->core.fusion_materials, PARAM_TYPE_GROUP);
+	} else //Instance Fusion
+		pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
 	pduel->lua->add_param(cg, PARAM_TYPE_CARD);
 	pduel->lua->add_param(chkf, PARAM_TYPE_INT);
 	return pduel->lua->check_condition(peffect->condition, 4);
@@ -1799,20 +1796,8 @@ void card::fusion_select(uint8 playerid, group* fusion_m, card* cg, int32 chkf) 
 	auto ecit = single_effect.find(EFFECT_FUSION_MATERIAL);
 	if(ecit != single_effect.end())
 		peffect = ecit->second;
-	if(cg && !cg->is_can_be_fusion_material(this))
-		return;
-	if(fusion_m) {
-		for(auto cit = fusion_m->container.begin(); cit != fusion_m->container.end(); ) {
-			card* pcard = *cit++;
-			if(!pcard->is_can_be_fusion_material(this)) {
-				fusion_m->container.erase(pcard);
-				continue;
-			}
-		}
-		if(!fusion_m->container.size())
-			return;
-	}
-	pduel->game_field->add_process(PROCESSOR_SELECT_FUSION, 0, peffect, fusion_m, playerid + (chkf << 16), (ptr)cg);
+	pduel->game_field->get_fusion_matierial(this, fusion_m);
+	pduel->game_field->add_process(PROCESSOR_SELECT_FUSION, 0, peffect, 0, playerid + (chkf << 16), (ptr)cg);
 }
 int32 card::is_equipable(card* pcard) {
 	effect_set eset;
