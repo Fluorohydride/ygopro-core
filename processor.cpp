@@ -2923,7 +2923,7 @@ int32 field::process_battle_command(uint16 step) {
 		if(core.select_cards.size() == 0) {
 			if(!core.attack_cancelable) {
 				core.attacker->announce_count++;
-				core.attacker->announced_cards[0] = 0;
+				core.attacker->announced_cards.addcard(0);
 			}
 			core.units.begin()->step = -1;
 			return FALSE;
@@ -2949,10 +2949,7 @@ int32 field::process_battle_command(uint16 step) {
 			//rollback
 			if(core.units.begin()->arg1) {
 				core.attacker->announce_count++;
-				if(core.attack_target)
-					core.attacker->announced_cards[core.attack_target->fieldid_r] = core.attack_target;
-				else
-					core.attacker->announced_cards[0] = 0;
+				core.attacker->announced_cards.addcard(core.attack_target);
 			}
 			core.units.begin()->step = -1;
 			return FALSE;
@@ -3050,10 +3047,7 @@ int32 field::process_battle_command(uint16 step) {
 			reset_phase(PHASE_DAMAGE);
 			if(core.attacker->fieldid_r == afid) {
 				if(!atk_disabled) {
-					if(core.attack_target)
-						core.attacker->attacked_cards[core.attack_target->fieldid_r] = core.attack_target;
-					else
-						core.attacker->attacked_cards[0] = 0;
+					core.attacker->attacked_cards.addcard(core.attack_target);
 				}
 				core.attacker->announce_count++;
 				attack_all_target_check();
@@ -3070,17 +3064,11 @@ int32 field::process_battle_command(uint16 step) {
 		if(atk_disabled || !core.attacker->is_capable_attack() || core.attacker->is_status(STATUS_ATTACK_CANCELED)
 		        || core.attacker->current.controler != acon || core.attacker->fieldid_r != afid) {
 			if(core.attacker->fieldid_r == afid) {
-				if(core.attack_target)
-					core.attacker->announced_cards[core.attack_target->fieldid_r] = core.attack_target;
-				else
-					core.attacker->announced_cards[0] = 0;
 				core.attacker->announce_count++;
+				core.attacker->announced_cards.addcard(core.attack_target);
 				attack_all_target_check();
 				if(!core.attacker->is_status(STATUS_ATTACK_CANCELED)) {
-					if(core.attack_target)
-						core.attacker->attacked_cards[core.attack_target->fieldid_r] = core.attack_target;
-					else
-						core.attacker->attacked_cards[0] = 0;
+					core.attacker->attacked_cards.addcard(core.attack_target);
 				}
 			}
 			core.units.begin()->step = -1;
@@ -3105,16 +3093,14 @@ int32 field::process_battle_command(uint16 step) {
 			core.sub_attacker = 0;
 			core.sub_attack_target = (card*)0xffffffff;
 			core.attacker->announce_count++;
+			core.attacker->announced_cards.addcard(core.attack_target);
 			attack_all_target_check();
+			core.attacker->attacked_cards.addcard(core.attack_target);
 			pduel->write_buffer8(MSG_ATTACK);
 			pduel->write_buffer32(core.attacker->get_info_location());
 			if(core.attack_target) {
-				core.attacker->announced_cards[core.attack_target->fieldid_r] = core.attack_target;
-				core.attacker->attacked_cards[core.attack_target->fieldid_r] = core.attack_target;
 				pduel->write_buffer32(core.attack_target->get_info_location());
 			} else {
-				core.attacker->announced_cards[0] = 0;
-				core.attacker->attacked_cards[0] = 0;
 				pduel->write_buffer32(0);
 			}
 			core.units.begin()->step = 19;
@@ -3139,14 +3125,9 @@ int32 field::process_battle_command(uint16 step) {
 			rollback = true;
 		if(!rollback) {
 			core.attacker->announce_count++;
+			core.attacker->announced_cards.addcard(core.attack_target);
 			attack_all_target_check();
-			if(core.attack_target) {
-				core.attacker->announced_cards[core.attack_target->fieldid_r] = core.attack_target;
-				core.attacker->attacked_cards[core.attack_target->fieldid_r] = core.attack_target;
-			} else {
-				core.attacker->announced_cards[0] = 0;
-				core.attacker->attacked_cards[0] = 0;
-			}
+			core.attacker->attacked_cards.addcard(core.attack_target);
 			core.units.begin()->step = 19;
 			adjust_instant();
 			adjust_all();
@@ -3176,10 +3157,7 @@ int32 field::process_battle_command(uint16 step) {
 			return FALSE;
 		}
 		core.attacker->announce_count++;
-		if(core.attack_target)
-			core.attacker->announced_cards[core.attack_target->fieldid_r] = core.attack_target;
-		else
-			core.attacker->announced_cards[0] = 0;
+		core.attacker->announced_cards.addcard(core.attack_target);
 		attack_all_target_check();
 		core.units.begin()->step = -1;
 		reset_phase(PHASE_DAMAGE);
@@ -3421,11 +3399,9 @@ int32 field::process_battle_command(uint16 step) {
 		infos.phase = PHASE_DAMAGE;
 		core.hint_timing[infos.turn_player] = 0;
 		core.chain_attack = FALSE;
-		if(core.attack_target) {
-			core.attacker->battled_cards[core.attack_target->fieldid_r] = core.attack_target;
-			core.attack_target->battled_cards[core.attacker->fieldid_r] = core.attacker;
-		} else
-			core.attacker->battled_cards[0] = 0;
+		core.attacker->battled_cards.addcard(core.attack_target);
+		if(core.attack_target)
+			core.attack_target->battled_cards.addcard(core.attacker);
 		uint8 reason_player = core.temp_var[0];
 		card* reason_card = 0;
 		if(core.temp_var[1] == 1)

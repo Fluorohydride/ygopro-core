@@ -85,7 +85,10 @@ public:
 	typedef std::unordered_map<effect*, uint32> effect_relation;
 	typedef std::unordered_map<card*, uint32> relation_map;
 	typedef std::map<uint16, std::array<uint16, 2> > counter_map;
-	typedef std::unordered_map<uint16, card*> attacker_map;
+	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32> > {
+	public:
+		void addcard(card* pcard);
+	} ;
 	int32 scrtype;
 	int32 ref_handle;
 	duel* pduel;

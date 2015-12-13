@@ -1689,8 +1689,13 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 				pv = &player[1 - p].list_mzone;
 			for(cit = pv->begin(); cit != pv->end(); ++cit) {
 				atarget = *cit;
-				if(!atarget || pcard->announced_cards.count(atarget->fieldid_r))
+				if(!atarget)
 					continue;
+				auto it = pcard->announced_cards.find(atarget->fieldid_r);
+				if(it != pcard->announced_cards.end()) {
+					if(it->second.second >= peffect->get_value(atarget))
+						continue;
+				}
 				if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
 					continue;
 				if(atarget->is_affected_by_effect(EFFECT_CANNOT_BE_BATTLE_TARGET, pcard))
@@ -1749,8 +1754,7 @@ void field::attack_all_target_check() {
 	effect* peffect = core.attacker->is_affected_by_effect(EFFECT_ATTACK_ALL);
 	if(!peffect)
 		return;
-	pduel->lua->add_param(core.attack_target, PARAM_TYPE_CARD);
-	if(!peffect->check_value_condition(1))
+	if(!peffect->get_value(core.attack_target))
 		core.attacker->attack_all_target = FALSE;
 }
 int32 field::check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg) {

@@ -46,6 +46,11 @@ bool card::card_operation_sort(card* c1, card* c2) {
 			return c1->current.sequence < c2->current.sequence;
 	}
 }
+void card::attacker_map::addcard(card* pcard) {
+	uint16 fid = pcard ? pcard->fieldid_r : 0;
+	auto pr = insert(std::make_pair(fid, std::make_pair(pcard, 0)));
+	pr.first->second.second++;
+}
 card::card(duel* pd) {
 	scrtype = 1;
 	ref_handle = 0;

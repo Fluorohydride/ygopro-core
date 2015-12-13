@@ -1157,11 +1157,7 @@ int32 scriptlib::duel_change_attacker(lua_State *L) {
 	card* attacker = pduel->game_field->core.attacker;
 	card* attack_target = pduel->game_field->core.attack_target;
 	attacker->announce_count++;
-	if(attack_target) {
-		attacker->announced_cards[attack_target->fieldid_r] = attack_target;
-	} else {
-		attacker->announced_cards[0] = 0;
-	}
+	attacker->announced_cards.addcard(attack_target);
 	pduel->game_field->core.sub_attacker = target;
 	return 0;
 }
