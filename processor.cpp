@@ -1718,11 +1718,29 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_position(POS_FACEUP))) {
 			if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
 			        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(peffect))
-			            || (peffect->range & LOCATION_HAND))) {
+			            )) {
 				core.new_ochain_h.push_back(*clit);
 				act = false;
 			} else if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) || !(peffect->type & EFFECT_TYPE_FIELD)
 		            || peffect->in_range(clit->triggering_location, clit->triggering_sequence)) {
+		            	if (clit->triggering_location == LOCATION_HAND) {
+					if (tp == infos.turn_player) {
+						for (auto tpit = core.tpchain.begin(); tpit != core.tpchain.end(); ++tpit) {
+							if (tpit->triggering_location == LOCATION_HAND) {
+								act = false;
+								break;
+							}
+						}
+					}
+					else {
+						for (auto ntpit = core.ntpchain.begin(); ntpit != core.ntpchain.end(); ++ntpit) {
+							if (ntpit->triggering_location == LOCATION_HAND) {
+								act = false;
+								break;
+							}
+						}
+					}
+				}
 				if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) {
 					if(tp == infos.turn_player) {
 						for(auto tpit = core.tpchain.begin(); tpit != core.tpchain.end(); ++tpit) {
