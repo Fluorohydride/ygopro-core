@@ -61,6 +61,29 @@ int32 scriptlib::card_get_origin_code_rule(lua_State *L) {
 	}
 	return 1;
 }
+int32 scriptlib::card_is_fusion_code(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 tcode = lua_tointeger(L, 2);
+	uint32 code1 = pcard->get_code();
+	uint32 code2 = pcard->get_another_code();
+	uint32 result = FALSE;
+	if(code1 == tcode || (code2 && code2 == tcode)) {
+		result = TRUE;
+	} else {
+		effect_set eset;
+		pcard->filter_effect(EFFECT_ADD_FUSION_CODE, &eset);
+		for(int32 i = 0; i < eset.size(); ++i) {
+			if(tcode == eset[i]->get_value(pcard)) {
+				result = TRUE;
+				break;
+			}
+		}
+	}
+	lua_pushboolean(L, result);
+	return 1;
+}
 int32 scriptlib::card_is_set_card(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
