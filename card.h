@@ -149,6 +149,7 @@ public:
 	uint32 get_another_code();
 	int32 is_set_card(uint32 set_code);
 	int32 is_pre_set_card(uint32 set_code);
+	int32 is_fusion_set_card(uint32 set_code);
 	uint32 get_type();
 	int32 get_base_attack(uint8 swap = FALSE);
 	int32 get_attack();
