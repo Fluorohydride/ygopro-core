@@ -731,10 +731,11 @@ int32 field::announce_attribute(int16 step, uint8 playerid, int32 count, int32 a
 	}
 	return TRUE;
 }
-int32 field::announce_card(int16 step, uint8 playerid) {
+int32 field::announce_card(int16 step, uint8 playerid, uint32 ttype) {
 	if(step == 0) {
 		pduel->write_buffer8(MSG_ANNOUNCE_CARD);
 		pduel->write_buffer8(playerid);
+		pduel->write_buffer32(ttype);
 		return FALSE;
 	} else {
 		pduel->write_buffer8(MSG_HINT);

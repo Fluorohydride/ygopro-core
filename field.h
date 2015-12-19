@@ -531,7 +531,7 @@ public:
 	int32 sort_card(int16 step, uint8 playerid, uint8 is_chain);
 	int32 announce_race(int16 step, uint8 playerid, int32 count, int32 available);
 	int32 announce_attribute(int16 step, uint8 playerid, int32 count, int32 available);
-	int32 announce_card(int16 step, uint8 playerid);
+	int32 announce_card(int16 step, uint8 playerid, uint32 ttype);
 	int32 announce_number(int16 step, uint8 playerid);
 };
 
