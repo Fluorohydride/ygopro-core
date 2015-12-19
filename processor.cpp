@@ -1611,9 +1611,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			}
 			uint8 tp = clit->triggering_player;
 			bool act = true;
-			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
-			        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x3) 
-						|| !(peffect->handler->current.location & 0x3) || peffect->handler->is_position(POS_FACEUP))) {
+			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE) && is_chain_triggerable(*clit)) {
 				if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) {
 					if(tp == infos.turn_player) {
 						for(auto tpit = core.tpchain.begin(); tpit != core.tpchain.end(); ++tpit) {
@@ -1640,6 +1638,8 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 					core.ntpchain.push_back(*clit);
 				peffect->handler->set_status(STATUS_CHAINING, TRUE);
 				peffect->dec_count(tp);
+			} else {
+				peffect->active_type = 0;
 			}
 		}
 		core.new_fchain_s.clear();
@@ -1714,9 +1714,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		effect* peffect = clit->triggering_effect;
 		uint8 tp = clit->triggering_player;
 		bool act = true;
-		if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
-		        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x3)
-		            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_position(POS_FACEUP))) {
+		if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE) && is_chain_triggerable(*clit)) {
 			if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
 			        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(peffect))
 			            || (peffect->range & LOCATION_HAND))) {
@@ -1755,15 +1753,17 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		return FALSE;
 	}
 	case 6: {
-		if(!returns.ivalue[0]) {
-			core.new_ochain_s.pop_front();
-			core.units.begin()->step = 4;
-			return FALSE;
-		}
 		auto clit = core.new_ochain_s.begin();
 		effect* peffect = clit->triggering_effect;
 		card* pcard = peffect->handler;
 		uint8 tp = clit->triggering_player;
+		if(!returns.ivalue[0]) {
+			if(tp == core.current_player)
+				peffect->active_type = 0;
+			core.new_ochain_s.pop_front();
+			core.units.begin()->step = 4;
+			return FALSE;
+		}
 		core.select_effects.clear();
 		core.select_options.clear();
 		uintptr_t index = 0;
@@ -1775,9 +1775,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			if(pcard != peffect->handler)
 				continue;
 			bool act = true;
-			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
-			        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x3)
-			            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_position(POS_FACEUP))) {
+			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE) && is_chain_triggerable(*clit)) {
 				if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
 				        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(peffect))
 				            || (peffect->range & LOCATION_HAND))) {
@@ -2365,6 +2363,10 @@ int32 field::process_single_event() {
 				peffect->handler->create_relation(peffect);
 				peffect->s_range = peffect->handler->current.location;
 				peffect->o_range = peffect->handler->current.sequence;
+				peffect->card_type = peffect->handler->get_type();
+				if((peffect->card_type & 0x5) == 0x5)
+					peffect->card_type -= TYPE_TRAP;
+				peffect->active_type = peffect->card_type;
 				chain newchain;
 				newchain.flag = 0;
 				newchain.chain_id = infos.field_id++;

@@ -2266,6 +2266,19 @@ int32 field::is_player_can_remove(uint8 playerid, card * pcard) {
 	}
 	return TRUE;
 }
+int32 field::is_chain_triggerable(chain pchain) {
+	effect* peffect = pchain.triggering_effect;
+	if(peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE)
+		return TRUE;
+	if(pchain.triggering_location & (LOCATION_DECK | LOCATION_HAND))
+		return TRUE;
+	card* pcard = peffect->handler;
+	if((peffect->active_type & TYPE_MONSTER) && !(pcard->get_type() & TYPE_MONSTER))
+		return FALSE;
+	if(!(pcard->current.location & (LOCATION_DECK | LOCATION_HAND)) || pcard->is_position(POS_FACEUP))
+		return TRUE;
+	return FALSE;
+}
 int32 field::is_chain_negatable(uint8 chaincount, uint8 naga_check) {
 	effect_set eset;
 	if(chaincount < 0 || chaincount > core.current_chain.size())
