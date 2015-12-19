@@ -1877,12 +1877,6 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 						break;
 				}
 				if(pscrap) {
-					for(int32 i = 0; i < mcount; ++i) {
-						if(!pscrap->get_value(nsyn[i])) {
-							pduel->restore_assumes();
-							return FALSE;
-						}
-					}
 					card_vector nsyn_filtered;
 					for(auto cit = nsyn.begin(); cit != nsyn.end(); ++cit) {
 						if(!pscrap->get_value(*cit))
@@ -1894,7 +1888,12 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 							return TRUE;
 						}
 					} else {
-						if(check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, mcount)) {
+						bool mfiltered = true;
+						for(int32 i = 0; i < mcount; ++i) {
+							if(pscrap->get_value(nsyn[i]))
+								mfiltered = false;
+						}
+						if(mfiltered && check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, mcount)) {
 							pduel->restore_assumes();
 							return TRUE;
 						}

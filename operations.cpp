@@ -4253,26 +4253,36 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 					break;
 			}
 			if(peffect) {
+				card_vector nsyn(core.must_select_cards);
+				nsyn.insert(nsyn.end(), core.select_cards.begin(), core.select_cards.end());
 				card_vector nsyn_filtered;
-				for(auto cit = core.select_cards.begin(); cit != core.select_cards.end(); ++cit) {
+				for(auto cit = nsyn.begin(); cit != nsyn.end(); ++cit) {
 					if(!peffect->get_value(*cit))
 						nsyn_filtered.push_back(*cit);
 				}
-				if(nsyn_filtered.size() < core.select_cards.size()) {
+				if(nsyn_filtered.size() < nsyn.size()) {
 					card_vector nsyn_removed;
-					for(auto cit = core.select_cards.begin(); cit != core.select_cards.end(); ++cit) {
+					for(auto cit = nsyn.begin(); cit != nsyn.end(); ++cit) {
 						if(!(*cit)->is_affected_by_effect(EFFECT_SCRAP_CHIMERA))
 							nsyn_removed.push_back(*cit);
 					}
-					if(check_with_sum_limit(nsyn_filtered, lv, 0, 1, min, max)) {
-						if(check_with_sum_limit(nsyn_removed, lv, 0, 1, min, max)) {
+					bool mfiltered = true;
+					bool mremoved = true;
+					for(int32 i = 0; i < mcount; ++i) {
+						if(peffect->get_value(nsyn[i]))
+							mfiltered = false;
+						if(nsyn[i]->is_affected_by_effect(EFFECT_SCRAP_CHIMERA))
+							mremoved = false;
+					}
+					if(mfiltered && check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, mcount)) {
+						if(mremoved && check_with_sum_limit_m(nsyn_removed, lv, 0, min, max, mcount)) {
 							add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, playerid, peffect->description);
 							core.units.begin()->step = 6;
 							return FALSE;
 						} else
-							core.select_cards.swap(nsyn_filtered);
+							core.select_cards.assign(nsyn_filtered.begin() + mcount, nsyn_filtered.end());
 					} else
-						core.select_cards.swap(nsyn_removed);
+						core.select_cards.assign(nsyn_removed.begin() + mcount, nsyn_removed.end());
 				}
 			}
 		}
@@ -4309,16 +4319,8 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		return TRUE;
 	}
 	case 7: {
-		card* tuner = core.limit_tuner;
-		int32 l = tuner->get_synchro_level(pcard);
-		int32 l1 = l & 0xffff;
-		//int32 l2 = l >> 16;
 		int32 lv = pcard->get_level();
-		lv -= l1;
 		if(smat) {
-			l = smat->get_synchro_level(pcard);
-			l1 = l & 0xffff;
-			lv -= l1;
 			min--;
 			max--;
 		}
