@@ -287,11 +287,13 @@ int32 scriptlib::group_check_with_sum_equal(lua_State *L) {
 		max = min;
 	int32 extraargs = lua_gettop(L) - 5;
 	field::card_vector cv;
+	cv.swap(pduel->game_field->core.must_select_cards);
+	int32 mcount = cv.size();
 	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 		(*cit)->operation_param = pduel->lua->get_operation_value(*cit, 2, extraargs);
 		cv.push_back(*cit);
 	}
-	lua_pushboolean(L, field::check_with_sum_limit(&cv, acc, 0, 1, min, max));
+	lua_pushboolean(L, field::check_with_sum_limit_m(cv, acc, 0, min, max, mcount));
 	return 1;
 }
 int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
@@ -317,7 +319,14 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 		(*cit)->operation_param = pduel->lua->get_operation_value(*cit, 3, extraargs);
 		pduel->game_field->core.select_cards.push_back(*cit);
 	}
-	if(!pduel->game_field->check_with_sum_limit(&pduel->game_field->core.select_cards, acc, 0, 1, min, max))
+	for(auto cit = pduel->game_field->core.must_select_cards.begin(); cit != pduel->game_field->core.must_select_cards.end(); ++cit) {
+		auto it = std::remove(pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end(), *cit);
+		pduel->game_field->core.select_cards.erase(it, pduel->game_field->core.select_cards.end());
+	}
+	field::card_vector cv(pduel->game_field->core.must_select_cards);
+	int32 mcount = cv.size();
+	cv.insert(cv.end(), pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end());
+	if(!field::check_with_sum_limit_m(cv, acc, 0, min, max, mcount))
 		return 0;
 	pduel->game_field->add_process(PROCESSOR_SELECT_SUM_S, 0, 0, 0, acc, playerid + (min << 16) + (max << 24));
 	return lua_yield(L, 0);

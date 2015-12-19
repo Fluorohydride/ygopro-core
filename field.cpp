@@ -1783,7 +1783,6 @@ int32 field::check_synchro_material(card* pcard, int32 findex1, int32 findex2, i
 	return FALSE;
 }
 int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg) {
-	effect* peffect;
 	if(tuner && tuner->is_position(POS_FACEUP) && (tuner->get_type() & TYPE_TUNER) && tuner->is_can_be_synchro_material(pcard)) {
 		effect* pcheck = tuner->is_affected_by_effect(EFFECT_SYNCHRO_CHECK);
 		if(pcheck)
@@ -1792,30 +1791,27 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 			pduel->restore_assumes();
 			return FALSE;
 		}
-		if((peffect = tuner->is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL_CUSTOM, pcard))) {
-			if(!peffect->target) {
+		effect* pcustom = tuner->is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL_CUSTOM, pcard);
+		if(pcustom) {
+			if(!pcustom->target) {
 				pduel->restore_assumes();
 				return FALSE;
 			}
-			pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(pcustom, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 			pduel->lua->add_param(findex2, PARAM_TYPE_INDEX);
 			pduel->lua->add_param(min, PARAM_TYPE_INT);
 			pduel->lua->add_param(max, PARAM_TYPE_INT);
-			if(pduel->lua->check_condition(peffect->target, 5)) {
+			if(pduel->lua->check_condition(pcustom->target, 5)) {
 				pduel->restore_assumes();
 				return TRUE;
 			}
 		} else {
-			int32 l = tuner->get_synchro_level(pcard);
-			int32 l1 = l & 0xffff;
-			//int32 l2 = l >> 16;
 			int32 lv = pcard->get_level();
-			lv -= l1;
-			if(lv <= 0) {
-				pduel->restore_assumes();
-				return FALSE;
-			}
+			card_vector nsyn;
+			int32 mcount = 1;
+			nsyn.push_back(tuner);
+			tuner->operation_param = tuner->get_synchro_level(pcard);
 			if(smat) {
 				if(pcheck)
 					pcheck->get_value(smat);
@@ -1823,27 +1819,25 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 					pduel->restore_assumes();
 					return FALSE;
 				}
-				l = smat->get_synchro_level(pcard);
-				l1 = l & 0xffff;
-				lv -= l1;
 				min--;
 				max--;
-				if(lv <= 0) {
-					pduel->restore_assumes();
-					if(lv == 0 && min == 0)
+				nsyn.push_back(smat);
+				smat->operation_param = smat->get_synchro_level(pcard);
+				mcount++;
+				if(min == 0) {
+					if(check_with_sum_limit_m(nsyn, lv, 0, 0, 0, 2)) {
+						pduel->restore_assumes();
 						return TRUE;
-					return FALSE;
-				}
-				if(max == 0) {
-					pduel->restore_assumes();
-					return FALSE;
+					}
+					if(max == 0) {
+						pduel->restore_assumes();
+						return FALSE;
+					}
 				}
 			}
-			card_vector nsyn;
-			card* pm;
 			if(mg) {
 				for(auto cit = mg->container.begin(); cit != mg->container.end(); ++cit) {
-					pm = *cit;
+					card* pm = *cit;
 					if(pm != tuner && pm != smat && pm->is_can_be_synchro_material(pcard, tuner)) {
 						if(pcheck)
 							pcheck->get_value(pm);
@@ -1858,7 +1852,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 			} else {
 				for(uint8 p = 0; p < 2; ++p) {
 					for(int32 i = 0; i < 5; ++i) {
-						pm = player[p].list_mzone[i];
+						card* pm = player[p].list_mzone[i];
 						if(pm && pm != tuner && pm != smat && pm->is_position(POS_FACEUP) && pm->is_can_be_synchro_material(pcard, tuner)) {
 							if(pcheck)
 								pcheck->get_value(pm);
@@ -1871,7 +1865,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 				}
 			}
 			if(!(core.global_flag & GLOBALFLAG_SCRAP_CHIMERA)) {
-				if(check_with_sum_limit(&nsyn, lv, 0, 1, min, max)) {
+				if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
 					pduel->restore_assumes();
 					return TRUE;
 				}
@@ -1883,33 +1877,45 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 						break;
 				}
 				if(pscrap) {
+					for(int32 i = 0; i < mcount; ++i) {
+						if(!pscrap->get_value(nsyn[i])) {
+							pduel->restore_assumes();
+							return FALSE;
+						}
+					}
 					card_vector nsyn_filtered;
 					for(auto cit = nsyn.begin(); cit != nsyn.end(); ++cit) {
 						if(!pscrap->get_value(*cit))
 							nsyn_filtered.push_back(*cit);
 					}
 					if(nsyn_filtered.size() == nsyn.size()) {
-						if(check_with_sum_limit(&nsyn, lv, 0, 1, min, max)) {
+						if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
 							pduel->restore_assumes();
 							return TRUE;
 						}
 					} else {
-						if(check_with_sum_limit(&nsyn_filtered, lv, 0, 1, min, max)) {
+						if(check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, mcount)) {
 							pduel->restore_assumes();
 							return TRUE;
+						}
+						for(int32 i = 0; i < mcount; ++i) {
+							if(nsyn[i]->is_affected_by_effect(EFFECT_SCRAP_CHIMERA)) {
+								pduel->restore_assumes();
+								return FALSE;
+							}
 						}
 						card_vector nsyn_removed;
 						for(auto cit = nsyn.begin(); cit != nsyn.end(); ++cit) {
 							if(!(*cit)->is_affected_by_effect(EFFECT_SCRAP_CHIMERA))
 								nsyn_removed.push_back(*cit);
 						}
-						if(check_with_sum_limit(&nsyn_removed, lv, 0, 1, min, max)) {
+						if(check_with_sum_limit_m(nsyn_removed, lv, 0, min, max, mcount)) {
 							pduel->restore_assumes();
 							return TRUE;
 						}
 					}
 				} else {
-					if(check_with_sum_limit(&nsyn, lv, 0, 1, min, max)) {
+					if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
 						pduel->restore_assumes();
 						return TRUE;
 					}
@@ -1920,16 +1926,36 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	pduel->restore_assumes();
 	return FALSE;
 }
-int32 field::check_with_sum_limit(card_vector* mats, int32 acc, int32 index, int32 count, int32 min, int32 max) {
-	if((uint32)index >= mats->size())
+int32 field::check_with_sum_limit(const card_vector& mats, int32 acc, int32 index, int32 count, int32 min, int32 max) {
+	if(count > max)
 		return FALSE;
-	int32 op1 = mats->at(index)->operation_param & 0xffff;
-	int32 op2 = (mats->at(index)->operation_param >> 16) & 0xffff;
-	if((op1 == acc || op2 == acc) && count >= min && count <= max)
+	while(index < (int32)mats.size()) {
+		int32 op1 = mats[index]->operation_param & 0xffff;
+		int32 op2 = (mats[index]->operation_param >> 16) & 0xffff;
+		if((op1 == acc || op2 == acc) && count >= min)
+			return TRUE;
+		index++;
+		if(acc > op1 && check_with_sum_limit(mats, acc - op1, index, count + 1, min, max))
+			return TRUE;
+		if(op2 && acc > op2 && check_with_sum_limit(mats, acc - op2, index, count + 1, min, max))
+			return TRUE;
+	}
+	return FALSE;
+}
+int32 field::check_with_sum_limit_m(const card_vector& mats, int32 acc, int32 index, int32 min, int32 max, int32 must_count) {
+	if(acc == 0)
+		return index == must_count && 0 >= min && 0 <= max;
+	if(index == must_count)
+		return check_with_sum_limit(mats, acc, index, 1, min, max);
+	if(index >= (int32)mats.size())
+		return FALSE;
+	int32 op1 = mats[index]->operation_param & 0xffff;
+	int32 op2 = (mats[index]->operation_param >> 16) & 0xffff;
+	if(acc >= op1 && check_with_sum_limit_m(mats, acc - op1, index + 1, min, max, must_count))
 		return TRUE;
-	return (acc > op1 && check_with_sum_limit(mats, acc - op1, index + 1, count + 1, min, max))
-	       || (op2 && acc > op2 && check_with_sum_limit(mats, acc - op2, index + 1, count + 1, min, max))
-	       || check_with_sum_limit(mats, acc, index + 1, count, min, max);
+	if(op2 && acc >= op2 && check_with_sum_limit_m(mats, acc - op2, index + 1, min, max, must_count))
+		return TRUE;
+	return FALSE;
 }
 int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, int32 max, group* mg) {
 	if(mg) {
