@@ -1640,6 +1640,8 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 					core.ntpchain.push_back(*clit);
 				peffect->handler->set_status(STATUS_CHAINING, TRUE);
 				peffect->dec_count(tp);
+				if(peffect->is_flag(EFFECT_FLAG_CVAL_CHECK))
+					peffect->get_value();
 			}
 		}
 		core.new_fchain_s.clear();
