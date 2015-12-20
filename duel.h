@@ -71,14 +71,16 @@ private:
 #define PLAYER_NONE		2	//
 #define PLAYER_ALL		3	//
 //Phase
-#define PHASE_DRAW			0x01	//
-#define PHASE_STANDBY		0x02	//
-#define PHASE_MAIN1			0x04	//
-#define PHASE_BATTLE		0x08	//
-#define PHASE_DAMAGE		0x10	//
-#define PHASE_DAMAGE_CAL	0x20	//
-#define PHASE_MAIN2			0x40	//
-#define PHASE_END			0x80	//
+#define PHASE_DRAW			0x01
+#define PHASE_STANDBY		0x02
+#define PHASE_MAIN1			0x04
+#define PHASE_BATTLE_START	0x08
+#define PHASE_BATTLE_STEP	0x10
+#define PHASE_DAMAGE		0x20
+#define PHASE_DAMAGE_CAL	0x40
+#define PHASE_BATTLE		0x80
+#define PHASE_MAIN2			0x100
+#define PHASE_END			0x200
 //Options
 #define DUEL_TEST_MODE			0x01
 #define DUEL_ATTACK_FIRST_TURN	0x02

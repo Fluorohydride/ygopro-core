@@ -113,7 +113,7 @@ struct field_info {
 	int16 copy_id;
 	int16 turn_id;
 	int16 card_id;
-	uint8 phase;
+	uint16 phase;
 	uint8 turn_player;
 	uint8 priorities[2];
 	uint8 can_shuffle;
