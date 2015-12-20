@@ -5166,7 +5166,7 @@ int32 field::adjust_step(uint16 step) {
 				eset.clear();
 				pcard->filter_effect(EFFECT_SET_POSITION, &eset);
 				if(eset.size()) {
-					pos = eset.get_last()->get_value();
+					pos = eset.get_last()->get_value(pcard);
 					if((pos & 0xff) != pcard->current.position) {
 						pos_adjust.insert(pcard);
 						pcard->operation_param = pos;
