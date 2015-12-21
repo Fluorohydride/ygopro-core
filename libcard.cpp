@@ -1304,8 +1304,16 @@ int32 scriptlib::card_is_xyz_summonable(lua_State *L) {
 		check_param(L, PARAM_TYPE_GROUP, 2);
 		materials = *(group**) lua_touserdata(L, 2);
 	}
+	int32 minc = 0;
+	if(lua_gettop(L) >= 3)
+		minc = lua_tointeger(L, 3);
+	int32 maxc = 0;
+	if(lua_gettop(L) >= 4)
+		maxc = lua_tointeger(L, 4);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
 	pcard->pduel->game_field->core.limit_xyz = materials;
+	pcard->pduel->game_field->core.limit_xyz_minc = minc;
+	pcard->pduel->game_field->core.limit_xyz_maxc = maxc;
 	lua_pushboolean(L, pcard->is_special_summonable(p, SUMMON_TYPE_XYZ));
 	return 1;
 }

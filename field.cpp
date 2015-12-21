@@ -79,8 +79,10 @@ field::field(duel* pduel) {
 	core.overdraw[1] = FALSE;
 	core.check_level = 0;
 	core.limit_tuner = 0;
-	core.limit_xyz = 0;
 	core.limit_syn = 0;
+	core.limit_xyz = 0;
+	core.limit_xyz_minc = 0;
+	core.limit_xyz_maxc = 0;
 	core.duel_options = 0;
 	core.attacker = 0;
 	core.attack_target = 0;

@@ -1715,11 +1715,11 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 s
 			topos = POS_FACEUP;
 			toplayer = playerid;
 		}
-		effect* sumeffect = pduel->game_field->core.reason_effect;
-		if(!sumeffect)
-			sumeffect = peffect;
-		if(peffect->is_available() && peffect->check_count_limit(playerid) && is_summonable(sumeffect)
+		if(peffect->is_available() && peffect->check_count_limit(playerid) && is_summonable(peffect)
 				&& !pduel->game_field->check_unique_onfield(this, toplayer)) {
+			effect* sumeffect = pduel->game_field->core.reason_effect;
+			if(!sumeffect)
+				sumeffect = peffect;
 			uint32 sumtype = peffect->get_value(this);
 			if((!summon_type || summon_type == sumtype)
 			        && pduel->game_field->is_player_can_spsummon(sumeffect, sumtype, topos, playerid, toplayer, this))
@@ -1876,7 +1876,13 @@ int32 card::is_summonable(effect* peffect) {
 			result = TRUE;
 	} else if(pduel->game_field->core.limit_xyz) {
 		pduel->lua->add_param(pduel->game_field->core.limit_xyz, PARAM_TYPE_GROUP);
-		if(pduel->lua->check_condition(peffect->condition, 3))
+		uint32 param_count = 3;
+		if(pduel->game_field->core.limit_xyz_minc) {
+			pduel->lua->add_param(pduel->game_field->core.limit_xyz_minc, PARAM_TYPE_INT);
+			pduel->lua->add_param(pduel->game_field->core.limit_xyz_maxc, PARAM_TYPE_INT);
+			param_count = 5;
+		}
+		if(pduel->lua->check_condition(peffect->condition, param_count))
 			result = TRUE;
 	} else {
 		if(pduel->lua->check_condition(peffect->condition, 2))
@@ -2068,8 +2074,10 @@ int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 	eset.clear();
 	filter_spsummon_procedure(playerid, &eset, summon_type);
 	pduel->game_field->core.limit_tuner = 0;
-	pduel->game_field->core.limit_xyz = 0;
 	pduel->game_field->core.limit_syn = 0;
+	pduel->game_field->core.limit_xyz = 0;
+	pduel->game_field->core.limit_xyz_minc = 0;
+	pduel->game_field->core.limit_xyz_maxc = 0;
 	pduel->game_field->restore_lp_cost();
 	return eset.size();
 }
