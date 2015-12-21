@@ -1524,7 +1524,7 @@ int32 scriptlib::duel_skip_phase(lua_State *L) {
 	peffect->effect_owner = playerid;
 	peffect->type = EFFECT_TYPE_FIELD;
 	peffect->code = code;
-	peffect->reset_flag = (reset & 0xff) | RESET_PHASE | RESET_SELF_TURN;
+	peffect->reset_flag = (reset & 0x3ff) | RESET_PHASE | RESET_SELF_TURN;
 	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_PLAYER_TARGET;
 	peffect->s_range = 1;
 	peffect->o_range = 0;
