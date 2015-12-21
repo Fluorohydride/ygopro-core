@@ -2227,7 +2227,7 @@ int32 field::process_instant_event() {
 				}
 			}
 		}
-		if(elit->event_code == EVENT_ADJUST || (((elit->event_code & 0xf000) == EVENT_PHASE_START) && (elit->event_code & 0xff) != PHASE_BATTLE))
+		if(elit->event_code == EVENT_ADJUST || ((elit->event_code & 0xf000) == EVENT_PHASE_START))
 			continue;
 		//triggers
 		pr = effects.trigger_f_effect.equal_range(elit->event_code);
