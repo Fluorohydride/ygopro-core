@@ -1718,7 +1718,7 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 s
 		effect* sumeffect = pduel->game_field->core.reason_effect;
 		if(!sumeffect)
 			sumeffect = peffect;
-		if(peffect->is_available() && peffect->check_count_limit(playerid) && is_summonable(sumeffect)
+		if(peffect->is_available() && peffect->check_count_limit(playerid) && is_summonable(peffect)
 				&& !pduel->game_field->check_unique_onfield(this, toplayer)) {
 			uint32 sumtype = peffect->get_value(this);
 			if((!summon_type || summon_type == sumtype)
