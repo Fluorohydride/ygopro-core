@@ -336,7 +336,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			add_card(playerid, pcard, LOCATION_HAND, 0);
 			pcard->enable_field_effect(TRUE);
 			effect* pub = pcard->is_affected_by_effect(EFFECT_PUBLIC);
-			if(pub || pcard->current.position == POS_FACEUP_ATTACK)
+			if(pub)
 				public_count++;
 			pcard->current.position = pub ? POS_FACEUP : POS_FACEDOWN;
 			cv.push_back(pcard);

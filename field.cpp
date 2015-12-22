@@ -173,18 +173,16 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 		if (sequence == 0) {		//deck top
 			player[playerid].list_main.push_back(pcard);
 			pcard->current.sequence = player[playerid].list_main.size() - 1;
-			pcard->current.position = POS_FACEUP_ATTACK;
 		} else if (sequence == 1) {		//deck button
 			player[playerid].list_main.insert(player[playerid].list_main.begin(), pcard);
 			reset_sequence(playerid, LOCATION_DECK);
-			pcard->current.position = POS_FACEDOWN;
 		} else {		//deck top & shuffle
 			player[playerid].list_main.push_back(pcard);
 			pcard->current.sequence = player[playerid].list_main.size() - 1;
 			if(!core.shuffle_check_disabled)
 				core.shuffle_deck_check[playerid] = TRUE;
-			pcard->current.position = POS_FACEDOWN;
 		}
+		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN << 24);
 		break;
 	}
 	case LOCATION_HAND: {
