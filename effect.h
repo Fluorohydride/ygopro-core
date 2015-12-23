@@ -24,8 +24,8 @@ class effect;
 struct tevent;
 struct effect_set;
 struct effect_set_v;
-enum effect_flag : uint64;
-enum effect_flag2 : uint64;
+enum effect_flag : uint32;
+enum effect_flag2 : uint32;
 
 class effect {
 public:
@@ -141,7 +141,7 @@ public:
 #define EFFECT_TYPE_CONTINUOUS		0x0800	//
 
 //========== Flags ==========
-enum effect_flag : uint64 {
+enum effect_flag : uint32 {
 	EFFECT_FLAG_INITIAL				= 0x0001,
 	EFFECT_FLAG_FUNC_VALUE			= 0x0002,
 	EFFECT_FLAG_COUNT_LIMIT			= 0x0004,
@@ -175,7 +175,7 @@ enum effect_flag : uint64 {
 	EFFECT_FLAG_CVAL_CHECK			= 0x40000000,
 	EFFECT_FLAG_IMMEDIATELY_APPLY	= 0x80000000,
 };
-enum effect_flag2 : uint64 {
+enum effect_flag2 : uint32 {
 	EFFECT_FLAG2_NAGA				= 0x0001,
 	EFFECT_FLAG2_COF				= 0x0002,
 };
