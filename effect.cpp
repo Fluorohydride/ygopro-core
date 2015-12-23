@@ -207,8 +207,6 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			if(handler->is_affected_by_effect(EFFECT_CANNOT_TRIGGER))
 				return FALSE;
 		} else if(!(type & EFFECT_TYPE_CONTINUOUS)) {
-			if((handler->current.location & LOCATION_SZONE) && !in_range(handler->current.location, handler->current.sequence))
-				return FALSE;
 			if((type & EFFECT_TYPE_SINGLE) && code ==EVENT_FLIP){
 				// flip monster effects can be activated while face-down in LOCATION_MZONE
 				if((handler->current.location & LOCATION_REMOVED) && !handler->is_position(POS_FACEUP))
