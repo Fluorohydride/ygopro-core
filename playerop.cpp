@@ -561,13 +561,13 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 	} else {
 		byte c[64];
 		memset(c, 0, 64);
-		if(min) {
+		if(max) {
 			int32 oparam[16];
-			if(returns.bvalue[0] < min || returns.bvalue[0] > max) {
+			int32 mcount = core.must_select_cards.size();
+			if(returns.bvalue[0] < min + mcount || returns.bvalue[0] > max + mcount) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
 			}
-			int32 mcount = core.must_select_cards.size();
 			for(int32 i = 0; i < mcount; ++i)
 				oparam[i] = core.must_select_cards[i]->operation_param;
 			int32 m = core.select_cards.size();
