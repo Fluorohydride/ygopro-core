@@ -61,6 +61,22 @@ int32 scriptlib::card_get_origin_code_rule(lua_State *L) {
 	}
 	return 1;
 }
+int32 scriptlib::card_get_fusion_codes(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_newtable(L);
+	lua_pushnumber(L,-1);
+	lua_rawseti(L,-2,0);
+	effect_set eset;
+	pcard->filter_effect(EFFECT_ADD_FUSION_CODE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		uint32 code = eset[i]->get_value(pcard);
+		lua_pushinteger(L,code);
+		lua_rawseti(L,-2,i+1);
+	}
+	return 1;
+}
 int32 scriptlib::card_is_fusion_code(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
