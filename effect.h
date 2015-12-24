@@ -395,6 +395,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_DISCARD_COST_CHANGE		338
 #define EFFECT_HAND_SYNCHRO				339
 #define EFFECT_ADD_FUSION_CODE			340
+#define EFFECT_ADD_FUSION_SETCODE		341
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
