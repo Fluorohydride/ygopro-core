@@ -19,6 +19,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetCode", scriptlib::card_get_code },
 	{ "GetOriginalCode", scriptlib::card_get_origin_code },
 	{ "GetOriginalCodeRule", scriptlib::card_get_origin_code_rule },
+	{ "GetFusionCode", scriptlib::card_get_fusion_code },
 	{ "IsFusionCode", scriptlib::card_is_fusion_code },
 	{ "IsSetCard", scriptlib::card_is_set_card },
 	{ "IsPreviousSetCard", scriptlib::card_is_pre_set_card },
