@@ -291,6 +291,7 @@ struct processor {
 	uint32 hint_timing[2];
 	uint8 current_player;
 	uint8 conti_player;
+	int32 ctype;
 	std::unordered_map<uint32, std::pair<uint32, uint32> > summon_counter;
 	std::unordered_map<uint32, std::pair<uint32, uint32> > normalsummon_counter;
 	std::unordered_map<uint32, std::pair<uint32, uint32> > spsummon_counter;
@@ -585,6 +586,7 @@ public:
 #define TIMING_TOGRAVE				0x800000
 #define TIMING_BATTLE_PHASE			0x1000000
 #define TIMING_EQUIP				0x2000000
+#define TIMING_BATTLE_STEP_END		0x4000000
 
 #define GLOBALFLAG_DECK_REVERSE_CHECK	0x1
 #define GLOBALFLAG_BRAINWASHING_CHECK	0x2

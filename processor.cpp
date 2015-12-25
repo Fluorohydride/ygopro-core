@@ -1209,6 +1209,7 @@ int32 field::execute_target(uint16 step, effect * triggering_effect, uint8 trigg
 	}
 	return FALSE;
 }
+// add events to core.queue_event
 void field::raise_event(card* event_card, uint32 event_code, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 event_player, uint32 event_value) {
 	tevent new_event;
 	new_event.trigger_card = 0;
@@ -2189,7 +2190,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 	}
 	return TRUE;
 }
-
+// classify core.queue_event, process continuous effects, and move them to core.instant_event
 int32 field::process_instant_event() {
 	if (core.queue_event.size() == 0)
 		return TRUE;
@@ -2731,15 +2732,17 @@ int32 field::process_battle_command(uint16 step) {
 		core.attacker = 0;
 		core.attack_target = 0;
 		if((peffect = is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP))) {
-			core.units.begin()->step = 39;
+			core.units.begin()->step = 41;
 			if(core.phase_action || core.battle_phase_action)
 				core.units.begin()->arg1 = 2;
 			else core.units.begin()->arg1 = 3;
 			if(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE))
 				core.units.begin()->arg2 = 1;
 			else core.units.begin()->arg2 = 0;
-			if(!peffect->value)
+			if(!peffect->value){
+				infos.phase = PHASE_BATTLE;
 				add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
+			}
 			else {
 				core.hint_timing[infos.turn_player] = 0;
 				reset_phase(PHASE_BATTLE);
@@ -2855,12 +2858,16 @@ int32 field::process_battle_command(uint16 step) {
 			return FALSE;
 		} else {
 			core.units.begin()->step = 39;
-			core.units.begin()->arg1 = ctype;
-			if(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE))
-				core.units.begin()->arg2 = 1;
-			else core.units.begin()->arg2 = 0;
-			add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
-			adjust_all();
+			core.ctype = ctype;
+			pduel->write_buffer8(MSG_HINT);
+			pduel->write_buffer8(HINT_EVENT);
+			pduel->write_buffer8(1 - infos.turn_player);
+			pduel->write_buffer32(29);
+			core.select_chains.clear();
+			core.hint_timing[infos.turn_player] = TIMING_BATTLE_STEP_END;
+			add_process(PROCESSOR_QUICK_EFFECT, 0, 0, 0, FALSE, 1 - infos.turn_player);
+			infos.priorities[infos.turn_player] = 1;
+			infos.priorities[1 - infos.turn_player] = 0;
 			return FALSE;
 		}
 		return TRUE;
@@ -3048,7 +3055,7 @@ int32 field::process_battle_command(uint16 step) {
 		}
 		effect* peffect;
 		if((peffect = is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP))) {
-			core.units.begin()->step = 39;
+			core.units.begin()->step = 41;
 			core.units.begin()->arg1 = 2;
 			if(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE))
 				core.units.begin()->arg2 = 1;
@@ -3061,8 +3068,10 @@ int32 field::process_battle_command(uint16 step) {
 				core.attacker->announce_count++;
 				attack_all_target_check();
 			}
-			if(!peffect->value)
+			if(!peffect->value) {
+				infos.phase = PHASE_BATTLE;
 				add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
+			}
 			else {
 				core.hint_timing[infos.turn_player] = 0;
 				reset_phase(PHASE_BATTLE);
@@ -3609,7 +3618,7 @@ int32 field::process_battle_command(uint16 step) {
 		if(core.attack_target)
 			core.attack_target->set_status(STATUS_OPPO_BATTLE, FALSE);
 		core.units.begin()->step = -1;
-		infos.phase = PHASE_BATTLE;
+		infos.phase = PHASE_BATTLE_STEP;
 		pduel->write_buffer8(MSG_DAMAGE_STEP_END);
 		reset_phase(PHASE_DAMAGE);
 		adjust_all();
@@ -3618,6 +3627,35 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 40: {
+		if(core.chain_limit) {
+			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, core.chain_limit);
+			core.chain_limit = 0;
+		}
+		if(core.current_chain.size()) {
+			for(auto cait = core.current_chain.begin(); cait != core.current_chain.end(); ++cait)
+				cait->triggering_effect->handler->set_status(STATUS_CHAINING, FALSE);
+			add_process(PROCESSOR_SOLVE_CHAIN, 0, 0, 0, FALSE, 0);
+			core.units.begin()->step = -1;
+			core.ctype = 0;
+			return FALSE;
+		}
+		reset_phase(PHASE_BATTLE_STEP);
+		adjust_all();
+		return FALSE;
+	}
+	case 41: {
+		core.units.begin()->arg1 = core.ctype;
+		core.ctype = 0;
+		if(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE))
+			core.units.begin()->arg2 = 1;
+		else 
+			core.units.begin()->arg2 = 0;
+		infos.phase = PHASE_BATTLE;
+		add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
+		adjust_all();
+		return FALSE;
+	}
+	case 42: {
 		core.attacker = 0;
 		core.attack_target = 0;
 		returns.ivalue[0] = core.units.begin()->arg1;
@@ -3998,7 +4036,8 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		return FALSE;
 	}
 	case 5: {
-		if(core.new_fchain.size() || core.new_ochain.size() || core.instant_event.size())
+		// EVENT_PHASE_START + PHASE_STANDBY is a special case(c89642993)
+		if(core.new_fchain.size() || core.new_ochain.size() || core.instant_event.back().event_code != EVENT_PHASE_START + PHASE_STANDBY)
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
 		add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_STANDBY, 0);
 		return FALSE;
@@ -4013,8 +4052,6 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		return FALSE;
 	}
 	case 7: {
-		if(core.new_fchain.size() || core.new_ochain.size())
-			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
 		return FALSE;
 	}
 	case 8: {
@@ -4032,34 +4069,38 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 			core.units.begin()->step = 14;
 			return FALSE;
 		}
-		infos.phase = PHASE_BATTLE;
+		infos.phase = PHASE_BATTLE_START;
+		core.new_fchain.clear();
+		core.new_ochain.clear();
+		core.quick_f_chain.clear();
+		core.delayed_quick_tmp.clear();
 		core.phase_action = FALSE;
 		core.battle_phase_action = FALSE;
 		core.battle_phase_count[infos.turn_player]++;
 		pduel->write_buffer8(MSG_NEW_PHASE);
 		pduel->write_buffer16(infos.phase);
-		raise_event((card*)0, EVENT_PHASE_START + PHASE_BATTLE, 0, 0, 0, turn_player, 0);
+		raise_event((card*)0, EVENT_PHASE_START + PHASE_BATTLE_START, 0, 0, 0, turn_player, 0);
 		process_instant_event();
 		adjust_all();
 		return FALSE;
 	}
 	case 10: {
-		if(core.new_fchain.size() || core.new_ochain.size() || core.instant_event.size())
-			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
 		add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE_START, 0);
 		return FALSE;
 	}
 	case 11: {
+		infos.phase = PHASE_BATTLE_STEP;
 		core.new_fchain.clear();
 		core.new_ochain.clear();
 		core.quick_f_chain.clear();
 		core.delayed_quick_tmp.clear();
+		core.phase_action = FALSE;
 		core.chain_attack = FALSE;
 		add_process(PROCESSOR_BATTLE_COMMAND, 0, 0, 0, 0, 0);
 		return FALSE;
 	}
 	case 12: {
-		if(core.units.begin()->arg2 == 0 && returns.ivalue[1]) {
+		if(core.units.begin()->arg2 == 0 && returns.ivalue[1]) { // 2nd Battle Step
 			core.units.begin()->arg2 = 1;
 			core.units.begin()->step = 8;
 			for(uint8 p = 0; p < 2; ++p) {
