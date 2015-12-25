@@ -1182,6 +1182,20 @@ int32 scriptlib::card_copy_effect(lua_State *L) {
 	lua_pushinteger(L, pcard->copy_effect(code, reset, count));
 	return 1;
 }
+int32 scriptlib::card_replace_effect(lua_State * L) {
+	check_param_count(L, 3);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	uint32 code = lua_tointeger(L, 2);
+	uint32 reset = lua_tointeger(L, 3);
+	uint32 count = lua_tointeger(L, 4);
+	if(count == 0)
+		count = 1;
+	if(reset & RESET_PHASE && !(reset & (RESET_SELF_TURN | RESET_OPPO_TURN)))
+		reset |= (RESET_SELF_TURN | RESET_OPPO_TURN);
+	lua_pushinteger(L, pcard->replace_effect(code, reset, count));
+	return 1;
+}
 int32 scriptlib::card_enable_unsummonable(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);

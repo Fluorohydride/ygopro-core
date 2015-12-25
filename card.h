@@ -183,6 +183,7 @@ public:
 	void remove_effect(effect* peffect);
 	void remove_effect(effect* peffect, effect_container::iterator it);
 	int32 copy_effect(uint32 code, uint32 reset, uint32 count);
+	int32 replace_effect(uint32 code, uint32 reset, uint32 count);
 	void reset(uint32 id, uint32 reset_type);
 	void reset_effect_count();
 	int32 refresh_disable_status();
@@ -401,7 +402,7 @@ public:
 #define STATUS_CHAINING				0x10000	//
 #define STATUS_SUMMON_DISABLED		0x20000	//
 #define STATUS_ACTIVATE_DISABLED	0x40000	//
-//#define STATUS_UNSUMMONABLE_CARD	0x80000
+#define STATUS_EFFECT_REPLACED		0x80000
 #define STATUS_UNION				0x100000
 #define STATUS_ATTACK_CANCELED		0x200000
 #define STATUS_INITIALIZING			0x400000
