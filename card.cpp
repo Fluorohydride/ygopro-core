@@ -1256,6 +1256,9 @@ int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 	pduel->game_field->core.copy_reset = cr;
 	pduel->game_field->core.copy_reset_count = crc;
 	set_status(STATUS_EFFECT_REPLACED, TRUE);
+	for(auto eit = pduel->uncopy.begin(); eit != pduel->uncopy.end(); ++eit)
+		pduel->delete_effect(*eit);
+	pduel->uncopy.clear();
 	return pduel->game_field->infos.copy_id - 1;
 }
 // add EFFECT_SET_CONTROL
