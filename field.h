@@ -416,6 +416,7 @@ public:
 	int32 is_player_can_send_to_hand(uint8 playerid, card* pcard);
 	int32 is_player_can_send_to_deck(uint8 playerid, card* pcard);
 	int32 is_player_can_remove(uint8 playerid, card* pcard);
+	int32 is_chain_triggerable(chain pchain);
 	int32 is_chain_negatable(uint8 chaincount, uint8 naga_check = FALSE);
 	int32 is_chain_disablable(uint8 chaincount, uint8 naga_check = FALSE);
 	int32 check_chain_target(uint8 chaincount, card* pcard);

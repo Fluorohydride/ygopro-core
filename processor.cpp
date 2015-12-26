@@ -1618,9 +1618,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			}
 			uint8 tp = clit->triggering_player;
 			bool act = true;
-			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
-			        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x3) 
-						|| !(peffect->handler->current.location & 0x3) || peffect->handler->is_position(POS_FACEUP))) {
+			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE) && is_chain_triggerable(*clit)) {
 				if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) {
 					if(tp == infos.turn_player) {
 						for(auto tpit = core.tpchain.begin(); tpit != core.tpchain.end(); ++tpit) {
@@ -1723,9 +1721,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		effect* peffect = clit->triggering_effect;
 		uint8 tp = clit->triggering_player;
 		bool act = true;
-		if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
-		        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x3)
-		            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_position(POS_FACEUP))) {
+		if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE) && is_chain_triggerable(*clit)) {
 			if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
 			        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(peffect))
 			            || (peffect->range & LOCATION_HAND))) {
@@ -1784,9 +1780,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			if(pcard != peffect->handler)
 				continue;
 			bool act = true;
-			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
-			        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x3)
-			            || !(peffect->handler->current.location & 0x3) || peffect->handler->is_position(POS_FACEUP))) {
+			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE) && is_chain_triggerable(*clit)) {
 				if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
 				        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(peffect))
 				            || (peffect->range & LOCATION_HAND))) {
