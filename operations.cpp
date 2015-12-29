@@ -280,7 +280,7 @@ void field::move_to_field(card* target, uint32 move_player, uint32 playerid, uin
 	target->operation_param = (move_player << 24) + (playerid << 16) + (destination << 8) + positions;
 	add_process(PROCESSOR_MOVETOFIELD, 0, 0, (group*)target, enable, ret + (is_equip << 8));
 }
-void field::change_position(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 au, uint32 ad, uint32 du, uint32 dd, uint32 noflip, uint32 enable) {
+void field::change_position(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 au, uint32 ad, uint32 du, uint32 dd, uint32 flag, uint32 enable) {
 	group* ng = pduel->new_group(*targets);
 	ng->is_readonly = TRUE;
 	for(auto cit = targets->begin(); cit != targets->end(); ++cit) {
@@ -289,17 +289,15 @@ void field::change_position(card_set* targets, effect* reason_effect, uint32 rea
 		else if(pcard->current.position == POS_FACEDOWN_DEFENCE) pcard->operation_param = dd;
 		else if(pcard->current.position == POS_FACEUP_DEFENCE) pcard->operation_param = du;
 		else pcard->operation_param = ad;
-		if(noflip)
-			pcard->operation_param |= NO_FLIP_EFFECT;
+		pcard->operation_param |= flag;
 	}
 	add_process(PROCESSOR_CHANGEPOS, 0, reason_effect, ng, reason_player, enable);
 }
-void field::change_position(card* target, effect* reason_effect, uint32 reason_player, uint32 npos, uint32 noflip, uint32 enable) {
+void field::change_position(card* target, effect* reason_effect, uint32 reason_player, uint32 npos, uint32 flag, uint32 enable) {
 	group* ng = pduel->new_group(target);
 	ng->is_readonly = TRUE;
 	target->operation_param = npos;
-	if(noflip)
-		target->operation_param |= NO_FLIP_EFFECT;
+	target->operation_param |= flag;
 	add_process(PROCESSOR_CHANGEPOS, 0, reason_effect, ng, reason_player, enable);
 }
 int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, uint32 count) {
@@ -3756,15 +3754,14 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 		card_set flips;
 		card_set ssets;
 		card_set pos_changed;
-		uint8 npos, opos, noflip;
 		card_vector cv(targets->container.begin(), targets->container.end());
 		if(cv.size() > 1)
 			std::sort(cv.begin(), cv.end(), card::card_operation_sort);
 		for(auto cvit = cv.begin(); cvit != cv.end(); ++cvit) {
 			card* pcard = *cvit;
-			npos = pcard->operation_param & 0xff;
-			opos = pcard->current.position;
-			noflip = pcard->operation_param >> 16;
+			uint8 npos = pcard->operation_param & 0xff;
+			uint8 opos = pcard->current.position;
+			uint8 flag = pcard->operation_param >> 16;
 			if(pcard->is_status(STATUS_SUMMONING) || pcard->overlay_target || !(pcard->current.location & LOCATION_ONFIELD)
 			        || !pcard->is_affect_by_effect(reason_effect) || npos == opos
 			        || (!(pcard->data.type & TYPE_TOKEN) && (opos & POS_FACEUP) &&  (npos & POS_FACEDOWN) && !pcard->is_capable_turn_set(reason_player))
@@ -3789,7 +3786,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 				if((opos & POS_FACEDOWN) && (npos & POS_FACEUP)) {
 					pcard->fieldid = infos.field_id++;
 					if(pcard->current.location == LOCATION_MZONE) {
-						raise_single_event(pcard, 0, EVENT_FLIP, reason_effect, 0, reason_player, 0, noflip);
+						raise_single_event(pcard, 0, EVENT_FLIP, reason_effect, 0, reason_player, 0, flag);
 						flips.insert(pcard);
 					}
 					if(enable) {

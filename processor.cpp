@@ -2325,26 +2325,20 @@ int32 field::process_instant_event() {
 int32 field::process_single_event() {
 	if(core.single_event.size() == 0)
 		return TRUE;
-	card* starget;
-	uint32 ev;
-	effect_set eset;
-	effect* peffect;
 	effect_vector tp;
 	effect_vector ntp;
 	event_list tev;
 	event_list ntev;
-	effect_vector::iterator eit;
-	event_list::iterator evit;
 	for(auto elit = core.single_event.begin(); elit != core.single_event.end(); ++elit) {
-		starget = elit->trigger_card;
-		ev = elit->event_code;
+		card* starget = elit->trigger_card;
+		uint32 ev = elit->event_code;
 		auto pr = starget->single_effect.equal_range(ev);
 		const tevent& e = *elit;
 		for(; pr.first != pr.second; ++pr.first) {
-			peffect = pr.first->second;
+			effect* peffect = pr.first->second;
 			if(!(peffect->type & EFFECT_TYPE_ACTIONS))
 				continue;
-			if((peffect->type & EFFECT_TYPE_FLIP) && e.event_value)
+			if((peffect->type & EFFECT_TYPE_FLIP) && (e.event_value & (NO_FLIP_EFFECT >> 16)))
 				continue;
 			//continuous & trigger (single)
 			if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
@@ -2404,6 +2398,8 @@ int32 field::process_single_event() {
 			}
 		}
 	}
+	effect_vector::iterator eit;
+	event_list::iterator evit;
 	for(eit = tp.begin(), evit = tev.begin(); eit != tp.end(); ++eit, ++evit) {
 		core.sub_solving_event.push_back(*evit);
 		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, (*eit), 0, (*eit)->get_handler_player(), 0);

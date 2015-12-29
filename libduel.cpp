@@ -548,18 +548,19 @@ int32 scriptlib::duel_change_form(lua_State *L) {
 	} else
 		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	uint32 au = lua_tointeger(L, 2);
-	uint32 ad = au, du = au, dd = au, noflip = 0;
+	uint32 ad = au, du = au, dd = au, flag = 0;
 	uint32 top = lua_gettop(L);
 	if(top > 2) ad = lua_tointeger(L, 3);
 	if(top > 3) du = lua_tointeger(L, 4);
 	if(top > 4) dd = lua_tointeger(L, 5);
-	if(top > 5) noflip = lua_toboolean(L, 6);
+	if(top > 5 && lua_toboolean(L, 6)) flag |= NO_FLIP_EFFECT;
+	if(top > 6 && lua_toboolean(L, 7)) flag |= FLIP_SET_AVAILABLE;
 	if(pcard) {
 		field::card_set cset;
 		cset.insert(pcard);
-		pduel->game_field->change_position(&cset, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, noflip, TRUE);
+		pduel->game_field->change_position(&cset, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, flag, TRUE);
 	} else
-		pduel->game_field->change_position(&(pgroup->container), pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, noflip, TRUE);
+		pduel->game_field->change_position(&(pgroup->container), pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, flag, TRUE);
 	pduel->game_field->core.subunits.begin()->type = PROCESSOR_CHANGEPOS_S;
 	return lua_yield(L, 0);
 }
