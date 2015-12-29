@@ -1172,10 +1172,12 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 	}
 	if (peffect->is_flag(EFFECT_FLAG_INITIAL) && peffect->copy_id && is_status(STATUS_EFFECT_REPLACED)) {
 		set_status(STATUS_EFFECT_REPLACED, FALSE);
-		set_status(STATUS_INITIALIZING, TRUE);
-		pduel->lua->add_param(this, PARAM_TYPE_CARD);
-		pduel->lua->call_card_function(this, (char*) "initial_effect", 1, 0);
-		set_status(STATUS_INITIALIZING, FALSE);
+		if ((!(data.type & TYPE_NORMAL) || (data.type & TYPE_PENDULUM))) {
+			set_status(STATUS_INITIALIZING, TRUE);
+			pduel->lua->add_param(this, PARAM_TYPE_CARD);
+			pduel->lua->call_card_function(this, (char*) "initial_effect", 1, 0);
+			set_status(STATUS_INITIALIZING, FALSE);
+		}
 	}
 	indexer.erase(peffect);
 	if(peffect->is_flag(EFFECT_FLAG_OATH))
@@ -1230,6 +1232,21 @@ int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
 	for(auto eit = pduel->uncopy.begin(); eit != pduel->uncopy.end(); ++eit)
 		pduel->delete_effect(*eit);
 	pduel->uncopy.clear();
+	if(!(data.type & TYPE_EFFECT)) {
+		effect* peffect = pduel->new_effect();
+		if(pduel->game_field->core.reason_effect)
+			peffect->owner = pduel->game_field->core.reason_effect->handler;
+		else
+			peffect->owner = this;
+		peffect->handler = this;
+		peffect->type = EFFECT_TYPE_SINGLE;
+		peffect->code = EFFECT_ADD_TYPE;
+		peffect->value = TYPE_EFFECT;
+		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
+		peffect->reset_flag = reset;
+		peffect->reset_count |= count & 0xff;
+		this->add_effect(peffect);
+	}
 	return pduel->game_field->infos.copy_id - 1;
 }
 int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
@@ -1259,6 +1276,21 @@ int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 	for(auto eit = pduel->uncopy.begin(); eit != pduel->uncopy.end(); ++eit)
 		pduel->delete_effect(*eit);
 	pduel->uncopy.clear();
+	if(!(data.type & TYPE_EFFECT)) {
+		effect* peffect = pduel->new_effect();
+		if(pduel->game_field->core.reason_effect)
+			peffect->owner = pduel->game_field->core.reason_effect->handler;
+		else
+			peffect->owner = this;
+		peffect->handler = this;
+		peffect->type = EFFECT_TYPE_SINGLE;
+		peffect->code = EFFECT_ADD_TYPE;
+		peffect->value = TYPE_EFFECT;
+		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
+		peffect->reset_flag = reset;
+		peffect->reset_count |= count & 0xff;
+		this->add_effect(peffect);
+	}
 	return pduel->game_field->infos.copy_id - 1;
 }
 // add EFFECT_SET_CONTROL
