@@ -210,9 +210,9 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			if((handler->data.type & TYPE_MONSTER) && (handler->current.location & LOCATION_SZONE)
 					&& !in_range(handler->current.location, handler->current.sequence))
 				return FALSE;
-			// effects with EFFECT_FLAG_SET_AVAILABLE or cards with STATUS_SET_AVAILABLE can be activated while face-down
+			// effects with EFFECT_FLAG_SET_AVAILABLE can be activated while face-down
 			if((handler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED))
-					&& !is_flag(EFFECT_FLAG_SET_AVAILABLE) && !handler->is_status(STATUS_SET_AVAILABLE)
+					&& !is_flag(EFFECT_FLAG_SET_AVAILABLE)
 					&& (code != EVENT_FLIP || !(e.event_value & (FLIP_SET_AVAILABLE >> 16)))
 					&& (!handler->is_position(POS_FACEUP) || !handler->is_status(STATUS_EFFECT_ENABLED)))
 				return FALSE;

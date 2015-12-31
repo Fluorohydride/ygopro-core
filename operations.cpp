@@ -1129,7 +1129,7 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 		if(!is_step) {
 			if(equip_card->is_position(POS_FACEUP))
 				equip_card->enable_field_effect(TRUE);
-			adjust_instant();
+			adjust_disable_check_list();
 			card_set cset;
 			cset.insert(equip_card);
 			raise_single_event(target, &cset, EVENT_EQUIP, core.reason_effect, 0, core.reason_player, PLAYER_NONE, 0);

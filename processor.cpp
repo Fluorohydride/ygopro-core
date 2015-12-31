@@ -4668,7 +4668,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		pduel->write_buffer8(MSG_CHAIN_SOLVED);
 		pduel->write_buffer8(cait->chain_count);
 		raise_event((card*)0, EVENT_CHAIN_SOLVED, cait->triggering_effect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
-		adjust_instant();
+		adjust_disable_check_list();
 		process_instant_event();
 		core.units.begin()->step = 9;
 		return FALSE;
@@ -4776,11 +4776,14 @@ int32 field::break_effect() {
 	adjust_instant();
 	return 0;
 }
+// adjust, type 1
+// adjust disable, self_destroy
 void field::adjust_instant() {
 	adjust_disable_check_list();
 	adjust_self_destroy_set();
 }
-// this includes adjust_instant()
+// adjust, type 2 (including adjust_instant())
+// adjust win, disable, control, self_destroy, equip, position, trap_monster
 void field::adjust_all() {
 	core.readjust_map.clear();
 	add_process(PROCESSOR_ADJUST, 0, 0, 0, 0, 0);
@@ -5010,8 +5013,8 @@ int32 field::refresh_location_info(uint16 step) {
 	}
 	return TRUE;
 }
+// adjust_all() goes here
 int32 field::adjust_step(uint16 step) {
-	//win, isable, control, self_des, equip, position, trap_monster
 	switch(step) {
 	case 0: {
 		core.re_adjust = FALSE;
