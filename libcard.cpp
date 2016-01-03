@@ -1130,7 +1130,7 @@ int32 scriptlib::card_clear_effect_relation(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	pcard->relate_effect.clear();
+	pcard->clear_relate_effect();
 	return 0;
 }
 int32 scriptlib::card_is_relate_to_effect(lua_State *L) {
@@ -1140,6 +1140,21 @@ int32 scriptlib::card_is_relate_to_effect(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 2);
 	if(pcard && pcard->is_has_relation(peffect))
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::card_is_relate_to_chain(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 chain_count = lua_tointeger(L, 2);
+	duel* pduel = pcard->pduel;
+	if(chain_count > pduel->game_field->core.current_chain.size() || chain_count < 1)
+		chain_count = pduel->game_field->core.current_chain.size();
+	uint16 chain_id = pduel->game_field->core.current_chain[chain_count - 1].chain_id;
+	if(pcard && pcard->is_has_relation(chain_id))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);

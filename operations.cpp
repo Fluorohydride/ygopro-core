@@ -67,13 +67,14 @@ void field::change_target(uint8 chaincount, group* targets) {
 	if(chaincount > core.current_chain.size() || chaincount < 1)
 		chaincount = core.current_chain.size();
 	group* ot = core.current_chain[chaincount - 1].target_cards;
-	effect* te = core.current_chain[chaincount - 1].triggering_effect;
 	if(ot) {
+		effect* te = core.current_chain[chaincount - 1].triggering_effect;
+		uint16 chain_id = core.current_chain[chaincount - 1].chain_id;
 		for(auto cit = ot->container.begin(); cit != ot->container.end(); ++cit)
-			(*cit)->release_relation(te);
+			(*cit)->release_relation(chain_id);
 		ot->container = targets->container;
 		for(auto cit = ot->container.begin(); cit != ot->container.end(); ++cit)
-			(*cit)->create_relation(te);
+			(*cit)->create_relation(chain_id);
 		if(te->is_flag(EFFECT_FLAG_CARD_TARGET)) {
 			for(auto cit = ot->container.begin(); cit != ot->container.end(); ++cit) {
 				if((*cit)->current.location & 0x30)
@@ -3210,7 +3211,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			pcard->current.reason &= ~REASON_TEMPORARY;
 			pcard->fieldid = infos.field_id++;
 			pcard->reset(RESET_LEAVE, RESET_EVENT);
-			pcard->relate_effect.clear();
+			pcard->clear_relate_effect();
 			remove_card(pcard);
 			param->leave.insert(pcard);
 			++param->cvit;
