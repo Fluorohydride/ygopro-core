@@ -3623,7 +3623,7 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 			uint32 flag;
 			uint32 lreason = (target->current.location == LOCATION_MZONE) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
 			uint32 ct = get_useable_count(playerid, location, move_player, lreason, &flag);
-			if((ret == 1) && (ct <= 0 || !(target->data.type & TYPE_MONSTER))) {
+			if((ret == 1) && (ct <= 0)) {
 				core.units.begin()->step = 3;
 				send_to(target, core.reason_effect, REASON_EFFECT, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
 				return FALSE;
@@ -3734,6 +3734,8 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 			target->unequip();
 		if(enable || ((ret == 1) && target->is_position(POS_FACEUP)))
 			target->enable_field_effect(TRUE);
+		if(ret == 1 && target->current.location == LOCATION_MZONE && !(target->data.type & TYPE_MONSTER))
+			send_to(target, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
 		adjust_disable_check_list();
 		return FALSE;
 	}
