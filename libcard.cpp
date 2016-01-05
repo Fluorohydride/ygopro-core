@@ -1153,8 +1153,7 @@ int32 scriptlib::card_is_relate_to_chain(lua_State *L) {
 	duel* pduel = pcard->pduel;
 	if(chain_count > pduel->game_field->core.current_chain.size() || chain_count < 1)
 		chain_count = pduel->game_field->core.current_chain.size();
-	uint16 chain_id = pduel->game_field->core.current_chain[chain_count - 1].chain_id;
-	if(pcard && pcard->is_has_relation(chain_id))
+	if(pcard && pcard->is_has_relation(pduel->game_field->core.current_chain[chain_count - 1]))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);

@@ -69,12 +69,11 @@ void field::change_target(uint8 chaincount, group* targets) {
 	group* ot = core.current_chain[chaincount - 1].target_cards;
 	if(ot) {
 		effect* te = core.current_chain[chaincount - 1].triggering_effect;
-		uint16 chain_id = core.current_chain[chaincount - 1].chain_id;
 		for(auto cit = ot->container.begin(); cit != ot->container.end(); ++cit)
-			(*cit)->release_relation(chain_id);
+			(*cit)->release_relation(core.current_chain[chaincount - 1]);
 		ot->container = targets->container;
 		for(auto cit = ot->container.begin(); cit != ot->container.end(); ++cit)
-			(*cit)->create_relation(chain_id);
+			(*cit)->create_relation(core.current_chain[chaincount - 1]);
 		if(te->is_flag(EFFECT_FLAG_CARD_TARGET)) {
 			for(auto cit = ot->container.begin(); cit != ot->container.end(); ++cit) {
 				if((*cit)->current.location & 0x30)

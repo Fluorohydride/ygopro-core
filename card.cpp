@@ -72,7 +72,6 @@ card::card(duel* pd) {
 	assume_type = 0;
 	assume_value = 0;
 	spsummon_code = 0;
-	relate_effect_outside = 0;
 	current.controler = PLAYER_NONE;
 }
 card::~card() {
@@ -1438,48 +1437,44 @@ void card::release_relation(card* target) {
 		return;
 	relations.erase(target);
 }
-void card::create_relation(uint16 chain_id) {
-	relate_effect.insert(chain_id);
+void card::create_relation(const chain& ch) {
+	relate_effect.insert(std::make_pair(ch.triggering_effect, ch.chain_id));
 }
-int32 card::is_has_relation(uint16 chain_id) {
-	if (relate_effect.find(chain_id) != relate_effect.end())
+int32 card::is_has_relation(const chain& ch) {
+	if (relate_effect.find(std::make_pair(ch.triggering_effect, ch.chain_id)) != relate_effect.end())
 		return TRUE;
 	return FALSE;
 }
-void card::release_relation(uint16 chain_id) {
-	relate_effect.erase(chain_id);
+void card::release_relation(const chain& ch) {
+	relate_effect.erase(std::make_pair(ch.triggering_effect, ch.chain_id));
 }
 void card::clear_relate_effect() {
 	relate_effect.clear();
-	relate_effect_outside = 0;
 }
 void card::create_relation(effect* peffect) {
 	for(auto it = pduel->game_field->core.current_chain.rbegin(); it != pduel->game_field->core.current_chain.rend(); ++it) {
 		if(it->triggering_effect == peffect) {
-			create_relation(it->chain_id);
+			create_relation(*it);
 			return;
 		}
 	}
-	relate_effect_outside = peffect;
+	relate_effect.insert(std::make_pair(peffect, (uint16)0));
 }
 int32 card::is_has_relation(effect* peffect) {
-	for(auto it = pduel->game_field->core.current_chain.rbegin(); it != pduel->game_field->core.current_chain.rend(); ++it) {
-		if(it->triggering_effect == peffect)
-			return is_has_relation(it->chain_id);
+	for(auto it = relate_effect.begin(); it != relate_effect.end(); ++it) {
+		if(it->first == peffect)
+			return TRUE;
 	}
-	if(relate_effect_outside == peffect)
-		return TRUE;
 	return FALSE;
 }
 void card::release_relation(effect* peffect) {
 	for(auto it = pduel->game_field->core.current_chain.rbegin(); it != pduel->game_field->core.current_chain.rend(); ++it) {
 		if(it->triggering_effect == peffect) {
-			release_relation(it->chain_id);
+			release_relation(*it);
 			return;
 		}
 	}
-	if(relate_effect_outside == peffect)
-		relate_effect_outside = 0;
+	relate_effect.erase(std::make_pair(peffect, (uint16)0));
 }
 int32 card::leave_field_redirect(uint32 reason) {
 	effect_set es;
