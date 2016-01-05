@@ -15,8 +15,6 @@
 #include <vector>
 #include <map>
 
-using namespace std;
-
 class card;
 class duel;
 class group;

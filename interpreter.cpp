@@ -677,15 +677,15 @@ int32 interpreter::load_card_script(uint32 code) {
 }
 void interpreter::add_param(void *param, int32 type, bool front) {
 	if(front)
-		params.push_front(make_pair(param, type));
+		params.push_front(std::make_pair(param, type));
 	else
-		params.push_back(make_pair(param, type));
+		params.push_back(std::make_pair(param, type));
 }
 void interpreter::add_param(ptr param, int32 type, bool front) {
 	if(front)
-		params.push_front(make_pair((void*)param, type));
+		params.push_front(std::make_pair((void*)param, type));
 	else
-		params.push_back(make_pair((void*)param, type));
+		params.push_back(std::make_pair((void*)param, type));
 }
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	uint32 type;
@@ -1020,7 +1020,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 			return OPERATION_FAIL;
 		}
 		call_depth++;
-		coroutines.insert(make_pair(f, rthread));
+		coroutines.insert(std::make_pair(f, rthread));
 	} else {
 		rthread = it->second;
 		if(step == 0) {

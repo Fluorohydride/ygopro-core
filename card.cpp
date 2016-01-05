@@ -1075,11 +1075,11 @@ int32 card::add_effect(effect* peffect) {
 					remove_effect(rm->second);
 			}
 		}
-		it = single_effect.insert(make_pair(peffect->code, peffect));
+		it = single_effect.insert(std::make_pair(peffect->code, peffect));
 	} else if (peffect->type & EFFECT_TYPE_FIELD)
-		it = field_effect.insert(make_pair(peffect->code, peffect));
+		it = field_effect.insert(std::make_pair(peffect->code, peffect));
 	else if (peffect->type & EFFECT_TYPE_EQUIP) {
-		it = equip_effect.insert(make_pair(peffect->code, peffect));
+		it = equip_effect.insert(std::make_pair(peffect->code, peffect));
 		if (equiping_target)
 			check_target = equiping_target;
 		else
@@ -1102,7 +1102,7 @@ int32 card::add_effect(effect* peffect) {
 		if((peffect->reset_count & 0xff) > (pduel->game_field->core.reason_effect->reset_count & 0xff))
 			peffect->reset_count = (peffect->reset_count & 0xffffff00) | (pduel->game_field->core.reason_effect->reset_count & 0xff);
 	}
-	indexer.insert(make_pair(peffect, it));
+	indexer.insert(std::make_pair(peffect, it));
 	peffect->handler = this;
 	if((peffect->type & 0x7e0)
 		|| (pduel->game_field->core.reason_effect && (pduel->game_field->core.reason_effect->status & EFFECT_STATUS_ACTIVATED)))
@@ -1115,7 +1115,7 @@ int32 card::add_effect(effect* peffect) {
 	}
 	if(peffect->is_flag(EFFECT_FLAG_OATH)) {
 		effect* reason_effect = pduel->game_field->core.reason_effect;
-		pduel->game_field->effects.oath.insert(make_pair(peffect, reason_effect));
+		pduel->game_field->effects.oath.insert(std::make_pair(peffect, reason_effect));
 	}
 	if(peffect->reset_flag & RESET_PHASE) {
 		pduel->game_field->effects.pheff.insert(peffect);

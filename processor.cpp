@@ -1940,7 +1940,6 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 	return TRUE;
 }
 int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priority) {
-	pair<effect_container::iterator, effect_container::iterator> pr;
 	event_list::iterator evit;
 	effect* peffect;
 	switch(step) {
@@ -2018,7 +2017,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 				pev = false;
 			}
 			while(pev || (evit != core.instant_event.end())) {
-				pr = effects.activate_effect.equal_range(evit->event_code);
+				auto pr = effects.activate_effect.equal_range(evit->event_code);
 				for(; pr.first != pr.second; ++pr.first) {
 					peffect = pr.first->second;
 					peffect->s_range = peffect->handler->current.location;
@@ -2033,8 +2032,8 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 						newchain.triggering_sequence = peffect->handler->current.sequence;
 						newchain.triggering_player = priority;
 						core.select_chains.push_back(newchain);
-						core.delayed_quick_tmp.erase(make_pair(peffect, *evit));
-						core.delayed_quick_break.erase(make_pair(peffect, *evit));
+						core.delayed_quick_tmp.erase(std::make_pair(peffect, *evit));
+						core.delayed_quick_break.erase(std::make_pair(peffect, *evit));
 					}
 				}
 				pr = effects.quick_o_effect.equal_range(evit->event_code);
@@ -2052,8 +2051,8 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 						newchain.triggering_sequence = peffect->handler->current.sequence;
 						newchain.triggering_player = priority;
 						core.select_chains.push_back(newchain);
-						core.delayed_quick_tmp.erase(make_pair(peffect, *evit));
-						core.delayed_quick_break.erase(make_pair(peffect, *evit));
+						core.delayed_quick_tmp.erase(std::make_pair(peffect, *evit));
+						core.delayed_quick_break.erase(std::make_pair(peffect, *evit));
 					}
 				}
 				++evit;
@@ -2109,7 +2108,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 			core.spe_effect[priority] = core.select_chains.size();
 			if(!skip_freechain) {
 				nil_event.event_code = EVENT_FREE_CHAIN;
-				pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
+				auto pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
 				for(; pr.first != pr.second; ++pr.first) {
 					peffect = pr.first->second;
 					peffect->s_range = peffect->handler->current.location;
@@ -2168,7 +2167,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 			chain newchain = core.select_chains[returns.ivalue[0]];
 			core.new_chains.push_back(newchain);
 			effect* peffect = newchain.triggering_effect;
-			core.delayed_quick.erase(make_pair(peffect, newchain.evt));
+			core.delayed_quick.erase(std::make_pair(peffect, newchain.evt));
 			peffect->handler->set_status(STATUS_CHAINING, TRUE);
 			peffect->dec_count(priority);
 			add_process(PROCESSOR_ADD_CHAIN, 0, 0, 0, 0, 0);
@@ -2303,13 +2302,13 @@ int32 field::process_instant_event() {
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
 			if((peffect->is_flag(EFFECT_FLAG_DELAY)) && peffect->is_condition_check(peffect->handler->current.controler, *elit))
-				core.delayed_quick_tmp.insert(make_pair(peffect, *elit));
+				core.delayed_quick_tmp.insert(std::make_pair(peffect, *elit));
 		}
 		pr = effects.quick_o_effect.equal_range(elit->event_code);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
 			if((peffect->is_flag(EFFECT_FLAG_DELAY)) && peffect->is_condition_check(peffect->handler->current.controler, *elit))
-				core.delayed_quick_tmp.insert(make_pair(peffect, *elit));
+				core.delayed_quick_tmp.insert(std::make_pair(peffect, *elit));
 		}
 	}
 	for(eit = tp.begin(), evit = tev.begin(); eit != tp.end(); ++eit, ++evit) {

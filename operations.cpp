@@ -601,8 +601,7 @@ int32 field::remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplay
 			core.select_options.push_back(10);
 			core.select_effects.push_back(0);
 		}
-		pair<effect_container::iterator, effect_container::iterator> pr;
-		pr = effects.continuous_effect.equal_range(EFFECT_RCOUNTER_REPLACE + countertype);
+		auto pr = effects.continuous_effect.equal_range(EFFECT_RCOUNTER_REPLACE + countertype);
 		effect* peffect;
 		tevent e;
 		e.event_cards = 0;

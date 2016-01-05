@@ -729,29 +729,29 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 	peffect->card_type = peffect->owner->data.type;
 	effect_container::iterator it;
 	if (!(peffect->type & EFFECT_TYPE_ACTIONS)) {
-		it = effects.aura_effect.insert(make_pair(peffect->code, peffect));
+		it = effects.aura_effect.insert(std::make_pair(peffect->code, peffect));
 		if(peffect->code == EFFECT_SPSUMMON_COUNT_LIMIT)
 			effects.spsummon_count_eff.insert(peffect);
 	} else {
 		if (peffect->type & EFFECT_TYPE_IGNITION)
-			it = effects.ignition_effect.insert(make_pair(peffect->code, peffect));
+			it = effects.ignition_effect.insert(std::make_pair(peffect->code, peffect));
 		else if (peffect->type & EFFECT_TYPE_ACTIVATE)
-			it = effects.activate_effect.insert(make_pair(peffect->code, peffect));
+			it = effects.activate_effect.insert(std::make_pair(peffect->code, peffect));
 		else if (peffect->type & EFFECT_TYPE_TRIGGER_O && peffect->type & EFFECT_TYPE_FIELD)
-			it = effects.trigger_o_effect.insert(make_pair(peffect->code, peffect));
+			it = effects.trigger_o_effect.insert(std::make_pair(peffect->code, peffect));
 		else if (peffect->type & EFFECT_TYPE_TRIGGER_F && peffect->type & EFFECT_TYPE_FIELD)
-			it = effects.trigger_f_effect.insert(make_pair(peffect->code, peffect));
+			it = effects.trigger_f_effect.insert(std::make_pair(peffect->code, peffect));
 		else if (peffect->type & EFFECT_TYPE_QUICK_O)
-			it = effects.quick_o_effect.insert(make_pair(peffect->code, peffect));
+			it = effects.quick_o_effect.insert(std::make_pair(peffect->code, peffect));
 		else if (peffect->type & EFFECT_TYPE_QUICK_F)
-			it = effects.quick_f_effect.insert(make_pair(peffect->code, peffect));
+			it = effects.quick_f_effect.insert(std::make_pair(peffect->code, peffect));
 		else if (peffect->type & EFFECT_TYPE_CONTINUOUS)
-			it = effects.continuous_effect.insert(make_pair(peffect->code, peffect));
+			it = effects.continuous_effect.insert(std::make_pair(peffect->code, peffect));
 	}
-	effects.indexer.insert(make_pair(peffect, it));
+	effects.indexer.insert(std::make_pair(peffect, it));
 	if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))) {
 		if(peffect->is_flag(EFFECT_FLAG_OATH))
-			effects.oath.insert(make_pair(peffect, core.reason_effect));
+			effects.oath.insert(std::make_pair(peffect, core.reason_effect));
 		if(peffect->reset_flag & RESET_PHASE)
 			effects.pheff.insert(peffect);
 		if(peffect->reset_flag & RESET_CHAIN)
@@ -2165,8 +2165,7 @@ int32 field::is_player_can_place_counter(uint8 playerid, card * pcard, uint16 co
 int32 field::is_player_can_remove_counter(uint8 playerid, card * pcard, uint8 s, uint8 o, uint16 countertype, uint16 count, uint32 reason) {
 	if((pcard && pcard->get_counter(countertype) >= count) || (!pcard && get_field_counter(playerid, s, o, countertype) >= count))
 		return TRUE;
-	pair<effect_container::iterator, effect_container::iterator> pr;
-	pr = effects.continuous_effect.equal_range(EFFECT_RCOUNTER_REPLACE + countertype);
+	auto pr = effects.continuous_effect.equal_range(EFFECT_RCOUNTER_REPLACE + countertype);
 	effect* peffect;
 	tevent e;
 	e.event_cards = 0;
@@ -2185,8 +2184,7 @@ int32 field::is_player_can_remove_counter(uint8 playerid, card * pcard, uint8 s,
 int32 field::is_player_can_remove_overlay_card(uint8 playerid, card * pcard, uint8 s, uint8 o, uint16 min, uint32 reason) {
 	if((pcard && pcard->xyz_materials.size() >= min) || (!pcard && get_overlay_count(playerid, s, o) >= min))
 		return TRUE;
-	pair<effect_container::iterator, effect_container::iterator> pr;
-	pr = effects.continuous_effect.equal_range(EFFECT_OVERLAY_REMOVE_REPLACE);
+	auto pr = effects.continuous_effect.equal_range(EFFECT_OVERLAY_REMOVE_REPLACE);
 	effect* peffect;
 	tevent e;
 	e.event_cards = 0;
