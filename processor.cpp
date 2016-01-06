@@ -3076,6 +3076,7 @@ int32 field::process_battle_command(uint16 step) {
 		}
 		if(atk_disabled || !core.attacker->is_capable_attack() || core.attacker->is_status(STATUS_ATTACK_CANCELED)
 		        || core.attacker->current.controler != acon || core.attacker->fieldid_r != afid) {
+			core.chain_attack = FALSE;
 			if(core.attacker->fieldid_r == afid) {
 				core.attacker->announce_count++;
 				core.attacker->announced_cards.addcard(core.attack_target);
@@ -4095,7 +4096,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		return FALSE;
 	}
 	case 12: {
-		if(core.units.begin()->arg2 == 0 && returns.ivalue[1]) { // 2nd Battle Step
+		if(core.units.begin()->arg2 == 0 && returns.ivalue[1]) { // 2nd Battle Phase
 			core.units.begin()->arg2 = 1;
 			core.units.begin()->step = 8;
 			for(uint8 p = 0; p < 2; ++p) {
