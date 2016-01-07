@@ -68,6 +68,7 @@ field::field(duel* pduel) {
 	core.chain_limit_p = 0;
 	core.chain_solving = FALSE;
 	core.conti_solving = FALSE;
+	core.chain_disable_check = FALSE;
 	core.conti_player = PLAYER_NONE;
 	core.win_player = 5;
 	core.win_reason = 0;

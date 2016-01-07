@@ -649,6 +649,9 @@ int32 field::process() {
 			for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 				pcard = core.select_cards[returns.bvalue[i + 1]];
 				pgroup->container.insert(pcard);
+				if(core.chain_solving && pcard->is_affected_by_effect(EFFECT_NECRO_VALLEY)
+					&& !is_player_affected_by_effect(pcard->current.controler, EFFECT_NECRO_VALLEY_IM))
+					core.chain_disable_check = TRUE;
 			}
 			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
 			core.units.pop_front();
@@ -1130,11 +1133,16 @@ int32 field::execute_operation(uint16 step, effect * triggering_effect, uint8 tr
 	}
 	core.reason_effect = triggering_effect;
 	core.reason_player = triggering_player;
+	uint8 stop = FALSE;
+	if(core.chain_disable_check
+		&& !core.reason_effect->handler->is_affected_by_effect(EFFECT_NECRO_VALLEY_IM)
+		&& is_chain_disablable(core.current_chain.back().chain_count))
+		stop = TRUE;
 	uint32 count = pduel->lua->params.size();
 	uint32 yield_value = 0;
-	int32 result = pduel->lua->call_coroutine(triggering_effect->operation, count, &yield_value, step);
+	int32 result = pduel->lua->call_coroutine(triggering_effect->operation, count, &yield_value, step, stop);
 	returns.ivalue[0] = yield_value;
-	if (result == COROUTINE_FINISH || result == COROUTINE_ERROR || result == OPERATION_FAIL) {
+	if (result == COROUTINE_FINISH || result == COROUTINE_ERROR || result == COROUTINE_STOP || result == OPERATION_FAIL) {
 		core.reason_effect = 0;
 		core.reason_player = PLAYER_NONE;
 		core.check_level--;
@@ -1153,6 +1161,14 @@ int32 field::execute_operation(uint16 step, effect * triggering_effect, uint8 tr
 			cost[1].amount = 0;
 		}
 		core.shuffle_check_disabled = FALSE;
+		if(result == COROUTINE_STOP) {
+			auto cait = core.current_chain.rbegin();
+			pduel->write_buffer8(MSG_CHAIN_DISABLED);
+			pduel->write_buffer8(cait->chain_count);
+			raise_event((card*)0, EVENT_CHAIN_DISABLED, cait->triggering_effect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
+			process_instant_event();
+			core.chain_disable_check = FALSE;
+		}
 		return TRUE;
 	}
 	return FALSE;
