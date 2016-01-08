@@ -1038,6 +1038,8 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	if(stop) {
 		coroutines.erase(f);
 		params.clear();
+		if(yield_value)
+			*yield_value = -1;
 		call_depth--;
 		if(call_depth == 0) {
 			pduel->release_script_group();

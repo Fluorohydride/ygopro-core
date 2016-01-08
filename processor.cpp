@@ -1134,9 +1134,8 @@ int32 field::execute_operation(uint16 step, effect * triggering_effect, uint8 tr
 	core.reason_effect = triggering_effect;
 	core.reason_player = triggering_player;
 	uint8 stop = FALSE;
-	if(core.chain_disable_check
-		&& !core.reason_effect->handler->is_affected_by_effect(EFFECT_NECRO_VALLEY_IM)
-		&& is_chain_disablable(core.current_chain.back().chain_count))
+	if(core.chain_disable_check && core.units.begin()->arg2
+		&& !core.reason_effect->handler->is_affected_by_effect(EFFECT_NECRO_VALLEY_IM))
 		stop = TRUE;
 	uint32 count = pduel->lua->params.size();
 	uint32 yield_value = 0;
@@ -1161,14 +1160,6 @@ int32 field::execute_operation(uint16 step, effect * triggering_effect, uint8 tr
 			cost[1].amount = 0;
 		}
 		core.shuffle_check_disabled = FALSE;
-		if(result == COROUTINE_STOP) {
-			auto cait = core.current_chain.rbegin();
-			pduel->write_buffer8(MSG_CHAIN_DISABLED);
-			pduel->write_buffer8(cait->chain_count);
-			raise_event((card*)0, EVENT_CHAIN_DISABLED, cait->triggering_effect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
-			process_instant_event();
-			core.chain_disable_check = FALSE;
-		}
 		return TRUE;
 	}
 	return FALSE;
@@ -4606,13 +4597,21 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			cait->triggering_effect->operation = cait->replace_op;
 		} else
 			core.units.begin()->peffect = 0;
+		returns.ivalue[0] = 0;
 		if(cait->triggering_effect->operation) {
 			core.sub_solving_event.push_back(cait->evt);
-			add_process(PROCESSOR_EXECUTE_OPERATION, 0, cait->triggering_effect, 0, cait->triggering_player, 0);
+			add_process(PROCESSOR_EXECUTE_OPERATION, 0, cait->triggering_effect, 0, cait->triggering_player, is_chain_disablable(cait->chain_count));
 		}
 		return FALSE;
 	}
 	case 3: {
+		if(returns.ivalue[0] == -1) {
+			pduel->write_buffer8(MSG_CHAIN_DISABLED);
+			pduel->write_buffer8(cait->chain_count);
+			raise_event((card*)0, EVENT_CHAIN_DISABLED, cait->triggering_effect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
+			process_instant_event();
+			core.chain_disable_check = FALSE;
+		}
 		effect* peffect = cait->triggering_effect;
 		if(core.units.begin()->peffect) {
 			peffect->operation = (ptr)core.units.begin()->peffect;
