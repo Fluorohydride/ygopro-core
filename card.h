@@ -9,7 +9,6 @@
 #define CARD_H_
 
 #include "common.h"
-#include "effect.h"
 #include "effectset.h"
 #include <set>
 #include <map>
@@ -18,7 +17,9 @@
 
 class card;
 class duel;
+class effect;
 class group;
+struct chain;
 
 struct card_data {
 	uint32 code;
@@ -143,7 +144,6 @@ public:
 	effect_container equip_effect;
 	effect_indexer indexer;
 	effect_relation relate_effect;
-	effect* relate_effect_outside;
 	effect_set_v immune_effect;
 
 	explicit card(duel* pd);
