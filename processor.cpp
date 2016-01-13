@@ -2853,7 +2853,7 @@ int32 field::process_battle_command(uint16 step) {
 			return FALSE;
 		} else {
 			core.units.begin()->step = 39;
-			core.ctype = ctype;
+			core.units.begin()->arg1 = ctype;
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_EVENT);
 			pduel->write_buffer8(1 - infos.turn_player);
@@ -3632,7 +3632,6 @@ int32 field::process_battle_command(uint16 step) {
 				cait->triggering_effect->handler->set_status(STATUS_CHAINING, FALSE);
 			add_process(PROCESSOR_SOLVE_CHAIN, 0, 0, 0, FALSE, 0);
 			core.units.begin()->step = -1;
-			core.ctype = 0;
 			return FALSE;
 		}
 		reset_phase(PHASE_BATTLE_STEP);
@@ -3640,8 +3639,7 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 41: {
-		core.units.begin()->arg1 = core.ctype;
-		core.ctype = 0;
+		// normal end of battle step
 		if(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE))
 			core.units.begin()->arg2 = 1;
 		else 
