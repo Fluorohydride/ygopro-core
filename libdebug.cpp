@@ -109,9 +109,21 @@ int32 scriptlib::debug_pre_add_counter(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint32 ctype = lua_tointeger(L, 2);
-	uint32 ccount = lua_tointeger(L, 3);
-	pcard->counters[ctype] += ccount;
+	uint32 countertype = lua_tointeger(L, 2);
+	uint32 count = lua_tointeger(L, 3);
+	uint16 cttype = countertype;
+	if((countertype & COUNTER_NEED_ENABLE) && !(countertype & COUNTER_NEED_PERMIT))
+		cttype &= 0xfff;
+	auto pr = pcard->counters.insert(std::make_pair(cttype, card::counter_map::mapped_type()));
+	auto cmit = pr.first;
+	if(pr.second) {
+		cmit->second[0] = 0;
+		cmit->second[1] = 0;
+	}
+	if(!(countertype & COUNTER_NEED_ENABLE))
+		cmit->second[0] += count;
+	else
+		cmit->second[1] += count;
 	return 0;
 }
 int32 scriptlib::debug_reload_field_begin(lua_State *L) {

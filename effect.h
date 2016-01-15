@@ -15,8 +15,6 @@
 #include <vector>
 #include <map>
 
-using namespace std;
-
 class card;
 class duel;
 class group;
@@ -24,8 +22,8 @@ class effect;
 struct tevent;
 struct effect_set;
 struct effect_set_v;
-enum effect_flag;
-enum effect_flag2;
+enum effect_flag : uint32;
+enum effect_flag2 : uint32;
 
 class effect {
 public:
@@ -104,18 +102,10 @@ public:
 #define EFFECT_COUNT_CODE_DUEL 0x20000000
 
 //========== Reset ==========
-#define RESET_DRAW			PHASE_DRAW
-#define RESET_STANDBY		PHASE_STANDBY
-#define RESET_MAIN1			PHASE_MAIN1
-#define RESET_BATTLE		PHASE_BATTLE
-#define RESET_DAMAGE		PHASE_DAMAGE
-#define RESET_DAMAGE_CAL	PHASE_DAMAGE_CAL
-#define RESET_MAIN2			PHASE_MAIN2
-#define RESET_END			PHASE_END
-#define RESET_SELF_TURN		0x0100
-#define RESET_OPPO_TURN		0x0200
-#define RESET_PHASE			0x0400
-#define RESET_CHAIN			0x0800
+#define RESET_SELF_TURN		0x10000000
+#define RESET_OPPO_TURN		0x20000000
+#define RESET_PHASE			0x40000000
+#define RESET_CHAIN			0x80000000
 #define RESET_EVENT			0x1000
 #define RESET_CARD			0x2000
 #define RESET_CODE			0x4000
@@ -149,7 +139,7 @@ public:
 #define EFFECT_TYPE_CONTINUOUS		0x0800	//
 
 //========== Flags ==========
-enum effect_flag {
+enum effect_flag : uint32 {
 	EFFECT_FLAG_INITIAL				= 0x0001,
 	EFFECT_FLAG_FUNC_VALUE			= 0x0002,
 	EFFECT_FLAG_COUNT_LIMIT			= 0x0004,
@@ -183,7 +173,7 @@ enum effect_flag {
 	EFFECT_FLAG_CVAL_CHECK			= 0x40000000,
 	EFFECT_FLAG_IMMEDIATELY_APPLY	= 0x80000000,
 };
-enum effect_flag2 {
+enum effect_flag2 : uint32 {
 	EFFECT_FLAG2_NAGA				= 0x0001,
 	EFFECT_FLAG2_COF				= 0x0002,
 };
@@ -402,6 +392,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_DISABLE_CHAIN_FIELD		337
 #define EFFECT_DISCARD_COST_CHANGE		338
 #define EFFECT_HAND_SYNCHRO				339
+#define EFFECT_ADD_FUSION_CODE			340
+#define EFFECT_ADD_FUSION_SETCODE		341
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
@@ -468,7 +460,6 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_TURN_END				1210
 #define EVENT_PHASE					0x1000
 #define EVENT_PHASE_START			0x2000
-#define EVENT_PHASE_PRESTART		0x2100
 #define EVENT_ADD_COUNTER			0x10000
 #define EVENT_REMOVE_COUNTER		0x20000
 

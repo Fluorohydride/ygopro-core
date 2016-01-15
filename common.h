@@ -78,7 +78,9 @@ struct card_data {
 #define POS_FACEDOWN			0xa
 #define POS_ATTACK				0x3
 #define POS_DEFENCE				0xc
+//Flip effect flags
 #define NO_FLIP_EFFECT			0x10000
+#define FLIP_SET_AVAILABLE		0x20000
 //Types
 #define TYPE_MONSTER		0x1			//
 #define TYPE_SPELL			0x2			//
@@ -136,7 +138,7 @@ struct card_data {
 #define RACE_PSYCHO			0x100000	//
 #define RACE_DEVINE			0x200000	//
 #define RACE_CREATORGOD		0x400000	//
-#define RACE_PHANTOMDRAGON		0x800000	//
+#define RACE_PHANTOMDRAGON	0x800000	//
 //Reason
 #define REASON_DESTROY		0x1		//
 #define REASON_RELEASE		0x2		//
@@ -173,6 +175,7 @@ struct card_data {
 #define SUMMON_TYPE_RITUAL	0x45000000
 #define SUMMON_TYPE_SYNCHRO	0x46000000
 #define SUMMON_TYPE_XYZ		0x49000000
+#define SUMMON_TYPE_PENDULUM	0x4a000000
 //Status
 #define STATUS_DISABLED				0x0001	//
 #define STATUS_TO_ENABLE			0x0002	//
@@ -180,8 +183,8 @@ struct card_data {
 #define STATUS_PROC_COMPLETE		0x0008	//
 #define STATUS_SET_TURN				0x0010	//
 #define STATUS_NO_LEVEL				0x0020	//
-#define STATUS_REVIVE_LIMIT			0x0040	//
-#define STATUS_ATTACKED				0x0080	//
+#define STATUS_SET_AVAILABLE		0x0040	//
+#define STATUS_SPSUMMON_STEP		0x0080	//
 #define STATUS_FORM_CHANGED			0x0100	//
 #define STATUS_SUMMONING			0x0200	//
 #define STATUS_EFFECT_ENABLED		0x0400	//
@@ -193,14 +196,19 @@ struct card_data {
 #define STATUS_CHAINING				0x10000	//
 #define STATUS_SUMMON_DISABLED		0x20000	//
 #define STATUS_ACTIVATE_DISABLED	0x40000	//
-#define STATUS_UNSUMMONABLE_CARD	0x80000	//
+#define STATUS_EFFECT_REPLACED		0x80000
 #define STATUS_UNION				0x100000
 #define STATUS_ATTACK_CANCELED		0x200000
 #define STATUS_INITIALIZING			0x400000
 #define STATUS_ACTIVATED			0x800000
 #define STATUS_JUST_POS				0x1000000
 #define STATUS_CONTINUOUS_POS		0x2000000
+//#define STATUS_IS_PUBLIC			0x4000000
 #define STATUS_ACT_FROM_HAND		0x8000000
+#define STATUS_OPPO_BATTLE			0x10000000
+#define STATUS_FLIP_SUMMON_TURN		0x20000000
+#define STATUS_SPSUMMON_TURN		0x40000000
+
 //Counter
 #define COUNTER_NEED_PERMIT		0x1000
 #define COUNTER_NEED_ENABLE		0x2000
@@ -370,20 +378,22 @@ struct card_data {
 #define PLAYER_ALL		3	//
 
 //Phase
-#define PHASE_DRAW			0x01	//
-#define PHASE_STANDBY		0x02	//
-#define PHASE_MAIN1			0x04	//
-#define PHASE_BATTLE		0x08	//
-#define PHASE_DAMAGE		0x10	//
-#define PHASE_DAMAGE_CAL	0x20	//
-#define PHASE_MAIN2			0x40	//
-#define PHASE_END			0x80	//
+#define PHASE_DRAW			0x01
+#define PHASE_STANDBY		0x02
+#define PHASE_MAIN1			0x04
+#define PHASE_BATTLE_START	0x08
+#define PHASE_BATTLE_STEP	0x10
+#define PHASE_DAMAGE		0x20
+#define PHASE_DAMAGE_CAL	0x40
+#define PHASE_BATTLE		0x80
+#define PHASE_MAIN2			0x100
+#define PHASE_END			0x200
 
 //Options
 #define DUEL_TEST_MODE			0x01
 #define DUEL_ATTACK_FIRST_TURN	0x02
 #define DUEL_NO_CHAIN_HINT		0x04
-#define DUEL_ENABLE_PRIORITY	0x08
+#define DUEL_OBSOLETE_RULING	0x08
 #define DUEL_PSEUDO_SHUFFLE		0x10
 #define DUEL_TAG_MODE			0x20
 #define DUEL_SIMPLE_AI			0x40

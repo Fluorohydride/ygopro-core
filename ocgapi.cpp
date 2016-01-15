@@ -60,20 +60,22 @@ void duelAdapter::start_duel(int options) {
 		pduel->game_field->draw(0, REASON_RULE, PLAYER_NONE, 1, pduel->game_field->player[1].start_count);
 	if(options & DUEL_TAG_MODE) {
 		for(int i = 0; i < pduel->game_field->player[0].start_count && pduel->game_field->player[0].tag_list_main.size(); ++i) {
-			card* pcard = *pduel->game_field->player[0].tag_list_main.rbegin();
+            card* pcard = pduel->game_field->player[0].tag_list_main.back();
 			pduel->game_field->player[0].tag_list_main.pop_back();
 			pduel->game_field->player[0].tag_list_hand.push_back(pcard);
 			pcard->current.controler = 0;
 			pcard->current.location = LOCATION_HAND;
 			pcard->current.sequence = pduel->game_field->player[0].tag_list_hand.size() - 1;
+            pcard->current.position = POS_FACEDOWN;
 		}
 		for(int i = 0; i < pduel->game_field->player[1].start_count && pduel->game_field->player[1].tag_list_main.size(); ++i) {
-			card* pcard = *pduel->game_field->player[1].tag_list_main.rbegin();
+			card* pcard = pduel->game_field->player[1].tag_list_main.back();
 			pduel->game_field->player[1].tag_list_main.pop_back();
 			pduel->game_field->player[1].tag_list_hand.push_back(pcard);
 			pcard->current.controler = 1;
 			pcard->current.location = LOCATION_HAND;
 			pcard->current.sequence = pduel->game_field->player[1].tag_list_hand.size() - 1;
+            pcard->current.position = POS_FACEDOWN;
 		}
 	}
 	pduel->game_field->add_process(PROCESSOR_TURN, 0, 0, 0, 0, 0);

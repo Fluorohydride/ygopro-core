@@ -278,8 +278,16 @@ int32 scriptlib::duel_xyz_summon(lua_State *L) {
 		check_param(L, PARAM_TYPE_GROUP, 3);
 		materials = *(group**)lua_touserdata(L, 3);
 	}
+	int32 minc = 0;
+	if(lua_gettop(L) >= 4)
+		minc = lua_tointeger(L, 4);
+	int32 maxc = 0;
+	if(lua_gettop(L) >= 5)
+		maxc = lua_tointeger(L, 5);
 	duel * pduel = pcard->pduel;
 	pduel->game_field->core.limit_xyz = materials;
+	pduel->game_field->core.limit_xyz_minc = minc;
+	pduel->game_field->core.limit_xyz_maxc = maxc;
 	pduel->game_field->core.summon_cancelable = FALSE;
 	pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_XYZ);
 	return lua_yield(L, 0);
@@ -540,18 +548,19 @@ int32 scriptlib::duel_change_form(lua_State *L) {
 	} else
 		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	uint32 au = lua_tointeger(L, 2);
-	uint32 ad = au, du = au, dd = au, noflip = 0;
+	uint32 ad = au, du = au, dd = au, flag = 0;
 	uint32 top = lua_gettop(L);
 	if(top > 2) ad = lua_tointeger(L, 3);
 	if(top > 3) du = lua_tointeger(L, 4);
 	if(top > 4) dd = lua_tointeger(L, 5);
-	if(top > 5) noflip = lua_toboolean(L, 6);
+	if(top > 5 && lua_toboolean(L, 6)) flag |= NO_FLIP_EFFECT;
+	if(top > 6 && lua_toboolean(L, 7)) flag |= FLIP_SET_AVAILABLE;
 	if(pcard) {
 		field::card_set cset;
 		cset.insert(pcard);
-		pduel->game_field->change_position(&cset, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, noflip, TRUE);
+		pduel->game_field->change_position(&cset, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, flag, TRUE);
 	} else
-		pduel->game_field->change_position(&(pgroup->container), pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, noflip, TRUE);
+		pduel->game_field->change_position(&(pgroup->container), pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, flag, TRUE);
 	pduel->game_field->core.subunits.begin()->type = PROCESSOR_CHANGEPOS_S;
 	return lua_yield(L, 0);
 }
@@ -1150,11 +1159,7 @@ int32 scriptlib::duel_change_attacker(lua_State *L) {
 	card* attacker = pduel->game_field->core.attacker;
 	card* attack_target = pduel->game_field->core.attack_target;
 	attacker->announce_count++;
-	if(attack_target) {
-		attacker->announced_cards[attack_target->fieldid_r] = attack_target;
-	} else {
-		attacker->announced_cards[0] = 0;
-	}
+	attacker->announced_cards.addcard(attack_target);
 	pduel->game_field->core.sub_attacker = target;
 	return 0;
 }
@@ -1513,7 +1518,7 @@ int32 scriptlib::duel_skip_phase(lua_State *L) {
 	peffect->effect_owner = playerid;
 	peffect->type = EFFECT_TYPE_FIELD;
 	peffect->code = code;
-	peffect->reset_flag = (reset & 0xff) | RESET_PHASE | RESET_SELF_TURN;
+	peffect->reset_flag = (reset & 0x3ff) | RESET_PHASE | RESET_SELF_TURN;
 	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_PLAYER_TARGET;
 	peffect->s_range = 1;
 	peffect->o_range = 0;
@@ -2465,8 +2470,13 @@ int32 scriptlib::duel_select_xyz_material(lua_State *L) {
 	uint32 lv = lua_tointeger(L, 4);
 	uint32 minc = lua_tointeger(L, 5);
 	uint32 maxc = lua_tointeger(L, 6);
+	group* mg = 0;
+	if(lua_gettop(L) >= 7 && !lua_isnil(L, 7)) {
+		check_param(L, PARAM_TYPE_GROUP, 7);
+		mg = *(group**) lua_touserdata(L, 7);
+	}
 	duel* pduel = scard->pduel;
-	pduel->game_field->get_xyz_material(scard, findex, lv, maxc);
+	pduel->game_field->get_xyz_material(scard, findex, lv, maxc, mg);
 	scard->pduel->game_field->add_process(PROCESSOR_SELECT_XMATERIAL, 0, 0, (group*)scard, playerid + (lv << 16), minc + (maxc << 16));
 	return lua_yield(L, 0);
 }
@@ -2696,7 +2706,10 @@ int32 scriptlib::duel_announce_card(lua_State * L) {
 	check_param_count(L, 1);
 	int32 playerid = lua_tointeger(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	pduel->game_field->add_process(PROCESSOR_ANNOUNCE_CARD, 0, 0, 0, playerid, 0);
+	uint32 ttype = TYPE_MONSTER | TYPE_SPELL | TYPE_TRAP;
+	if(lua_gettop(L) >= 2)
+		ttype = lua_tointeger(L, 2);
+	pduel->game_field->add_process(PROCESSOR_ANNOUNCE_CARD, 0, 0, 0, playerid, ttype);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_announce_type(lua_State * L) {

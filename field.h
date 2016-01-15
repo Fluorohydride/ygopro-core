@@ -113,7 +113,7 @@ struct field_info {
 	int16 copy_id;
 	int16 turn_id;
 	int16 card_id;
-	uint8 phase;
+	uint16 phase;
 	uint8 turn_player;
 	uint8 priorities[2];
 	uint8 can_shuffle;
@@ -162,6 +162,7 @@ struct processor {
 	card_vector attackable_cards;
 	effect_vector select_effects;
 	option_vector select_options;
+	card_vector must_select_cards;
 	event_list point_event;
 	event_list instant_event;
 	event_list queue_event;
@@ -245,8 +246,10 @@ struct processor {
 	card* attack_target;
 	card* sub_attack_target;
 	card* limit_tuner;
-	group* limit_xyz;
 	group* limit_syn;
+	group* limit_xyz;
+	int32 limit_xyz_minc;
+	int32 limit_xyz_maxc;
 	uint8 attack_cancelable;
 	uint8 attack_rollback;
 	uint8 effect_damage_step;
@@ -363,7 +366,7 @@ public:
 	int32 get_draw_count(uint8 playerid);
 	void get_ritual_material(uint8 playerid, effect* peffect, card_set* material);
 	void ritual_release(card_set* material);
-	void get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc);
+	void get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc, group* mg);
 	void get_overlay_group(uint8 self, uint8 s, uint8 o, card_set* pset);
 	int32 get_overlay_count(uint8 self, uint8 s, uint8 o);
 	void update_disable_check_list(effect* peffect);
@@ -390,7 +393,8 @@ public:
 	void attack_all_target_check();
 	int32 check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
 	int32 check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
-	int32 check_with_sum_limit(card_vector* mats, int32 acc, int32 index, int32 count, int32 min, int32 max);
+	static int32 check_with_sum_limit(const card_vector& mats, int32 acc, int32 index, int32 count, int32 min, int32 max);
+	static int32 check_with_sum_limit_m(const card_vector& mats, int32 acc, int32 index, int32 min, int32 max, int32 must_count);
 	int32 check_xyz_material(card* pcard, int32 findex, int32 lv, int32 min, int32 max, group* mg);
 	
 	int32 is_player_can_draw(uint8 playerid);
@@ -479,8 +483,8 @@ public:
 	void send_to(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence, uint32 position);
 	void send_to(card* target, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence, uint32 position);
 	void move_to_field(card* target, uint32 move_player, uint32 playerid, uint32 destination, uint32 positions, uint32 enable = FALSE, uint32 ret = FALSE, uint32 is_equip = FALSE);
-	void change_position(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 au, uint32 ad, uint32 du, uint32 dd, uint32 noflip, uint32 enable = FALSE);
-	void change_position(card* target, effect* reason_effect, uint32 reason_player, uint32 npos, uint32 noflip, uint32 enable = FALSE);
+	void change_position(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 au, uint32 ad, uint32 du, uint32 dd, uint32 flag, uint32 enable = FALSE);
+	void change_position(card* target, effect* reason_effect, uint32 reason_player, uint32 npos, uint32 flag, uint32 enable = FALSE);
 
 	int32 remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplayer, uint8 s, uint8 o, uint16 countertype, uint16 count);
 	int32 remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 rplayer, uint8 s, uint8 o, uint16 min, uint16 max);
@@ -532,7 +536,7 @@ public:
 	int32 sort_card(int16 step, uint8 playerid, uint8 is_chain);
 	int32 announce_race(int16 step, uint8 playerid, int32 count, int32 available);
 	int32 announce_attribute(int16 step, uint8 playerid, int32 count, int32 available);
-	int32 announce_card(int16 step, uint8 playerid);
+	int32 announce_card(int16 step, uint8 playerid, uint32 ttype);
 	int32 announce_number(int16 step, uint8 playerid);
 };
 
@@ -557,6 +561,35 @@ public:
 #define CHAININFO_CHAIN_ID				0x800
 #define CHAININFO_TYPE					0x1000
 #define CHAININFO_EXTTYPE				0x2000
+
+//Timing
+#define TIMING_DRAW_PHASE			0x1
+#define TIMING_STANDBY_PHASE		0x2
+#define TIMING_MAIN_END				0x4
+#define TIMING_BATTLE_START			0x8
+#define TIMING_BATTLE_END			0x10
+#define TIMING_END_PHASE			0x20
+#define TIMING_SUMMON				0x40
+#define TIMING_SPSUMMON				0x80
+#define TIMING_FLIPSUMMON			0x100
+#define TIMING_MSET					0x200
+#define TIMING_SSET					0x400
+#define TIMING_POS_CHANGE			0x800
+#define TIMING_ATTACK				0x1000
+#define TIMING_DAMAGE_STEP			0x2000
+#define TIMING_DAMAGE_CAL			0x4000
+#define TIMING_CHAIN_END			0x8000
+#define TIMING_DRAW					0x10000
+#define TIMING_DAMAGE				0x20000
+#define TIMING_RECOVER				0x40000
+#define TIMING_DESTROY				0x80000
+#define TIMING_REMOVE				0x100000
+#define TIMING_TOHAND				0x200000
+#define TIMING_TODECK				0x400000
+#define TIMING_TOGRAVE				0x800000
+#define TIMING_BATTLE_PHASE			0x1000000
+#define TIMING_EQUIP				0x2000000
+#define TIMING_BATTLE_STEP_END		0x4000000
 
 #define GLOBALFLAG_DECK_REVERSE_CHECK	0x1
 #define GLOBALFLAG_BRAINWASHING_CHECK	0x2

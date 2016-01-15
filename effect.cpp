@@ -57,7 +57,7 @@ int32 effect::is_disable_related() {
 		return TRUE;
 	return FALSE;
 }
-// check if a single/field/field effect is available
+// check if a single/field/equip effect is available
 // check range, EFFECT_FLAG_OWNER_RELATE, STATUS_BATTLE_DESTROYED, STATUS_EFFECT_ENABLED
 int32 effect::is_available() {
 	if (type & EFFECT_TYPE_ACTIONS)
@@ -207,17 +207,24 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			if(handler->is_affected_by_effect(EFFECT_CANNOT_TRIGGER))
 				return FALSE;
 		} else if(!(type & EFFECT_TYPE_CONTINUOUS)) {
-			if((handler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED)) && (code != EVENT_FLIP && !(is_flag(EFFECT_FLAG_SET_AVAILABLE)))
+			if((handler->data.type & TYPE_MONSTER) && (handler->current.location & LOCATION_SZONE)
+					&& !in_range(handler->current.location, handler->current.sequence))
+				return FALSE;
+			// effects with EFFECT_FLAG_SET_AVAILABLE can be activated while face-down
+			if((handler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED))
+					&& !is_flag(EFFECT_FLAG_SET_AVAILABLE)
+					&& (code != EVENT_FLIP || !(e.event_value & (FLIP_SET_AVAILABLE >> 16)))
 					&& (!handler->is_position(POS_FACEUP) || !handler->is_status(STATUS_EFFECT_ENABLED)))
 				return FALSE;
 			if(!(type & (EFFECT_TYPE_FLIP | EFFECT_TYPE_TRIGGER_F)) 
-					&& !((type & EFFECT_TYPE_SINGLE) 
-						&& (code == EVENT_TO_GRAVE || code == EVENT_DESTROYED || code == EVENT_SPSUMMON_SUCCESS || code == EVENT_TO_HAND))) {
+					&& !((type & EFFECT_TYPE_SINGLE) && (code == EVENT_TO_GRAVE || code == EVENT_DESTROYED || code == EVENT_SPSUMMON_SUCCESS || code == EVENT_TO_HAND))) {
 				if((code < 1132 || code > 1149) && pduel->game_field->infos.phase == PHASE_DAMAGE && !(is_flag(EFFECT_FLAG_DAMAGE_STEP)))
 					return FALSE;
 				if((code < 1134 || code > 1136) && pduel->game_field->infos.phase == PHASE_DAMAGE_CAL && !(is_flag(EFFECT_FLAG_DAMAGE_CAL)))
 					return FALSE;
 			}
+			if(handler->current.location == LOCATION_OVERLAY)
+				return FALSE;
 			if((type & EFFECT_TYPE_FIELD) && (handler->current.controler != playerid) && !(is_flag(EFFECT_FLAG_BOTH_SIDE)))
 				return FALSE;
 			if(handler->is_affected_by_effect(EFFECT_FORBIDDEN))
@@ -502,7 +509,7 @@ int32 effect::reset(uint32 reset_level, uint32 reset_type) {
 		uint8 pid = get_handler_player();
 		uint8 tp = handler->pduel->game_field->infos.turn_player;
 		if((((reset_flag & RESET_SELF_TURN) && pid == tp) || ((reset_flag & RESET_OPPO_TURN) && pid != tp)) 
-				&& (reset_level & 0xff & reset_flag))
+				&& (reset_level & 0x3ff & reset_flag))
 			reset_count--;
 		if((reset_count & 0xff) == 0)
 			return TRUE;

@@ -21,8 +21,11 @@ public:
 	static int32 card_get_code(lua_State *L);
 	static int32 card_get_origin_code(lua_State *L);
 	static int32 card_get_origin_code_rule(lua_State *L);
+	static int32 card_get_fusion_code(lua_State *L);
+	static int32 card_is_fusion_code(lua_State *L);
 	static int32 card_is_set_card(lua_State *L);
 	static int32 card_is_pre_set_card(lua_State *L);
+	static int32 card_is_fusion_set_card(lua_State *L);
 	static int32 card_get_type(lua_State *L);
 	static int32 card_get_origin_type(lua_State *L);
 	static int32 card_get_level(lua_State *L);
@@ -134,9 +137,11 @@ public:
 	static int32 card_release_effect_relation(lua_State *L);
 	static int32 card_clear_effect_relation(lua_State *L);
 	static int32 card_is_relate_to_effect(lua_State *L);
+	static int32 card_is_relate_to_chain(lua_State *L);
 	static int32 card_is_relate_to_card(lua_State *L);
 	static int32 card_is_relate_to_battle(lua_State *L);
 	static int32 card_copy_effect(lua_State *L);
+	static int32 card_replace_effect(lua_State *L);
 	static int32 card_enable_unsummonable(lua_State *L);
 	static int32 card_enable_revive_limit(lua_State *L);
 	static int32 card_complete_procedure(lua_State *L);

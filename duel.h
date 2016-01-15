@@ -71,25 +71,4 @@ private:
 	group* register_group(group* pgroup);
 };
 
-//Player
-#define PLAYER_NONE		2	//
-#define PLAYER_ALL		3	//
-//Phase
-#define PHASE_DRAW			0x01	//
-#define PHASE_STANDBY		0x02	//
-#define PHASE_MAIN1			0x04	//
-#define PHASE_BATTLE		0x08	//
-#define PHASE_DAMAGE		0x10	//
-#define PHASE_DAMAGE_CAL	0x20	//
-#define PHASE_MAIN2			0x40	//
-#define PHASE_END			0x80	//
-//Options
-#define DUEL_TEST_MODE			0x01
-#define DUEL_ATTACK_FIRST_TURN	0x02
-#define DUEL_NO_CHAIN_HINT		0x04
-#define DUEL_OBSOLETE_RULING	0x08
-#define DUEL_PSEUDO_SHUFFLE		0x10
-#define DUEL_TAG_MODE			0x20
-#define DUEL_SIMPLE_AI			0x40
-
 #endif /* DUEL_H_ */
