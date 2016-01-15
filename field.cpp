@@ -534,7 +534,7 @@ void field::shuffle(uint8 playerid, uint8 location) {
 	}
 	if(location == LOCATION_HAND || !(core.duel_options & DUEL_PSEUDO_SHUFFLE)) {
 		if(svector.size() > 1) {
-			uint32 i = 0, s = svector.size(), r;
+			uint32 i = 0, s = (uint32)svector.size(), r;
 			for(i = 0; i < s - 1; ++i) {
 				r = pduel->get_next_integer(i, s - 1);
 				card* t = svector[i];
@@ -650,7 +650,7 @@ void field::swap_deck_and_grave(uint8 playerid) {
 	shuffle(playerid, LOCATION_DECK);
 }
 void field::reverse_deck(uint8 playerid) {
-	int32 count = player[playerid].list_main.size();
+	int32 count = (int32)player[playerid].list_main.size();
 	if(count == 0)
 		return;
 	for(int i = 0; i < count / 2; ++i) {
@@ -1431,7 +1431,7 @@ void field::adjust_self_destroy_set() {
 	if(core.global_flag & GLOBALFLAG_SELF_TOGRAVE) {
 		for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
 			card* pcard = *cit;
-			if(peffect = pcard->is_affected_by_effect(EFFECT_SELF_TOGRAVE)) {
+			if((peffect = pcard->is_affected_by_effect(EFFECT_SELF_TOGRAVE))) {
 				core.self_tograve_set.insert(pcard);
 				pcard->current.reason_effect = peffect;
 				pcard->current.reason_player = peffect->get_handler_player();

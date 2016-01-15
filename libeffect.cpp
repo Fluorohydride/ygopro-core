@@ -280,7 +280,7 @@ int32 scriptlib::effect_set_value(lua_State *L) {
 		if(lua_isboolean(L, 2))
 			peffect->value = lua_toboolean(L, 2);
 		else
-			peffect->value = lua_tointeger(L, 2);
+			peffect->value = (int32)lua_tointeger(L, 2);
 	}
 	return 0;
 }
@@ -473,7 +473,7 @@ int32 scriptlib::effect_is_active_type(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 tpe = lua_tointeger(L, 2);
+	uint32 tpe = (uint32)lua_tointeger(L, 2);
 	uint32 atype;
 	if(peffect->type & 0x7f0) {
 		if(peffect->active_type)
@@ -503,7 +503,7 @@ int32 scriptlib::effect_is_has_category(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 tcate = lua_tointeger(L, 2);
+	uint32 tcate = (uint32)lua_tointeger(L, 2);
 	if (peffect && (peffect->category & tcate))
 		lua_pushboolean(L, 1);
 	else
@@ -514,7 +514,7 @@ int32 scriptlib::effect_is_has_type(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 ttype = lua_tointeger(L, 2);
+	uint32 ttype = (uint32)lua_tointeger(L, 2);
 	if (peffect && (peffect->type & ttype))
 		lua_pushboolean(L, 1);
 	else
@@ -524,7 +524,7 @@ int32 scriptlib::effect_is_has_type(lua_State *L) {
 int32 scriptlib::effect_is_activatable(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
-	uint32 playerid = lua_tointeger(L, 2);
+	uint32 playerid = (uint32)lua_tointeger(L, 2);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	lua_pushboolean(L, peffect->is_activateable(playerid, peffect->pduel->game_field->nil_event));
 	return 1;

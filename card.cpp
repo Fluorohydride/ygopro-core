@@ -287,17 +287,17 @@ void card::update_infos_nocache(int32 query_flag) {
 	else
 		query_flag &= ~QUERY_EQUIP_CARD;
 	if(query_flag & QUERY_TARGET_CARD) {
-		pduel->write_buffer32(effect_target_cards.size());
+		pduel->write_buffer32((uint32)effect_target_cards.size());
 		for(auto& cit : effect_target_cards)
 			pduel->write_buffer32(cit->get_info_location());
 	}
 	if(query_flag & QUERY_OVERLAY_CARD) {
-		pduel->write_buffer32(xyz_materials.size());
+		pduel->write_buffer32((uint32)xyz_materials.size());
 		for(auto& cit : xyz_materials)
 			pduel->write_buffer32(cit->data.code);
 	}
 	if(query_flag & QUERY_COUNTERS) {
-		pduel->write_buffer32(counters.size());
+		pduel->write_buffer32((uint32)counters.size());
 		for(auto& ctit : counters)
 			pduel->write_buffer32(ctit.first + ((ctit.second[0] + ctit.second[1]) << 16));
 	}

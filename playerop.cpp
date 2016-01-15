@@ -146,7 +146,7 @@ int32 field::select_idle_command(uint16 step, uint8 playerid) {
 	} else {
 		uint32 t = returns.ivalue[0] & 0xffff;
 		uint32 s = returns.ivalue[0] >> 16;
-		if(t < 0 || t > 8 || s < 0
+		if(t > 8
 		        || (t == 0 && s >= core.summonable_cards.size())
 		        || (t == 1 && s >= core.spsummonable_cards.size())
 		        || (t == 2 && s >= core.repositionable_cards.size())
@@ -562,14 +562,14 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 		memset(c, 0, 64);
 		if(max) {
 			int32 oparam[16];
-			int32 mcount = core.must_select_cards.size();
+			int32 mcount = (int32)core.must_select_cards.size();
 			if(returns.bvalue[0] < min + mcount || returns.bvalue[0] > max + mcount) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
 			}
 			for(int32 i = 0; i < mcount; ++i)
 				oparam[i] = core.must_select_cards[i]->operation_param;
-			int32 m = core.select_cards.size();
+			int32 m = (int32)core.select_cards.size();
 			for(int32 i = mcount; i < returns.bvalue[0]; ++i) {
 				int32 v = returns.bvalue[i + 1];
 				if(v < 0 || v >= m || c[v]) {

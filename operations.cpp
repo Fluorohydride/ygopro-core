@@ -917,7 +917,7 @@ int32 field::control_adjust(uint16 step) {
 					core.units.begin()->step = 4;
 				} else {
 					core.temp_var[0] = 0;
-					uint32 count = core.control_adjust_set[0].size() - core.control_adjust_set[1].size() - b1;
+					uint32 count = (uint32)core.control_adjust_set[0].size() - (uint32)core.control_adjust_set[1].size() - b1;
 					core.select_cards.clear();
 					for(auto& cit : core.control_adjust_set[0])
 						core.select_cards.push_back(cit);
@@ -937,7 +937,7 @@ int32 field::control_adjust(uint16 step) {
 					core.units.begin()->step = 4;
 				} else {
 					core.temp_var[0] = 1;
-					uint32 count = core.control_adjust_set[1].size() - core.control_adjust_set[0].size() - b0;
+					uint32 count = (uint32)core.control_adjust_set[1].size() - (uint32)core.control_adjust_set[0].size() - b0;
 					core.select_cards.clear();
 					for(auto& cit : core.control_adjust_set[1])
 						core.select_cards.push_back(cit);
@@ -1273,9 +1273,9 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 			returns.bvalue[0] = 0;
 		else {
 			int32 min = 1;
-			int32 max = core.temp_var[0] >> 16;
-			if(min < -core.temp_var[1] + 1) {
-				min = -core.temp_var[1] + 1;
+			int32 max = (int32)core.temp_var[0] >> 16;
+			if(min < (int32)(-core.temp_var[1] + 1)) {
+				min = (int32)(-core.temp_var[1] + 1);
 			}
 			core.temp_var[0] = min + (max << 16);
 			add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, sumplayer + ((uint32)core.summon_cancelable << 16), core.temp_var[0]);
@@ -1783,9 +1783,9 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 			returns.bvalue[0] = 0;
 		else {
 			int32 min = 1;
-			int32 max = core.temp_var[0] >> 16;
-			if(min < -core.temp_var[1] + 1) {
-				min = -core.temp_var[1] + 1;
+			int32 max = (int32)core.temp_var[0] >> 16;
+			if(min < (int32)(-core.temp_var[1] + 1)) {
+				min = (int32)(-core.temp_var[1] + 1);
 			}
 			core.temp_var[0] = min + (max << 16);
 			add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, setplayer + ((uint32)core.summon_cancelable << 16), core.temp_var[0]);
@@ -2034,7 +2034,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		return FALSE;
 	}
 	case 3: {
-		returns.ivalue[0] = core.operated_set.size();
+		returns.ivalue[0] = (int32)core.operated_set.size();
 		adjust_instant();
 		raise_event(&core.operated_set, EVENT_SSET, 0, 0, setplayer, setplayer, 0);
 		process_instant_event();
@@ -2582,7 +2582,7 @@ int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_pl
 	case 4: {
 		core.operated_set.clear();
 		core.operated_set = targets->container;
-		returns.ivalue[0] = targets->container.size();
+		returns.ivalue[0] = (int32)targets->container.size();
 		pduel->delete_group(targets);
 		return TRUE;
 	}
@@ -2784,7 +2784,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 			else
 				cit++;
 		}
-		returns.ivalue[0] = core.operated_set.size();
+		returns.ivalue[0] = (int32)core.operated_set.size();
 		pduel->delete_group(targets);
 		return TRUE;
 	}
@@ -2959,7 +2959,7 @@ int32 field::release(uint16 step, group * targets, effect * reason_effect, uint3
 	case 4: {
 		core.operated_set.clear();
 		core.operated_set = targets->container;
-		returns.ivalue[0] = targets->container.size();
+		returns.ivalue[0] = (int32)targets->container.size();
 		pduel->delete_group(targets);
 		return TRUE;
 	}
@@ -3145,8 +3145,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		if(param->cv.size() > 1)
 			std::sort(param->cv.begin(), param->cv.end(), card::card_operation_sort);
 		if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
-			int32 d0 = player[0].list_main.size() - 1, s0 = d0;
-			int32 d1 = player[1].list_main.size() - 1, s1 = d1;
+			int32 d0 = (int32)player[0].list_main.size() - 1, s0 = d0;
+			int32 d1 = (int32)player[1].list_main.size() - 1, s1 = d1;
 			for(uint32 i = 0; i < param->cv.size(); ++i) {
 				card* pcard = param->cv[i];
 				if(pcard->current.location != LOCATION_DECK)
@@ -3463,7 +3463,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 	case 11: {
 		core.operated_set.clear();
 		core.operated_set = targets->container;
-		returns.ivalue[0] = targets->container.size();
+		returns.ivalue[0] = (int32)targets->container.size();
 		core.update_field = TRUE;
 		pduel->delete_group(targets);
 		return TRUE;
@@ -3588,7 +3588,7 @@ int32 field::discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reaso
 	case 2: {
 		core.operated_set.clear();
 		core.operated_set = core.discarded_set;
-		returns.ivalue[0] = core.discarded_set.size();
+		returns.ivalue[0] = (int32)core.discarded_set.size();
 		core.discarded_set.clear();
 		core.update_field = TRUE;
 		return TRUE;
@@ -3865,7 +3865,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 	case 1: {
 		core.operated_set.clear();
 		core.operated_set = targets->container;
-		returns.ivalue[0] = targets->container.size();
+		returns.ivalue[0] = (int32)targets->container.size();
 		pduel->delete_group(targets);
 		return TRUE;
 	}
@@ -3973,7 +3973,7 @@ int32 field::operation_replace(uint16 step, effect * replace_effect, group * tar
 	case 6: {
 		if (returns.ivalue[0]) {
 			card_set::iterator cit, rm;
-			uint32 is_destroy = arg2;
+			uint32 is_destroy = (uint32)arg2;
 			for (cit = targets->container.begin(); cit != targets->container.end();) {
 				rm = cit++;
 				if (replace_effect->get_value(*rm)) {
@@ -4088,7 +4088,7 @@ int32 field::operation_replace(uint16 step, effect * replace_effect, group * tar
 	case 13: {
 		if (returns.ivalue[0]) {
 			card_set::iterator cit, rm;
-			uint32 is_destroy = arg2;
+			uint32 is_destroy = (uint32)arg2;
 			for (cit = targets->container.begin(); cit != targets->container.end();) {
 				rm = cit++;
 				if (replace_effect->get_value(*rm)) {
@@ -4325,7 +4325,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 	case 5: {
 		lua_pop(pduel->lua->current_state, 2);
 		group* pgroup = pduel->new_group();
-		int32 mcount = core.must_select_cards.size();
+		int32 mcount = (int32)core.must_select_cards.size();
 		for(int32 i = mcount; i < returns.bvalue[0]; ++i) {
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
 			pgroup->container.insert(pcard);
@@ -4455,7 +4455,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		}
 		min = 0;
 		if((int32)core.operated_set.size() < pv)
-			min = pv - core.operated_set.size();
+			min = pv - (int32)core.operated_set.size();
 		core.units.begin()->arg2 = min + (max << 16);
 		if(min == 0) {
 			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, playerid, 93);
@@ -4656,7 +4656,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 			return TRUE;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i)
 			core.operated_set.insert(core.select_cards[returns.bvalue[i + 1]]);
-		uint32 rmin = core.operated_set.size();
+		uint32 rmin = (uint32)core.operated_set.size();
 		uint32 rmax = 0;
 		for(auto cit = core.operated_set.begin(); cit != core.operated_set.end(); ++cit)
 			rmax += (*cit)->operation_param;

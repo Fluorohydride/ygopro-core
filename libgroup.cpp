@@ -196,11 +196,11 @@ int32 scriptlib::group_filter_select(lua_State *L) {
 	}
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	duel* pduel = pgroup->pduel;
-	uint32 playerid = lua_tointeger(L, 2);
+	uint32 playerid = (uint32)lua_tointeger(L, 2);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	uint32 min = lua_tointeger(L, 4);
-	uint32 max = lua_tointeger(L, 5);
+	uint32 min = (uint32)lua_tointeger(L, 4);
+	uint32 max = (uint32)lua_tointeger(L, 5);
 	uint32 extraargs = lua_gettop(L) - 6;
 	pduel->game_field->core.select_cards.clear();
 	group::card_set::iterator it;
@@ -222,11 +222,11 @@ int32 scriptlib::group_select(lua_State *L) {
 	}
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	duel* pduel = pgroup->pduel;
-	uint32 playerid = lua_tointeger(L, 2);
+	uint32 playerid = (uint32)lua_tointeger(L, 2);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	uint32 min = lua_tointeger(L, 3);
-	uint32 max = lua_tointeger(L, 4);
+	uint32 min = (uint32)lua_tointeger(L, 3);
+	uint32 max = (uint32)lua_tointeger(L, 4);
 	pduel->game_field->core.select_cards.clear();
 	group::card_set::iterator it;
 	for (it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
@@ -240,8 +240,8 @@ int32 scriptlib::group_random_select(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	int32 playerid = lua_tointeger(L, 2);
-	int32 count = lua_tointeger(L, 3);
+	int32 playerid = (int32)lua_tointeger(L, 2);
+	int32 count = (int32)lua_tointeger(L, 3);
 	pgroup->pduel->game_field->add_process(PROCESSOR_RANDOM_SELECT_S, 0, 0, pgroup, playerid, count);
 	return lua_yield(L, 0);
 }
@@ -256,7 +256,7 @@ int32 scriptlib::group_is_exists(lua_State *L) {
 	}
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	duel* pduel = pgroup->pduel;
-	uint32 count = lua_tointeger(L, 3);
+	uint32 count = (uint32)lua_tointeger(L, 3);
 	uint32 extraargs = lua_gettop(L) - 4;
 	uint32 fcount = 0;
 	uint32 result = FALSE;
@@ -278,9 +278,9 @@ int32 scriptlib::group_check_with_sum_equal(lua_State *L) {
 	check_param(L, PARAM_TYPE_FUNCTION, 2);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	duel* pduel = pgroup->pduel;
-	int32 acc = lua_tointeger(L, 3);
-	int32 min = lua_tointeger(L, 4);
-	int32 max = lua_tointeger(L, 5);
+	int32 acc = (int32)lua_tointeger(L, 3);
+	int32 min = (int32)lua_tointeger(L, 4);
+	int32 max = (int32)lua_tointeger(L, 5);
 	if(min <= 0)
 		min = 1;
 	if(max < min)
@@ -288,7 +288,7 @@ int32 scriptlib::group_check_with_sum_equal(lua_State *L) {
 	int32 extraargs = lua_gettop(L) - 5;
 	field::card_vector cv;
 	cv.swap(pduel->game_field->core.must_select_cards);
-	int32 mcount = cv.size();
+	int32 mcount = (int32)cv.size();
 	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 		(*cit)->operation_param = pduel->lua->get_operation_value(*cit, 2, extraargs);
 		cv.push_back(*cit);
@@ -303,12 +303,12 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 	check_param(L, PARAM_TYPE_FUNCTION, 3);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	duel* pduel = pgroup->pduel;
-	int32 playerid = lua_tointeger(L, 2);
+	int32 playerid = (int32)lua_tointeger(L, 2);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	int32 acc = lua_tointeger(L, 4);
-	int32 min = lua_tointeger(L, 5);
-	int32 max = lua_tointeger(L, 6);
+	int32 acc = (int32)lua_tointeger(L, 4);
+	int32 min = (int32)lua_tointeger(L, 5);
+	int32 max = (int32)lua_tointeger(L, 6);
 	if(min <= 0)
 		min = 1;
 	if(max < min)
@@ -324,7 +324,7 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 		pduel->game_field->core.select_cards.erase(it, pduel->game_field->core.select_cards.end());
 	}
 	field::card_vector cv(pduel->game_field->core.must_select_cards);
-	int32 mcount = cv.size();
+	int32 mcount = (int32)cv.size();
 	cv.insert(cv.end(), pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end());
 	if(!field::check_with_sum_limit_m(cv, acc, 0, min, max, mcount))
 		return 0;
@@ -337,7 +337,7 @@ int32 scriptlib::group_check_with_sum_greater(lua_State *L) {
 	check_param(L, PARAM_TYPE_FUNCTION, 2);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	duel* pduel = pgroup->pduel;
-	int32 acc = lua_tointeger(L, 3);
+	int32 acc = (int32)lua_tointeger(L, 3);
 	int32 extraargs = lua_gettop(L) - 3;
 	int32 sum = 0, op, op1, op2;
 	group::card_set::iterator cit;
@@ -360,10 +360,10 @@ int32 scriptlib::group_select_with_sum_greater(lua_State *L) {
 	check_param(L, PARAM_TYPE_FUNCTION, 3);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	duel* pduel = pgroup->pduel;
-	int32 playerid = lua_tointeger(L, 2);
+	int32 playerid = (int32)lua_tointeger(L, 2);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	int32 acc = lua_tointeger(L, 4);
+	int32 acc = (int32)lua_tointeger(L, 4);
 	int32 extraargs = lua_gettop(L) - 4;
 	field::card_set::iterator cit;
 	pduel->game_field->core.select_cards.clear();
