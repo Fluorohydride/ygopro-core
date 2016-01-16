@@ -62,6 +62,7 @@ struct chain {
 	opmap opinfos;
 	uint32 flag;
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
+	bool operator== (const chain& c) const;
 };
 
 struct player_info {
@@ -525,6 +526,7 @@ public:
 	int32 select_option(uint16 step, uint8 playerid);
 	int32 select_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max);
 	int32 select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 forced);
+	int32 select_trigger(uint16 step, uint8 playerid, uint8 forced);
 	int32 select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count);
 	int32 select_position(uint16 step, uint8 playerid, uint32 code, uint8 positions);
 	int32 select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max);
@@ -614,6 +616,7 @@ public:
 #define PROCESSOR_SELECT_OPTION		14
 #define PROCESSOR_SELECT_CARD		15
 #define PROCESSOR_SELECT_CHAIN		16
+#define PROCESSOR_SELECT_TRIGGER	17
 #define PROCESSOR_SELECT_PLACE		18
 #define PROCESSOR_SELECT_POSITION	19
 #define PROCESSOR_SELECT_TRIBUTE_P	20
@@ -744,6 +747,7 @@ public:
 #define MSG_SELECT_OPTION		14
 #define MSG_SELECT_CARD			15
 #define MSG_SELECT_CHAIN		16
+#define MSG_SELECT_TRIGGER		17
 #define MSG_SELECT_PLACE		18
 #define MSG_SELECT_POSITION		19
 #define MSG_SELECT_TRIBUTE		20

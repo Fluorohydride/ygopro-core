@@ -20,6 +20,9 @@ int32 field::field_used_count[32] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3
 bool chain::chain_operation_sort(const chain& c1, const chain& c2) {
 	return c1.triggering_effect->id < c2.triggering_effect->id;
 }
+bool chain::operator== (const chain& c) const {
+	return this->chain_id == c.chain_id;
+}
 bool tevent::operator< (const tevent& v) const {
 	return memcmp(this, &v, sizeof(tevent)) < 0;
 }
