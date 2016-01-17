@@ -38,6 +38,7 @@ struct card_data {
 struct card_state {
 	uint32 code;
 	uint32 code2;
+	uint16 setcode;
 	uint32 type;
 	uint32 level;
 	uint32 rank;

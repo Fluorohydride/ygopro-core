@@ -319,13 +319,9 @@ int32 card::is_pre_set_card(uint32 set_code) {
 		setcode = setcode >> 16;
 	}
 	//add set code
-	effect_set eset;
-	filter_effect(EFFECT_ADD_SETCODE, &eset);
-	for(int32 i = 0; i < eset.size(); ++i) {
-		uint32 value = eset[i]->get_value(this);
-		if ((value & 0xfff) == settype && (value & 0xf000 & setsubtype) == setsubtype)
-			return TRUE;
-	}
+	setcode = previous.setcode;
+	if (setcode && (setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
+		return TRUE;
 	//another code
 	uint32 code2 = previous.code2;
 	uint64 setcode2;
