@@ -1734,7 +1734,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			returns.ivalue[0] = -1;
 			core.units.begin()->step = 5;
 			return FALSE;
-		} else if(core.select_chains.size() == 1) {
+		} else if(core.select_chains.size() == 1 && !core.new_chains.size()) {
 			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.select_chains[0].triggering_effect->handler, core.current_player, 0);
 			return FALSE;
 		} else {
