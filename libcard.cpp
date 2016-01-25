@@ -1858,7 +1858,7 @@ int32 scriptlib::card_remove_counter(lua_State *L) {
 			pcard->pduel->write_buffer8(pcard->current.controler);
 			pcard->pduel->write_buffer8(pcard->current.location);
 			pcard->pduel->write_buffer8(pcard->current.sequence);
-			pcard->pduel->write_buffer8(cmit->second[0] + cmit->second[1]);
+			pcard->pduel->write_buffer16(cmit->second[0] + cmit->second[1]);
 		}
 		pcard->counters.clear();
 		return 0;

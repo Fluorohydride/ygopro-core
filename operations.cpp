@@ -950,7 +950,7 @@ int32 field::control_adjust(uint16 step) {
 		return FALSE;
 	}
 	case 1: {
-		uint8 adjp = core.temp_var[0];
+		uint8 adjp = (uint8)core.temp_var[0];
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
 			core.destroy_set.insert(pcard);
@@ -1433,7 +1433,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		if(is_player_affected_by_effect(sumplayer, EFFECT_DEVINE_LIGHT))
 			positions = POS_FACEUP;
 		if(proc && (proc->is_flag(EFFECT_FLAG_SPSUM_PARAM))) {
-			positions = proc->s_range;
+			positions = (uint8)proc->s_range;
 			if(proc->o_range)
 				targetplayer = 1 - sumplayer;
 		}
@@ -1875,7 +1875,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 		uint8 targetplayer = setplayer;
 		uint8 positions = POS_FACEDOWN_DEFENCE;
 		if(proc && (proc->is_flag(EFFECT_FLAG_SPSUM_PARAM))) {
-			positions = proc->s_range;
+			positions = (uint8)proc->s_range;
 			if(proc->o_range)
 				targetplayer = 1 - setplayer;
 		}
@@ -2138,7 +2138,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		uint8 targetplayer = sumplayer;
 		uint8 positions = POS_FACEUP;
 		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
-			positions = peffect->s_range;
+			positions = (uint8)peffect->s_range;
 			if(peffect->o_range == 0)
 				targetplayer = sumplayer;
 			else

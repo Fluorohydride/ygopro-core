@@ -1699,7 +1699,7 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 					continue;
 				auto it = pcard->announced_cards.find(atarget->fieldid_r);
 				if(it != pcard->announced_cards.end()) {
-					if(it->second.second >= peffect->get_value(atarget))
+					if(it->second.second >= (uint32)peffect->get_value(atarget))
 						continue;
 				}
 				if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))

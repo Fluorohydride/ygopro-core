@@ -1192,7 +1192,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			pduel->write_buffer8(current.controler);
 			pduel->write_buffer8(current.location);
 			pduel->write_buffer8(current.sequence);
-			pduel->write_buffer8(cmit->second[0] + cmit->second[1]);
+			pduel->write_buffer16(cmit->second[0] + cmit->second[1]);
 			counters.erase(cmit);
 		}
 	}
@@ -1351,7 +1351,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 					pduel->write_buffer8(current.controler);
 					pduel->write_buffer8(current.location);
 					pduel->write_buffer8(current.sequence);
-					pduel->write_buffer8(rm->second[1]);
+					pduel->write_buffer16(rm->second[1]);
 					rm->second[1] = 0;
 					if(rm->second[0] == 0)
 						counters.erase(rm);
@@ -1535,7 +1535,7 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count) {
 	pduel->write_buffer8(current.controler);
 	pduel->write_buffer8(current.location);
 	pduel->write_buffer8(current.sequence);
-	pduel->write_buffer8(count);
+	pduel->write_buffer16(count);
 	return TRUE;
 }
 int32 card::remove_counter(uint16 countertype, uint16 count) {
@@ -1557,7 +1557,7 @@ int32 card::remove_counter(uint16 countertype, uint16 count) {
 	pduel->write_buffer8(current.controler);
 	pduel->write_buffer8(current.location);
 	pduel->write_buffer8(current.sequence);
-	pduel->write_buffer8(count);
+	pduel->write_buffer16(count);
 	return TRUE;
 }
 int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count) {
@@ -1799,7 +1799,7 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 s
 	for(; pr.first != pr.second; ++pr.first) {
 		peffect = pr.first->second;
 		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
-			topos = peffect->s_range;
+			topos = (uint8)peffect->s_range;
 			if(peffect->o_range == 0)
 				toplayer = playerid;
 			else
