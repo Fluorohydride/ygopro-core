@@ -89,6 +89,9 @@ int32 scriptlib::card_is_fusion_code(lua_State *L) {
 	uint32 code1 = pcard->get_code();
 	uint32 code2 = pcard->get_another_code();
 	std::unordered_set<uint32> fcode;
+	fcode.insert(code1);
+	if(code2)
+		fcode.insert(code2);
 	for(int32 i = 0; i < eset.size(); ++i)
 		fcode.insert(eset[i]->get_value(pcard));
 	uint32 count = lua_gettop(L) - 1;
@@ -97,7 +100,7 @@ int32 scriptlib::card_is_fusion_code(lua_State *L) {
 		if(lua_isnil(L, i + 2))
 			continue;
 		uint32 tcode = lua_tointeger(L, i + 2);
-		if(code1 == tcode || (code2 && code2 == tcode) || fcode.find(tcode) != fcode.end()) {
+		if(fcode.find(tcode) != fcode.end()) {
 			result = TRUE;
 			break;
 		}
