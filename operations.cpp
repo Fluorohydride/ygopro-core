@@ -4625,8 +4625,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
 			core.operated_set.insert(pcard);
-			effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_SUM);
-			peffect->dec_count();
+			core.units.begin()->peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_SUM);
 		}
 		return FALSE;
 	}
@@ -4691,6 +4690,9 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 			core.select_cards.push_back(*cit);
 			returns.bvalue[i + 1] = i;
 		}
+		effect* peffect = core.units.begin()->peffect;
+		if(peffect)
+			peffect->dec_count();
 		return TRUE;
 	}
 	}
