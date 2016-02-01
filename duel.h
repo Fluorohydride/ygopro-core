@@ -19,11 +19,6 @@ class effect;
 class field;
 class interpreter;
 
-struct duel_arg {
-	int16 start_lp;
-	int8 start_hand;
-	int8 draw_count;
-};
 class duel {
 public:
 	typedef std::set<card*, card_sort> card_set;
