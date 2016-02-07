@@ -78,6 +78,17 @@ int32 scriptlib::debug_set_player_info(lua_State *L) {
 	pduel->game_field->player[playerid].draw_count = drawcount;
 	return 0;
 }
+int32 scriptlib::debug_pre_summon(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 summon_type = lua_tointeger(L, 2);
+	uint8 summon_location = 0;
+	if(lua_gettop(L) > 2)
+		summon_location = lua_tointeger(L, 3);
+	pcard->summon_info = summon_type | (summon_location << 16);
+	return 0;
+}
 int32 scriptlib::debug_pre_equip(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
