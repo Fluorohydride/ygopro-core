@@ -505,6 +505,7 @@ static const struct luaL_Reg debuglib[] = {
 	{ "Message", scriptlib::debug_message },
 	{ "AddCard", scriptlib::debug_add_card },
 	{ "SetPlayerInfo", scriptlib::debug_set_player_info },
+	{ "PreSummon", scriptlib::debug_pre_summon },
 	{ "PreEquip", scriptlib::debug_pre_equip },
 	{ "PreSetTarget", scriptlib::debug_pre_set_target },
 	{ "PreAddCounter", scriptlib::debug_pre_add_counter },

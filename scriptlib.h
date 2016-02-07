@@ -505,6 +505,7 @@ public:
 	static int32 debug_message(lua_State *L);
 	static int32 debug_add_card(lua_State *L);
 	static int32 debug_set_player_info(lua_State *L);
+	static int32 debug_pre_summon(lua_State *L);
 	static int32 debug_pre_equip(lua_State *L);
 	static int32 debug_pre_set_target(lua_State *L);
 	static int32 debug_pre_add_counter(lua_State *L);

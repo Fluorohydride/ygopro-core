@@ -57,6 +57,7 @@ card::card(duel* pd) {
 	pduel = pd;
 	owner = PLAYER_NONE;
 	operation_param = 0;
+	summon_info = 0;
 	status = 0;
 	memset(&q_cache, 0xff, sizeof(query_cache));
 	equiping_target = 0;
