@@ -800,14 +800,14 @@ int32 field::get_control(uint16 step, effect * reason_effect, uint8 reason_playe
 		if(!pcard->is_affect_by_effect(reason_effect))
 			return TRUE;
 		pcard->filter_disable_related_cards();
-		if(pcard->unique_code)
+		if(pcard->unique_code && (pcard->unique_location & LOCATION_MZONE))
 			remove_unique_card(pcard);
 		move_to_field(pcard, playerid, playerid, LOCATION_MZONE, pcard->current.position);
 		pcard->set_status(STATUS_ATTACK_CANCELED, TRUE);
 		return FALSE;
 	}
 	case 1: {
-		if(pcard->unique_code)
+		if(pcard->unique_code && (pcard->unique_location & LOCATION_MZONE))
 			add_unique_card(pcard);
 		set_control(pcard, playerid, reset_phase, reset_count);
 		pcard->reset(RESET_CONTROL, RESET_EVENT);
@@ -848,17 +848,17 @@ int32 field::swap_control(uint16 step, effect * reason_effect, uint8 reason_play
 			return TRUE;
 		pcard1->filter_disable_related_cards();
 		pcard2->filter_disable_related_cards();
-		if(pcard1->unique_code)
+		if(pcard1->unique_code && (pcard1->unique_location & LOCATION_MZONE))
 			remove_unique_card(pcard1);
-		if(pcard2->unique_code)
+		if(pcard2->unique_code && (pcard2->unique_location & LOCATION_MZONE))
 			remove_unique_card(pcard2);
 		remove_card(pcard1);
 		remove_card(pcard2);
 		add_card(p2, pcard1, l2, s2);
 		add_card(p1, pcard2, l1, s1);
-		if(pcard1->unique_code)
+		if(pcard1->unique_code && (pcard1->unique_location & LOCATION_MZONE))
 			add_unique_card(pcard1);
-		if(pcard2->unique_code)
+		if(pcard2->unique_code && (pcard2->unique_location & LOCATION_MZONE))
 			add_unique_card(pcard2);
 		set_control(pcard1, p2, reset_phase, reset_count);
 		set_control(pcard2, p1, reset_phase, reset_count);
@@ -960,11 +960,11 @@ int32 field::control_adjust(uint16 step) {
 	}
 	case 2: {
 		for(auto cit = core.control_adjust_set[0].begin(); cit != core.control_adjust_set[0].end(); ++cit) {
-			if((*cit)->unique_code)
+			if((*cit)->unique_code && ((*cit)->unique_location & LOCATION_MZONE))
 				remove_unique_card(*cit);
 		}
 		for(auto cit = core.control_adjust_set[1].begin(); cit != core.control_adjust_set[1].end(); ++cit) {
-			if((*cit)->unique_code)
+			if((*cit)->unique_code && ((*cit)->unique_location & LOCATION_MZONE))
 				remove_unique_card(*cit);
 		}
 		auto cit1 = core.control_adjust_set[0].begin();
@@ -1016,7 +1016,7 @@ int32 field::control_adjust(uint16 step) {
 				continue;
 			}
 			pcard->filter_disable_related_cards();
-			if(pcard->unique_code)
+			if(pcard->unique_code && (pcard->unique_location & LOCATION_MZONE))
 				add_unique_card(pcard);
 			raise_single_event(pcard, 0, EVENT_CONTROL_CHANGED, 0, REASON_RULE, 0, 0, 0);
 		}
@@ -1183,7 +1183,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 			if((proc && res < 0) || res == -2)
 				return TRUE;
 		}
-		if(check_unique_onfield(target, sumplayer))
+		if(check_unique_onfield(target, sumplayer, LOCATION_MZONE))
 			return TRUE;
 		if(target->is_affected_by_effect(EFFECT_CANNOT_SUMMON))
 			return TRUE;
@@ -1599,7 +1599,7 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target) {
 			return TRUE;
 		if(!(target->current.position & POS_FACEDOWN))
 			return TRUE;
-		if(check_unique_onfield(target, sumplayer))
+		if(check_unique_onfield(target, sumplayer, LOCATION_MZONE))
 			return TRUE;
 		effect_set eset;
 		target->filter_effect(EFFECT_FLIPSUMMON_COST, &eset);
@@ -2280,7 +2280,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 			card* pcard = *cit++;
 			if(!(pcard->data.type & TYPE_MONSTER)
 			        || (pcard->current.location == LOCATION_MZONE)
-			        || check_unique_onfield(pcard, sumplayer)
+			        || check_unique_onfield(pcard, sumplayer, LOCATION_MZONE)
 			        || pcard->is_affected_by_effect(EFFECT_CANNOT_SPECIAL_SUMMON)) {
 			    pgroup->container.erase(pcard);
 			    continue;
@@ -2425,7 +2425,7 @@ int32 field::special_summon_step(uint16 step, group * targets, card * target) {
 				result = FALSE;
 		}
 		if(!result || (target->current.location == LOCATION_MZONE)
-				|| check_unique_onfield(target, playerid)
+				|| check_unique_onfield(target, playerid, LOCATION_MZONE)
 		        || !is_player_can_spsummon(core.reason_effect, target->summon_info & 0xff00ffff, positions, target->summon_player, playerid, target)
 		        || get_useable_count(playerid, LOCATION_MZONE, target->summon_player, LOCATION_REASON_TOFIELD) <= 0
 		        || (!nocheck && !(target->data.type & TYPE_MONSTER)))

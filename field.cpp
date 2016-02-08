@@ -1456,7 +1456,7 @@ void field::adjust_self_destroy_set() {
 	effect* peffect;
 	for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
 		card* pcard = *cit;
-		if((!pcard->is_status(STATUS_DISABLED) && (peffect = check_unique_onfield(pcard, pcard->current.controler)))
+		if((!pcard->is_status(STATUS_DISABLED) && (peffect = check_unique_onfield(pcard, pcard->current.controler, pcard->current.location)))
 		        || (peffect = pcard->is_affected_by_effect(EFFECT_SELF_DESTROY))) {
 			core.self_destroy_set.insert(pcard);
 			pcard->current.reason_effect = peffect;
@@ -1495,13 +1495,14 @@ void field::remove_unique_card(card* pcard) {
 		core.unique_cards[1 - con].erase(pcard);
 }
 
-effect* field::check_unique_onfield(card* pcard, uint8 controler) {
+effect* field::check_unique_onfield(card* pcard, uint8 controler, uint8 location) {
 	if(!pcard->unique_code)
 		return 0;
 	for(auto iter = core.unique_cards[controler].begin(); iter != core.unique_cards[controler].end(); ++iter) {
 		card* ucard = *iter;
-		if((ucard != pcard) && ucard->get_status(STATUS_EFFECT_ENABLED) && (ucard->unique_code == pcard->unique_code)
-			&& (!(pcard->current.location & LOCATION_ONFIELD) || pcard->is_position(POS_FACEDOWN) || (ucard->unique_uid < pcard->unique_uid)))
+		if((ucard != pcard) && ucard->get_status(STATUS_EFFECT_ENABLED)
+			&& (ucard->unique_code == pcard->unique_code) && (ucard->unique_location & location)
+			&& (!(pcard->current.location & ucard->unique_location) || pcard->is_position(POS_FACEDOWN) || (ucard->unique_uid < pcard->unique_uid)))
 			return pcard->unique_effect;
 	}
 	return 0;

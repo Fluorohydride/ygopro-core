@@ -121,6 +121,7 @@ public:
 	uint8 unique_pos[2];
 	uint16 unique_uid;
 	uint32 unique_code;
+	uint32 unique_location;
 	uint32 spsummon_code;
 	uint16 spsummon_counter[2];
 	uint16 spsummon_counter_rst[2];

@@ -372,7 +372,7 @@ public:
 	void adjust_self_destroy_set();
 	void add_unique_card(card* pcard);
 	void remove_unique_card(card* pcard);
-	effect* check_unique_onfield(card* pcard, uint8 controler);
+	effect* check_unique_onfield(card* pcard, uint8 controler, uint8 location);
 	int32 check_spsummon_once(card* pcard, uint8 playerid);
 	void check_card_counter(card* pcard, int32 counter_type, int32 playerid);
 	void check_chain_counter(effect* peffect, int32 playerid, int32 chainid, bool cancel = false);

@@ -150,7 +150,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 		if (type & EFFECT_TYPE_ACTIVATE) {
 			if(handler->current.controler != playerid)
 				return FALSE;
-			if(pduel->game_field->check_unique_onfield(handler, playerid))
+			if(pduel->game_field->check_unique_onfield(handler, playerid, LOCATION_SZONE))
 				return FALSE;
 			if(!(handler->data.type & TYPE_COUNTER)) {
 				if((code < 1132 || code > 1149) && pduel->game_field->infos.phase == PHASE_DAMAGE && !(is_flag(EFFECT_FLAG_DAMAGE_STEP)))
