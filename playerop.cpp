@@ -325,6 +325,37 @@ int32 field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 fo
 		return TRUE;
 	}
 }
+int32 field::select_trigger(uint16 step, uint8 playerid, uint8 forced) {
+	if(step == 0) {
+		returns.ivalue[0] = -1;
+		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
+			if(core.select_chains.size() == 0)
+				returns.ivalue[0] = -1;
+			else
+				returns.ivalue[0] = 0;
+			return TRUE;
+		}
+		pduel->write_buffer8(MSG_SELECT_TRIGGER);
+		pduel->write_buffer8(playerid);
+		pduel->write_buffer8(core.select_chains.size());
+		pduel->write_buffer8(forced);
+		std::sort(core.select_chains.begin(), core.select_chains.end(), chain::chain_operation_sort);
+		for(uint32 i = 0; i < core.select_chains.size(); ++i) {
+			effect* peffect = core.select_chains[i].triggering_effect;
+			card* pcard = peffect->handler;
+			pduel->write_buffer32(pcard->data.code);
+			pduel->write_buffer32(pcard->get_info_location());
+			pduel->write_buffer32(peffect->description);
+		}
+		return FALSE;
+	} else {
+		if((returns.ivalue[0] < 0 && forced) || returns.ivalue[0] >= (int32)core.select_chains.size()) {
+			pduel->write_buffer8(MSG_RETRY);
+			return FALSE;
+		}
+		return TRUE;
+	}
+}
 int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count) {
 	if(step == 0) {
 		if(count == 0)
