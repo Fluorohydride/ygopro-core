@@ -4443,6 +4443,8 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		core.continuous_chain.push_back(newchain);
 		if(peffect->is_flag(EFFECT_FLAG_DELAY))
 			core.conti_solving = TRUE;
+		core.units.begin()->ptarget = (group*)core.reason_effect;
+		core.units.begin()->arg2 = core.reason_player;
 		if(!peffect->target)
 			return FALSE;
 		core.sub_solving_event.push_back(core.solving_event.front());
@@ -4461,6 +4463,8 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		return FALSE;
 	}
 	case 3: {
+		core.reason_effect = (effect*)core.units.begin()->ptarget;
+		core.reason_player = core.units.begin()->arg2;
 		if(core.continuous_chain.back().target_cards)
 			pduel->delete_group(core.continuous_chain.back().target_cards);
 		for(auto oit = core.continuous_chain.back().opinfos.begin(); oit != core.continuous_chain.back().opinfos.end(); ++oit) {
