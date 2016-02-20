@@ -2209,7 +2209,7 @@ int32 field::process_instant_event() {
 			peffect = pr.first->second;
 			uint8 owner_player = peffect->get_handler_player();
 			if(peffect->is_activateable(owner_player, *elit)) {
-				if((peffect->is_flag(EFFECT_FLAG_DELAY)) && (core.chain_solving || core.conti_solving)) {
+				if(peffect->is_flag(EFFECT_FLAG_DELAY) && (core.chain_solving || core.conti_solving)) {
 					if(owner_player == infos.turn_player) {
 						core.delayed_tp.push_back(peffect);
 						core.delayed_tev.push_back(*elit);
@@ -2344,7 +2344,7 @@ int32 field::process_single_event() {
 			if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
 				uint8 owner_player = peffect->get_handler_player();
 				if(peffect->is_activateable(owner_player, e)) {
-					if((peffect->is_flag(EFFECT_FLAG_DELAY)) && (core.chain_solving || core.conti_solving)) {
+					if(peffect->is_flag(EFFECT_FLAG_DELAY) && (core.chain_solving || core.conti_solving)) {
 						if(owner_player == infos.turn_player) {
 							core.delayed_tp.push_back(peffect);
 							core.delayed_tev.push_back(e);
@@ -4441,8 +4441,7 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		newchain.disable_reason = 0;
 		newchain.flag = 0;
 		core.continuous_chain.push_back(newchain);
-		if(peffect->is_flag(EFFECT_FLAG_DELAY))
-			core.conti_solving = TRUE;
+		core.conti_solving = TRUE;
 		if(!peffect->target)
 			return FALSE;
 		core.sub_solving_event.push_back(core.solving_event.front());
@@ -4469,36 +4468,36 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		}
 		core.continuous_chain.pop_back();
 		core.solving_event.pop_front();
-		if(peffect->is_flag(EFFECT_FLAG_DELAY)) {
-			core.conti_solving = FALSE;
-			adjust_all();
-			if(core.conti_player == infos.turn_player) {
-				if(core.delayed_tp.size()) {
-					core.sub_solving_event.push_back(core.delayed_tev.front());
-					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
-					core.delayed_tp.pop_front();
-					core.delayed_tev.pop_front();
-				}
-				else
-					core.conti_player = 1 - infos.turn_player;
+		core.conti_solving = FALSE;
+		adjust_all();
+		if(core.conti_player == PLAYER_NONE)
+			core.conti_player = infos.turn_player;
+		if(core.conti_player == infos.turn_player) {
+			if(core.delayed_tp.size()) {
+				core.sub_solving_event.push_back(core.delayed_tev.front());
+				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
+				core.delayed_tp.pop_front();
+				core.delayed_tev.pop_front();
 			}
-			if(core.conti_player == 1 - infos.turn_player) {
-				if(core.delayed_ntp.size()) {
-					core.sub_solving_event.push_back(core.delayed_ntev.front());
-					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_ntp.front(), 0, 1 - infos.turn_player, 0);
-					core.delayed_ntp.pop_front();
-					core.delayed_ntev.pop_front();
-				}
-				else if(core.delayed_tp.size()) {
-					core.conti_player = infos.turn_player;
-					core.sub_solving_event.push_back(core.delayed_tev.front());
-					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
-					core.delayed_tp.pop_front();
-					core.delayed_tev.pop_front();
-				}
-				else
-					core.conti_player = PLAYER_NONE;
+			else
+				core.conti_player = 1 - infos.turn_player;
+		}
+		if(core.conti_player == 1 - infos.turn_player) {
+			if(core.delayed_ntp.size()) {
+				core.sub_solving_event.push_back(core.delayed_ntev.front());
+				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_ntp.front(), 0, 1 - infos.turn_player, 0);
+				core.delayed_ntp.pop_front();
+				core.delayed_ntev.pop_front();
 			}
+			else if(core.delayed_tp.size()) {
+				core.conti_player = infos.turn_player;
+				core.sub_solving_event.push_back(core.delayed_tev.front());
+				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
+				core.delayed_tp.pop_front();
+				core.delayed_tev.pop_front();
+			}
+			else
+				core.conti_player = PLAYER_NONE;
 		}
 		return TRUE;
 	}
