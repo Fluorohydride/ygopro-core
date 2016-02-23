@@ -4466,10 +4466,12 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 			if(oit->second.op_cards)
 				pduel->delete_group(oit->second.op_cards);
 		}
+		auto ev=core.solving_event.front();
 		core.continuous_chain.pop_back();
 		core.solving_event.pop_front();
 		core.conti_solving = FALSE;
-		adjust_all();
+		if(ev.event_code != EVENT_ADJUST)
+			adjust_all();
 		if(core.conti_player == PLAYER_NONE)
 			core.conti_player = infos.turn_player;
 		if(core.conti_player == infos.turn_player) {
