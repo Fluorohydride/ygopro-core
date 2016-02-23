@@ -2301,13 +2301,13 @@ int32 field::process_instant_event() {
 		pr = effects.activate_effect.equal_range(elit->event_code);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
-			if((peffect->is_flag(EFFECT_FLAG_DELAY)) && peffect->is_condition_check(peffect->handler->current.controler, *elit))
+			if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_condition_check(peffect->handler->current.controler, *elit))
 				core.delayed_quick_tmp.insert(std::make_pair(peffect, *elit));
 		}
 		pr = effects.quick_o_effect.equal_range(elit->event_code);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
-			if((peffect->is_flag(EFFECT_FLAG_DELAY)) && peffect->is_condition_check(peffect->handler->current.controler, *elit))
+			if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_condition_check(peffect->handler->current.controler, *elit))
 				core.delayed_quick_tmp.insert(std::make_pair(peffect, *elit));
 		}
 	}
@@ -4466,40 +4466,40 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 			if(oit->second.op_cards)
 				pduel->delete_group(oit->second.op_cards);
 		}
-		auto ev=core.solving_event.front();
 		core.continuous_chain.pop_back();
 		core.solving_event.pop_front();
 		core.conti_solving = FALSE;
-		if(ev.event_code != EVENT_ADJUST)
+		if(peffect->is_flag(EFFECT_FLAG_DELAY)) {
 			adjust_all();
-		if(core.conti_player == PLAYER_NONE)
-			core.conti_player = infos.turn_player;
-		if(core.conti_player == infos.turn_player) {
-			if(core.delayed_tp.size()) {
-				core.sub_solving_event.push_back(core.delayed_tev.front());
-				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
-				core.delayed_tp.pop_front();
-				core.delayed_tev.pop_front();
-			}
-			else
-				core.conti_player = 1 - infos.turn_player;
-		}
-		if(core.conti_player == 1 - infos.turn_player) {
-			if(core.delayed_ntp.size()) {
-				core.sub_solving_event.push_back(core.delayed_ntev.front());
-				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_ntp.front(), 0, 1 - infos.turn_player, 0);
-				core.delayed_ntp.pop_front();
-				core.delayed_ntev.pop_front();
-			}
-			else if(core.delayed_tp.size()) {
+			if(core.conti_player == PLAYER_NONE)
 				core.conti_player = infos.turn_player;
-				core.sub_solving_event.push_back(core.delayed_tev.front());
-				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
-				core.delayed_tp.pop_front();
-				core.delayed_tev.pop_front();
+			if(core.conti_player == infos.turn_player) {
+				if(core.delayed_tp.size()) {
+					core.sub_solving_event.push_back(core.delayed_tev.front());
+					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
+					core.delayed_tp.pop_front();
+					core.delayed_tev.pop_front();
+				}
+				else
+					core.conti_player = 1 - infos.turn_player;
 			}
-			else
-				core.conti_player = PLAYER_NONE;
+			if(core.conti_player == 1 - infos.turn_player) {
+				if(core.delayed_ntp.size()) {
+					core.sub_solving_event.push_back(core.delayed_ntev.front());
+					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_ntp.front(), 0, 1 - infos.turn_player, 0);
+					core.delayed_ntp.pop_front();
+					core.delayed_ntev.pop_front();
+				}
+				else if(core.delayed_tp.size()) {
+					core.conti_player = infos.turn_player;
+					core.sub_solving_event.push_back(core.delayed_tev.front());
+					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
+					core.delayed_tp.pop_front();
+					core.delayed_tev.pop_front();
+				}
+				else
+					core.conti_player = PLAYER_NONE;
+			}
 		}
 		return TRUE;
 	}
