@@ -4441,7 +4441,8 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		newchain.disable_reason = 0;
 		newchain.flag = 0;
 		core.continuous_chain.push_back(newchain);
-		core.conti_solving = TRUE;
+		if(peffect->is_flag(EFFECT_FLAG_DELAY))
+			core.conti_solving = TRUE;
 		core.units.begin()->ptarget = (group*)core.reason_effect;
 		core.units.begin()->arg2 = core.reason_player;
 		if(!peffect->target)
@@ -4472,8 +4473,8 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		}
 		core.continuous_chain.pop_back();
 		core.solving_event.pop_front();
-		core.conti_solving = FALSE;
 		if(peffect->is_flag(EFFECT_FLAG_DELAY)) {
+			core.conti_solving = FALSE;
 			adjust_all();
 			if(core.conti_player == PLAYER_NONE)
 				core.conti_player = infos.turn_player;
