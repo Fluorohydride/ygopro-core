@@ -1730,9 +1730,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 		        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x43)
 		            || !(peffect->handler->current.location & 0x43) || peffect->handler->is_position(POS_FACEUP))) {
-			if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
-			        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(*clit))
-			            || (peffect->range & LOCATION_HAND))) {
+			if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND && (peffect->range & LOCATION_HAND)) {
 				core.new_ochain_h.push_back(*clit);
 				act = false;
 			} else if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) || !(peffect->type & EFFECT_TYPE_FIELD)
@@ -1791,9 +1789,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 			        && (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x43)
 			            || !(peffect->handler->current.location & 0x43) || peffect->handler->is_position(POS_FACEUP))) {
-				if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND
-				        && (((peffect->type & EFFECT_TYPE_SINGLE) && !(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) && peffect->handler->is_has_relation(*clit))
-				            || (peffect->range & LOCATION_HAND))) {
+				if(!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) && clit->triggering_location == LOCATION_HAND && (peffect->range & LOCATION_HAND)) {
 					continue;
 				} else if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) || !(peffect->type & EFFECT_TYPE_FIELD)
 			            || peffect->in_range(clit->triggering_location, clit->triggering_sequence)) {
@@ -2078,7 +2074,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 								act = false;
 								break;
 							}
-							if((peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) && (cait->triggering_effect->handler->data.code == peffect->handler->data.code)) {
+							if(cait->triggering_effect->handler->data.code == peffect->handler->data.code) {
 								act = false;
 								break;
 							}
@@ -4745,7 +4741,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			core.chain_limit_p = 0;
 		}
 		reset_chain();
-		if(core.summoning_card)
+		if(core.summoning_card || core.effect_damage_step == 1)
 			core.subunits.push_back(core.reserved);
 		return FALSE;
 	}

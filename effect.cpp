@@ -58,7 +58,8 @@ int32 effect::is_disable_related() {
 	return FALSE;
 }
 // check if a single/field/equip effect is available
-// check range, EFFECT_FLAG_OWNER_RELATE, STATUS_BATTLE_DESTROYED, STATUS_EFFECT_ENABLED
+// check properties: range, EFFECT_FLAG_OWNER_RELATE, STATUS_BATTLE_DESTROYED, STATUS_EFFECT_ENABLED
+// check fucntions: condition
 int32 effect::is_available() {
 	if (type & EFFECT_TYPE_ACTIONS)
 		return FALSE;
@@ -237,7 +238,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			if(((type & EFFECT_TYPE_FIELD) || ((type & EFFECT_TYPE_SINGLE) && (is_flag(EFFECT_FLAG_SINGLE_RANGE)))) && (handler->current.location & LOCATION_ONFIELD)
 			        && (!handler->is_position(POS_FACEUP) || !handler->is_status(STATUS_EFFECT_ENABLED)))
 				return FALSE;
-			if((type & EFFECT_TYPE_SINGLE) && (is_flag(EFFECT_FLAG_SINGLE_RANGE)) && !in_range(handler->current.location, handler->current.sequence))
+			if((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE) && !in_range(handler->current.location, handler->current.sequence))
 				return FALSE;
 			if((is_flag(EFFECT_FLAG_OWNER_RELATE)) && !(is_flag(EFFECT_FLAG_CANNOT_DISABLE)) && owner->is_status(STATUS_DISABLED))
 				return FALSE;
@@ -263,7 +264,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 	pduel->game_field->restore_lp_cost();
 	return result;
 }
-// check EFFECT_CANNOT_ACTIVATE, EFFECT_ACTIVATE_COST
+// check functions: value of EFFECT_CANNOT_ACTIVATE, target, cost of EFFECT_ACTIVATE_COST
 int32 effect::is_action_check(uint8 playerid) {
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, EFFECT_CANNOT_ACTIVATE, &eset);
@@ -289,7 +290,7 @@ int32 effect::is_action_check(uint8 playerid) {
 	}
 	return TRUE;
 }
-// check condition, cost(chk=0), target(chk=0)
+// check functions: condition, cost(chk=0), target(chk=0)
 int32 effect::is_activate_ready(uint8 playerid, const tevent& e, int32 neglect_cond, int32 neglect_cost, int32 neglect_target) {
 	if (!neglect_cond && condition) {
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
@@ -334,6 +335,7 @@ int32 effect::is_activate_ready(uint8 playerid, const tevent& e, int32 neglect_c
 	}
 	return TRUE;
 }
+// check functions: condition
 int32 effect::is_condition_check(uint8 playerid, const tevent& e) {
 	if(!(type & EFFECT_TYPE_ACTIVATE) && (handler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED)) && !handler->is_position(POS_FACEUP))
 		return FALSE;
