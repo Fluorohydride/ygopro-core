@@ -1543,8 +1543,6 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 			core.units.begin()->step = 14;
 			return FALSE;
 		}
-		if(proc)
-			remove_oath_effect(proc);
 		if(target->current.location == LOCATION_MZONE)
 			send_to(target, 0, REASON_RULE, sumplayer, sumplayer, LOCATION_GRAVE, 0, 0);
 		adjust_instant();
@@ -2217,7 +2215,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 			core.units.begin()->step = 14;
 			return FALSE;
 		}
-		remove_oath_effect(core.units.begin()->peffect);
 		if(target->current.location == LOCATION_MZONE)
 			send_to(target, 0, REASON_RULE, sumplayer, sumplayer, LOCATION_GRAVE, 0, 0);
 		adjust_instant();
@@ -2345,7 +2342,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		card_set cset;
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 			if(!(*cit)->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SPSUMMON)) {
-				raise_single_event(*cit, 0, EVENT_SPSUMMON, (*cit)->current.reason_effect, 0, (*cit)->summon_player, (*cit)->summon_player, 0);
 				cset.insert(*cit);
 			}
 			(*cit)->set_status(STATUS_SUMMONING, TRUE);

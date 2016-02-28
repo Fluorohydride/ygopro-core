@@ -1585,6 +1585,9 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 	}
 	return TRUE;
 }
+// skip_trigger = lower byte of arg1
+// skip_freechain = higher byte of arg1
+// skip_new = arg2
 int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_freechain, int32 skip_new) {
 	switch(step) {
 	case 0: {
@@ -3660,6 +3663,7 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	return TRUE;
 }
+// perform damage calculation by an effect
 int32 field::process_damage_step(uint16 step) {
 	switch(step) {
 	case 0: {
@@ -4741,16 +4745,18 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			core.chain_limit_p = 0;
 		}
 		reset_chain();
-		if(core.summoning_card || core.effect_damage_step == 1)
+		if(core.summoning_card)
 			core.subunits.push_back(core.reserved);
 		return FALSE;
 	}
 	case 13: {
 		raise_event((card*)0, EVENT_CHAIN_END, 0, 0, 0, 0, 0);
 		process_instant_event();
-		core.hint_timing[0] |= TIMING_CHAIN_END;
-		core.hint_timing[1] |= TIMING_CHAIN_END;
-		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, chainend_arg1, chainend_arg2);
+		if(chainend_arg1 != 0x101 || chainend_arg2 != TRUE){
+			core.hint_timing[0] |= TIMING_CHAIN_END;
+			core.hint_timing[1] |= TIMING_CHAIN_END;
+			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, chainend_arg1, chainend_arg2);
+		}
 		returns.ivalue[0] = TRUE;
 		return TRUE;
 	}
