@@ -287,7 +287,6 @@ struct processor {
 	uint8 attack_state_count[2];
 	uint8 battle_phase_count[2];
 	uint8 phase_action;
-	uint8 battle_phase_action;
 	uint32 hint_timing[2];
 	uint8 current_player;
 	uint8 conti_player;
