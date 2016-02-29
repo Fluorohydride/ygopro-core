@@ -2348,7 +2348,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		}
 		if(cset.size())
 			raise_event(&cset, EVENT_SPSUMMON, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
-		process_single_event();
 		process_instant_event();
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x101, TRUE);
 		return FALSE;
