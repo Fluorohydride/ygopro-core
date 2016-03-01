@@ -2069,12 +2069,11 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 						if(cait->triggering_player == priority) {
 							effect* pchaineff = cait->triggering_effect;
 							if(!(pchaineff->is_flag(EFFECT_FLAG_FIELD_ONLY)) && (pchaineff->type & EFFECT_TYPE_TRIGGER_O)
-							        && (!(pchaineff->type & EFFECT_TYPE_SINGLE) || (pchaineff->is_flag(EFFECT_FLAG_SINGLE_RANGE)))
-							        && (pchaineff->range & LOCATION_HAND)) {
+							        && cait->triggering_location == LOCATION_HAND && (pchaineff->range & LOCATION_HAND)) {
 								act = false;
 								break;
 							}
-							if(cait->triggering_effect->handler->data.code == peffect->handler->data.code) {
+							if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE) && cait->triggering_effect->handler->data.code == peffect->handler->data.code) {
 								act = false;
 								break;
 							}
