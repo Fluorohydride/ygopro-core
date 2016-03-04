@@ -3320,12 +3320,14 @@ int32 field::process_battle_command(uint16 step) {
 		uint8 pa = core.attacker->current.controler, pd;
 		core.attacker->q_cache.attack = aa;
 		core.attacker->q_cache.defence = ad;
+		core.attacker->set_status(STATUS_BATTLE_RESULT, FALSE);
 		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 		if(core.attack_target) {
 			da = core.attack_target->get_attack();
 			dd = core.attack_target->get_defence();
 			core.attack_target->q_cache.attack = da;
 			core.attack_target->q_cache.defence = dd;
+			core.attack_target->set_status(STATUS_BATTLE_RESULT, FALSE);
 			core.attack_target->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 			pd = core.attack_target->current.controler;
 			if(pa != pd) {
@@ -3346,7 +3348,7 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer32(indestructable_effect->owner->data.code);
 				bd[0] = FALSE;
 			} else
-				core.attacker->set_status(STATUS_BATTLE_DESTROYED, TRUE);
+				core.attacker->set_status(STATUS_BATTLE_RESULT, TRUE);
 		}
 		if(bd[1]) {
 			effect* indestructable_effect = core.attack_target->is_affected_by_effect(EFFECT_INDESTRUCTABLE_BATTLE, core.attacker);
@@ -3357,7 +3359,7 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer32(indestructable_effect->owner->data.code);
 				bd[1] = FALSE;
 			} else
-				core.attack_target->set_status(STATUS_BATTLE_DESTROYED, TRUE);
+				core.attack_target->set_status(STATUS_BATTLE_RESULT, TRUE);
 		}
 		pduel->write_buffer8(MSG_BATTLE);
 		pduel->write_buffer32(core.attacker->get_info_location());
@@ -3438,7 +3440,7 @@ int32 field::process_battle_command(uint16 step) {
 		card_set des;
 		effect* peffect;
 		uint32 dest, seq;
-		if(core.attacker->is_status(STATUS_BATTLE_DESTROYED)
+		if(core.attacker->is_status(STATUS_BATTLE_RESULT)
 		        && core.attacker->current.location == LOCATION_MZONE && core.attacker->fieldid_r == core.pre_field[0]) {
 			des.insert(core.attacker);
 			core.attacker->temp.reason = core.attacker->current.reason;
@@ -3458,7 +3460,7 @@ int32 field::process_battle_command(uint16 step) {
 			}
 			core.attacker->operation_param = (POS_FACEUP << 24) + (((uint32)core.attacker->owner) << 16) + (dest << 8) + seq;
 		}
-		if(core.attack_target && core.attack_target->is_status(STATUS_BATTLE_DESTROYED)
+		if(core.attack_target && core.attack_target->is_status(STATUS_BATTLE_RESULT)
 		        && core.attack_target->current.location == LOCATION_MZONE && core.attack_target->fieldid_r == core.pre_field[1]) {
 			des.insert(core.attack_target);
 			core.attack_target->temp.reason = core.attack_target->current.reason;
@@ -3478,9 +3480,9 @@ int32 field::process_battle_command(uint16 step) {
 			}
 			core.attack_target->operation_param = (POS_FACEUP << 24) + (((uint32)core.attack_target->owner) << 16) + (dest << 8) + seq;
 		}
-		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
+		core.attacker->set_status(STATUS_BATTLE_RESULT, FALSE);
 		if(core.attack_target)
-			core.attack_target->set_status(STATUS_BATTLE_DESTROYED, FALSE);
+			core.attack_target->set_status(STATUS_BATTLE_RESULT, FALSE);
 		core.battle_destroy_rep.clear();
 		core.desrep_chain.clear();
 		if(des.size()) {
@@ -3493,6 +3495,24 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 29: {
+		group* des = core.units.begin()->ptarget;
+		if(core.battle_destroy_rep.size())
+			destroy(&core.battle_destroy_rep, 0, REASON_EFFECT, PLAYER_NONE);
+		if(core.desrep_chain.size())
+			add_process(PROCESSOR_OPERATION_REPLACE, 15, 0, 0, 0, 0);
+		if(des) {
+			card_set::iterator cit, rm;
+			for(cit = des->container.begin(); cit != des->container.end();) {
+				rm = cit++;
+				if((*rm)->current.location != LOCATION_MZONE || ((*rm)->fieldid_r != core.pre_field[0] && (*rm)->fieldid_r != core.pre_field[1]))
+					des->container.erase(rm);
+			}
+			add_process(PROCESSOR_DESTROY, 3, 0, des, REASON_BATTLE, PLAYER_NONE);
+		}
+		adjust_all();
+		return FALSE;
+	}
+	case 30: {
 		core.selfdes_disabled = FALSE;
 		group* des = core.units.begin()->ptarget;
 		if(des && des->container.size()) {
@@ -3502,14 +3522,11 @@ int32 field::process_battle_command(uint16 step) {
 			}
 		}
 		adjust_all();
-		return FALSE;
-	}
-	case 30: {
 		//EVENT_BATTLE_END was here, but this timing does not exist in Master Rule 3
-		core.units.begin()->arg1 = 1;
 		return FALSE;
 	}
 	case 31: {
+		core.units.begin()->arg1 = 1;
 		core.flip_delayed = FALSE;
 		core.new_fchain.splice(core.new_fchain.begin(), core.new_fchain_b);
 		core.new_ochain.splice(core.new_ochain.begin(), core.new_ochain_b);
@@ -3531,21 +3548,6 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 32: {
-		group* des = core.units.begin()->ptarget;
-		if(core.battle_destroy_rep.size())
-			destroy(&core.battle_destroy_rep, 0, REASON_EFFECT, PLAYER_NONE);
-		if(core.desrep_chain.size())
-			add_process(PROCESSOR_OPERATION_REPLACE, 15, 0, 0, 0, 0);
-		if(des) {
-			card_set::iterator cit, rm;
-			for(cit = des->container.begin(); cit != des->container.end();) {
-				rm = cit++;
-				if((*rm)->current.location != LOCATION_MZONE || ((*rm)->fieldid_r != core.pre_field[0] && (*rm)->fieldid_r != core.pre_field[1]))
-					des->container.erase(rm);
-			}
-			add_process(PROCESSOR_DESTROY, 3, 0, des, REASON_BATTLE, PLAYER_NONE);
-		}
-		adjust_all();
 		return FALSE;
 	}
 	case 33: {
