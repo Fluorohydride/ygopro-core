@@ -3495,25 +3495,15 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 29: {
-		group* des = core.units.begin()->ptarget;
+		core.selfdes_disabled = FALSE;
 		if(core.battle_destroy_rep.size())
 			destroy(&core.battle_destroy_rep, 0, REASON_EFFECT, PLAYER_NONE);
 		if(core.desrep_chain.size())
 			add_process(PROCESSOR_OPERATION_REPLACE, 15, 0, 0, 0, 0);
-		if(des) {
-			card_set::iterator cit, rm;
-			for(cit = des->container.begin(); cit != des->container.end();) {
-				rm = cit++;
-				if((*rm)->current.location != LOCATION_MZONE || ((*rm)->fieldid_r != core.pre_field[0] && (*rm)->fieldid_r != core.pre_field[1]))
-					des->container.erase(rm);
-			}
-			add_process(PROCESSOR_DESTROY, 3, 0, des, REASON_BATTLE, PLAYER_NONE);
-		}
 		adjust_all();
 		return FALSE;
 	}
 	case 30: {
-		core.selfdes_disabled = FALSE;
 		group* des = core.units.begin()->ptarget;
 		if(des && des->container.size()) {
 			for(auto cit = des->container.begin(); cit != des->container.end(); ++cit) {
@@ -3548,6 +3538,17 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 32: {
+		group* des = core.units.begin()->ptarget;
+		if(des) {
+			card_set::iterator cit, rm;
+			for(cit = des->container.begin(); cit != des->container.end();) {
+				rm = cit++;
+				if((*rm)->current.location != LOCATION_MZONE || ((*rm)->fieldid_r != core.pre_field[0] && (*rm)->fieldid_r != core.pre_field[1]))
+					des->container.erase(rm);
+			}
+			add_process(PROCESSOR_DESTROY, 3, 0, des, REASON_BATTLE, PLAYER_NONE);
+		}
+		adjust_all();
 		return FALSE;
 	}
 	case 33: {
