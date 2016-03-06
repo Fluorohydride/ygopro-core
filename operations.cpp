@@ -2670,6 +2670,13 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				}
 			}
 		}
+		for (auto cit = indestructable_set.begin(); cit != indestructable_set.end(); ++cit) {
+			(*cit)->current.reason = (*cit)->temp.reason;
+			(*cit)->current.reason_effect = (*cit)->temp.reason_effect;
+			(*cit)->current.reason_player = (*cit)->temp.reason_player;
+			(*cit)->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
+			targets->container.erase(*cit);
+		}
 		for (auto cit = extra.begin(); cit != extra.end(); ++cit) {
 			card* rep = *cit;
 			if(targets->container.count(rep) == 0) {
@@ -2682,13 +2689,6 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				rep->operation_param = (POS_FACEUP << 24) + (((int32)rep->owner) << 16) + (LOCATION_GRAVE << 8);
 				targets->container.insert(rep);
 			}
-		}
-		for (auto cit = indestructable_set.begin(); cit != indestructable_set.end(); ++cit) {
-			(*cit)->current.reason = (*cit)->temp.reason;
-			(*cit)->current.reason_effect = (*cit)->temp.reason_effect;
-			(*cit)->current.reason_player = (*cit)->temp.reason_player;
-			(*cit)->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
-			targets->container.erase(*cit);
 		}
 		for (auto eit = indestructable_effect_set.begin(); eit != indestructable_effect_set.end(); ++eit) {
 			pduel->write_buffer8(MSG_HINT);
