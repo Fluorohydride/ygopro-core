@@ -1515,8 +1515,8 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 	}
 	return 0;
 }
-int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count) {
-	if(!is_can_add_counter(playerid, countertype, count))
+int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly) {
+	if(!is_can_add_counter(playerid, countertype, count, singly))
 		return FALSE;
 	uint16 cttype = countertype;
 	if((countertype & COUNTER_NEED_ENABLE) && !(countertype & COUNTER_NEED_PERMIT))
@@ -1527,16 +1527,29 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count) {
 		cmit->second[0] = 0;
 		cmit->second[1] = 0;
 	}
+	uint16 pcount = count;
+	if(singly) {
+		effect_set eset;
+		uint16 limit = 0;
+		filter_effect(EFFECT_COUNTER_LIMIT + cttype, &eset);
+		for(int32 i = 0; i < eset.size(); ++i)
+			limit = eset[i]->get_value();
+		if(limit) {
+			uint16 mcount = limit - get_counter(cttype);
+			if(pcount > mcount)
+				pcount = mcount;
+		}
+	}
 	if(!(countertype & COUNTER_NEED_ENABLE))
-		cmit->second[0] += count;
+		cmit->second[0] += pcount;
 	else
-		cmit->second[1] += count;
+		cmit->second[1] += pcount;
 	pduel->write_buffer8(MSG_ADD_COUNTER);
 	pduel->write_buffer16(cttype);
 	pduel->write_buffer8(current.controler);
 	pduel->write_buffer8(current.location);
 	pduel->write_buffer8(current.sequence);
-	pduel->write_buffer16(count);
+	pduel->write_buffer16(pcount);
 	return TRUE;
 }
 int32 card::remove_counter(uint16 countertype, uint16 count) {
@@ -1561,7 +1574,7 @@ int32 card::remove_counter(uint16 countertype, uint16 count) {
 	pduel->write_buffer16(count);
 	return TRUE;
 }
-int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count) {
+int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly) {
 	effect_set eset;
 	if(!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
 		return FALSE;
@@ -1582,7 +1595,7 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count)
 	filter_effect(EFFECT_COUNTER_LIMIT + cttype, &eset);
 	for(int32 i = 0; i < eset.size(); ++i)
 		limit = eset[i]->get_value();
-	if(limit > 0 && (cur + count > limit))
+	if(limit > 0 && (cur + (singly ? 1 : count) > limit))
 		return FALSE;
 	return TRUE;
 }
