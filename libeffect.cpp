@@ -452,6 +452,7 @@ int32 scriptlib::effect_get_operation(lua_State *L) {
 	interpreter::function2value(L, peffect->operation);
 	return 1;
 }
+// active_type is set in add_chain()
 int32 scriptlib::effect_get_active_type(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
