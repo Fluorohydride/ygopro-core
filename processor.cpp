@@ -2147,7 +2147,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 			}
 			if(core.current_chain.size() || (core.hint_timing[0] & TIMING_ATTACK) || (core.hint_timing[1] & TIMING_ATTACK))
 				core.spe_effect[priority] = core.select_chains.size();
-			if(!(core.duel_options & DUEL_NO_CHAIN_HINT) || core.select_chains.size())
+			if(core.select_chains.size())
 				add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, priority, core.spe_effect[priority]);
 		} else {
 			core.new_chains.splice(core.new_chains.end(), core.tpchain);
