@@ -1858,6 +1858,7 @@ int32 scriptlib::card_remove_counter(lua_State *L) {
 	uint32 count = lua_tointeger(L, 4);
 	uint32 reason = lua_tointeger(L, 5);
 	if(countertype == 0) {
+		// c38834303
 		for(auto cmit = pcard->counters.begin(); cmit != pcard->counters.end(); ++cmit) {
 			pcard->pduel->write_buffer8(MSG_REMOVE_COUNTER);
 			pcard->pduel->write_buffer16(cmit->first);

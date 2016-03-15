@@ -460,6 +460,7 @@ int32 field::damage(uint16 step, effect* reason_effect, uint32 reason, uint8 rea
 			}
 			raise_single_event(reason_card, 0, EVENT_BATTLE_DAMAGE, 0, 0, reason_player, playerid, val);
 			raise_event(reason_card, EVENT_BATTLE_DAMAGE, 0, 0, reason_player, playerid, val);
+			process_single_event();
 		}
 		process_instant_event();
 		return FALSE;
@@ -644,7 +645,7 @@ int32 field::remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplay
 		}
 		if(pcard) {
 			returns.ivalue[0] = pcard->remove_counter(countertype, count);
-			core.units.begin()->step = 2;
+			core.units.begin()->step = 3;
 			return FALSE;
 		}
 		card* pcard;
