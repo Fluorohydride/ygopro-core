@@ -1459,6 +1459,8 @@ void field::adjust_self_destroy_set() {
 		if((!pcard->is_status(STATUS_DISABLED) && (peffect = check_unique_onfield(pcard, pcard->current.controler, pcard->current.location)))
 		        || (peffect = pcard->is_affected_by_effect(EFFECT_SELF_DESTROY))) {
 			core.self_destroy_set.insert(pcard);
+			pcard->temp.reason_effect = pcard->current.reason_effect;
+			pcard->temp.reason_player = pcard->current.reason_player;
 			pcard->current.reason_effect = peffect;
 			pcard->current.reason_player = peffect->get_handler_player();
 		}
@@ -1468,6 +1470,8 @@ void field::adjust_self_destroy_set() {
 			card* pcard = *cit;
 			if(peffect = pcard->is_affected_by_effect(EFFECT_SELF_TOGRAVE)) {
 				core.self_tograve_set.insert(pcard);
+				pcard->temp.reason_effect = pcard->current.reason_effect;
+				pcard->temp.reason_player = pcard->current.reason_player;
 				pcard->current.reason_effect = peffect;
 				pcard->current.reason_player = peffect->get_handler_player();
 			}

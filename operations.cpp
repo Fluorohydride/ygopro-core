@@ -185,13 +185,14 @@ void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uin
 			continue;
 		}
 		pcard->temp.reason = pcard->current.reason;
-		pcard->temp.reason_effect = pcard->current.reason_effect;
-		pcard->temp.reason_player = pcard->current.reason_player;
 		pcard->current.reason = reason;
-		if(reason_effect)
-			pcard->current.reason_effect = reason_effect;
-		if(reason_player != 5)
+		if(reason_player != 5) {
+			pcard->temp.reason_effect = pcard->current.reason_effect;
+			pcard->temp.reason_player = pcard->current.reason_player;
+			if(reason_effect)
+				pcard->current.reason_effect = reason_effect;
 			pcard->current.reason_player = reason_player;
+		}
 		p = playerid;
 		if(!(destination & (LOCATION_HAND + LOCATION_DECK + LOCATION_REMOVED)))
 			destination = LOCATION_GRAVE;
