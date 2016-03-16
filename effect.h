@@ -462,6 +462,6 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_PHASE_START			0x2000
 #define EVENT_ADD_COUNTER			0x10000
 #define EVENT_REMOVE_COUNTER		0x20000
-#define EVENT_CARD					0x10000000
+#define EVENT_CUSTOM				0x10000000
 
 #endif /* EFFECT_H_ */
