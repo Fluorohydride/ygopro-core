@@ -983,7 +983,8 @@ int32 scriptlib::card_register_effect(lua_State *L) {
 		id = -1;
 	else {
 		if((peffect->type & (EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F)) 
-				&& !(peffect->code & EVENT_CARD) && peffect->code < EVENT_PHASE_START && (peffect->code & EVENT_PHASE)) {
+				&& !(peffect->code & 0x10032000) && (peffect->code & EVENT_PHASE)
+				&& !peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
 			peffect->flag[0] |= EFFECT_FLAG_COUNT_LIMIT;
 			peffect->reset_count |= ((1 << 12) & 0xf000) | ((1 << 8) & 0xf00);
 		}
