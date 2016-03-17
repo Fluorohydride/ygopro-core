@@ -1967,6 +1967,35 @@ int32 field::check_with_sum_limit_m(const card_vector& mats, int32 acc, int32 in
 		return TRUE;
 	return FALSE;
 }
+int32 field::check_with_sum_greater_limit(const card_vector& mats, int32 acc, int32 index, int32 opmin) {
+	while(index < (int32)mats.size()) {
+		int32 op1 = mats[index]->operation_param & 0xffff;
+		int32 op2 = (mats[index]->operation_param >> 16) & 0xffff;
+		if((acc <= op1 && acc + opmin > op1) || (op2 && acc <= op2 && acc + opmin > op2))
+			return TRUE;
+		index++;
+		if(check_with_sum_greater_limit(mats, acc - op1, index, std::min(opmin, op1)))
+			return TRUE;
+		if(op2 && check_with_sum_greater_limit(mats, acc - op2, index, std::min(opmin, op2)))
+			return TRUE;
+	}
+	return FALSE;
+}
+int32 field::check_with_sum_greater_limit_m(const card_vector& mats, int32 acc, int32 index, int32 opmin, int32 must_count) {
+	if(acc <= 0)
+		return index == must_count && acc + opmin > 0;
+	if(index == must_count)
+		return check_with_sum_greater_limit(mats, acc, index, opmin);
+	if(index >= (int32)mats.size())
+		return FALSE;
+	int32 op1 = mats[index]->operation_param & 0xffff;
+	int32 op2 = (mats[index]->operation_param >> 16) & 0xffff;
+	if(check_with_sum_greater_limit_m(mats, acc - op1, index + 1, std::min(opmin, op1), must_count))
+		return TRUE;
+	if(op2 && check_with_sum_greater_limit_m(mats, acc - op2, index + 1, std::min(opmin, op2), must_count))
+		return TRUE;
+	return FALSE;
+}
 int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, int32 max, group* mg) {
 	get_xyz_material(scard, findex, lv, max, mg);
 	return (int32)core.xmaterial_lst.size() >= min;

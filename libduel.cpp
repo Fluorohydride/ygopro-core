@@ -2222,6 +2222,21 @@ int32 scriptlib::duel_release_ritual_material(lua_State *L) {
 	pgroup->pduel->game_field->ritual_release(&pgroup->container);
 	return lua_yield(L, 0);
 }
+int32 scriptlib::duel_set_must_select_cards(lua_State *L) {
+	check_param_count(L, 1);
+	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
+		card* pcard = *(card**) lua_touserdata(L, 1);
+		duel* pduel = pcard->pduel;
+		pduel->game_field->core.must_select_cards.clear();
+		pduel->game_field->core.must_select_cards.push_back(pcard);
+	} else if(check_param(L, PARAM_TYPE_GROUP, 1, TRUE)) {
+		group* pgroup = *(group**) lua_touserdata(L, 1);
+		duel* pduel = pgroup->pduel;
+		pduel->game_field->core.must_select_cards.assign(pgroup->container.begin(), pgroup->container.end());
+	} else
+		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
+	return 0;
+}
 int32 scriptlib::duel_set_target_card(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 1);

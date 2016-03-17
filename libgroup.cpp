@@ -281,18 +281,21 @@ int32 scriptlib::group_check_with_sum_equal(lua_State *L) {
 	int32 acc = lua_tointeger(L, 3);
 	int32 min = lua_tointeger(L, 4);
 	int32 max = lua_tointeger(L, 5);
-	if(min <= 0)
-		min = 1;
+	if(min < 0)
+		min = 0;
 	if(max < min)
 		max = min;
 	int32 extraargs = lua_gettop(L) - 5;
-	field::card_vector cv;
-	cv.swap(pduel->game_field->core.must_select_cards);
+	field::card_vector cv(pduel->game_field->core.must_select_cards);
 	int32 mcount = cv.size();
 	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
-		(*cit)->operation_param = pduel->lua->get_operation_value(*cit, 2, extraargs);
-		cv.push_back(*cit);
+		auto it = std::find(pduel->game_field->core.must_select_cards.begin(), pduel->game_field->core.must_select_cards.end(), *cit);
+		if(it == pduel->game_field->core.must_select_cards.end())
+			cv.push_back(*cit);
 	}
+	pduel->game_field->core.must_select_cards.clear();
+	for(auto cit = cv.begin(); cit != cv.end(); ++cit)
+		(*cit)->operation_param = pduel->lua->get_operation_value(*cit, 2, extraargs);
 	lua_pushboolean(L, field::check_with_sum_limit_m(cv, acc, 0, min, max, mcount));
 	return 1;
 }
@@ -309,16 +312,12 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 	int32 acc = lua_tointeger(L, 4);
 	int32 min = lua_tointeger(L, 5);
 	int32 max = lua_tointeger(L, 6);
-	if(min <= 0)
-		min = 1;
+	if(min < 0)
+		min = 0;
 	if(max < min)
 		max = min;
 	int32 extraargs = lua_gettop(L) - 6;
-	pduel->game_field->core.select_cards.clear();
-	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
-		(*cit)->operation_param = pduel->lua->get_operation_value(*cit, 3, extraargs);
-		pduel->game_field->core.select_cards.push_back(*cit);
-	}
+	pduel->game_field->core.select_cards.assign(pgroup->container.begin(), pgroup->container.end());
 	for(auto cit = pduel->game_field->core.must_select_cards.begin(); cit != pduel->game_field->core.must_select_cards.end(); ++cit) {
 		auto it = std::remove(pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end(), *cit);
 		pduel->game_field->core.select_cards.erase(it, pduel->game_field->core.select_cards.end());
@@ -326,8 +325,12 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 	field::card_vector cv(pduel->game_field->core.must_select_cards);
 	int32 mcount = cv.size();
 	cv.insert(cv.end(), pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end());
-	if(!field::check_with_sum_limit_m(cv, acc, 0, min, max, mcount))
+	for(auto cit = cv.begin(); cit != cv.end(); ++cit)
+		(*cit)->operation_param = pduel->lua->get_operation_value(*cit, 3, extraargs);
+	if(!field::check_with_sum_limit_m(cv, acc, 0, min, max, mcount)) {
+		pduel->game_field->core.must_select_cards.clear();
 		return 0;
+	}
 	pduel->game_field->add_process(PROCESSOR_SELECT_SUM_S, 0, 0, 0, acc, playerid + (min << 16) + (max << 24));
 	return lua_yield(L, 0);
 }
@@ -339,18 +342,17 @@ int32 scriptlib::group_check_with_sum_greater(lua_State *L) {
 	duel* pduel = pgroup->pduel;
 	int32 acc = lua_tointeger(L, 3);
 	int32 extraargs = lua_gettop(L) - 3;
-	int32 sum = 0, op, op1, op2;
-	group::card_set::iterator cit;
-	for(cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
-		op = pduel->lua->get_operation_value(*cit, 2, extraargs);
-		op1 = op & 0xffff;
-		op2 = op >> 16;
-		sum += op1 > op2 ? op1 : op2;
+	field::card_vector cv(pduel->game_field->core.must_select_cards);
+	int32 mcount = cv.size();
+	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
+		auto it = std::find(pduel->game_field->core.must_select_cards.begin(), pduel->game_field->core.must_select_cards.end(), *cit);
+		if(it == pduel->game_field->core.must_select_cards.end())
+			cv.push_back(*cit);
 	}
-	if(sum >= acc)
-		lua_pushboolean(L, 1);
-	else
-		lua_pushboolean(L, 0);
+	pduel->game_field->core.must_select_cards.clear();
+	for(auto cit = cv.begin(); cit != cv.end(); ++cit)
+		(*cit)->operation_param = pduel->lua->get_operation_value(*cit, 2, extraargs);
+	lua_pushboolean(L, field::check_with_sum_greater_limit_m(cv, acc, 0, 0xffff, mcount));
 	return 1;
 }
 int32 scriptlib::group_select_with_sum_greater(lua_State *L) {
@@ -365,19 +367,20 @@ int32 scriptlib::group_select_with_sum_greater(lua_State *L) {
 		return 0;
 	int32 acc = lua_tointeger(L, 4);
 	int32 extraargs = lua_gettop(L) - 4;
-	field::card_set::iterator cit;
-	pduel->game_field->core.select_cards.clear();
-	int32 sum = 0, op, op1, op2;
-	for(cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
-		op = pduel->lua->get_operation_value(*cit, 3, extraargs);
-		op1 = op & 0xffff;
-		op2 = op >> 16;
-		sum += op1 > op2 ? op1 : op2;
-		(*cit)->operation_param = op;
-		pduel->game_field->core.select_cards.push_back(*cit);
+	pduel->game_field->core.select_cards.assign(pgroup->container.begin(), pgroup->container.end());
+	for(auto cit = pduel->game_field->core.must_select_cards.begin(); cit != pduel->game_field->core.must_select_cards.end(); ++cit) {
+		auto it = std::remove(pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end(), *cit);
+		pduel->game_field->core.select_cards.erase(it, pduel->game_field->core.select_cards.end());
 	}
-	if(sum < acc)
+	field::card_vector cv(pduel->game_field->core.must_select_cards);
+	int32 mcount = cv.size();
+	cv.insert(cv.end(), pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end());
+	for(auto cit = cv.begin(); cit != cv.end(); ++cit)
+		(*cit)->operation_param = pduel->lua->get_operation_value(*cit, 3, extraargs);
+	if(!field::check_with_sum_greater_limit_m(cv, acc, 0, 0xffff, mcount)) {
+		pduel->game_field->core.must_select_cards.clear();
 		return 0;
+	}
 	pduel->game_field->add_process(PROCESSOR_SELECT_SUM_S, 0, 0, 0, acc, playerid);
 	return lua_yield(L, 0);
 }

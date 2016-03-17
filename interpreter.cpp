@@ -437,6 +437,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "CheckTunerMaterial", scriptlib::duel_check_tuner_material },
 	{ "GetRitualMaterial", scriptlib::duel_get_ritual_material },
 	{ "ReleaseRitualMaterial", scriptlib::duel_release_ritual_material },
+	{ "SetSelectedCard", scriptlib::duel_set_must_select_cards },
 	{ "SetTargetCard", scriptlib::duel_set_target_card },
 	{ "ClearTargetCard", scriptlib::duel_clear_target_card },
 	{ "SetTargetPlayer", scriptlib::duel_set_target_player },
