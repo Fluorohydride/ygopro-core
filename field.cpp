@@ -749,7 +749,7 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 			it = effects.continuous_effect.insert(std::make_pair(peffect->code, peffect));
 	}
 	effects.indexer.insert(std::make_pair(peffect, it));
-	if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))) {
+	if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) {
 		if(peffect->is_flag(EFFECT_FLAG_OATH))
 			effects.oath.insert(std::make_pair(peffect, core.reason_effect));
 		if(peffect->reset_flag & RESET_PHASE)
@@ -786,7 +786,7 @@ void field::remove_effect(effect* peffect) {
 			effects.continuous_effect.erase(it);
 	}
 	effects.indexer.erase(peffect);
-	if((peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))) {
+	if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) {
 		if(peffect->is_flag(EFFECT_FLAG_OATH))
 			effects.oath.erase(peffect);
 		if(peffect->reset_flag & RESET_PHASE)
@@ -817,7 +817,7 @@ void field::reset_effect(uint32 id, uint32 reset_type) {
 		auto rm = it++;
 		auto peffect = rm->first;
 		auto pit = rm->second;
-		if (!(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)))
+		if (!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 			continue;
 		result = peffect->reset(id, reset_type);
 		if (result) {
@@ -898,7 +898,7 @@ void field::filter_field_effect(uint32 code, effect_set* eset, uint8 sort) {
 		eset->sort();
 }
 void field::filter_affected_cards(effect* peffect, card_set* cset) {
-	if ((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD) || (peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET)))
+	if ((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD) || peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET))
 		return;
 	uint8 self = peffect->get_handler_player();
 	if(self == PLAYER_NONE)
@@ -1261,7 +1261,7 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 			rcount += pcard->operation_param;
 		} else {
 			effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_SUM);
-			if(!peffect || ((peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT)) && (peffect->reset_count & 0xf00) == 0))
+			if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && (peffect->reset_count & 0xf00) == 0))
 				continue;
 			if(ex_list_sum)
 				ex_list_sum->insert(pcard);
@@ -2342,7 +2342,7 @@ int32 field::check_chain_target(uint8 chaincount, card * pcard) {
 		pchain = &core.current_chain[chaincount - 1];
 	effect* peffect = pchain->triggering_effect;
 	uint8 tp = pchain->triggering_player;
-	if(!(peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) || !peffect->target)
+	if(!peffect->is_flag(EFFECT_FLAG_CARD_TARGET) || !peffect->target)
 		return FALSE;
 	if(!pcard->is_capable_be_effect_target(peffect, tp))
 		return false;

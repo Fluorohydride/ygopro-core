@@ -56,7 +56,7 @@ int32 scriptlib::effect_clone(lua_State *L) {
 		lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->operation);
 		ceffect->operation = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
-	if(peffect->value && (peffect->is_flag(EFFECT_FLAG_FUNC_VALUE))) {
+	if(peffect->value && peffect->is_flag(EFFECT_FLAG_FUNC_VALUE)) {
 		lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->value);
 		ceffect->value = luaL_ref(L, LUA_REGISTRYINDEX);
 	}
@@ -270,7 +270,7 @@ int32 scriptlib::effect_set_value(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	if(peffect->value && (peffect->is_flag(EFFECT_FLAG_FUNC_VALUE)))
+	if(peffect->value && peffect->is_flag(EFFECT_FLAG_FUNC_VALUE))
 		luaL_unref(L, LUA_REGISTRYINDEX, peffect->value);
 	if (lua_isfunction(L, 2)) {
 		peffect->value = interpreter::get_function_handle(L, 2);
