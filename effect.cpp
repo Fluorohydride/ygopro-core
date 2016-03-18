@@ -122,10 +122,9 @@ int32 effect::is_available() {
 }
 int32 effect::check_count_limit(uint8 playerid) {
 	if(is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
-		if(count_code == 0) {
-			if((reset_count & 0xf00) == 0)
-				return FALSE;
-		} else {
+		if((reset_count & 0xf00) == 0)
+			return FALSE;
+		if(count_code) {
 			uint32 code = count_code & 0xfffffff;
 			uint32 count = (reset_count >> 12) & 0xf;
 			if(code == 1) {
@@ -533,11 +532,10 @@ int32 effect::reset(uint32 reset_level, uint32 reset_type) {
 void effect::dec_count(uint32 playerid) {
 	if(!is_flag(EFFECT_FLAG_COUNT_LIMIT))
 		return;
-	if(count_code == 0) {
-		if((reset_count & 0xf00) == 0)
-			return;
-		reset_count -= 0x100;
-	} else {
+	if((reset_count & 0xf00) == 0)
+		return;
+	reset_count -= 0x100;
+	if(count_code) {
 		uint32 code = count_code & 0xfffffff;
 		if(code == 1)
 			pduel->game_field->add_effect_code((count_code & 0xf0000000) | handler->fieldid, PLAYER_NONE);
@@ -546,7 +544,7 @@ void effect::dec_count(uint32 playerid) {
 	}
 }
 void effect::recharge() {
-	if(is_flag(EFFECT_FLAG_COUNT_LIMIT) && (count_code == 0)) {
+	if(is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
 		reset_count &= 0xf0ff;
 		reset_count |= (reset_count >> 4) & 0xf00;
 	}
