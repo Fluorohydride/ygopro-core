@@ -4410,9 +4410,9 @@ int32 field::sort_chain(uint16 step, uint8 tp) {
 			return TRUE;
 		chain_list::iterator clit;
 		int32 i = 0, count;
-		chain_array ch(8);
 		if(tp) {
 			count = core.tpchain.size();
+			chain_array ch(count);
 			for(i = 0, clit = core.tpchain.begin(); i < count; ++clit, ++i)
 				ch[returns.bvalue[i]] = *clit;
 			core.tpchain.clear();
@@ -4420,6 +4420,7 @@ int32 field::sort_chain(uint16 step, uint8 tp) {
 				core.tpchain.push_back(ch[i]);
 		} else {
 			count = core.ntpchain.size();
+			chain_array ch(count);
 			for(i = 0, clit = core.ntpchain.begin(); i < count; ++clit, ++i)
 				ch[returns.bvalue[i]] = *clit;
 			core.ntpchain.clear();
