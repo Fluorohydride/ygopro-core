@@ -3364,7 +3364,6 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 					raise_single_event(*iter, 0, EVENT_DETACH_MATERIAL, reason_effect, reason, reason_player, 0, 0);
 			}
 		}
-		adjust_instant();
 		process_single_event();
 		if(param->leave.size())
 			raise_event(&param->leave, EVENT_LEAVE_FIELD, reason_effect, reason, reason_player, 0, 0);
@@ -3373,6 +3372,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		if((core.global_flag & GLOBALFLAG_DETACH_EVENT) && param->detach.size())
 			raise_event(&param->detach, EVENT_DETACH_MATERIAL, reason_effect, reason, reason_player, 0, 0);
 		process_instant_event();
+		adjust_instant();
 		return FALSE;
 	}
 	case 10: {
