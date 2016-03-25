@@ -1092,12 +1092,13 @@ int32 scriptlib::card_get_flag_effect_label(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	int32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
-	auto eit = pcard->single_effect.find(code);
-	if(eit == pcard->single_effect.end())
-		lua_pushnil(L);
-	else
-		lua_pushinteger(L, eit->second->label);
-	return 1;
+	auto rg = pcard->single_effect.equal_range(code);
+	int32 count = 0;
+	for(; rg.first != rg.second; ++rg.first) {
+		lua_pushinteger(L, rg.first->second->label);
+		count++;
+	}
+	return count;
 }
 int32 scriptlib::card_create_relation(lua_State *L) {
 	check_param_count(L, 3);
