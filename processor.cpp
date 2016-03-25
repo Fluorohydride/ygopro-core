@@ -2088,23 +2088,21 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 				if(act)
 					core.select_chains.push_back(*clit);
 			}
-			if(core.global_flag & GLOBALFLAG_DELAYED_QUICKEFFECT) {
-				for(auto eit = core.delayed_quick.begin(); eit != core.delayed_quick.end(); ++eit) {
-					peffect = eit->first;
-					peffect->s_range = peffect->handler->current.location;
-					peffect->o_range = peffect->handler->current.sequence;
-					const tevent& evt = eit->second;
-					if(peffect->is_chainable(priority) && peffect->is_activateable(priority, evt, TRUE, FALSE, FALSE)) {
-						newchain.flag = 0;
-						newchain.chain_id = infos.field_id++;
-						newchain.evt = evt;
-						newchain.triggering_controler = peffect->handler->current.controler;
-						newchain.triggering_effect = peffect;
-						newchain.triggering_location = peffect->handler->current.location;
-						newchain.triggering_sequence = peffect->handler->current.sequence;
-						newchain.triggering_player = priority;
-						core.select_chains.push_back(newchain);
-					}
+			for(auto eit = core.delayed_quick.begin(); eit != core.delayed_quick.end(); ++eit) {
+				peffect = eit->first;
+				peffect->s_range = peffect->handler->current.location;
+				peffect->o_range = peffect->handler->current.sequence;
+				const tevent& evt = eit->second;
+				if(peffect->is_chainable(priority) && peffect->is_activateable(priority, evt, TRUE, FALSE, FALSE)) {
+					newchain.flag = 0;
+					newchain.chain_id = infos.field_id++;
+					newchain.evt = evt;
+					newchain.triggering_controler = peffect->handler->current.controler;
+					newchain.triggering_effect = peffect;
+					newchain.triggering_location = peffect->handler->current.location;
+					newchain.triggering_sequence = peffect->handler->current.sequence;
+					newchain.triggering_player = priority;
+					core.select_chains.push_back(newchain);
 				}
 			}
 			core.spe_effect[priority] = core.select_chains.size();
@@ -2296,8 +2294,6 @@ int32 field::process_instant_event() {
 				peffect->handler->create_relation(newchain);
 			}
 		}
-		if(!(core.global_flag & GLOBALFLAG_DELAYED_QUICKEFFECT))
-			continue;
 		//delayed quick effect
 		pr = effects.activate_effect.equal_range(elit->event_code);
 		for(; pr.first != pr.second; ++pr.first) {
@@ -4786,10 +4782,8 @@ int32 field::break_effect() {
 			core.new_ochain.erase(rm);
 		}
 	}
-	if(core.global_flag & GLOBALFLAG_DELAYED_QUICKEFFECT) {
-		core.delayed_quick_break.insert(core.delayed_quick_tmp.begin(), core.delayed_quick_tmp.end());
-		core.delayed_quick_tmp.clear();
-	}
+	core.delayed_quick_break.insert(core.delayed_quick_tmp.begin(), core.delayed_quick_tmp.end());
+	core.delayed_quick_tmp.clear();
 	core.used_event.splice(core.used_event.end(), core.instant_event);
 	adjust_instant();
 	return 0;
