@@ -1094,15 +1094,13 @@ int32 scriptlib::card_get_flag_effect_label(lua_State *L) {
 	uint32 code = (lua_tounsigned(L, 2) & 0xfffffff) | 0x10000000;
 	auto rg = pcard->single_effect.equal_range(code);
 	int32 count = 0;
-	if(rg.first == rg.second) {
- -		lua_pushnil(L);
-		count = 1;
+	for(; rg.first != rg.second; ++rg.first) {
+		lua_pushinteger(L, rg.first->second->label);
+		count++;
 	}
-	else {
-		for(; rg.first != rg.second; ++rg.first) {
-			lua_pushinteger(L, rg.first->second->label);
-			count++;
-		}
+	if(!count) {
+		lua_pushnil(L);
+		return 1;
 	}
 	return count;
 }
