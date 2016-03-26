@@ -2204,8 +2204,9 @@ int32 field::process_instant_event() {
 	for(auto elit = core.queue_event.begin(); elit != core.queue_event.end(); ++elit) {
 		//continuous events
 		auto pr = effects.continuous_effect.equal_range(elit->event_code);
-		for(; pr.first != pr.second; ++pr.first) {
+		for(; pr.first != pr.second;) {
 			peffect = pr.first->second;
+			++pr.first;
 			uint8 owner_player = peffect->get_handler_player();
 			if(peffect->is_activateable(owner_player, *elit)) {
 				if(peffect->is_flag(EFFECT_FLAG_DELAY) && (core.chain_solving || core.conti_solving)) {
@@ -2331,8 +2332,9 @@ int32 field::process_single_event() {
 		uint32 ev = elit->event_code;
 		auto pr = starget->single_effect.equal_range(ev);
 		const tevent& e = *elit;
-		for(; pr.first != pr.second; ++pr.first) {
+		for(; pr.first != pr.second;) {
 			effect* peffect = pr.first->second;
+			++pr.first;
 			if(!(peffect->type & EFFECT_TYPE_ACTIONS))
 				continue;
 			if((peffect->type & EFFECT_TYPE_FLIP) && (e.event_value & (NO_FLIP_EFFECT >> 16)))
