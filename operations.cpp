@@ -127,7 +127,7 @@ void field::recover(effect* reason_effect, uint32 reason, uint32 reason_player, 
 	add_process(PROCESSOR_RECOVER, 0, reason_effect, 0, reason, (reason_player << 28) + (playerid << 24) + (amount & 0xffffff));
 }
 void field::summon(uint32 sumplayer, card* target, effect* proc, uint32 ignore_count, uint32 min_tribute) {
-	add_process(PROCESSOR_SUMMON_RULE, 0, proc, (group*)target, sumplayer, ignore_count + (min_tribute << 8));
+	add_process(PROCESSOR_SUMMON_RULE, 0, proc, (group*)target, sumplayer + (ignore_count << 8) + (min_tribute << 16), 0);
 }
 void field::special_summon_rule(uint32 sumplayer, card* target, uint32 summon_type) {
 	add_process(PROCESSOR_SPSUMMON_RULE, 0, 0, (group*)target, sumplayer, summon_type);
@@ -914,7 +914,7 @@ int32 field::control_adjust(uint16 step) {
 					core.control_adjust_set[0].clear();
 					core.units.begin()->step = 4;
 				} else {
-					core.temp_var[0] = 0;
+					core.units.begin()->arg1 = 0;
 					uint32 count = core.control_adjust_set[0].size() - core.control_adjust_set[1].size() - b1;
 					core.select_cards.clear();
 					for(auto cit = core.control_adjust_set[0].begin(); cit != core.control_adjust_set[0].end(); ++cit)
@@ -934,7 +934,7 @@ int32 field::control_adjust(uint16 step) {
 					core.control_adjust_set[1].clear();
 					core.units.begin()->step = 4;
 				} else {
-					core.temp_var[0] = 1;
+					core.units.begin()->arg1 = 1;
 					uint32 count = core.control_adjust_set[1].size() - core.control_adjust_set[0].size() - b0;
 					core.select_cards.clear();
 					for(auto cit = core.control_adjust_set[1].begin(); cit != core.control_adjust_set[1].end(); ++cit)
@@ -952,7 +952,7 @@ int32 field::control_adjust(uint16 step) {
 		return FALSE;
 	}
 	case 1: {
-		uint8 adjp = (uint8)core.temp_var[0];
+		int32 adjp = core.units.begin()->arg1;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
 			core.destroy_set.insert(pcard);
@@ -1176,7 +1176,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 					int32 count = pextra->get_value();
 					if(min_tribute < count) {
 						min_tribute = count;
-						core.units.begin()->arg2 = ignore_count + (min_tribute << 8);
+						core.units.begin()->arg1 = sumplayer + (ignore_count << 8) + (min_tribute << 16);
 					}
 				}
 			}
@@ -1249,10 +1249,9 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 				core.units.begin()->step = 3;
 			} else {
 				int32 fcount = get_useable_count(sumplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD);
-				if(min == 0 && (fcount > 0)) {
+				if(min == 0 && fcount > 0) {
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, sumplayer, 90);
-					core.temp_var[0] = required;
-					core.temp_var[1] = fcount;
+					core.units.begin()->arg2 = required;
 				} else {
 					if(min < -fcount + 1) {
 						min = -fcount + 1;
@@ -1269,13 +1268,8 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		if(returns.ivalue[0])
 			returns.bvalue[0] = 0;
 		else {
-			int32 min = 1;
-			int32 max = core.temp_var[0] >> 16;
-			if(min < -core.temp_var[1] + 1) {
-				min = -core.temp_var[1] + 1;
-			}
-			core.temp_var[0] = min + (max << 16);
-			add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, sumplayer + ((uint32)core.summon_cancelable << 16), core.temp_var[0]);
+			int32 required = 1 + core.units.begin()->arg2;
+			add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, sumplayer + ((uint32)core.summon_cancelable << 16), required);
 		}
 		return FALSE;
 	}
@@ -1379,7 +1373,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		target->current.reason_effect = 0;
 		target->current.reason_player = sumplayer;
 		core.units.begin()->step = 6;
-		core.temp_var[0] = (ptr)pextra;
+		core.units.begin()->arg2 = (ptr)pextra;
 		return FALSE;
 	}
 	case 6: {
@@ -1395,7 +1389,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 			add_process(PROCESSOR_EXECUTE_OPERATION, 0, proc, 0, sumplayer, 0);
 		}
 		proc->dec_count(sumplayer);
-		core.temp_var[0] = (ptr)pextra;
+		core.units.begin()->arg2 = (ptr)pextra;
 		return FALSE;
 	}
 	case 7: {
@@ -1405,12 +1399,12 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		break_effect();
 		if(!ignore_count) {
 			returns.ivalue[0] = FALSE;
-			effect* pextra = (effect*)core.temp_var[0];
+			effect* pextra = (effect*)core.units.begin()->arg2;
 			if(pextra) {
 				if(pextra->is_flag(EFFECT_FLAG_FUNC_VALUE) && (core.summon_count[sumplayer] < get_summon_count_limit(sumplayer)))
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, sumplayer, 91);
 				else if(!pextra->is_flag(EFFECT_FLAG_FUNC_VALUE) && ((int32)target->material_cards.size() < pextra->get_value()))
-					core.temp_var[0] = 0;
+					core.units.begin()->arg2 = 0;
 				else
 					returns.ivalue[0] = TRUE;
 			}
@@ -1421,9 +1415,9 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 	case 8: {
 		if(!returns.ivalue[0])
 			core.summon_count[sumplayer]++;
-		else if(core.temp_var[0]) {
+		else if(core.units.begin()->arg2) {
 			core.extra_summon[sumplayer] = TRUE;
-			effect* pextra = (effect*)core.temp_var[0];
+			effect* pextra = (effect*)core.units.begin()->arg2;
 			pextra->get_value(target);
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_CARD);
@@ -1460,12 +1454,12 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		deffect->description = 64;
 		deffect->reset_flag = RESET_EVENT + 0x1fe0000;
 		target->add_effect(deffect);
-		core.temp_var[0] = 0;
+		core.units.begin()->arg2 = 0;
 		if(!ignore_count) {
 			returns.ivalue[0] = FALSE;
 			effect* pextra = core.extra_summon[sumplayer] ? 0 : target->is_affected_by_effect(EFFECT_EXTRA_SUMMON_COUNT);
 			if(pextra) {
-				core.temp_var[0] = (ptr)pextra;
+				core.units.begin()->arg2 = (ptr)pextra;
 				if(pextra->is_flag(EFFECT_FLAG_FUNC_VALUE) && (core.summon_count[sumplayer] < get_summon_count_limit(sumplayer)))
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, sumplayer, 91);
 				else
@@ -1478,9 +1472,9 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 	case 10: {
 		if(!returns.ivalue[0])
 			core.summon_count[sumplayer]++;
-		else if(core.temp_var[0]) {
+		else if(core.units.begin()->arg2) {
 			core.extra_summon[sumplayer] = TRUE;
-			effect* pextra = (effect*)core.temp_var[0];
+			effect* pextra = (effect*)core.units.begin()->arg2;
 			pextra->get_value(target);
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_CARD);
@@ -1689,7 +1683,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 				int32 count = pextra->get_value();
 				if(min_tribute < count) {
 					min_tribute = count;
-					core.units.begin()->arg2 = ignore_count + (min_tribute << 8);
+					core.units.begin()->arg1 = setplayer + (ignore_count << 8) + (min_tribute << 16);
 				}
 			}
 		}
@@ -1754,8 +1748,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 				int32 fcount = get_useable_count(setplayer, LOCATION_MZONE, setplayer, LOCATION_REASON_TOFIELD);
 				if(min == 0 && fcount > 0) {
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, setplayer, 90);
-					core.temp_var[0] = required;
-					core.temp_var[1] = fcount;
+					core.units.begin()->arg2 = required;
 				} else {
 					if(min < -fcount + 1) {
 						min = -fcount + 1;
@@ -1772,13 +1765,8 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 		if(returns.ivalue[0])
 			returns.bvalue[0] = 0;
 		else {
-			int32 min = 1;
-			int32 max = core.temp_var[0] >> 16;
-			if(min < -core.temp_var[1] + 1) {
-				min = -core.temp_var[1] + 1;
-			}
-			core.temp_var[0] = min + (max << 16);
-			add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, setplayer + ((uint32)core.summon_cancelable << 16), core.temp_var[0]);
+			int32 required = 1 + core.units.begin()->arg2;
+			add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, setplayer + ((uint32)core.summon_cancelable << 16), required);
 		}
 		return FALSE;
 	}
@@ -1826,7 +1814,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 		target->current.reason_effect = 0;
 		target->current.reason_player = setplayer;
 		core.units.begin()->step = 6;
-		core.temp_var[0] = (ptr)pextra;
+		core.units.begin()->arg2 = (ptr)pextra;
 		return FALSE;
 	}
 	case 6: {
@@ -1840,19 +1828,19 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 		core.sub_solving_event.push_back(nil_event);
 		add_process(PROCESSOR_EXECUTE_OPERATION, 0, proc, 0, setplayer, 0);
 		proc->dec_count(setplayer);
-		core.temp_var[0] = (ptr)pextra;
+		core.units.begin()->arg2 = (ptr)pextra;
 		return FALSE;
 	}
 	case 7: {
 		break_effect();
 		if(!ignore_count) {
 			returns.ivalue[0] = FALSE;
-			effect* pextra = (effect*)core.temp_var[0];
+			effect* pextra = (effect*)core.units.begin()->arg2;
 			if(pextra) {
 				if(pextra->is_flag(EFFECT_FLAG_FUNC_VALUE) && (core.summon_count[setplayer] < get_summon_count_limit(setplayer)))
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, setplayer, 91);
 				else if(!pextra->is_flag(EFFECT_FLAG_FUNC_VALUE) && ((int32)target->material_cards.size() < pextra->get_value()))
-					core.temp_var[0] = 0;
+					core.units.begin()->arg2 = 0;
 				else
 					returns.ivalue[0] = TRUE;
 			}
@@ -1863,9 +1851,9 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 	case 8: {
 		if(!returns.ivalue[0])
 			core.summon_count[setplayer]++;
-		else if(core.temp_var[0]) {
+		else if(core.units.begin()->arg2) {
 			core.extra_summon[setplayer] = TRUE;
-			effect* pextra = (effect*)core.temp_var[0];
+			effect* pextra = (effect*)core.units.begin()->arg2;
 			pextra->get_value(target);
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_CARD);

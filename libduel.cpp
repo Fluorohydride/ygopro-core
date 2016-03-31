@@ -311,7 +311,7 @@ int32 scriptlib::duel_setm(lua_State *L) {
 		min_tribute = lua_tointeger(L, 5);
 	duel * pduel = pcard->pduel;
 	pduel->game_field->core.summon_cancelable = FALSE;
-	pduel->game_field->add_process(PROCESSOR_MSET, 0, peffect, (group*)pcard, playerid, ignore_count + (min_tribute << 8));
+	pduel->game_field->add_process(PROCESSOR_MSET, 0, peffect, (group*)pcard, playerid + (ignore_count << 8) + (min_tribute << 16), 0);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_sets(lua_State *L) {
