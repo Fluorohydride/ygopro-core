@@ -2365,11 +2365,11 @@ int32 card::is_removeable(uint8 playerid) {
 	return TRUE;
 }
 int32 card::is_removeable_as_cost(uint8 playerid) {
+	if(current.location == LOCATION_REMOVED)
+		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_USE_AS_COST))
 		return FALSE;
-	if(!pduel->game_field->is_player_can_remove(playerid, this))
-		return FALSE;
-	if(is_affected_by_effect(EFFECT_CANNOT_REMOVE))
+	if(!is_removeable(playerid))
 		return FALSE;
 	return TRUE;
 }
