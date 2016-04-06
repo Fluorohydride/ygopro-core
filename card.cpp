@@ -2333,6 +2333,8 @@ int32 card::is_destructable() {
 		return FALSE;
 	if(current.location & (LOCATION_GRAVE + LOCATION_REMOVED))
 		return FALSE;
+	if(is_affected_by_effect(EFFECT_INDESTRUCTABLE))
+		return FALSE;
 	return TRUE;
 }
 int32 card::is_destructable_by_battle(card * pcard) {
