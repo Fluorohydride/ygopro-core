@@ -2598,7 +2598,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 		for (auto cit = targets->container.begin(); cit != targets->container.end();) {
 			auto rm = cit++;
 			card* pcard = *rm;
-			if (!(pcard->current.reason & REASON_RULE)) {
+			if (!(pcard->current.reason & (REASON_RULE | REASON_COST))) {
 				int32 is_destructable = true;
 				if (pcard->is_destructable() && pcard->is_affect_by_effect(pcard->current.reason_effect)) {
 					effect* indestructable_effect = pcard->check_indestructable_by_effect(pcard->current.reason_effect, pcard->current.reason_player);
@@ -2610,6 +2610,26 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				} else
 					is_destructable = false;
 				if (!is_destructable) {
+					indestructable_set.insert(pcard);
+					continue;
+				}
+			}
+			eset.clear();
+			pcard->filter_effect(EFFECT_INDESTRUCTABLE, &eset);
+			if(eset.size()) {
+				bool is_destructable = true;
+				for(int32 i = 0; i < eset.size(); ++i) {
+					pduel->lua->add_param(pcard->current.reason_effect, PARAM_TYPE_EFFECT);
+					pduel->lua->add_param(pcard->current.reason, PARAM_TYPE_INT);
+					pduel->lua->add_param(pcard->current.reason_player, PARAM_TYPE_INT);
+					if(eset[i]->check_value_condition(3)) {
+						if(reason_player != 5)
+							indestructable_effect_set.insert(eset[i]);
+						is_destructable = false;
+						break;
+					}
+				}
+				if(!is_destructable) {
 					indestructable_set.insert(pcard);
 					continue;
 				}
@@ -2773,6 +2793,32 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 			card* pcard = *rm;
 			if (!(pcard->current.reason & REASON_RULE)) {
 				if (!pcard->is_destructable()) {
+					pcard->current.reason = pcard->temp.reason;
+					pcard->current.reason_effect = pcard->temp.reason_effect;
+					pcard->current.reason_player = pcard->temp.reason_player;
+					pcard->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
+					targets->container.erase(pcard);
+					continue;
+				}
+			}
+			eset.clear();
+			pcard->filter_effect(EFFECT_INDESTRUCTABLE, &eset);
+			if(eset.size()) {
+				bool indes = false;
+				for(int32 i = 0; i < eset.size(); ++i) {
+					pduel->lua->add_param(pcard->current.reason_effect, PARAM_TYPE_EFFECT);
+					pduel->lua->add_param(pcard->current.reason, PARAM_TYPE_INT);
+					pduel->lua->add_param(pcard->current.reason_player, PARAM_TYPE_INT);
+					if(eset[i]->check_value_condition(3)) {
+						pduel->write_buffer8(MSG_HINT);
+						pduel->write_buffer8(HINT_CARD);
+						pduel->write_buffer8(0);
+						pduel->write_buffer32(eset[i]->owner->data.code);
+						indes = true;
+						break;
+					}
+				}
+				if(indes) {
 					pcard->current.reason = pcard->temp.reason;
 					pcard->current.reason_effect = pcard->temp.reason_effect;
 					pcard->current.reason_player = pcard->temp.reason_player;
