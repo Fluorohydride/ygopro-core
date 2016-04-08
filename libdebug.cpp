@@ -43,7 +43,7 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		pduel->game_field->add_card(playerid, pcard, location, sequence);
 		pcard->current.position = position;
 		if(!(location & LOCATION_ONFIELD) || (position & POS_FACEUP)) {
-			pcard->enable_field_effect(TRUE);
+			pcard->enable_field_effect(true);
 			pduel->game_field->adjust_instant();
 		}
 		if(proc)

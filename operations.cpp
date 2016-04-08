@@ -320,7 +320,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			}
 			drawed++;
 			pcard = player[playerid].list_main.back();
-			pcard->enable_field_effect(FALSE);
+			pcard->enable_field_effect(false);
 			pcard->cancel_field_effect();
 			player[playerid].list_main.pop_back();
 			pcard->previous.controler = pcard->current.controler;
@@ -333,7 +333,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			pcard->current.reason = reason | REASON_DRAW;
 			pcard->current.location = 0;
 			add_card(playerid, pcard, LOCATION_HAND, 0);
-			pcard->enable_field_effect(TRUE);
+			pcard->enable_field_effect(true);
 			effect* pub = pcard->is_affected_by_effect(EFFECT_PUBLIC);
 			if(pub)
 				public_count++;
@@ -1093,7 +1093,7 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 			return TRUE;
 		if(equip_card->equiping_target) {
 			equip_card->unequip();
-			equip_card->enable_field_effect(FALSE);
+			equip_card->enable_field_effect(false);
 			return FALSE;
 		}
 		if(equip_card->current.location == LOCATION_SZONE) {
@@ -1103,7 +1103,7 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 		}
 		if(get_useable_count(equip_player, LOCATION_SZONE, equip_player, LOCATION_REASON_TOFIELD) <= 0)
 			return TRUE;
-		equip_card->enable_field_effect(FALSE);
+		equip_card->enable_field_effect(false);
 		move_to_field(equip_card, equip_player, equip_player, LOCATION_SZONE, (up || equip_card->is_position(POS_FACEUP)) ? POS_FACEUP : POS_FACEDOWN, FALSE, FALSE, TRUE);
 		return FALSE;
 	}
@@ -1129,7 +1129,7 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 		target->effect_target_owner.insert(equip_card);
 		if(!is_step) {
 			if(equip_card->is_position(POS_FACEUP))
-				equip_card->enable_field_effect(TRUE);
+				equip_card->enable_field_effect(true);
 			adjust_disable_check_list();
 			card_set cset;
 			cset.insert(equip_card);
@@ -1433,7 +1433,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 			if(proc->o_range)
 				targetplayer = 1 - sumplayer;
 		}
-		target->enable_field_effect(FALSE);
+		target->enable_field_effect(false);
 		move_to_field(target, sumplayer, targetplayer, LOCATION_MZONE, positions);
 		core.summoning_card = target;
 		core.units.begin()->step = 10;
@@ -1443,7 +1443,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		core.summon_depth--;
 		if(core.summon_depth)
 			return TRUE;
-		target->enable_field_effect(FALSE);
+		target->enable_field_effect(false);
 		target->current.reason_effect = 0;
 		target->current.reason_player = sumplayer;
 		effect* deffect = pduel->new_effect();
@@ -1553,7 +1553,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		}
 		target->set_status(STATUS_SUMMONING, FALSE);
 		target->set_status(STATUS_SUMMON_TURN, TRUE);
-		target->enable_field_effect(TRUE);
+		target->enable_field_effect(true);
 		if(target->is_status(STATUS_DISABLED))
 			target->reset(RESET_DISABLE, RESET_EVENT);
 		core.summoning_card = 0;
@@ -1636,7 +1636,7 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target) {
 	}
 	case 3: {
 		target->set_status(STATUS_SUMMONING, FALSE);
-		target->enable_field_effect(TRUE);
+		target->enable_field_effect(true);
 		if(target->is_status(STATUS_DISABLED))
 			target->reset(RESET_DISABLE, RESET_EVENT);
 		target->set_status(STATUS_FLIP_SUMMON_TURN, TRUE);
@@ -1867,7 +1867,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 			if(proc->o_range)
 				targetplayer = 1 - setplayer;
 		}
-		target->enable_field_effect(FALSE);
+		target->enable_field_effect(false);
 		move_to_field(target, setplayer, targetplayer, LOCATION_MZONE, positions);
 		return FALSE;
 	}
@@ -1919,7 +1919,7 @@ int32 field::sset(uint16 step, uint8 setplayer, uint8 toplayer, card * target) {
 		return FALSE;
 	}
 	case 1: {
-		target->enable_field_effect(FALSE);
+		target->enable_field_effect(false);
 		move_to_field(target, setplayer, toplayer, LOCATION_SZONE, POS_FACEDOWN);
 		return FALSE;
 	}
@@ -1980,7 +1980,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 	case 1: {
 		card_set* set_cards = (card_set*)ptarget;
 		card* target = *set_cards->begin();
-		target->enable_field_effect(FALSE);
+		target->enable_field_effect(false);
 		move_to_field(target, setplayer, toplayer, LOCATION_SZONE, POS_FACEDOWN, FALSE);
 		return FALSE;
 	}
@@ -2134,7 +2134,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		}
 		if(positions == 0)
 			positions = POS_FACEUP_ATTACK;
-		target->enable_field_effect(FALSE);
+		target->enable_field_effect(false);
 		move_to_field(target, sumplayer, targetplayer, LOCATION_MZONE, positions);
 		target->current.reason = REASON_SPSUMMON;
 		target->current.reason_effect = peffect;
@@ -2217,7 +2217,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 				oeit->second = 0;
 		target->set_status(STATUS_SUMMONING, FALSE);
 		target->set_status(STATUS_PROC_COMPLETE | STATUS_SPSUMMON_TURN, TRUE);
-		target->enable_field_effect(TRUE);
+		target->enable_field_effect(true);
 		if(target->is_status(STATUS_DISABLED))
 			target->reset(RESET_DISABLE, RESET_EVENT);
 		core.summoning_card = 0;
@@ -2294,7 +2294,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 	case 23: {
 		effect* peffect = core.units.begin()->peffect;
 		card* pcard = *core.units.begin()->ptarget->it;
-		pcard->enable_field_effect(FALSE);
+		pcard->enable_field_effect(false);
 		pcard->current.reason = REASON_SPSUMMON;
 		pcard->current.reason_effect = peffect;
 		pcard->current.reason_player = sumplayer;
@@ -2371,7 +2371,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 			(*cit)->set_status(STATUS_SUMMONING, FALSE);
 			(*cit)->set_status(STATUS_SPSUMMON_TURN, TRUE);
-			(*cit)->enable_field_effect(TRUE);
+			(*cit)->enable_field_effect(true);
 			if((*cit)->is_status(STATUS_DISABLED))
 				(*cit)->reset(RESET_DISABLE, RESET_EVENT);
 		}
@@ -2450,7 +2450,7 @@ int32 field::special_summon_step(uint16 step, group * targets, card * target) {
 	case 1: {
 		if(!targets)
 			core.special_summoning.insert(target);
-		target->enable_field_effect(FALSE);
+		target->enable_field_effect(false);
 		check_card_counter(target, 3, target->summon_player);
 		move_to_field(target, target->summon_player, playerid, LOCATION_MZONE, positions);
 		return FALSE;
@@ -2527,7 +2527,7 @@ int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_pl
 			(*cit)->set_status(STATUS_SPSUMMON_STEP, FALSE);
 			(*cit)->set_status(STATUS_SPSUMMON_TURN, TRUE);
 			if((*cit)->is_position(POS_FACEUP))
-				(*cit)->enable_field_effect(TRUE);
+				(*cit)->enable_field_effect(true);
 		}
 		adjust_instant();
 		return FALSE;
@@ -3136,7 +3136,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 	case 3: {
 		uint32 dest, redirect, redirect_seq, check_cb;
 		for(auto cit = targets->container.begin(); cit != targets->container.end(); ++cit)
-			(*cit)->enable_field_effect(FALSE);
+			(*cit)->enable_field_effect(false);
 		adjust_disable_check_list();
 		for(auto cit = targets->container.begin(); cit != targets->container.end(); ++cit) {
 			card* pcard = *cit;
@@ -3231,7 +3231,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		uint32 check_cb = (pcard->operation_param >> 20) & 0xf;
 		if(check_cb)
 			param->predirect = pcard->is_affected_by_effect(EFFECT_TO_GRAVE_REDIRECT_CB);
-		pcard->enable_field_effect(FALSE);
+		pcard->enable_field_effect(false);
 		if(pcard->data.type & TYPE_TOKEN) {
 			pduel->write_buffer8(MSG_MOVE);
 			pduel->write_buffer32(pcard->data.code);
@@ -3431,7 +3431,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				}
 			}
 			if(!(pcard->data.type & TYPE_TOKEN)) {
-				pcard->enable_field_effect(TRUE);
+				pcard->enable_field_effect(true);
 				if(nloc == LOCATION_HAND) {
 					tohand.insert(pcard);
 					pcard->reset(RESET_TOHAND, RESET_EVENT);
@@ -3575,7 +3575,7 @@ int32 field::discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reaso
 			pduel->write_buffer8(pcard->current.location);
 			pduel->write_buffer8(pcard->current.sequence);
 			pduel->write_buffer8(pcard->current.position);
-			pcard->enable_field_effect(FALSE);
+			pcard->enable_field_effect(false);
 			pcard->cancel_field_effect();
 			player[playerid].list_main.pop_back();
 			pcard->previous.controler = pcard->current.controler;
@@ -3585,7 +3585,7 @@ int32 field::discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reaso
 			pcard->current.controler = PLAYER_NONE;
 			pcard->current.location = 0;
 			add_card(pcard->owner, pcard, dest, 0);
-			pcard->enable_field_effect(TRUE);
+			pcard->enable_field_effect(true);
 			pcard->current.position = POS_FACEUP;
 			pduel->write_buffer8(pcard->current.controler);
 			pduel->write_buffer8(pcard->current.location);
@@ -3773,7 +3773,7 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 		if((target->previous.location == LOCATION_SZONE) && target->equiping_target)
 			target->unequip();
 		if(enable || ((ret == 1) && target->is_position(POS_FACEUP)))
-			target->enable_field_effect(TRUE);
+			target->enable_field_effect(true);
 		if(ret == 1 && target->current.location == LOCATION_MZONE && !(target->data.type & TYPE_MONSTER))
 			send_to(target, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
 		adjust_disable_check_list();
@@ -3834,7 +3834,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 					}
 					if(enable) {
 						if(!reason_effect || !(reason_effect->type & 0x7f0) || pcard->current.location != LOCATION_MZONE)
-							pcard->enable_field_effect(TRUE);
+							pcard->enable_field_effect(true);
 						else
 							core.delayed_enable_set.insert(pcard);
 					} else
@@ -3850,7 +3850,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 						trapmonster = true;
 					pcard->reset(RESET_TURN_SET, RESET_EVENT);
 					pcard->set_status(STATUS_SET_TURN, TRUE);
-					pcard->enable_field_effect(FALSE);
+					pcard->enable_field_effect(false);
 					pcard->summon_info &= 0xdf00ffff;
 					if((pcard->summon_info & SUMMON_TYPE_PENDULUM) == SUMMON_TYPE_PENDULUM)
 						pcard->summon_info &= 0xf000ffff;

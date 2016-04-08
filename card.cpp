@@ -999,7 +999,7 @@ void card::cancel_field_effect() {
 	if(unique_code && (current.location & unique_location))
 		pduel->game_field->remove_unique_card(this);
 }
-void card::enable_field_effect(int32 enabled) {
+void card::enable_field_effect(bool enabled) {
 	if (current.location == 0)
 		return;
 	if ((enabled && get_status(STATUS_EFFECT_ENABLED)) || (!enabled && !get_status(STATUS_EFFECT_ENABLED)))
@@ -1390,6 +1390,7 @@ void card::reset_effect_count() {
 			peffect->recharge();
 	}
 }
+// refresh STATUS_DISABLED based on EFFECT_DISABLE and EFFECT_CANNOT_DISABLE
 int32 card::refresh_disable_status() {
 	int32 pre_dis = is_status(STATUS_DISABLED);
 	filter_immune_effect();
@@ -1687,6 +1688,7 @@ void card::filter_single_continuous_effect(int32 code, effect_set* eset, uint8 s
 	if(sort)
 		eset->sort();
 }
+// refresh this->immune_effect
 void card::filter_immune_effect() {
 	effect* peffect;
 	immune_effect.clear();
@@ -1712,6 +1714,9 @@ void card::filter_immune_effect() {
 	}
 	immune_effect.sort();
 }
+// for all disable-related peffect of this, 
+// 1. put all cards in the target of peffect into effects.disable_check_set, effects.disable_check_list
+// 2. add equiping_target of peffect into effects.disable_check_set, effects.disable_check_list
 void card::filter_disable_related_cards() {
 	for (auto it = indexer.begin(); it != indexer.end(); ++it) {
 		effect* peffect = it->first;
@@ -1858,6 +1863,7 @@ void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset) {
 		pduel->game_field->core.reason_player = op;
 	}
 }
+// return: an effect with code which affects this or 0
 effect* card::is_affected_by_effect(int32 code) {
 	effect* peffect;
 	auto rg = single_effect.equal_range(code);
@@ -2319,6 +2325,7 @@ int32 card::is_setable_szone(uint8 playerid, uint8 ignore_fd) {
 	pduel->game_field->restore_lp_cost();
 	return TRUE;
 }
+// return: this is affected by peffect or not
 int32 card::is_affect_by_effect(effect* peffect) {
 	if(is_status(STATUS_SUMMONING))
 		return FALSE;

@@ -599,7 +599,7 @@ int32 scriptlib::duel_move_to_field(lua_State *L) {
 	uint32 positions = lua_tointeger(L, 5);
 	uint32 enable = lua_toboolean(L, 6);
 	duel* pduel = pcard->pduel;
-	pcard->enable_field_effect(FALSE);
+	pcard->enable_field_effect(false);
 	pduel->game_field->adjust_instant();
 	pduel->game_field->move_to_field(pcard, move_player, playerid, destination, positions, enable);
 	pduel->game_field->core.subunits.begin()->type = PROCESSOR_MOVETOFIELD_S;
@@ -616,7 +616,7 @@ int32 scriptlib::duel_return_to_field(lua_State *L) {
 	if(lua_gettop(L) > 1)
 		pos = lua_tointeger(L, 2);
 	duel* pduel = pcard->pduel;
-	pcard->enable_field_effect(FALSE);
+	pcard->enable_field_effect(false);
 	pduel->game_field->adjust_instant();
 	pduel->game_field->refresh_location_info_instant();
 	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, pcard->previous.location, pos, TRUE, 1);
@@ -974,7 +974,7 @@ int32 scriptlib::duel_equip_complete(lua_State *L) {
 	for(auto cit = pduel->game_field->core.equiping_cards.begin(); cit != pduel->game_field->core.equiping_cards.end(); ++cit) {
 		card* equip_card = *cit;
 		if(equip_card->is_position(POS_FACEUP))
-			equip_card->enable_field_effect(TRUE);
+			equip_card->enable_field_effect(true);
 		etargets.insert(equip_card->equiping_target);
 	}
 	pduel->game_field->adjust_instant();

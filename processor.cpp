@@ -4243,7 +4243,7 @@ int32 field::add_chain(uint16 step) {
 				}
 			}
 			if(peffect->handler->current.location == LOCATION_HAND) {
-				peffect->handler->enable_field_effect(FALSE);
+				peffect->handler->enable_field_effect(false);
 				peffect->handler->set_status(STATUS_ACT_FROM_HAND, TRUE);
 				move_to_field(peffect->handler, peffect->handler->current.controler, peffect->handler->current.controler, LOCATION_SZONE, POS_FACEUP);
 			} else {
@@ -4567,12 +4567,12 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		card* pcard = peffect->handler;
 		if((peffect->type & EFFECT_TYPE_ACTIVATE) && pcard->is_has_relation(*cait)) {
 			pcard->set_status(STATUS_ACTIVATED, TRUE);
-			pcard->enable_field_effect(TRUE);
+			pcard->enable_field_effect(true);
 			if(core.duel_options & DUEL_OBSOLETE_RULING) {
 				if(pcard->data.type & TYPE_FIELD) {
 					card* fscard = player[1 - pcard->current.controler].list_szone[5];
 					if(fscard && fscard->is_position(POS_FACEUP))
-						fscard->enable_field_effect(FALSE);
+						fscard->enable_field_effect(false);
 				}
 			}
 			adjust_instant();
@@ -4717,7 +4717,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		}
 		for(auto cit = core.delayed_enable_set.begin(); cit != core.delayed_enable_set.end(); ++cit) {
 			if((*cit)->current.location == LOCATION_MZONE)
-				(*cit)->enable_field_effect(TRUE);
+				(*cit)->enable_field_effect(true);
 		}
 		core.delayed_enable_set.clear();
 		adjust_all();

@@ -187,7 +187,7 @@ public:
 	void xyz_remove(card* mat);
 	void apply_field_effect();
 	void cancel_field_effect();
-	void enable_field_effect(int32 enabled);
+	void enable_field_effect(bool enabled);
 	int32 add_effect(effect* peffect);
 	void remove_effect(effect* peffect);
 	void remove_effect(effect* peffect, effect_container::iterator it);

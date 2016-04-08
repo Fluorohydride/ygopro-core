@@ -140,7 +140,7 @@ extern "C" DECL_DLLEXPORT void new_card(ptr pduel, uint32 code, uint8 owner, uin
 		ptduel->game_field->add_card(playerid, pcard, location, sequence);
 		pcard->current.position = position;
 		if(!(location & LOCATION_ONFIELD) || (position & POS_FACEUP)) {
-			pcard->enable_field_effect(TRUE);
+			pcard->enable_field_effect(true);
 			ptduel->game_field->adjust_instant();
 		}
 		if(location & LOCATION_ONFIELD) {
