@@ -177,7 +177,7 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 	if(query_flag & QUERY_OWNER)
 		*p++ = owner;
 	if(query_flag & QUERY_IS_DISABLED) {
-		tdata = (status & STATUS_DISABLED) ? 1 : 0;
+		tdata = (status & (STATUS_DISABLED | STATUS_FORBIDDEN)) ? 1 : 0;
 		if(!use_cache || (tdata != q_cache.is_disabled)) {
 			q_cache.is_disabled = tdata;
 			*p++ = tdata;
@@ -1025,7 +1025,7 @@ void card::enable_field_effect(bool enabled) {
 	} else
 		set_status(STATUS_EFFECT_ENABLED, FALSE);
 	filter_immune_effect();
-	if (get_status(STATUS_DISABLED))
+	if (get_status(STATUS_DISABLED | STATUS_FORBIDDEN))
 		return;
 	filter_disable_related_cards();
 }
@@ -1149,7 +1149,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		single_effect.erase(it);
 	else if (peffect->type & EFFECT_TYPE_FIELD) {
 		check_target = 0;
-		if (peffect->in_range(current.location, current.sequence) && get_status(STATUS_EFFECT_ENABLED) && !get_status(STATUS_DISABLED)) {
+		if (peffect->in_range(current.location, current.sequence) && get_status(STATUS_EFFECT_ENABLED) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN)) {
 			if (peffect->is_disable_related())
 				pduel->game_field->update_disable_check_list(peffect);
 		}
@@ -1163,7 +1163,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		else
 			check_target = 0;
 	}
-	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED) && check_target) {
+	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && check_target) {
 		if (peffect->is_disable_related())
 			pduel->game_field->add_to_disable_check_list(check_target);
 	}
@@ -1391,7 +1391,19 @@ void card::reset_effect_count() {
 	}
 }
 // refresh STATUS_DISABLED based on EFFECT_DISABLE and EFFECT_CANNOT_DISABLE
-int32 card::refresh_disable_status() {
+// refresh STATUS_FORBIDDEN based on EFFECT_FORBIDDEN
+void card::refresh_disable_status() {
+	// forbidden
+	int32 pre_fb = is_status(STATUS_FORBIDDEN);
+	filter_immune_effect();
+	if (is_affected_by_effect(EFFECT_FORBIDDEN))
+		set_status(STATUS_FORBIDDEN, TRUE);
+	else
+		set_status(STATUS_FORBIDDEN, FALSE);
+	int32 cur_fb = is_status(STATUS_FORBIDDEN);
+	if(pre_fb != cur_fb)
+		filter_immune_effect();
+	// disabled
 	int32 pre_dis = is_status(STATUS_DISABLED);
 	filter_immune_effect();
 	if (!is_affected_by_effect(EFFECT_CANNOT_DISABLE) && is_affected_by_effect(EFFECT_DISABLE))
@@ -1401,7 +1413,6 @@ int32 card::refresh_disable_status() {
 	int32 cur_dis = is_status(STATUS_DISABLED);
 	if(pre_dis != cur_dis)
 		filter_immune_effect();
-	return is_status(STATUS_DISABLED);
 }
 uint8 card::refresh_control_status() {
 	uint8 final = owner;
@@ -1519,9 +1530,7 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly) {
 	if(!is_can_add_counter(playerid, countertype, count, singly))
 		return FALSE;
-	uint16 cttype = countertype;
-	if((countertype & COUNTER_NEED_ENABLE) && !(countertype & COUNTER_NEED_PERMIT))
-		cttype &= 0xfff;
+	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
 	auto pr = counters.insert(std::make_pair(cttype, counter_map::mapped_type()));
 	auto cmit = pr.first;
 	if(pr.second) {
@@ -1541,7 +1550,7 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 
 				pcount = mcount;
 		}
 	}
-	if(!(countertype & COUNTER_NEED_ENABLE))
+	if(!(countertype & COUNTER_NEED_ENABLE) && !(countertype & COUNTER_NEED_PERMIT))
 		cmit->second[0] += pcount;
 	else
 		cmit->second[1] += pcount;
@@ -1583,13 +1592,9 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 		return FALSE;
 	if(!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP))
 		return FALSE;
-	if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
-		return FALSE;
 	if((countertype & COUNTER_NEED_PERMIT) && !is_affected_by_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff)))
 		return FALSE;
-	uint16 cttype = countertype;
-	if((countertype & COUNTER_NEED_ENABLE) && !(countertype & COUNTER_NEED_PERMIT))
-		cttype &= 0xfff;
+	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
 	int32 limit = -1;
 	int32 cur = 0;
 	auto cmit = counters.find(cttype);

@@ -1820,10 +1820,7 @@ int32 scriptlib::card_is_forbidden(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	if(pcard->is_affected_by_effect(EFFECT_FORBIDDEN))
-		lua_pushboolean(L, 1);
-	else
-		lua_pushboolean(L, 0);
+	lua_pushboolean(L, pcard->is_status(STATUS_FORBIDDEN));
 	return 1;
 }
 int32 scriptlib::card_is_able_to_change_controler(lua_State *L) {

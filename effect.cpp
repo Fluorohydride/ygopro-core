@@ -53,12 +53,20 @@ effect::~effect() {
 
 }
 int32 effect::is_disable_related() {
-	if (code == EFFECT_IMMUNE_EFFECT || code == EFFECT_DISABLE || code == EFFECT_CANNOT_DISABLE)
+	if (code == EFFECT_IMMUNE_EFFECT || code == EFFECT_DISABLE || code == EFFECT_CANNOT_DISABLE || code == EFFECT_FORBIDDEN)
 		return TRUE;
 	return FALSE;
 }
+bool effect::is_can_be_forbidden() {
+	uint32 ctr = code & 0xf0000;
+	if (is_flag(EFFECT_FLAG_CANNOT_DISABLE) && !is_flag(EFFECT_FLAG_CANNOT_NEGATED))
+		return false;
+	if (code == EFFECT_CHANGE_CODE || ctr == EFFECT_COUNTER_PERMIT || ctr == EFFECT_COUNTER_LIMIT)
+		return false;
+	return true;
+}
 // check if a single/field/equip effect is available
-// check properties: range, EFFECT_FLAG_OWNER_RELATE, STATUS_BATTLE_DESTROYED, STATUS_EFFECT_ENABLED
+// check properties: range, EFFECT_FLAG_OWNER_RELATE, STATUS_BATTLE_DESTROYED, STATUS_EFFECT_ENABLED, disabled/forbidden
 // check fucntions: condition
 int32 effect::is_available() {
 	if (type & EFFECT_TYPE_ACTIONS)
@@ -71,6 +79,10 @@ int32 effect::is_available() {
 		if(is_flag(EFFECT_FLAG_SINGLE_RANGE) && (handler->current.location & LOCATION_ONFIELD)
 		        && (handler->is_position(POS_FACEDOWN) || (!handler->is_status(STATUS_EFFECT_ENABLED) && !is_flag(EFFECT_FLAG_IMMEDIATELY_APPLY))))
 			return FALSE;
+		if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && owner->is_status(STATUS_FORBIDDEN))
+			return FALSE;
+		if(owner == handler && is_can_be_forbidden() && handler->get_status(STATUS_FORBIDDEN))
+			return FALSE;
 		if(is_flag(EFFECT_FLAG_OWNER_RELATE) && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && owner->is_status(STATUS_DISABLED))
 			return FALSE;
 		if(owner == handler && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && handler->get_status(STATUS_DISABLED))
@@ -78,6 +90,10 @@ int32 effect::is_available() {
 	}
 	if (type & EFFECT_TYPE_EQUIP) {
 		if(handler->current.controler == PLAYER_NONE)
+			return FALSE;
+		if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && owner->is_status(STATUS_FORBIDDEN))
+			return FALSE;
+		if(owner == handler && is_can_be_forbidden() && handler->get_status(STATUS_FORBIDDEN))
 			return FALSE;
 		if(is_flag(EFFECT_FLAG_OWNER_RELATE) && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && owner->is_status(STATUS_DISABLED))
 			return FALSE;
@@ -93,6 +109,10 @@ int32 effect::is_available() {
 	if (type & EFFECT_TYPE_FIELD) {
 		if (!is_flag(EFFECT_FLAG_FIELD_ONLY)) {
 			if(handler->current.controler == PLAYER_NONE)
+				return FALSE;
+			if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && owner->is_status(STATUS_FORBIDDEN))
+				return FALSE;
+			if(owner == handler && is_can_be_forbidden() && handler->get_status(STATUS_FORBIDDEN))
 				return FALSE;
 			if(is_flag(EFFECT_FLAG_OWNER_RELATE) && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && owner->is_status(STATUS_DISABLED))
 				return FALSE;
@@ -239,9 +259,13 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				return FALSE;
 			if((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE) && !in_range(handler->current.location, handler->current.sequence))
 				return FALSE;
+			if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && owner->is_status(STATUS_FORBIDDEN))
+				return FALSE;
+			if(handler == owner && is_can_be_forbidden() && handler->is_status(STATUS_FORBIDDEN))
+				return FALSE;
 			if(is_flag(EFFECT_FLAG_OWNER_RELATE) && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && owner->is_status(STATUS_DISABLED))
 				return FALSE;
-			if((handler == owner) && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && handler->is_status(STATUS_DISABLED))
+			if(handler == owner && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && handler->is_status(STATUS_DISABLED))
 				return FALSE;
 		}
 	} else {

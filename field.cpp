@@ -1416,11 +1416,11 @@ void field::adjust_disable_check_list() {
 			effects.disable_check_list.pop_front();
 			effects.disable_check_set.erase(checking);
 			checked.insert(checking);
-			if (checking->is_status(STATUS_TO_ENABLE + STATUS_TO_DISABLE))
+			if (checking->is_status(STATUS_TO_ENABLE | STATUS_TO_DISABLE))
 				continue;
-			pre_disable = checking->is_status(STATUS_DISABLED);
+			pre_disable = checking->is_status(STATUS_DISABLED | STATUS_FORBIDDEN);
 			checking->refresh_disable_status();
-			new_disable = checking->is_status(STATUS_DISABLED);
+			new_disable = checking->is_status(STATUS_DISABLED | STATUS_FORBIDDEN);
 			if (pre_disable != new_disable && checking->is_status(STATUS_EFFECT_ENABLED)) {
 				checking->filter_disable_related_cards();
 				if (pre_disable)
@@ -1432,7 +1432,7 @@ void field::adjust_disable_check_list() {
 		for (card_set::iterator it = checked.begin(); it != checked.end(); ++it) {
 			if((*it)->is_status(STATUS_DISABLED) && (*it)->is_status(STATUS_TO_DISABLE) && !(*it)->is_status(STATUS_TO_ENABLE))
 				(*it)->reset(RESET_DISABLE, RESET_EVENT);
-			(*it)->set_status(STATUS_TO_ENABLE + STATUS_TO_DISABLE, FALSE);
+			(*it)->set_status(STATUS_TO_ENABLE | STATUS_TO_DISABLE, FALSE);
 		}
 	} while(effects.disable_check_list.size());
 }
@@ -1458,7 +1458,7 @@ void field::adjust_self_destroy_set() {
 	effect* peffect;
 	for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
 		card* pcard = *cit;
-		if((!pcard->is_status(STATUS_DISABLED) && (peffect = check_unique_onfield(pcard, pcard->current.controler, pcard->current.location)))
+		if((!pcard->is_status(STATUS_DISABLED | STATUS_FORBIDDEN) && (peffect = check_unique_onfield(pcard, pcard->current.controler, pcard->current.location)))
 		        || (peffect = pcard->is_affected_by_effect(EFFECT_SELF_DESTROY))) {
 			core.self_destroy_set.insert(pcard);
 			pcard->temp.reason_effect = pcard->current.reason_effect;
@@ -1583,7 +1583,7 @@ void field::set_spsummon_counter(uint8 playerid, bool add, bool chain) {
 			effect* peffect = *iter;
 			card* pcard = peffect->handler;
 			if(add) {
-				if(pcard->is_status(STATUS_EFFECT_ENABLED) && !pcard->is_status(STATUS_DISABLED) && pcard->is_position(POS_FACEUP)) {
+				if(pcard->is_status(STATUS_EFFECT_ENABLED) && !pcard->is_status(STATUS_DISABLED | STATUS_FORBIDDEN) && pcard->is_position(POS_FACEUP)) {
 					if(((playerid == pcard->current.controler) && peffect->s_range) || ((playerid != pcard->current.controler) && peffect->o_range)) {
 						pcard->spsummon_counter[playerid]++;
 						if(chain)
@@ -1603,7 +1603,7 @@ int32 field::check_spsummon_counter(uint8 playerid, uint8 ct) {
 			effect* peffect = *iter;
 			card* pcard = peffect->handler;
 			uint16 val = (uint16)peffect->value;
-			if(pcard->is_status(STATUS_EFFECT_ENABLED) && !pcard->is_status(STATUS_DISABLED) && pcard->is_position(POS_FACEUP)) {
+			if(pcard->is_status(STATUS_EFFECT_ENABLED) && !pcard->is_status(STATUS_DISABLED | STATUS_FORBIDDEN) && pcard->is_position(POS_FACEUP)) {
 				if(pcard->spsummon_counter[playerid] + ct > val)
 					return FALSE;
 			}
@@ -2324,13 +2324,15 @@ int32 field::is_chain_disablable(uint8 chaincount, uint8 naga_check) {
 		peffect = core.current_chain[chaincount - 1].triggering_effect;
 	if(naga_check && peffect->is_flag(EFFECT_FLAG2_NAGA))
 		return FALSE;
-	if(peffect->is_flag(EFFECT_FLAG_CANNOT_DISABLE))
-		return FALSE;
-	filter_field_effect(EFFECT_CANNOT_DISEFFECT, &eset);
-	for(int32 i = 0; i < eset.size(); ++i) {
-		pduel->lua->add_param(chaincount, PARAM_TYPE_INT);
-		if(eset[i]->check_value_condition(1))
+	if(!peffect->handler->get_status(STATUS_FORBIDDEN)) {
+		if(peffect->is_flag(EFFECT_FLAG_CANNOT_DISABLE))
 			return FALSE;
+		filter_field_effect(EFFECT_CANNOT_DISEFFECT, &eset);
+		for(int32 i = 0; i < eset.size(); ++i) {
+			pduel->lua->add_param(chaincount, PARAM_TYPE_INT);
+			if(eset[i]->check_value_condition(1))
+				return FALSE;
+		}
 	}
 	return TRUE;
 }
