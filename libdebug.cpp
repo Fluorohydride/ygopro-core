@@ -129,7 +129,7 @@ int32 scriptlib::debug_pre_add_counter(lua_State *L) {
 		cmit->second[0] = 0;
 		cmit->second[1] = 0;
 	}
-	if(!(countertype & COUNTER_NEED_ENABLE) && !(countertype & COUNTER_NEED_PERMIT))
+	if((countertype & COUNTER_WITHOUT_PERMIT) && !(countertype & COUNTER_NEED_ENABLE))
 		cmit->second[0] += count;
 	else
 		cmit->second[1] += count;

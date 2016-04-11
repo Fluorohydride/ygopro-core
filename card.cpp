@@ -1537,6 +1537,8 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 	}
 	return 0;
 }
+// cmit->second[0]: permanent
+// cmit->second[1]: reset while negated
 int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly) {
 	if(!is_can_add_counter(playerid, countertype, count, singly))
 		return FALSE;
@@ -1560,7 +1562,7 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 
 				pcount = mcount;
 		}
 	}
-	if(!(countertype & COUNTER_NEED_ENABLE) && !(countertype & COUNTER_NEED_PERMIT))
+	if((countertype & COUNTER_WITHOUT_PERMIT) && !(countertype & COUNTER_NEED_ENABLE))
 		cmit->second[0] += pcount;
 	else
 		cmit->second[1] += pcount;
@@ -1602,7 +1604,9 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 		return FALSE;
 	if(!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP))
 		return FALSE;
-	if((countertype & COUNTER_NEED_PERMIT) && !is_affected_by_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff)))
+	if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
+		return FALSE;
+	if(!(countertype & COUNTER_WITHOUT_PERMIT) && !is_affected_by_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff)))
 		return FALSE;
 	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
 	int32 limit = -1;

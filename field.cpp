@@ -1418,9 +1418,9 @@ void field::adjust_disable_check_list() {
 			checked.insert(checking);
 			if (checking->is_status(STATUS_TO_ENABLE | STATUS_TO_DISABLE))
 				continue;
-			pre_disable = checking->is_status(STATUS_DISABLED | STATUS_FORBIDDEN);
+			pre_disable = checking->get_status(STATUS_DISABLED | STATUS_FORBIDDEN);
 			checking->refresh_disable_status();
-			new_disable = checking->is_status(STATUS_DISABLED | STATUS_FORBIDDEN);
+			new_disable = checking->get_status(STATUS_DISABLED | STATUS_FORBIDDEN);
 			if (pre_disable != new_disable && checking->is_status(STATUS_EFFECT_ENABLED)) {
 				checking->filter_disable_related_cards();
 				if (pre_disable)
@@ -1458,7 +1458,7 @@ void field::adjust_self_destroy_set() {
 	effect* peffect;
 	for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
 		card* pcard = *cit;
-		if((!pcard->is_status(STATUS_DISABLED | STATUS_FORBIDDEN) && (peffect = check_unique_onfield(pcard, pcard->current.controler, pcard->current.location)))
+		if((!pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && (peffect = check_unique_onfield(pcard, pcard->current.controler, pcard->current.location)))
 		        || (peffect = pcard->is_affected_by_effect(EFFECT_SELF_DESTROY))) {
 			core.self_destroy_set.insert(pcard);
 			pcard->temp.reason_effect = pcard->current.reason_effect;
@@ -1583,7 +1583,7 @@ void field::set_spsummon_counter(uint8 playerid, bool add, bool chain) {
 			effect* peffect = *iter;
 			card* pcard = peffect->handler;
 			if(add) {
-				if(pcard->is_status(STATUS_EFFECT_ENABLED) && !pcard->is_status(STATUS_DISABLED | STATUS_FORBIDDEN) && pcard->is_position(POS_FACEUP)) {
+				if(pcard->is_status(STATUS_EFFECT_ENABLED) && !pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && pcard->is_position(POS_FACEUP)) {
 					if(((playerid == pcard->current.controler) && peffect->s_range) || ((playerid != pcard->current.controler) && peffect->o_range)) {
 						pcard->spsummon_counter[playerid]++;
 						if(chain)
@@ -1603,7 +1603,7 @@ int32 field::check_spsummon_counter(uint8 playerid, uint8 ct) {
 			effect* peffect = *iter;
 			card* pcard = peffect->handler;
 			uint16 val = (uint16)peffect->value;
-			if(pcard->is_status(STATUS_EFFECT_ENABLED) && !pcard->is_status(STATUS_DISABLED | STATUS_FORBIDDEN) && pcard->is_position(POS_FACEUP)) {
+			if(pcard->is_status(STATUS_EFFECT_ENABLED) && !pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && pcard->is_position(POS_FACEUP)) {
 				if(pcard->spsummon_counter[playerid] + ct > val)
 					return FALSE;
 			}
