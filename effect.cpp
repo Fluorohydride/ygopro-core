@@ -57,13 +57,13 @@ int32 effect::is_disable_related() {
 		return TRUE;
 	return FALSE;
 }
-bool effect::is_can_be_forbidden() {
+int32 effect::is_can_be_forbidden() {
 	uint32 ctr = code & 0xf0000;
 	if (is_flag(EFFECT_FLAG_CANNOT_DISABLE) && !is_flag(EFFECT_FLAG_CANNOT_NEGATED))
-		return false;
+		return FALSE;
 	if (code == EFFECT_CHANGE_CODE || ctr == EFFECT_COUNTER_PERMIT || ctr == EFFECT_COUNTER_LIMIT)
-		return false;
-	return true;
+		return FALSE;
+	return TRUE;
 }
 // check if a single/field/equip effect is available
 // check properties: range, EFFECT_FLAG_OWNER_RELATE, STATUS_BATTLE_DESTROYED, STATUS_EFFECT_ENABLED, disabled/forbidden
