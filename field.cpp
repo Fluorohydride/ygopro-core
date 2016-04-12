@@ -750,6 +750,8 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 	}
 	effects.indexer.insert(std::make_pair(peffect, it));
 	if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) {
+		if(peffect->is_disable_related())
+			update_disable_check_list(peffect);
 		if(peffect->is_flag(EFFECT_FLAG_OATH))
 			effects.oath.insert(std::make_pair(peffect, core.reason_effect));
 		if(peffect->reset_flag & RESET_PHASE)
@@ -787,6 +789,8 @@ void field::remove_effect(effect* peffect) {
 	}
 	effects.indexer.erase(peffect);
 	if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) {
+		if(peffect->is_disable_related())
+			update_disable_check_list(peffect);
 		if(peffect->is_flag(EFFECT_FLAG_OATH))
 			effects.oath.erase(peffect);
 		if(peffect->reset_flag & RESET_PHASE)
