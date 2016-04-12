@@ -1542,9 +1542,7 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly) {
 	if(!is_can_add_counter(playerid, countertype, count, singly))
 		return FALSE;
-	uint16 cttype = countertype;
-	if((countertype & COUNTER_NEED_ENABLE) && !(countertype & COUNTER_NEED_PERMIT))
-		cttype &= 0xfff;
+	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
 	auto pr = counters.insert(std::make_pair(cttype, counter_map::mapped_type()));
 	auto cmit = pr.first;
 	if(pr.second) {
@@ -1564,7 +1562,7 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 
 				pcount = mcount;
 		}
 	}
-	if(!(countertype & COUNTER_NEED_ENABLE))
+	if((countertype & COUNTER_WITHOUT_PERMIT) && !(countertype & COUNTER_NEED_ENABLE))
 		cmit->second[0] += pcount;
 	else
 		cmit->second[1] += pcount;
@@ -1608,11 +1606,9 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 		return FALSE;
 	if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
 		return FALSE;
-	if((countertype & COUNTER_NEED_PERMIT) && !is_affected_by_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff)))
+	if(!(countertype & COUNTER_WITHOUT_PERMIT) && !is_affected_by_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff)))
 		return FALSE;
-	uint16 cttype = countertype;
-	if((countertype & COUNTER_NEED_ENABLE) && !(countertype & COUNTER_NEED_PERMIT))
-		cttype &= 0xfff;
+	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
 	int32 limit = -1;
 	int32 cur = 0;
 	auto cmit = counters.find(cttype);
