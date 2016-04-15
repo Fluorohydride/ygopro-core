@@ -1265,7 +1265,7 @@ int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 		auto rm = i++;
 		effect* peffect = rm->first;
 		auto it = rm->second;
-		if(peffect->is_flag(EFFECT_FLAG_INITIAL))
+		if(peffect->is_flag(EFFECT_FLAG_INITIAL | EFFECT_FLAG_COPY_INHERIT))
 			remove_effect(peffect, it);
 	}
 	uint32 cr = pduel->game_field->core.copy_reset;
