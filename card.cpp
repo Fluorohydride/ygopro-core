@@ -603,13 +603,19 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 	temp.base_defence = -1;
 	temp.defence = -1;
 }
+// Level/Attribute/Race is available for:
+// 1. cards in LOCATION_MZONE or
+// 2. cards with original type TYPE_MONSTER or
+// 3. cards with current type TYPE_MONSTER(Ex. c87772572)
+// They can be changed for cards satisfying 1 or 2 or current type TYPE_TRAPMONSTER.
+// This is because some Phantom Knights is changed into TYPE_MONSTER but is not affected by Zombie World.
 uint32 card::get_level() {
 	if((data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL) 
 	        || (current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER)))
 		return 0;
 	if(assume_type == ASSUME_LEVEL)
 		return assume_value;
-	if(!(current.location & LOCATION_MZONE) && !(data.type & TYPE_MONSTER))
+	if(current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_TRAPMONSTER))
 		return data.level;
 	if (temp.level != 0xffffffff)
 		return temp.level;
@@ -733,12 +739,13 @@ uint32 card::check_xyz_level(card* pcard, uint32 lv) {
 		return (lev >> 16) & 0xffff;
 	return 0;
 }
+// see get_level()
 uint32 card::get_attribute() {
 	if(assume_type == ASSUME_ATTRIBUTE)
 		return assume_value;
 	if(current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER))
 		return 0;
-	if(!(current.location & (LOCATION_MZONE)) && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_TRAPMONSTER))
+	if(current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_TRAPMONSTER))
 		return data.attribute;
 	if (temp.attribute != 0xffffffff)
 		return temp.attribute;
@@ -763,12 +770,13 @@ uint32 card::get_attribute() {
 	temp.attribute = 0xffffffff;
 	return attribute;
 }
+// see get_level()
 uint32 card::get_race() {
 	if(assume_type == ASSUME_RACE)
 		return assume_value;
 	if(current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER))
 		return 0;
-	if(!(current.location & (LOCATION_MZONE)) && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_TRAPMONSTER))
+	if(current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_TRAPMONSTER))
 		return data.race;
 	if (temp.race != 0xffffffff)
 		return temp.race;
