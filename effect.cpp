@@ -194,7 +194,8 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 					if((handler->data.type & TYPE_SPELL) && (handler->data.type & TYPE_QUICKPLAY))
 						return FALSE;
 				}
-			}
+			} else
+				return FALSE;
 			int32 ecode = 0;
 			if(handler->current.location == LOCATION_HAND) {
 				if(handler->data.type & TYPE_TRAP)
