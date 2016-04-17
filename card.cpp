@@ -1330,6 +1330,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 		if(id & 0x47c0000)
 			clear_relate_effect();
 		if(id & 0x5fc0000) {
+			indestructable_effects.clear();
 			announced_cards.clear();
 			attacked_cards.clear();
 			announce_count = 0;

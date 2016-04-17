@@ -93,6 +93,7 @@ public:
 	typedef std::unordered_set<std::pair<effect*, uint16>, effect_relation_hash> effect_relation;
 	typedef std::unordered_map<card*, uint32> relation_map;
 	typedef std::map<uint16, std::array<uint16, 2> > counter_map;
+	typedef std::map<uint32, int32> effect_count;
 	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32> > {
 	public:
 		void addcard(card* pcard);
@@ -133,6 +134,7 @@ public:
 	card* overlay_target;
 	relation_map relations;
 	counter_map counters;
+	effect_count indestructable_effects;
 	attacker_map announced_cards;
 	attacker_map attacked_cards;
 	attacker_map battled_cards;
