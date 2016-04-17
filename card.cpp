@@ -519,8 +519,9 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 				up_atk = 0;
 				upc_atk = 0;
 			} else {
-				effects_atk.add_item(eset[i]);
-				if(eset[i]->is_flag(EFFECT_FLAG_REPEAT))
+				if(!eset[i]->is_flag(EFFECT_FLAG_DELAY))
+					effects_atk.add_item(eset[i]);
+				else
 					effects_atk_r.add_item(eset[i]);
 			}
 			break;
@@ -541,8 +542,9 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 				up_def = 0;
 				upc_def = 0;
 			} else {
-				effects_def.add_item(eset[i]);
-				if(eset[i]->is_flag(EFFECT_FLAG_REPEAT))
+				if(!eset[i]->is_flag(EFFECT_FLAG_DELAY))
+					effects_def.add_item(eset[i]);
+				else
 					effects_def_r.add_item(eset[i]);
 			}
 			break;
@@ -581,8 +583,11 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 	if (patk) {
 		for (int32 i = 0; i < effects_atk.size(); ++i)
 			temp.attack = effects_atk[i]->get_value(this);
-		for(int32 i = 0; i < effects_atk_r.size(); ++i)
+		for(int32 i = 0; i < effects_atk_r.size(); ++i) {
 			temp.attack = effects_atk_r[i]->get_value(this);
+			if(effects_atk_r[i]->is_flag(EFFECT_FLAG_REPEAT))
+				temp.attack = effects_atk_r[i]->get_value(this);
+		}
 		int32 atk = temp.attack;
 		if (atk < 0)
 			atk = 0;
@@ -591,8 +596,11 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 	if (pdef) {
 		for (int32 i = 0; i < effects_def.size(); ++i)
 			temp.defence = effects_def[i]->get_value(this);
-		for(int32 i = 0; i < effects_def_r.size(); ++i)
+		for(int32 i = 0; i < effects_def_r.size(); ++i) {
 			temp.defence = effects_def_r[i]->get_value(this);
+			if(effects_def_r[i]->is_flag(EFFECT_FLAG_REPEAT))
+				temp.defence = effects_def_r[i]->get_value(this);
+		}
 		int32 def = temp.defence;
 		if (def < 0)
 			def = 0;
