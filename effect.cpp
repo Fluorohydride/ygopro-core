@@ -140,6 +140,7 @@ int32 effect::is_available() {
 		status &= ~EFFECT_STATUS_AVAILABLE;
 	return res;
 }
+
 int32 effect::check_count_limit(uint8 playerid) {
 	if(is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
 		if((reset_count & 0xf00) == 0)
@@ -178,6 +179,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				if((code < 1134 || code > 1136) && pduel->game_field->infos.phase == PHASE_DAMAGE_CAL && !is_flag(EFFECT_FLAG_DAMAGE_CAL))
 					return FALSE;
 			}
+			// additional check for each location
 			if(handler->current.location == LOCATION_HAND) {
 				if(handler->data.type & TYPE_MONSTER) {
 					if(!(handler->data.type & TYPE_PENDULUM))
@@ -194,8 +196,8 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 					if((handler->data.type & TYPE_SPELL) && (handler->data.type & TYPE_QUICKPLAY))
 						return FALSE;
 				}
-			} else
-				return FALSE;
+			}
+			// check activate in hand/in set turn
 			int32 ecode = 0;
 			if(handler->current.location == LOCATION_HAND) {
 				if(handler->data.type & TYPE_TRAP)
@@ -227,7 +229,8 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				return FALSE;
 			if(handler->is_affected_by_effect(EFFECT_CANNOT_TRIGGER))
 				return FALSE;
-		} else if(!(type & EFFECT_TYPE_CONTINUOUS)) {
+		} 
+		else if(!(type & EFFECT_TYPE_CONTINUOUS)) {
 			if((handler->data.type & TYPE_MONSTER) && (handler->current.location & LOCATION_SZONE)
 					&& !in_range(handler->current.location, handler->current.sequence))
 				return FALSE;
@@ -235,7 +238,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			if((handler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED))
 					&& !is_flag(EFFECT_FLAG_SET_AVAILABLE)
 					&& (code != EVENT_FLIP || !(e.event_value & (FLIP_SET_AVAILABLE >> 16)))
-					&& (!handler->is_position(POS_FACEUP) || !handler->is_status(STATUS_EFFECT_ENABLED)))
+					&& !handler->is_status(STATUS_EFFECT_ENABLED))
 				return FALSE;
 			if(!(type & (EFFECT_TYPE_FLIP | EFFECT_TYPE_TRIGGER_F)) 
 					&& !((type & EFFECT_TYPE_SINGLE) && (code == EVENT_TO_GRAVE || code == EVENT_DESTROYED || code == EVENT_SPSUMMON_SUCCESS || code == EVENT_TO_HAND))) {
@@ -252,11 +255,12 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				return FALSE;
 			if(handler->is_affected_by_effect(EFFECT_CANNOT_TRIGGER))
 				return FALSE;
-		} else {
+		} 
+		else {
 			if(!is_flag(EFFECT_FLAG_AVAILABLE_BD) && (type & EFFECT_TYPE_FIELD) && handler->is_status(STATUS_BATTLE_DESTROYED))
 				return FALSE;
 			if(((type & EFFECT_TYPE_FIELD) || ((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE))) && (handler->current.location & LOCATION_ONFIELD)
-			        && (!handler->is_position(POS_FACEUP) || !handler->is_status(STATUS_EFFECT_ENABLED)))
+			        && !handler->is_status(STATUS_EFFECT_ENABLED))
 				return FALSE;
 			if((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE) && !in_range(handler->current.location, handler->current.sequence))
 				return FALSE;
@@ -269,7 +273,8 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			if(handler == owner && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && handler->is_status(STATUS_DISABLED))
 				return FALSE;
 		}
-	} else {
+	} 
+	else {
 		if((get_owner_player() != playerid) && !is_flag(EFFECT_FLAG_BOTH_SIDE))
 			return FALSE;
 	}
