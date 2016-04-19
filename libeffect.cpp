@@ -172,7 +172,7 @@ int32 scriptlib::effect_set_type(lua_State *L) {
 		v |= EFFECT_TYPE_ACTIONS;
 	else
 		v &= ~EFFECT_TYPE_ACTIONS;
-	if(v & 0x550)
+	if(v & (EFFECT_TYPE_ACTIVATE | EFFECT_TYPE_IGNITION | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F))
 		v |= EFFECT_TYPE_FIELD;
 	if(v & EFFECT_TYPE_ACTIVATE)
 		peffect->range = LOCATION_SZONE + LOCATION_FZONE + LOCATION_HAND;

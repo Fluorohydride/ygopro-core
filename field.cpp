@@ -815,41 +815,6 @@ void field::remove_oath_effect(effect* reason_effect) {
 		}
 	}
 }
-void field::reset_effect(uint32 id, uint32 reset_type) {
-	int32 result;
-	for (auto it = effects.indexer.begin(); it != effects.indexer.end();) {
-		auto rm = it++;
-		auto peffect = rm->first;
-		auto pit = rm->second;
-		if (!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
-			continue;
-		result = peffect->reset(id, reset_type);
-		if (result) {
-			if (!(peffect->type & EFFECT_TYPE_ACTIONS)) {
-				if (peffect->is_disable_related())
-					update_disable_check_list(peffect);
-				effects.aura_effect.erase(pit);
-			} else {
-				if (peffect->type & EFFECT_TYPE_IGNITION)
-					effects.ignition_effect.erase(pit);
-				else if (peffect->type & EFFECT_TYPE_ACTIVATE)
-					effects.activate_effect.erase(pit);
-				else if (peffect->type & EFFECT_TYPE_TRIGGER_O)
-					effects.trigger_o_effect.erase(pit);
-				else if (peffect->type & EFFECT_TYPE_TRIGGER_F)
-					effects.trigger_f_effect.erase(pit);
-				else if (peffect->type & EFFECT_TYPE_QUICK_O)
-					effects.quick_o_effect.erase(pit);
-				else if (peffect->type & EFFECT_TYPE_QUICK_F)
-					effects.quick_f_effect.erase(pit);
-				else if (peffect->type & EFFECT_TYPE_CONTINUOUS)
-					effects.continuous_effect.erase(pit);
-			}
-			effects.indexer.erase(peffect);
-			pduel->delete_effect(peffect);
-		}
-	}
-}
 void field::reset_phase(uint32 phase) {
 	for(auto eit = effects.pheff.begin(); eit != effects.pheff.end();) {
 		auto rm = eit++;

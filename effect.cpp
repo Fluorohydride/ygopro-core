@@ -140,7 +140,9 @@ int32 effect::is_available() {
 		status &= ~EFFECT_STATUS_AVAILABLE;
 	return res;
 }
-
+// reset_count: 
+// 0x00ff: count of effect reset 
+// 0xf000: max count of activation, 0x0f00: left count of activation
 int32 effect::check_count_limit(uint8 playerid) {
 	if(is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
 		if((reset_count & 0xf00) == 0)

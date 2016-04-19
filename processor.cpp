@@ -1262,6 +1262,7 @@ void field::raise_single_event(card* trigger_card, card_set* event_cards, uint32
 	new_event.event_value = event_value;
 	core.single_event.push_back(new_event);
 }
+// called by Duel.CheckEvent()
 int32 field::check_event(uint32 code, tevent * pe) {
 	for(auto eit = core.point_event.begin(); eit != core.point_event.end(); ++eit) {
 		if(eit->event_code == code) {
@@ -1279,6 +1280,7 @@ int32 field::check_event(uint32 code, tevent * pe) {
 	}
 	return FALSE;
 }
+// called by Duel.CheckActivateEffect()
 int32 field::check_event_c(effect* peffect, uint8 playerid, int32 neglect_con, int32 neglect_cost, int32 copy_info, tevent* pe) {
 	if(peffect->code == EVENT_FREE_CHAIN) {
 		return peffect->is_activate_ready(playerid, nil_event, neglect_con, neglect_cost, FALSE);

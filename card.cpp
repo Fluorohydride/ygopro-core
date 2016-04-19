@@ -1003,8 +1003,8 @@ void card::apply_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto it = field_effect.begin(); it != field_effect.end(); ++it) {
-		if (it->second->in_range(current.location, current.sequence) || ((it->second->range & LOCATION_HAND)
-		        && (it->second->type & EFFECT_TYPE_TRIGGER_O) && !(it->second->code & EVENT_PHASE))) {
+		if (it->second->in_range(current.location, current.sequence) 
+				|| ((it->second->range & LOCATION_HAND) && (it->second->type & EFFECT_TYPE_TRIGGER_O) && !(it->second->code & EVENT_PHASE))) {
 			pduel->game_field->add_effect(it->second);
 		}
 	}
@@ -1017,8 +1017,8 @@ void card::cancel_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto it = field_effect.begin(); it != field_effect.end(); ++it) {
-		if (it->second->in_range(current.location, current.sequence) || ((it->second->range & LOCATION_HAND)
-		        && (it->second->type & EFFECT_TYPE_TRIGGER_O) && !(it->second->code & EVENT_PHASE))) {
+		if (it->second->in_range(current.location, current.sequence) 
+				|| ((it->second->range & LOCATION_HAND) && (it->second->type & EFFECT_TYPE_TRIGGER_O) && !(it->second->code & EVENT_PHASE))) {
 			pduel->game_field->remove_effect(it->second);
 		}
 	}
@@ -1098,7 +1098,8 @@ int32 card::add_effect(effect* peffect) {
 			}
 		}
 		it = single_effect.insert(std::make_pair(peffect->code, peffect));
-	} else if (peffect->type & EFFECT_TYPE_FIELD)
+	} 
+	else if (peffect->type & EFFECT_TYPE_FIELD)
 		it = field_effect.insert(std::make_pair(peffect->code, peffect));
 	else if (peffect->type & EFFECT_TYPE_EQUIP) {
 		it = equip_effect.insert(std::make_pair(peffect->code, peffect));
@@ -1106,7 +1107,8 @@ int32 card::add_effect(effect* peffect) {
 			check_target = equiping_target;
 		else
 			check_target = 0;
-	} else
+	} 
+	else
 		return 0;
 	peffect->id = pduel->game_field->infos.field_id++;
 	peffect->card_type = data.type;
