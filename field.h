@@ -166,6 +166,7 @@ struct processor {
 	event_list point_event;
 	event_list instant_event;
 	event_list queue_event;
+	event_list full_event;
 	event_list used_event;
 	event_list single_event;
 	event_list solving_event;
