@@ -2110,7 +2110,6 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 					}
 				}
 			}
-			core.full_event.clear();
 			// delayed quick
 			for(auto eit = core.delayed_quick.begin(); eit != core.delayed_quick.end(); ++eit) {
 				peffect = eit->first;
@@ -4758,7 +4757,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 	}
 	case 12: {
 		core.used_event.splice(core.used_event.end(), core.point_event);
-		core.full_event.clear();
 		pduel->write_buffer8(MSG_CHAIN_END);
 		if(core.chain_limit_p) {
 			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, core.chain_limit_p);
