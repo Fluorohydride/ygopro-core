@@ -2755,8 +2755,7 @@ int32 field::process_battle_command(uint16 step) {
 			if(!peffect->value){
 				infos.phase = PHASE_BATTLE;
 				add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
-			}
-			else {
+			} else {
 				core.hint_timing[infos.turn_player] = 0;
 				reset_phase(PHASE_BATTLE);
 				adjust_all();
@@ -3083,8 +3082,7 @@ int32 field::process_battle_command(uint16 step) {
 			if(!peffect->value) {
 				infos.phase = PHASE_BATTLE;
 				add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
-			}
-			else {
+			} else {
 				core.hint_timing[infos.turn_player] = 0;
 				reset_phase(PHASE_BATTLE);
 				adjust_all();
@@ -4514,8 +4512,7 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
 					core.delayed_tp.pop_front();
 					core.delayed_tev.pop_front();
-				}
-				else
+				} else
 					core.conti_player = 1 - infos.turn_player;
 			}
 			if(core.conti_player == 1 - infos.turn_player) {
@@ -4524,15 +4521,13 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_ntp.front(), 0, 1 - infos.turn_player, 0);
 					core.delayed_ntp.pop_front();
 					core.delayed_ntev.pop_front();
-				}
-				else if(core.delayed_tp.size()) {
+				} else if(core.delayed_tp.size()) {
 					core.conti_player = infos.turn_player;
 					core.sub_solving_event.push_back(core.delayed_tev.front());
 					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
 					core.delayed_tp.pop_front();
 					core.delayed_tev.pop_front();
-				}
-				else
+				} else
 					core.conti_player = PLAYER_NONE;
 			}
 		}
@@ -4690,15 +4685,13 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
 			core.delayed_tp.pop_front();
 			core.delayed_tev.pop_front();
-		}
-		else if(core.delayed_ntp.size()) {
+		} else if(core.delayed_ntp.size()) {
 			core.conti_player = 1 - infos.turn_player;
 			core.sub_solving_event.push_back(core.delayed_ntev.front());
 			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_ntp.front(), 0, 1 - infos.turn_player, 0);
 			core.delayed_ntp.pop_front();
 			core.delayed_ntev.pop_front();
-		}
-		else
+		} else
 			core.conti_player = PLAYER_NONE;
 		pduel->write_buffer8(MSG_CHAIN_SOLVED);
 		pduel->write_buffer8(cait->chain_count);

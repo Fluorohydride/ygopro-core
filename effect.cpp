@@ -231,8 +231,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				return FALSE;
 			if(handler->is_affected_by_effect(EFFECT_CANNOT_TRIGGER))
 				return FALSE;
-		} 
-		else if(!(type & EFFECT_TYPE_CONTINUOUS)) {
+		} else if(!(type & EFFECT_TYPE_CONTINUOUS)) {
 			if((handler->data.type & TYPE_MONSTER) && (handler->current.location & LOCATION_SZONE)
 					&& !in_range(handler->current.location, handler->current.sequence))
 				return FALSE;
@@ -257,8 +256,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				return FALSE;
 			if(handler->is_affected_by_effect(EFFECT_CANNOT_TRIGGER))
 				return FALSE;
-		} 
-		else {
+		} else {
 			if(!is_flag(EFFECT_FLAG_AVAILABLE_BD) && (type & EFFECT_TYPE_FIELD) && handler->is_status(STATUS_BATTLE_DESTROYED))
 				return FALSE;
 			if(((type & EFFECT_TYPE_FIELD) || ((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE))) && (handler->current.location & LOCATION_ONFIELD)
@@ -275,8 +273,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			if(handler == owner && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && handler->is_status(STATUS_DISABLED))
 				return FALSE;
 		}
-	} 
-	else {
+	} else {
 		if((get_owner_player() != playerid) && !is_flag(EFFECT_FLAG_BOTH_SIDE))
 			return FALSE;
 	}

@@ -1117,12 +1117,10 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 			if(equip_card->get_type() & TYPE_TRAP) {
 				peffect->code = EFFECT_ADD_TYPE;
 				peffect->value = TYPE_EQUIP;
-			}
-			else if(equip_card->data.type & TYPE_UNION) {
+			} else if(equip_card->data.type & TYPE_UNION) {
 				peffect->code = EFFECT_CHANGE_TYPE;
 				peffect->value = TYPE_EQUIP + TYPE_SPELL + TYPE_UNION;
-			}
-			else {
+			} else {
 				peffect->code = EFFECT_CHANGE_TYPE;
 				peffect->value = TYPE_EQUIP + TYPE_SPELL;
 			}
@@ -3481,8 +3479,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 					if(pcard->current.reason & REASON_RETURN) {
 						retgrave.insert(pcard);
 						raise_single_event(pcard, 0, EVENT_RETURN_TO_GRAVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
-					}
-					else {
+					} else {
 						tograve.insert(pcard);					
 						raise_single_event(pcard, 0, EVENT_TO_GRAVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 					}

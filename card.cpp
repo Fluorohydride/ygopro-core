@@ -1098,8 +1098,7 @@ int32 card::add_effect(effect* peffect) {
 			}
 		}
 		it = single_effect.insert(std::make_pair(peffect->code, peffect));
-	} 
-	else if (peffect->type & EFFECT_TYPE_FIELD)
+	} else if (peffect->type & EFFECT_TYPE_FIELD)
 		it = field_effect.insert(std::make_pair(peffect->code, peffect));
 	else if (peffect->type & EFFECT_TYPE_EQUIP) {
 		it = equip_effect.insert(std::make_pair(peffect->code, peffect));
@@ -1107,8 +1106,7 @@ int32 card::add_effect(effect* peffect) {
 			check_target = equiping_target;
 		else
 			check_target = 0;
-	} 
-	else
+	} else
 		return 0;
 	peffect->id = pduel->game_field->infos.field_id++;
 	peffect->card_type = data.type;
