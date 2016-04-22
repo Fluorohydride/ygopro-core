@@ -616,8 +616,7 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 // Level/Attribute/Race is available for:
 // 1. cards with original type TYPE_MONSTER or
 // 2. cards with current type TYPE_MONSTER
-// 3. cares with EFFECT_PRE_MONSTER
-// They can be changed for cards satisfying 1 or 2 or current type TYPE_TRAPMONSTER.
+// 3. cards with EFFECT_PRE_MONSTER
 uint32 card::get_level() {
 	if((data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL) 
 	        || (!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)))
