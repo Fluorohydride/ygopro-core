@@ -356,7 +356,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_NONTUNER						244
 #define EFFECT_OVERLAY_REMOVE_REPLACE		245
 #define EFFECT_SCRAP_CHIMERA				246
-//#define EFFECT_SPSUM_EFFECT_ACTIVATED	250
+#define EFFECT_PRE_MONSTER				250
 #define EFFECT_MATERIAL_CHECK			251
 #define EFFECT_DISABLE_FIELD			260
 #define EFFECT_USE_EXTRA_MZONE			261

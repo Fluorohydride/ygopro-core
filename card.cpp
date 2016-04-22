@@ -394,8 +394,10 @@ uint32 card::get_type() {
 	temp.type = 0xffffffff;
 	return type;
 }
+// Atk and def are sepcial cases since text atk/def ? are involved.
+// Asuumption: we can only change the atk/def of cards in LOCATION_MZONE.
 int32 card::get_base_attack(uint8 swap) {
-	if (current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER))
+	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	if (current.location != LOCATION_MZONE || status & STATUS_SUMMONING)
 		return data.attack;
@@ -423,7 +425,7 @@ int32 card::get_base_attack(uint8 swap) {
 int32 card::get_attack() {
 	if(assume_type == ASSUME_ATTACK)
 		return assume_value;
-	if (current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER))
+	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	if (current.location != LOCATION_MZONE || status & STATUS_SUMMONING)
 		return data.attack;
@@ -434,7 +436,7 @@ int32 card::get_attack() {
 	return atk;
 }
 int32 card::get_base_defence(uint8 swap) {
-	if (current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER))
+	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	if (current.location != LOCATION_MZONE || status & STATUS_SUMMONING)
 		return data.defence;
@@ -462,7 +464,7 @@ int32 card::get_base_defence(uint8 swap) {
 int32 card::get_defence() {
 	if(assume_type == ASSUME_DEFENCE)
 		return assume_value;
-	if (current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER))
+	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	if (current.location != LOCATION_MZONE || status & STATUS_SUMMONING)
 		return data.defence;
@@ -612,19 +614,16 @@ void card::calc_attack_defence(int32 *patk, int32 *pdef) {
 	temp.defence = -1;
 }
 // Level/Attribute/Race is available for:
-// 1. cards in LOCATION_MZONE or
-// 2. cards with original type TYPE_MONSTER or
-// 3. cards with current type TYPE_MONSTER(Ex. c87772572)
+// 1. cards with original type TYPE_MONSTER or
+// 2. cards with current type TYPE_MONSTER
+// 3. cares with EFFECT_PRE_MONSTER
 // They can be changed for cards satisfying 1 or 2 or current type TYPE_TRAPMONSTER.
-// This is because some Phantom Knights is changed into TYPE_MONSTER but is not affected by Zombie World.
 uint32 card::get_level() {
 	if((data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL) 
-	        || (current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER)))
+	        || (!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)))
 		return 0;
 	if(assume_type == ASSUME_LEVEL)
 		return assume_value;
-	if(current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_TRAPMONSTER))
-		return data.level;
 	if (temp.level != 0xffffffff)
 		return temp.level;
 	effect_set effects;
@@ -751,10 +750,8 @@ uint32 card::check_xyz_level(card* pcard, uint32 lv) {
 uint32 card::get_attribute() {
 	if(assume_type == ASSUME_ATTRIBUTE)
 		return assume_value;
-	if(current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER))
+	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
-	if(current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_TRAPMONSTER))
-		return data.attribute;
 	if (temp.attribute != 0xffffffff)
 		return temp.attribute;
 	effect_set effects;
@@ -782,10 +779,8 @@ uint32 card::get_attribute() {
 uint32 card::get_race() {
 	if(assume_type == ASSUME_RACE)
 		return assume_value;
-	if(current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER))
+	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
-	if(current.location != LOCATION_MZONE && !(data.type & TYPE_MONSTER) && !(get_type() & TYPE_TRAPMONSTER))
-		return data.race;
 	if (temp.race != 0xffffffff)
 		return temp.race;
 	effect_set effects;
