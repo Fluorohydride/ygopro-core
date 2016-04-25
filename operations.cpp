@@ -1101,6 +1101,7 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 				change_position(equip_card, 0, equip_player, POS_FACEUP, 0);
 			return FALSE;
 		}
+		refresh_location_info_instant();
 		if(get_useable_count(equip_player, LOCATION_SZONE, equip_player, LOCATION_REASON_TOFIELD) <= 0)
 			return TRUE;
 		equip_card->enable_field_effect(false);
