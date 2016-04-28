@@ -3149,7 +3149,8 @@ int32 field::process_battle_command(uint16 step) {
 				}
 			}
 		}
-		if(!core.attack_target && !core.attacker->operation_param)
+		if(!core.attack_target && !core.attacker->operation_param
+			|| std::find(core.select_cards.begin(),core.select_cards.end(), core.attack_target) == core.select_cards.end())
 			rollback = true;
 		if(!rollback) {
 			core.attacker->announce_count++;
