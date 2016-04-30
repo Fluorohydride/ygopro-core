@@ -330,24 +330,47 @@ int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count)
 		if(count == 0)
 			return TRUE;
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
-			returns.bvalue[0] = 1;
 			flag = ~flag;
+			int32 filter;
+			int32 pzone = 0;
 			if(flag & 0x1f) {
+				returns.bvalue[0] = 1;
 				returns.bvalue[1] = LOCATION_MZONE;
-				if(flag & 0x4) returns.bvalue[2] = 2;
-				else if(flag & 0x2) returns.bvalue[2] = 1;
-				else if(flag & 0x8) returns.bvalue[2] = 3;
-				else if(flag & 0x1) returns.bvalue[2] = 0;
-				else returns.bvalue[2] = 4;
-			} else {
+				filter = flag & 0x1f;
+			} else if(flag & 0x1f00) {
+				returns.bvalue[0] = 1;
 				returns.bvalue[1] = LOCATION_SZONE;
-				if(flag & 0x400) returns.bvalue[2] = 2;
-				else if(flag & 0x200) returns.bvalue[2] = 1;
-				else if(flag & 0x800) returns.bvalue[2] = 3;
-				else if(flag & 0x100) returns.bvalue[2] = 0;
-				else returns.bvalue[2] = 4;
+				filter = (flag >> 8) & 0x1f;
+			} else if(flag & 0xc000) {
+				returns.bvalue[0] = 1;
+				returns.bvalue[1] = LOCATION_SZONE;
+				filter = (flag >> 14) & 0x3;
+				pzone = 1;
+			} else if(flag & 0x1f0000) {
+				returns.bvalue[0] = 0;
+				returns.bvalue[1] = LOCATION_MZONE;
+				filter = (flag >> 16) & 0x1f;
+			} else if(flag & 0x1f000000) {
+				returns.bvalue[0] = 0;
+				returns.bvalue[1] = LOCATION_SZONE;
+				filter = (flag >> 24) & 0x1f;
+			} else {
+				returns.bvalue[0] = 0;
+				returns.bvalue[1] = LOCATION_SZONE;
+				filter = (flag >> 30) & 0x3;
+				pzone = 1;
 			}
-			return true;
+			if(!pzone) {
+				if(filter & 0x4) returns.bvalue[2] = 2;
+				else if(filter & 0x2) returns.bvalue[2] = 1;
+				else if(filter & 0x8) returns.bvalue[2] = 3;
+				else if(filter & 0x1) returns.bvalue[2] = 0;
+				else if(filter & 0x10) returns.bvalue[2] = 4;
+			} else {
+				if(filter & 0x1) returns.bvalue[2] = 6;
+				else if(filter & 0x2) returns.bvalue[2] = 7;
+			}
+			return TRUE;
 		}
 		if(core.units.begin()->type == PROCESSOR_SELECT_PLACE)
 			pduel->write_buffer8(MSG_SELECT_PLACE);
