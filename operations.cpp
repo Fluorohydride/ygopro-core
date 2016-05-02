@@ -2335,15 +2335,16 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 			core.spsummon_once_map[sumplayer][*cit]++;
 		card_set cset;
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
+			(*cit)->set_status(STATUS_SUMMONING, TRUE);
 			if(!(*cit)->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SPSUMMON)) {
 				cset.insert(*cit);
 			}
-			(*cit)->set_status(STATUS_SUMMONING, TRUE);
 		}
-		if(cset.size())
+		if(cset.size()) {
 			raise_event(&cset, EVENT_SPSUMMON, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
-		process_instant_event();
-		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x101, TRUE);
+			process_instant_event();
+			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x101, TRUE);
+		}
 		return FALSE;
 	}
 	case 26: {
