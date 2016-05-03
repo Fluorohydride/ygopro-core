@@ -1905,6 +1905,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 	}
 	case 10: {
 		core.new_ochain_h.clear();
+		core.full_event.clear();
 		if(core.chain_limit) {
 			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, core.chain_limit);
 			core.chain_limit = 0;
@@ -1915,7 +1916,6 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			add_process(PROCESSOR_SOLVE_CHAIN, 0, 0, 0, skip_trigger | ((skip_freechain | skip_new) << 8), skip_new);
 		} else {
 			core.used_event.splice(core.used_event.end(), core.point_event);
-			core.full_event.clear();
 			if(core.chain_limit_p) {
 				luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, core.chain_limit_p);
 				core.chain_limit_p = 0;
