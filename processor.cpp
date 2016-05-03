@@ -2999,8 +2999,9 @@ int32 field::process_battle_command(uint16 step) {
 		pduel->write_buffer8(MSG_ATTACK);
 		pduel->write_buffer32(core.attacker->get_info_location());
 		if(core.attack_target) {
-			raise_single_event(core.attack_target, 0, EVENT_BE_BATTLE_TARGET, 0, 0, 0, 1 - infos.turn_player, 0);
-			raise_event(core.attack_target, EVENT_BE_BATTLE_TARGET, 0, 0, 0, 1 - infos.turn_player, 0);
+			uint32 reason = ((core.units.begin()->arg1 >> 8) & 0xff) ? REASON_REPLACE : 0;
+			raise_single_event(core.attack_target, 0, EVENT_BE_BATTLE_TARGET, 0, reason, 0, 1 - infos.turn_player, 0);
+			raise_event(core.attack_target, EVENT_BE_BATTLE_TARGET, 0, reason, 0, 1 - infos.turn_player, 0);
 			pduel->write_buffer32(core.attack_target->get_info_location());
 		} else
 			pduel->write_buffer32(0);
@@ -3015,7 +3016,7 @@ int32 field::process_battle_command(uint16 step) {
 			else
 				core.opp_mzone[i] = 0;
 		}
-		//core.units.begin()->arg1 ---> is rollbacked
+		//core.units.begin()->arg1 ---> is rollbacked or sub_attacked
 		if(!core.units.begin()->arg1) {
 			raise_single_event(core.attacker, 0, EVENT_ATTACK_ANNOUNCE, 0, 0, 0, infos.turn_player, 0);
 			raise_event(core.attacker, EVENT_ATTACK_ANNOUNCE, 0, 0, 0, infos.turn_player, 0);
@@ -3108,34 +3109,17 @@ int32 field::process_battle_command(uint16 step) {
 		        || ((core.sub_attack_target != (card*)0xffffffff) && (!core.sub_attack_target || core.sub_attack_target->current.location == LOCATION_MZONE))) {
 			if(core.sub_attacker)
 				core.attacker = core.sub_attacker;
-			if(core.sub_attack_target != (card*)0xffffffff) {
+			if(core.sub_attack_target != (card*)0xffffffff)
 				core.attack_target = core.sub_attack_target;
-				if(core.attack_target) {
-					raise_single_event(core.attack_target, 0, EVENT_BE_BATTLE_TARGET, 0, REASON_REPLACE, 0, 1 - infos.turn_player, 0);
-					raise_event(core.attack_target, EVENT_BE_BATTLE_TARGET, 0, REASON_REPLACE, 0, 1 - infos.turn_player, 0);
-					process_single_event();
-					process_instant_event();
-					add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
-				}
-			}
 			core.sub_attacker = 0;
 			core.sub_attack_target = (card*)0xffffffff;
-			core.attacker->announce_count++;
-			core.attacker->announced_cards.addcard(core.attack_target);
-			attack_all_target_check();
-			core.attacker->attacked_cards.addcard(core.attack_target);
-			pduel->write_buffer8(MSG_ATTACK);
-			pduel->write_buffer32(core.attacker->get_info_location());
-			if(core.attack_target) {
-				pduel->write_buffer32(core.attack_target->get_info_location());
-			} else {
-				pduel->write_buffer32(0);
-			}
-			core.units.begin()->step = 19;
+			core.units.begin()->arg1 = core.units.begin()->arg1 | 0x100;
+			core.units.begin()->step = 6;
 			return FALSE;
 		}
+		uint8 sub_attacked = (core.units.begin()->arg1 >> 8) & 0xff;
 		core.select_cards.clear();
-		core.units.begin()->arg2 = get_attack_target(core.attacker, &core.select_cards, core.chain_attack);
+		core.units.begin()->arg2 = get_attack_target(core.attacker, &core.select_cards, core.chain_attack, sub_attacked);
 		for(uint32 i = 0; i < 5; ++i) {
 			if(player[1 - infos.turn_player].list_mzone[i]) {
 				if(!core.opp_mzone[i] || core.opp_mzone[i] != player[1 - infos.turn_player].list_mzone[i]->fieldid_r) {
@@ -3150,7 +3134,7 @@ int32 field::process_battle_command(uint16 step) {
 			}
 		}
 		if(!core.attack_target && !core.attacker->operation_param
-			|| core.attack_target && std::find(core.select_cards.begin(),core.select_cards.end(), core.attack_target) == core.select_cards.end())
+			|| core.attack_target && std::find(core.select_cards.begin(), core.select_cards.end(), core.attack_target) == core.select_cards.end())
 			rollback = true;
 		if(!rollback) {
 			core.attacker->announce_count++;
@@ -5322,6 +5306,8 @@ int32 field::adjust_step(uint16 step) {
 		if(attacker->is_affected_by_effect(EFFECT_CANNOT_ATTACK))
 			attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
 		if(core.attack_rollback)
+			return FALSE;
+		if(core.sub_attack_target != (card*)0xffffffff)
 			return FALSE;
 		for(uint32 i = 0; i < 5; ++i) {
 			card* pcard = player[1 - infos.turn_player].list_mzone[i];

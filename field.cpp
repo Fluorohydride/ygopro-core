@@ -1650,7 +1650,7 @@ int32 field::effect_replace_check(uint32 code, const tevent& e) {
 	}
 	return FALSE;
 }
-int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) {
+int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack, uint8 sub_attack) {
 	uint8 p = pcard->current.controler;
 	effect* peffect;
 	card* atarget;
@@ -1714,13 +1714,13 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 			continue;
 		if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
 			continue;
-		if(chain_attack && core.chain_attack_target && atarget != core.chain_attack_target)
+		if(chain_attack && !sub_attack && core.chain_attack_target && atarget != core.chain_attack_target)
 			continue;
 		v->push_back(atarget);
 	}
 	if(must_be_attack.size())
 		return TRUE;
-	if((mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK)) 
+	if((mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK) || sub_attack) 
 			&& !pcard->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK) 
 			&& !(chain_attack && core.chain_attack_target))
 		pcard->operation_param = 1;

@@ -1180,16 +1180,30 @@ int32 scriptlib::duel_replace_attacker(lua_State *L) {
 }
 int32 scriptlib::duel_change_attack_target(lua_State *L) {
 	check_param_count(L, 1);
+	duel* pduel;
+	card* target;
 	if(lua_isnil(L, 1)) {
-		duel* pduel = interpreter::get_duel_info(L);
-		pduel->game_field->core.sub_attack_target = 0;
+		pduel = interpreter::get_duel_info(L);
+		target = 0;
 	} else {
 		check_param(L, PARAM_TYPE_CARD, 1);
-		card* target = *(card**) lua_touserdata(L, 1);
-		duel* pduel = target->pduel;
-		pduel->game_field->core.sub_attack_target = target;
+		target = *(card**)lua_touserdata(L, 1);
+		pduel = target->pduel;
 	}
-	return 0;
+	card* attacker = pduel->game_field->core.attacker;
+	if(!attacker || !attacker->is_capable_attack() || attacker->is_status(STATUS_ATTACK_CANCELED)) {
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+	field::card_vector cv;
+	pduel->game_field->get_attack_target(attacker, &cv, pduel->game_field->core.chain_attack, TRUE);
+	if(!target && attacker->operation_param
+		|| target && std::find(cv.begin(), cv.end(), target) != cv.end()) {
+		pduel->game_field->core.sub_attack_target = target;
+		lua_pushboolean(L, 1);
+	} else
+		lua_pushboolean(L, 0);
+	return 1;
 }
 int32 scriptlib::duel_replace_attack_target(lua_State *L) {
 	return 0;
