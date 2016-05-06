@@ -266,22 +266,20 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(ptr pduel, uint8 playerid, uint
 				ct += 4;
 				p += 4;
 			}
-
 		}
 	} else {
 		field::card_vector* lst;
-		field::card_vector::iterator cit;
-		if(location == LOCATION_HAND )
+		if(location == LOCATION_HAND)
 			lst = &ptduel->game_field->player[playerid].list_hand;
-		else if(location == LOCATION_GRAVE )
+		else if(location == LOCATION_GRAVE)
 			lst = &ptduel->game_field->player[playerid].list_grave;
-		else if(location == LOCATION_REMOVED )
+		else if(location == LOCATION_REMOVED)
 			lst = &ptduel->game_field->player[playerid].list_remove;
-		else if(location == LOCATION_EXTRA )
+		else if(location == LOCATION_EXTRA)
 			lst = &ptduel->game_field->player[playerid].list_extra;
-		else if(location == LOCATION_DECK )
+		else if(location == LOCATION_DECK)
 			lst = &ptduel->game_field->player[playerid].list_main;
-		for(cit = lst->begin(); cit != lst->end(); ++cit) {
+		for(auto cit = lst->begin(); cit != lst->end(); ++cit) {
 			ct += clen = (*cit)->get_infos(p, query_flag, use_cache);
 			p += clen;
 		}

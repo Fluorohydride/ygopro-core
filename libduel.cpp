@@ -122,12 +122,10 @@ int32 scriptlib::duel_reset_flag_effect(lua_State *L) {
 		return 0;
 	uint32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
 	duel* pduel = interpreter::get_duel_info(L);
-	std::pair<field::effect_container::iterator, field::effect_container::iterator> pr;
-	effect* peffect;
-	pr = pduel->game_field->effects.aura_effect.equal_range(code);
+	auto pr = pduel->game_field->effects.aura_effect.equal_range(code);
 	for(; pr.first != pr.second; ) {
 		auto rm = pr.first++;
-		peffect = rm->second;
+		effect* peffect = rm->second;
 		if(peffect->code == code)
 			pduel->game_field->remove_effect(peffect);
 	}
@@ -1119,15 +1117,13 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 	if(pgroup->container.size() <= 1)
 		return 0;
 	duel* pduel = pgroup->pduel;
-	group::card_set::iterator cit, rm;
 	card* ms[5];
 	uint8 seq[5];
 	uint8 tp = 2;
 	uint8 ct = 0;
 	card* pcard = 0;
-	for(cit = pgroup->container.begin(); cit != pgroup->container.end();) {
-		rm = cit++;
-		pcard = *rm;
+	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
+		card* pcard = *cit;
 		if(pcard->current.location != LOCATION_MZONE || (pcard->current.position & POS_FACEUP) || (tp != 2 && (pcard->current.controler != tp)))
 			return 0;
 		tp = pcard->current.controler;
@@ -2414,24 +2410,26 @@ int32 scriptlib::duel_get_operation_info(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	if(!pduel->game_field->core.continuous_chain.size() && !pduel->game_field->core.current_chain.size())
 		return 0;
-	if( ct && !pduel->game_field->core.current_chain.size())
+	if(ct && !pduel->game_field->core.current_chain.size())
 		return 0;
 	bool found = false;
-	chain::opmap::iterator oit;
 	optarget opt;
 	if(ct == 0 && pduel->game_field->core.continuous_chain.size()) {
-		if((oit = pduel->game_field->core.continuous_chain.rbegin()->opinfos.find(cate)) != pduel->game_field->core.continuous_chain.rbegin()->opinfos.end()) {
+		auto oit = pduel->game_field->core.continuous_chain.rbegin()->opinfos.find(cate);
+		if(oit != pduel->game_field->core.continuous_chain.rbegin()->opinfos.end()) {
 			opt = oit->second;
 			found = true;
 		}
 	} else {
 		if(ct < 1 || ct > pduel->game_field->core.current_chain.size()) {
-			if((oit = pduel->game_field->core.current_chain.rbegin()->opinfos.find(cate)) != pduel->game_field->core.current_chain.rbegin()->opinfos.end()) {
+			auto oit = pduel->game_field->core.current_chain.rbegin()->opinfos.find(cate);
+			if(oit != pduel->game_field->core.current_chain.rbegin()->opinfos.end()) {
 				opt = oit->second;
 				found = true;
 			}
 		} else {
-			if((oit = pduel->game_field->core.current_chain[ct - 1].opinfos.find(cate)) != pduel->game_field->core.current_chain[ct - 1].opinfos.end()) {
+			auto oit = pduel->game_field->core.current_chain[ct - 1].opinfos.find(cate);
+			if(oit != pduel->game_field->core.current_chain[ct - 1].opinfos.end()) {
 				opt = oit->second;
 				found = true;
 			}
@@ -3330,8 +3328,7 @@ int32 scriptlib::duel_majestic_copy(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	card* ccard = *(card**) lua_touserdata(L, 2);
 	duel* pduel = pcard->pduel;
-	card::effect_container::iterator eit;
-	for(eit = ccard->single_effect.begin(); eit != ccard->field_effect.end(); ++eit) {
+	for(auto eit = ccard->single_effect.begin(); eit != ccard->field_effect.end(); ++eit) {
 		if(eit == ccard->single_effect.end()) {
 			eit = ccard->field_effect.begin();
 			if(eit == ccard->field_effect.end())

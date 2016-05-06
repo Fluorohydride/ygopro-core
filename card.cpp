@@ -160,8 +160,7 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 	}
 	if(query_flag & QUERY_TARGET_CARD) {
 		*p++ = effect_target_cards.size();
-		card_set::iterator cit;
-		for(cit = effect_target_cards.begin(); cit != effect_target_cards.end(); ++cit)
+		for(auto cit = effect_target_cards.begin(); cit != effect_target_cards.end(); ++cit)
 			*p++ = (*cit)->get_info_location();
 	}
 	if(query_flag & QUERY_OVERLAY_CARD) {
@@ -903,9 +902,8 @@ void card::unequip() {
 	return;
 }
 int32 card::get_union_count() {
-	card_set::iterator cit;
 	int32 count = 0;
-	for(cit = equiping_cards.begin(); cit != equiping_cards.end(); ++cit) {
+	for(auto cit = equiping_cards.begin(); cit != equiping_cards.end(); ++cit) {
 		if(((*cit)->data.type & TYPE_UNION) && (*cit)->is_status(STATUS_UNION))
 			count++;
 	}
@@ -1027,17 +1025,16 @@ void card::enable_field_effect(bool enabled) {
 	refresh_disable_status();
 	if (enabled) {
 		set_status(STATUS_EFFECT_ENABLED, TRUE);
-		effect_container::iterator it;
-		for (it = single_effect.begin(); it != single_effect.end(); ++it) {
+		for (auto it = single_effect.begin(); it != single_effect.end(); ++it) {
 			if (it->second->is_flag(EFFECT_FLAG_SINGLE_RANGE) && it->second->in_range(current.location, current.sequence))
 				it->second->id = pduel->game_field->infos.field_id++;
 		}
-		for (it = field_effect.begin(); it != field_effect.end(); ++it) {
+		for (auto it = field_effect.begin(); it != field_effect.end(); ++it) {
 			if (it->second->in_range(current.location, current.sequence))
 				it->second->id = pduel->game_field->infos.field_id++;
 		}
 		if(current.location == LOCATION_SZONE) {
-			for (it = equip_effect.begin(); it != equip_effect.end(); ++it)
+			for (auto it = equip_effect.begin(); it != equip_effect.end(); ++it)
 				it->second->id = pduel->game_field->infos.field_id++;
 		}
 		if (get_status(STATUS_DISABLED))
@@ -1050,7 +1047,7 @@ void card::enable_field_effect(bool enabled) {
 	filter_disable_related_cards();
 }
 int32 card::add_effect(effect* peffect) {
-	effect_container::iterator it, rm;
+	effect_container::iterator eit;
 	if (get_status(STATUS_COPYING_EFFECT) && peffect->is_flag(EFFECT_FLAG_UNCOPYABLE)) {
 		pduel->uncopy.insert(peffect);
 		return 0;
@@ -1060,42 +1057,42 @@ int32 card::add_effect(effect* peffect) {
 	card* check_target = this;
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
 		if((peffect->code == EFFECT_SET_ATTACK || peffect->code == EFFECT_SET_BASE_ATTACK) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
-			for(it = single_effect.begin(); it != single_effect.end();) {
-				rm = it++;
+			for(auto it = single_effect.begin(); it != single_effect.end();) {
+				auto rm = it++;
 				if((rm->second->code == EFFECT_SET_ATTACK || rm->second->code == EFFECT_SET_ATTACK_FINAL)
 				        && !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
 					remove_effect(rm->second);
 			}
 		}
 		if(peffect->code == EFFECT_SET_ATTACK_FINAL && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
-			for(it = single_effect.begin(); it != single_effect.end();) {
-				rm = it++;
+			for(auto it = single_effect.begin(); it != single_effect.end();) {
+				auto rm = it++;
 				if((rm->second->code == EFFECT_UPDATE_ATTACK || rm->second->code == EFFECT_SET_ATTACK
 				        || rm->second->code == EFFECT_SET_ATTACK_FINAL) && !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
 					remove_effect(rm->second);
 			}
 		}
 		if((peffect->code == EFFECT_SET_DEFENCE || peffect->code == EFFECT_SET_BASE_DEFENCE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
-			for(it = single_effect.begin(); it != single_effect.end();) {
-				rm = it++;
+			for(auto it = single_effect.begin(); it != single_effect.end();) {
+				auto rm = it++;
 				if((rm->second->code == EFFECT_SET_DEFENCE || rm->second->code == EFFECT_SET_DEFENCE_FINAL)
 				        && !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
 					remove_effect(rm->second);
 			}
 		}
 		if(peffect->code == EFFECT_SET_DEFENCE_FINAL && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
-			for(it = single_effect.begin(); it != single_effect.end();) {
-				rm = it++;
+			for(auto it = single_effect.begin(); it != single_effect.end();) {
+				auto rm = it++;
 				if((rm->second->code == EFFECT_UPDATE_DEFENCE || rm->second->code == EFFECT_SET_DEFENCE
 				        || rm->second->code == EFFECT_SET_DEFENCE_FINAL) && !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
 					remove_effect(rm->second);
 			}
 		}
-		it = single_effect.insert(std::make_pair(peffect->code, peffect));
+		eit = single_effect.insert(std::make_pair(peffect->code, peffect));
 	} else if (peffect->type & EFFECT_TYPE_FIELD)
-		it = field_effect.insert(std::make_pair(peffect->code, peffect));
+		eit = field_effect.insert(std::make_pair(peffect->code, peffect));
 	else if (peffect->type & EFFECT_TYPE_EQUIP) {
-		it = equip_effect.insert(std::make_pair(peffect->code, peffect));
+		eit = equip_effect.insert(std::make_pair(peffect->code, peffect));
 		if (equiping_target)
 			check_target = equiping_target;
 		else
@@ -1118,7 +1115,7 @@ int32 card::add_effect(effect* peffect) {
 		if((peffect->reset_count & 0xff) > (pduel->game_field->core.reason_effect->reset_count & 0xff))
 			peffect->reset_count = (peffect->reset_count & 0xffffff00) | (pduel->game_field->core.reason_effect->reset_count & 0xff);
 	}
-	indexer.insert(std::make_pair(peffect, it));
+	indexer.insert(std::make_pair(peffect, eit));
 	peffect->handler = this;
 	if((peffect->type & 0x7e0)
 		|| (pduel->game_field->core.reason_effect && (pduel->game_field->core.reason_effect->status & EFFECT_STATUS_ACTIVATED)))
@@ -1189,7 +1186,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 	}
 	if (peffect->is_flag(EFFECT_FLAG_INITIAL) && peffect->copy_id && is_status(STATUS_EFFECT_REPLACED)) {
 		set_status(STATUS_EFFECT_REPLACED, FALSE);
-		if ((!(data.type & TYPE_NORMAL) || (data.type & TYPE_PENDULUM))) {
+		if (!(data.type & TYPE_NORMAL) || (data.type & TYPE_PENDULUM)) {
 			set_status(STATUS_INITIALIZING, TRUE);
 			pduel->lua->add_param(this, PARAM_TYPE_CARD);
 			pduel->lua->call_card_function(this, (char*) "initial_effect", 1, 0);

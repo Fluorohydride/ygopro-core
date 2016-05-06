@@ -4038,10 +4038,9 @@ int32 field::operation_replace(uint16 step, effect * replace_effect, group * tar
 	}
 	case 6: {
 		if (returns.ivalue[0]) {
-			card_set::iterator cit, rm;
 			uint32 is_destroy = arg2;
-			for (cit = targets->container.begin(); cit != targets->container.end();) {
-				rm = cit++;
+			for (auto cit = targets->container.begin(); cit != targets->container.end();) {
+				auto rm = cit++;
 				if (replace_effect->get_value(*rm)) {
 					(*rm)->current.reason = (*rm)->temp.reason;
 					(*rm)->current.reason_effect = (*rm)->temp.reason_effect;
@@ -4153,10 +4152,9 @@ int32 field::operation_replace(uint16 step, effect * replace_effect, group * tar
 	}
 	case 13: {
 		if (returns.ivalue[0]) {
-			card_set::iterator cit, rm;
 			uint32 is_destroy = arg2;
-			for (cit = targets->container.begin(); cit != targets->container.end();) {
-				rm = cit++;
+			for (auto cit = targets->container.begin(); cit != targets->container.end();) {
+				auto rm = cit++;
 				if (replace_effect->get_value(*rm)) {
 					(*rm)->current.reason = (*rm)->temp.reason;
 					(*rm)->current.reason_effect = (*rm)->temp.reason_effect;

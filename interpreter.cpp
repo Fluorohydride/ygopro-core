@@ -1009,8 +1009,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 		params.clear();
 		return OPERATION_FAIL;
 	}
-	coroutine_map::iterator it;
-	it = coroutines.find(f);
+	auto it = coroutines.find(f);
 	lua_State* rthread;
 	if (it == coroutines.end()) {
 		rthread = lua_newthread(lua_state);

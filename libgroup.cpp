@@ -134,8 +134,7 @@ int32 scriptlib::group_for_each(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	int32 f = interpreter::get_function_handle(L, 2);
-	group::card_set::iterator it;
-	for (it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
+	for (auto it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
 		pduel->lua->add_param((*it), PARAM_TYPE_CARD);
 		pduel->lua->call_function(f, 1, 0);
 	}
@@ -154,8 +153,7 @@ int32 scriptlib::group_filter(lua_State *L) {
 	duel* pduel = pgroup->pduel;
 	group* new_group = pduel->new_group();
 	uint32 extraargs = lua_gettop(L) - 3;
-	group::card_set::iterator it;
-	for (it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
+	for (auto it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
 		if((*it) != pexception && pduel->lua->check_matching(*it, 2, extraargs)) {
 			new_group->container.insert(*it);
 		}
@@ -176,8 +174,7 @@ int32 scriptlib::group_filter_count(lua_State *L) {
 	duel* pduel = pgroup->pduel;
 	uint32 extraargs = lua_gettop(L) - 3;
 	uint32 count = 0;
-	group::card_set::iterator it;
-	for (it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
+	for (auto it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
 		if((*it) != pexception && pduel->lua->check_matching(*it, 2, extraargs))
 			count++;
 	}
@@ -203,8 +200,7 @@ int32 scriptlib::group_filter_select(lua_State *L) {
 	uint32 max = lua_tointeger(L, 5);
 	uint32 extraargs = lua_gettop(L) - 6;
 	pduel->game_field->core.select_cards.clear();
-	group::card_set::iterator it;
-	for (it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
+	for (auto it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
 		if((*it) != pexception && pduel->lua->check_matching(*it, 3, extraargs))
 			pduel->game_field->core.select_cards.push_back(*it);
 	}
@@ -228,8 +224,7 @@ int32 scriptlib::group_select(lua_State *L) {
 	uint32 min = lua_tointeger(L, 3);
 	uint32 max = lua_tointeger(L, 4);
 	pduel->game_field->core.select_cards.clear();
-	group::card_set::iterator it;
-	for (it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
+	for (auto it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
 		if((*it) != pexception)
 			pduel->game_field->core.select_cards.push_back(*it);
 	}
@@ -395,7 +390,7 @@ int32 scriptlib::group_get_min_group(lua_State *L) {
 	group* newgroup = pduel->new_group();
 	int32 min, op;
 	int32 extraargs = lua_gettop(L) - 2;
-	field::card_set::iterator cit = pgroup->container.begin();
+	auto cit = pgroup->container.begin();
 	min = pduel->lua->get_operation_value(*cit, 2, extraargs);
 	newgroup->container.insert(*cit);
 	++cit;
@@ -424,7 +419,7 @@ int32 scriptlib::group_get_max_group(lua_State *L) {
 	group* newgroup = pduel->new_group();
 	int32 max, op;
 	int32 extraargs = lua_gettop(L) - 2;
-	field::card_set::iterator cit = pgroup->container.begin();
+	auto cit = pgroup->container.begin();
 	max = pduel->lua->get_operation_value(*cit, 2, extraargs);
 	newgroup->container.insert(*cit);
 	++cit;
@@ -450,8 +445,7 @@ int32 scriptlib::group_get_sum(lua_State *L) {
 	duel* pduel = pgroup->pduel;
 	int32 extraargs = lua_gettop(L) - 2;
 	int32 sum = 0;
-	field::card_set::iterator cit = pgroup->container.begin();
-	for(; cit != pgroup->container.end(); ++cit) {
+	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 		sum += pduel->lua->get_operation_value(*cit, 2, extraargs);
 	}
 	lua_pushinteger(L, sum);
@@ -465,8 +459,7 @@ int32 scriptlib::group_get_class_count(lua_State *L) {
 	duel* pduel = pgroup->pduel;
 	int32 extraargs = lua_gettop(L) - 2;
 	std::set<uint32> er;
-	field::card_set::iterator cit = pgroup->container.begin();
-	for(; cit != pgroup->container.end(); ++cit) {
+	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 		er.insert(pduel->lua->get_operation_value(*cit, 2, extraargs));
 	}
 	lua_pushinteger(L, er.size());
@@ -486,9 +479,8 @@ int32 scriptlib::group_remove(lua_State *L) {
 	uint32 extraargs = lua_gettop(L) - 3;
 	if(pgroup->is_readonly == 1)
 		return 0;
-	group::card_set::iterator cit, rm;
-	for (cit = pgroup->container.begin(); cit != pgroup->container.end();) {
-		rm = cit++;
+	for (auto cit = pgroup->container.begin(); cit != pgroup->container.end();) {
+		auto rm = cit++;
 		if((*rm) != pexception && pduel->lua->check_matching(*rm, 2, extraargs)) {
 			pgroup->container.erase(rm);
 		}
@@ -514,8 +506,7 @@ int32 scriptlib::group_sub(lua_State *L) {
 	group* sgroup = *(group**) lua_touserdata(L, 2);
 	if(pgroup->is_readonly == 1)
 		return 0;
-	group::card_set::iterator cit;
-	for (cit = sgroup->container.begin(); cit != sgroup->container.end(); ++cit) {
+	for (auto cit = sgroup->container.begin(); cit != sgroup->container.end(); ++cit) {
 		pgroup->container.erase(*cit);
 	}
 	return 0;
@@ -560,8 +551,7 @@ int32 scriptlib::group_search_card(lua_State *L) {
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	duel* pduel = pgroup->pduel;
 	uint32 extraargs = lua_gettop(L) - 2;
-	field::card_set::iterator cit;
-	for(cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit)
+	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit)
 		if(pduel->lua->check_matching(*cit, 2, extraargs)) {
 			interpreter::card2value(L, *cit);
 			return 1;
