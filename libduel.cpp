@@ -1135,13 +1135,9 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 		seq[ct] = pcard->current.sequence;
 		ct++;
 	}
-	for(uint32 p = 0; p < 2; ++p) {
-		for(uint32 i = 0; i < ct; ++i) {
-			uint8 s = pduel->get_next_integer(0, ct - 1);
-			pcard = ms[s];
-			ms[s] = ms[i];
-			ms[i] = pcard;
-		}
+	for(int32 i = ct - 1; i > 0; --i) {
+		int32 s = pduel->get_next_integer(0, i);
+		std::swap(ms[i], ms[s]);
 	}
 	pduel->write_buffer8(MSG_SHUFFLE_SET_CARD);
 	pduel->write_buffer8(ct);
