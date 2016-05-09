@@ -3496,7 +3496,7 @@ int32 field::process_battle_command(uint16 step) {
 	case 29: {
 		core.selfdes_disabled = FALSE;
 		if(core.battle_destroy_rep.size())
-			destroy(&core.battle_destroy_rep, 0, REASON_EFFECT, PLAYER_NONE);
+			destroy(&core.battle_destroy_rep, 0, REASON_EFFECT | REASON_REPLACE, PLAYER_NONE);
 		if(core.desrep_chain.size())
 			add_process(PROCESSOR_OPERATION_REPLACE, 15, 0, 0, 0, 0);
 		adjust_all();
