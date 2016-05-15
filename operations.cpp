@@ -831,6 +831,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, ct + (ct << 16));
 		} else
 			core.units.begin()->step = 1;
+		return FALSE;
 	}
 	case 1: {
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
@@ -846,6 +847,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 				remove_unique_card(*cit);
 		}
 		targets->it = targets->container.begin();
+		return FALSE;
 	}
 	case 3: {
 		if(targets->it == targets->container.end()) {
