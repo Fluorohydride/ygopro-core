@@ -819,7 +819,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 			core.units.begin()->step = 5;
 			return FALSE;
 		}
-		if(targets->container.size() > fcount) {
+		if((int32)targets->container.size() > fcount) {
 			core.select_cards.clear();
 			for(auto cit = targets->container.begin(); cit != targets->container.end(); ++cit)
 				core.select_cards.push_back(*cit);

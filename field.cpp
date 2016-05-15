@@ -1645,7 +1645,7 @@ int32 field::effect_replace_check(uint32 code, const tevent& e) {
 	}
 	return FALSE;
 }
-int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack, uint8 sub_attack) {
+int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) {
 	uint8 p = pcard->current.controler;
 	effect* peffect;
 	card* atarget;
