@@ -97,7 +97,7 @@ public:
 	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32> > {
 	public:
 		void addcard(card* pcard);
-	} ;
+	};
 	int32 scrtype;
 	int32 ref_handle;
 	duel* pduel;

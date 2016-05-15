@@ -1166,19 +1166,7 @@ int32 scriptlib::duel_change_attacker(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* target = *(card**) lua_touserdata(L, 1);
 	duel* pduel = target->pduel;
-	card* attacker = pduel->game_field->core.attacker;
-	card* attack_target = pduel->game_field->core.attack_target;
-	attacker->announce_count++;
-	attacker->announced_cards.addcard(attack_target);
-	pduel->game_field->core.sub_attacker = target;
-	return 0;
-}
-int32 scriptlib::duel_replace_attacker(lua_State *L) {
-	check_param_count(L, 1);
-	check_param(L, PARAM_TYPE_CARD, 1);
-	card* target = *(card**) lua_touserdata(L, 1);
-	duel* pduel = target->pduel;
-	pduel->game_field->core.sub_attacker = target;
+	pduel->game_field->core.attacker = target;
 	return 0;
 }
 int32 scriptlib::duel_change_attack_target(lua_State *L) {
@@ -1199,10 +1187,23 @@ int32 scriptlib::duel_change_attack_target(lua_State *L) {
 		return 1;
 	}
 	field::card_vector cv;
-	pduel->game_field->get_attack_target(attacker, &cv, pduel->game_field->core.chain_attack, TRUE);
-	if(!target && attacker->operation_param
-		|| target && std::find(cv.begin(), cv.end(), target) != cv.end()) {
-		pduel->game_field->core.sub_attack_target = target;
+	pduel->game_field->get_attack_target(attacker, &cv, pduel->game_field->core.chain_attack);
+	auto turnp=pduel->game_field->infos.turn_player;
+	if(!target || std::find(cv.begin(), cv.end(), target) != cv.end()) {
+		pduel->game_field->core.attack_target = target;
+		pduel->game_field->core.attack_rollback = FALSE;
+		for(uint32 i = 0; i < 5; ++i) {
+			if(pduel->game_field->player[1 - turnp].list_mzone[i])
+				pduel->game_field->core.opp_mzone[i] = pduel->game_field->player[1 - turnp].list_mzone[i]->fieldid_r;
+			else
+				pduel->game_field->core.opp_mzone[i] = 0;
+		}
+		if(target) {
+			pduel->game_field->raise_single_event(target, 0, EVENT_BE_BATTLE_TARGET, 0, REASON_REPLACE, 0, 1 - turnp, 0);
+			pduel->game_field->raise_event(target, EVENT_BE_BATTLE_TARGET, 0, REASON_REPLACE, 0, 1 - turnp, 0);
+			pduel->game_field->process_single_event();
+			pduel->game_field->process_instant_event();
+		}
 		lua_pushboolean(L, 1);
 	} else
 		lua_pushboolean(L, 0);
@@ -2621,8 +2622,6 @@ int32 scriptlib::duel_hint_selection(lua_State *L) {
 	duel* pduel = pgroup->pduel;
 	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 		card* pcard = *cit;
-		if(pcard->current.location & 0x30)
-			pduel->game_field->move_card(pcard->current.controler, pcard, pcard->current.location, 0);
 		pduel->write_buffer8(MSG_BECOME_TARGET);
 		pduel->write_buffer8(1);
 		pduel->write_buffer32(pcard->get_info_location());

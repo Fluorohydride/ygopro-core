@@ -330,7 +330,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_ATTACK_ALL				193
 #define EFFECT_EXTRA_ATTACK				194
 #define EFFECT_MUST_BE_ATTACKED			195
-#define EFFECT_AUTO_BE_ATTACKED			196
+#define EFFECT_ONLY_BE_ATTACKED			196
 #define EFFECT_ATTACK_DISABLED			197
 #define EFFECT_NO_BATTLE_DAMAGE			200
 #define EFFECT_AVOID_BATTLE_DAMAGE		201
@@ -395,6 +395,10 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_HAND_SYNCHRO				339
 #define EFFECT_ADD_FUSION_CODE			340
 #define EFFECT_ADD_FUSION_SETCODE		341
+#define EFFECT_RISE_TO_FULL_HEIGHT		342
+#define EFFECT_ONLY_ATTACK_MONSTER		343
+#define EFFECT_MUST_ATTACK_MONSTER		344
+#define EFFECT_PATRICIAN_OF_DARKNESS	345
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

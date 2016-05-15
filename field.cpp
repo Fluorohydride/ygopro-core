@@ -146,7 +146,7 @@ void field::reload_field_info() {
 	}
 }
 // Debug.AddCard() will call this function directly
-// check Fusion/S/X monster redirection by the rule
+// check Fusion/S/X monster redirection by the rule, set fieldid_r
 void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence) {
 	if (pcard->current.location != 0)
 		return;
@@ -1484,7 +1484,7 @@ int32 field::check_spsummon_once(card* pcard, uint8 playerid) {
 	auto iter = core.spsummon_once_map[playerid].find(pcard->spsummon_code);
 	return (iter == core.spsummon_once_map[playerid].end()) || (iter->second == 0);
 }
-
+// increase the binary custom counter
 void field::check_card_counter(card* pcard, int32 counter_type, int32 playerid) {
 	auto& counter_map = (counter_type == 1) ? core.summon_counter :
 						(counter_type == 2) ? core.normalsummon_counter :
@@ -1649,54 +1649,83 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack, 
 	uint8 p = pcard->current.controler;
 	effect* peffect;
 	card* atarget;
-	pcard->operation_param = 0;
+	card_vector* pv = NULL;
+	int32 atype = 0;
 	card_vector must_be_attack;
-	card_vector* pv;
+	card_vector only_be_attack;
+	effect_set eset;
+	
+	pcard->operation_param = 0;
 	for(uint32 i = 0; i < 5; ++i) {
 		atarget = player[1 - p].list_mzone[i];
-		if(atarget && atarget->is_affected_by_effect(EFFECT_MUST_BE_ATTACKED, pcard))
-			must_be_attack.push_back(atarget);
+		if(atarget){
+			if(atarget->is_affected_by_effect(EFFECT_MUST_BE_ATTACKED))
+				must_be_attack.push_back(atarget);
+			if(atarget->is_affected_by_effect(EFFECT_ONLY_BE_ATTACKED))
+				only_be_attack.push_back(atarget);
+		}
+	}
+	pcard->filter_effect(EFFECT_RISE_TO_FULL_HEIGHT, &eset);
+	if(eset.size()){
+		atype = 1;
+		std::set<uint32> idset;
+		for(int32 i = 0; i < eset.size(); ++i)
+			idset.insert(eset[i]->label);
+		if(idset.size()==1 && only_be_attack.size() == 1 && only_be_attack.front()->fieldid_r == *idset.begin())
+			pv = &only_be_attack;
+		else
+			return atype;
+	}
+	else if(pcard->is_affected_by_effect(EFFECT_ONLY_ATTACK_MONSTER)){
+		atype = 2;
+		if(only_be_attack.size() == 1)
+			pv = &only_be_attack;
+		else
+			return atype;
+	}
+	else if(pcard->is_affected_by_effect(EFFECT_MUST_ATTACK_MONSTER)){
+		atype = 3;
+		if(must_be_attack.size())
+			pv = &must_be_attack;
+		else
+			return atype;
+	}
+	else{
+		atype = 4;
+		pv = &player[1 - p].list_mzone;
 	}
 	if(pcard->attack_all_target && (peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL))) {
-		if(pcard->announced_cards.size()) {
-			if(must_be_attack.size())
-				pv = &must_be_attack;
-			else
-				pv = &player[1 - p].list_mzone;
+		if(pcard->battled_cards.size()) {
 			for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
 				atarget = *cit;
 				if(!atarget)
 					continue;
-				auto it = pcard->announced_cards.find(atarget->fieldid_r);
-				if(it != pcard->announced_cards.end()) {
-					if(it->second.second >= (uint32)peffect->get_value(atarget))
-						continue;
-				}
-				if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
-					continue;
-				if(atarget->is_affected_by_effect(EFFECT_CANNOT_BE_BATTLE_TARGET, pcard))
-					continue;
-				if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
-					continue;
 				pduel->lua->add_param(atarget, PARAM_TYPE_CARD);
 				if(!peffect->check_value_condition(1))
 					continue;
+				auto it = pcard->battled_cards.find(atarget->fieldid_r);
+				if(it != pcard->battled_cards.end()) {
+					if(it->second.second >= (uint32)peffect->get_value(atarget))
+						continue;
+				}
+				if(atype == 4 && !atarget->is_capable_be_battle_target(pcard))
+					continue;
 				v->push_back(atarget);
 			}
-			return must_be_attack.size() ? TRUE : FALSE;
+			return atype;
 		}
-	} else if(!chain_attack) {
-		uint32 extrac = 0;
-		if((peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_ATTACK)))
-			extrac = peffect->get_value(pcard);
-		if(pcard->announce_count >= extrac + 1)
-			return FALSE;
+	} else if(chain_attack && core.chain_attack_target) {
+		if(std::find(pv->begin(), pv->end(), core.chain_attack_target) != pv->end()
+				&& (atype != 4 || core.chain_attack_target->is_capable_be_battle_target(pcard))){
+			v->push_back(core.chain_attack_target);
+		}
+		return atype;
+	}
+	if(atype <= 3) {
+		*v = *pv;
+		return atype;
 	}
 	uint32 mcount = 0;
-	if(must_be_attack.size())
-		pv = &must_be_attack;
-	else
-		pv = &player[1 - p].list_mzone;
 	for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
 		atarget = *cit;
 		if(!atarget)
@@ -1708,17 +1737,12 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack, 
 			continue;
 		if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
 			continue;
-		if(chain_attack && !sub_attack && core.chain_attack_target && atarget != core.chain_attack_target)
-			continue;
 		v->push_back(atarget);
 	}
-	if(must_be_attack.size())
-		return TRUE;
-	if((mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK) || sub_attack) 
-			&& !pcard->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK) 
-			&& !(chain_attack && core.chain_attack_target))
+	if((mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK))
+			&& !pcard->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK))
 		pcard->operation_param = 1;
-	return must_be_attack.size() ? TRUE : FALSE;
+	return atype;
 }
 void field::attack_all_target_check() {
 	if(!core.attacker)

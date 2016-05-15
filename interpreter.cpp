@@ -376,7 +376,6 @@ static const struct luaL_Reg duellib[] = {
 	{ "ShuffleHand", scriptlib::duel_shuffle_hand },
 	{ "ShuffleSetCard", scriptlib::duel_shuffle_setcard },
 	{ "ChangeAttacker", scriptlib::duel_change_attacker },
-	{ "ReplaceAttacker", scriptlib::duel_replace_attacker },
 	{ "ChangeAttackTarget", scriptlib::duel_change_attack_target },
 	{ "ReplaceAttackTarget", scriptlib::duel_replace_attack_target },
 	{ "CalculateDamage", scriptlib::duel_calculate_damage },
