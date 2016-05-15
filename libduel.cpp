@@ -990,8 +990,17 @@ int32 scriptlib::duel_equip_complete(lua_State *L) {
 int32 scriptlib::duel_get_control(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 2);
-	check_param(L, PARAM_TYPE_CARD, 1);
-	card* target = *(card**) lua_touserdata(L, 1);
+	card* pcard = 0;
+	group* pgroup = 0;
+	duel* pduel;
+	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
+		pcard = *(card**) lua_touserdata(L, 1);
+		pduel = pcard->pduel;
+	} else if(check_param(L, PARAM_TYPE_GROUP, 1, TRUE)) {
+		pgroup = *(group**) lua_touserdata(L, 1);
+		pduel = pgroup->pduel;
+	} else
+		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	uint32 playerid = lua_tointeger(L, 2);
 	if(playerid != 0 && playerid != 1)
 		return 0;
@@ -1001,8 +1010,10 @@ int32 scriptlib::duel_get_control(lua_State *L) {
 		reset_phase = lua_tointeger(L, 3) & 0x3ff;
 		reset_count = lua_tointeger(L, 4) & 0xff;
 	}
-	duel* pduel = target->pduel;
-	pduel->game_field->get_control(pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, target, playerid, reset_phase, reset_count);
+	if(pcard)
+		pduel->game_field->get_control(pcard, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, playerid, reset_phase, reset_count);
+	else
+		pduel->game_field->get_control(&pgroup->container, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, playerid, reset_phase, reset_count);
 	pduel->game_field->core.subunits.begin()->type = PROCESSOR_GET_CONTROL_S;
 	return lua_yield(L, 0);
 }

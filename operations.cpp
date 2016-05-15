@@ -105,8 +105,15 @@ void field::remove_counter(uint32 reason, card* pcard, uint32 rplayer, uint32 s,
 void field::remove_overlay_card(uint32 reason, card* pcard, uint32 rplayer, uint32 s, uint32 o, uint16 min, uint16 max) {
 	add_process(PROCESSOR_REMOVEOL_S, 0, (effect*)(size_t) reason, (group*)pcard, (rplayer << 16) + (s << 8) + o, (max << 16) + min);
 }
-void field::get_control(effect* reason_effect, uint32 reason_player, card* pcard, uint32 playerid, uint32 reset_phase, uint32 reset_count) {
-	add_process(PROCESSOR_GET_CONTROL, 0, reason_effect, (group*)pcard, 0, (reason_player << 28) + (playerid << 24) + (reset_phase << 8) + reset_count);
+void field::get_control(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 playerid, uint32 reset_phase, uint32 reset_count) {
+	group* ng = pduel->new_group(*targets);
+	ng->is_readonly = TRUE;
+	add_process(PROCESSOR_GET_CONTROL, 0, reason_effect, ng, 0, (reason_player << 28) + (playerid << 24) + (reset_phase << 8) + reset_count);
+}
+void field::get_control(card* target, effect* reason_effect, uint32 reason_player, uint32 playerid, uint32 reset_phase, uint32 reset_count) {
+	card_set tset;
+	tset.insert(target);
+	get_control(&tset, reason_effect, reason_player, playerid, reset_phase, reset_count);
 }
 void field::swap_control(effect* reason_effect, uint32 reason_player, card* pcard1, card* pcard2, uint32 reset_phase, uint32 reset_count) {
 	add_process(PROCESSOR_SWAP_CONTROL, 0, reason_effect, (group*)pcard1, (ptr)pcard2, (reason_player << 28) + (reset_phase << 8) + reset_count);
@@ -779,59 +786,113 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 	}
 	return TRUE;
 }
-int32 field::get_control(uint16 step, effect * reason_effect, uint8 reason_player, card * pcard, uint8 playerid, uint16 reset_phase, uint8 reset_count) {
+int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player, group* targets, uint8 playerid, uint16 reset_phase, uint8 reset_count) {
 	switch(step) {
 	case 0: {
-		if(pcard->current.controler == playerid) {
-			returns.ivalue[0] = 1;
-			return TRUE;
+		core.destroy_set.clear();
+		core.operated_set.clear();
+		for(auto cit = targets->container.begin(); cit != targets->container.end();) {
+			auto rm = cit++;
+			card* pcard = *rm;
+			pcard->filter_disable_related_cards();
+			bool change = true;
+			if(pcard->overlay_target)
+				change = false;
+			if(pcard->current.controler == playerid)
+				change = false;
+			if(pcard->current.controler == PLAYER_NONE)
+				change = false;
+			if(pcard->current.location != LOCATION_MZONE)
+				change = false;
+			if(!pcard->is_capable_change_control())
+				change = false;
+			if(!pcard->is_affect_by_effect(reason_effect))
+				change = false;
+			if((pcard->get_type() & TYPE_TRAPMONSTER) && get_useable_count(playerid, LOCATION_SZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
+				change = false;
+			if(!change)
+				targets->container.erase(pcard);
 		}
-		returns.ivalue[0] = 0;
-		if(pcard->overlay_target)
-			return TRUE;
-		if(pcard->current.controler == PLAYER_NONE)
-			return TRUE;
-		if(pcard->current.location != LOCATION_MZONE)
-			return TRUE;
-		if(!pcard->is_capable_change_control())
-			return TRUE;
-		if(!pcard->is_affect_by_effect(reason_effect))
-			return TRUE;
-		if(get_useable_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_CONTROL) <= 0) {
-			core.units.begin()->step = 3;
+		int32 fcount = get_useable_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_CONTROL);
+		if(fcount <= 0) {
+			core.destroy_set.swap(targets->container);
+			core.units.begin()->step = 5;
 			return FALSE;
 		}
-		if((pcard->get_type() & TYPE_TRAPMONSTER) && get_useable_count(playerid, LOCATION_SZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
-			return TRUE;
-		pcard->filter_disable_related_cards();
-		if(pcard->unique_code && (pcard->unique_location & LOCATION_MZONE))
-			remove_unique_card(pcard);
-		move_to_field(pcard, playerid, playerid, LOCATION_MZONE, pcard->current.position);
-		pcard->set_status(STATUS_ATTACK_CANCELED, TRUE);
-		return FALSE;
+		if(targets->container.size() > fcount) {
+			core.select_cards.clear();
+			for(auto cit = targets->container.begin(); cit != targets->container.end(); ++cit)
+				core.select_cards.push_back(*cit);
+			pduel->write_buffer8(MSG_HINT);
+			pduel->write_buffer8(HINT_SELECTMSG);
+			pduel->write_buffer8(playerid);
+			pduel->write_buffer32(502);
+			uint32 ct = targets->container.size() - fcount;
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, ct + (ct << 16));
+		} else
+			core.units.begin()->step = 1;
 	}
 	case 1: {
-		if(pcard->unique_code && (pcard->unique_location & LOCATION_MZONE))
-			add_unique_card(pcard);
-		set_control(pcard, playerid, reset_phase, reset_count);
-		pcard->reset(RESET_CONTROL, RESET_EVENT);
-		pcard->filter_disable_related_cards();
-		adjust_instant();
+		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
+			card* pcard = core.select_cards[returns.bvalue[i + 1]];
+			core.destroy_set.insert(pcard);
+			targets->container.erase(pcard);
+		}
 		return FALSE;
 	}
 	case 2: {
-		raise_single_event(pcard, 0, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, playerid, 0);
+		for(auto cit = targets->container.begin(); cit != targets->container.end(); ++cit) {
+			if((*cit)->unique_code && ((*cit)->unique_location & LOCATION_MZONE))
+				remove_unique_card(*cit);
+		}
+		targets->it = targets->container.begin();
+	}
+	case 3: {
+		if(targets->it == targets->container.end()) {
+			core.units.begin()->step = 4;
+			return FALSE;
+		}
+		card* pcard = *targets->it;
+		move_to_field(pcard, playerid, playerid, LOCATION_MZONE, pcard->current.position);
+		return FALSE;
+	}
+	case 4: {
+		card* pcard = *targets->it;
+		pcard->set_status(STATUS_ATTACK_CANCELED, TRUE);
+		set_control(pcard, playerid, reset_phase, reset_count);
+		pcard->reset(RESET_CONTROL, RESET_EVENT);
+		pcard->filter_disable_related_cards();
+		++targets->it;
+		core.units.begin()->step = 2;
+		return FALSE;
+	}
+	case 5: {
+		adjust_instant();
+		for(auto cit = targets->container.begin(); cit != targets->container.end(); ) {
+			card* pcard = *cit++;
+			if(!(pcard->current.location & LOCATION_ONFIELD)) {
+				targets->container.erase(pcard);
+				continue;
+			}
+			if(pcard->unique_code && (pcard->unique_location & LOCATION_MZONE))
+				add_unique_card(pcard);
+			raise_single_event(pcard, 0, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, playerid, 0);
+		}
+		if(targets->container.size())
+			raise_event(&targets->container, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, playerid, 0);
 		process_single_event();
-		raise_event(pcard, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, playerid, 0);
 		process_instant_event();
 		return FALSE;
 	}
-	case 3: {
-		returns.ivalue[0] = 1;
-		return TRUE;
+	case 6: {
+		if(core.destroy_set.size())
+			destroy(&core.destroy_set, 0, REASON_RULE, PLAYER_NONE);
+		return FALSE;
 	}
-	case 4: {
-		destroy(pcard, 0, REASON_RULE, PLAYER_NONE);
+	case 7: {
+		core.operated_set = targets->container;
+		returns.ivalue[0] = targets->container.size();
+		pduel->delete_group(targets);
 		return TRUE;
 	}
 	}
@@ -928,7 +989,7 @@ int32 field::control_adjust(uint16 step) {
 					pduel->write_buffer8(MSG_HINT);
 					pduel->write_buffer8(HINT_SELECTMSG);
 					pduel->write_buffer8(infos.turn_player);
-					pduel->write_buffer32(504);
+					pduel->write_buffer32(502);
 					add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, 1, count + (count << 16));
 				}
 			} else
@@ -948,7 +1009,7 @@ int32 field::control_adjust(uint16 step) {
 					pduel->write_buffer8(MSG_HINT);
 					pduel->write_buffer8(HINT_SELECTMSG);
 					pduel->write_buffer8(infos.turn_player);
-					pduel->write_buffer32(504);
+					pduel->write_buffer32(502);
 					add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, 0, count + (count << 16));
 				}
 			} else
@@ -1033,7 +1094,7 @@ int32 field::control_adjust(uint16 step) {
 		process_single_event();
 		process_instant_event();
 		return FALSE;
-	};
+	}
 	case 5: {
 		if(core.destroy_set.size())
 			destroy(&core.destroy_set, 0, REASON_RULE, PLAYER_NONE);
