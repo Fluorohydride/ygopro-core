@@ -1659,7 +1659,7 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 	for(uint32 i = 0; i < 5; ++i) {
 		atarget = player[1 - p].list_mzone[i];
 		if(atarget){
-			if(atarget->is_affected_by_effect(EFFECT_MUST_BE_ATTACKED))
+			if(atarget->is_affected_by_effect(EFFECT_MUST_BE_ATTACKED, pcard))
 				must_be_attack.push_back(atarget);
 			if(atarget->is_affected_by_effect(EFFECT_ONLY_BE_ATTACKED))
 				only_be_attack.push_back(atarget);
