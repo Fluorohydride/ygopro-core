@@ -294,6 +294,7 @@ struct processor {
 	std::unordered_map<uint32, std::pair<uint32, uint32> > flipsummon_counter;
 	std::unordered_map<uint32, std::pair<uint32, uint32> > attack_counter;
 	std::unordered_map<uint32, std::pair<uint32, uint32> > chain_counter;
+	processor_list recover_damage_reserve;
 };
 class field {
 public:
@@ -465,8 +466,8 @@ public:
 	void swap_control(effect* reason_effect, uint32 reason_player, card* pcard1, card* pcard2, uint32 reset_phase, uint32 reset_count);
 	void equip(uint32 equip_player, card* equip_card, card* target, uint32 up, uint32 is_step);
 	void draw(effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 count);
-	void damage(effect* reason_effect, uint32 reason, uint32 reason_player, card* pcard, uint32 playerid, uint32 amount);
-	void recover(effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 amount);
+	void damage(effect* reason_effect, uint32 reason, uint32 reason_player, card* reason_card, uint32 playerid, uint32 amount, uint32 is_step = FALSE);
+	void recover(effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 amount, uint32 is_step = FALSE);
 	void summon(uint32 sumplayer, card* target, effect* proc, uint32 ignore_count, uint32 min_tribute);
 	void special_summon_rule(uint32 sumplayer, card* target, uint32 summon_type);
 	void special_summon(card_set* target, uint32 sumtype, uint32 sumplayer, uint32 playerid, uint32 nocheck, uint32 nolimit, uint32 positions);
@@ -490,8 +491,8 @@ public:
 	int32 self_destroy(uint16 step);
 	int32 equip(uint16 step, uint8 equip_player, card* equip_card, card* target, uint32 up, uint32 is_step);
 	int32 draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, uint32 count);
-	int32 damage(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, card* pcard, uint8 playerid, uint32 amount);
-	int32 recover(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, uint32 amount);
+	int32 damage(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, card* reason_card, uint8 playerid, uint32 amount, uint32 is_step);
+	int32 recover(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, uint32 amount, uint32 is_step);
 	int32 summon(uint16 step, uint8 sumplayer, card* target, effect* proc, uint8 ignore_count, uint8 min_tribute);
 	int32 flip_summon(uint16 step, uint8 sumplayer, card* target);
 	int32 mset(uint16 step, uint8 setplayer, card* ptarget, effect* proc, uint8 ignore_count, uint8 min_tribute);

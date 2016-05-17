@@ -124,14 +124,15 @@ void field::equip(uint32 equip_player, card* equip_card, card* target, uint32 up
 void field::draw(effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 count) {
 	add_process(PROCESSOR_DRAW, 0, reason_effect, 0, reason, (reason_player << 28) + (playerid << 24) + (count & 0xffffff));
 }
-void field::damage(effect* reason_effect, uint32 reason, uint32 reason_player, card* pcard, uint32 playerid, uint32 amount) {
+void field::damage(effect* reason_effect, uint32 reason, uint32 reason_player, card* reason_card, uint32 playerid, uint32 amount, uint32 is_step) {
+	uint32 arg2 = (is_step << 28) + (reason_player << 26) + (playerid << 24) + (amount & 0xffffff);
 	if(reason & REASON_BATTLE)
-		add_process(PROCESSOR_DAMAGE, 0, (effect*)pcard, 0, reason, (reason_player << 28) + (playerid << 24) + (amount & 0xffffff));
+		add_process(PROCESSOR_DAMAGE, 0, (effect*)reason_card, 0, reason, arg2);
 	else
-		add_process(PROCESSOR_DAMAGE, 0, reason_effect, 0, reason, (reason_player << 28) + (playerid << 24) + (amount & 0xffffff));
+		add_process(PROCESSOR_DAMAGE, 0, reason_effect, 0, reason, arg2);
 }
-void field::recover(effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 amount) {
-	add_process(PROCESSOR_RECOVER, 0, reason_effect, 0, reason, (reason_player << 28) + (playerid << 24) + (amount & 0xffffff));
+void field::recover(effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 amount, uint32 is_step) {
+	add_process(PROCESSOR_DAMAGE, 0, reason_effect, 0, reason, (is_step << 28) + (reason_player << 26) + (playerid << 24) + (amount & 0xffffff));
 }
 void field::summon(uint32 sumplayer, card* target, effect* proc, uint32 ignore_count, uint32 min_tribute) {
 	add_process(PROCESSOR_SUMMON_RULE, 0, proc, (group*)target, sumplayer + (ignore_count << 8) + (min_tribute << 16), 0);
@@ -405,7 +406,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 	}
 	return TRUE;
 }
-int32 field::damage(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, card* reason_card, uint8 playerid, uint32 amount) {
+int32 field::damage(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, card* reason_card, uint8 playerid, uint32 amount, uint32 is_step) {
 	switch(step) {
 	case 0: {
 		effect_set eset;
@@ -420,8 +421,8 @@ int32 field::damage(uint16 step, effect* reason_effect, uint32 reason, uint8 rea
 				pduel->lua->add_param(reason_player, PARAM_TYPE_INT);
 				pduel->lua->add_param(reason_card, PARAM_TYPE_CARD);
 				if(eset[i]->check_value_condition(4)) {
-					recover(reason_effect, (reason & 0x18000) | 0x8040, reason_player, playerid, amount);
-					core.units.begin()->step = 1;
+					recover(reason_effect, (reason & REASON_RRECOVER) | REASON_RDAMAGE | REASON_EFFECT, reason_player, playerid, amount, is_step);
+					core.units.begin()->step = 2;
 					return FALSE;
 				}
 			}
@@ -449,42 +450,57 @@ int32 field::damage(uint16 step, effect* reason_effect, uint32 reason, uint8 rea
 			pduel->lua->add_param(reason_player, PARAM_TYPE_INT);
 			pduel->lua->add_param(reason_card, PARAM_TYPE_CARD);
 			if(eset[i]->check_value_condition(5)) {
-				playerid = 1 - playerid;
-				core.units.begin()->step = 1;
+				core.units.begin()->arg2 |= 1 << 29;
 				break;
 			}
 		}
+		core.units.begin()->arg2 = (core.units.begin()->arg2 & 0xff000000) | (val & 0xffffff);
+		if(is_step) {
+			core.units.begin()->step = 9;
+			return TRUE;
+		}
+		return FALSE;
+	}
+	case 1: {
+		uint32 is_reflect = (core.units.begin()->arg2 >> 29) & 1;
+		if(is_reflect)
+			playerid = 1 - playerid;
+		if(is_reflect || (reason & REASON_RRECOVER))
+			core.units.begin()->step = 2;
 		core.hint_timing[playerid] |= TIMING_DAMAGE;
-		player[playerid].lp -= val;
+		player[playerid].lp -= amount;
 		pduel->write_buffer8(MSG_DAMAGE);
 		pduel->write_buffer8(playerid);
-		pduel->write_buffer32(val);
-		core.units.begin()->arg2 = (core.units.begin()->arg2 & 0xff000000) + (val & 0xffffff);
-		raise_event(reason_card, EVENT_DAMAGE, reason_effect, reason, reason_player, playerid, val);
+		pduel->write_buffer32(amount);
+		raise_event(reason_card, EVENT_DAMAGE, reason_effect, reason, reason_player, playerid, amount);
 		if(reason == REASON_BATTLE && reason_card) {
 			if((player[playerid].lp <= 0) && (core.attack_target == 0) && reason_card->is_affected_by_effect(EFFECT_MATCH_KILL)) {
 				pduel->write_buffer8(MSG_MATCH_KILL);
 				pduel->write_buffer32(reason_card->data.code);
 			}
-			raise_single_event(reason_card, 0, EVENT_BATTLE_DAMAGE, 0, 0, reason_player, playerid, val);
-			raise_event(reason_card, EVENT_BATTLE_DAMAGE, 0, 0, reason_player, playerid, val);
+			raise_single_event(reason_card, 0, EVENT_BATTLE_DAMAGE, 0, 0, reason_player, playerid, amount);
+			raise_event(reason_card, EVENT_BATTLE_DAMAGE, 0, 0, reason_player, playerid, amount);
 			process_single_event();
 		}
 		process_instant_event();
 		return FALSE;
 	}
-	case 1: {
+	case 2: {
 		returns.ivalue[0] = amount;
 		return TRUE;
 	}
-	case 2: {
+	case 3: {
 		returns.ivalue[0] = 0;
+		return TRUE;
+	}
+	case 10: {
+		//dummy
 		return TRUE;
 	}
 	}
 	return TRUE;
 }
-int32 field::recover(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, uint32 amount) {
+int32 field::recover(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, uint32 amount, uint32 is_step) {
 	switch(step) {
 	case 0: {
 		effect_set eset;
@@ -498,12 +514,21 @@ int32 field::recover(uint16 step, effect* reason_effect, uint32 reason, uint8 re
 				pduel->lua->add_param(reason, PARAM_TYPE_INT);
 				pduel->lua->add_param(reason_player, PARAM_TYPE_INT);
 				if(eset[i]->check_value_condition(3)) {
-					damage(reason_effect, (reason & 0x18000) | 0x10040, reason_player, 0, playerid, amount);
-					core.units.begin()->step = 1;
+					damage(reason_effect, (reason & REASON_RDAMAGE) | REASON_RRECOVER | REASON_EFFECT, reason_player, 0, playerid, amount, is_step);
+					core.units.begin()->step = 2;
 					return FALSE;
 				}
 			}
 		}
+		if(is_step) {
+			core.units.begin()->step = 9;
+			return TRUE;
+		}
+		return FALSE;
+	}
+	case 1: {
+		if(reason & REASON_RDAMAGE)
+			core.units.begin()->step = 2;
 		core.hint_timing[playerid] |= TIMING_RECOVER;
 		player[playerid].lp += amount;
 		pduel->write_buffer8(MSG_RECOVER);
@@ -513,12 +538,16 @@ int32 field::recover(uint16 step, effect* reason_effect, uint32 reason, uint8 re
 		process_instant_event();
 		return FALSE;
 	}
-	case 1: {
+	case 2: {
 		returns.ivalue[0] = amount;
 		return TRUE;
 	}
-	case 2: {
+	case 3: {
 		returns.ivalue[0] = 0;
+		return TRUE;
+	}
+	case 10: {
+		//dummy
 		return TRUE;
 	}
 	}

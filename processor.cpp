@@ -413,22 +413,30 @@ int32 field::process() {
 	}
 	case PROCESSOR_DAMAGE: {
 		int32 reason = it->arg1;
-		effect* peffect = 0;
-		card* pcard = 0;
+		effect* reason_effect = 0;
+		card* reason_card = 0;
 		if(reason & REASON_BATTLE)
-			pcard = (card*)it->peffect;
+			reason_card = (card*)it->peffect;
 		else
-			peffect = it->peffect;
-		if (damage(it->step, peffect, reason, (it->arg2 >> 28) & 0xf, pcard, (it->arg2 >> 24) & 0xf, it->arg2 & 0xffffff))
-			core.units.pop_front();
-		else
+			reason_effect = it->peffect;
+		if (damage(it->step, reason_effect, reason, (it->arg2 >> 26) & 0x3, reason_card, (it->arg2 >> 24) & 0x3, it->arg2 & 0xffffff, (it->arg2 >> 28) & 0x1)) {
+			if(it->step == 9) {
+				it->step = 1;
+				core.recover_damage_reserve.splice(core.recover_damage_reserve.end(), core.units, it);
+			} else
+				core.units.pop_front();
+		} else
 			it->step++;
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_RECOVER: {
-		if (recover(it->step, it->peffect, it->arg1, (it->arg2 >> 28) & 0xf, (it->arg2 >> 24) & 0xf, it->arg2 & 0xffffff))
-			core.units.pop_front();
-		else
+		if (recover(it->step, it->peffect, it->arg1, (it->arg2 >> 26) & 0x3, (it->arg2 >> 24) & 0x3, it->arg2 & 0xffffff, (it->arg2 >> 28) & 0x1)) {
+			if(it->step == 9) {
+				it->step = 1;
+				core.recover_damage_reserve.splice(core.recover_damage_reserve.end(), core.units, it);
+			} else
+				core.units.pop_front();
+		} else
 			it->step++;
 		return pduel->bufferlen;
 	}

@@ -360,6 +360,7 @@ public:
 	static int32 duel_draw(lua_State *L);
 	static int32 duel_damage(lua_State *L);
 	static int32 duel_recover(lua_State *L);
+	static int32 duel_rd_complete(lua_State *L);
 	static int32 duel_equip(lua_State *L);
 	static int32 duel_equip_complete(lua_State *L);
 	static int32 duel_get_control(lua_State *L);
