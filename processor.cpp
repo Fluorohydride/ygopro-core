@@ -2807,7 +2807,10 @@ int32 field::process_battle_command(uint16 step) {
 					if(tmp > extrac)
 						extrac = tmp;
 				}
-				if(!pcard->is_affected_by_effect(EFFECT_ATTACK_ALL) && !chain_attack && pcard->announce_count >= extrac + 1)
+				if(!(pcard->announced_cards.size() && pcard->is_affected_by_effect(EFFECT_ATTACK_ALL) && pcard->announced_cards.find(0) == pcard->announced_cards.end() 
+					&& pcard->battled_cards.find(0) == pcard->battled_cards.end())
+						&& !chain_attack 
+						&& pcard->announce_count >= extrac + 1)
 					continue;
 				core.select_cards.clear();
 				get_attack_target(pcard, &core.select_cards, chain_attack);

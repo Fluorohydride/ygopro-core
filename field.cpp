@@ -1694,26 +1694,31 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 		atype = 4;
 		pv = &player[1 - p].list_mzone;
 	}
-	if(pcard->attack_all_target && (peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL))) {
-		if(pcard->battled_cards.size()) {
-			for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
-				atarget = *cit;
-				if(!atarget)
-					continue;
-				pduel->lua->add_param(atarget, PARAM_TYPE_CARD);
-				if(!peffect->check_value_condition(1))
-					continue;
-				auto it = pcard->battled_cards.find(atarget->fieldid_r);
-				if(it != pcard->battled_cards.end()) {
-					if(it->second.second >= (uint32)peffect->get_value(atarget))
-						continue;
-				}
-				if(atype == 4 && !atarget->is_capable_be_battle_target(pcard))
-					continue;
-				v->push_back(atarget);
+	// The system only check the general case (never attacked player), and the script should check specific condition.
+	if(pcard->announced_cards.size() && (peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL))
+			&& pcard->announced_cards.find(0) == pcard->announced_cards.end() && pcard->battled_cards.find(0) == pcard->battled_cards.end()) {
+		for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
+			atarget = *cit;
+			if(!atarget)
+				continue;
+			// valid target
+			pduel->lua->add_param(atarget, PARAM_TYPE_CARD);
+			if(!peffect->check_value_condition(1))
+				continue;
+			// enough effect count
+			auto it = pcard->announced_cards.find(atarget->fieldid_r);
+			if(it != pcard->announced_cards.end() && (int32)it->second.second >= peffect->get_value(atarget)) {
+				continue;
 			}
-			return atype;
+			it = pcard->battled_cards.find(atarget->fieldid_r);
+			if(it != pcard->battled_cards.end() && (int32)it->second.second >= peffect->get_value(atarget)) {
+				continue;
+			}
+			if(atype == 4 && !atarget->is_capable_be_battle_target(pcard))
+				continue;
+			v->push_back(atarget);
 		}
+		return atype;
 	} else if(chain_attack && core.chain_attack_target) {
 		if(std::find(pv->begin(), pv->end(), core.chain_attack_target) != pv->end()
 				&& (atype != 4 || core.chain_attack_target->is_capable_be_battle_target(pcard))){
