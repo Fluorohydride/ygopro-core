@@ -1215,6 +1215,8 @@ int32 scriptlib::duel_change_attack_target(lua_State *L) {
 			pduel->game_field->process_single_event();
 			pduel->game_field->process_instant_event();
 		}
+		else
+			pduel->game_field->core.attack_player = TRUE;
 		lua_pushboolean(L, 1);
 	} else
 		lua_pushboolean(L, 0);

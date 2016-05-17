@@ -1739,7 +1739,7 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 			continue;
 		v->push_back(atarget);
 	}
-	if((mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK))
+	if((mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK) || core.attack_player)
 			&& !pcard->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK))
 		pcard->operation_param = 1;
 	return atype;

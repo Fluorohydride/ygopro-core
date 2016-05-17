@@ -264,6 +264,7 @@ struct processor {
 	uint8 skip_m2;
 	uint8 chain_attack;
 	card* chain_attack_target;
+	uint8 attack_player;
 	uint8 selfdes_disabled;
 	uint8 overdraw[2];
 	int32 check_level;

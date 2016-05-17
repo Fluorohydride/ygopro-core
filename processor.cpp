@@ -2747,6 +2747,7 @@ int32 field::process_battle_command(uint16 step) {
 		nil_event.event_code = EVENT_FREE_CHAIN;
 		if(!core.chain_attack)
 			core.chain_attack_target = 0;
+		core.attack_player = FALSE;
 		core.attacker = 0;
 		core.attack_target = 0;
 		if((peffect = is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP))) {
@@ -2913,13 +2914,14 @@ int32 field::process_battle_command(uint16 step) {
 			core.units.begin()->step = -1;
 			return FALSE;
 		}
-		core.select_cards.clear();
 		core.units.begin()->arg1 = FALSE;
-		core.units.begin()->arg2 = get_attack_target(core.attacker, &core.select_cards, core.chain_attack);
 		return FALSE;
 	}
 	case 4: {
 		// confirm attack_target(replay start point)
+		core.attack_player = FALSE;
+		core.select_cards.clear();
+		auto atype = get_attack_target(core.attacker, &core.select_cards, core.chain_attack);
 		// direct attack
 		if(core.attacker->operation_param) {
 			if(core.select_cards.size() == 0) {
@@ -2949,7 +2951,7 @@ int32 field::process_battle_command(uint16 step) {
 			return FALSE;
 		}
 		// must attack monster
-		if(core.units.begin()->arg2 == 3 || is_player_affected_by_effect(infos.turn_player, EFFECT_PATRICIAN_OF_DARKNESS)) {
+		if(atype == 3 || is_player_affected_by_effect(infos.turn_player, EFFECT_PATRICIAN_OF_DARKNESS)) {
 			if(core.select_cards.size() == 1)
 				returns.bvalue[1] = 0;
 			else {
@@ -3132,7 +3134,6 @@ int32 field::process_battle_command(uint16 step) {
 			return FALSE;
 		}
 		// replay
-		core.units.begin()->arg2 = atype;
 		if(!core.attacker->is_affected_by_effect(EFFECT_MUST_ATTACK))
 			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, infos.turn_player, 30);
 		else {
