@@ -1423,7 +1423,7 @@ void field::adjust_self_destroy_set() {
 	for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
 		card* pcard = *cit;
 		if((!pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && (peffect = check_unique_onfield(pcard, pcard->current.controler, pcard->current.location)))
-		        || (peffect = pcard->is_affected_by_effect(EFFECT_SELF_DESTROY))) {
+		        || (peffect = pcard->is_affected_by_effect(EFFECT_SELF_DESTROY)) && !pcard->is_status(STATUS_BATTLE_DESTROYED)) {
 			core.self_destroy_set.insert(pcard);
 			pcard->temp.reason_effect = pcard->current.reason_effect;
 			pcard->temp.reason_player = pcard->current.reason_player;

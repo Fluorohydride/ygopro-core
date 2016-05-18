@@ -182,6 +182,7 @@ void field::special_summon_complete(effect* reason_effect, uint8 reason_player) 
 	//core.special_summoning.clear();
 	add_process(PROCESSOR_SPSUMMON_COMP_S, 0, reason_effect, ng, reason_player, 0);
 }
+// destroy: 1st arg is card or card_set=>card version, otherwise=>step version
 // destroy in script: here->PROCESSOR_DESTROY, step 0
 // set current.reason
 void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence) {
@@ -2667,6 +2668,7 @@ int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_pl
 	}
 	return TRUE;
 }
+// destroy: step version
 // PROCESSOR_DESTROY_STEP goes here
 int32 field::destroy(uint16 step, group * targets, card * target, uint8 battle) {
 	if(target->current.location & (LOCATION_GRAVE | LOCATION_REMOVED)) {

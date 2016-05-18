@@ -3458,7 +3458,6 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 29: {
-		core.selfdes_disabled = FALSE;
 		if(core.battle_destroy_rep.size())
 			destroy(&core.battle_destroy_rep, 0, REASON_EFFECT | REASON_REPLACE, PLAYER_NONE);
 		if(core.desrep_chain.size())
@@ -3474,6 +3473,7 @@ int32 field::process_battle_command(uint16 step) {
 				(*cit)->filter_disable_related_cards();
 			}
 		}
+		core.selfdes_disabled = FALSE;
 		adjust_all();
 		//EVENT_BATTLE_END was here, but this timing does not exist in Master Rule 3
 		return FALSE;
