@@ -2028,6 +2028,13 @@ int32 scriptlib::card_check_fusion_material(lua_State *L) {
 	lua_pushboolean(L, pcard->fusion_check(pgroup, cg, chkf));
 	return 1;
 }
+int32 scriptlib::card_check_fusion_substitute(lua_State *L) {
+	check_param_count(L, 2);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	card* fcard = *(card**) lua_touserdata(L, 2);
+	lua_pushboolean(L, pcard->check_fusion_substitute(fcard));
+	return 1;
+}
 int32 scriptlib::card_is_immune_to_effect(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);

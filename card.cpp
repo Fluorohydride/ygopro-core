@@ -1982,6 +1982,16 @@ void card::fusion_select(uint8 playerid, group* fusion_m, card* cg, int32 chkf) 
 		peffect = ecit->second;
 	pduel->game_field->add_process(PROCESSOR_SELECT_FUSION, 0, peffect, fusion_m, playerid + (chkf << 16), (ptr)cg);
 }
+int32 card::check_fusion_substitute(card* fcard) {
+	effect_set eset;
+	filter_effect(EFFECT_FUSION_SUBSTITUTE, &eset);
+	if(eset.size() == 0)
+		return FALSE;
+	for(int32 i = 0; i < eset.size(); ++i)
+		if(!eset[i]->value || eset[i]->get_value(fcard))
+			return TRUE;
+	return FALSE;
+}
 int32 card::is_equipable(card* pcard) {
 	effect_set eset;
 	if(this == pcard || pcard->current.location != LOCATION_MZONE)

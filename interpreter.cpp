@@ -204,6 +204,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsCanBeRitualMaterial", scriptlib::card_is_can_be_ritual_material },
 	{ "IsCanBeXyzMaterial", scriptlib::card_is_can_be_xyz_material },
 	{ "CheckFusionMaterial", scriptlib::card_check_fusion_material },
+	{ "CheckFusionSubstitute", scriptlib::card_check_fusion_substitute },
 	{ "IsImmuneToEffect", scriptlib::card_is_immune_to_effect },
 	{ "IsCanBeEffectTarget", scriptlib::card_is_can_be_effect_target },
 	{ "IsCanBeBattleTarget", scriptlib::card_is_can_be_battle_target },
