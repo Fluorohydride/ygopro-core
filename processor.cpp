@@ -5143,19 +5143,18 @@ int32 field::adjust_step(uint16 step) {
 	case 10: {
 		//equip check
 		uint8 tp = infos.turn_player;
-		card* pcard;
-		core.destroy_set.clear();
+		card_set destroy_set;
 		for(uint8 p = 0; p < 2; ++p) {
 			for(uint8 i = 0; i < 5; ++i) {
-				pcard = player[tp].list_szone[i];
+				card* pcard = player[tp].list_szone[i];
 				if(pcard && pcard->equiping_target && !pcard->is_affected_by_effect(EFFECT_EQUIP_LIMIT, pcard->equiping_target))
-					core.destroy_set.insert(pcard);
+					destroy_set.insert(pcard);
 			}
 			tp = 1 - tp;
 		}
-		if(core.destroy_set.size()) {
+		if(destroy_set.size()) {
 			core.re_adjust = TRUE;
-			destroy(&core.destroy_set, 0, REASON_RULE, PLAYER_NONE);
+			destroy(&destroy_set, 0, REASON_RULE, PLAYER_NONE);
 		}
 		return FALSE;
 	}

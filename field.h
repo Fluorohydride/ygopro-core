@@ -199,7 +199,6 @@ struct processor {
 	card_set release_cards;
 	card_set release_cards_ex;
 	card_set release_cards_ex_sum;
-	card_set destroy_set;
 	card_set battle_destroy_rep;
 	card_set fusion_materials;
 	card_set synchro_materials;

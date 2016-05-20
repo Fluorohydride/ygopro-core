@@ -819,8 +819,8 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player, group* targets, uint8 playerid, uint16 reset_phase, uint8 reset_count) {
 	switch(step) {
 	case 0: {
-		core.destroy_set.clear();
-		core.operated_set.clear();
+		card_set* destroy_set = new card_set;
+		core.units.begin()->arg1 = (ptr)destroy_set;
 		for(auto cit = targets->container.begin(); cit != targets->container.end();) {
 			auto rm = cit++;
 			card* pcard = *rm;
@@ -845,7 +845,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 		}
 		int32 fcount = get_useable_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_CONTROL);
 		if(fcount <= 0) {
-			core.destroy_set.swap(targets->container);
+			destroy_set->swap(targets->container);
 			core.units.begin()->step = 5;
 			return FALSE;
 		}
@@ -864,9 +864,10 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 		return FALSE;
 	}
 	case 1: {
+		card_set* destroy_set = (card_set*)core.units.begin()->arg1;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
-			core.destroy_set.insert(pcard);
+			destroy_set->insert(pcard);
 			targets->container.erase(pcard);
 		}
 		return FALSE;
@@ -917,8 +918,10 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 		return FALSE;
 	}
 	case 6: {
-		if(core.destroy_set.size())
-			destroy(&core.destroy_set, 0, REASON_RULE, PLAYER_NONE);
+		card_set* destroy_set = (card_set*)core.units.begin()->arg1;
+		if(destroy_set->size())
+			destroy(destroy_set, 0, REASON_RULE, PLAYER_NONE);
+		delete destroy_set;
 		return FALSE;
 	}
 	case 7: {
@@ -998,8 +1001,8 @@ int32 field::swap_control(uint16 step, effect * reason_effect, uint8 reason_play
 int32 field::control_adjust(uint16 step) {
 	switch(step) {
 	case 0: {
-		core.destroy_set.clear();
-		core.operated_set.clear();
+		card_set* destroy_set = new card_set;
+		core.units.begin()->peffect = (effect*)destroy_set;
 		uint32 b0 = get_useable_count(0, LOCATION_MZONE, PLAYER_NONE, 0);
 		uint32 b1 = get_useable_count(1, LOCATION_MZONE, PLAYER_NONE, 0);
 		for(auto cit = core.control_adjust_set[0].begin(); cit != core.control_adjust_set[0].end(); ++cit)
@@ -1009,8 +1012,7 @@ int32 field::control_adjust(uint16 step) {
 		if(core.control_adjust_set[0].size() > core.control_adjust_set[1].size()) {
 			if(core.control_adjust_set[0].size() - core.control_adjust_set[1].size() > b1) {
 				if(core.control_adjust_set[1].size() == 0 && b1 == 0) {
-					core.destroy_set = core.control_adjust_set[0];
-					core.control_adjust_set[0].clear();
+					destroy_set->swap(core.control_adjust_set[0]);
 					core.units.begin()->step = 4;
 				} else {
 					core.units.begin()->arg1 = 0;
@@ -1029,8 +1031,7 @@ int32 field::control_adjust(uint16 step) {
 		} else if (core.control_adjust_set[0].size() < core.control_adjust_set[1].size()) {
 			if(core.control_adjust_set[1].size() - core.control_adjust_set[0].size() > b0) {
 				if(core.control_adjust_set[0].size() == 0 && b0 == 0) {
-					core.destroy_set = core.control_adjust_set[1];
-					core.control_adjust_set[1].clear();
+					destroy_set->swap(core.control_adjust_set[1]);
 					core.units.begin()->step = 4;
 				} else {
 					core.units.begin()->arg1 = 1;
@@ -1051,10 +1052,11 @@ int32 field::control_adjust(uint16 step) {
 		return FALSE;
 	}
 	case 1: {
+		card_set* destroy_set = (card_set*)core.units.begin()->peffect;
 		int32 adjp = core.units.begin()->arg1;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
-			core.destroy_set.insert(pcard);
+			destroy_set->insert(pcard);
 			core.control_adjust_set[adjp].erase(pcard);
 		}
 		return FALSE;
@@ -1128,8 +1130,10 @@ int32 field::control_adjust(uint16 step) {
 		return FALSE;
 	}
 	case 5: {
-		if(core.destroy_set.size())
-			destroy(&core.destroy_set, 0, REASON_RULE, PLAYER_NONE);
+		card_set* destroy_set = (card_set*)core.units.begin()->peffect;
+		if(destroy_set->size())
+			destroy(destroy_set, 0, REASON_RULE, PLAYER_NONE);
+		delete destroy_set;
 		return TRUE;
 	}
 	}
