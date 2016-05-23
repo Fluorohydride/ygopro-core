@@ -2745,8 +2745,10 @@ int32 field::process_battle_command(uint16 step) {
 		core.select_chains.clear();
 		chain newchain;
 		nil_event.event_code = EVENT_FREE_CHAIN;
-		if(!core.chain_attack)
+		if(!core.chain_attack) {
+			core.chain_attacker_id = 0;
 			core.chain_attack_target = 0;
+		}
 		core.attack_player = FALSE;
 		core.attacker = 0;
 		core.attack_target = 0;
@@ -2795,23 +2797,8 @@ int32 field::process_battle_command(uint16 step) {
 				if(!pcard->is_capable_attack_announce(infos.turn_player))
 					continue;
 				uint8 chain_attack = FALSE;
-				if(core.chain_attack && core.pre_field[0] == pcard->fieldid_r)
+				if(core.chain_attack && core.chain_attacker_id == pcard->fieldid)
 					chain_attack = TRUE;
-				// attack counts
-				int32 extrac = 0;
-				int32 tmp = 0;
-				effect_set exts;
-				pcard->filter_effect(EFFECT_EXTRA_ATTACK, &exts);
-				for(int32 i = 0; i < exts.size(); ++i){
-					tmp = exts[i]->get_value(pcard);
-					if(tmp > extrac)
-						extrac = tmp;
-				}
-				if(!(pcard->announced_cards.size() && pcard->is_affected_by_effect(EFFECT_ATTACK_ALL) && pcard->announced_cards.find(0) == pcard->announced_cards.end() 
-					&& pcard->battled_cards.find(0) == pcard->battled_cards.end())
-						&& !chain_attack 
-						&& pcard->announce_count >= extrac + 1)
-					continue;
 				core.select_cards.clear();
 				get_attack_target(pcard, &core.select_cards, chain_attack);
 				if(core.select_cards.size() == 0 && pcard->operation_param == 0)
@@ -2866,13 +2853,16 @@ int32 field::process_battle_command(uint16 step) {
 		} else if(ctype == 1) {
 			core.units.begin()->step = 2;
 			card* attacker = core.attackable_cards[sel];
-			if(core.chain_attack && core.pre_field[0] != attacker->fieldid_r) {
+			if(core.chain_attack && core.chain_attacker_id != attacker->fieldid) {
 				core.chain_attack = FALSE;
+				core.chain_attacker_id = 0;
 			}
 			core.attacker = attacker;
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, FALSE);
 			core.pre_field[0] = core.attacker->fieldid_r;
 			core.phase_action = TRUE;
+			core.attack_state_count[infos.turn_player]++;
+			core.attacker->announce_count++;
 			effect_set eset;
 			filter_player_effect(infos.turn_player, EFFECT_ATTACK_COST, &eset, FALSE);
 			core.attacker->filter_effect(EFFECT_ATTACK_COST, &eset);
@@ -2944,11 +2934,6 @@ int32 field::process_battle_command(uint16 step) {
 		}
 		// no target
 		if(core.select_cards.size() == 0) {
-			if(!core.units.begin()->arg1) {
-				core.attack_state_count[infos.turn_player]++;
-				core.attacker->announce_count++;
-				core.attacker->announced_cards.addcard(0);
-			}
 			core.chain_attack = FALSE;
 			core.units.begin()->step = -1;
 			return FALSE;
@@ -2997,11 +2982,8 @@ int32 field::process_battle_command(uint16 step) {
 			core.pre_field[1] = core.attack_target->fieldid_r;
 		else
 			core.pre_field[1] = 0;
-		if(!core.units.begin()->arg1) {
-			core.attack_state_count[infos.turn_player]++;
-			core.attacker->announce_count++;
+		if(!core.units.begin()->arg1)
 			core.attacker->announced_cards.addcard(core.attack_target);
-		}
 		return FALSE;
 	}
 	case 7: {
@@ -3104,7 +3086,7 @@ int32 field::process_battle_command(uint16 step) {
 			core.chain_attack = FALSE;
 			if(core.attacker->fieldid_r == afid) {
 				attack_all_target_check();
-				if(!core.attacker->is_status(STATUS_ATTACK_CANCELED)) {
+				if(!atk_disabled) {
 					core.attacker->attacked_cards.addcard(core.attack_target);
 				}
 			}
@@ -3278,6 +3260,7 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 26: {
+		// Duel.CalculateDamage() goes here
 		uint32 aa = core.attacker->get_attack(), ad = core.attacker->get_defence();
 		uint32 da = 0, dd = 0;
 		uint8 pa = core.attacker->current.controler, pd;

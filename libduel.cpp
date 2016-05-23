@@ -1200,7 +1200,8 @@ int32 scriptlib::duel_change_attack_target(lua_State *L) {
 	field::card_vector cv;
 	pduel->game_field->get_attack_target(attacker, &cv, pduel->game_field->core.chain_attack);
 	auto turnp=pduel->game_field->infos.turn_player;
-	if(!target || std::find(cv.begin(), cv.end(), target) != cv.end()) {
+	if(target && std::find(cv.begin(), cv.end(), target) != cv.end()
+			|| !target && !attacker->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK)) {
 		pduel->game_field->core.attack_target = target;
 		pduel->game_field->core.attack_rollback = FALSE;
 		for(uint32 i = 0; i < 5; ++i) {
@@ -1590,6 +1591,7 @@ int32 scriptlib::duel_disable_attack(lua_State *L) {
 int32 scriptlib::duel_chain_attack(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->game_field->core.chain_attack = TRUE;
+	pduel->game_field->core.chain_attacker_id = pduel->game_field->core.attacker->fieldid;
 	if(lua_gettop(L) > 0) {
 		check_param(L, PARAM_TYPE_CARD, 1);
 		pduel->game_field->core.chain_attack_target = *(card**) lua_touserdata(L, 1);
