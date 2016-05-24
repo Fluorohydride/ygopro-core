@@ -221,11 +221,6 @@ uint32 card::get_info_location() {
 uint32 card::get_code() {
 	if(assume_type == ASSUME_CODE)
 		return assume_value;
-	if(!(current.location & 0x1c)) {
-		if(data.alias)
-			return data.alias;
-		return data.code;
-	}
 	if (temp.code != 0xffffffff)
 		return temp.code;
 	effect_set effects;
