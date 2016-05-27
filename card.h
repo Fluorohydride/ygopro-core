@@ -166,7 +166,7 @@ public:
 	int32 get_attack();
 	int32 get_base_defence(uint8 swap = FALSE);
 	int32 get_defence();
-	void calc_attack_defence(int32 *patk, int32 *pdef);
+	void calc_attack_defence(int32 *pbatk, int32 *pbdef, int32 *patk, int32 *pdef);
 	uint32 get_level();
 	uint32 get_rank();
 	uint32 get_synchro_level(card* pcard);
