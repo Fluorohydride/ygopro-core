@@ -2438,6 +2438,7 @@ int32 field::process_idle_command(uint16 step) {
 	case 0: {
 		card* pcard;
 		effect* peffect;
+		bool must_attack = false;
 		core.select_chains.clear();
 		chain newchain;
 		nil_event.event_code = EVENT_FREE_CHAIN;
@@ -2445,8 +2446,17 @@ int32 field::process_idle_command(uint16 step) {
 		core.to_ep = TRUE;
 		if((!(core.duel_options & DUEL_ATTACK_FIRST_TURN) && infos.turn_id == 1) || infos.phase == PHASE_MAIN2 || is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_BP))
 			core.to_bp = FALSE;
-		if(core.to_bp && infos.phase == PHASE_MAIN1 && is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_EP))
-			core.to_ep = FALSE;
+		if(infos.phase == PHASE_MAIN1) {
+			for(uint32 i = 0; i < 5; ++i) {
+				pcard = player[infos.turn_player].list_mzone[i];
+				if(pcard && pcard->is_capable_attack() && pcard->is_affected_by_effect(EFFECT_MUST_ATTACK)) {
+					must_attack = true;
+					break;
+				}
+			}
+			if(core.to_bp && (must_attack || is_player_affected_by_effect(infos.turn_player, EFFECT_CANNOT_EP)))
+				core.to_ep = FALSE;
+		}
 		if((infos.phase == PHASE_MAIN1 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M1))
 		        || (infos.phase == PHASE_MAIN2 && is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_M2))) {
 			if(core.to_bp && core.to_ep) {
