@@ -571,7 +571,7 @@ int32 card::get_attack() {
 			temp.attack = 0;
 	}
 	if(swap_final_b) {
-		batk = bdef;
+		std::swap(batk, bdef);
 		temp.base_attack = batk;
 		if(!rev) {
 			temp.attack = ((atk < 0) ? batk : atk) + up_atk + upc_atk;
@@ -783,7 +783,7 @@ int32 card::get_defence() {
 			temp.defence = 0;
 	}
 	if(swap_final_b) {
-		bdef = batk;
+		std::swap(batk, bdef);
 		temp.base_defence = bdef;
 		if(!rev) {
 			current_atk = ((atk < 0) ? batk : atk) + up_atk + upc_atk;
