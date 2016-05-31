@@ -46,9 +46,9 @@ public:
 	static int32 card_get_attack(lua_State *L);
 	static int32 card_get_origin_attack(lua_State *L);
 	static int32 card_get_text_attack(lua_State *L);
-	static int32 card_get_defence(lua_State *L);
-	static int32 card_get_origin_defence(lua_State *L);
-	static int32 card_get_text_defence(lua_State *L);
+	static int32 card_get_defense(lua_State *L);
+	static int32 card_get_origin_defense(lua_State *L);
+	static int32 card_get_text_defense(lua_State *L);
 	static int32 card_get_previous_code_onfield(lua_State *L);
 	static int32 card_get_previous_type_onfield(lua_State *L);
 	static int32 card_get_previous_level_onfield(lua_State *L);
@@ -56,7 +56,7 @@ public:
 	static int32 card_get_previous_attribute_onfield(lua_State *L);
 	static int32 card_get_previous_race_onfield(lua_State *L);
 	static int32 card_get_previous_attack_onfield(lua_State *L);
-	static int32 card_get_previous_defence_onfield(lua_State *L);
+	static int32 card_get_previous_defense_onfield(lua_State *L);
 	static int32 card_get_owner(lua_State *L);
 	static int32 card_get_controler(lua_State *L);
 	static int32 card_get_previous_controler(lua_State *L);
@@ -174,7 +174,7 @@ public:
 	static int32 card_is_faceup(lua_State *L);
 	static int32 card_is_attack_pos(lua_State *L);
 	static int32 card_is_facedown(lua_State *L);
-	static int32 card_is_defence_pos(lua_State *L);
+	static int32 card_is_defense_pos(lua_State *L);
 	static int32 card_is_position(lua_State *L);
 	static int32 card_is_pre_position(lua_State *L);
 	static int32 card_is_controler(lua_State *L);
@@ -187,8 +187,8 @@ public:
 	static int32 card_is_rank_above(lua_State *L);
 	static int32 card_is_attack_below(lua_State *L);
 	static int32 card_is_attack_above(lua_State *L);
-	static int32 card_is_defence_below(lua_State *L);
-	static int32 card_is_defence_above(lua_State *L);
+	static int32 card_is_defense_below(lua_State *L);
+	static int32 card_is_defense_above(lua_State *L);
 	static int32 card_is_public(lua_State *L);
 	static int32 card_is_forbidden(lua_State *L);
 	static int32 card_is_able_to_change_controler(lua_State *L);

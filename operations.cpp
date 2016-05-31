@@ -3233,7 +3233,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 						pcard->previous.attribute = pcard->get_attribute();
 						pcard->previous.race = pcard->get_race();
 						pcard->previous.attack = pcard->get_attack();
-						pcard->previous.defence = pcard->get_defence();
+						pcard->previous.defense = pcard->get_defense();
 					}
 				} else {
 					effect_set eset;
@@ -3252,7 +3252,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 					pcard->previous.attribute = pcard->data.attribute;
 					pcard->previous.race = pcard->data.race;
 					pcard->previous.attack = pcard->data.attack;
-					pcard->previous.defence = pcard->data.defence;
+					pcard->previous.defense = pcard->data.defense;
 				}
 				effect_set eset;
 				pcard->filter_effect(EFFECT_ADD_SETCODE, &eset);

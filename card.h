@@ -30,7 +30,7 @@ struct card_data {
 	uint32 attribute;
 	uint32 race;
 	int32 attack;
-	int32 defence;
+	int32 defense;
 	uint32 lscale;
 	uint32 rscale;
 };
@@ -47,9 +47,9 @@ struct card_state {
 	uint32 attribute;
 	uint32 race;
 	int32 attack;
-	int32 defence;
+	int32 defense;
 	int32 base_attack;
-	int32 base_defence;
+	int32 base_defense;
 	uint8 controler;
 	uint8 location;
 	uint8 sequence;
@@ -69,9 +69,9 @@ struct query_cache {
 	uint32 attribute;
 	uint32 race;
 	int32 attack;
-	int32 defence;
+	int32 defense;
 	int32 base_attack;
-	int32 base_defence;
+	int32 base_defense;
 	uint32 reason;
 	int32 is_public;
 	int32 is_disabled;
@@ -164,8 +164,8 @@ public:
 	uint32 get_type();
 	int32 get_base_attack();
 	int32 get_attack();
-	int32 get_base_defence();
-	int32 get_defence();
+	int32 get_base_defense();
+	int32 get_defense();
 	uint32 get_level();
 	uint32 get_rank();
 	uint32 get_synchro_level(card* pcard);

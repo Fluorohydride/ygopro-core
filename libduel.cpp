@@ -2996,7 +2996,7 @@ int32 scriptlib::duel_is_player_can_spsummon_monster(lua_State * L) {
 	if(!lua_isnil(L, 5))
 		dat.attack = lua_tointeger(L, 5);
 	if(!lua_isnil(L, 6))
-		dat.defence = lua_tointeger(L, 6);
+		dat.defense = lua_tointeger(L, 6);
 	if(!lua_isnil(L, 7))
 		dat.level = lua_tointeger(L, 7);
 	if(!lua_isnil(L, 8))

@@ -292,28 +292,28 @@ int32 scriptlib::card_get_text_attack(lua_State *L) {
 		lua_pushinteger(L, pcard->data.attack);
 	return 1;
 }
-int32 scriptlib::card_get_defence(lua_State *L) {
+int32 scriptlib::card_get_defense(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushinteger(L, pcard->get_defence());
+	lua_pushinteger(L, pcard->get_defense());
 	return 1;
 }
-int32 scriptlib::card_get_origin_defence(lua_State *L) {
+int32 scriptlib::card_get_origin_defense(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushinteger(L, pcard->get_base_defence());
+	lua_pushinteger(L, pcard->get_base_defense());
 	return 1;
 }
-int32 scriptlib::card_get_text_defence(lua_State *L) {
+int32 scriptlib::card_get_text_defense(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	if(pcard->status & STATUS_NO_LEVEL)
 		lua_pushinteger(L, 0);
 	else
-		lua_pushinteger(L, pcard->data.defence);
+		lua_pushinteger(L, pcard->data.defense);
 	return 1;
 }
 int32 scriptlib:: card_get_previous_code_onfield(lua_State *L) {
@@ -369,11 +369,11 @@ int32 scriptlib::card_get_previous_attack_onfield(lua_State *L) {
 	lua_pushinteger(L, pcard->previous.attack);
 	return 1;
 }
-int32 scriptlib::card_get_previous_defence_onfield(lua_State *L) {
+int32 scriptlib::card_get_previous_defense_onfield(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushinteger(L, pcard->previous.defence);
+	lua_pushinteger(L, pcard->previous.defense);
 	return 1;
 }
 int32 scriptlib::card_get_owner(lua_State *L) {
@@ -1633,7 +1633,7 @@ int32 scriptlib::card_is_facedown(lua_State *L) {
 	lua_pushboolean(L, pcard->is_position(POS_FACEDOWN));
 	return 1;
 }
-int32 scriptlib::card_is_defence_pos(lua_State *L) {
+int32 scriptlib::card_is_defense_pos(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
@@ -1773,7 +1773,7 @@ int32 scriptlib::card_is_attack_above(lua_State *L) {
 	}
 	return 1;
 }
-int32 scriptlib::card_is_defence_below(lua_State *L) {
+int32 scriptlib::card_is_defense_below(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
@@ -1781,12 +1781,12 @@ int32 scriptlib::card_is_defence_below(lua_State *L) {
 	if(!(pcard->data.type & TYPE_MONSTER) && !(pcard->get_type() & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE))
 		lua_pushboolean(L, 0);
 	else {
-		int _def = pcard->get_defence();
+		int _def = pcard->get_defense();
 		lua_pushboolean(L, _def >= 0 && _def <= def);
 	}
 	return 1;
 }
-int32 scriptlib::card_is_defence_above(lua_State *L) {
+int32 scriptlib::card_is_defense_above(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
@@ -1794,7 +1794,7 @@ int32 scriptlib::card_is_defence_above(lua_State *L) {
 	if(!(pcard->data.type & TYPE_MONSTER) && !(pcard->get_type() & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE))
 		lua_pushboolean(L, 0);
 	else {
-		int _def = pcard->get_defence();
+		int _def = pcard->get_defense();
 		lua_pushboolean(L, _def >= def);
 	}
 	return 1;

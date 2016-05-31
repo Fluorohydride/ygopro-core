@@ -3271,18 +3271,18 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 26: {
 		// Duel.CalculateDamage() goes here
-		uint32 aa = core.attacker->get_attack(), ad = core.attacker->get_defence();
+		uint32 aa = core.attacker->get_attack(), ad = core.attacker->get_defense();
 		uint32 da = 0, dd = 0;
 		uint8 pa = core.attacker->current.controler, pd;
 		core.attacker->q_cache.attack = aa;
-		core.attacker->q_cache.defence = ad;
+		core.attacker->q_cache.defense = ad;
 		core.attacker->set_status(STATUS_BATTLE_RESULT, FALSE);
 		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 		if(core.attack_target) {
 			da = core.attack_target->get_attack();
-			dd = core.attack_target->get_defence();
+			dd = core.attack_target->get_defense();
 			core.attack_target->q_cache.attack = da;
-			core.attack_target->q_cache.defence = dd;
+			core.attack_target->q_cache.defense = dd;
 			core.attack_target->set_status(STATUS_BATTLE_RESULT, FALSE);
 			core.attack_target->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 			pd = core.attack_target->current.controler;
@@ -3680,7 +3680,7 @@ int32 field::process_damage_step(uint16 step) {
 }
 void field::calculate_battle_damage(effect** pdamchange, card** preason_card, uint8* battle_destroyed)
 {
-	uint32 aa = core.attacker->get_attack(), ad = core.attacker->get_defence();
+	uint32 aa = core.attacker->get_attack(), ad = core.attacker->get_defense();
 	uint32 da = 0, dd = 0, a = aa, d;
 	uint8 pa = core.attacker->current.controler, pd;
 	uint8 damp = 0;
@@ -3695,7 +3695,7 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 	}
 	if(core.attack_target) {
 		da = core.attack_target->get_attack();
-		dd = core.attack_target->get_defence();
+		dd = core.attack_target->get_defense();
 		pd = core.attack_target->current.controler;
 		if(core.attack_target->is_position(POS_ATTACK)) {
 			d = da;

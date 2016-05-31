@@ -100,9 +100,9 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 		if(query_flag & QUERY_ATTRIBUTE) q_cache.attribute = *p++ = get_attribute();
 		if(query_flag & QUERY_RACE) q_cache.race = *p++ = get_race();
 		if(query_flag & QUERY_ATTACK) q_cache.attack = *p++ = get_attack();
-		if(query_flag & QUERY_DEFENCE) q_cache.defence = *p++ = get_defence();
+		if(query_flag & QUERY_DEFENCE) q_cache.defense = *p++ = get_defense();
 		if(query_flag & QUERY_BASE_ATTACK) q_cache.base_attack = *p++ = get_base_attack();
-		if(query_flag & QUERY_BASE_DEFENCE) q_cache.base_defence = *p++ = get_base_defence();
+		if(query_flag & QUERY_BASE_DEFENCE) q_cache.base_defense = *p++ = get_base_defense();
 		if(query_flag & QUERY_REASON) q_cache.reason = *p++ = current.reason;
 	} else {
 		if((query_flag & QUERY_ALIAS) && ((uint32)(tdata = get_code()) != q_cache.alias)) {
@@ -133,16 +133,16 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 			q_cache.attack = tdata;
 			*p++ = tdata;
 		} else query_flag &= ~QUERY_ATTACK;
-		if((query_flag & QUERY_DEFENCE) && ((tdata = get_defence()) != q_cache.defence)) {
-			q_cache.defence = tdata;
+		if((query_flag & QUERY_DEFENCE) && ((tdata = get_defense()) != q_cache.defense)) {
+			q_cache.defense = tdata;
 			*p++ = tdata;
 		} else query_flag &= ~QUERY_DEFENCE;
 		if((query_flag & QUERY_BASE_ATTACK) && ((tdata = get_base_attack()) != q_cache.base_attack)) {
 			q_cache.base_attack = tdata;
 			*p++ = tdata;
 		} else query_flag &= ~QUERY_BASE_ATTACK;
-		if((query_flag & QUERY_BASE_DEFENCE) && ((tdata = get_base_defence()) != q_cache.base_defence)) {
-			q_cache.base_defence = tdata;
+		if((query_flag & QUERY_BASE_DEFENCE) && ((tdata = get_base_defense()) != q_cache.base_defense)) {
+			q_cache.base_defense = tdata;
 			*p++ = tdata;
 		} else query_flag &= ~QUERY_BASE_DEFENCE;
 		if((query_flag & QUERY_REASON) && ((uint32)(tdata = current.reason) != q_cache.reason)) {
@@ -400,7 +400,7 @@ int32 card::get_base_attack() {
 	int32 batk = data.attack;
 	if(batk < 0)
 		batk = 0;
-	int32 bdef = data.defence;
+	int32 bdef = data.defense;
 	if(bdef < 0)
 		bdef = 0;
 	temp.base_attack = batk;
@@ -450,7 +450,7 @@ int32 card::get_attack() {
 	int32 batk = data.attack;
 	if(batk < 0)
 		batk = 0;
-	int32 bdef = data.defence;
+	int32 bdef = data.defense;
 	if(bdef < 0)
 		bdef = 0;
 	temp.base_attack = batk;
@@ -602,20 +602,20 @@ int32 card::get_attack() {
 	temp.attack = -1;
 	return atk;
 }
-int32 card::get_base_defence() {
+int32 card::get_base_defense() {
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	if (current.location != LOCATION_MZONE || is_status(STATUS_SUMMONING))
-		return data.defence;
-	if (temp.base_defence != -1)
-		return temp.base_defence;
+		return data.defense;
+	if (temp.base_defense != -1)
+		return temp.base_defense;
 	int32 batk = data.attack;
 	if(batk < 0)
 		batk = 0;
-	int32 bdef = data.defence;
+	int32 bdef = data.defense;
 	if(bdef < 0)
 		bdef = 0;
-	temp.base_defence = bdef;
+	temp.base_defense = bdef;
 	effect_set eset;
 	filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
 	int32 swap = eset.size();
@@ -643,30 +643,30 @@ int32 card::get_base_defence() {
 				swap_final_b = !swap_final_b;
 			break;
 		}
-		temp.base_defence = bdef;
+		temp.base_defense = bdef;
 	}
 	if(swap_final_b)
 		bdef = batk;
-	temp.base_defence = -1;
+	temp.base_defense = -1;
 	return bdef;
 }
-int32 card::get_defence() {
+int32 card::get_defense() {
 	if(assume_type == ASSUME_DEFENCE)
 		return assume_value;
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	if (current.location != LOCATION_MZONE || is_status(STATUS_SUMMONING))
-		return data.defence;
-	if (temp.defence != -1)
-		return temp.defence;
+		return data.defense;
+	if (temp.defense != -1)
+		return temp.defense;
 	int32 batk = data.attack;
 	if(batk < 0)
 		batk = 0;
-	int32 bdef = data.defence;
+	int32 bdef = data.defense;
 	if(bdef < 0)
 		bdef = 0;
-	temp.base_defence = bdef;
-	temp.defence = bdef;
+	temp.base_defense = bdef;
+	temp.defense = bdef;
 	int32 atk = -1;
 	int32 def = -1;
 	int32 current_atk = batk;
@@ -750,12 +750,12 @@ int32 card::get_defence() {
 			bdef = eset[i]->get_value(this);
 			if(bdef < 0)
 				bdef = 0;
-			temp.base_defence = bdef;
+			temp.base_defense = bdef;
 			def = -1;
 			break;
 		case EFFECT_SWAP_AD:
 			if((eset[i]->type & EFFECT_TYPE_SINGLE) && !eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
-				atk = temp.defence;
+				atk = temp.defense;
 				up_atk = 0;
 				upc_atk = 0;
 				def = current_atk;
@@ -767,51 +767,51 @@ int32 card::get_defence() {
 		case EFFECT_SWAP_BASE_AD:
 			if(!(eset[i]->type & EFFECT_TYPE_FIELD)) {
 				std::swap(batk, bdef);
-				temp.base_defence = bdef;
+				temp.base_defense = bdef;
 			} else
 				swap_final_b = !swap_final_b;
 			break;
 		}
 		if(!rev) {
 			current_atk = ((atk < 0) ? batk : atk) + up_atk + upc_atk;
-			temp.defence = ((def < 0) ? bdef : def) + up_def + upc_def;
+			temp.defense = ((def < 0) ? bdef : def) + up_def + upc_def;
 		} else {
 			current_atk = ((atk < 0) ? batk : atk) - up_atk - upc_atk;
-			temp.defence = ((def < 0) ? bdef : def) - up_def - upc_def;
+			temp.defense = ((def < 0) ? bdef : def) - up_def - upc_def;
 		}
-		if(temp.defence < 0)
-			temp.defence = 0;
+		if(temp.defense < 0)
+			temp.defense = 0;
 	}
 	if(swap_final_b) {
 		std::swap(batk, bdef);
-		temp.base_defence = bdef;
+		temp.base_defense = bdef;
 		if(!rev) {
 			current_atk = ((atk < 0) ? batk : atk) + up_atk + upc_atk;
-			temp.defence = ((def < 0) ? bdef : def) + up_def + upc_def;
+			temp.defense = ((def < 0) ? bdef : def) + up_def + upc_def;
 		} else {
 			current_atk = ((atk < 0) ? batk : atk) - up_atk - upc_atk;
-			temp.defence = ((def < 0) ? bdef : def) - up_def - upc_def;
+			temp.defense = ((def < 0) ? bdef : def) - up_def - upc_def;
 		}
-		if(temp.defence < 0)
-			temp.defence = 0;
+		if(temp.defense < 0)
+			temp.defense = 0;
 	}
 	if(swap_final) {
-		temp.defence = current_atk;
-		if(temp.defence < 0)
-			temp.defence = 0;
+		temp.defense = current_atk;
+		if(temp.defense < 0)
+			temp.defense = 0;
 	}
 	for(int32 i = 0; i < effects_def.size(); ++i)
-		temp.defence = effects_def[i]->get_value(this);
+		temp.defense = effects_def[i]->get_value(this);
 	for(int32 i = 0; i < effects_def_r.size(); ++i) {
-		temp.defence = effects_def_r[i]->get_value(this);
+		temp.defense = effects_def_r[i]->get_value(this);
 		if(effects_def_r[i]->is_flag(EFFECT_FLAG_REPEAT))
-			temp.defence = effects_def_r[i]->get_value(this);
+			temp.defense = effects_def_r[i]->get_value(this);
 	}
-	def = temp.defence;
+	def = temp.defense;
 	if(def < 0)
 		def = 0;
-	temp.base_defence = -1;
-	temp.defence = -1;
+	temp.base_defense = -1;
+	temp.defense = -1;
 	return def;
 }
 // Level/Attribute/Race is available for:
