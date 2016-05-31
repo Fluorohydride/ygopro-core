@@ -154,7 +154,7 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 		return;
 	if((pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)) && (location & (LOCATION_HAND | LOCATION_DECK))) {
 		location = LOCATION_EXTRA;
-		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN_DEFENCE << 24);
+		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN_DEFENSE << 24);
 	}
 	pcard->current.controler = playerid;
 	pcard->current.location = location;
@@ -279,7 +279,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 	uint8 presequence = pcard->current.sequence;
 	if((pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)) && (location & (LOCATION_HAND | LOCATION_DECK))) {
 		location = LOCATION_EXTRA;
-		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN_DEFENCE << 24);
+		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEDOWN_DEFENSE << 24);
 	}
 	if (pcard->current.location) {
 		if (pcard->current.location == location) {
@@ -386,7 +386,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 			        && (((pcard->current.location == LOCATION_MZONE) && !pcard->is_status(STATUS_SUMMON_DISABLED))
 			        || ((pcard->current.location == LOCATION_SZONE) && !pcard->is_status(STATUS_ACTIVATE_DISABLED)))) {
 				location = LOCATION_EXTRA;
-				pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEUP_DEFENCE << 24);
+				pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (POS_FACEUP_DEFENSE << 24);
 			}
 			remove_card(pcard);
 		}
@@ -559,11 +559,11 @@ void field::shuffle(uint8 playerid, uint8 location) {
 		core.shuffle_deck_check[playerid] = FALSE;
 		if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
 			card* ptop = svector.back();
-			if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENCE)) {
+			if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENSE)) {
 				pduel->write_buffer8(MSG_DECK_TOP);
 				pduel->write_buffer8(playerid);
 				pduel->write_buffer8(0);
-				if(ptop->current.position != POS_FACEUP_DEFENCE)
+				if(ptop->current.position != POS_FACEUP_DEFENSE)
 					pduel->write_buffer32(ptop->data.code);
 				else
 					pduel->write_buffer32(ptop->data.code | 0x80000000);

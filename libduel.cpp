@@ -681,7 +681,7 @@ int32 scriptlib::duel_confirm_decktop(lua_State *L) {
 				pduel->write_buffer8(MSG_DECK_TOP);
 				pduel->write_buffer8(playerid);
 				pduel->write_buffer8(count);
-				if(pcard->current.position != POS_FACEUP_DEFENCE)
+				if(pcard->current.position != POS_FACEUP_DEFENSE)
 					pduel->write_buffer32(pcard->data.code);
 				else
 					pduel->write_buffer32(pcard->data.code | 0x80000000);

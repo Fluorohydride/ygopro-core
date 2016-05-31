@@ -296,8 +296,8 @@ void field::change_position(card_set* targets, effect* reason_effect, uint32 rea
 	for(auto cit = targets->begin(); cit != targets->end(); ++cit) {
 		card* pcard = *cit;
 		if(pcard->current.position == POS_FACEUP_ATTACK) pcard->operation_param = au;
-		else if(pcard->current.position == POS_FACEDOWN_DEFENCE) pcard->operation_param = dd;
-		else if(pcard->current.position == POS_FACEUP_DEFENCE) pcard->operation_param = du;
+		else if(pcard->current.position == POS_FACEDOWN_DEFENSE) pcard->operation_param = dd;
+		else if(pcard->current.position == POS_FACEUP_DEFENSE) pcard->operation_param = du;
 		else pcard->operation_param = ad;
 		pcard->operation_param |= flag;
 	}
@@ -360,11 +360,11 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
 				if(player[playerid].list_main.size()) {
 					card* ptop = player[playerid].list_main.back();
-					if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENCE)) {
+					if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENSE)) {
 						pduel->write_buffer8(MSG_DECK_TOP);
 						pduel->write_buffer8(playerid);
 						pduel->write_buffer8(drawed);
-						if(ptop->current.position != POS_FACEUP_DEFENCE)
+						if(ptop->current.position != POS_FACEUP_DEFENSE)
 							pduel->write_buffer32(ptop->data.code);
 						else
 							pduel->write_buffer32(ptop->data.code | 0x80000000);
@@ -1968,7 +1968,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 			pduel->write_buffer32(pextra->handler->data.code);
 		}
 		uint8 targetplayer = setplayer;
-		uint8 positions = POS_FACEDOWN_DEFENCE;
+		uint8 positions = POS_FACEDOWN_DEFENSE;
 		if(proc && proc->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
 			positions = (uint8)proc->s_range;
 			if(proc->o_range)
@@ -3331,11 +3331,11 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			}
 			if((s0 != d0) && (s0 > 0)) {
 				card* ptop = player[0].list_main[s0];
-				if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENCE)) {
+				if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENSE)) {
 					pduel->write_buffer8(MSG_DECK_TOP);
 					pduel->write_buffer8(0);
 					pduel->write_buffer8(d0 - s0);
-					if(ptop->current.position != POS_FACEUP_DEFENCE)
+					if(ptop->current.position != POS_FACEUP_DEFENSE)
 						pduel->write_buffer32(ptop->data.code);
 					else
 						pduel->write_buffer32(ptop->data.code | 0x80000000);
@@ -3343,11 +3343,11 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			}
 			if((s1 != d1) && (s1 > 0)) {
 				card* ptop = player[1].list_main[s1];
-				if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENCE)) {
+				if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENSE)) {
 					pduel->write_buffer8(MSG_DECK_TOP);
 					pduel->write_buffer8(1);
 					pduel->write_buffer8(d1 - s1);
-					if(ptop->current.position != POS_FACEUP_DEFENCE)
+					if(ptop->current.position != POS_FACEUP_DEFENSE)
 						pduel->write_buffer32(ptop->data.code);
 					else
 						pduel->write_buffer32(ptop->data.code | 0x80000000);
@@ -3435,7 +3435,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			pduel->write_buffer32(pcard->get_info_location());
 			pduel->write_buffer32(pcard->current.reason);
 		}
-		if((core.deck_reversed && pcard->current.location == LOCATION_DECK) || (pcard->current.position == POS_FACEUP_DEFENCE))
+		if((core.deck_reversed && pcard->current.location == LOCATION_DECK) || (pcard->current.position == POS_FACEUP_DEFENSE))
 			param->show_decktop[pcard->current.controler] = true;
 		pcard->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
 		if(pcard->status & (STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED)) {
@@ -3509,7 +3509,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				pduel->write_buffer8(MSG_DECK_TOP);
 				pduel->write_buffer8(0);
 				pduel->write_buffer8(0);
-				if(ptop->current.position != POS_FACEUP_DEFENCE)
+				if(ptop->current.position != POS_FACEUP_DEFENSE)
 					pduel->write_buffer32(ptop->data.code);
 				else
 					pduel->write_buffer32(ptop->data.code | 0x80000000);
@@ -3519,7 +3519,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				pduel->write_buffer8(MSG_DECK_TOP);
 				pduel->write_buffer8(1);
 				pduel->write_buffer8(0);
-				if(ptop->current.position != POS_FACEUP_DEFENCE)
+				if(ptop->current.position != POS_FACEUP_DEFENSE)
 					pduel->write_buffer32(ptop->data.code);
 				else
 					pduel->write_buffer32(ptop->data.code | 0x80000000);
@@ -3677,11 +3677,11 @@ int32 field::discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reaso
 		if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
 			if(player[playerid].list_main.size() > count) {
 				card* ptop = *(player[playerid].list_main.rbegin() + count);
-				if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENCE)) {
+				if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENSE)) {
 					pduel->write_buffer8(MSG_DECK_TOP);
 					pduel->write_buffer8(playerid);
 					pduel->write_buffer8(count);
-					if(ptop->current.position != POS_FACEUP_DEFENCE)
+					if(ptop->current.position != POS_FACEUP_DEFENSE)
 						pduel->write_buffer32(ptop->data.code);
 					else
 						pduel->write_buffer32(ptop->data.code | 0x80000000);
@@ -3876,11 +3876,11 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 				uint32 curs = target->current.sequence;
 				if(curs > 0 && (curs == player[curp].list_main.size() - 1)) {
 					card* ptop = player[curp].list_main[curs - 1];
-					if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENCE)) {
+					if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENSE)) {
 						pduel->write_buffer8(MSG_DECK_TOP);
 						pduel->write_buffer8(curp);
 						pduel->write_buffer8(1);
-						if(ptop->current.position != POS_FACEUP_DEFENCE)
+						if(ptop->current.position != POS_FACEUP_DEFENSE)
 							pduel->write_buffer32(ptop->data.code);
 						else
 							pduel->write_buffer32(ptop->data.code | 0x80000000);
@@ -3957,10 +3957,10 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 				targets->container.erase(pcard);
 			} else {
 				if((pcard->data.type & TYPE_TOKEN) && (npos & POS_FACEDOWN))
-					npos = POS_FACEUP_DEFENCE;
+					npos = POS_FACEUP_DEFENSE;
 				pcard->previous.position = opos;
 				pcard->current.position = npos;
-				if(npos & POS_DEFENCE)
+				if(npos & POS_DEFENSE)
 					pcard->set_status(STATUS_ATTACK_CANCELED, TRUE);
 				pcard->set_status(STATUS_JUST_POS, TRUE);
 				pduel->write_buffer8(MSG_POS_CHANGE);

@@ -1637,7 +1637,7 @@ int32 scriptlib::card_is_defense_pos(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushboolean(L, pcard->is_position(POS_DEFENCE));
+	lua_pushboolean(L, pcard->is_position(POS_DEFENSE));
 	return 1;
 }
 int32 scriptlib::card_is_position(lua_State *L) {
@@ -2136,7 +2136,7 @@ int32 scriptlib::card_add_monster_attribute(lua_State *L) {
 		peffect = pduel->new_effect();
 		peffect->owner = pcard;
 		peffect->type = EFFECT_TYPE_SINGLE;
-		peffect->code = EFFECT_SET_BASE_DEFENCE;
+		peffect->code = EFFECT_SET_BASE_DEFENSE;
 		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 		peffect->reset_flag = RESET_EVENT + 0x47e0000;
 		peffect->value = def;
@@ -2241,7 +2241,7 @@ int32 scriptlib::card_reverse_in_deck(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	if(pcard->current.location != LOCATION_DECK)
 		return 0;
-	pcard->current.position = POS_FACEUP_DEFENCE;
+	pcard->current.position = POS_FACEUP_DEFENSE;
 	duel* pduel = pcard->pduel;
 	if(pcard->current.sequence == pduel->game_field->player[pcard->current.controler].list_main.size() - 1) {
 		pduel->write_buffer8(MSG_DECK_TOP);

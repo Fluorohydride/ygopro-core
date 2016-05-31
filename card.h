@@ -295,12 +295,12 @@ public:
 //Positions
 #define POS_FACEUP_ATTACK		0x1
 #define POS_FACEDOWN_ATTACK		0x2
-#define POS_FACEUP_DEFENCE		0x4
-#define POS_FACEDOWN_DEFENCE	0x8
+#define POS_FACEUP_DEFENSE		0x4
+#define POS_FACEDOWN_DEFENSE	0x8
 #define POS_FACEUP				0x5
 #define POS_FACEDOWN			0xa
 #define POS_ATTACK				0x3
-#define POS_DEFENCE				0xc
+#define POS_DEFENSE				0xc
 //Flip effect flags
 #define NO_FLIP_EFFECT			0x10000
 #define FLIP_SET_AVAILABLE		0x20000
@@ -444,9 +444,9 @@ public:
 #define QUERY_ATTRIBUTE		0x40
 #define QUERY_RACE			0x80
 #define QUERY_ATTACK		0x100
-#define QUERY_DEFENCE		0x200
+#define QUERY_DEFENSE		0x200
 #define QUERY_BASE_ATTACK	0x400
-#define QUERY_BASE_DEFENCE	0x800
+#define QUERY_BASE_DEFENSE	0x800
 #define QUERY_REASON		0x1000
 #define QUERY_REASON_CARD	0x2000
 #define QUERY_EQUIP_CARD	0x4000
@@ -466,5 +466,5 @@ public:
 #define ASSUME_ATTRIBUTE	5
 #define ASSUME_RACE			6
 #define ASSUME_ATTACK		7
-#define ASSUME_DEFENCE		8
+#define ASSUME_DEFENSE		8
 #endif /* CARD_H_ */

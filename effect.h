@@ -274,10 +274,10 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_SET_ATTACK				101	//
 #define EFFECT_SET_ATTACK_FINAL			102	//
 #define EFFECT_SET_BASE_ATTACK			103	//
-#define EFFECT_UPDATE_DEFENCE			104	//
-#define EFFECT_SET_DEFENCE				105	//
-#define EFFECT_SET_DEFENCE_FINAL		106	//
-#define EFFECT_SET_BASE_DEFENCE			107	//
+#define EFFECT_UPDATE_DEFENSE			104	//
+#define EFFECT_SET_DEFENSE				105	//
+#define EFFECT_SET_DEFENSE_FINAL		106	//
+#define EFFECT_SET_BASE_DEFENSE			107	//
 #define EFFECT_REVERSE_UPDATE			108	//
 #define EFFECT_SWAP_AD					109	//
 #define EFFECT_SWAP_BASE_AD				110	//
@@ -324,7 +324,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CANNOT_M2				186
 #define EFFECT_CANNOT_EP				187
 #define EFFECT_SKIP_TURN				188
-#define EFFECT_DEFENCE_ATTACK			190
+#define EFFECT_DEFENSE_ATTACK			190
 #define EFFECT_MUST_ATTACK				191
 #define EFFECT_FIRST_ATTACK				192
 #define EFFECT_ATTACK_ALL				193
