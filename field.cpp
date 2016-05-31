@@ -1484,7 +1484,7 @@ int32 field::check_spsummon_once(card* pcard, uint8 playerid) {
 	auto iter = core.spsummon_once_map[playerid].find(pcard->spsummon_code);
 	return (iter == core.spsummon_once_map[playerid].end()) || (iter->second == 0);
 }
-// increase the binary custom counter
+// increase the binary custom counter 1~5
 void field::check_card_counter(card* pcard, int32 counter_type, int32 playerid) {
 	auto& counter_map = (counter_type == 1) ? core.summon_counter :
 						(counter_type == 2) ? core.normalsummon_counter :
