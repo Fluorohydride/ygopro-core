@@ -1720,9 +1720,10 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 		dir = false;
 	else{
 		// effects with target limit
-		// The system only check the general case (never attacked player), and the script should check specific condition.
+		// The system only check the general case (never attacked player) and approximate solution
 		if((peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL))
-				&& pcard->announced_cards.find(0) == pcard->announced_cards.end() && pcard->battled_cards.find(0) == pcard->battled_cards.end()) {
+				&& pcard->announced_cards.find(0) == pcard->announced_cards.end() && pcard->battled_cards.find(0) == pcard->battled_cards.end()
+				&& pcard->attack_all_target) {
 			for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
 				atarget = *cit;
 				if(!atarget)

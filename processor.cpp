@@ -2999,6 +2999,7 @@ int32 field::process_battle_command(uint16 step) {
 	case 7: {
 		bool evt = false;
 		check_card_counter(core.attacker, 5, infos.turn_player);
+		attack_all_target_check();
 		pduel->write_buffer8(MSG_ATTACK);
 		pduel->write_buffer32(core.attacker->get_info_location());
 		if(core.attack_target) {
@@ -3075,11 +3076,8 @@ int32 field::process_battle_command(uint16 step) {
 			else 
 				core.units.begin()->arg2 = 0;
 			reset_phase(PHASE_DAMAGE);
-			if(core.attacker->fieldid_r == afid) {
-				if(!atk_disabled) {
-					core.attacker->attacked_cards.addcard(core.attack_target);
-				}
-				attack_all_target_check();
+			if(core.attacker->fieldid_r == afid && !atk_disabled) {
+				core.attacker->attacked_cards.addcard(core.attack_target);
 			}
 			if(!peffect->value) {
 				infos.phase = PHASE_BATTLE;
@@ -3094,11 +3092,8 @@ int32 field::process_battle_command(uint16 step) {
 		if(atk_disabled || !core.attacker->is_capable_attack() || core.attacker->is_status(STATUS_ATTACK_CANCELED)
 		        || core.attacker->current.controler != acon || core.attacker->fieldid_r != afid) {
 			core.chain_attack = FALSE;
-			if(core.attacker->fieldid_r == afid) {
-				attack_all_target_check();
-				if(!atk_disabled) {
-					core.attacker->attacked_cards.addcard(core.attack_target);
-				}
+			if(core.attacker->fieldid_r == afid && !atk_disabled) {
+				core.attacker->attacked_cards.addcard(core.attack_target);
 			}
 			core.units.begin()->step = -1;
 			reset_phase(PHASE_DAMAGE);
@@ -3113,7 +3108,6 @@ int32 field::process_battle_command(uint16 step) {
 			rollback = true;
 		// go to damage step
 		if(!rollback) {
-			attack_all_target_check();
 			core.attacker->attacked_cards.addcard(core.attack_target);
 			core.units.begin()->step = 19;
 			adjust_all();
@@ -3122,7 +3116,6 @@ int32 field::process_battle_command(uint16 step) {
 		// attack canceled
 		if(!core.select_cards.size() && !core.attacker->operation_param) {
 			core.chain_attack = FALSE;
-			attack_all_target_check();
 			core.units.begin()->step = -1;
 			reset_phase(PHASE_DAMAGE);
 			adjust_all();
@@ -3144,7 +3137,6 @@ int32 field::process_battle_command(uint16 step) {
 			return FALSE;
 		}
 		core.chain_attack = FALSE;
-		attack_all_target_check();
 		core.units.begin()->step = -1;
 		reset_phase(PHASE_DAMAGE);
 		adjust_all();
@@ -3627,6 +3619,7 @@ int32 field::process_damage_step(uint16 step) {
 			return FALSE;
 		}
 		check_card_counter(core.attacker, 5, infos.turn_player);
+		attack_all_target_check();
 		pduel->write_buffer8(MSG_ATTACK);
 		pduel->write_buffer32(core.attacker->get_info_location());
 		pduel->write_buffer32(core.attack_target->get_info_location());
