@@ -3626,6 +3626,7 @@ int32 field::process_damage_step(uint16 step) {
 			core.units.begin()->step = 2;
 			return FALSE;
 		}
+		check_card_counter(core.attacker, 5, infos.turn_player);
 		pduel->write_buffer8(MSG_ATTACK);
 		pduel->write_buffer32(core.attacker->get_info_location());
 		pduel->write_buffer32(core.attack_target->get_info_location());

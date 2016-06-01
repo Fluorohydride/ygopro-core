@@ -1210,6 +1210,7 @@ int32 scriptlib::duel_change_attack_target(lua_State *L) {
 			else
 				pduel->game_field->core.opp_mzone[i] = 0;
 		}
+		check_card_counter(core.attacker, 5, infos.turn_player);
 		if(target) {
 			pduel->game_field->raise_single_event(target, 0, EVENT_BE_BATTLE_TARGET, 0, REASON_REPLACE, 0, 1 - turnp, 0);
 			pduel->game_field->raise_event(target, EVENT_BE_BATTLE_TARGET, 0, REASON_REPLACE, 0, 1 - turnp, 0);
