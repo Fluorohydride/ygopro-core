@@ -1645,7 +1645,7 @@ int32 field::effect_replace_check(uint32 code, const tevent& e) {
 	}
 	return FALSE;
 }
-int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) {
+int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack, bool choose_target) {
 	uint8 p = pcard->current.controler;
 	effect* peffect;
 	card* atarget;
@@ -1762,14 +1762,21 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 		atarget = *cit;
 		if(!atarget)
 			continue;
-		if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
-			continue;
-		mcount++;
-		if(atarget->is_affected_by_effect(EFFECT_CANNOT_BE_BATTLE_TARGET, pcard))
-			continue;
-		if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
-			continue;
-		v->push_back(atarget);
+		if(choose_target){
+			if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
+				continue;
+			mcount++;
+			if(atarget->is_affected_by_effect(EFFECT_CANNOT_BE_BATTLE_TARGET, pcard))
+				continue;
+			if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
+				continue;
+			v->push_back(atarget);
+		}
+		else {
+			if(!atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
+				mcount++;
+			v->push_back(atarget);
+		}
 	}
 	if((mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK) || core.attack_player)
 			&& !pcard->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK) && dir)
