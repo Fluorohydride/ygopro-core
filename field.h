@@ -438,7 +438,7 @@ public:
 	int32 process_single_event();
 	int32 process_idle_command(uint16 step);
 	int32 process_battle_command(uint16 step);
-	int32 process_damage_step(uint16 step);
+	int32 process_damage_step(uint16 step, uint32 new_attack);
 	void calculate_battle_damage(effect** pdamchange, card** preason_card, uint8* battle_destroyed);
 	int32 process_turn(uint16 step, uint8 turn_player);
 

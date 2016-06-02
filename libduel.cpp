@@ -1210,7 +1210,6 @@ int32 scriptlib::duel_change_attack_target(lua_State *L) {
 			else
 				pduel->game_field->core.opp_mzone[i] = 0;
 		}
-		pduel->game_field->check_card_counter(pduel->game_field->core.attacker, 5, pduel->game_field->infos.turn_player);
 		pduel->game_field->attack_all_target_check();
 		if(target) {
 			pduel->game_field->raise_single_event(target, 0, EVENT_BE_BATTLE_TARGET, 0, REASON_REPLACE, 0, 1 - turnp, 0);
@@ -1235,9 +1234,12 @@ int32 scriptlib::duel_calculate_damage(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 2);
 	card* attacker = *(card**)lua_touserdata(L, 1);
 	card* attack_target = *(card**)lua_touserdata(L, 2);
+	int32 new_attack = FALSE;
+	if(lua_gettop(L) >= 3)
+		new_attack = lua_toboolean(L, 3);
 	if(attacker == attack_target)
 		return 0;
-	attacker->pduel->game_field->add_process(PROCESSOR_DAMAGE_STEP, 0, (effect*)attacker, (group*)attack_target, 0, 0);
+	attacker->pduel->game_field->add_process(PROCESSOR_DAMAGE_STEP, 0, (effect*)attacker, (group*)attack_target, 0, new_attack);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_get_battle_damage(lua_State *L) {

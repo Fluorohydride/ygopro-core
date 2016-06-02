@@ -233,7 +233,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_DAMAGE_STEP: {
-		if(process_damage_step(it->step))
+		if(process_damage_step(it->step, it->arg2))
 			core.units.pop_front();
 		else
 			it->step++;
@@ -2872,6 +2872,7 @@ int32 field::process_battle_command(uint16 step) {
 			core.pre_field[0] = core.attacker->fieldid_r;
 			core.phase_action = TRUE;
 			core.attack_state_count[infos.turn_player]++;
+			check_card_counter(core.attacker, 5, infos.turn_player);
 			core.attacker->announce_count++;
 			effect_set eset;
 			filter_player_effect(infos.turn_player, EFFECT_ATTACK_COST, &eset, FALSE);
@@ -2998,7 +2999,6 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 7: {
 		bool evt = false;
-		check_card_counter(core.attacker, 5, infos.turn_player);
 		attack_all_target_check();
 		pduel->write_buffer8(MSG_ATTACK);
 		pduel->write_buffer32(core.attacker->get_info_location());
@@ -3603,7 +3603,7 @@ int32 field::process_battle_command(uint16 step) {
 	return TRUE;
 }
 // perform damage calculation by an effect
-int32 field::process_damage_step(uint16 step) {
+int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 	switch(step) {
 	case 0: {
 		core.effect_damage_step = 1;
@@ -3618,7 +3618,10 @@ int32 field::process_damage_step(uint16 step) {
 			core.units.begin()->step = 2;
 			return FALSE;
 		}
-		check_card_counter(core.attacker, 5, infos.turn_player);
+		if(new_attack){
+			core.attack_state_count[infos.turn_player]++;
+			check_card_counter(core.attacker, 5, infos.turn_player);
+		}
 		attack_all_target_check();
 		pduel->write_buffer8(MSG_ATTACK);
 		pduel->write_buffer32(core.attacker->get_info_location());
