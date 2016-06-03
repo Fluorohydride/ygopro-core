@@ -2960,6 +2960,9 @@ int32 field::process_battle_command(uint16 step) {
 				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, 1 - infos.turn_player, 0x10001);
 			}
 		}
+		else if(core.units.begin()->arg1) {
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + 0x20000, 0x10001);
+		}
 		else
 			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player, 0x10001);
 		core.units.begin()->step = 5;
