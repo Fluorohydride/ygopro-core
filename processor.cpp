@@ -3155,6 +3155,7 @@ int32 field::process_battle_command(uint16 step) {
 		else
 			core.pre_field[1] = 0;
 		core.attacker->attacked_count++;
+		core.battled_count[infos.turn_player]++;
 		raise_single_event(core.attacker, 0, EVENT_BATTLE_START, 0, 0, 0, 0, 0);
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_BATTLE_START, 0, 0, 0, 0, 1);
@@ -3619,6 +3620,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 		}
 		if(new_attack){
 			core.attack_state_count[infos.turn_player]++;
+			core.battled_count[infos.turn_player]++;
 			check_card_counter(core.attacker, 5, infos.turn_player);
 		}
 		attack_all_target_check();
@@ -3870,6 +3872,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 			core.spsummon_state_count_rst[p] = 0;
 			core.attack_state_count[p] = 0;
 			core.battle_phase_count[p] = 0;
+			core.battled_count[p] = 0;
 			core.summon_count[p] = 0;
 			core.extra_summon[p] = 0;
 			core.spsummon_once_map[p].clear();
