@@ -1003,8 +1003,8 @@ int32 field::control_adjust(uint16 step) {
 	case 0: {
 		card_set* destroy_set = new card_set;
 		core.units.begin()->peffect = (effect*)destroy_set;
-		uint32 b0 = get_useable_count(0, LOCATION_MZONE, PLAYER_NONE, 0);
-		uint32 b1 = get_useable_count(1, LOCATION_MZONE, PLAYER_NONE, 0);
+		uint32 b0 = get_useable_count(0, LOCATION_MZONE, 0, LOCATION_REASON_CONTROL);
+		uint32 b1 = get_useable_count(1, LOCATION_MZONE, 1, LOCATION_REASON_CONTROL);
 		for(auto cit = core.control_adjust_set[0].begin(); cit != core.control_adjust_set[0].end(); ++cit)
 			(*cit)->filter_disable_related_cards();
 		for(auto cit = core.control_adjust_set[1].begin(); cit != core.control_adjust_set[1].end(); ++cit)

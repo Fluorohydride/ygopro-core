@@ -478,7 +478,7 @@ int32 card::get_attack() {
 	int32 rev = FALSE;
 	if(is_affected_by_effect(EFFECT_REVERSE_UPDATE))
 		rev = TRUE;
-	effect_set effects_atk, effects_def, effects_atk_r, effects_def_r;
+	effect_set effects_atk, effects_atk_r;
 	int32 swap_final = FALSE, swap_final_b = FALSE;
 	for(int32 i = 0; i < eset.size(); ++i) {
 		switch(eset[i]->code) {
@@ -528,11 +528,6 @@ int32 card::get_attack() {
 				def = eset[i]->get_value(this);
 				up_def = 0;
 				upc_def = 0;
-			} else {
-				if(!eset[i]->is_flag(EFFECT_FLAG_DELAY))
-					effects_def.add_item(eset[i]);
-				else
-					effects_def_r.add_item(eset[i]);
 			}
 			break;
 		case EFFECT_SET_BASE_DEFENSE:
@@ -690,7 +685,7 @@ int32 card::get_defense() {
 	int32 rev = FALSE;
 	if(is_affected_by_effect(EFFECT_REVERSE_UPDATE))
 		rev = TRUE;
-	effect_set effects_atk, effects_def, effects_atk_r, effects_def_r;
+	effect_set effects_def, effects_def_r;
 	int32 swap_final = FALSE, swap_final_b = FALSE;
 	for(int32 i = 0; i < eset.size(); ++i) {
 		switch(eset[i]->code) {
@@ -710,11 +705,6 @@ int32 card::get_defense() {
 				atk = eset[i]->get_value(this);
 				up_atk = 0;
 				upc_atk = 0;
-			} else {
-				if(!eset[i]->is_flag(EFFECT_FLAG_DELAY))
-					effects_atk.add_item(eset[i]);
-				else
-					effects_atk_r.add_item(eset[i]);
 			}
 			break;
 		case EFFECT_SET_BASE_ATTACK:
