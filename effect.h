@@ -74,7 +74,7 @@ public:
 	int32 is_target(card* pcard);
 	int32 is_target_player(uint8 playerid);
 	int32 is_player_effect_target(card* pcard);
-	int32 is_immuned(effect_set_v* effects);
+	int32 is_immuned(card* pcard);
 	int32 is_chainable(uint8 tp);
 	int32 reset(uint32 reset_level, uint32 reset_type);
 	void dec_count(uint32 playerid = 2);

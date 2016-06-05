@@ -2560,7 +2560,7 @@ int32 card::is_affect_by_effect(effect* peffect) {
 		return FALSE;
 	if(!peffect || peffect->is_flag(EFFECT_FLAG_IGNORE_IMMUNE))
 		return TRUE;
-	if(peffect->is_immuned(&immune_effect))
+	if(peffect->is_immuned(this))
 		return FALSE;
 	return TRUE;
 }
