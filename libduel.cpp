@@ -490,6 +490,21 @@ int32 scriptlib::duel_get_operated_group(lua_State *L) {
 	interpreter::group2value(L, pgroup);
 	return 1;
 }
+int32 scriptlib::duel_is_can_add_counter(lua_State *L) {
+	check_param_count(L, 4);
+	int32 playerid = lua_tointeger(L, 1);
+	int32 countertype = lua_tointeger(L, 2);
+	int32 count = lua_tointeger(L, 3);
+	check_param(L, PARAM_TYPE_CARD, 4);
+	card* pcard = *(card**)lua_touserdata(L, 4);
+	if(playerid != 0 && playerid != 1) {
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+	duel* pduel = interpreter::get_duel_info(L);
+	lua_pushboolean(L, pduel->game_field->is_player_can_place_counter(playerid, pcard, countertype, count));
+	return 1;
+}
 int32 scriptlib::duel_remove_counter(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 6);

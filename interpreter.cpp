@@ -340,6 +340,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "SpecialSummon", scriptlib::duel_special_summon },
 	{ "SpecialSummonStep", scriptlib::duel_special_summon_step },
 	{ "SpecialSummonComplete", scriptlib::duel_special_summon_complete },
+	{ "IsCanAddCounter", scriptlib::duel_is_can_add_counter },
 	{ "RemoveCounter", scriptlib::duel_remove_counter },
 	{ "IsCanRemoveCounter", scriptlib::duel_is_can_remove_counter },
 	{ "GetCounter", scriptlib::duel_get_counter },
