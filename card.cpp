@@ -423,7 +423,7 @@ int32 card::get_base_attack() {
 				eset.remove_item(i);
 				continue;
 			case EFFECT_SET_BASE_DEFENSE:
-				bdef = eset[i]->get_value(this);				
+				bdef = eset[i]->get_value(this);
 				if(bdef < 0)
 					bdef = 0;
 				eset.remove_item(i);
@@ -481,6 +481,19 @@ int32 card::get_attack() {
 	if(is_affected_by_effect(EFFECT_REVERSE_UPDATE))
 		rev = TRUE;
 	effect_set effects_atk, effects_atk_r;
+	for(int32 i = 0; i < eset.size();) {
+		if((eset[i]->type & EFFECT_TYPE_SINGLE) && eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+			switch(eset[i]->code) {
+			case EFFECT_SET_BASE_ATTACK:
+				batk = eset[i]->get_value(this);
+				if(batk < 0)
+					batk = 0;
+				eset.remove_item(i);
+				continue;
+			}
+		}
+		++i;
+	}
 	for(int32 i = 0; i < eset.size(); ++i) {
 		switch(eset[i]->code) {
 		case EFFECT_UPDATE_ATTACK:
@@ -637,6 +650,19 @@ int32 card::get_defense() {
 	if(is_affected_by_effect(EFFECT_REVERSE_UPDATE))
 		rev = TRUE;
 	effect_set effects_def, effects_def_r;
+	for(int32 i = 0; i < eset.size();) {
+		if((eset[i]->type & EFFECT_TYPE_SINGLE) && eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+			switch(eset[i]->code) {
+			case EFFECT_SET_BASE_DEFENSE:
+				bdef = eset[i]->get_value(this);
+				if(bdef < 0)
+					bdef = 0;
+				eset.remove_item(i);
+				continue;
+			}
+		}
+		++i;
+	}
 	for(int32 i = 0; i < eset.size(); ++i) {
 		switch(eset[i]->code) {
 		case EFFECT_UPDATE_DEFENSE:
