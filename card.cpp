@@ -413,7 +413,7 @@ int32 card::get_base_attack() {
 	eset.sort();
 	// calculate continous effects of this first
 	for(int32 i = 0; i < eset.size();) {
-		if((eset[i]->type & EFFECT_TYPE_SINGLE) && eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)){
+		if((eset[i]->type & EFFECT_TYPE_SINGLE) && eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			switch(eset[i]->code) {
 			case EFFECT_SET_BASE_ATTACK:
 				batk = eset[i]->get_value(this);
@@ -462,7 +462,9 @@ int32 card::get_attack() {
 		return data.attack;
 	if (temp.attack != -1)
 		return temp.attack;
-	int32 batk = get_base_attack();
+	int32 batk = data.attack;
+	if(batk < 0)
+		batk = 0;
 	temp.attack = batk;
 	int32 atk = -1;
 	int32 up_atk = 0, upc_atk = 0;
@@ -472,6 +474,7 @@ int32 card::get_attack() {
 	filter_effect(EFFECT_UPDATE_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SET_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SET_ATTACK_FINAL, &eset, FALSE);
+	filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SWAP_ATTACK_FINAL, &eset, FALSE);
 	eset.sort();
 	int32 rev = FALSE;
@@ -503,6 +506,12 @@ int32 card::get_attack() {
 					effects_atk_r.add_item(eset[i]);
 			}
 			break;
+		case EFFECT_SET_BASE_ATTACK:
+			batk = eset[i]->get_value(this);
+			if(batk < 0)
+				batk = 0;
+			atk = -1;
+			break;
 		case EFFECT_SWAP_ATTACK_FINAL:
 			atk = eset[i]->get_value(this);
 			up_atk = 0;
@@ -522,7 +531,7 @@ int32 card::get_attack() {
 	}
 	for(int32 i = 0; i < effects_atk.size(); ++i)
 		temp.attack = effects_atk[i]->get_value(this);
-	if(temp.defense == -1){
+	if(temp.defense == -1) {
 		if(swap_final) {
 			temp.attack = get_defense();
 		}
@@ -560,7 +569,7 @@ int32 card::get_base_defense() {
 		filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
 	eset.sort();
 	for(int32 i = 0; i < eset.size();) {
-		if((eset[i]->type & EFFECT_TYPE_SINGLE) && eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)){
+		if((eset[i]->type & EFFECT_TYPE_SINGLE) && eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			switch(eset[i]->code) {
 			case EFFECT_SET_BASE_ATTACK:
 				batk = eset[i]->get_value(this);
@@ -569,7 +578,7 @@ int32 card::get_base_defense() {
 				eset.remove_item(i);
 				continue;
 			case EFFECT_SET_BASE_DEFENSE:
-				bdef = eset[i]->get_value(this);				
+				bdef = eset[i]->get_value(this);
 				if(bdef < 0)
 					bdef = 0;
 				temp.base_defense = bdef;
@@ -609,7 +618,9 @@ int32 card::get_defense() {
 		return data.defense;
 	if (temp.defense != -1)
 		return temp.defense;
-	int32 bdef = get_base_defense();
+	int32 bdef = data.defense;
+	if(bdef < 0)
+		bdef = 0;
 	temp.defense = bdef;
 	int32 def = -1;
 	int32 up_def = 0, upc_def = 0;
@@ -619,6 +630,7 @@ int32 card::get_defense() {
 	filter_effect(EFFECT_UPDATE_DEFENSE, &eset, FALSE);
 	filter_effect(EFFECT_SET_DEFENSE, &eset, FALSE);
 	filter_effect(EFFECT_SET_DEFENSE_FINAL, &eset, FALSE);
+	filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
 	filter_effect(EFFECT_SWAP_DEFENSE_FINAL, &eset, FALSE);
 	eset.sort();
 	int32 rev = FALSE;
@@ -650,6 +662,12 @@ int32 card::get_defense() {
 					effects_def_r.add_item(eset[i]);
 			}
 			break;
+		case EFFECT_SET_BASE_DEFENSE:
+			bdef = eset[i]->get_value(this);
+			if(bdef < 0)
+				bdef = 0;
+			def = -1;
+			break;
 		case EFFECT_SWAP_DEFENSE_FINAL:
 			def = eset[i]->get_value(this);
 			up_def = 0;
@@ -669,7 +687,7 @@ int32 card::get_defense() {
 	}
 	for(int32 i = 0; i < effects_def.size(); ++i)
 		temp.defense = effects_def[i]->get_value(this);
-	if(temp.attack == -1){
+	if(temp.attack == -1) {
 		if(swap_final) {
 			temp.defense = get_attack();
 		}
@@ -1129,7 +1147,7 @@ int32 card::add_effect(effect* peffect) {
 		return 0;
 	card* check_target = this;
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
-		if((peffect->code == EFFECT_SET_ATTACK || peffect->code == EFFECT_SET_BASE_ATTACK) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+		if(peffect->code == EFFECT_SET_ATTACK && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			for(auto it = single_effect.begin(); it != single_effect.end();) {
 				auto rm = it++;
 				if((rm->second->code == EFFECT_SET_ATTACK || rm->second->code == EFFECT_SET_ATTACK_FINAL)
@@ -1145,7 +1163,7 @@ int32 card::add_effect(effect* peffect) {
 					remove_effect(rm->second);
 			}
 		}
-		if((peffect->code == EFFECT_SET_DEFENSE || peffect->code == EFFECT_SET_BASE_DEFENSE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+		if(peffect->code == EFFECT_SET_DEFENSE && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			for(auto it = single_effect.begin(); it != single_effect.end();) {
 				auto rm = it++;
 				if((rm->second->code == EFFECT_SET_DEFENSE || rm->second->code == EFFECT_SET_DEFENSE_FINAL)
