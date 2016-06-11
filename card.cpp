@@ -1435,9 +1435,9 @@ void card::reset(uint32 id, uint32 reset_type) {
 			if (rrm->second & 0xffff0000 & id)
 				relations.erase(rrm);
 		}
-		if(id & 0x47c0000)
+		if(id & 0xc7c0000)
 			clear_relate_effect();
-		if(id & 0x5fc0000) {
+		if(id & 0xdfc0000) {
 			indestructable_effects.clear();
 			announced_cards.clear();
 			attacked_cards.clear();
@@ -1445,7 +1445,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 			attacked_count = 0;
 			attack_all_target = TRUE;
 		}
-		if(id & 0x5fe0000) {
+		if(id & 0xdfe0000) {
 			battled_cards.clear();
 			reset_effect_count();
 			auto pr = field_effect.equal_range(EFFECT_DISABLE_FIELD);
@@ -1453,7 +1453,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 				pr.first->second->value = 0;
 			set_status(STATUS_UNION, FALSE);
 		}
-		if(id & 0x57e0000) {
+		if(id & 0xd7e0000) {
 			counters.clear();
 			for(auto cit = effect_target_owner.begin(); cit != effect_target_owner.end(); ++cit)
 				(*cit)->effect_target_cards.erase(this);
