@@ -494,6 +494,7 @@ int32 card::get_attack() {
 		}
 		++i;
 	}
+	temp.attack = batk;
 	for(int32 i = 0; i < eset.size(); ++i) {
 		switch(eset[i]->code) {
 		case EFFECT_UPDATE_ATTACK:
@@ -663,6 +664,7 @@ int32 card::get_defense() {
 		}
 		++i;
 	}
+	temp.defense = bdef;
 	for(int32 i = 0; i < eset.size(); ++i) {
 		switch(eset[i]->code) {
 		case EFFECT_UPDATE_DEFENSE:
