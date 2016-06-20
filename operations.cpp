@@ -2789,7 +2789,6 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					if(eset[i]->check_value_condition(3)) {
 						extra.insert(eset[i]->handler);
 						sub = true;
-						break;
 					}
 				}
 				if(sub) {
@@ -3004,7 +3003,6 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					if(eset[i]->check_value_condition(3)) {
 						core.battle_destroy_rep.insert(eset[i]->handler);
 						sub = true;
-						break;
 					}
 				}
 				if(sub) {
