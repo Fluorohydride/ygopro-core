@@ -465,6 +465,9 @@ int32 card::get_attack() {
 	int32 batk = data.attack;
 	if(batk < 0)
 		batk = 0;
+	int32 bdef = data.defense;
+	if(bdef < 0)
+		bdef = 0;
 	temp.attack = batk;
 	int32 atk = -1;
 	int32 up_atk = 0, upc_atk = 0;
@@ -474,8 +477,10 @@ int32 card::get_attack() {
 	filter_effect(EFFECT_UPDATE_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SET_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SET_ATTACK_FINAL, &eset, FALSE);
-	filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SWAP_ATTACK_FINAL, &eset, FALSE);
+	filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
+	filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
+	filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
 	eset.sort();
 	int32 rev = FALSE;
 	if(is_affected_by_effect(EFFECT_REVERSE_UPDATE))
@@ -488,6 +493,12 @@ int32 card::get_attack() {
 				batk = eset[i]->get_value(this);
 				if(batk < 0)
 					batk = 0;
+				eset.remove_item(i);
+				continue;
+			case EFFECT_SET_BASE_DEFENSE:
+				bdef = eset[i]->get_value(this);
+				if(bdef < 0)
+					bdef = 0;
 				eset.remove_item(i);
 				continue;
 			}
@@ -531,8 +542,16 @@ int32 card::get_attack() {
 			up_atk = 0;
 			upc_atk = 0;
 			break;
+		case EFFECT_SET_BASE_DEFENSE:
+			bdef = eset[i]->get_value(this);
+			if(bdef < 0)
+				bdef = 0;
+			break;
 		case EFFECT_SWAP_AD:
 			swap_final = !swap_final;
+			break;
+		case EFFECT_SWAP_BASE_AD:
+			std::swap(batk, bdef);
 			break;
 		}
 		if(!rev) {
@@ -632,6 +651,9 @@ int32 card::get_defense() {
 		return data.defense;
 	if (temp.defense != -1)
 		return temp.defense;
+	int32 batk = data.attack;
+	if(batk < 0)
+		batk = 0;
 	int32 bdef = data.defense;
 	if(bdef < 0)
 		bdef = 0;
@@ -644,8 +666,10 @@ int32 card::get_defense() {
 	filter_effect(EFFECT_UPDATE_DEFENSE, &eset, FALSE);
 	filter_effect(EFFECT_SET_DEFENSE, &eset, FALSE);
 	filter_effect(EFFECT_SET_DEFENSE_FINAL, &eset, FALSE);
-	filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
 	filter_effect(EFFECT_SWAP_DEFENSE_FINAL, &eset, FALSE);
+	filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
+	filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
+	filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
 	eset.sort();
 	int32 rev = FALSE;
 	if(is_affected_by_effect(EFFECT_REVERSE_UPDATE))
@@ -654,6 +678,12 @@ int32 card::get_defense() {
 	for(int32 i = 0; i < eset.size();) {
 		if((eset[i]->type & EFFECT_TYPE_SINGLE) && eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			switch(eset[i]->code) {
+			case EFFECT_SET_BASE_ATTACK:
+				batk = eset[i]->get_value(this);
+				if(batk < 0)
+					batk = 0;
+				eset.remove_item(i);
+				continue;
 			case EFFECT_SET_BASE_DEFENSE:
 				bdef = eset[i]->get_value(this);
 				if(bdef < 0)
@@ -701,8 +731,16 @@ int32 card::get_defense() {
 			up_def = 0;
 			upc_def = 0;
 			break;
+		case EFFECT_SET_BASE_ATTACK:
+			batk = eset[i]->get_value(this);
+			if(batk < 0)
+				batk = 0;
+			break;
 		case EFFECT_SWAP_AD:
 			swap_final = !swap_final;
+			break;
+		case EFFECT_SWAP_BASE_AD:
+			std::swap(batk, bdef);
 			break;
 		}
 		if(!rev) {
