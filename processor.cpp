@@ -3868,6 +3868,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 				if(!pcard)
 					continue;
 				pcard->set_status(STATUS_SET_TURN, FALSE);
+				pcard->indestructable_effects.clear();
 			}
 			core.summon_state_count[p] = 0;
 			core.normalsummon_state_count[p] = 0;
