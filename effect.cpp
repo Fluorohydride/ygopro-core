@@ -227,7 +227,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				if(!available)
 					return FALSE;
 			}
-			if(handler->is_affected_by_effect(EFFECT_FORBIDDEN))
+			if(handler->is_status(STATUS_FORBIDDEN))
 				return FALSE;
 			if(handler->is_affected_by_effect(EFFECT_CANNOT_TRIGGER))
 				return FALSE;
@@ -253,7 +253,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				return FALSE;
 			if((type & EFFECT_TYPE_FIELD) && (handler->current.controler != playerid) && !is_flag(EFFECT_FLAG_BOTH_SIDE))
 				return FALSE;
-			if(handler->is_affected_by_effect(EFFECT_FORBIDDEN))
+			if(handler->is_status(STATUS_FORBIDDEN))
 				return FALSE;
 			if(handler->is_affected_by_effect(EFFECT_CANNOT_TRIGGER))
 				return FALSE;

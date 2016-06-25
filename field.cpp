@@ -907,6 +907,20 @@ void field::filter_affected_cards(effect* peffect, card_set* cset) {
 					cset->insert(pcard);
 			}
 		}
+		if(range & LOCATION_DECK) {
+			for(auto it = player[self].list_main.begin(); it != player[self].list_main.end(); ++it) {
+				card* pcard = *it;
+				if(peffect->is_target(pcard))
+					cset->insert(pcard);
+			}
+		}
+		if(range & LOCATION_EXTRA) {
+			for(auto it = player[self].list_extra.begin(); it != player[self].list_extra.end(); ++it) {
+				card* pcard = *it;
+				if(peffect->is_target(pcard))
+					cset->insert(pcard);
+			}
+		}
 		range = peffect->o_range;
 		self = 1 - self;
 	}
@@ -2141,7 +2155,7 @@ int32 field::is_player_can_spsummon(effect * peffect, uint32 sumtype, uint8 sump
 	effect_set eset;
 	if(pcard->is_affected_by_effect(EFFECT_CANNOT_SPECIAL_SUMMON))
 		return FALSE;
-	if(pcard->is_affected_by_effect(EFFECT_FORBIDDEN))
+	if(pcard->is_status(STATUS_FORBIDDEN))
 		return FALSE;
 	sumtype |= SUMMON_TYPE_SPECIAL;
 	if(sumpos & POS_FACEDOWN && is_player_affected_by_effect(playerid, EFFECT_DEVINE_LIGHT))
