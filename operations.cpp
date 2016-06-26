@@ -16,7 +16,7 @@ int32 field::negate_chain(uint8 chaincount) {
 	if(core.current_chain.size() == 0)
 		return FALSE;
 	if(chaincount > core.current_chain.size() || chaincount < 1)
-		chaincount = core.current_chain.size();
+		chaincount = (uint8)core.current_chain.size();
 	chain& pchain = core.current_chain[chaincount - 1];
 	if(!(pchain.flag & CHAIN_DISABLE_ACTIVATE) && is_chain_negatable(pchain.chain_count)
 	        && pchain.triggering_effect->handler->is_affect_by_effect(core.reason_effect) ) {
@@ -39,7 +39,7 @@ int32 field::disable_chain(uint8 chaincount) {
 	if(core.current_chain.size() == 0)
 		return FALSE;
 	if(chaincount > core.current_chain.size() || chaincount < 1)
-		chaincount = core.current_chain.size();
+		chaincount = (uint8)core.current_chain.size();
 	chain& pchain = core.current_chain[chaincount - 1];
 	if(!(pchain.flag & CHAIN_DISABLE_EFFECT) && is_chain_disablable(pchain.chain_count)
 	        && pchain.triggering_effect->handler->is_affect_by_effect(core.reason_effect)) {
@@ -58,14 +58,14 @@ void field::change_chain_effect(uint8 chaincount, int32 rep_op) {
 	if(core.current_chain.size() == 0)
 		return;
 	if(chaincount > core.current_chain.size() || chaincount < 1)
-		chaincount = core.current_chain.size();
+		chaincount = (uint8)core.current_chain.size();
 	core.current_chain[chaincount - 1].replace_op = rep_op;
 }
 void field::change_target(uint8 chaincount, group* targets) {
 	if(core.current_chain.size() == 0)
 		return;
 	if(chaincount > core.current_chain.size() || chaincount < 1)
-		chaincount = core.current_chain.size();
+		chaincount = (uint8)core.current_chain.size();
 	group* ot = core.current_chain[chaincount - 1].target_cards;
 	if(ot) {
 		effect* te = core.current_chain[chaincount - 1].triggering_effect;
@@ -89,14 +89,14 @@ void field::change_target_player(uint8 chaincount, uint8 playerid) {
 	if(core.current_chain.size() == 0)
 		return;
 	if(chaincount > core.current_chain.size() || chaincount < 1)
-		chaincount = core.current_chain.size();
+		chaincount = (uint8)core.current_chain.size();
 	core.current_chain[chaincount - 1].target_player = playerid;
 }
 void field::change_target_param(uint8 chaincount, int32 param) {
 	if(core.current_chain.size() == 0)
 		return;
 	if(chaincount > core.current_chain.size() || chaincount < 1)
-		chaincount = core.current_chain.size();
+		chaincount = (uint8)core.current_chain.size();
 	core.current_chain[chaincount - 1].target_param = param;
 }
 void field::remove_counter(uint32 reason, card* pcard, uint32 rplayer, uint32 s, uint32 o, uint32 countertype, uint32 count) {
@@ -379,7 +379,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			if(core.deck_reversed && (public_count < drawed)) {
 				pduel->write_buffer8(MSG_CONFIRM_CARDS);
 				pduel->write_buffer8(1 - playerid);
-				pduel->write_buffer8(drawed_set->size());
+				pduel->write_buffer8((uint8)drawed_set->size());
 				for(auto cit = drawed_set->begin(); cit != drawed_set->end(); ++cit) {
 					pduel->write_buffer32((*cit)->data.code);
 					pduel->write_buffer8((*cit)->current.controler);
@@ -4722,7 +4722,7 @@ int32 field::select_release_cards(int16 step, uint8 playerid, uint8 check_field,
 		for(int32 i = 0; i < returns.bvalue[0]; ++i)
 			core.operated_set.insert(core.select_cards[returns.bvalue[i + 1]]);
 		core.select_cards.clear();
-		returns.bvalue[0] = core.operated_set.size();
+		returns.bvalue[0] = (uint8)core.operated_set.size();
 		int32 i = 0;
 		for(auto cit = core.operated_set.begin(); cit != core.operated_set.end(); ++cit, ++i) {
 			core.select_cards.push_back(*cit);
@@ -4861,7 +4861,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 	}
 	case 7: {
 		core.select_cards.clear();
-		returns.bvalue[0] = core.operated_set.size();
+		returns.bvalue[0] = (uint8)core.operated_set.size();
 		int32 i = 0;
 		for(auto cit = core.operated_set.begin(); cit != core.operated_set.end(); ++cit, ++i) {
 			core.select_cards.push_back(*cit);

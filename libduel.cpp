@@ -743,7 +743,7 @@ int32 scriptlib::duel_confirm_cards(lua_State *L) {
 		pduel->write_buffer8(pcard->current.location);
 		pduel->write_buffer8(pcard->current.sequence);
 	} else {
-		pduel->write_buffer8(pgroup->container.size());
+		pduel->write_buffer8((uint8)pgroup->container.size());
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 			pduel->write_buffer32((*cit)->data.code);
 			pduel->write_buffer8((*cit)->current.controler);

@@ -1131,7 +1131,7 @@ void card::xyz_add(card* mat, card_set* des) {
 	mat->overlay_target = this;
 	mat->current.controler = PLAYER_NONE;
 	mat->current.location = LOCATION_OVERLAY;
-	mat->current.sequence = xyz_materials.size() - 1;
+	mat->current.sequence = (uint8)xyz_materials.size() - 1;
 	mat->current.reason = REASON_XYZ + REASON_MATERIAL;
 }
 void card::xyz_remove(card* mat) {

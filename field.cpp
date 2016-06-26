@@ -113,7 +113,7 @@ void field::reload_field_info() {
 			if(pcard) {
 				pduel->write_buffer8(1);
 				pduel->write_buffer8(pcard->current.position);
-				pduel->write_buffer8(pcard->xyz_materials.size());
+				pduel->write_buffer8((uint8)pcard->xyz_materials.size());
 			} else {
 				pduel->write_buffer8(0);
 			}
@@ -127,14 +127,14 @@ void field::reload_field_info() {
 				pduel->write_buffer8(0);
 			}
 		}
-		pduel->write_buffer8(player[playerid].list_main.size());
-		pduel->write_buffer8(player[playerid].list_hand.size());
-		pduel->write_buffer8(player[playerid].list_grave.size());
-		pduel->write_buffer8(player[playerid].list_remove.size());
-		pduel->write_buffer8(player[playerid].list_extra.size());
+		pduel->write_buffer8((uint8)player[playerid].list_main.size());
+		pduel->write_buffer8((uint8)player[playerid].list_hand.size());
+		pduel->write_buffer8((uint8)player[playerid].list_grave.size());
+		pduel->write_buffer8((uint8)player[playerid].list_remove.size());
+		pduel->write_buffer8((uint8)player[playerid].list_extra.size());
 		pduel->write_buffer8(player[playerid].extra_p_count);
 	}
-	pduel->write_buffer8(core.current_chain.size());
+	pduel->write_buffer8((uint8)core.current_chain.size());
 	for(auto chit = core.current_chain.begin(); chit != core.current_chain.end(); ++chit) {
 		effect* peffect = chit->triggering_effect;
 		pduel->write_buffer32(peffect->handler->data.code);
@@ -172,13 +172,13 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 	case LOCATION_DECK: {
 		if (sequence == 0) {		//deck top
 			player[playerid].list_main.push_back(pcard);
-			pcard->current.sequence = player[playerid].list_main.size() - 1;
+			pcard->current.sequence = (uint8)player[playerid].list_main.size() - 1;
 		} else if (sequence == 1) {		//deck button
 			player[playerid].list_main.insert(player[playerid].list_main.begin(), pcard);
 			reset_sequence(playerid, LOCATION_DECK);
 		} else {		//deck top & shuffle
 			player[playerid].list_main.push_back(pcard);
-			pcard->current.sequence = player[playerid].list_main.size() - 1;
+			pcard->current.sequence = (uint8)player[playerid].list_main.size() - 1;
 			if(!core.shuffle_check_disabled)
 				core.shuffle_deck_check[playerid] = TRUE;
 		}
@@ -187,7 +187,7 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 	}
 	case LOCATION_HAND: {
 		player[playerid].list_hand.push_back(pcard);
-		pcard->current.sequence = player[playerid].list_hand.size() - 1;
+		pcard->current.sequence = (uint8)player[playerid].list_hand.size() - 1;
 		uint32 pos = pcard->is_affected_by_effect(EFFECT_PUBLIC) ? POS_FACEUP : POS_FACEDOWN;
 		pcard->operation_param = (pcard->operation_param & 0x00ffffff) | (pos << 24);
 		if(!(pcard->current.reason & REASON_DRAW) && !core.shuffle_check_disabled)
@@ -196,17 +196,17 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 	}
 	case LOCATION_GRAVE: {
 		player[playerid].list_grave.push_back(pcard);
-		pcard->current.sequence = player[playerid].list_grave.size() - 1;
+		pcard->current.sequence = (uint8)player[playerid].list_grave.size() - 1;
 		break;
 	}
 	case LOCATION_REMOVED: {
 		player[playerid].list_remove.push_back(pcard);
-		pcard->current.sequence = player[playerid].list_remove.size() - 1;
+		pcard->current.sequence = (uint8)player[playerid].list_remove.size() - 1;
 		break;
 	}
 	case LOCATION_EXTRA: {
 		player[playerid].list_extra.push_back(pcard);
-		pcard->current.sequence = player[playerid].list_extra.size() - 1;
+		pcard->current.sequence = (uint8)player[playerid].list_extra.size() - 1;
 		if((pcard->data.type & TYPE_PENDULUM) && ((pcard->operation_param >> 24) & POS_FACEUP))
 			++player[playerid].extra_p_count;
 		break;
@@ -549,7 +549,7 @@ void field::shuffle(uint8 playerid, uint8 location) {
 	if(location == LOCATION_HAND) {
 		pduel->write_buffer8(MSG_SHUFFLE_HAND);
 		pduel->write_buffer8(playerid);
-		pduel->write_buffer8(player[playerid].list_hand.size());
+		pduel->write_buffer8((uint8)player[playerid].list_hand.size());
 		for(auto cit = svector.begin(); cit != svector.end(); ++cit)
 			pduel->write_buffer32((*cit)->data.code);
 		core.shuffle_hand_check[playerid] = FALSE;
@@ -700,10 +700,10 @@ void field::tag_swap(uint8 playerid) {
 	}
 	pduel->write_buffer8(MSG_TAG_SWAP);
 	pduel->write_buffer8(playerid);
-	pduel->write_buffer8(player[playerid].list_main.size());
-	pduel->write_buffer8(player[playerid].list_extra.size());
+	pduel->write_buffer8((uint8)player[playerid].list_main.size());
+	pduel->write_buffer8((uint8)player[playerid].list_extra.size());
 	pduel->write_buffer8(player[playerid].extra_p_count);
-	pduel->write_buffer8(player[playerid].list_hand.size());
+	pduel->write_buffer8((uint8)player[playerid].list_hand.size());
 	if(core.deck_reversed && player[playerid].list_main.size())
 		pduel->write_buffer32(player[playerid].list_main.back()->data.code);
 	else

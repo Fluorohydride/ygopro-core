@@ -58,7 +58,7 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		pcard->overlay_target = fcard;
 		pcard->current.controler = PLAYER_NONE;
 		pcard->current.location = LOCATION_OVERLAY;
-		pcard->current.sequence = fcard->xyz_materials.size() - 1;
+		pcard->current.sequence = (uint8)fcard->xyz_materials.size() - 1;
 		interpreter::card2value(L, pcard);
 		return 1;
 	}
