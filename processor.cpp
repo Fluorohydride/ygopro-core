@@ -1000,7 +1000,7 @@ int32 field::process() {
 		uint8 target_player = it->arg1 >> 16;
 		uint8 count = it->arg2, i = 0;
 		if(count > player[target_player].list_main.size())
-			count = player[target_player].list_main.size();
+			count = (uint8)player[target_player].list_main.size();
 		if(it->step == 0) {
 			core.select_cards.clear();
 			for(auto clit = player[target_player].list_main.rbegin(); i < count; ++i, ++clit)
@@ -1016,7 +1016,7 @@ int32 field::process() {
 					tc[(int32)returns.bvalue[i]] = core.select_cards[i];
 				for(i = 0; i < count; ++i) {
 					player[target_player].list_main.push_back(tc[count - i - 1]);
-					tc[count - i - 1]->current.sequence = player[target_player].list_main.size() - 1;
+					tc[count - i - 1]->current.sequence = (uint8)player[target_player].list_main.size() - 1;
 				}
 			}
 			if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
@@ -4227,7 +4227,7 @@ int32 field::add_chain(uint16 step) {
 		pduel->write_buffer8(clit.triggering_location);
 		pduel->write_buffer8(clit.triggering_sequence);
 		pduel->write_buffer32(peffect->description);
-		pduel->write_buffer8(core.current_chain.size() + 1);
+		pduel->write_buffer8((uint8)core.current_chain.size() + 1);
 		break_effect();
 		if(core.chain_limit) {
 			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, core.chain_limit);
@@ -4237,7 +4237,7 @@ int32 field::add_chain(uint16 step) {
 		if((peffect->card_type & 0x5) == 0x5)
 			peffect->card_type -= TYPE_TRAP;
 		peffect->active_type = peffect->card_type;
-		clit.chain_count = core.current_chain.size() + 1;
+		clit.chain_count = (uint8)core.current_chain.size() + 1;
 		clit.target_cards = 0;
 		clit.target_player = PLAYER_NONE;
 		clit.target_param = 0;
