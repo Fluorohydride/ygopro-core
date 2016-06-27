@@ -2163,7 +2163,7 @@ int32 scriptlib::card_add_monster_attribute_complete(lua_State *L) {
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_CHANGE_TYPE;
 	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
-	peffect->reset_flag = RESET_EVENT + 0x1fe0000;
+	peffect->reset_flag = RESET_EVENT + 0x1fc0000;
 	peffect->value = TYPE_MONSTER | type;
 	pcard->add_effect(peffect);
 	// extra block
