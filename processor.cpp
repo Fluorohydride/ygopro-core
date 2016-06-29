@@ -2912,7 +2912,6 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 3: {
-		//Filter Targers
 		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]) {
 			core.chain_attack = FALSE;
 			core.units.begin()->step = -1;
@@ -3103,11 +3102,7 @@ int32 field::process_battle_command(uint16 step) {
 			adjust_all();
 			return FALSE;
 		}
-		core.select_cards.clear();
-		auto atype = get_attack_target(core.attacker, &core.select_cards, core.chain_attack, false);
-		if(!core.attack_target && !core.attacker->operation_param
-			|| core.attack_target && atype <= 3
-				&& std::find(core.select_cards.begin(), core.select_cards.end(), core.attack_target) == core.select_cards.end())
+		if(!confirm_attack_target())
 			rollback = true;
 		// go to damage step
 		if(!rollback) {

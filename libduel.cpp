@@ -1239,9 +1239,6 @@ int32 scriptlib::duel_change_attack_target(lua_State *L) {
 		lua_pushboolean(L, 0);
 	return 1;
 }
-int32 scriptlib::duel_replace_attack_target(lua_State *L) {
-	return 0;
-}
 int32 scriptlib::duel_calculate_damage(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 2);

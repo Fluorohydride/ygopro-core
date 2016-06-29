@@ -1659,19 +1659,18 @@ int32 field::effect_replace_check(uint32 code, const tevent& e) {
 	}
 	return FALSE;
 }
-int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack, bool choose_target) {
+int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) {
 	uint8 p = pcard->current.controler;
 	effect* peffect;
-	card* atarget;
 	card_vector* pv = NULL;
 	int32 atype = 0;
 	card_vector must_be_attack;
 	card_vector only_be_attack;
 	effect_set eset;
-	
+	// find the universal set pv
 	pcard->operation_param = 0;
 	for(uint32 i = 0; i < 5; ++i) {
-		atarget = player[1 - p].list_mzone[i];
+		card* atarget = player[1 - p].list_mzone[i];
 		if(atarget){
 			if(atarget->is_affected_by_effect(EFFECT_MUST_BE_ATTACKED, pcard))
 				must_be_attack.push_back(atarget);
@@ -1708,7 +1707,7 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack, 
 		atype = 4;
 		pv = &player[1 - p].list_mzone;
 	}
-	
+	// extra count
 	int32 ct1 = 0, ct2 = 0;
 	int32 tmp = 0;
 	effect_set exts1, exts2;
@@ -1725,78 +1724,229 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack, 
 		if(tmp > ct2)
 			ct2 = tmp;
 	}
-	if(core.attacker == pcard ? pcard->announce_count <= ct1 + 1 : pcard->announce_count < ct1 + 1)
-		dir = true;
-	else if(chain_attack && !core.chain_attack_target)
-		dir = true;
-	else if(ct2 && (core.attacker == pcard ? pcard->announce_count <= ct2 + 1 : pcard->announce_count < ct2 + 1)
-			&& pcard->announced_cards.find(0) == pcard->announced_cards.end() && pcard->battled_cards.find(0) == pcard->battled_cards.end())
-		dir = false;
-	else{
-		// effects with target limit
-		// The system only check the general case (never attacked player) and approximate solution
-		if((peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL))
-				&& pcard->announced_cards.find(0) == pcard->announced_cards.end() && pcard->battled_cards.find(0) == pcard->battled_cards.end()
-				&& pcard->attack_all_target) {
-			for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
-				atarget = *cit;
-				if(!atarget)
-					continue;
-				// valid target
-				pduel->lua->add_param(atarget, PARAM_TYPE_CARD);
-				if(!peffect->check_value_condition(1))
-					continue;
-				// enough effect count
-				auto it = pcard->announced_cards.find(atarget->fieldid_r);
-				if(it != pcard->announced_cards.end() && (int32)it->second.second >= peffect->get_value(atarget)) {
-					continue;
+	if(pcard != core.attacker){
+		if(pcard->announce_count < ct1 + 1)
+			dir = true;
+		else if(chain_attack && !core.chain_attack_target)
+			dir = true;
+		else if(ct2 && pcard->announce_count < ct2 + 1
+				&& pcard->announced_cards.find(0) == pcard->announced_cards.end() && pcard->battled_cards.find(0) == pcard->battled_cards.end())
+			dir = false;
+		else{
+			// effects with target limit
+			if((peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL))
+					&& pcard->announced_cards.find(0) == pcard->announced_cards.end() && pcard->battled_cards.find(0) == pcard->battled_cards.end()
+					&& pcard->attack_all_target) { 
+				for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
+					card* atarget = *cit;
+					if(!atarget)
+						continue;
+					// valid target
+					pduel->lua->add_param(atarget, PARAM_TYPE_CARD);
+					if(!peffect->check_value_condition(1))
+						continue;
+					// enough effect count
+					auto it = pcard->announced_cards.find(atarget->fieldid_r);
+					if(it != pcard->announced_cards.end() && (int32)it->second.second >= peffect->get_value(atarget)) {
+						continue;
+					}
+					it = pcard->battled_cards.find(atarget->fieldid_r);
+					if(it != pcard->battled_cards.end() && (int32)it->second.second >= peffect->get_value(atarget)) {
+						continue;
+					}
+					if(atype == 4 && !atarget->is_capable_be_battle_target(pcard))
+						continue;
+					v->push_back(atarget);
 				}
-				it = pcard->battled_cards.find(atarget->fieldid_r);
-				if(it != pcard->battled_cards.end() && (int32)it->second.second >= peffect->get_value(atarget)) {
-					continue;
-				}
-				if(atype == 4 && !atarget->is_capable_be_battle_target(pcard))
-					continue;
-				v->push_back(atarget);
 			}
+			if(chain_attack && core.chain_attack_target
+					&& std::find(pv->begin(), pv->end(), core.chain_attack_target) != pv->end()
+					&& (atype != 4 || core.chain_attack_target->is_capable_be_battle_target(pcard))) {
+				v->push_back(core.chain_attack_target);
+			}
+			return atype;
 		}
-		if(chain_attack && core.chain_attack_target
-				&& std::find(pv->begin(), pv->end(), core.chain_attack_target) != pv->end()
-				&& (atype != 4 || core.chain_attack_target->is_capable_be_battle_target(pcard))) {
-			v->push_back(core.chain_attack_target);
+	}
+	else {
+		if(pcard->announce_count <= ct1 + 1)
+			dir = true;
+		else if(chain_attack && !core.chain_attack_target)
+			dir = true;
+		else if(ct2 && pcard->announce_count <= ct2 + 1
+				&& pcard->announced_cards.find(0) == pcard->announced_cards.end() && pcard->battled_cards.find(0) == pcard->battled_cards.end())
+			dir = false;
+		else{
+			// effects with target limit
+			if((peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL)) && pcard->attack_all_target) { 
+				for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
+					card* atarget = *cit;
+					if(!atarget)
+						continue;
+					// valid target
+					pduel->lua->add_param(atarget, PARAM_TYPE_CARD);
+					if(!peffect->check_value_condition(1))
+						continue;
+					// enough effect count
+					auto it = pcard->announced_cards.find(atarget->fieldid_r);
+					if(it != pcard->announced_cards.end() 
+							&& (atarget == core.attack_target ? (int32)it->second.second > peffect->get_value(atarget) : (int32)it->second.second >= peffect->get_value(atarget))) {
+						continue;
+					}
+					it = pcard->battled_cards.find(atarget->fieldid_r);
+					if(it != pcard->battled_cards.end()
+							&& (atarget == core.attack_target ? (int32)it->second.second > peffect->get_value(atarget) : (int32)it->second.second >= peffect->get_value(atarget))) {
+						continue;
+					}
+					if(atype == 4 && !atarget->is_capable_be_battle_target(pcard))
+						continue;
+					v->push_back(atarget);
+				}
+			}
+			if(chain_attack && core.chain_attack_target
+					&& std::find(pv->begin(), pv->end(), core.chain_attack_target) != pv->end()
+					&& (atype != 4 || core.chain_attack_target->is_capable_be_battle_target(pcard))) {
+				v->push_back(core.chain_attack_target);
+			}
+			return atype;
 		}
-		return atype;
 	}
 	if(atype <= 3) {
 		*v = *pv;
 		return atype;
 	}
+	// For atype=4(normal), check all cards in pv.
 	uint32 mcount = 0;
 	for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
-		atarget = *cit;
+		card* atarget = *cit;
 		if(!atarget)
 			continue;
-		if(choose_target){
-			if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
-				continue;
-			mcount++;
-			if(atarget->is_affected_by_effect(EFFECT_CANNOT_BE_BATTLE_TARGET, pcard))
-				continue;
-			if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
-				continue;
-			v->push_back(atarget);
-		}
-		else {
-			if(!atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
-				mcount++;
-			v->push_back(atarget);
-		}
+		if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
+			continue;
+		mcount++;
+		if(atarget->is_affected_by_effect(EFFECT_CANNOT_BE_BATTLE_TARGET, pcard))
+			continue;
+		if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, atarget))
+			continue;
+		v->push_back(atarget);
 	}
 	if((mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK) || core.attack_player)
 			&& !pcard->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK) && dir)
 		pcard->operation_param = 1;
 	return atype;
 }
+// return: core.attack_target is valid or not
+bool field::confirm_attack_target() {
+	card* pcard = core.attacker;
+	uint8 p = pcard->current.controler;
+	effect* peffect;
+	card_vector* pv = NULL;
+	int32 atype = 0;
+	card_vector must_be_attack;
+	card_vector only_be_attack;
+	effect_set eset;
+	
+	// find the universal set
+	for(uint32 i = 0; i < 5; ++i) {
+		card* atarget = player[1 - p].list_mzone[i];
+		if(atarget){
+			if(atarget->is_affected_by_effect(EFFECT_MUST_BE_ATTACKED, pcard))
+				must_be_attack.push_back(atarget);
+			if(atarget->is_affected_by_effect(EFFECT_ONLY_BE_ATTACKED))
+				only_be_attack.push_back(atarget);
+		}
+	}
+	pcard->filter_effect(EFFECT_RISE_TO_FULL_HEIGHT, &eset);
+	if(eset.size()){
+		atype = 1;
+		std::set<uint32> idset;
+		for(int32 i = 0; i < eset.size(); ++i)
+			idset.insert(eset[i]->label);
+		if(idset.size()==1 && only_be_attack.size() == 1 && only_be_attack.front()->fieldid_r == *idset.begin())
+			pv = &only_be_attack;
+		else
+			return false;
+	}
+	else if(pcard->is_affected_by_effect(EFFECT_ONLY_ATTACK_MONSTER)){
+		atype = 2;
+		if(only_be_attack.size() == 1)
+			pv = &only_be_attack;
+		else
+			return false;
+	}
+	else if(pcard->is_affected_by_effect(EFFECT_MUST_ATTACK_MONSTER)){
+		atype = 3;
+		if(must_be_attack.size())
+			pv = &must_be_attack;
+		else
+			return false;
+	}
+	else{
+		atype = 4;
+		pv = &player[1 - p].list_mzone;
+	}
+	// extra count
+	int32 ct1 = 0, ct2 = 0;
+	int32 tmp = 0;
+	effect_set exts1, exts2;
+	bool dir = true;
+	pcard->filter_effect(EFFECT_EXTRA_ATTACK, &exts1);
+	for(int32 i = 0; i < exts1.size(); ++i){
+		tmp = exts1[i]->get_value(pcard);
+		if(tmp > ct1)
+			ct1 = tmp;
+	}
+	pcard->filter_effect(EFFECT_EXTRA_ATTACK_MONSTER, &exts2);
+	for(int32 i = 0; i < exts2.size(); ++i){
+		tmp = exts2[i]->get_value(pcard);
+		if(tmp > ct2)
+			ct2 = tmp;
+	}
+	if(pcard->announce_count <= ct1 + 1)
+		dir = true;
+	else if(core.chain_attack && !core.chain_attack_target)
+		dir = true;
+	else if(ct2 && pcard->announce_count <= ct2 + 1
+			&& pcard->announced_cards.find(0) == pcard->announced_cards.end() && pcard->battled_cards.find(0) == pcard->battled_cards.end())
+		dir = false;
+	else{
+		// effects with target limit
+		if((peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL)) && pcard->attack_all_target && core.attack_target) { 
+			// valid target
+			pduel->lua->add_param(core.attack_target, PARAM_TYPE_CARD);
+			if(!peffect->check_value_condition(1))
+				return false;
+			// enough effect count
+			auto it = pcard->announced_cards.find(core.attack_target->fieldid_r);
+			if(it != pcard->announced_cards.end() && (int32)it->second.second > peffect->get_value(core.attack_target)) {
+				return false;
+			}
+			it = pcard->battled_cards.find(core.attack_target->fieldid_r);
+			if(it != pcard->battled_cards.end() && (int32)it->second.second > peffect->get_value(core.attack_target)) {
+				return false;
+			}
+			return true;
+		}
+		if(core.chain_attack && core.chain_attack_target && core.chain_attack_target == core.attack_target) {
+			return true;
+		}
+		return false;
+	}
+	uint32 mcount = 0;
+	for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
+		card* atarget = *cit;
+		if(!atarget)
+			continue;
+		if(atarget->is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
+			continue;
+		mcount++;
+	}
+	if(core.attack_target)
+		return std::find(pv->begin(), pv->end(), core.attack_target) != pv->end();
+	else
+		return (mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK) || core.attack_player) 
+			&& !pcard->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK) && dir;
+}
+// update the validity for EFFECT_ATTACK_ALL (approximate solution)
 void field::attack_all_target_check() {
 	if(!core.attacker)
 		return;

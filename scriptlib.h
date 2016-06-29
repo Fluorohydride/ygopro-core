@@ -377,7 +377,6 @@ public:
 	static int32 duel_shuffle_setcard(lua_State *L);
 	static int32 duel_change_attacker(lua_State *L);
 	static int32 duel_change_attack_target(lua_State *L);
-	static int32 duel_replace_attack_target(lua_State *L);
 	static int32 duel_calculate_damage(lua_State *L);
 	static int32 duel_get_battle_damage(lua_State *L);
 	static int32 duel_change_battle_damage(lua_State *L);

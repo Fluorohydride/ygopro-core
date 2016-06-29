@@ -2222,7 +2222,10 @@ int32 scriptlib::card_get_attackable_target(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	duel* pduel = pcard->pduel;
 	field::card_vector targets;
-	pduel->game_field->get_attack_target(pcard, &targets);
+	uint8 chain_attack = FALSE;
+	if(pduel->game_field->core.chain_attacker_id == pcard->fieldid)
+		chain_attack = TRUE;
+	pduel->game_field->get_attack_target(pcard, &targets, chain_attack);
 	group* newgroup = pduel->new_group();
 	newgroup->container.insert(targets.begin(), targets.end());
 	interpreter::group2value(L, newgroup);
