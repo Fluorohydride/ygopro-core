@@ -2302,14 +2302,28 @@ int32 field::is_player_can_spsummon(uint8 playerid) {
 	return is_player_can_spsummon_count(playerid, 1);
 }
 int32 field::is_player_can_spsummon(effect * peffect, uint32 sumtype, uint8 sumpos, uint8 playerid, uint8 toplayer, card * pcard) {
-	effect_set eset;
 	if(pcard->is_affected_by_effect(EFFECT_CANNOT_SPECIAL_SUMMON))
 		return FALSE;
 	if(pcard->is_status(STATUS_FORBIDDEN))
 		return FALSE;
 	sumtype |= SUMMON_TYPE_SPECIAL;
+	save_lp_cost();
+	effect_set eset;
+	pcard->filter_effect(EFFECT_SPSUMMON_COST, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		pduel->lua->add_param(sumtype, PARAM_TYPE_INT);
+		if(!pduel->lua->check_condition(eset[i]->cost, 4)) {
+			restore_lp_cost();
+			return FALSE;
+		}
+	}
+	restore_lp_cost();
 	if(sumpos & POS_FACEDOWN && is_player_affected_by_effect(playerid, EFFECT_DEVINE_LIGHT))
 		sumpos = (sumpos & POS_FACEUP) | (sumpos >> 1);
+	eset.clear();
 	filter_player_effect(playerid, EFFECT_CANNOT_SPECIAL_SUMMON, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		if(!eset[i]->target)
@@ -2344,9 +2358,9 @@ int32 field::is_player_can_flipsummon(uint8 playerid, card * pcard) {
 	}
 	return TRUE;
 }
-int32 field::is_player_can_spsummon_monster(uint8 playerid, uint8 toplayer, uint8 sumpos, card_data * pdata) {
+int32 field::is_player_can_spsummon_monster(uint8 playerid, uint8 toplayer, uint8 sumpos, uint32 sumtype, card_data* pdata) {
 	temp_card->data = *pdata;
-	return is_player_can_spsummon(core.reason_effect, SUMMON_TYPE_SPECIAL, sumpos, playerid, toplayer, temp_card);
+	return is_player_can_spsummon(core.reason_effect, sumtype, sumpos, playerid, toplayer, temp_card);
 }
 int32 field::is_player_can_release(uint8 playerid, card * pcard) {
 	effect_set eset;

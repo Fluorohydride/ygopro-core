@@ -3021,12 +3021,15 @@ int32 scriptlib::duel_is_player_can_spsummon_monster(lua_State * L) {
 		dat.attribute = lua_tointeger(L, 9);
 	int32 pos = POS_FACEUP;
 	int32 toplayer = playerid;
+	uint32 sumtype = 0;
 	if(lua_gettop(L) >= 10)
 		pos = lua_tointeger(L, 10);
 	if(lua_gettop(L) >= 11)
 		toplayer = lua_tointeger(L, 11);
+	if(lua_gettop(L) >= 12)
+		sumtype = lua_tointeger(L, 12);
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushboolean(L, pduel->game_field->is_player_can_spsummon_monster(playerid, toplayer, pos, &dat));
+	lua_pushboolean(L, pduel->game_field->is_player_can_spsummon_monster(playerid, toplayer, pos, sumtype, &dat));
 	return 1;
 }
 int32 scriptlib::duel_is_player_can_spsummon_count(lua_State * L) {
