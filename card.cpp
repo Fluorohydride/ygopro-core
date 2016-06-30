@@ -2375,7 +2375,8 @@ int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 		pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-		if(!pduel->lua->check_condition(eset[i]->cost, 3)) {
+		pduel->lua->add_param(summon_type, PARAM_TYPE_INT);
+		if(!pduel->lua->check_condition(eset[i]->cost, 4)) {
 			pduel->game_field->restore_lp_cost();
 			return FALSE;
 		}
@@ -2421,7 +2422,8 @@ int32 card::is_can_be_special_summoned(effect * reason_effect, uint32 sumtype, u
 		pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		pduel->lua->add_param(sumplayer, PARAM_TYPE_INT);
-		if(!pduel->lua->check_condition(eset[i]->cost, 3)) {
+		pduel->lua->add_param(sumtype, PARAM_TYPE_INT);
+		if(!pduel->lua->check_condition(eset[i]->cost, 4)) {
 			pduel->game_field->restore_lp_cost();
 			return FALSE;
 		}
