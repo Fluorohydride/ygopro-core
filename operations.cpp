@@ -3794,12 +3794,14 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 			}
 		} else if(!is_equip && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM)) {
 			uint32 flag = 0;
-			if(!get_field_card(playerid, LOCATION_SZONE, 6))
+			if(is_location_useable(playerid, LOCATION_SZONE, 6))
 				flag |= 1 << 14;
-			if(!get_field_card(playerid, LOCATION_SZONE, 7))
+			if(is_location_useable(playerid, LOCATION_SZONE, 7))
 				flag |= 1 << 15;
+			if(move_player != playerid)
+				flag = flag << 16;
 			pduel->write_buffer8(MSG_SELECT_PLACE);
-			pduel->write_buffer8(playerid);
+			pduel->write_buffer8(move_player);
 			pduel->write_buffer8(1);
 			pduel->write_buffer32(~flag);
 		} else {

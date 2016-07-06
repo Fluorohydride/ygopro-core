@@ -310,7 +310,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 				if (playerid == preplayer && sequence == presequence)
 					return;
 				if((location == LOCATION_MZONE && (sequence < 0 || sequence > 4 || player[playerid].list_mzone[sequence]))
-				        || (location == LOCATION_SZONE && (sequence < 0 || sequence > 4 || player[playerid].list_szone[sequence])))
+				        || (location == LOCATION_SZONE && (sequence < 0 || sequence > 7 || player[playerid].list_szone[sequence])))
 					return;
 				if(preplayer == playerid) {
 					pduel->write_buffer8(MSG_MOVE);
