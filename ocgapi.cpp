@@ -13,6 +13,7 @@
 #include "effect.h"
 #include "field.h"
 #include "interpreter.h"
+#include "../gframe/bufferio.h"
 #include <set>
 
 script_reader sreader = default_script_reader;
@@ -41,7 +42,13 @@ uint32 handle_message(void* pduel, uint32 msg_type) {
 }
 byte* default_script_reader(const char* script_name, int* slen) {
 	FILE *fp;
+#ifdef _WIN32
+	wchar_t fname[256]; 
+	BufferIO::DecodeUTF8(script_name, fname);
+	fp = _wfopen(fname, L"rb");
+#else
 	fp = fopen(script_name, "rb");
+#endif
 	if (!fp)
 		return 0;
 	fseek(fp, 0, SEEK_END);
