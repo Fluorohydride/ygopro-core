@@ -3565,20 +3565,17 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 						equipings.insert(equipc);
 				}
 			}
-			// adjust card state and raise events
 			if(!(pcard->data.type & TYPE_TOKEN)) {
+				pcard->enable_field_effect(true);
 				if(nloc == LOCATION_HAND) {
-					pcard->enable_field_effect(true);
 					tohand.insert(pcard);
 					pcard->reset(RESET_TOHAND, RESET_EVENT);
 					raise_single_event(pcard, 0, EVENT_TO_HAND, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 				} else if(nloc == LOCATION_DECK || nloc == LOCATION_EXTRA) {
-					pcard->enable_field_effect(true);
 					todeck.insert(pcard);
 					pcard->reset(RESET_TODECK, RESET_EVENT);
 					raise_single_event(pcard, 0, EVENT_TO_DECK, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 				} else if(nloc == LOCATION_GRAVE) {
-					pcard->enable_field_effect(true);
 					pcard->reset(RESET_TOGRAVE, RESET_EVENT);
 					if(pcard->current.reason & REASON_RETURN) {
 						retgrave.insert(pcard);
@@ -3587,14 +3584,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 						tograve.insert(pcard);					
 						raise_single_event(pcard, 0, EVENT_TO_GRAVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 					}
-				} else if(nloc == LOCATION_REMOVED){
-					if(pcard->current.position & POS_FACEUP)
-						pcard->enable_field_effect(true);
-					else
-						pcard->enable_field_effect(false);
 				}
 			}
-			// EVENT_REMOVE is a special case since tokens are involved
 			if(nloc == LOCATION_REMOVED || ((pcard->data.type & TYPE_TOKEN) && ((pcard->operation_param >> 8) & 0xff) == LOCATION_REMOVED)) {
 				remove.insert(pcard);
 				if(pcard->current.reason & REASON_TEMPORARY)
