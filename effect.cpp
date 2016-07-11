@@ -76,8 +76,9 @@ int32 effect::is_available() {
 			return FALSE;
 		if(is_flag(EFFECT_FLAG_SINGLE_RANGE) && !in_range(handler->current.location, handler->current.sequence))
 			return FALSE;
-		if(is_flag(EFFECT_FLAG_SINGLE_RANGE) && (handler->current.location & LOCATION_ONFIELD)
-		        && (handler->is_position(POS_FACEDOWN) || (!handler->is_status(STATUS_EFFECT_ENABLED) && !is_flag(EFFECT_FLAG_IMMEDIATELY_APPLY))))
+		if(is_flag(EFFECT_FLAG_SINGLE_RANGE) && !handler->get_status(STATUS_EFFECT_ENABLED) && !is_flag(EFFECT_FLAG_IMMEDIATELY_APPLY))
+			return FALSE;
+		if(is_flag(EFFECT_FLAG_SINGLE_RANGE) && (handler->current.location & LOCATION_ONFIELD) && !handler->is_position(POS_FACEUP))
 			return FALSE;
 		if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && owner->is_status(STATUS_FORBIDDEN))
 			return FALSE;
@@ -110,6 +111,12 @@ int32 effect::is_available() {
 		if (!is_flag(EFFECT_FLAG_FIELD_ONLY)) {
 			if(handler->current.controler == PLAYER_NONE)
 				return FALSE;
+			if(!in_range(handler->current.location, handler->current.sequence))
+				return FALSE;
+			if(!handler->get_status(STATUS_EFFECT_ENABLED) && !is_flag(EFFECT_FLAG_IMMEDIATELY_APPLY))
+				return FALSE;
+			if((handler->current.location & LOCATION_ONFIELD) && !handler->is_position(POS_FACEUP))
+				return FALSE;
 			if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && owner->is_status(STATUS_FORBIDDEN))
 				return FALSE;
 			if(owner == handler && is_can_be_forbidden() && handler->get_status(STATUS_FORBIDDEN))
@@ -119,12 +126,6 @@ int32 effect::is_available() {
 			if(owner == handler && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && handler->get_status(STATUS_DISABLED))
 				return FALSE;
 			if(handler->is_status(STATUS_BATTLE_DESTROYED) && !is_flag(EFFECT_FLAG_AVAILABLE_BD))
-				return FALSE;
-			if(!handler->get_status(STATUS_EFFECT_ENABLED) && !is_flag(EFFECT_FLAG_IMMEDIATELY_APPLY))
-				return FALSE;
-			if(!in_range(handler->current.location, handler->current.sequence))
-				return FALSE;
-			if((handler->current.location & LOCATION_ONFIELD) && !handler->is_position(POS_FACEUP))
 				return FALSE;
 		}
 	}
@@ -236,7 +237,9 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 					&& !in_range(handler->current.location, handler->current.sequence))
 				return FALSE;
 			if((handler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED))) {
-				// effects with EFFECT_FLAG_SET_AVAILABLE can be activated while face-down
+				// effects which can be activated while face-down:
+				// 1. effects with EFFECT_FLAG_SET_AVAILABLE
+				// 2. events with FLIP_SET_AVAILABLE
 				if(!handler->is_position(POS_FACEUP) && !is_flag(EFFECT_FLAG_SET_AVAILABLE) && (code != EVENT_FLIP || !(e.event_value & (FLIP_SET_AVAILABLE >> 16))))
 					return FALSE;
 				if(handler->is_position(POS_FACEUP) && !handler->is_status(STATUS_EFFECT_ENABLED))

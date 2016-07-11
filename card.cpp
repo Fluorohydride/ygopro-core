@@ -1022,9 +1022,11 @@ void card::set_status(uint32 status, int32 enabled) {
 	else
 		this->status &= ~status;
 }
+// match at least 1 status
 int32 card::get_status(uint32 status) {
 	return this->status & status;
 }
+// match all status
 int32 card::is_status(uint32 status) {
 	if ((this->status & status) == status)
 		return TRUE;
@@ -1174,6 +1176,9 @@ void card::cancel_field_effect() {
 	if(unique_code && (current.location & unique_location))
 		pduel->game_field->remove_unique_card(this);
 }
+// STATUS_EFFECT_ENABLED: the card is ready to use
+// false: before moving, summoning, chaining
+// true: ready
 void card::enable_field_effect(bool enabled) {
 	if (current.location == 0)
 		return;
@@ -1323,9 +1328,8 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		single_effect.erase(it);
 	else if (peffect->type & EFFECT_TYPE_FIELD) {
 		check_target = 0;
-		if (peffect->in_range(current.location, current.sequence) && get_status(STATUS_EFFECT_ENABLED) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN)) {
-			if (peffect->is_disable_related())
-				pduel->game_field->update_disable_check_list(peffect);
+		if (peffect->is_available() && peffect->is_disable_related()) {
+			pduel->game_field->update_disable_check_list(peffect);
 		}
 		field_effect.erase(it);
 		if (peffect->in_range(current.location, current.sequence))

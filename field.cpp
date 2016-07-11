@@ -1561,7 +1561,7 @@ void field::set_spsummon_counter(uint8 playerid, bool add, bool chain) {
 			effect* peffect = *iter;
 			card* pcard = peffect->handler;
 			if(add) {
-				if(pcard->is_status(STATUS_EFFECT_ENABLED) && !pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && pcard->is_position(POS_FACEUP)) {
+				if(peffect->is_available()) {
 					if(((playerid == pcard->current.controler) && peffect->s_range) || ((playerid != pcard->current.controler) && peffect->o_range)) {
 						pcard->spsummon_counter[playerid]++;
 						if(chain)
@@ -1581,7 +1581,7 @@ int32 field::check_spsummon_counter(uint8 playerid, uint8 ct) {
 			effect* peffect = *iter;
 			card* pcard = peffect->handler;
 			uint16 val = (uint16)peffect->value;
-			if(pcard->is_status(STATUS_EFFECT_ENABLED) && !pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && pcard->is_position(POS_FACEUP)) {
+			if(peffect->is_available()) {
 				if(pcard->spsummon_counter[playerid] + ct > val)
 					return FALSE;
 			}
