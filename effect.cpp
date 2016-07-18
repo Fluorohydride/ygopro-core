@@ -195,6 +195,8 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			} else if(handler->current.location == LOCATION_SZONE) {
 				if(handler->is_position(POS_FACEUP))
 					return FALSE;
+				if(handler->equiping_target)
+					return FALSE;
 				if(handler->get_status(STATUS_SET_TURN)) {
 					if((handler->data.type & TYPE_SPELL) && (handler->data.type & TYPE_QUICKPLAY))
 						return FALSE;
