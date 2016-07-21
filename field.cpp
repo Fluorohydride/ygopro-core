@@ -2588,6 +2588,23 @@ int32 field::is_chain_disablable(uint8 chaincount, uint8 naga_check) {
 	}
 	return TRUE;
 }
+int32 field::is_chain_disabled(uint8 chaincount) {
+	if(chaincount < 0 || chaincount > core.current_chain.size())
+		return FALSE;
+	chain* pchain;
+	if(chaincount == 0)
+		pchain = &core.current_chain.back();
+	else
+		pchain = &core.current_chain[chaincount - 1];
+	if(pchain->flag & CHAIN_DISABLE_EFFECT)
+		return TRUE;
+	card* pcard = pchain->triggering_effect->handler;
+	effect_set eset;
+	pcard->filter_effect(EFFECT_DISABLE_CHAIN, &eset);
+	for(int32 i = 0; i < eset.size(); ++i)
+		return eset[i]->get_value() == pchain->chain_id;
+	return FALSE;
+}
 int32 field::check_chain_target(uint8 chaincount, card * pcard) {
 	if(chaincount < 0 || chaincount > core.current_chain.size())
 		return FALSE;

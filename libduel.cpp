@@ -1345,12 +1345,17 @@ int32 scriptlib::duel_negate_related_chain(lua_State *L) {
 		return FALSE;
 	if(!pcard->is_affect_by_effect(pduel->game_field->core.reason_effect))
 		return 0;
-	effect* negeff = pduel->new_effect();
-	negeff->owner = pduel->game_field->core.reason_effect->handler;
-	negeff->type = EFFECT_TYPE_SINGLE;
-	negeff->code = EFFECT_DISABLE_CHAIN_FIELD;
-	negeff->reset_flag = RESET_CHAIN | RESET_EVENT | reset_flag;
-	pcard->add_effect(negeff);
+	for(auto it = pduel->game_field->core.current_chain.rbegin(); it != pduel->game_field->core.current_chain.rend(); ++it) {
+		if(it->triggering_effect->handler == pcard && pcard->is_has_relation(*it)) {
+			effect* negeff = pduel->new_effect();
+			negeff->owner = pduel->game_field->core.reason_effect->handler;
+			negeff->type = EFFECT_TYPE_SINGLE;
+			negeff->code = EFFECT_DISABLE_CHAIN;
+			negeff->value = it->chain_id;
+			negeff->reset_flag = RESET_CHAIN | RESET_EVENT | reset_flag;
+			pcard->add_effect(negeff);
+		}
+	}
 	return 0;
 }
 int32 scriptlib::duel_disable_summon(lua_State *L) {
