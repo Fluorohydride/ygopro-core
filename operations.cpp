@@ -1551,7 +1551,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		if(core.summon_depth)
 			return TRUE;
 		target->enable_field_effect(false);
-		target->summon_info |= SUMMON_TYPE_NORMAL | SUMMON_TYPE_DUAL | (LOCATION_MZONE << 16);
+		target->summon_info |= SUMMON_TYPE_NORMAL;
 		target->current.reason_effect = 0;
 		target->current.reason_player = sumplayer;
 		effect* deffect = pduel->new_effect();
