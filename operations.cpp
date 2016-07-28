@@ -1930,6 +1930,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 		if(!ignore_count && !core.extra_summon[setplayer])
 			pextra = target->is_affected_by_effect(EFFECT_EXTRA_SET_COUNT);
 		target->summon_info = (proc->get_value(target) & 0xfffffff) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
+		target->summon_player = setplayer;
 		target->current.reason_effect = proc;
 		target->current.reason_player = setplayer;
 		pduel->lua->add_param(target, PARAM_TYPE_CARD);
