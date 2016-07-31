@@ -2261,7 +2261,7 @@ int32 field::process_instant_event() {
 		pr = effects.trigger_f_effect.equal_range(elit->event_code);
 		for(; pr.first != pr.second; ++pr.first) {
 			effect* peffect = pr.first->second;
-			if(!peffect->is_condition_check(peffect->handler->current.controler, *elit))
+			if(!peffect->handler->is_status(STATUS_EFFECT_ENABLED) || !peffect->is_condition_check(peffect->handler->current.controler, *elit))
 				continue;
 			peffect->s_range = peffect->handler->current.location;
 			peffect->o_range = peffect->handler->current.sequence;
@@ -2281,7 +2281,7 @@ int32 field::process_instant_event() {
 		pr = effects.trigger_o_effect.equal_range(elit->event_code);
 		for(; pr.first != pr.second; ++pr.first) {
 			effect* peffect = pr.first->second;
-			if(!peffect->is_condition_check(peffect->handler->current.controler, *elit))
+			if(!peffect->handler->is_status(STATUS_EFFECT_ENABLED) || !peffect->is_condition_check(peffect->handler->current.controler, *elit))
 				continue;
 			peffect->s_range = peffect->handler->current.location;
 			peffect->o_range = peffect->handler->current.sequence;
