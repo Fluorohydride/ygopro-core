@@ -1000,7 +1000,7 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count) {
 	}
 	return OPERATION_FAIL;
 }
-int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_value, uint16 step) {
+int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_value, uint16 step, uint8 stop) {
 	*yield_value = 0;
 	if (!f) {
 		sprintf(pduel->strbuffer, "\"CallCoroutine\": attempt to call a null function");
@@ -1040,6 +1040,18 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 			}
 			return OPERATION_FAIL;
 		}
+	}
+	if(stop) {
+		coroutines.erase(f);
+		params.clear();
+		if(yield_value)
+			*yield_value = -1;
+		call_depth--;
+		if(call_depth == 0) {
+			pduel->release_script_group();
+			pduel->restore_assumes();
+		}
+		return COROUTINE_STOP;
 	}
 	push_param(rthread, true);
 	current_state = rthread;

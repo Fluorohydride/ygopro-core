@@ -231,6 +231,7 @@ struct processor {
 	uint8 chain_limp_p;
 	uint8 chain_solving;
 	uint8 conti_solving;
+	uint8 chain_disable_check;
 	uint8 win_player;
 	uint8 win_reason;
 	uint8 re_adjust;

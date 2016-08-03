@@ -64,7 +64,7 @@ public:
 	int32 check_matching(card* pcard, int32 findex, int32 extraargs);
 	int32 get_operation_value(card* pcard, int32 findex, int32 extraargs);
 	int32 get_function_value(int32 f, uint32 param_count);
-	int32 call_coroutine(int32 f, uint32 param_count, uint32* yield_value, uint16 step);
+	int32 call_coroutine(int32 f, uint32 param_count, uint32* yield_value, uint16 step, uint8 stop = FALSE);
 
 	static void card2value(lua_State* L, card* pcard);
 	static void group2value(lua_State* L, group* pgroup);
@@ -87,5 +87,6 @@ public:
 #define COROUTINE_FINISH	1
 #define COROUTINE_YIELD		2
 #define COROUTINE_ERROR		3
+#define COROUTINE_STOP		4
 
 #endif /* INTERPRETER_H_ */
