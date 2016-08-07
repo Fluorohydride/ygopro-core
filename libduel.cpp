@@ -2125,7 +2125,7 @@ int32 scriptlib::duel_set_fusion_material(lua_State *L) {
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	duel* pduel = pgroup->pduel;
-	pduel->game_field->core.fusion_materials = pgroup->container;
+	pduel->game_field->core.fusion_materials->container = pgroup->container;
 	return 0;
 }
 int32 scriptlib::duel_set_synchro_material(lua_State *L) {

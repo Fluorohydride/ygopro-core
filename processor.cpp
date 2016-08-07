@@ -756,10 +756,9 @@ int32 field::process() {
 	case PROCESSOR_SELECT_FUSION: {
 		if(it->step == 0) {
 			tevent e;
-			e.event_cards = it->ptarget;
+			e.event_cards = core.fusion_materials;
 			e.reason_effect = it->peffect;
 			e.reason_player = it->arg1;
-			core.fusion_materials.clear();
 			if(!it->peffect) {
 				core.units.pop_front();
 				return pduel->bufferlen;
@@ -770,7 +769,7 @@ int32 field::process() {
 			add_process(PROCESSOR_EXECUTE_OPERATION, 0, it->peffect, 0, it->arg1 & 0xffff, 0);
 			it->step++;
 		} else {
-			group* pgroup = pduel->new_group(core.fusion_materials);
+			group* pgroup = pduel->new_group(core.fusion_materials->container);
 			if(it->arg2)
 				pgroup->container.insert((card*)it->arg2);
 			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);

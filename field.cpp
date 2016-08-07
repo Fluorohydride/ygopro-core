@@ -78,6 +78,8 @@ field::field(duel* pduel) {
 	core.overdraw[0] = FALSE;
 	core.overdraw[1] = FALSE;
 	core.check_level = 0;
+	core.fusion_materials = pduel->new_group();
+	core.fusion_materials->is_readonly = TRUE;
 	core.limit_tuner = 0;
 	core.limit_syn = 0;
 	core.limit_xyz = 0;
@@ -1278,6 +1280,13 @@ int32 field::get_draw_count(uint8 playerid) {
 	if(eset.size())
 		count = eset.get_last()->get_value();
 	return count;
+}
+void field::get_fusion_matierial(card* fcard, group* fusion_m) {
+	core.fusion_materials->container.clear();
+	for(auto cit = fusion_m->container.begin(); cit != fusion_m->container.end(); ++cit) {
+		if((*cit)->is_can_be_fusion_material(fcard))
+			core.fusion_materials->container.insert(*cit);
+	}
 }
 void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* material) {
 	card* pcard;
