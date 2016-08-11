@@ -11,7 +11,7 @@ Start by downloading the most parent of the source code. The team developing thi
 Download premake4.exe, put it in `c:\windows` or a similar folder that is globally accessiable via `cmd` or PowerShell. Install Visual Studio 2010, it is the system used for the guide because other parts of the project use C# and most the development team are Windows users.
 
 ###3.) Download dependencies
-Dependencies are absent from the main project. There is information on how to build them but the easist thing to do is to download the following folders from a `soarquin/ygopro` fork and simply copy them into the `Fluorohydride/ygopro` folder.
+Dependencies are absent from the main project. There is information on how to build them but the easist thing to do is to download the following folders from a [soarqin/ygopro](https://github.com/soarqin/ygopro) fork and simply copy them into the `Fluorohydride/ygopro` folder.
 
 * event
 * freetype
