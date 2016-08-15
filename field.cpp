@@ -1442,7 +1442,7 @@ void field::adjust_self_destroy_set() {
 	effect* peffect;
 	for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
 		card* pcard = *cit;
-		if((!pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && (peffect = check_unique_onfield(pcard, pcard->current.controler, pcard->current.location)))
+		if((peffect = check_unique_onfield(pcard, pcard->current.controler, pcard->current.location))
 		        || (peffect = pcard->is_affected_by_effect(EFFECT_SELF_DESTROY)) && !pcard->is_status(STATUS_BATTLE_DESTROYED)) {
 			core.self_destroy_set.insert(pcard);
 			pcard->temp.reason_effect = pcard->current.reason_effect;
@@ -1492,7 +1492,8 @@ effect* field::check_unique_onfield(card* pcard, uint8 controler, uint8 location
 		card* ucard = *iter;
 		if((ucard != pcard) && ucard->is_position(POS_FACEUP) && ucard->get_status(STATUS_EFFECT_ENABLED)
 			&& (ucard->unique_code == pcard->unique_code) && (ucard->unique_location & location)
-			&& (!(pcard->current.location & ucard->unique_location) || pcard->is_position(POS_FACEDOWN) || (ucard->unique_uid < pcard->unique_uid)))
+			&& (!(pcard->current.location & ucard->unique_location) || pcard->is_position(POS_FACEDOWN)
+				|| ((!pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) || !ucard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN)) && ucard->unique_uid < pcard->unique_uid)))
 			return pcard->unique_effect;
 	}
 	return 0;
