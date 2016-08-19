@@ -731,6 +731,9 @@ public:
 #define CHINT_NUMBER			5
 #define CHINT_DESC_ADD			6
 #define CHINT_DESC_REMOVE		7
+//
+#define PHINT_DESC_ADD			6
+#define PHINT_DESC_REMOVE		7
 //Messages
 #define MSG_RETRY				1
 #define MSG_HINT				2
@@ -818,6 +821,7 @@ public:
 #define MSG_RELOAD_FIELD		162	// Debug.ReloadFieldEnd()
 #define MSG_AI_NAME				163
 #define MSG_SHOW_HINT			164
+#define MSG_PLAYER_HINT			165
 #define MSG_MATCH_KILL			170
 #define MSG_CUSTOM_MSG			180
 #endif /* FIELD_H_ */

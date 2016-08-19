@@ -757,6 +757,25 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 			effects.cheff.insert(peffect);
 		if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 			effects.rechargeable.insert(peffect);
+		if(peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET) && peffect->is_flag(EFFECT_FLAG_CLIENT_HINT)) {
+			bool target_player[2] = {false, false};
+			if(peffect->s_range)
+				target_player[owner_player] = true;
+			if(peffect->o_range)
+				target_player[1 - owner_player] = true;
+			if(target_player[0]) {
+				pduel->write_buffer8(MSG_PLAYER_HINT);
+				pduel->write_buffer8(0);
+				pduel->write_buffer8(PHINT_DESC_ADD);
+				pduel->write_buffer32(peffect->description);
+			}
+			if(target_player[1]) {
+				pduel->write_buffer8(MSG_PLAYER_HINT);
+				pduel->write_buffer8(1);
+				pduel->write_buffer8(PHINT_DESC_ADD);
+				pduel->write_buffer32(peffect->description);
+			}
+		}
 	}
 }
 void field::remove_effect(effect* peffect) {
@@ -797,6 +816,25 @@ void field::remove_effect(effect* peffect) {
 		if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 			effects.rechargeable.erase(peffect);
 		core.reseted_effects.insert(peffect);
+		if(peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET) && peffect->is_flag(EFFECT_FLAG_CLIENT_HINT)) {
+			bool target_player[2] = {false, false};
+			if(peffect->s_range)
+				target_player[peffect->effect_owner] = true;
+			if(peffect->o_range)
+				target_player[1 - peffect->effect_owner] = true;
+			if(target_player[0]) {
+				pduel->write_buffer8(MSG_PLAYER_HINT);
+				pduel->write_buffer8(0);
+				pduel->write_buffer8(PHINT_DESC_REMOVE);
+				pduel->write_buffer32(peffect->description);
+			}
+			if(target_player[1]) {
+				pduel->write_buffer8(MSG_PLAYER_HINT);
+				pduel->write_buffer8(1);
+				pduel->write_buffer8(PHINT_DESC_REMOVE);
+				pduel->write_buffer32(peffect->description);
+			}
+		}
 	}
 }
 void field::remove_oath_effect(effect* reason_effect) {
