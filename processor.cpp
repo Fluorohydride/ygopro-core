@@ -3246,6 +3246,8 @@ int32 field::process_battle_command(uint16 step) {
 	case 25: {
 		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]
 		        || (core.attack_target && (core.attack_target->current.location != LOCATION_MZONE || core.attack_target->fieldid_r != core.pre_field[1]))) {
+			reset_phase(PHASE_DAMAGE_CAL);
+			infos.phase = PHASE_DAMAGE;
 			core.units.begin()->step = 32;
 			return FALSE;
 		}
