@@ -130,6 +130,8 @@ struct processor_unit {
 	group* ptarget;
 	ptr arg1;
 	ptr arg2;
+	ptr arg3;
+	ptr arg4;
 };
 union return_value {
 	int8 bvalue[64];
@@ -207,8 +209,8 @@ struct processor {
 	card_set destroy_canceled;
 	card_set delayed_enable_set;
 	effect_set_v disfield_effects;
-	effect_set_v extraz_effects;
-	effect_set_v extraz_effects_e;
+	effect_set_v extram_effects;
+	effect_set_v extras_effects;
 	std::set<effect*> reseted_effects;
 	std::list<effect*> delayed_tp;
 	std::list<effect*> delayed_ntp;
@@ -422,7 +424,7 @@ public:
 	int32 check_chain_target(uint8 chaincount, card* pcard);
 	int32 is_able_to_enter_bp();
 
-	void add_process(uint16 type, uint16 step, effect* peffect, group* target, ptr arg1, ptr arg2);
+	void add_process(uint16 type, uint16 step, effect* peffect, group* target, ptr arg1, ptr arg2, ptr arg3 = 0, ptr arg4 = 0);
 	int32 process();
 	int32 execute_cost(uint16 step, effect* peffect, uint8 triggering_player);
 	int32 execute_operation(uint16 step, effect* peffect, uint8 triggering_player);
@@ -685,7 +687,7 @@ public:
 #define PROCESSOR_SELECT_OPTION_S	121
 #define PROCESSOR_SELECT_CARD_S		122
 #define PROCESSOR_SELECT_EFFECTYN_S	123
-#define PROCESSOR_SELECT_PLACE_S	125
+//#define PROCESSOR_SELECT_PLACE_S	125
 #define PROCESSOR_SELECT_POSITION_S	126
 #define PROCESSOR_SELECT_TRIBUTE_S	127
 #define PROCESSOR_SORT_CARDS_S		128

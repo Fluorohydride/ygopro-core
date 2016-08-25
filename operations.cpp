@@ -3457,7 +3457,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		uint32 flag;
 		get_useable_count(pcard->current.controler, LOCATION_SZONE, pcard->current.controler, LOCATION_REASON_TOFIELD, &flag);
 		flag = ((flag << 8) & 0xff00) | 0xffffe0ff;
-		add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, 0x10000 + pcard->current.controler, flag);
+		add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, pcard->current.controler, flag, 1);
 		return FALSE;
 	}
 	case 8: {
@@ -3788,15 +3788,13 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 		} else if(!is_equip && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM)) {
 			uint32 flag = 0;
 			if(is_location_useable(playerid, LOCATION_SZONE, 6))
-				flag |= 1 << 14;
+				flag |= 0x1u << 14;
 			if(is_location_useable(playerid, LOCATION_SZONE, 7))
-				flag |= 1 << 15;
+				flag |= 0x1u << 15;
 			if(move_player != playerid)
 				flag = flag << 16;
-			pduel->write_buffer8(MSG_SELECT_PLACE);
-			pduel->write_buffer8(move_player);
-			pduel->write_buffer8(1);
-			pduel->write_buffer32(~flag);
+			flag = ~flag;
+			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1);
 		} else {
 			uint32 flag;
 			uint32 lreason = (target->current.location == LOCATION_MZONE) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
@@ -3824,7 +3822,7 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 					flag = ((flag << 16) & 0xff0000) | 0xff00ffff;
 			}
 			flag |= 0xe0e0e0e0;
-			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, 0x10000 + move_player, flag);
+			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1);
 		}
 		return FALSE;
 	}

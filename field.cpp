@@ -472,16 +472,19 @@ card* field::get_field_card(uint8 playerid, uint8 location, uint8 sequence) {
 	}
 	return 0;
 }
+// return: the given slot in LOCATION_MZONE or all LOCATION_SZONE is available or not
 int32 field::is_location_useable(uint8 playerid, uint8 location, uint8 sequence) {
 	if (location != LOCATION_MZONE && location != LOCATION_SZONE)
 		return TRUE;
 	int32 flag = player[playerid].disabled_location | player[playerid].used_location;
-	if (location == LOCATION_MZONE && flag & (1 << sequence))
+	if (location == LOCATION_MZONE && flag & (0x1u << sequence))
 		return FALSE;
-	if (location == LOCATION_SZONE && flag & (256 << sequence))
+	if (location == LOCATION_SZONE && flag & (0x100u << sequence))
 		return FALSE;
 	return TRUE;
 }
+// return: usable count of LOCATION_MZONE or real LOCATION_SZONE
+// store local flag in list
 int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32* list) {
 	if (location != LOCATION_MZONE && location != LOCATION_SZONE)
 		return 0;

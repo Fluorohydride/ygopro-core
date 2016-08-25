@@ -2744,7 +2744,7 @@ int32 scriptlib::duel_select_disable_field(lua_State * L) {
 		count = ct1 + ct2 + ct3 + ct4;
 	if(count == 0)
 		return 0;
-	pduel->game_field->add_process(PROCESSOR_SELECT_DISFIELD_S, 0, 0, 0, playerid + (count << 16), flag);
+	pduel->game_field->add_process(PROCESSOR_SELECT_DISFIELD_S, 0, 0, 0, playerid, flag, count);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_announce_race(lua_State * L) {
