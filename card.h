@@ -232,8 +232,8 @@ public:
 	effect* is_affected_by_effect(int32 code);
 	effect* is_affected_by_effect(int32 code, card* target);
 	effect* check_control_effect();
-	int32 fusion_check(group* fusion_m, card* cg, int32 chkf);
-	void fusion_select(uint8 playerid, group* fusion_m, card* cg, int32 chkf);
+	int32 fusion_check(group* fusion_m, card* cg, uint32 chkf);
+	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf);
 	int32 check_fusion_substitute(card* fcard);
 	
 	int32 is_equipable(card* pcard);

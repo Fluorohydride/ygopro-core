@@ -634,7 +634,12 @@ int32 scriptlib::card_is_dual_state(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushboolean(L, (ptr)pcard->is_affected_by_effect(EFFECT_DUAL_STATUS));
+	int32 ret = 0;
+	if(pcard->is_affected_by_effect(EFFECT_DUAL_STATUS))
+		ret = 1;
+	else
+		ret = 0;
+	lua_pushboolean(L, ret);
 	return 1;
 }
 int32 scriptlib::card_enable_dual_state(lua_State *L) {
@@ -2012,7 +2017,7 @@ int32 scriptlib::card_check_fusion_material(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	int32 chkf = PLAYER_NONE;
+	uint32 chkf = PLAYER_NONE;
 	group* pgroup = 0;
 	if(lua_gettop(L) > 1 && !lua_isnil(L, 2)) {
 		check_param(L, PARAM_TYPE_GROUP, 2);

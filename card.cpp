@@ -2123,7 +2123,7 @@ effect* card::check_control_effect() {
 	}
 	return ret_effect;
 }
-int32 card::fusion_check(group* fusion_m, card* cg, int32 chkf) {
+int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf) {
 	auto ecit = single_effect.find(EFFECT_FUSION_MATERIAL);
 	if(ecit == single_effect.end())
 		return FALSE;
@@ -2136,12 +2136,12 @@ int32 card::fusion_check(group* fusion_m, card* cg, int32 chkf) {
 	pduel->lua->add_param(chkf, PARAM_TYPE_INT);
 	return pduel->lua->check_condition(peffect->condition, 4);
 }
-void card::fusion_select(uint8 playerid, group* fusion_m, card* cg, int32 chkf) {
+void card::fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf) {
 	effect* peffect = 0;
 	auto ecit = single_effect.find(EFFECT_FUSION_MATERIAL);
 	if(ecit != single_effect.end())
 		peffect = ecit->second;
-	pduel->game_field->add_process(PROCESSOR_SELECT_FUSION, 0, peffect, fusion_m, playerid + (chkf << 16), (ptr)cg);
+	pduel->game_field->add_process(PROCESSOR_SELECT_FUSION, 0, peffect, fusion_m, playerid + (chkf << 16), 0, 0, 0, cg);
 }
 int32 card::check_fusion_substitute(card* fcard) {
 	effect_set eset;
@@ -2279,6 +2279,7 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 	pduel->game_field->restore_lp_cost();
 	return TRUE;
 }
+// return: the tribute count for ordinary advance summon
 int32 card::get_summon_tribute_count() {
 	int32 min = 0, max = 0;
 	int32 minul = 0, maxul = 0;

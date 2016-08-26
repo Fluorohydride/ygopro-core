@@ -1118,7 +1118,7 @@ int32 scriptlib::duel_discard_hand(lua_State *L) {
 		lua_pushinteger(L, 0);
 		return 1;
 	}
-	pduel->game_field->add_process(PROCESSOR_DISCARD_HAND_S, 0, 0, (group*)(size_t)reason, playerid, min + (max << 16));
+	pduel->game_field->add_process(PROCESSOR_DISCARD_HAND_S, 0, NULL, NULL, playerid, min + (max << 16), reason);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_disable_shuffle_check(lua_State *L) {
@@ -2108,7 +2108,7 @@ int32 scriptlib::duel_select_fusion_material(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 2);
 	check_param(L, PARAM_TYPE_GROUP, 3);
 	card* cg = 0;
-	int32 chkf = PLAYER_NONE;
+	uint32 chkf = PLAYER_NONE;
 	if(lua_gettop(L) > 3 && !lua_isnil(L, 4)) {
 		check_param(L, PARAM_TYPE_CARD, 4);
 		cg = *(card**) lua_touserdata(L, 4);

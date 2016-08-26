@@ -100,10 +100,10 @@ void field::change_target_param(uint8 chaincount, int32 param) {
 	core.current_chain[chaincount - 1].target_param = param;
 }
 void field::remove_counter(uint32 reason, card* pcard, uint32 rplayer, uint32 s, uint32 o, uint32 countertype, uint32 count) {
-	add_process(PROCESSOR_REMOVE_COUNTER, 0, (effect*)(size_t) reason, (group*)pcard, (rplayer << 16) + (s << 8) + o, countertype + (count << 16));
+	add_process(PROCESSOR_REMOVE_COUNTER, 0, NULL, (group*)pcard, (rplayer << 16) + (s << 8) + o, countertype + (count << 16), reason);
 }
 void field::remove_overlay_card(uint32 reason, card* pcard, uint32 rplayer, uint32 s, uint32 o, uint16 min, uint16 max) {
-	add_process(PROCESSOR_REMOVEOL_S, 0, (effect*)(size_t) reason, (group*)pcard, (rplayer << 16) + (s << 8) + o, (max << 16) + min);
+	add_process(PROCESSOR_REMOVEOL_S, 0, NULL, (group*)pcard, (rplayer << 16) + (s << 8) + o, (max << 16) + min, reason);
 }
 void field::get_control(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 playerid, uint32 reset_phase, uint32 reset_count) {
 	group* ng = pduel->new_group(*targets);
@@ -116,10 +116,10 @@ void field::get_control(card* target, effect* reason_effect, uint32 reason_playe
 	get_control(&tset, reason_effect, reason_player, playerid, reset_phase, reset_count);
 }
 void field::swap_control(effect* reason_effect, uint32 reason_player, card* pcard1, card* pcard2, uint32 reset_phase, uint32 reset_count) {
-	add_process(PROCESSOR_SWAP_CONTROL, 0, reason_effect, (group*)pcard1, (ptr)pcard2, (reason_player << 28) + (reset_phase << 8) + reset_count);
+	add_process(PROCESSOR_SWAP_CONTROL, 0, reason_effect, (group*)pcard1, reason_player, reset_phase, reset_count, 0, pcard2);
 }
 void field::equip(uint32 equip_player, card* equip_card, card* target, uint32 up, uint32 is_step) {
-	add_process(PROCESSOR_EQUIP, 0, 0, (group*)target, (ptr)equip_card, equip_player + (up << 16) + (is_step << 24));
+	add_process(PROCESSOR_EQUIP, 0, NULL, (group*)target, 0, equip_player + (up << 16) + (is_step << 24), 0, 0, equip_card);
 }
 void field::draw(effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 count) {
 	add_process(PROCESSOR_DRAW, 0, reason_effect, 0, reason, (reason_player << 28) + (playerid << 24) + (count & 0xffffff));
@@ -171,7 +171,7 @@ void field::special_summon_step(card* target, uint32 sumtype, uint32 sumplayer, 
 	target->current.reason_effect = core.reason_effect;
 	target->current.reason_player = core.reason_player;
 	target->operation_param = (playerid << 24) + (nocheck << 16) + (nolimit << 8) + positions;
-	add_process(PROCESSOR_SPSUMMON_STEP, 0, core.reason_effect, 0, 0, (ptr)target);
+	add_process(PROCESSOR_SPSUMMON_STEP, 0, core.reason_effect, NULL, 0, 0, 0, 0, target);
 }
 void field::special_summon_complete(effect* reason_effect, uint8 reason_player) {
 	if(core.special_summoning.size() == 0)
@@ -820,7 +820,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 	switch(step) {
 	case 0: {
 		card_set* destroy_set = new card_set;
-		core.units.begin()->arg1 = (ptr)destroy_set;
+		core.units.begin()->ptr1 = destroy_set;
 		for(auto cit = targets->container.begin(); cit != targets->container.end();) {
 			auto rm = cit++;
 			card* pcard = *rm;
@@ -864,7 +864,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 		return FALSE;
 	}
 	case 1: {
-		card_set* destroy_set = (card_set*)core.units.begin()->arg1;
+		card_set* destroy_set = (card_set*)core.units.begin()->ptr1;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
 			destroy_set->insert(pcard);
@@ -918,7 +918,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 		return FALSE;
 	}
 	case 6: {
-		card_set* destroy_set = (card_set*)core.units.begin()->arg1;
+		card_set* destroy_set = (card_set*)core.units.begin()->ptr1;
 		if(destroy_set->size())
 			destroy(destroy_set, 0, REASON_RULE, PLAYER_NONE);
 		delete destroy_set;
@@ -1480,7 +1480,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		target->current.reason_effect = 0;
 		target->current.reason_player = sumplayer;
 		core.units.begin()->step = 6;
-		core.units.begin()->arg2 = (ptr)pextra;
+		core.units.begin()->ptr1 = pextra;
 		return FALSE;
 	}
 	case 6: {
@@ -1496,7 +1496,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 			add_process(PROCESSOR_EXECUTE_OPERATION, 0, proc, 0, sumplayer, 0);
 		}
 		proc->dec_count(sumplayer);
-		core.units.begin()->arg2 = (ptr)pextra;
+		core.units.begin()->ptr1 = pextra;
 		return FALSE;
 	}
 	case 7: {
@@ -1506,12 +1506,12 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		break_effect();
 		if(!ignore_count) {
 			returns.ivalue[0] = FALSE;
-			effect* pextra = (effect*)core.units.begin()->arg2;
+			effect* pextra = (effect*)core.units.begin()->ptr1;
 			if(pextra) {
 				if(pextra->is_flag(EFFECT_FLAG_FUNC_VALUE) && (core.summon_count[sumplayer] < get_summon_count_limit(sumplayer)))
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, sumplayer, 91);
 				else if(!pextra->is_flag(EFFECT_FLAG_FUNC_VALUE) && ((int32)target->material_cards.size() < pextra->get_value()))
-					core.units.begin()->arg2 = 0;
+					core.units.begin()->ptr1 = NULL;
 				else
 					returns.ivalue[0] = TRUE;
 			}
@@ -1522,9 +1522,9 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 	case 8: {
 		if(!returns.ivalue[0])
 			core.summon_count[sumplayer]++;
-		else if(core.units.begin()->arg2) {
+		else if(core.units.begin()->ptr1) {
 			core.extra_summon[sumplayer] = TRUE;
-			effect* pextra = (effect*)core.units.begin()->arg2;
+			effect* pextra = (effect*)core.units.begin()->ptr1;
 			pextra->get_value(target);
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_CARD);
@@ -1562,12 +1562,12 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 		deffect->description = 64;
 		deffect->reset_flag = RESET_EVENT + 0x1fe0000;
 		target->add_effect(deffect);
-		core.units.begin()->arg2 = 0;
+		core.units.begin()->ptr1 = NULL;
 		if(!ignore_count) {
 			returns.ivalue[0] = FALSE;
 			effect* pextra = core.extra_summon[sumplayer] ? 0 : target->is_affected_by_effect(EFFECT_EXTRA_SUMMON_COUNT);
 			if(pextra) {
-				core.units.begin()->arg2 = (ptr)pextra;
+				core.units.begin()->ptr1 = pextra;
 				if(pextra->is_flag(EFFECT_FLAG_FUNC_VALUE) && (core.summon_count[sumplayer] < get_summon_count_limit(sumplayer)))
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, sumplayer, 91);
 				else
@@ -1580,9 +1580,9 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 	case 10: {
 		if(!returns.ivalue[0])
 			core.summon_count[sumplayer]++;
-		else if(core.units.begin()->arg2) {
+		else if(core.units.begin()->ptr1) {
 			core.extra_summon[sumplayer] = TRUE;
-			effect* pextra = (effect*)core.units.begin()->arg2;
+			effect* pextra = (effect*)core.units.begin()->ptr1;
 			pextra->get_value(target);
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_CARD);
@@ -1922,7 +1922,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 		target->current.reason_effect = 0;
 		target->current.reason_player = setplayer;
 		core.units.begin()->step = 6;
-		core.units.begin()->arg2 = (ptr)pextra;
+		core.units.begin()->ptr1 = pextra;
 		return FALSE;
 	}
 	case 6: {
@@ -1937,19 +1937,19 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 		core.sub_solving_event.push_back(nil_event);
 		add_process(PROCESSOR_EXECUTE_OPERATION, 0, proc, 0, setplayer, 0);
 		proc->dec_count(setplayer);
-		core.units.begin()->arg2 = (ptr)pextra;
+		core.units.begin()->ptr1 = pextra;
 		return FALSE;
 	}
 	case 7: {
 		break_effect();
 		if(!ignore_count) {
 			returns.ivalue[0] = FALSE;
-			effect* pextra = (effect*)core.units.begin()->arg2;
+			effect* pextra = (effect*)core.units.begin()->ptr1;
 			if(pextra) {
 				if(pextra->is_flag(EFFECT_FLAG_FUNC_VALUE) && (core.summon_count[setplayer] < get_summon_count_limit(setplayer)))
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, setplayer, 91);
 				else if(!pextra->is_flag(EFFECT_FLAG_FUNC_VALUE) && ((int32)target->material_cards.size() < pextra->get_value()))
-					core.units.begin()->arg2 = 0;
+					core.units.begin()->ptr1 = NULL;
 				else
 					returns.ivalue[0] = TRUE;
 			}
@@ -1960,9 +1960,9 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 	case 8: {
 		if(!returns.ivalue[0])
 			core.summon_count[setplayer]++;
-		else if(core.units.begin()->arg2) {
+		else if(core.units.begin()->ptr1) {
 			core.extra_summon[setplayer] = TRUE;
-			effect* pextra = (effect*)core.units.begin()->arg2;
+			effect* pextra = (effect*)core.units.begin()->ptr1;
 			pextra->get_value(target);
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_CARD);
@@ -2597,14 +2597,14 @@ int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_pl
 				std::sort(cvs.begin(), cvs.end(), card::card_operation_sort);
 			core.hint_timing[infos.turn_player] |= TIMING_SPSUMMON;
 			for(auto cvit = cvs.begin(); cvit != cvs.end(); ++cvit)
-				add_process(PROCESSOR_SPSUMMON_STEP, 0, 0, targets, 0, (ptr)(*cvit));
+				add_process(PROCESSOR_SPSUMMON_STEP, 0, NULL, targets, 0, 0, 0, 0, *cvit);
 		}
 		if(!cvo.empty()) {
 			if(cvo.size() > 1)
 				std::sort(cvo.begin(), cvo.end(), card::card_operation_sort);
 			core.hint_timing[1 - infos.turn_player] |= TIMING_SPSUMMON;
 			for(auto cvit = cvo.begin(); cvit != cvo.end(); ++cvit)
-				add_process(PROCESSOR_SPSUMMON_STEP, 0, 0, targets, 0, (ptr)(*cvit));
+				add_process(PROCESSOR_SPSUMMON_STEP, 0, NULL, targets, 0, 0, 0, 0, *cvit);
 		}
 		return FALSE;
 	}
@@ -2690,12 +2690,14 @@ int32 field::destroy(uint16 step, group * targets, card * target, uint8 battle) 
 	returns.ivalue[0] = FALSE;
 	effect_set eset;
 	target->filter_single_continuous_effect(EFFECT_DESTROY_REPLACE, &eset);
-	if(!battle)
+	if(!battle) {
 		for (int32 i = 0; i < eset.size(); ++i)
-			add_process(PROCESSOR_OPERATION_REPLACE, 0, eset[i], targets, (ptr)target, 1);
-	else
+			add_process(PROCESSOR_OPERATION_REPLACE, 0, eset[i], targets, 0, 1, 0, 0, target);
+	}
+	else {
 		for (int32 i = 0; i < eset.size(); ++i)
-			add_process(PROCESSOR_OPERATION_REPLACE, 10, eset[i], targets, (ptr)target, 1);
+			add_process(PROCESSOR_OPERATION_REPLACE, 10, eset[i], targets, 0, 1, 0, 0, target);
+	}
 	return TRUE;
 }
 // PROCESSOR_DESTROY goes here
@@ -2835,7 +2837,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 	}
 	case 1: {
 		for (auto cit = targets->container.begin(); cit != targets->container.end(); ++cit) {
-			add_process(PROCESSOR_DESTROY_STEP, 0, 0, targets, (ptr) (*cit), 0);
+			add_process(PROCESSOR_DESTROY_STEP, 0, NULL, targets, 0, 0, 0, 0, *cit);
 		}
 		return FALSE;
 	}
@@ -3025,7 +3027,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 	}
 	case 11: {
 		for (auto cit = targets->container.begin(); cit != targets->container.end(); ++cit) {
-			add_process(PROCESSOR_DESTROY_STEP, 0, 0, targets, (ptr) (*cit), TRUE);
+			add_process(PROCESSOR_DESTROY_STEP, 0, NULL, targets, 0, TRUE, 0, 0, *cit);
 		}
 		return FALSE;
 	}
@@ -3038,6 +3040,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 	}
 	return TRUE;
 }
+// PROCESSOR_RELEASE_STEP goes here
 int32 field::release(uint16 step, group * targets, card * target) {
 	if(!(target->current.location & (LOCATION_ONFIELD | LOCATION_HAND))) {
 		target->current.reason = target->temp.reason;
@@ -3053,14 +3056,14 @@ int32 field::release(uint16 step, group * targets, card * target) {
 		effect_set eset;
 		target->filter_single_continuous_effect(EFFECT_RELEASE_REPLACE, &eset);
 		for (int32 i = 0; i < eset.size(); ++i)
-			add_process(PROCESSOR_OPERATION_REPLACE, 0, eset[i], targets, (ptr)target, 0);
+			add_process(PROCESSOR_OPERATION_REPLACE, 0, eset[i], targets, 0, 0, 0, 0, target);
 	}
 	return TRUE;
 }
+// PROCESSOR_RELEASE goes here
 int32 field::release(uint16 step, group * targets, effect * reason_effect, uint32 reason, uint8 reason_player) {
 	switch (step) {
 	case 0: {
-		//card_set extra;
 		for (auto cit = targets->container.begin(); cit != targets->container.end();) {
 			auto rm = cit++;
 			card* pcard = *rm;
@@ -3084,7 +3087,7 @@ int32 field::release(uint16 step, group * targets, effect * reason_effect, uint3
 	}
 	case 1: {
 		for (auto cit = targets->container.begin(); cit != targets->container.end(); ++cit) {
-			add_process(PROCESSOR_RELEASE_STEP, 0, 0, targets, (ptr) (*cit), 0);
+			add_process(PROCESSOR_RELEASE_STEP, 0, NULL, targets, 0, 0, 0, 0, *cit);
 		}
 		return FALSE;
 	}
@@ -3150,7 +3153,7 @@ int32 field::send_to(uint16 step, group * targets, card * target) {
 		effect_set eset;
 		target->filter_single_continuous_effect(EFFECT_SEND_REPLACE, &eset);
 		for (int32 i = 0; i < eset.size(); ++i)
-			add_process(PROCESSOR_OPERATION_REPLACE, 0, eset[i], targets, (ptr)target, 0);
+			add_process(PROCESSOR_OPERATION_REPLACE, 0, eset[i], targets, 0, 0, 0, 0, target);
 	}
 	return TRUE;
 }
@@ -3197,7 +3200,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 	}
 	case 1: {
 		for(auto cit = targets->container.begin(); cit != targets->container.end(); ++cit) {
-			add_process(PROCESSOR_SENDTO_STEP, 0, 0, targets, (ptr)(*cit), 0);
+			add_process(PROCESSOR_SENDTO_STEP, 0, NULL, targets, 0, 0, 0, 0, *cit);
 		}
 		return FALSE;
 	}
@@ -4034,14 +4037,14 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 	}
 	return TRUE;
 }
-int32 field::operation_replace(uint16 step, effect * replace_effect, group * targets, ptr arg1, ptr arg2) {
+int32 field::operation_replace(uint16 step, effect * replace_effect, group * targets, card * arg1, ptr arg2) {
 	switch (step) {
 	case 0: {
 		if(returns.ivalue[0])
 			return TRUE;
 		if(!replace_effect->target)
 			return TRUE;
-		card* target = (card*)arg1;
+		card* target = arg1;
 		tevent e;
 		e.event_cards = targets;
 		e.event_player = replace_effect->get_handler_player();
@@ -4070,7 +4073,7 @@ int32 field::operation_replace(uint16 step, effect * replace_effect, group * tar
 		return FALSE;
 	}
 	case 1: {
-		card* target = (card*)arg1;
+		card* target = arg1;
 		if (returns.ivalue[0]) {
 			targets->container.erase(target);
 			target->current.reason = target->temp.reason;
@@ -4174,7 +4177,7 @@ int32 field::operation_replace(uint16 step, effect * replace_effect, group * tar
 			return TRUE;
 		if(!replace_effect->target)
 			return TRUE;
-		card* target = (card*)arg1;
+		card* target = arg1;
 		tevent e;
 		e.event_cards = targets;
 		e.event_player = replace_effect->get_handler_player();
@@ -4202,7 +4205,7 @@ int32 field::operation_replace(uint16 step, effect * replace_effect, group * tar
 		return FALSE;
 	}
 	case 11: {
-		card* target = (card*)arg1;
+		card* target = arg1;
 		if (returns.ivalue[0]) {
 			targets->container.erase(target);
 			target->current.reason = target->temp.reason;
