@@ -389,7 +389,7 @@ int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count)
 			s = returns.bvalue[pt + 2];
 			if((p != 0 && p != 1) 
 					|| ((l != LOCATION_MZONE) && (l != LOCATION_SZONE)) 
-			        || ((0x1u << s) & (flag >> (((p == playerid) ? 0 : 16) + ((l == LOCATION_MZONE) ? 0 : 8))))) {
+					|| ((0x1u << s) & (flag >> (((p == playerid) ? 0 : 16) + ((l == LOCATION_MZONE) ? 0 : 8))))) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
 			}
