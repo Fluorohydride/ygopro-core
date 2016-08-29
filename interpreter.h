@@ -75,8 +75,8 @@ public:
 	static duel* get_duel_info(lua_State* L);
 
 	template <size_t N>
-	static char* strcpy(char (&src)[N], const char *dst) {
-		return strncpy(reinterpret_cast<char*>(&src), dst, N);
+	static char* strcpy(char (&dst)[N], const char* src) {
+		return strncpy(reinterpret_cast<char*>(&dst), src, N);
 	}
 };
 
