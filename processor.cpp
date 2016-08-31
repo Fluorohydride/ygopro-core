@@ -773,8 +773,8 @@ int32 field::process() {
 			it->step++;
 		} else {
 			group* pgroup = pduel->new_group(core.fusion_materials);
-			if(it->arg2)
-				pgroup->container.insert((card*)it->arg2);
+			if(it->ptr1)
+				pgroup->container.insert((card*)it->ptr1);
 			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
 			core.units.pop_front();
 		}
