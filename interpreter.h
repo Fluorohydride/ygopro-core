@@ -22,6 +22,7 @@ extern "C" {
 #include "common.h"
 #include <unordered_map>
 #include <list>
+#include <cstring>
 
 class card;
 class effect;
@@ -76,7 +77,7 @@ public:
 
 	template <size_t N>
 	static char* strcpy(char (&dst)[N], const char* src) {
-		return strncpy(reinterpret_cast<char*>(&dst), src, N);
+		return std::strncpy(reinterpret_cast<char*>(&dst), src, N);
 	}
 };
 
