@@ -2601,8 +2601,12 @@ int32 field::is_chain_disabled(uint8 chaincount) {
 	card* pcard = pchain->triggering_effect->handler;
 	effect_set eset;
 	pcard->filter_effect(EFFECT_DISABLE_CHAIN, &eset);
-	for(int32 i = 0; i < eset.size(); ++i)
-		return eset[i]->get_value() == pchain->chain_id;
+	for(int32 i = 0; i < eset.size(); ++i) {
+		if(eset[i]->get_value() == pchain->chain_id) {
+			eset[i]->reset_flag |= RESET_CHAIN;
+			return TRUE;
+		}
+	}
 	return FALSE;
 }
 int32 field::check_chain_target(uint8 chaincount, card * pcard) {

@@ -2419,6 +2419,16 @@ int32 field::process_single_event() {
 						core.new_fchain.push_back(newchain);
 				}
 				peffect->handler->create_relation(newchain);
+				effect* deffect;
+				if(deffect = peffect->handler->is_affected_by_effect(EFFECT_DISABLE_EFFECT)) {
+					effect* negeff = pduel->new_effect();
+					negeff->owner = deffect->owner;
+					negeff->type = EFFECT_TYPE_SINGLE;
+					negeff->code = EFFECT_DISABLE_CHAIN;
+					negeff->value = newchain.chain_id;
+					negeff->reset_flag = RESET_EVENT | deffect->get_value();
+					peffect->handler->add_effect(negeff);
+				}
 			}
 		}
 	}
