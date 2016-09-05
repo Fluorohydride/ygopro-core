@@ -3120,7 +3120,6 @@ int32 field::process_battle_command(uint16 step) {
 		if(!rollback) {
 			infos.phase = PHASE_DAMAGE;
 			core.chain_attack = FALSE;
-			pduel->write_buffer8(MSG_DAMAGE_STEP_START);
 			core.units.begin()->arg1 = FALSE;
 			core.damage_calculated = FALSE;
 			core.selfdes_disabled = TRUE;
@@ -3168,6 +3167,7 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 20: {
 		//infos.phase = PHASE_DAMAGE;
+		pduel->write_buffer8(MSG_DAMAGE_STEP_START);
 		raise_single_event(core.attacker, 0, EVENT_BATTLE_START, 0, 0, 0, 0, 0);
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_BATTLE_START, 0, 0, 0, 0, 1);
