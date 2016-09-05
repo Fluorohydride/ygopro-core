@@ -3118,7 +3118,21 @@ int32 field::process_battle_command(uint16 step) {
 			rollback = true;
 		// go to damage step
 		if(!rollback) {
+			infos.phase = PHASE_DAMAGE;
+			core.chain_attack = FALSE;
+			pduel->write_buffer8(MSG_DAMAGE_STEP_START);
+			core.units.begin()->arg1 = FALSE;
+			core.damage_calculated = FALSE;
+			core.selfdes_disabled = TRUE;
+			core.flip_delayed = TRUE;
+			core.pre_field[0] = core.attacker->fieldid_r;
+			if(core.attack_target)
+				core.pre_field[1] = core.attack_target->fieldid_r;
+			else
+				core.pre_field[1] = 0;
+			core.attacker->attacked_count++;
 			core.attacker->attacked_cards.addcard(core.attack_target);
+			core.battled_count[infos.turn_player]++;
 			core.units.begin()->step = 19;
 			adjust_all();
 			return FALSE;
@@ -3153,20 +3167,7 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 20: {
-		infos.phase = PHASE_DAMAGE;
-		core.chain_attack = FALSE;
-		pduel->write_buffer8(MSG_DAMAGE_STEP_START);
-		core.units.begin()->arg1 = FALSE;
-		core.damage_calculated = FALSE;
-		core.selfdes_disabled = TRUE;
-		core.flip_delayed = TRUE;
-		core.pre_field[0] = core.attacker->fieldid_r;
-		if(core.attack_target)
-			core.pre_field[1] = core.attack_target->fieldid_r;
-		else
-			core.pre_field[1] = 0;
-		core.attacker->attacked_count++;
-		core.battled_count[infos.turn_player]++;
+		//infos.phase = PHASE_DAMAGE;
 		raise_single_event(core.attacker, 0, EVENT_BATTLE_START, 0, 0, 0, 0, 0);
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_BATTLE_START, 0, 0, 0, 0, 1);
@@ -3232,10 +3233,12 @@ int32 field::process_battle_command(uint16 step) {
 			core.units.begin()->step = 32;
 			return FALSE;
 		}
+		infos.phase = PHASE_DAMAGE_CAL;
+		adjust_all();
 		return FALSE;
 	}
 	case 24: {
-		infos.phase = PHASE_DAMAGE_CAL;
+		//infos.phase = PHASE_DAMAGE_CAL;
 		calculate_battle_damage(0, 0, 0);
 		raise_single_event(core.attacker, 0, EVENT_PRE_DAMAGE_CALCULATE, 0, 0, 0, 0, 0);
 		if(core.attack_target)
