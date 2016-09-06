@@ -814,15 +814,15 @@ int32 field::process() {
 			add_process(PROCESSOR_SELECT_DISFIELD, 0, it->peffect, it->ptarget, it->arg1, it->arg2, it->arg3);
 			it->step++;
 		} else {
-			int32 playerid = it->arg1 & 0xffff;
-			int32 count = (it->arg1) >> 16;
+			int32 playerid = it->arg1;
+			int32 count = it->arg3;
 			int32 dfflag = 0;
 			uint8 p, l, s, pa = 0;
 			for(int32 i = 0; i < count; ++i) {
 				p = returns.bvalue[pa];
 				l = returns.bvalue[pa + 1];
 				s = returns.bvalue[pa + 2];
-				dfflag |= 1 << (s + (p == playerid ? 0 : 16) + (l == LOCATION_MZONE ? 0 : 8));
+				dfflag |= 0x1u << (s + (p == playerid ? 0 : 16) + (l == LOCATION_MZONE ? 0 : 8));
 				pa += 3;
 			}
 			pduel->lua->add_param(dfflag, PARAM_TYPE_INT);
