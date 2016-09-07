@@ -1692,7 +1692,7 @@ int32 scriptlib::card_is_location(lua_State *L) {
 			lua_pushboolean(L, 1);
 		else
 			lua_pushboolean(L, 0);
-	} else if(pcard->current.location == LOCATION_SZONE){
+	} else if(pcard->current.location == LOCATION_SZONE) {
 		if((loc & LOCATION_SZONE) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
 			lua_pushboolean(L, 1);
 		else

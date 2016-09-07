@@ -2693,8 +2693,7 @@ int32 field::destroy(uint16 step, group * targets, card * target, uint8 battle) 
 	if(!battle) {
 		for (int32 i = 0; i < eset.size(); ++i)
 			add_process(PROCESSOR_OPERATION_REPLACE, 0, eset[i], targets, 0, 1, 0, 0, target);
-	}
-	else {
+	} else {
 		for (int32 i = 0; i < eset.size(); ++i)
 			add_process(PROCESSOR_OPERATION_REPLACE, 10, eset[i], targets, 0, 1, 0, 0, target);
 	}
@@ -3018,7 +3017,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				}
 			}
 		}
-		if(targets->container.size()){
+		if(targets->container.size()) {
 			auto pr = effects.continuous_effect.equal_range(EFFECT_DESTROY_REPLACE);
 			for (; pr.first != pr.second; ++pr.first)
 				add_process(PROCESSOR_OPERATION_REPLACE, 12, pr.first->second, targets, 0, 1);

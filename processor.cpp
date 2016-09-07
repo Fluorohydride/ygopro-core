@@ -2780,7 +2780,7 @@ int32 field::process_battle_command(uint16 step) {
 			if(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE))
 				core.units.begin()->arg2 = 1;
 			else core.units.begin()->arg2 = 0;
-			if(!peffect->value){
+			if(!peffect->value) {
 				infos.phase = PHASE_BATTLE;
 				add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
 			} else {
@@ -2970,11 +2970,9 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer32(core.attacker->get_info_location());
 				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, 1 - infos.turn_player, 0x10001);
 			}
-		}
-		else if(core.units.begin()->arg1) {
+		} else if(core.units.begin()->arg1) {
 			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + 0x20000, 0x10001);
-		}
-		else
+		} else
 			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player, 0x10001);
 		core.units.begin()->step = 5;
 		return FALSE;
@@ -2998,8 +2996,7 @@ int32 field::process_battle_command(uint16 step) {
 			core.chain_attack = FALSE;
 			core.units.begin()->step = -1;
 			return FALSE;
-		}
-		else if(returns.ivalue[0] == -2)
+		} else if(returns.ivalue[0] == -2)
 			core.attack_target = 0;
 		else
 			core.attack_target = core.select_cards[returns.bvalue[1]];
@@ -3634,7 +3631,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 			core.units.begin()->step = 2;
 			return FALSE;
 		}
-		if(new_attack){
+		if(new_attack) {
 			core.attack_state_count[infos.turn_player]++;
 			core.battled_count[infos.turn_player]++;
 			check_card_counter(core.attacker, 5, infos.turn_player);
@@ -4719,7 +4716,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 	case 13: {
 		raise_event((card*)0, EVENT_CHAIN_END, 0, 0, 0, 0, 0);
 		process_instant_event();
-		if(chainend_arg1 != 0x101 || chainend_arg2 != TRUE){
+		if(chainend_arg1 != 0x101 || chainend_arg2 != TRUE) {
 			core.hint_timing[0] |= TIMING_CHAIN_END;
 			core.hint_timing[1] |= TIMING_CHAIN_END;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, chainend_arg1, chainend_arg2);
