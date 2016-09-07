@@ -450,7 +450,7 @@ int32 scriptlib::card_get_location(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	if(pcard->is_status(STATUS_SUMMONING) || pcard->is_status(STATUS_SUMMON_DISABLED))
+	if(pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED))
 		lua_pushinteger(L, 0);
 	else
 		lua_pushinteger(L, pcard->current.location);
@@ -1676,7 +1676,7 @@ int32 scriptlib::card_is_onfield(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	if((pcard->current.location & LOCATION_ONFIELD) && !pcard->is_status(STATUS_SUMMONING) && !pcard->is_status(STATUS_SUMMON_DISABLED))
+	if((pcard->current.location & LOCATION_ONFIELD) && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
@@ -1689,6 +1689,11 @@ int32 scriptlib::card_is_location(lua_State *L) {
 	uint32 loc = lua_tointeger(L, 2);
 	if(pcard->current.location == LOCATION_MZONE) {
 		if((loc & LOCATION_MZONE) && !pcard->is_status(STATUS_SUMMONING) && !pcard->is_status(STATUS_SUMMON_DISABLED))
+			lua_pushboolean(L, 1);
+		else
+			lua_pushboolean(L, 0);
+	} else if(pcard->current.location == LOCATION_SZONE){
+		if((loc & LOCATION_SZONE) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
 			lua_pushboolean(L, 1);
 		else
 			lua_pushboolean(L, 0);
