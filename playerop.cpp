@@ -307,12 +307,13 @@ int32 field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 fo
 		for(uint32 i = 0; i < core.select_chains.size(); ++i) {
 			effect* peffect = core.select_chains[i].triggering_effect;
 			card* pcard = peffect->handler;
-			if(!(peffect->type & EFFECT_TYPE_ACTIONS))
-				pcard = peffect->owner;
 			if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
-				pduel->write_buffer32(1000000000 + pcard->data.code);
+				pduel->write_buffer8(0x1);
+			else if(!(peffect->type & EFFECT_TYPE_ACTIONS))
+				pduel->write_buffer8(0x2);
 			else
-				pduel->write_buffer32(pcard->data.code);
+				pduel->write_buffer8(0);
+			pduel->write_buffer32(pcard->data.code);
 			pduel->write_buffer32(pcard->get_info_location());
 			pduel->write_buffer32(peffect->description);
 		}
