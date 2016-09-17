@@ -403,6 +403,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_MUST_ATTACK_MONSTER		344
 #define EFFECT_PATRICIAN_OF_DARKNESS	345
 #define EFFECT_EXTRA_ATTACK_MONSTER		346
+#define EFFECT_UNION_STATUS				347
+#define EFFECT_OLDUNION_STATUS			348
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
