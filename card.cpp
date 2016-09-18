@@ -1287,9 +1287,6 @@ int32 card::add_effect(effect* peffect) {
 	}
 	indexer.insert(std::make_pair(peffect, eit));
 	peffect->handler = this;
-	if((peffect->type & 0x7e0)
-		|| (pduel->game_field->core.reason_effect && (pduel->game_field->core.reason_effect->status & EFFECT_STATUS_ACTIVATED)))
-		peffect->status |= EFFECT_STATUS_ACTIVATED;
 	if (peffect->in_range(current.location, current.sequence) && (peffect->type & EFFECT_TYPE_FIELD))
 		pduel->game_field->add_effect(peffect);
 	if (current.controler != PLAYER_NONE && check_target) {
