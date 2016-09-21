@@ -308,9 +308,9 @@ int32 field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 fo
 			effect* peffect = core.select_chains[i].triggering_effect;
 			card* pcard = peffect->handler;
 			if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
-				pduel->write_buffer8(0x1);
+				pduel->write_buffer8(EDESC_OPERATION);
 			else if(!(peffect->type & EFFECT_TYPE_ACTIONS))
-				pduel->write_buffer8(0x2);
+				pduel->write_buffer8(EDESC_RESET);
 			else
 				pduel->write_buffer8(0);
 			pduel->write_buffer32(pcard->data.code);

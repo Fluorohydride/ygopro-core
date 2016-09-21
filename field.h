@@ -739,6 +739,9 @@ public:
 //
 #define PHINT_DESC_ADD			6
 #define PHINT_DESC_REMOVE		7
+//
+#define EDESC_OPERATION			1
+#define EDESC_RESET				2
 //Messages
 #define MSG_RETRY				1
 #define MSG_HINT				2
