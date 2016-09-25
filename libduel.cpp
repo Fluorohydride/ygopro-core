@@ -2787,10 +2787,22 @@ int32 scriptlib::duel_announce_card(lua_State * L) {
 	check_param_count(L, 1);
 	int32 playerid = lua_tointeger(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
+	pduel->game_field->core.select_options.clear();
 	uint32 ttype = TYPE_MONSTER | TYPE_SPELL | TYPE_TRAP;
 	if(lua_gettop(L) >= 2)
 		ttype = lua_tointeger(L, 2);
 	pduel->game_field->add_process(PROCESSOR_ANNOUNCE_CARD, 0, 0, 0, playerid, ttype);
+	return lua_yield(L, 0);
+}
+int32 scriptlib::duel_announce_card_filter(lua_State * L) {
+	check_action_permission(L);
+	check_param_count(L, 2);
+	int32 playerid = lua_tointeger(L, 1);
+	duel* pduel = interpreter::get_duel_info(L);
+	pduel->game_field->core.select_options.clear();
+	for(int32 i = 2; i <= lua_gettop(L); ++i)
+		pduel->game_field->core.select_options.push_back(lua_tointeger(L, i));
+	pduel->game_field->add_process(PROCESSOR_ANNOUNCE_CARD, 0, 0, 0, playerid, 0);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_announce_type(lua_State * L) {

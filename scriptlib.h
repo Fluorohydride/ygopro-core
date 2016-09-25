@@ -464,6 +464,7 @@ public:
 	static int32 duel_announce_attribute(lua_State *L);
 	static int32 duel_announce_level(lua_State *L);
 	static int32 duel_announce_card(lua_State *L);
+	static int32 duel_announce_card_filter(lua_State *L);
 	static int32 duel_announce_type(lua_State *L);
 	static int32 duel_announce_number(lua_State *L);
 	static int32 duel_announce_coin(lua_State *L);
