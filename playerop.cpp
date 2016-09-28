@@ -443,7 +443,7 @@ int32 field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8
 			return TRUE;
 		uint8 tm = 0;
 		for(uint32 i = 0; i < core.select_cards.size(); ++i)
-			tm += core.select_cards[i]->operation_param;
+			tm += core.select_cards[i]->release_param;
 		if(max > 5)
 			max = 5;
 		if(max > tm)
@@ -465,7 +465,7 @@ int32 field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8
 			pduel->write_buffer8(pcard->current.controler);
 			pduel->write_buffer8(pcard->current.location);
 			pduel->write_buffer8(pcard->current.sequence);
-			pduel->write_buffer8(pcard->operation_param);
+			pduel->write_buffer8(pcard->release_param);
 		}
 		return FALSE;
 	} else {
@@ -485,7 +485,7 @@ int32 field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8
 				return FALSE;
 			}
 			c[v] = 1;
-			tt += core.select_cards[v]->operation_param;
+			tt += core.select_cards[v]->release_param;
 		}
 		if(tt < min) {
 			pduel->write_buffer8(MSG_RETRY);
@@ -570,7 +570,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 			pduel->write_buffer8(pcard->current.controler);
 			pduel->write_buffer8(pcard->current.location);
 			pduel->write_buffer8(pcard->current.sequence);
-			pduel->write_buffer32(pcard->operation_param);
+			pduel->write_buffer32(pcard->sum_param);
 		}
 		pduel->write_buffer8(core.select_cards.size());
 		std::sort(core.select_cards.begin(), core.select_cards.end(), card::card_operation_sort);
@@ -580,7 +580,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 			pduel->write_buffer8(pcard->current.controler);
 			pduel->write_buffer8(pcard->current.location);
 			pduel->write_buffer8(pcard->current.sequence);
-			pduel->write_buffer32(pcard->operation_param);
+			pduel->write_buffer32(pcard->sum_param);
 		}
 		return FALSE;
 	} else {
@@ -594,7 +594,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 				return FALSE;
 			}
 			for(int32 i = 0; i < mcount; ++i)
-				oparam[i] = core.must_select_cards[i]->operation_param;
+				oparam[i] = core.must_select_cards[i]->sum_param;
 			int32 m = core.select_cards.size();
 			for(int32 i = mcount; i < returns.bvalue[0]; ++i) {
 				int32 v = returns.bvalue[i + 1];
@@ -603,7 +603,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 					return FALSE;
 				}
 				c[v] = 1;
-				oparam[i] = core.select_cards[v]->operation_param;
+				oparam[i] = core.select_cards[v]->sum_param;
 			}
 			if(!select_sum_check1(oparam, returns.bvalue[0], 0, acc)) {
 				pduel->write_buffer8(MSG_RETRY);
@@ -614,7 +614,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 			int32 mcount = core.must_select_cards.size();
 			int32 sum = 0, mx = 0, mn = 0x7fffffff;
 			for(int32 i = 0; i < mcount; ++i) {
-				int32 op = core.must_select_cards[i]->operation_param;
+				int32 op = core.must_select_cards[i]->sum_param;
 				int32 o1 = op & 0xffff;
 				int32 o2 = op >> 16;
 				int32 ms = (o2 && o2 < o1) ? o2 : o1;
@@ -631,7 +631,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 					return FALSE;
 				}
 				c[v] = 1;
-				int32 op = core.select_cards[v]->operation_param;
+				int32 op = core.select_cards[v]->sum_param;
 				int32 o1 = op & 0xffff;
 				int32 o2 = op >> 16;
 				int32 ms = (o2 && o2 < o1) ? o2 : o1;

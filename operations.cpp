@@ -295,10 +295,14 @@ void field::change_position(card_set* targets, effect* reason_effect, uint32 rea
 	ng->is_readonly = TRUE;
 	for(auto cit = targets->begin(); cit != targets->end(); ++cit) {
 		card* pcard = *cit;
-		if(pcard->current.position == POS_FACEUP_ATTACK) pcard->operation_param = au;
-		else if(pcard->current.position == POS_FACEDOWN_DEFENSE) pcard->operation_param = dd;
-		else if(pcard->current.position == POS_FACEUP_DEFENSE) pcard->operation_param = du;
-		else pcard->operation_param = ad;
+		if(pcard->current.position == POS_FACEUP_ATTACK)
+			pcard->operation_param = au;
+		else if(pcard->current.position == POS_FACEDOWN_DEFENSE)
+			pcard->operation_param = dd;
+		else if(pcard->current.position == POS_FACEUP_DEFENSE)
+			pcard->operation_param = du;
+		else
+			pcard->operation_param = ad;
 		pcard->operation_param |= flag;
 	}
 	add_process(PROCESSOR_CHANGEPOS, 0, reason_effect, ng, reason_player, enable);
@@ -4384,8 +4388,8 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 			card_vector nsyn;
 			nsyn.push_back(tuner);
 			nsyn.push_back(smat);
-			tuner->operation_param = tuner->get_synchro_level(pcard);
-			smat->operation_param = smat->get_synchro_level(pcard);
+			tuner->sum_param = tuner->get_synchro_level(pcard);
+			smat->sum_param = smat->get_synchro_level(pcard);
 			if(check_with_sum_limit_m(nsyn, lv, 0, 0, 0, 2))
 				core.units.begin()->step = 5;
 		}
@@ -4398,12 +4402,12 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		effect* pcheck = tuner->is_affected_by_effect(EFFECT_SYNCHRO_CHECK);
 		core.must_select_cards.clear();
 		core.must_select_cards.push_back(tuner);
-		tuner->operation_param = tuner->get_synchro_level(pcard);
+		tuner->sum_param = tuner->get_synchro_level(pcard);
 		if(smat) {
 			min--;
 			max--;
 			core.must_select_cards.push_back(smat);
-			smat->operation_param = smat->get_synchro_level(pcard);
+			smat->sum_param = smat->get_synchro_level(pcard);
 			mcount++;
 		}
 		core.select_cards.clear();
@@ -4418,7 +4422,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 					if(!pduel->lua->check_matching(pm, -1, 0))
 						continue;
 					core.select_cards.push_back(pm);
-					pm->operation_param = pm->get_synchro_level(pcard);
+					pm->sum_param = pm->get_synchro_level(pcard);
 				}
 			}
 		} else {
@@ -4431,7 +4435,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 						if(!pduel->lua->check_matching(pm, -1, 0))
 							continue;
 						core.select_cards.push_back(pm);
-						pm->operation_param = pm->get_synchro_level(pcard);
+						pm->sum_param = pm->get_synchro_level(pcard);
 					}
 				}
 			}
@@ -4759,9 +4763,9 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		core.select_cards.clear();
 		int32 rmax = 0;
 		for(auto cit = core.release_cards.begin(); cit != core.release_cards.end(); ++cit)
-			rmax += (*cit)->operation_param;
+			rmax += (*cit)->release_param;
 		for(auto cit = core.release_cards_ex.begin(); cit != core.release_cards_ex.end(); ++cit)
-			rmax += (*cit)->operation_param;
+			rmax += (*cit)->release_param;
 		core.temp_var[0] = 0;
 		if(rmax < min) {
 			returns.ivalue[0] = TRUE;
@@ -4783,7 +4787,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 				core.select_cards.push_back(*cit);
 		else
 			for(auto cit = core.release_cards_ex_sum.begin(); cit != core.release_cards_ex_sum.end(); ++cit)
-				if((*cit)->operation_param == 2)
+				if((*cit)->release_param == 2)
 					core.select_cards.push_back(*cit);
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
@@ -4820,7 +4824,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		uint32 rmin = core.operated_set.size();
 		uint32 rmax = 0;
 		for(auto cit = core.operated_set.begin(); cit != core.operated_set.end(); ++cit)
-			rmax += (*cit)->operation_param;
+			rmax += (*cit)->release_param;
 		min -= rmax;
 		max -= rmin;
 		core.units.begin()->arg2 = (max << 16) + min;
