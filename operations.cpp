@@ -100,7 +100,7 @@ void field::change_target_param(uint8 chaincount, int32 param) {
 	core.current_chain[chaincount - 1].target_param = param;
 }
 void field::remove_counter(uint32 reason, card* pcard, uint32 rplayer, uint32 s, uint32 o, uint32 countertype, uint32 count) {
-	add_process(PROCESSOR_REMOVE_COUNTER, 0, NULL, (group*)pcard, (rplayer << 16) + (s << 8) + o, countertype + (count << 16), reason);
+	add_process(PROCESSOR_REMOVE_COUNTER, 0, NULL, (group*)pcard, (rplayer << 16) + (s << 8) + o, countertype, count, reason);
 }
 void field::remove_overlay_card(uint32 reason, card* pcard, uint32 rplayer, uint32 s, uint32 o, uint16 min, uint16 max) {
 	add_process(PROCESSOR_REMOVEOL_S, 0, NULL, (group*)pcard, (rplayer << 16) + (s << 8) + o, (max << 16) + min, reason);
@@ -636,6 +636,8 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost) {
 }
 // rplayer rmoves counter from pcard or the field
 // s,o: binary value indicating the available side
+// from pcard: Card.RemoveCounter() -> here -> card::remove_counter() -> the script should raise EVENT_REMOVE_COUNTER if necessary
+// from the field: Duel.RemoveCounter() -> here -> field::select_counter() -> the system raises EVENT_REMOVE_COUNTER automatically
 int32 field::remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplayer, uint8 s, uint8 o, uint16 countertype, uint16 count) {
 	switch(step) {
 	case 0: {
@@ -692,31 +694,7 @@ int32 field::remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplay
 			core.units.begin()->step = 3;
 			return FALSE;
 		}
-		card* pcard;
-		core.select_cards.clear();
-		uint8 fc = s;
-		uint8 fp = rplayer;
-		for(int p = 0; p < 2; ++p) {
-			if(fc) {
-				for(uint32 j = 0; j < 5; ++j) {
-					pcard = player[fp].list_mzone[j];
-					if(pcard && pcard->get_counter(countertype)) {
-						core.select_cards.push_back(pcard);
-						pcard->operation_param = pcard->get_counter(countertype);
-					}
-				}
-				for(uint32 j = 0; j < 8; ++j) {
-					pcard = player[fp].list_szone[j];
-					if(pcard && pcard->get_counter(countertype)) {
-						core.select_cards.push_back(pcard);
-						pcard->operation_param = pcard->get_counter(countertype);
-					}
-				}
-			}
-			fp = 1 - fp;
-			fc = o;
-		}
-		add_process(PROCESSOR_SELECT_COUNTER, 0, 0, 0, rplayer, countertype + (((uint32)count) << 16));
+		add_process(PROCESSOR_SELECT_COUNTER, 0, NULL, NULL, rplayer, countertype, count, (s << 8) + o);
 		return FALSE;
 	}
 	case 2: {
