@@ -40,7 +40,7 @@ int32 field::select_battle_command(uint16 step, uint8 playerid) {
 			pduel->write_buffer8(pcard->current.controler);
 			pduel->write_buffer8(pcard->current.location);
 			pduel->write_buffer8(pcard->current.sequence);
-			pduel->write_buffer8(pcard->operation_param);
+			pduel->write_buffer8(pcard->direct_attackable);
 		}
 		//M2, EP
 		if(core.to_m2)

@@ -2823,7 +2823,7 @@ int32 field::process_battle_command(uint16 step) {
 					chain_attack = TRUE;
 				core.select_cards.clear();
 				get_attack_target(pcard, &core.select_cards, chain_attack);
-				if(core.select_cards.size() == 0 && pcard->operation_param == 0)
+				if(core.select_cards.size() == 0 && pcard->direct_attackable == 0)
 					continue;
 				core.attackable_cards.push_back(pcard);
 				if(pcard->is_affected_by_effect(EFFECT_FIRST_ATTACK))
@@ -3134,7 +3134,7 @@ int32 field::process_battle_command(uint16 step) {
 			return FALSE;
 		}
 		// attack canceled
-		if(!core.select_cards.size() && !core.attacker->operation_param) {
+		if(!core.select_cards.size() && !core.attacker->direct_attackable) {
 			core.chain_attack = FALSE;
 			core.units.begin()->step = -1;
 			reset_phase(PHASE_DAMAGE);
@@ -5157,7 +5157,7 @@ int32 field::adjust_step(uint16 step) {
 					pos = eset.get_last()->get_value();
 					if((pos & 0xff) != pcard->current.position) {
 						pos_adjust.insert(pcard);
-						pcard->operation_param = pos;
+						pcard->position_param = pos;
 						if(pcard->is_status(STATUS_JUST_POS))
 							pcard->set_status(STATUS_CONTINUOUS_POS, TRUE);
 						else

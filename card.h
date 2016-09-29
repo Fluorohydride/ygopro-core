@@ -113,6 +113,8 @@ public:
 	uint32 operation_param;
 	uint32 release_param;
 	uint32 sum_param;
+	uint32 position_param;
+	uint8 direct_attackable;
 	uint8 announce_count;
 	uint8 attacked_count;
 	uint8 attack_all_target;

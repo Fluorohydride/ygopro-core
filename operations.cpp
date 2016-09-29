@@ -296,22 +296,22 @@ void field::change_position(card_set* targets, effect* reason_effect, uint32 rea
 	for(auto cit = targets->begin(); cit != targets->end(); ++cit) {
 		card* pcard = *cit;
 		if(pcard->current.position == POS_FACEUP_ATTACK)
-			pcard->operation_param = au;
+			pcard->position_param = au;
 		else if(pcard->current.position == POS_FACEDOWN_DEFENSE)
-			pcard->operation_param = dd;
+			pcard->position_param = dd;
 		else if(pcard->current.position == POS_FACEUP_DEFENSE)
-			pcard->operation_param = du;
+			pcard->position_param = du;
 		else
-			pcard->operation_param = ad;
-		pcard->operation_param |= flag;
+			pcard->position_param = ad;
+		pcard->position_param |= flag;
 	}
 	add_process(PROCESSOR_CHANGEPOS, 0, reason_effect, ng, reason_player, enable);
 }
 void field::change_position(card* target, effect* reason_effect, uint32 reason_player, uint32 npos, uint32 flag, uint32 enable) {
 	group* ng = pduel->new_group(target);
 	ng->is_readonly = TRUE;
-	target->operation_param = npos;
-	target->operation_param |= flag;
+	target->position_param = npos;
+	target->position_param |= flag;
 	add_process(PROCESSOR_CHANGEPOS, 0, reason_effect, ng, reason_player, enable);
 }
 int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, uint32 count) {
@@ -634,6 +634,8 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost) {
 	}
 	return TRUE;
 }
+// rplayer rmoves counter from pcard or the field
+// s,o: binary value indicating the available side
 int32 field::remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplayer, uint8 s, uint8 o, uint16 countertype, uint16 count) {
 	switch(step) {
 	case 0: {
@@ -3945,9 +3947,9 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 			std::sort(cv.begin(), cv.end(), card::card_operation_sort);
 		for(auto cvit = cv.begin(); cvit != cv.end(); ++cvit) {
 			card* pcard = *cvit;
-			uint8 npos = pcard->operation_param & 0xff;
+			uint8 npos = pcard->position_param & 0xff;
 			uint8 opos = pcard->current.position;
-			uint8 flag = pcard->operation_param >> 16;
+			uint8 flag = pcard->position_param >> 16;
 			if(pcard->is_status(STATUS_SUMMONING) || pcard->overlay_target || !(pcard->current.location & LOCATION_ONFIELD)
 			        || !pcard->is_affect_by_effect(reason_effect) || npos == opos
 			        || (!(pcard->data.type & TYPE_TOKEN) && (opos & POS_FACEUP) &&  (npos & POS_FACEDOWN) && !pcard->is_capable_turn_set(reason_player))

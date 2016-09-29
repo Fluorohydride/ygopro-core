@@ -1616,7 +1616,7 @@ int32 scriptlib::card_is_chain_attackable(lua_State *L) {
 	}
 	pduel->game_field->core.select_cards.clear();
 	pduel->game_field->get_attack_target(attacker, &pduel->game_field->core.select_cards, TRUE);
-	if(pduel->game_field->core.select_cards.size() == 0 && (monsteronly || attacker->operation_param == 0))
+	if(pduel->game_field->core.select_cards.size() == 0 && (monsteronly || attacker->direct_attackable == 0))
 		lua_pushboolean(L, 0);
 	else
 		lua_pushboolean(L, 1);
@@ -2244,7 +2244,7 @@ int32 scriptlib::card_get_attackable_target(lua_State *L) {
 	group* newgroup = pduel->new_group();
 	newgroup->container.insert(targets.begin(), targets.end());
 	interpreter::group2value(L, newgroup);
-	lua_pushboolean(L, pcard->operation_param);
+	lua_pushboolean(L, (int32)pcard->direct_attackable);
 	return 2;
 }
 int32 scriptlib::card_set_hint(lua_State *L) {

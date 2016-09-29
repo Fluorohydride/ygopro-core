@@ -1713,7 +1713,7 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 	card_vector only_be_attack;
 	effect_set eset;
 	// find the universal set pv
-	pcard->operation_param = 0;
+	pcard->direct_attackable = 0;
 	for(uint32 i = 0; i < 5; ++i) {
 		card* atarget = player[1 - p].list_mzone[i];
 		if(atarget) {
@@ -1873,7 +1873,7 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 	}
 	if((mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK) || core.attack_player)
 			&& !pcard->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK) && dir)
-		pcard->operation_param = 1;
+		pcard->direct_attackable = 1;
 	return atype;
 }
 // return: core.attack_target is valid or not
