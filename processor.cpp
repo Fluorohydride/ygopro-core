@@ -2938,7 +2938,7 @@ int32 field::process_battle_command(uint16 step) {
 		core.select_cards.clear();
 		auto atype = get_attack_target(core.attacker, &core.select_cards, core.chain_attack);
 		// direct attack
-		if(core.attacker->operation_param) {
+		if(core.attacker->direct_attackable) {
 			if(core.select_cards.size() == 0) {
 				returns.ivalue[0] = -2;
 				core.units.begin()->step = 5;
@@ -3450,12 +3450,8 @@ int32 field::process_battle_command(uint16 step) {
 			group* ng = pduel->new_group();
 			ng->container.swap(des);
 			ng->is_readonly = TRUE;
-			std::unordered_map<card*, uint32>* card_op_params = new std::unordered_map<card*, uint32>;
-			for(auto cit = ng->container.begin(); cit != ng->container.end(); ++cit)
-				card_op_params->insert(std::make_pair(*cit, (*cit)->operation_param));
 			add_process(PROCESSOR_DESTROY, 10, 0, ng, REASON_BATTLE, PLAYER_NONE);
 			core.units.begin()->ptarget = ng;
-			core.units.begin()->ptr1 = card_op_params;
 		}
 		return FALSE;
 	}
@@ -3504,15 +3500,11 @@ int32 field::process_battle_command(uint16 step) {
 	case 32: {
 		group* des = core.units.begin()->ptarget;
 		if(des) {
-			auto card_op_params = (std::unordered_map<card*, uint32>*)core.units.begin()->ptr1;
 			for(auto cit = des->container.begin(); cit != des->container.end();) {
 				auto rm = cit++;
-				(*rm)->operation_param = card_op_params->find((*rm))->second;
 				if((*rm)->current.location != LOCATION_MZONE || ((*rm)->fieldid_r != core.pre_field[0] && (*rm)->fieldid_r != core.pre_field[1]))
 					des->container.erase(rm);
 			}
-			delete card_op_params;
-			core.units.begin()->ptr1 = 0;
 			add_process(PROCESSOR_DESTROY, 3, 0, des, REASON_BATTLE, PLAYER_NONE);
 		}
 		adjust_all();
@@ -5093,7 +5085,6 @@ int32 field::adjust_step(uint16 step) {
 				ref = pcard->refresh_control_status();
 				if(cur != ref && pcard->is_capable_change_control()) {
 					core.control_adjust_set[p].insert(pcard);
-					pcard->operation_param = ref;
 				}
 			}
 		}

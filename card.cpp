@@ -57,6 +57,12 @@ card::card(duel* pd) {
 	pduel = pd;
 	owner = PLAYER_NONE;
 	operation_param = 0;
+	release_param = 0;
+	sum_param = 0;
+	position_param = 0;
+	spsummon_param = 0;
+	to_field_param = 0;
+	direct_attackable = 0;
 	summon_info = 0;
 	status = 0;
 	memset(&q_cache, 0xff, sizeof(query_cache));
@@ -1698,7 +1704,8 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 		filter_effect(EFFECT_TO_GRAVE_REDIRECT, &es);
 	else if(destination == LOCATION_REMOVED)
 		filter_effect(EFFECT_REMOVE_REDIRECT, &es);
-	else return 0;
+	else 
+		return 0;
 	for(int32 i = 0; i < es.size(); ++i) {
 		redirect = es[i]->get_value(this, 0);
 		if((redirect & LOCATION_HAND) && !is_affected_by_effect(EFFECT_CANNOT_TO_HAND) && pduel->game_field->is_player_can_send_to_hand(current.controler, this))

@@ -153,7 +153,7 @@ void field::special_summon(card_set* target, uint32 sumtype, uint32 sumplayer, u
 		pcard->current.reason = REASON_SPSUMMON;
 		pcard->current.reason_effect = core.reason_effect;
 		pcard->current.reason_player = core.reason_player;
-		pcard->operation_param = (playerid << 24) + (nocheck << 16) + (nolimit << 8) + positions;
+		pcard->spsummon_param = (playerid << 24) + (nocheck << 16) + (nolimit << 8) + positions;
 	}
 	group* pgroup = pduel->new_group(*target);
 	pgroup->is_readonly = TRUE;
@@ -170,7 +170,7 @@ void field::special_summon_step(card* target, uint32 sumtype, uint32 sumplayer, 
 	target->current.reason = REASON_SPSUMMON;
 	target->current.reason_effect = core.reason_effect;
 	target->current.reason_player = core.reason_player;
-	target->operation_param = (playerid << 24) + (nocheck << 16) + (nolimit << 8) + positions;
+	target->spsummon_param = (playerid << 24) + (nocheck << 16) + (nolimit << 8) + positions;
 	add_process(PROCESSOR_SPSUMMON_STEP, 0, core.reason_effect, NULL, 0, 0, 0, 0, target);
 }
 void field::special_summon_complete(effect* reason_effect, uint8 reason_player) {
@@ -242,7 +242,7 @@ void field::release(card* target, effect* reason_effect, uint32 reason, uint32 r
 	tset.insert(target);
 	release(&tset, reason_effect, reason, reason_player);
 }
-// set current.reason and send to locations other than LOCATION_ONFIELD
+// set current.reason, operation_param
 // send-to in scripts: here->PROCESSOR_SENDTO, step 0
 void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence, uint32 position) {
 	if(destination & LOCATION_ONFIELD)
@@ -287,7 +287,7 @@ void field::move_to_field(card* target, uint32 move_player, uint32 playerid, uin
 		return;
 	if(destination == target->current.location && playerid == target->current.controler)
 		return;
-	target->operation_param = (move_player << 24) + (playerid << 16) + (destination << 8) + positions;
+	target->to_field_param = (move_player << 24) + (playerid << 16) + (destination << 8) + positions;
 	add_process(PROCESSOR_MOVETOFIELD, 0, 0, (group*)target, enable, ret + (is_equip << 8));
 }
 void field::change_position(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 au, uint32 ad, uint32 du, uint32 dd, uint32 flag, uint32 enable) {
@@ -2490,10 +2490,10 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 	return TRUE;
 }
 int32 field::special_summon_step(uint16 step, group * targets, card * target) {
-	uint8 playerid = (target->operation_param >> 24) & 0xf;
-	uint8 nocheck = (target->operation_param >> 16) & 0xff;
-	uint8 nolimit = (target->operation_param >> 8) & 0xff;
-	uint8 positions = target->operation_param & 0xff;
+	uint8 playerid = (target->spsummon_param >> 24) & 0xf;
+	uint8 nocheck = (target->spsummon_param >> 16) & 0xff;
+	uint8 nolimit = (target->spsummon_param >> 8) & 0xff;
+	uint8 positions = target->spsummon_param & 0xff;
 	switch(step) {
 	case 0: {
 		returns.ivalue[0] = FALSE;
@@ -2803,7 +2803,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				rep->current.reason = REASON_EFFECT | REASON_DESTROY | REASON_REPLACE;
 				rep->current.reason_effect = 0;
 				rep->current.reason_player = rep->current.controler;
-				rep->operation_param = (POS_FACEUP << 24) + (((int32)rep->owner) << 16) + (LOCATION_GRAVE << 8);
+				rep->operation_param = (POS_FACEUP << 24) + (((uint32)rep->owner) << 16) + (LOCATION_GRAVE << 8);
 				targets->container.insert(rep);
 			}
 		}
@@ -3121,7 +3121,6 @@ int32 field::release(uint16 step, group * targets, effect * reason_effect, uint3
 int32 field::send_to(uint16 step, group * targets, card * target) {
 	uint8 playerid = (target->operation_param >> 16) & 0xff;
 	uint8 dest = (target->operation_param >> 8) & 0xff;
-	//uint8 seq = (target->operation_param) & 0xff;
 	if(targets->container.find(target) == targets->container.end())
 		return TRUE;
 	if(target->current.location == dest && target->current.controler == playerid) {
@@ -3290,7 +3289,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				pcard->operation_param = (pcard->operation_param & 0xffff0000) | (redirect << 8) | redirect_seq;
 			}
 			if(check_cb)
-				pcard->operation_param = (pcard->operation_param & 0xff0fffff) | (1 << 20);
+				pcard->operation_param = (pcard->operation_param & 0xff0fffff) | (0x1u << 20);
 		}
 		return FALSE;
 	}
@@ -3752,11 +3751,13 @@ int32 field::discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reaso
 	}
 	return TRUE;
 }
+// move a card from anywhere to field, including sp_summon, Duel.MoveToField(), Duel.ReturnToField()
+// call move_card() in step 2
 int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret, uint32 is_equip) {
-	uint32 move_player = (target->operation_param >> 24) & 0xff;
-	uint32 playerid = (target->operation_param >> 16) & 0xff;
-	uint32 location = (target->operation_param >> 8) & 0xff;
-	uint32 positions = (target->operation_param) & 0xff;
+	uint32 move_player = (target->to_field_param >> 24) & 0xff;
+	uint32 playerid = (target->to_field_param >> 16) & 0xff;
+	uint32 location = (target->to_field_param >> 8) & 0xff;
+	uint32 positions = (target->to_field_param) & 0xff;
 	switch(step) {
 	case 0: {
 		returns.ivalue[0] = FALSE;
@@ -3871,6 +3872,7 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 		pduel->write_buffer32(target->get_info_location());
 		if(target->overlay_target)
 			target->overlay_target->xyz_remove(target);
+		// call move_card()
 		move_card(playerid, target, location, target->temp.sequence);
 		target->current.position = returns.ivalue[0];
 		if((target->previous.location & LOCATION_ONFIELD) && (location & LOCATION_ONFIELD))
