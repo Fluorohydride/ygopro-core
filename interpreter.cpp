@@ -81,6 +81,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsType", scriptlib::card_is_type },
 	{ "IsRace", scriptlib::card_is_race },
 	{ "IsAttribute", scriptlib::card_is_attribute },
+	{ "IsFusionAttribute", scriptlib::card_is_fusion_attribute },
 	{ "IsReason", scriptlib::card_is_reason },
 	{ "IsStatus", scriptlib::card_is_status },
 	{ "IsNotTuner", scriptlib::card_is_not_tuner },

@@ -575,6 +575,33 @@ int32 scriptlib::card_is_race(lua_State *L) {
 		lua_pushboolean(L, 0);
 	return 1;
 }
+int32 scriptlib::card_is_fusion_attribute(lua_State *L) {
+    check_param_count(L, 2);
+    check_param(L, PARAM_TYPE_CARD, 1);
+    card* pcard = *(card**)lua_touserdata(L, 1);
+    uint32 tattrib = lua_tointeger(L, 2);
+    uint32 result = FALSE;
+    effect_set eset;
+    pcard->filter_effect(EFFECT_CHANGE_FUSION_ATTRIBUTE, &eset);
+    if (!eset.size()) {
+		effect_set eset2;
+		pcard->filter_effect(EFFECT_ADD_FUSION_ATTRIBUTE, &eset2);
+		for (int32 i = 0; i < eset2.size(); ++i) {
+			if (eset2[i]->get_value(pcard) & tattrib)
+			result = TRUE;
+			break;
+		}
+		if (result == FALSE)
+			return card_is_attribute(L);
+		return result;
+    }
+    for (int32 i = 0; i < eset.size(); ++i) {
+        if (eset[i]->get_value(pcard) & tattrib)
+            result = TRUE;
+    }
+    lua_pushboolean(L, result);
+    return 1;
+}
 int32 scriptlib::card_is_attribute(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
