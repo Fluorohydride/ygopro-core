@@ -2933,7 +2933,7 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 4: {
-		// confirm attack_target(replay start point)
+		// select attack target(replay start point)
 		core.attack_player = FALSE;
 		core.select_cards.clear();
 		auto atype = get_attack_target(core.attacker, &core.select_cards, core.chain_attack);
@@ -3163,7 +3163,7 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 20: {
-		//infos.phase = PHASE_DAMAGE;
+		// start of PHASE_DAMAGE;
 		pduel->write_buffer8(MSG_DAMAGE_STEP_START);
 		raise_single_event(core.attacker, 0, EVENT_BATTLE_START, 0, 0, 0, 0, 0);
 		if(core.attack_target)
@@ -3235,7 +3235,7 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 24: {
-		//infos.phase = PHASE_DAMAGE_CAL;
+		// PHASE_DAMAGE_CAL;
 		calculate_battle_damage(0, 0, 0);
 		raise_single_event(core.attacker, 0, EVENT_PRE_DAMAGE_CALCULATE, 0, 0, 0, 0, 0);
 		if(core.attack_target)
