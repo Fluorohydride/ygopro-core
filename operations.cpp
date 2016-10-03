@@ -3826,7 +3826,7 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 					resetflag |= RESET_LEAVE;
 				effect* peffect = target->is_affected_by_effect(EFFECT_PRE_MONSTER);
 				if((location & LOCATION_ONFIELD) && (target->current.location & LOCATION_ONFIELD)
-					&& !(peffect && (peffect->value & TYPE_TRAP)) && !(target->get_type() & TYPE_TRAPMONSTER))
+					&& !(peffect && (peffect->value & TYPE_TRAP)) && !(ret == 2 && (target->get_type() & TYPE_TRAPMONSTER)))
 					resetflag |= RESET_MSCHANGE;
 				target->reset(resetflag, RESET_EVENT);
 			}

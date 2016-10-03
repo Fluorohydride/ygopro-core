@@ -5038,10 +5038,10 @@ int32 field::adjust_step(uint16 step) {
 			for(uint8 i = 0; i < 5; ++i) {
 				pcard = player[tp].list_mzone[i];
 				if(!pcard) continue;
-				if((pcard->get_type()&TYPE_TRAPMONSTER) && pcard->is_affected_by_effect(EFFECT_DISABLE_TRAPMONSTER)) {
+				if((pcard->get_type() & TYPE_TRAPMONSTER) && pcard->is_affected_by_effect(EFFECT_DISABLE_TRAPMONSTER)) {
 					pcard->reset(RESET_TURN_SET, RESET_EVENT);
 					refresh_location_info_instant();
-					move_to_field(pcard, tp, tp, LOCATION_SZONE, pcard->current.position);
+					move_to_field(pcard, tp, tp, LOCATION_SZONE, pcard->current.position, FALSE, 2);
 					core.re_adjust = TRUE;
 				}
 			}
