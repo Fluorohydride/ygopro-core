@@ -1192,7 +1192,7 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 		if(get_useable_count(equip_player, LOCATION_SZONE, equip_player, LOCATION_REASON_TOFIELD) <= 0)
 			return TRUE;
 		equip_card->enable_field_effect(false);
-		move_to_field(equip_card, equip_player, equip_player, LOCATION_SZONE, (up || equip_card->is_position(POS_FACEUP)) ? POS_FACEUP : POS_FACEDOWN, FALSE, FALSE, TRUE);
+		move_to_field(equip_card, equip_player, equip_player, LOCATION_SZONE, (up || equip_card->is_position(POS_FACEUP)) ? POS_FACEUP : POS_FACEDOWN, FALSE, 0, TRUE);
 		return FALSE;
 	}
 	case 1: {
@@ -3437,6 +3437,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		return FALSE;
 	}
 	case 7: {
+		// crystal beast redirection
 		exargs* param = (exargs*)targets;
 		card* pcard = *param->cvit;
 		uint32 flag;
@@ -3752,6 +3753,7 @@ int32 field::discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reaso
 	return TRUE;
 }
 // move a card from anywhere to field, including sp_summon, Duel.MoveToField(), Duel.ReturnToField()
+// ret: 0 = default, 1 = return after temporarily banished, 2 = trap_monster return to LOCATION_SZONE
 // call move_card() in step 2
 int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret, uint32 is_equip) {
 	uint32 move_player = (target->to_field_param >> 24) & 0xff;
@@ -3826,7 +3828,7 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 					resetflag |= RESET_LEAVE;
 				effect* peffect = target->is_affected_by_effect(EFFECT_PRE_MONSTER);
 				if((location & LOCATION_ONFIELD) && (target->current.location & LOCATION_ONFIELD)
-					&& !(peffect && (peffect->value & TYPE_TRAP)) && !(ret == 2 && (target->get_type() & TYPE_TRAPMONSTER)))
+						&& !(peffect && (peffect->value & TYPE_TRAP)) && ret != 2)
 					resetflag |= RESET_MSCHANGE;
 				target->reset(resetflag, RESET_EVENT);
 			}
