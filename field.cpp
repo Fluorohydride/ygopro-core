@@ -1361,7 +1361,8 @@ void field::get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc, g
 	uint32 xyz_level;
 	if(mg) {
 		for (auto cit = mg->container.begin(); cit != mg->container.end(); ++cit) {
-			if((xyz_level = (*cit)->check_xyz_level(scard, lv)) && (findex == 0 || pduel->lua->check_matching(*cit, findex, 0)))
+			if((*cit)->is_can_be_xyz_material(scard) && (xyz_level = (*cit)->check_xyz_level(scard, lv))
+					&& (findex == 0 || pduel->lua->check_matching(*cit, findex, 0)))
 				core.xmaterial_lst.insert(std::make_pair((xyz_level >> 12) & 0xf, *cit));
 		}
 	} else {
