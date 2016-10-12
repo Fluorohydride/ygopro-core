@@ -223,6 +223,7 @@ public:
 	static int32 card_reset_negate_effect(lua_State *L);
 	static int32 card_assume_prop(lua_State *L);
 	static int32 card_set_spsummon_once(lua_State *L);
+	static int32 card_set_entity_code(lua_State *L);
 	
 	//Effect functions
 	static int32 effect_new(lua_State *L);

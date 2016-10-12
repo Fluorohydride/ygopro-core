@@ -2932,3 +2932,10 @@ int32 card::is_can_be_xyz_material(card* scard) {
 			return FALSE;
 	return TRUE;
 }
+uint32 card::set_entity_code(uint32 entity_code) {
+	card_data dat;
+	::read_card(entity_code, &dat);
+	uint32 code = data.code;
+	data = dat;
+	return code;
+}

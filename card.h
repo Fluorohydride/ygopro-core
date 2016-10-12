@@ -185,6 +185,7 @@ public:
 	void set_status(uint32 status, int32 enabled);
 	int32 get_status(uint32 status);
 	int32 is_status(uint32 status);
+	uint32 set_entity_code(uint32 entity_code);
 
 	void equip(card *target, uint32 send_msg = TRUE);
 	void unequip();
