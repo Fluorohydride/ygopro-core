@@ -1593,7 +1593,7 @@ int32 scriptlib::card_register_flag_effect(lua_State *L) {
 	peffect->reset_flag = reset;
 	peffect->flag[0] = flag | EFFECT_FLAG_CANNOT_DISABLE;
 	peffect->reset_count = count;
-	peffect->label = lab;
+	peffect->label.push_back(lab);
 	peffect->description = desc;
 	pcard->add_effect(peffect);
 	interpreter::effect2value(L, peffect);
@@ -1625,7 +1625,8 @@ int32 scriptlib::card_set_flag_effect_label(lua_State *L) {
 	if(eit == pcard->single_effect.end())
 		lua_pushboolean(L, FALSE);
 	else {
-		eit->second->label = lab;
+		eit->second->label.clear();
+		eit->second->label.push_back(lab);
 		lua_pushboolean(L, TRUE);
 	}
 	return 1;
@@ -1637,10 +1638,8 @@ int32 scriptlib::card_get_flag_effect_label(lua_State *L) {
 	uint32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
 	auto rg = pcard->single_effect.equal_range(code);
 	int32 count = 0;
-	for(; rg.first != rg.second; ++rg.first) {
-		lua_pushinteger(L, rg.first->second->label);
-		count++;
-	}
+	for(; rg.first != rg.second; ++rg.first, ++count)
+		lua_pushinteger(L, rg.first->second->label.size() ? rg.first->second->label[0] : 0);
 	if(!count) {
 		lua_pushnil(L);
 		return 1;

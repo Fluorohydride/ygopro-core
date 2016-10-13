@@ -54,7 +54,7 @@ public:
 	uint16 active_sequence;
 	card* active_handler;
 	uint16 status;
-	uint32 label;
+	std::vector<uint32> label;
 	int32 label_object;
 	int32 condition;
 	int32 cost;

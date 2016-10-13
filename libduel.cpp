@@ -108,7 +108,7 @@ int32 scriptlib::duel_register_flag_effect(lua_State *L) {
 	peffect->s_range = 1;
 	peffect->o_range = 0;
 	peffect->reset_count = count;
-	peffect->label = lab;
+	peffect->label.push_back(lab);
 	pduel->game_field->add_effect(peffect, playerid);
 	interpreter::effect2value(L, peffect);
 	return 1;
@@ -154,7 +154,8 @@ int32 scriptlib::duel_set_flag_effect_label(lua_State *L) {
 	if(!eset.size())
 		lua_pushboolean(L, FALSE);
 	else {
-		eset[0]->label = lab;
+		eset[0]->label.clear();
+		eset[0]->label.push_back(lab);
 		lua_pushboolean(L, TRUE);
 	}
 	return 1;
@@ -173,7 +174,7 @@ int32 scriptlib::duel_get_flag_effect_label(lua_State *L) {
 		return 1;
 	}
 	for(int32 i = 0; i < eset.size(); ++i)
-		lua_pushinteger(L, eset[i]->label);
+		lua_pushinteger(L, eset[i]->label.size() ? eset[i]->label[0] : 0);
 	return eset.size();
 }
 int32 scriptlib::duel_destroy(lua_State *L) {

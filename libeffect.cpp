@@ -175,8 +175,11 @@ int32 scriptlib::effect_set_label(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 v = lua_tointeger(L, 2);
-	peffect->label = v;
+	peffect->label.clear();
+	for(int32 i = 2; i <= lua_gettop(L); ++i) {
+		uint32 v = lua_tointeger(L, i);
+		peffect->label.push_back(v);
+	}
 	return 0;
 }
 int32 scriptlib::effect_set_label_object(lua_State *L) {
@@ -337,8 +340,13 @@ int32 scriptlib::effect_get_label(lua_State *L) {
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	if (peffect) {
-		lua_pushinteger(L, peffect->label);
-		return 1;
+		if(peffect->label.empty()) {
+			lua_pushinteger(L, 0);
+			return 1;
+		}
+		for(const auto& lab : peffect->label)
+			lua_pushinteger(L, lab);
+		return peffect->label.size();
 	}
 	return 0;
 }
