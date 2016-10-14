@@ -2968,12 +2968,19 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer8(MSG_BECOME_TARGET);
 				pduel->write_buffer8(1);
 				pduel->write_buffer32(core.attacker->get_info_location());
+				pduel->write_buffer8(MSG_HINT);
+				pduel->write_buffer8(HINT_SELECTMSG);
+				pduel->write_buffer8(1 - infos.turn_player);
+				pduel->write_buffer32(549);
 				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, 1 - infos.turn_player, 0x10001);
 			}
-		} else if(core.units.begin()->arg1) {
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + 0x20000, 0x10001);
-		} else
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player, 0x10001);
+		} else {
+			pduel->write_buffer8(MSG_HINT);
+			pduel->write_buffer8(HINT_SELECTMSG);
+			pduel->write_buffer8(infos.turn_player);
+			pduel->write_buffer32(549);
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + (core.units.begin()->arg1 ? 0x20000 : 0), 0x10001);
+		}
 		core.units.begin()->step = 5;
 		return FALSE;
 	}
@@ -2982,9 +2989,13 @@ int32 field::process_battle_command(uint16 step) {
 		if(returns.ivalue[0]) {
 			returns.ivalue[0] = -2;
 		} else {
-			if(core.select_cards.size())
+			if(core.select_cards.size()) {
+				pduel->write_buffer8(MSG_HINT);
+				pduel->write_buffer8(HINT_SELECTMSG);
+				pduel->write_buffer8(infos.turn_player);
+				pduel->write_buffer32(549);
 				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player, 0x10001);
-			else {
+			} else {
 				core.chain_attack = FALSE;
 				core.units.begin()->step = -1;
 			}
