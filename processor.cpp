@@ -5083,6 +5083,7 @@ int32 field::adjust_step(uint16 step) {
 	}
 	case 5: {
 		//remove brainwashing
+		bool re_adjust = false;
 		if(core.global_flag & GLOBALFLAG_BRAINWASHING_CHECK) {
 			effect_set eset;
 			uint32 res = 0;
@@ -5093,14 +5094,20 @@ int32 field::adjust_step(uint16 step) {
 					for(uint8 i = 0; i < 5; ++i) {
 						card* pcard = player[p].list_mzone[i];
 						// remove EFFECT_SET_CONTROL
-						if(pcard && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING))
+						if(pcard && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING)) {
 							pcard->reset(EFFECT_SET_CONTROL, RESET_CODE);
+							if(p != pcard->owner)
+								re_adjust = true;
+						}
 					}
 				}
 			}
 			core.remove_brainwashing = res;
 		}
-		core.units.begin()->step = 7;
+		if(re_adjust)
+			core.units.begin()->step = 3;
+		else
+			core.units.begin()->step = 7;
 		return FALSE;
 	}
 	case 6: {
