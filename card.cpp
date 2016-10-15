@@ -1605,8 +1605,6 @@ void card::refresh_disable_status() {
 }
 uint8 card::refresh_control_status() {
 	uint8 final = owner;
-	if(pduel->game_field->core.remove_brainwashing && is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING))
-		return final;
 	effect_set eset;
 	filter_effect(EFFECT_SET_CONTROL, &eset);
 	if(eset.size())

@@ -5061,39 +5061,15 @@ int32 field::adjust_step(uint16 step) {
 		return FALSE;
 	}
 	case 4: {
-		//remove brainwashing
-		effect_set eset;
-		uint32 res = 0;
-		if(core.global_flag & GLOBALFLAG_BRAINWASHING_CHECK) {
-			filter_field_effect(EFFECT_REMOVE_BRAINWASHING, &eset, FALSE);
-			res = eset.size() ? TRUE : FALSE;
-			if(res) {
-				card* pcard;
-				for(uint8 p = 0; p < 2; ++p) {
-					for(uint8 i = 0; i < 5; ++i) {
-						pcard = player[p].list_mzone[i];
-						// remove EFFECT_SET_CONTROL 
-						if(pcard && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING))
-							pcard->reset(EFFECT_SET_CONTROL, RESET_CODE);
-					}
-				}
-			}
-			core.remove_brainwashing = res;
-		}
-		return FALSE;
-	}
-	case 5: {
 		//1-5 control
-		card* pcard;
-		uint8 cur, ref;
 		core.control_adjust_set[0].clear();
 		core.control_adjust_set[1].clear();
 		for(uint8 p = 0; p < 2; ++p) {
 			for(uint8 i = 0; i < 5; ++i) {
-				pcard = player[p].list_mzone[i];
+				card* pcard = player[p].list_mzone[i];
 				if(!pcard) continue;
-				cur = pcard->current.controler;
-				ref = pcard->refresh_control_status();
+				uint8 cur = pcard->current.controler;
+				uint8 ref = pcard->refresh_control_status();
 				if(cur != ref && pcard->is_capable_change_control()) {
 					core.control_adjust_set[p].insert(pcard);
 				}
@@ -5102,6 +5078,27 @@ int32 field::adjust_step(uint16 step) {
 		if(core.control_adjust_set[0].size() || core.control_adjust_set[1].size()) {
 			core.re_adjust = TRUE;
 			add_process(PROCESSOR_CONTROL_ADJUST, 0, 0, 0, 0, 0);
+		}
+		return FALSE;
+	}
+	case 5: {
+		//remove brainwashing
+		if(core.global_flag & GLOBALFLAG_BRAINWASHING_CHECK) {
+			effect_set eset;
+			uint32 res = 0;
+			filter_field_effect(EFFECT_REMOVE_BRAINWASHING, &eset, FALSE);
+			res = eset.size() ? TRUE : FALSE;
+			if(res) {
+				for(uint8 p = 0; p < 2; ++p) {
+					for(uint8 i = 0; i < 5; ++i) {
+						card* pcard = player[p].list_mzone[i];
+						// remove EFFECT_SET_CONTROL
+						if(pcard && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING))
+							pcard->reset(EFFECT_SET_CONTROL, RESET_CODE);
+					}
+				}
+			}
+			core.remove_brainwashing = res;
 		}
 		core.units.begin()->step = 7;
 		return FALSE;
