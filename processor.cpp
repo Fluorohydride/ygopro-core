@@ -5070,21 +5070,22 @@ int32 field::adjust_step(uint16 step) {
 				if(!pcard) continue;
 				uint8 cur = pcard->current.controler;
 				uint8 ref = pcard->refresh_control_status();
-				if(cur != ref && pcard->is_capable_change_control()) {
+				if(cur != ref && pcard->is_capable_change_control())
 					core.control_adjust_set[p].insert(pcard);
-				}
 			}
 		}
 		if(core.control_adjust_set[0].size() || core.control_adjust_set[1].size()) {
 			core.re_adjust = TRUE;
 			add_process(PROCESSOR_CONTROL_ADJUST, 0, 0, 0, 0, 0);
 		}
+		core.last_control_changed_id = infos.field_id;
 		return FALSE;
 	}
 	case 5: {
 		//remove brainwashing
-		bool re_adjust = false;
 		if(core.global_flag & GLOBALFLAG_BRAINWASHING_CHECK) {
+			core.control_adjust_set[0].clear();
+			core.control_adjust_set[1].clear();
 			effect_set eset;
 			uint32 res = 0;
 			filter_field_effect(EFFECT_REMOVE_BRAINWASHING, &eset, FALSE);
@@ -5096,36 +5097,28 @@ int32 field::adjust_step(uint16 step) {
 						// remove EFFECT_SET_CONTROL
 						if(pcard && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING)) {
 							pcard->reset(EFFECT_SET_CONTROL, RESET_CODE);
-							if(p != pcard->owner)
-								re_adjust = true;
+							if(p != pcard->owner && pcard->is_capable_change_control())
+								core.control_adjust_set[p].insert(pcard);
 						}
 					}
 				}
 			}
 			core.remove_brainwashing = res;
+			if(core.control_adjust_set[0].size() || core.control_adjust_set[1].size()) {
+				core.re_adjust = TRUE;
+				add_process(PROCESSOR_CONTROL_ADJUST, 0, 0, 0, 0, 0);
+			}
 		}
-		if(re_adjust)
-			core.units.begin()->step = 3;
-		else
-			core.units.begin()->step = 7;
+		core.units.begin()->step = 8;
 		return FALSE;
 	}
-	case 6: {
-		return FALSE;
-	}
-	case 7: {
-		return FALSE;
-	}
-	case 8: {
+	case 9: {
 		if(core.selfdes_disabled) {
 			core.units.begin()->step = 10;
 			return FALSE;
 		}
 		//self destroy
 		adjust_self_destroy_set();
-		return FALSE;
-	}
-	case 9: {
 		return FALSE;
 	}
 	case 10: {

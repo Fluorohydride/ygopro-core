@@ -259,6 +259,7 @@ struct processor {
 	int32 duel_options;
 	uint32 copy_reset;
 	uint8 copy_reset_count;
+	uint32 last_control_changed_id;
 	uint8 dice_result[5];
 	uint8 coin_result[5];
 	uint8 to_bp;

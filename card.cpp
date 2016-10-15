@@ -1284,12 +1284,12 @@ int32 card::add_effect(effect* peffect) {
 		peffect->reset_flag |= pduel->game_field->core.copy_reset;
 		peffect->reset_count = (peffect->reset_count & 0xffffff00) | pduel->game_field->core.copy_reset_count;
 	}
-	if(peffect->is_flag(EFFECT_FLAG_COPY_INHERIT) && pduel->game_field->core.reason_effect
-	        && (pduel->game_field->core.reason_effect->copy_id)) {
-		peffect->copy_id = pduel->game_field->core.reason_effect->copy_id;
-		peffect->reset_flag |= pduel->game_field->core.reason_effect->reset_flag;
-		if((peffect->reset_count & 0xff) > (pduel->game_field->core.reason_effect->reset_count & 0xff))
-			peffect->reset_count = (peffect->reset_count & 0xffffff00) | (pduel->game_field->core.reason_effect->reset_count & 0xff);
+	effect* reason_effect = pduel->game_field->core.reason_effect;
+	if(peffect->is_flag(EFFECT_FLAG_COPY_INHERIT) && reason_effect && reason_effect->copy_id) {
+		peffect->copy_id = reason_effect->copy_id;
+		peffect->reset_flag |= reason_effect->reset_flag;
+		if((peffect->reset_count & 0xff) > (reason_effect->reset_count & 0xff))
+			peffect->reset_count = (peffect->reset_count & 0xffffff00) | (reason_effect->reset_count & 0xff);
 	}
 	indexer.insert(std::make_pair(peffect, eit));
 	peffect->handler = this;
@@ -1300,7 +1300,6 @@ int32 card::add_effect(effect* peffect) {
 			pduel->game_field->add_to_disable_check_list(check_target);
 	}
 	if(peffect->is_flag(EFFECT_FLAG_OATH)) {
-		effect* reason_effect = pduel->game_field->core.reason_effect;
 		pduel->game_field->effects.oath.insert(std::make_pair(peffect, reason_effect));
 	}
 	if(peffect->reset_flag & RESET_PHASE) {
@@ -1605,10 +1604,16 @@ void card::refresh_disable_status() {
 }
 uint8 card::refresh_control_status() {
 	uint8 final = owner;
+	uint32 last_id = 0;
+	if(pduel->game_field->core.remove_brainwashing && is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING))
+		last_id = pduel->game_field->core.last_control_changed_id;
 	effect_set eset;
 	filter_effect(EFFECT_SET_CONTROL, &eset);
-	if(eset.size())
-		final = (uint8) (eset.get_last()->get_value(this, 0));
+	if(eset.size()) {
+		effect* peffect = eset.get_last();
+		if(peffect->id >= last_id)
+			final = (uint8)peffect->get_value(this);
+	}
 	return final;
 }
 void card::count_turn(uint16 ct) {
