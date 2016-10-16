@@ -9,9 +9,11 @@
 #include "duel.h"
 #include "effect.h"
 #include "card.h"
+#include "ocgapi.h"
 
 #include <memory.h>
 #include <algorithm>
+#include <stack>
 
 int32 field::select_battle_command(uint16 step, uint8 playerid) {
 	if(step == 0) {
@@ -788,6 +790,148 @@ int32 field::announce_attribute(int16 step, uint8 playerid, int32 count, int32 a
 	}
 	return TRUE;
 }
+#define CARD_MARINE_DOLPHIN	78734254
+#define CARD_TWINKLE_MOSS	13857930
+static int32 is_declarable(card_data const& cd, const std::vector<uint32>& opcode) {
+	std::stack<int32> stack;
+	for(auto it = opcode.begin(); it != opcode.end(); ++it) {
+		switch(*it) {
+		case OPCODE_ADD: {
+			if(stack.size() >= 2) {
+				int32 rhs = stack.top();
+				stack.pop();
+				int32 lhs = stack.top();
+				stack.pop();
+				stack.push(lhs + rhs);
+			}
+			break;
+		}
+		case OPCODE_SUB: {
+			if(stack.size() >= 2) {
+				int32 rhs = stack.top();
+				stack.pop();
+				int32 lhs = stack.top();
+				stack.pop();
+				stack.push(lhs - rhs);
+			}
+			break;
+		}
+		case OPCODE_MUL: {
+			if(stack.size() >= 2) {
+				int32 rhs = stack.top();
+				stack.pop();
+				int32 lhs = stack.top();
+				stack.pop();
+				stack.push(lhs * rhs);
+			}
+			break;
+		}
+		case OPCODE_DIV: {
+			if(stack.size() >= 2) {
+				int32 rhs = stack.top();
+				stack.pop();
+				int32 lhs = stack.top();
+				stack.pop();
+				stack.push(lhs / rhs);
+			}
+			break;
+		}
+		case OPCODE_AND: {
+			if(stack.size() >= 2) {
+				int32 rhs = stack.top();
+				stack.pop();
+				int32 lhs = stack.top();
+				stack.pop();
+				stack.push(lhs && rhs);
+			}
+			break;
+		}
+		case OPCODE_OR: {
+			if(stack.size() >= 2) {
+				int32 rhs = stack.top();
+				stack.pop();
+				int32 lhs = stack.top();
+				stack.pop();
+				stack.push(lhs || rhs);
+			}
+			break;
+		}
+		case OPCODE_NEG: {
+			if(stack.size() >= 1) {
+				int32 val = stack.top();
+				stack.pop();
+				stack.push(-val);
+			}
+			break;
+		}
+		case OPCODE_NOT: {
+			if(stack.size() >= 1) {
+				int32 val = stack.top();
+				stack.pop();
+				stack.push(!val);
+			}
+			break;
+		}
+		case OPCODE_ISCODE: {
+			if(stack.size() >= 1) {
+				int32 code = stack.top();
+				stack.pop();
+				stack.push(cd.code == code);
+			}
+			break;
+		}
+		case OPCODE_ISSETCARD: {
+			if(stack.size() >= 1) {
+				int32 set_code = stack.top();
+				stack.pop();
+				uint64 sc = cd.setcode;
+				bool res = false;
+				uint32 settype = set_code & 0xfff;
+				uint32 setsubtype = set_code & 0xf000;
+				while(sc) {
+					if((sc & 0xfff) == settype && (sc & 0xf000 & setsubtype) == setsubtype)
+						res = true;
+					sc = sc >> 16;
+				}
+				stack.push(res);
+			}
+			break;
+		}
+		case OPCODE_ISTYPE: {
+			if(stack.size() >= 1) {
+				int32 val = stack.top();
+				stack.pop();
+				stack.push(cd.type & val);
+			}
+			break;
+		}
+		case OPCODE_ISRACE: {
+			if(stack.size() >= 1) {
+				int32 race = stack.top();
+				stack.pop();
+				stack.push(cd.race & race);
+			}
+			break;
+		}
+		case OPCODE_ISATTRIBUTE: {
+			if(stack.size() >= 1) {
+				int32 attribute = stack.top();
+				stack.pop();
+				stack.push(cd.attribute & attribute);
+			}
+			break;
+		}
+		default: {
+			stack.push(*it);
+			break;
+		}
+		}
+	}
+	if(stack.size() != 1 || stack.top() == 0)
+		return FALSE;
+	return cd.code == CARD_MARINE_DOLPHIN || cd.code == CARD_TWINKLE_MOSS
+		|| (!cd.alias && (cd.type & (TYPE_MONSTER + TYPE_TOKEN)) != (TYPE_MONSTER + TYPE_TOKEN));
+}
 int32 field::announce_card(int16 step, uint8 playerid, uint32 ttype) {
 	if(step == 0) {
 		if(core.select_options.size() == 0) {
@@ -803,10 +947,28 @@ int32 field::announce_card(int16 step, uint8 playerid, uint32 ttype) {
 		}
 		return FALSE;
 	} else {
+		int32 code = returns.ivalue[0];
+		card_data data;
+		read_card(code, &data);
+		if(!data.code) {
+			pduel->write_buffer8(MSG_RETRY);
+			return FALSE;
+		}
+		if(core.select_options.size() == 0) {
+			if(!(data.type & ttype)) {
+				pduel->write_buffer8(MSG_RETRY);
+				return FALSE;
+			}
+		} else {
+			if(!is_declarable(data, core.select_options)) {
+				pduel->write_buffer8(MSG_RETRY);
+				return FALSE;
+			}
+		}
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_CODE);
 		pduel->write_buffer8(playerid);
-		pduel->write_buffer32(returns.ivalue[0]);
+		pduel->write_buffer32(code);
 		return TRUE;
 	}
 	return TRUE;
