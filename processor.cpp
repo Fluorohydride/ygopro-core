@@ -3481,6 +3481,7 @@ int32 field::process_battle_command(uint16 step) {
 		if(des && des->container.size()) {
 			for(auto cit = des->container.begin(); cit != des->container.end(); ++cit) {
 				(*cit)->set_status(STATUS_BATTLE_DESTROYED, TRUE);
+				(*cit)->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
 				(*cit)->filter_disable_related_cards();
 			}
 		}
