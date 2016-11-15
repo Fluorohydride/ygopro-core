@@ -41,6 +41,7 @@ public:
 	static int32 card_get_origin_rscale(lua_State *L);
 	static int32 card_get_attribute(lua_State *L);
 	static int32 card_get_origin_attribute(lua_State *L);
+	static int32 card_get_fusion_attribute(lua_State *L);
 	static int32 card_get_race(lua_State *L);
 	static int32 card_get_origin_race(lua_State *L);
 	static int32 card_get_attack(lua_State *L);
@@ -83,6 +84,7 @@ public:
 	static int32 card_is_type(lua_State *L);
 	static int32 card_is_race(lua_State *L);
 	static int32 card_is_attribute(lua_State *L);
+	static int32 card_is_fusion_attribute(lua_State *L);
 	static int32 card_is_reason(lua_State *L);
 	static int32 card_is_status(lua_State *L);
 	static int32 card_is_not_tuner(lua_State *L);

@@ -251,6 +251,18 @@ int32 scriptlib::card_get_origin_attribute(lua_State *L) {
 		lua_pushinteger(L, pcard->data.attribute);
 	return 1;
 }
+int32 scriptlib::card_get_fusion_attribute(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	int32 playerid = PLAYER_NONE;
+	if(lua_gettop(L) > 1 && !lua_isnil(L, 2))
+		playerid = lua_tointeger(L, 2);
+	else
+		playerid = pcard->pduel->game_field->core.reason_player;
+	lua_pushinteger(L, pcard->get_fusion_attribute(playerid));
+	return 1;
+}
 int32 scriptlib::card_get_race(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -581,6 +593,22 @@ int32 scriptlib::card_is_attribute(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 tattrib = lua_tointeger(L, 2);
 	if(pcard->get_attribute() & tattrib)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::card_is_fusion_attribute(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	uint32 tattrib = lua_tointeger(L, 2);
+	int32 playerid = PLAYER_NONE;
+	if(lua_gettop(L) > 2 && !lua_isnil(L, 3))
+		playerid = lua_tointeger(L, 3);
+	else
+		playerid = pcard->pduel->game_field->core.reason_player;
+	if(pcard->get_fusion_attribute(playerid) & tattrib)
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);

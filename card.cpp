@@ -936,6 +936,18 @@ uint32 card::get_attribute() {
 	temp.attribute = 0xffffffff;
 	return attribute;
 }
+uint32 card::get_fusion_attribute(uint8 playerid) {
+	effect_set effects;
+	filter_effect(EFFECT_CHANGE_FUSION_ATTRIBUTE, &effects);
+	if(!effects.size())
+		return get_attribute();
+	uint32 attribute;
+	for(int32 i = 0; i < effects.size(); ++i) {
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		attribute = effects[i]->get_value(this, 1);
+	}
+	return attribute;
+}
 // see get_level()
 uint32 card::get_race() {
 	if(assume_type == ASSUME_RACE)
@@ -2148,7 +2160,14 @@ int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf) {
 	pduel->lua->add_param(fusion_m, PARAM_TYPE_GROUP);
 	pduel->lua->add_param(cg, PARAM_TYPE_CARD);
 	pduel->lua->add_param(chkf, PARAM_TYPE_INT);
-	return pduel->lua->check_condition(peffect->condition, 4);
+	effect* oreason = pduel->game_field->core.reason_effect;
+	uint8 op = pduel->game_field->core.reason_player;
+	pduel->game_field->core.reason_effect = peffect;
+	pduel->game_field->core.reason_player = peffect->get_handler_player();
+	int32 res = pduel->lua->check_condition(peffect->condition, 4);
+	pduel->game_field->core.reason_effect = oreason;
+	pduel->game_field->core.reason_player = op;
+	return res;
 }
 void card::fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf) {
 	effect* peffect = 0;

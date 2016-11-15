@@ -405,6 +405,9 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_EXTRA_ATTACK_MONSTER		346
 #define EFFECT_UNION_STATUS				347
 #define EFFECT_OLDUNION_STATUS			348
+//#define EFFECT_ADD_FUSION_ATTRIBUTE		349
+//#define EFFECT_REMOVE_FUSION_ATTRIBUTE	350
+#define EFFECT_CHANGE_FUSION_ATTRIBUTE	351
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

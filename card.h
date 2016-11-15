@@ -178,6 +178,7 @@ public:
 	uint32 get_ritual_level(card* pcard);
 	uint32 check_xyz_level(card* pcard, uint32 lv);
 	uint32 get_attribute();
+	uint32 get_fusion_attribute(uint8 playerid);
 	uint32 get_race();
 	uint32 get_lscale();
 	uint32 get_rscale();
