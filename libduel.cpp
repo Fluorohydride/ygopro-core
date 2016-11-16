@@ -1361,9 +1361,9 @@ int32 scriptlib::duel_negate_related_chain(lua_State *L) {
 	if(!pcard->is_affect_by_effect(pduel->game_field->core.reason_effect))
 		return 0;
 	for(auto it = pduel->game_field->core.current_chain.rbegin(); it != pduel->game_field->core.current_chain.rend(); ++it) {
-		if(it->triggering_effect->handler == pcard && pcard->is_has_relation(*it)) {
+		if(it->triggering_effect->get_handler() == pcard && pcard->is_has_relation(*it)) {
 			effect* negeff = pduel->new_effect();
-			negeff->owner = pduel->game_field->core.reason_effect->handler;
+			negeff->owner = pduel->game_field->core.reason_effect->get_handler();
 			negeff->type = EFFECT_TYPE_SINGLE;
 			negeff->code = EFFECT_DISABLE_CHAIN;
 			negeff->value = it->chain_id;
@@ -1636,7 +1636,7 @@ int32 scriptlib::duel_chain_attack(lua_State *L) {
 }
 int32 scriptlib::duel_readjust(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
-	card* adjcard = pduel->game_field->core.reason_effect->handler;
+	card* adjcard = pduel->game_field->core.reason_effect->get_handler();
 	pduel->game_field->core.readjust_map[adjcard]++;
 	if(pduel->game_field->core.readjust_map[adjcard] > 3) {
 		pduel->game_field->send_to(adjcard, 0, REASON_RULE, pduel->game_field->core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
@@ -3171,7 +3171,7 @@ int32 scriptlib::duel_check_chain_uniqueness(lua_State *L) {
 	}
 	std::set<uint32> er;
 	for(auto cait = pduel->game_field->core.current_chain.begin(); cait != pduel->game_field->core.current_chain.end(); ++cait)
-		er.insert(cait->triggering_effect->handler->get_code());
+		er.insert(cait->triggering_effect->get_handler()->get_code());
 	if(er.size() == pduel->game_field->core.current_chain.size())
 		lua_pushboolean(L, 1);
 	else

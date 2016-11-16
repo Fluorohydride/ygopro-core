@@ -138,8 +138,8 @@ void field::reload_field_info() {
 	pduel->write_buffer8(core.current_chain.size());
 	for(auto chit = core.current_chain.begin(); chit != core.current_chain.end(); ++chit) {
 		effect* peffect = chit->triggering_effect;
-		pduel->write_buffer32(peffect->handler->data.code);
-		pduel->write_buffer32(peffect->handler->get_info_location());
+		pduel->write_buffer32(peffect->get_handler()->data.code);
+		pduel->write_buffer32(peffect->get_handler()->get_info_location());
 		pduel->write_buffer8(chit->triggering_controler);
 		pduel->write_buffer8(chit->triggering_location);
 		pduel->write_buffer8(chit->triggering_sequence);
@@ -405,7 +405,7 @@ void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 r
 		return;
 	effect* peffect = pduel->new_effect();
 	if(core.reason_effect)
-		peffect->owner = core.reason_effect->handler;
+		peffect->owner = core.reason_effect->get_handler();
 	else
 		peffect->owner = pcard;
 	peffect->handler = pcard;
@@ -1611,7 +1611,7 @@ void field::set_spsummon_counter(uint8 playerid, bool add, bool chain) {
 	if(core.global_flag & GLOBALFLAG_SPSUMMON_COUNT) {
 		for(auto iter = effects.spsummon_count_eff.begin(); iter != effects.spsummon_count_eff.end(); ++iter) {
 			effect* peffect = *iter;
-			card* pcard = peffect->handler;
+			card* pcard = peffect->get_handler();
 			if(add) {
 				if(peffect->is_available()) {
 					if(((playerid == pcard->current.controler) && peffect->s_range) || ((playerid != pcard->current.controler) && peffect->o_range)) {
@@ -1631,7 +1631,7 @@ int32 field::check_spsummon_counter(uint8 playerid, uint8 ct) {
 	if(core.global_flag & GLOBALFLAG_SPSUMMON_COUNT) {
 		for(auto iter = effects.spsummon_count_eff.begin(); iter != effects.spsummon_count_eff.end(); ++iter) {
 			effect* peffect = *iter;
-			card* pcard = peffect->handler;
+			card* pcard = peffect->get_handler();
 			uint16 val = (uint16)peffect->value;
 			if(peffect->is_available()) {
 				if(pcard->spsummon_counter[playerid] + ct > val)
@@ -2574,7 +2574,7 @@ int32 field::is_chain_disablable(uint8 chaincount, uint8 naga_check) {
 		peffect = core.current_chain[chaincount - 1].triggering_effect;
 	if(naga_check && peffect->is_flag(EFFECT_FLAG2_NAGA))
 		return FALSE;
-	if(!peffect->handler->get_status(STATUS_FORBIDDEN)) {
+	if(!peffect->get_handler()->get_status(STATUS_FORBIDDEN)) {
 		if(peffect->is_flag(EFFECT_FLAG_CANNOT_DISABLE))
 			return FALSE;
 		filter_field_effect(EFFECT_CANNOT_DISEFFECT, &eset);
@@ -2596,7 +2596,7 @@ int32 field::is_chain_disabled(uint8 chaincount) {
 		pchain = &core.current_chain[chaincount - 1];
 	if(pchain->flag & CHAIN_DISABLE_EFFECT)
 		return TRUE;
-	card* pcard = pchain->triggering_effect->handler;
+	card* pcard = pchain->triggering_effect->get_handler();
 	effect_set eset;
 	pcard->filter_effect(EFFECT_DISABLE_CHAIN, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {

@@ -90,6 +90,7 @@ card::~card() {
 	single_effect.clear();
 	field_effect.clear();
 	equip_effect.clear();
+	xmaterial_effect.clear();
 	relate_effect.clear();
 }
 uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
@@ -1285,6 +1286,12 @@ int32 card::add_effect(effect* peffect) {
 			check_target = equiping_target;
 		else
 			check_target = 0;
+	} else if (peffect->type & EFFECT_TYPE_XMATERIAL) {
+		eit = xmaterial_effect.insert(std::make_pair(peffect->code, peffect));
+		if (overlay_target)
+			check_target = overlay_target;
+		else
+			check_target = 0;
 	} else
 		return 0;
 	peffect->id = pduel->game_field->infos.field_id++;
@@ -1362,6 +1369,12 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			check_target = equiping_target;
 		else
 			check_target = 0;
+	} else if (peffect->type & EFFECT_TYPE_XMATERIAL) {
+		xmaterial_effect.erase(it);
+		if (overlay_target)
+			check_target = overlay_target;
+		else
+			check_target = 0;
 	}
 	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && check_target) {
 		if (peffect->is_disable_related())
@@ -1432,7 +1445,7 @@ int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
 	if(!(data.type & TYPE_EFFECT)) {
 		effect* peffect = pduel->new_effect();
 		if(pduel->game_field->core.reason_effect)
-			peffect->owner = pduel->game_field->core.reason_effect->handler;
+			peffect->owner = pduel->game_field->core.reason_effect->get_handler();
 		else
 			peffect->owner = this;
 		peffect->handler = this;
@@ -1476,7 +1489,7 @@ int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 	if(!(data.type & TYPE_EFFECT)) {
 		effect* peffect = pduel->new_effect();
 		if(pduel->game_field->core.reason_effect)
-			peffect->owner = pduel->game_field->core.reason_effect->handler;
+			peffect->owner = pduel->game_field->core.reason_effect->get_handler();
 		else
 			peffect->owner = this;
 		peffect->handler = this;
@@ -1869,6 +1882,14 @@ void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {
 				eset->add_item(peffect);
 		}
 	}
+	for (auto cit = xyz_materials.begin(); cit != xyz_materials.end(); ++cit) {
+		rg = (*cit)->xmaterial_effect.equal_range(code);
+		for (; rg.first != rg.second; ++rg.first) {
+			peffect = rg.first->second;
+			if (peffect->is_available() && is_affect_by_effect(peffect))
+				eset->add_item(peffect);
+		}
+	}
 	rg = pduel->game_field->effects.aura_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
@@ -1899,6 +1920,11 @@ void card::filter_single_continuous_effect(int32 code, effect_set* eset, uint8 s
 		for (; rg.first != rg.second; ++rg.first)
 			eset->add_item(rg.first->second);
 	}
+	for (auto cit = xyz_materials.begin(); cit != xyz_materials.end(); ++cit) {
+		rg = (*cit)->xmaterial_effect.equal_range(code);
+		for (; rg.first != rg.second; ++rg.first)
+			eset->add_item(rg.first->second);
+	}
 	if(sort)
 		eset->sort();
 }
@@ -1914,6 +1940,14 @@ void card::filter_immune_effect() {
 	}
 	for (auto cit = equiping_cards.begin(); cit != equiping_cards.end(); ++cit) {
 		rg = (*cit)->equip_effect.equal_range(EFFECT_IMMUNE_EFFECT);
+		for (; rg.first != rg.second; ++rg.first) {
+			peffect = rg.first->second;
+			if (peffect->is_available())
+				immune_effect.add_item(peffect);
+		}
+	}
+	for (auto cit = xyz_materials.begin(); cit != xyz_materials.end(); ++cit) {
+		rg = (*cit)->xmaterial_effect.equal_range(EFFECT_IMMUNE_EFFECT);
 		for (; rg.first != rg.second; ++rg.first) {
 			peffect = rg.first->second;
 			if (peffect->is_available())
@@ -1939,6 +1973,8 @@ void card::filter_disable_related_cards() {
 				pduel->game_field->update_disable_check_list(peffect);
 			else if ((peffect->type & EFFECT_TYPE_EQUIP) && equiping_target)
 				pduel->game_field->add_to_disable_check_list(equiping_target);
+			else if ((peffect->type & EFFECT_TYPE_XMATERIAL) && overlay_target)
+				pduel->game_field->add_to_disable_check_list(overlay_target);
 		}
 	}
 }
@@ -2094,6 +2130,14 @@ effect* card::is_affected_by_effect(int32 code) {
 				return peffect;
 		}
 	}
+	for (auto cit = xyz_materials.begin(); cit != xyz_materials.end(); ++cit) {
+		rg = (*cit)->xmaterial_effect.equal_range(code);
+		for (; rg.first != rg.second; ++rg.first) {
+			peffect = rg.first->second;
+			if (peffect->is_available() && is_affect_by_effect(peffect))
+				return peffect;
+		}
+	}
 	rg = pduel->game_field->effects.aura_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
@@ -2120,6 +2164,14 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 				return peffect;
 		}
 	}
+	for (auto cit = xyz_materials.begin(); cit != xyz_materials.end(); ++cit) {
+		rg = (*cit)->xmaterial_effect.equal_range(code);
+		for (; rg.first != rg.second; ++rg.first) {
+			peffect = rg.first->second;
+			if (peffect->is_available() && is_affect_by_effect(peffect) && peffect->get_value(target))
+				return peffect;
+		}
+	}
 	rg = pduel->game_field->effects.aura_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
@@ -2133,6 +2185,14 @@ effect* card::check_control_effect() {
 	effect* ret_effect = 0;
 	for (auto cit = equiping_cards.begin(); cit != equiping_cards.end(); ++cit) {
 		auto rg = (*cit)->equip_effect.equal_range(EFFECT_SET_CONTROL);
+		for (; rg.first != rg.second; ++rg.first) {
+			effect* peffect = rg.first->second;
+			if(!ret_effect || peffect->id > ret_effect->id)
+				ret_effect = peffect;
+		}
+	}
+	for (auto cit = xyz_materials.begin(); cit != xyz_materials.end(); ++cit) {
+		auto rg = (*cit)->xmaterial_effect.equal_range(EFFECT_SET_CONTROL);
 		for (; rg.first != rg.second; ++rg.first) {
 			effect* peffect = rg.first->second;
 			if(!ret_effect || peffect->id > ret_effect->id)
@@ -2886,7 +2946,7 @@ int32 card::is_capable_be_effect_target(effect* peffect, uint8 playerid) {
 			return FALSE;
 	}
 	eset.clear();
-	peffect->handler->filter_effect(EFFECT_CANNOT_SELECT_EFFECT_TARGET, &eset);
+	peffect->get_handler()->filter_effect(EFFECT_CANNOT_SELECT_EFFECT_TARGET, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		if(eset[i]->get_value(peffect, 1))

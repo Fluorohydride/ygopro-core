@@ -27,7 +27,7 @@ int32 field::select_battle_command(uint16 step, uint8 playerid) {
 		std::sort(core.select_chains.begin(), core.select_chains.end(), chain::chain_operation_sort);
 		for(i = 0; i < core.select_chains.size(); ++i) {
 			peffect = core.select_chains[i].triggering_effect;
-			pcard = peffect->handler;
+			pcard = peffect->get_handler();
 			pduel->write_buffer32(pcard->data.code);
 			pduel->write_buffer8(pcard->current.controler);
 			pduel->write_buffer8(pcard->current.location);
@@ -125,7 +125,7 @@ int32 field::select_idle_command(uint16 step, uint8 playerid) {
 		std::sort(core.select_chains.begin(), core.select_chains.end(), chain::chain_operation_sort);
 		for(i = 0; i < core.select_chains.size(); ++i) {
 			peffect = core.select_chains[i].triggering_effect;
-			pcard = peffect->handler;
+			pcard = peffect->get_handler();
 			pduel->write_buffer32(pcard->data.code);
 			pduel->write_buffer8(pcard->current.controler);
 			pduel->write_buffer8(pcard->current.location);
@@ -308,7 +308,7 @@ int32 field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 fo
 		std::sort(core.select_chains.begin(), core.select_chains.end(), chain::chain_operation_sort);
 		for(uint32 i = 0; i < core.select_chains.size(); ++i) {
 			effect* peffect = core.select_chains[i].triggering_effect;
-			card* pcard = peffect->handler;
+			card* pcard = peffect->get_handler();
 			if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 				pduel->write_buffer8(EDESC_OPERATION);
 			else if(!(peffect->type & EFFECT_TYPE_ACTIONS))
