@@ -3962,6 +3962,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 			}
 		}
 		infos.turn_id++;
+		infos.turn_id_by_player[turn_player]++;
 		infos.turn_player = turn_player;
 		pduel->write_buffer8(MSG_NEW_TURN);
 		pduel->write_buffer8(turn_player);

@@ -112,6 +112,7 @@ struct field_info {
 	int32 field_id;
 	int16 copy_id;
 	int16 turn_id;
+	int16 turn_id_by_player[2];
 	int16 card_id;
 	uint16 phase;
 	uint8 turn_player;

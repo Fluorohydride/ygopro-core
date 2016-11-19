@@ -29,6 +29,8 @@ field::field(duel* pduel) {
 	infos.copy_id = 1;
 	infos.can_shuffle = TRUE;
 	infos.turn_id = 0;
+	infos.turn_id_by_player[0] = 0;
+	infos.turn_id_by_player[1] = 0;
 	infos.card_id = 1;
 	infos.phase = 0;
 	infos.turn_player = 0;
