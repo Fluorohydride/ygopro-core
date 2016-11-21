@@ -1988,7 +1988,7 @@ int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ign
 	bool lim = true;
 	uint8 toplayer;
 	int32 rcount = 0;
-	card_set test;
+	card_set test, exset;
 	
 	filter_effect(EFFECT_LIMIT_SUMMON_PROC, &eset);
 	if(!eset.size()) {
@@ -1997,6 +1997,8 @@ int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ign
 	}
 	for(int32 i = 0; i < eset.size(); ++i) {
 		int32 val = eset[i]->get_value(this);
+		if(!eset[i]->check_count_limit(playerid))
+			continue;
 		if(!pduel->game_field->is_player_can_summon(val, playerid, this))
 			continue;
 		if((val & SUMMON_TYPE_ADVANCE) == SUMMON_TYPE_ADVANCE)
@@ -2017,25 +2019,31 @@ int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ign
 		// uniqueness
 		if(pduel->game_field->check_unique_onfield(this, toplayer, LOCATION_MZONE))
 			continue;
-		// check if the usable count is enough
-		int32 fcount = pduel->game_field->get_useable_count(toplayer, LOCATION_MZONE, current.controler, LOCATION_REASON_TOFIELD);
-		int32 m1 = 0, m2 = 0, self_max = rcount;
+		int32 m1 = 0, m2 = 0, self_max = 0;
 		if(toplayer == playerid) {
 			m1 = pduel->game_field->get_summon_release_slist(this, &test, NULL);
 			m2 = pduel->game_field->get_summon_release_olist(this, NULL, NULL, NULL);
+			pduel->game_field->get_summon_release_exlist(this, &exset);
+			if(rcount < (int32)exset.size())
+				self_max = 0;
+			else
+				self_max = rcount - exset.size();
 		}
 		else {
 			m1 = pduel->game_field->get_summon_release_olist(this, &test, NULL, NULL, 1);
 			m2 = pduel->game_field->get_summon_release_slist(this, NULL, NULL);
+			self_max = rcount;
 		}
+		// check if the # of tributes is enough
+		if(m1 + m2 < rcount)
+			continue;
+		// check if the usable count is enough
+		int32 fcount = pduel->game_field->get_useable_count(toplayer, LOCATION_MZONE, current.controler, LOCATION_REASON_TOFIELD);
 		if(self_max > (int32)test.size())
 			self_max = test.size();
 		if(fcount + self_max - 1 < 0)
 			continue;
-		// check if the # of tributes is enough
-		if(m1 + m2 < rcount)
-			continue;
-		if(eset[i]->check_count_limit(playerid) && is_summonable(eset[i], min_tribute))
+		if(is_summonable(eset[i], min_tribute))
 			peset->add_item(eset[i]);
 	}
 	if(lim){
@@ -2056,7 +2064,7 @@ int32 card::filter_set_procedure(uint8 playerid, effect_set* peset, uint8 ignore
 	bool lim = true;
 	uint8 toplayer;
 	int32 rcount = 0;
-	card_set test;
+	card_set test, exset;
 	
 	filter_effect(EFFECT_LIMIT_SET_PROC, &eset);
 	if(!eset.size()) {
@@ -2065,6 +2073,8 @@ int32 card::filter_set_procedure(uint8 playerid, effect_set* peset, uint8 ignore
 	}
 	for(int32 i = 0; i < eset.size(); ++i) {
 		int32 val = eset[i]->get_value(this);
+		if(!eset[i]->check_count_limit(playerid))
+			continue;
 		if(!pduel->game_field->is_player_can_mset(val, playerid, this))
 			continue;
 		if((val & SUMMON_TYPE_ADVANCE) == SUMMON_TYPE_ADVANCE)
@@ -2082,25 +2092,31 @@ int32 card::filter_set_procedure(uint8 playerid, effect_set* peset, uint8 ignore
 		}
 		else
 			toplayer = playerid;
-		// check if the usable count is enough
-		int32 fcount = pduel->game_field->get_useable_count(toplayer, LOCATION_MZONE, current.controler, LOCATION_REASON_TOFIELD);
-		int32 m1 = 0, m2 = 0, self_max = rcount;
+		int32 m1 = 0, m2 = 0, self_max = 0;
 		if(toplayer == playerid) {
 			m1 = pduel->game_field->get_summon_release_slist(this, &test, NULL);
 			m2 = pduel->game_field->get_summon_release_olist(this, NULL, NULL, NULL);
+			pduel->game_field->get_summon_release_exlist(this, &exset);
+			if(rcount < (int32)exset.size())
+				self_max = 0;
+			else
+				self_max = rcount - exset.size();
 		}
 		else {
 			m1 = pduel->game_field->get_summon_release_olist(this, &test, NULL, NULL, 1);
 			m2 = pduel->game_field->get_summon_release_slist(this, NULL, NULL);
+			self_max = rcount;
 		}
+		// check if the # of tributes is enough
+		if(m1 + m2 < rcount)
+			continue;
+		// check if the usable count is enough
+		int32 fcount = pduel->game_field->get_useable_count(toplayer, LOCATION_MZONE, current.controler, LOCATION_REASON_TOFIELD);
 		if(self_max > (int32)test.size())
 			self_max = test.size();
 		if(fcount + self_max - 1 < 0)
 			continue;
-		// check if the # of tributes is enough
-		if(m1 + m2 < rcount)
-			continue;
-		if(eset[i]->check_count_limit(playerid) && is_summonable(eset[i], min_tribute))
+		if(is_summonable(eset[i], min_tribute))
 			peset->add_item(eset[i]);
 	}
 	if(lim){
@@ -2352,7 +2368,7 @@ int32 card::is_spsummonable(effect* peffect) {
 	pduel->game_field->core.reason_player = op;
 	return result;
 }
-// check the condition of summon procedure peffect
+// check the condition of summon/set procedure peffect
 int32 card::is_summonable(effect* peffect, uint8 min_tribute) {
 	effect* oreason = pduel->game_field->core.reason_effect;
 	uint8 op = pduel->game_field->core.reason_player;
@@ -2403,7 +2419,8 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 			pduel->game_field->restore_lp_cost();
 			return FALSE;
 		}
-	} else if(current.location == LOCATION_HAND) {
+	} 
+	else if(current.location == LOCATION_HAND) {
 		if(is_affected_by_effect(EFFECT_CANNOT_SUMMON)) {
 			pduel->game_field->restore_lp_cost();
 			return FALSE;
@@ -2427,12 +2444,12 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 		}
 		else {
 			if(!proc.size()) {
+				// uniqueness
 				if(pduel->game_field->check_unique_onfield(this, playerid, LOCATION_MZONE)){
 					pduel->game_field->restore_lp_cost();
 					return FALSE;
 				}
-				card_set test;
-				int32 fcount = pduel->game_field->get_useable_count(playerid, LOCATION_MZONE, current.controler, LOCATION_REASON_TOFIELD);
+				card_set test, exset;
 				int32 rcount = get_summon_tribute_count();
 				int32 min = rcount & 0xffff, max = (rcount >> 16) & 0xffff;
 				int32 m1 = pduel->game_field->get_summon_release_slist(this, &test, NULL);
@@ -2447,6 +2464,8 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 					pduel->game_field->restore_lp_cost();
 					return FALSE;
 				}
+				int32 fcount = pduel->game_field->get_useable_count(playerid, LOCATION_MZONE, current.controler, LOCATION_REASON_TOFIELD);
+				pduel->game_field->get_summon_release_exlist(this, &exset);
 				for(int32 i = min; i <= max; ++i) {
 					if(i == 0){
 						if(!pduel->game_field->is_player_can_summon(SUMMON_TYPE_NORMAL, playerid, this))
@@ -2457,7 +2476,11 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 							continue;
 					}
 					// check if the usable count is enough
-					int32 self_max = i;
+					int32 self_max = 0;
+					if(i < (int32)exset.size())
+						self_max = 0;
+					else
+						self_max = i - exset.size();
 					if(self_max > (int32)test.size())
 						self_max = test.size();
 					if(fcount + self_max - 1 >= 0) {
@@ -2469,6 +2492,10 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 				return FALSE;
 			}
 		}
+	}
+	else {
+		pduel->game_field->restore_lp_cost();
+		return FALSE;
 	}
 	pduel->game_field->restore_lp_cost();
 	return TRUE;
@@ -2649,6 +2676,7 @@ int32 card::is_can_be_special_summoned(effect * reason_effect, uint32 sumtype, u
 	pduel->game_field->restore_lp_cost();
 	return TRUE;
 }
+// see is_can_be_summoned()
 int32 card::is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect, uint8 min_tribute) {
 	if(!is_summonable_card())
 		return FALSE;
@@ -2692,8 +2720,7 @@ int32 card::is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect
 	}
 	else {
 		if(!proc.size()) {
-			card_set test;
-			int32 fcount = pduel->game_field->get_useable_count(playerid, LOCATION_MZONE, current.controler, LOCATION_REASON_TOFIELD);
+			card_set test, exset;
 			int32 rcount = get_summon_tribute_count();
 			int32 min = rcount & 0xffff, max = (rcount >> 16) & 0xffff;
 			int32 m1 = pduel->game_field->get_summon_release_slist(this, &test, NULL);
@@ -2708,6 +2735,8 @@ int32 card::is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect
 				pduel->game_field->restore_lp_cost();
 				return FALSE;
 			}
+			int32 fcount = pduel->game_field->get_useable_count(playerid, LOCATION_MZONE, current.controler, LOCATION_REASON_TOFIELD);
+			pduel->game_field->get_summon_release_exlist(this, &exset);
 			for(int32 i = min; i <= max; ++i) {
 				if(i == 0){
 					if(!pduel->game_field->is_player_can_mset(SUMMON_TYPE_NORMAL, playerid, this))
@@ -2718,7 +2747,11 @@ int32 card::is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect
 						continue;
 				}
 				// check if the usable count is enough
-				int32 self_max = i;
+				int32 self_max = 0;
+				if(i < (int32)exset.size())
+					self_max = 0;
+				else
+					self_max = i - exset.size();
 				if(self_max > (int32)test.size())
 					self_max = test.size();
 				if(fcount + self_max - 1 >= 0) {

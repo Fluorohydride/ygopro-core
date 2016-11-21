@@ -365,6 +365,7 @@ public:
 	int32 get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum, group* mg = NULL, uint32 ex = 0);
 	int32 get_summon_release_slist(card* target, card_set* release_list, group* mg = NULL);
 	int32 get_summon_release_olist(card* target, card_set* ex_list, card_set* ex_list_sum, group* mg = NULL, uint32 ex = 0);
+	void get_summon_release_exlist(card* target, card_set* ex_list);
 	int32 get_summon_count_limit(uint8 playerid);
 	int32 get_draw_count(uint8 playerid);
 	void get_ritual_material(uint8 playerid, effect* peffect, card_set* material);
