@@ -1162,6 +1162,11 @@ void card::xyz_add(card* mat, card_set* des) {
 	mat->current.location = LOCATION_OVERLAY;
 	mat->current.sequence = xyz_materials.size() - 1;
 	mat->current.reason = REASON_XYZ + REASON_MATERIAL;
+	for(auto eit = mat->xmaterial_effect.begin(); eit != mat->xmaterial_effect.end(); ++eit) {
+		effect* peffect = eit->second;
+		if(peffect->type & EFFECT_TYPE_FIELD)
+			pduel->game_field->add_effect(peffect);
+	}
 }
 void card::xyz_remove(card* mat) {
 	if(mat->overlay_target != this)
@@ -1176,6 +1181,11 @@ void card::xyz_remove(card* mat) {
 	mat->overlay_target = 0;
 	for(auto clit = xyz_materials.begin(); clit != xyz_materials.end(); ++clit)
 		(*clit)->current.sequence = clit - xyz_materials.begin();
+	for(auto eit = mat->xmaterial_effect.begin(); eit != mat->xmaterial_effect.end(); ++eit) {
+		effect* peffect = eit->second;
+		if(peffect->type & EFFECT_TYPE_FIELD)
+			pduel->game_field->remove_effect(peffect);
+	}
 }
 void card::apply_field_effect() {
 	if (current.controler == PLAYER_NONE)
@@ -1278,9 +1288,7 @@ int32 card::add_effect(effect* peffect) {
 			}
 		}
 		eit = single_effect.insert(std::make_pair(peffect->code, peffect));
-	} else if (peffect->type & EFFECT_TYPE_FIELD)
-		eit = field_effect.insert(std::make_pair(peffect->code, peffect));
-	else if (peffect->type & EFFECT_TYPE_EQUIP) {
+	} else if (peffect->type & EFFECT_TYPE_EQUIP) {
 		eit = equip_effect.insert(std::make_pair(peffect->code, peffect));
 		if (equiping_target)
 			check_target = equiping_target;
@@ -1292,6 +1300,8 @@ int32 card::add_effect(effect* peffect) {
 			check_target = overlay_target;
 		else
 			check_target = 0;
+	} else if (peffect->type & EFFECT_TYPE_FIELD) {
+		eit = field_effect.insert(std::make_pair(peffect->code, peffect));
 	} else
 		return 0;
 	peffect->id = pduel->game_field->infos.field_id++;
@@ -1353,16 +1363,8 @@ void card::remove_effect(effect* peffect) {
 }
 void card::remove_effect(effect* peffect, effect_container::iterator it) {
 	card* check_target = this;
-	if (peffect->type & EFFECT_TYPE_SINGLE)
+	if (peffect->type & EFFECT_TYPE_SINGLE) {
 		single_effect.erase(it);
-	else if (peffect->type & EFFECT_TYPE_FIELD) {
-		check_target = 0;
-		if (peffect->is_available() && peffect->is_disable_related()) {
-			pduel->game_field->update_disable_check_list(peffect);
-		}
-		field_effect.erase(it);
-		if (peffect->in_range(current.location, current.sequence))
-			pduel->game_field->remove_effect(peffect);
 	} else if (peffect->type & EFFECT_TYPE_EQUIP) {
 		equip_effect.erase(it);
 		if (equiping_target)
@@ -1375,6 +1377,14 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			check_target = overlay_target;
 		else
 			check_target = 0;
+	} else if (peffect->type & EFFECT_TYPE_FIELD) {
+		check_target = 0;
+		if (peffect->is_available() && peffect->is_disable_related()) {
+			pduel->game_field->update_disable_check_list(peffect);
+		}
+		field_effect.erase(it);
+		if (peffect->in_range(current.location, current.sequence))
+			pduel->game_field->remove_effect(peffect);
 	}
 	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && check_target) {
 		if (peffect->is_disable_related())

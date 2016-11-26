@@ -2381,6 +2381,8 @@ int32 field::process_single_event() {
 			pr = (*ovit)->xmaterial_effect.equal_range(ev);
 			for(; pr.first != pr.second; ++pr.first) {
 				effect* peffect = pr.first->second;
+				if(peffect->type & EFFECT_TYPE_FIELD)
+					continue;
 				process_single_event(peffect, *elit, tp, ntp, tev, ntev);
 			}
 		}

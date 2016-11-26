@@ -111,24 +111,26 @@ int32 effect::is_available() {
 		}
 	}
 	if (type & EFFECT_TYPE_FIELD) {
+		card* phandler = get_handler();
+		card* powner = get_owner();
 		if (!is_flag(EFFECT_FLAG_FIELD_ONLY)) {
-			if(handler->current.controler == PLAYER_NONE)
+			if(phandler->current.controler == PLAYER_NONE)
 				return FALSE;
-			if(!in_range(handler->current.location, handler->current.sequence))
+			if(!in_range(phandler->current.location, phandler->current.sequence))
 				return FALSE;
-			if(!handler->get_status(STATUS_EFFECT_ENABLED) && !is_flag(EFFECT_FLAG_IMMEDIATELY_APPLY))
+			if(!phandler->get_status(STATUS_EFFECT_ENABLED) && !is_flag(EFFECT_FLAG_IMMEDIATELY_APPLY))
 				return FALSE;
-			if((handler->current.location & LOCATION_ONFIELD) && !handler->is_position(POS_FACEUP))
+			if((phandler->current.location & LOCATION_ONFIELD) && !phandler->is_position(POS_FACEUP))
 				return FALSE;
-			if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && owner->is_status(STATUS_FORBIDDEN))
+			if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && powner->is_status(STATUS_FORBIDDEN))
 				return FALSE;
-			if(owner == handler && is_can_be_forbidden() && handler->get_status(STATUS_FORBIDDEN))
+			if(powner == phandler && is_can_be_forbidden() && phandler->get_status(STATUS_FORBIDDEN))
 				return FALSE;
-			if(is_flag(EFFECT_FLAG_OWNER_RELATE) && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && owner->is_status(STATUS_DISABLED))
+			if(is_flag(EFFECT_FLAG_OWNER_RELATE) && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && powner->is_status(STATUS_DISABLED))
 				return FALSE;
-			if(owner == handler && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && handler->get_status(STATUS_DISABLED))
+			if(powner == phandler && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && phandler->get_status(STATUS_DISABLED))
 				return FALSE;
-			if(handler->is_status(STATUS_BATTLE_DESTROYED) && !is_flag(EFFECT_FLAG_AVAILABLE_BD))
+			if(phandler->is_status(STATUS_BATTLE_DESTROYED) && !is_flag(EFFECT_FLAG_AVAILABLE_BD))
 				return FALSE;
 		}
 	}
@@ -677,6 +679,8 @@ uint8 effect::get_handler_player() {
 	return get_handler()->current.controler;
 }
 int32 effect::in_range(int32 loc, int32 seq) {
+	if(type & EFFECT_TYPE_XMATERIAL)
+		return (int32)(!!handler->overlay_target);
 	if(loc != LOCATION_SZONE)
 		return range & loc;
 	if(seq < 5)
