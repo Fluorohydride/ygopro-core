@@ -228,6 +228,7 @@ int32 scriptlib::duel_summon(lua_State *L) {
 	if(lua_gettop(L) > 4)
 		min_tribute = lua_tointeger(L, 5);
 	duel * pduel = pcard->pduel;
+	pduel->game_field->core.summon_cancelable = FALSE;
 	pduel->game_field->summon(playerid, pcard, peffect, ignore_count, min_tribute);
 	return lua_yield(L, 0);
 }
@@ -240,6 +241,7 @@ int32 scriptlib::duel_special_summon_rule(lua_State *L) {
 		return 0;
 	card* pcard = *(card**)lua_touserdata(L, 2);
 	duel * pduel = pcard->pduel;
+	pduel->game_field->core.summon_cancelable = FALSE;
 	pduel->game_field->special_summon_rule(playerid, pcard, 0);
 	return lua_yield(L, 0);
 }
@@ -266,6 +268,7 @@ int32 scriptlib::duel_synchro_summon(lua_State *L) {
 	duel * pduel = pcard->pduel;
 	pduel->game_field->core.limit_tuner = tuner;
 	pduel->game_field->core.limit_syn = mg;
+	pduel->game_field->core.summon_cancelable = FALSE;
 	pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_SYNCHRO);
 	return lua_yield(L, 0);
 }
@@ -292,6 +295,7 @@ int32 scriptlib::duel_xyz_summon(lua_State *L) {
 	pduel->game_field->core.limit_xyz = materials;
 	pduel->game_field->core.limit_xyz_minc = minc;
 	pduel->game_field->core.limit_xyz_maxc = maxc;
+	pduel->game_field->core.summon_cancelable = FALSE;
 	pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_XYZ);
 	return lua_yield(L, 0);
 }
@@ -313,6 +317,7 @@ int32 scriptlib::duel_setm(lua_State *L) {
 	if(lua_gettop(L) > 4)
 		min_tribute = lua_tointeger(L, 5);
 	duel * pduel = pcard->pduel;
+	pduel->game_field->core.summon_cancelable = FALSE;
 	pduel->game_field->add_process(PROCESSOR_MSET, 0, peffect, (group*)pcard, playerid + (ignore_count << 8) + (min_tribute << 16), 0);
 	return lua_yield(L, 0);
 }

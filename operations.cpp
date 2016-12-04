@@ -1336,6 +1336,8 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 			return TRUE;
 		if(target->is_affected_by_effect(EFFECT_CANNOT_SUMMON))
 			return TRUE;
+		if(core.summon_depth)
+			core.summon_cancelable = FALSE;
 		core.summon_depth++;
 		target->material_cards.clear();
 		if(target->current.location == LOCATION_MZONE)
@@ -1402,7 +1404,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 						min = -fcount + 1;
 						required = min + (max << 16);
 					}
-					add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, sumplayer, required);
+					add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, sumplayer + ((uint32)core.summon_cancelable << 16), required);
 					core.units.begin()->step = 3;
 				}
 			}
@@ -1414,7 +1416,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 			returns.bvalue[0] = 0;
 		else {
 			int32 required = 1 + core.units.begin()->arg2;
-			add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, sumplayer, required);
+			add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, sumplayer + ((uint32)core.summon_cancelable << 16), required);
 		}
 		return FALSE;
 	}
@@ -1900,7 +1902,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 						min = -fcount + 1;
 						required = min + (max << 16);
 					}
-					add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, setplayer, required);
+					add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, setplayer + ((uint32)core.summon_cancelable << 16), required);
 					core.units.begin()->step = 3;
 				}
 			}
@@ -1912,7 +1914,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 			returns.bvalue[0] = 0;
 		else {
 			int32 required = 1 + core.units.begin()->arg2;
-			add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, setplayer, required);
+			add_process(PROCESSOR_SELECT_TRIBUTE, 0, 0, 0, setplayer + ((uint32)core.summon_cancelable << 16), required);
 		}
 		return FALSE;
 	}
@@ -4345,7 +4347,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 				pduel->write_buffer8(HINT_SELECTMSG);
 				pduel->write_buffer8(playerid);
 				pduel->write_buffer32(512);
-				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, 0x10001);
+				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + ((uint32)core.summon_cancelable << 16), 0x10001);
 				return FALSE;
 			}
 		}
@@ -4369,7 +4371,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(512);
-		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, 0x10001);
+		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + ((uint32)core.summon_cancelable << 16), 0x10001);
 		return FALSE;
 	}
 	case 1: {
@@ -4598,7 +4600,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(playerid);
 			pduel->write_buffer32(513);
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, min + (max << 16));
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + ((uint32)core.summon_cancelable << 16), min + (max << 16));
 		} else
 			core.units.begin()->step = 1;
 		return FALSE;
@@ -4625,7 +4627,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(513);
-		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, min + (min << 16));
+		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + ((uint32)core.summon_cancelable << 16), min + (min << 16));
 		return FALSE;
 	}
 	case 3: {
@@ -4710,7 +4712,7 @@ int32 field::select_release_cards(int16 step, uint8 playerid, uint8 check_field,
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(playerid);
 			pduel->write_buffer32(500);
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, (max << 16) + min);
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, ((uint32)cancelable << 16) + playerid, (max << 16) + min);
 			return TRUE;
 		}
 		if(core.release_cards_ex.size() >= (uint32)min) {
@@ -4721,7 +4723,7 @@ int32 field::select_release_cards(int16 step, uint8 playerid, uint8 check_field,
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(playerid);
 			pduel->write_buffer32(500);
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, (max << 16) + min);
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, ((uint32)cancelable << 16) + playerid, (max << 16) + min);
 			return TRUE;
 		}
 		core.operated_set.clear();
@@ -4732,7 +4734,7 @@ int32 field::select_release_cards(int16 step, uint8 playerid, uint8 check_field,
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(500);
-		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, (core.release_cards_ex.size() << 16) + core.release_cards_ex.size());
+		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, ((uint32)cancelable << 16) + playerid, (core.release_cards_ex.size() << 16) + core.release_cards_ex.size());
 		min -= core.release_cards_ex.size();
 		max -= core.release_cards_ex.size();
 		core.units.begin()->arg2 = (max << 16) + min;
@@ -4748,7 +4750,7 @@ int32 field::select_release_cards(int16 step, uint8 playerid, uint8 check_field,
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(500);
-		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, (max << 16) + min);
+		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, ((uint32)cancelable << 16) + playerid, (max << 16) + min);
 		return FALSE;
 	}
 	case 2: {
@@ -4778,7 +4780,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(playerid);
 			pduel->write_buffer32(500);
-			add_process(PROCESSOR_SELECT_TRIBUTE_P, 0, 0, 0, playerid, (max << 16) + min);
+			add_process(PROCESSOR_SELECT_TRIBUTE_P, 0, 0, 0, ((uint32)cancelable << 16) + playerid, (max << 16) + min);
 			return TRUE;
 		}
 		if(core.release_cards_ex.size() >= (uint32)max) {
@@ -4789,7 +4791,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(playerid);
 			pduel->write_buffer32(500);
-			add_process(PROCESSOR_SELECT_TRIBUTE_P, 0, 0, 0, playerid, (max << 16) + min);
+			add_process(PROCESSOR_SELECT_TRIBUTE_P, 0, 0, 0, ((uint32)cancelable << 16) + playerid, (max << 16) + min);
 			return TRUE;
 		}
 		core.operated_set.clear();
@@ -4826,7 +4828,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(500);
-		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, 0x10001);
+		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, ((uint32)cancelable << 16) + playerid, 0x10001);
 		return FALSE;
 	}
 	case 2: {
@@ -4846,7 +4848,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(500);
-		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, (core.release_cards_ex.size() << 16) + core.release_cards_ex.size());
+		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, ((uint32)cancelable << 16) + playerid, (core.release_cards_ex.size() << 16) + core.release_cards_ex.size());
 		return FALSE;
 	}
 	case 4: {
@@ -4882,7 +4884,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(500);
-		add_process(PROCESSOR_SELECT_TRIBUTE_P, 0, 0, 0, playerid, (max << 16) + min);
+		add_process(PROCESSOR_SELECT_TRIBUTE_P, 0, 0, 0, ((uint32)cancelable << 16) + playerid, (max << 16) + min);
 		return FALSE;
 	}
 	case 6: {
