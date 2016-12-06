@@ -324,7 +324,9 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 		(*cit)->sum_param = pduel->lua->get_operation_value(*cit, 3, extraargs);
 	if(!field::check_with_sum_limit_m(cv, acc, 0, min, max, mcount)) {
 		pduel->game_field->core.must_select_cards.clear();
-		return 0;
+		group* empty_group = pduel->new_group();
+		interpreter::group2value(L, empty_group);
+		return 1;
 	}
 	pduel->game_field->add_process(PROCESSOR_SELECT_SUM_S, 0, 0, 0, acc, playerid + (min << 16) + (max << 24));
 	return lua_yield(L, 0);
@@ -374,7 +376,9 @@ int32 scriptlib::group_select_with_sum_greater(lua_State *L) {
 		(*cit)->sum_param = pduel->lua->get_operation_value(*cit, 3, extraargs);
 	if(!field::check_with_sum_greater_limit_m(cv, acc, 0, 0xffff, mcount)) {
 		pduel->game_field->core.must_select_cards.clear();
-		return 0;
+		group* empty_group = pduel->new_group();
+		interpreter::group2value(L, empty_group);
+		return 1;
 	}
 	pduel->game_field->add_process(PROCESSOR_SELECT_SUM_S, 0, 0, 0, acc, playerid);
 	return lua_yield(L, 0);
