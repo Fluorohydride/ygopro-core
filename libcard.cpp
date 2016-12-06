@@ -1325,7 +1325,7 @@ int32 scriptlib::card_is_summonable(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card * pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushboolean(L, pcard->is_summonable_card());
+	lua_pushboolean(L, pcard->is_summonable());
 	return 1;
 }
 int32 scriptlib::card_is_msetable(lua_State *L) {
