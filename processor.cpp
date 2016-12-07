@@ -2108,17 +2108,17 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 					core.select_chains.push_back(*clit);
 			}
 			//delayed activate
-			for(auto evit = core.full_event.begin(); evit != core.full_event.end(); ++evit) {
-				auto pr = effects.activate_effect.equal_range(evit->event_code);
+			for(auto eit = core.full_event.begin(); eit != core.full_event.end(); ++eit) {
+				auto pr = effects.activate_effect.equal_range(eit->event_code);
 				for(; pr.first != pr.second; ++pr.first) {
 					effect* peffect = pr.first->second;
 					card* phandler = peffect->get_handler();
 					peffect->s_range = phandler->current.location;
 					peffect->o_range = phandler->current.sequence;
-					if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_chainable(priority) && peffect->is_activateable(priority, *evit)) {
+					if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_chainable(priority) && peffect->is_activateable(priority, *eit)) {
 						newchain.flag = 0;
 						newchain.chain_id = infos.field_id++;
-						newchain.evt = *evit;
+						newchain.evt = *eit;
 						newchain.triggering_controler = phandler->current.controler;
 						newchain.triggering_effect = peffect;
 						newchain.triggering_location = phandler->current.location;
@@ -4500,32 +4500,36 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		if(peffect->is_flag(EFFECT_FLAG_DELAY) || !(peffect->code & 0x10030000) && (peffect->code & (EVENT_PHASE | EVENT_PHASE_START))) {
 			core.conti_solving = FALSE;
 			adjust_all();
-			if(core.conti_player == PLAYER_NONE)
+			return FALSE;
+		}
+		return TRUE;
+	}
+	case 4: {
+		if(core.conti_player == PLAYER_NONE)
+			core.conti_player = infos.turn_player;
+		if(core.conti_player == infos.turn_player) {
+			if(core.delayed_tp.size()) {
+				core.sub_solving_event.push_back(core.delayed_tev.front());
+				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
+				core.delayed_tp.pop_front();
+				core.delayed_tev.pop_front();
+			} else
+				core.conti_player = 1 - infos.turn_player;
+		}
+		if(core.conti_player == 1 - infos.turn_player) {
+			if(core.delayed_ntp.size()) {
+				core.sub_solving_event.push_back(core.delayed_ntev.front());
+				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_ntp.front(), 0, 1 - infos.turn_player, 0);
+				core.delayed_ntp.pop_front();
+				core.delayed_ntev.pop_front();
+			} else if(core.delayed_tp.size()) {
 				core.conti_player = infos.turn_player;
-			if(core.conti_player == infos.turn_player) {
-				if(core.delayed_tp.size()) {
-					core.sub_solving_event.push_back(core.delayed_tev.front());
-					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
-					core.delayed_tp.pop_front();
-					core.delayed_tev.pop_front();
-				} else
-					core.conti_player = 1 - infos.turn_player;
-			}
-			if(core.conti_player == 1 - infos.turn_player) {
-				if(core.delayed_ntp.size()) {
-					core.sub_solving_event.push_back(core.delayed_ntev.front());
-					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_ntp.front(), 0, 1 - infos.turn_player, 0);
-					core.delayed_ntp.pop_front();
-					core.delayed_ntev.pop_front();
-				} else if(core.delayed_tp.size()) {
-					core.conti_player = infos.turn_player;
-					core.sub_solving_event.push_back(core.delayed_tev.front());
-					add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
-					core.delayed_tp.pop_front();
-					core.delayed_tev.pop_front();
-				} else
-					core.conti_player = PLAYER_NONE;
-			}
+				core.sub_solving_event.push_back(core.delayed_tev.front());
+				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
+				core.delayed_tp.pop_front();
+				core.delayed_tev.pop_front();
+			} else
+				core.conti_player = PLAYER_NONE;
 		}
 		return TRUE;
 	}
@@ -4671,8 +4675,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		core.spsummon_state_count_tmp[0] = 0;
 		core.spsummon_state_count_tmp[1] = 0;
 		core.chain_solving = FALSE;
-		effect_vector::iterator eit;
-		event_list::iterator evit;
 		if(core.delayed_tp.size()) {
 			core.conti_player = infos.turn_player;
 			core.sub_solving_event.push_back(core.delayed_tev.front());
