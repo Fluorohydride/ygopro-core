@@ -2025,7 +2025,10 @@ int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ign
 		min = min_tribute;
 	if(min == 0)
 		return TRUE;
-	int32 m = pduel->game_field->get_summon_release_list(this, 0, 0, 0);
+	card_set release_list;
+	int32 m = pduel->game_field->get_summon_release_list(this, &release_list, 0, 0);
+	if(release_list.size() < -fcount + 1)
+		return FALSE;
 	if(m >= min)
 		return TRUE;
 	return FALSE;
