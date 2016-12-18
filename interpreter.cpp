@@ -427,6 +427,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "SelectReleaseGroupEx", scriptlib::duel_select_release_group_ex },
 	{ "GetTributeGroup", scriptlib::duel_get_tribute_group },
 	{ "GetTributeCount", scriptlib::duel_get_tribute_count },
+	{ "CheckTribute", scriptlib::duel_check_tribute },
 	{ "SelectTribute", scriptlib::duel_select_tribute },
 	{ "GetTargetCount", scriptlib::duel_get_target_count },
 	{ "IsExistingTarget", scriptlib::duel_is_existing_target },

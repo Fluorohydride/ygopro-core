@@ -2014,24 +2014,11 @@ int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ign
 	int32 min = rcount & 0xffff, max = (rcount >> 16) & 0xffff;
 	if(min > 0 && !pduel->game_field->is_player_can_summon(SUMMON_TYPE_ADVANCE, playerid, this))
 		return FALSE;
-	int32 fcount = pduel->game_field->get_useable_count(current.controler, LOCATION_MZONE, current.controler, LOCATION_REASON_TOFIELD);
-	if(max <= -fcount)
-		return FALSE;
-	if(min < -fcount + 1)
-		min = -fcount + 1;
 	if(max < min_tribute)
 		return FALSE;
 	if(min < min_tribute)
 		min = min_tribute;
-	if(min == 0)
-		return TRUE;
-	card_set release_list;
-	int32 m = pduel->game_field->get_summon_release_list(this, &release_list, 0, 0);
-	if((int32)release_list.size() < -fcount + 1)
-		return FALSE;
-	if(m >= min)
-		return TRUE;
-	return FALSE;
+	return pduel->game_field->check_tribute(this, min, max, 0, current.controler);
 }
 int32 card::filter_set_procedure(uint8 playerid, effect_set* peset, uint8 ignore_count, uint8 min_tribute) {
 	effect_set eset;
@@ -2059,24 +2046,11 @@ int32 card::filter_set_procedure(uint8 playerid, effect_set* peset, uint8 ignore
 	int32 min = rcount & 0xffff, max = (rcount >> 16) & 0xffff;
 	if(min > 0 && !pduel->game_field->is_player_can_mset(SUMMON_TYPE_ADVANCE, playerid, this))
 		return FALSE;
-	int32 fcount = pduel->game_field->get_useable_count(current.controler, LOCATION_MZONE, current.controler, LOCATION_REASON_TOFIELD);
-	if(max <= -fcount)
-		return FALSE;
-	if(min < -fcount + 1)
-		min = -fcount + 1;
 	if(max < min_tribute)
 		return FALSE;
 	if(min < min_tribute)
 		min = min_tribute;
-	if(min == 0)
-		return TRUE;
-	card_set release_list;
-	int32 m = pduel->game_field->get_summon_release_list(this, &release_list, 0, 0);
-	if((int32)release_list.size() < -fcount + 1)
-		return FALSE;
-	if(m >= min)
-		return TRUE;
-	return FALSE;
+	return pduel->game_field->check_tribute(this, min, max, 0, current.controler);
 }
 void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 summon_type) {
 	auto pr = field_effect.equal_range(EFFECT_SPSUMMON_PROC);

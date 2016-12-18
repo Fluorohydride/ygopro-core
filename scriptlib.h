@@ -425,6 +425,7 @@ public:
 	static int32 duel_select_release_group_ex(lua_State *L);
 	static int32 duel_get_tribute_group(lua_State *L);
 	static int32 duel_get_tribute_count(lua_State *L);
+	static int32 duel_check_tribute(lua_State *L);
 	static int32 duel_select_tribute(lua_State *L);
 	static int32 duel_get_target_count(lua_State *L);
 	static int32 duel_is_existing_target(lua_State *L);

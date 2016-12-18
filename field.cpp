@@ -2176,6 +2176,25 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	pduel->restore_assumes();
 	return FALSE;
 }
+int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer) {
+	int32 fcount = get_useable_count(toplayer, LOCATION_MZONE, toplayer, LOCATION_REASON_TOFIELD);
+	if(max <= -fcount)
+		return FALSE;
+	if(min < -fcount + 1)
+		min = -fcount + 1;
+	if(min == 0)
+		return TRUE;
+	card_set release_list;
+	uint32 ex = FALSE;
+	if(pcard->current.controler != toplayer)
+		ex = TRUE;
+	int32 m = get_summon_release_list(pcard, &release_list, 0, 0, mg, ex);
+	if((int32)release_list.size() < -fcount + 1)
+		return FALSE;
+	if(m >= min)
+		return TRUE;
+	return FALSE;
+}
 int32 field::check_with_sum_limit(const card_vector& mats, int32 acc, int32 index, int32 count, int32 min, int32 max) {
 	if(count > max)
 		return FALSE;
