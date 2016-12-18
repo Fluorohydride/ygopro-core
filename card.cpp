@@ -342,6 +342,8 @@ int32 card::is_pre_set_card(uint32 set_code) {
 	return FALSE;
 }
 int32 card::is_fusion_set_card(uint32 set_code) {
+	if(is_affected_by_effect(EFFECT_MUST_BE_FUSION_SUBSTITUTE))
+		return FALSE;
 	if(is_set_card(set_code))
 		return TRUE;
 	uint32 settype = set_code & 0xfff;
@@ -393,6 +395,18 @@ uint32 card::get_type() {
 		temp.type = type;
 	}
 	temp.type = 0xffffffff;
+	return type;
+}
+uint32 card::get_fusion_type(uint8 playerid) {
+	effect_set effects;
+	filter_effect(EFFECT_CHANGE_FUSION_TYPE, &effects);
+	if(!effects.size())
+		return get_type();
+	uint32 type;
+	for(int32 i = 0; i < effects.size(); ++i) {
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		type = effects[i]->get_value(this, 1);
+	}
 	return type;
 }
 // Atk and def are sepcial cases since text atk/def ? are involved.
@@ -976,6 +990,18 @@ uint32 card::get_race() {
 		temp.race = race;
 	}
 	temp.race = 0xffffffff;
+	return race;
+}
+uint32 card::get_fusion_race(uint8 playerid) {
+	effect_set effects;
+	filter_effect(EFFECT_CHANGE_FUSION_RACE, &effects);
+	if(!effects.size())
+		return get_race();
+	uint32 race;
+	for(int32 i = 0; i < effects.size(); ++i) {
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		race = effects[i]->get_value(this, 1);
+	}
 	return race;
 }
 uint32 card::get_lscale() {
@@ -2227,8 +2253,13 @@ void card::fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf)
 	pduel->game_field->add_process(PROCESSOR_SELECT_FUSION, 0, peffect, fusion_m, playerid + (chkf << 16), 0, 0, 0, cg);
 }
 int32 card::check_fusion_substitute(card* fcard) {
+	uint32 ecode = 0;
+	if(is_affected_by_effect(EFFECT_FUSION_SUBSTITUTE))
+		ecode = EFFECT_FUSION_SUBSTITUTE;
+	else if(is_affected_by_effect(EFFECT_MUST_BE_FUSION_SUBSTITUTE))
+		ecode = EFFECT_MUST_BE_FUSION_SUBSTITUTE;
 	effect_set eset;
-	filter_effect(EFFECT_FUSION_SUBSTITUTE, &eset);
+	filter_effect(ecode, &eset);
 	if(eset.size() == 0)
 		return FALSE;
 	for(int32 i = 0; i < eset.size(); ++i)
