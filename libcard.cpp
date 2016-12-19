@@ -2000,14 +2000,11 @@ int32 scriptlib::card_is_can_be_fusion_material(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	card* fcard = 0;
-	uint32 ign = FALSE;
 	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
 		check_param(L, PARAM_TYPE_CARD, 2);
 		fcard = *(card**)lua_touserdata(L, 2);
 	}
-	if(lua_gettop(L) >= 3)
-		ign = lua_toboolean(L, 3);
-	lua_pushboolean(L, pcard->is_can_be_fusion_material(fcard, ign));
+	lua_pushboolean(L, pcard->is_can_be_fusion_material(fcard));
 	return 1;
 }
 int32 scriptlib::card_is_can_be_synchro_material(lua_State *L) {

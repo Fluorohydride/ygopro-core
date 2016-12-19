@@ -2944,9 +2944,7 @@ int32 card::is_capable_be_effect_target(effect* peffect, uint8 playerid) {
 	}
 	return TRUE;
 }
-int32 card::is_can_be_fusion_material(card* fcard, uint8 ignore_mon) {
-	if(!ignore_mon && !(get_type() & TYPE_MONSTER))
-		return FALSE;
+int32 card::is_can_be_fusion_material(card* fcard) {
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
 	effect_set eset;
