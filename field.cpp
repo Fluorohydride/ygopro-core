@@ -1291,7 +1291,7 @@ int32 field::get_summon_release_olist(card* target, card_set* ex_list, card_set*
 	uint32 ex_sum_max = 0;
 	for(int i = 0; i < 5; ++i) {
 		pcard = player[1 - p].list_mzone[i];
-		if(!pcard || pcard->is_releasable_by_summon(p, target))
+		if(!(pcard && pcard->is_releasable_by_summon(p, target)))
 			continue;
 		if(mg && !mg->has_card(pcard))
 			continue;
@@ -1320,13 +1320,15 @@ int32 field::get_summon_release_olist(card* target, card_set* ex_list, card_set*
 	return rcount + ex_sum_max;
 }
 // put the monsters of 1-p affected by EFFECT_EXTRA_RELEASE
-void field::get_summon_release_exlist(card* target, card_set* ex_list) {
+void field::get_summon_release_exlist(card* target, card_set* ex_list, group* mg) {
 	uint8 p = target->current.controler;
 	card* pcard;
 	uint32 rcount = 0;
 	for(int i = 0; i < 5; ++i) {
 		pcard = player[1 - p].list_mzone[i];
-		if(!pcard || pcard->is_releasable_by_summon(p, target))
+		if(!(pcard && pcard->is_releasable_by_summon(p, target)))
+			continue;
+		if(mg && !mg->has_card(pcard))
 			continue;
 		if(pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
 			ex_list->insert(pcard);
@@ -2217,24 +2219,33 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	pduel->restore_assumes();
 	return FALSE;
 }
-int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer) {
-	int32 fcount = get_useable_count(toplayer, LOCATION_MZONE, toplayer, LOCATION_REASON_TOFIELD);
-	if(max <= -fcount)
+// check if the # of tributes and the usable count are enough when releasing rcount tributes
+int32 field::check_tribute(card* pcard, int32 rcount, group* mg, uint8 toplayer) {
+	card_set test, exset;
+	int32 m1 = 0, m2 = 0, self_max = 0;
+	if(toplayer == pcard->current.controler) {
+		m1 = get_summon_release_slist(pcard, &test, mg);
+		m2 = get_summon_release_olist(pcard, NULL, NULL, mg, 0);
+		get_summon_release_exlist(pcard, &exset, mg);
+		self_max = rcount - (int32)exset.size();
+		if(self_max < 0)
+			self_max = 0;
+	}
+	else {
+		m1 = get_summon_release_olist(pcard, &test, NULL, mg, 1);
+		m2 = get_summon_release_slist(pcard, NULL, mg);
+		self_max = rcount;
+	}
+	// check if the # of tributes is enough
+	if(m1 + m2 < rcount)
 		return FALSE;
-	if(min < -fcount + 1)
-		min = -fcount + 1;
-	if(min == 0)
-		return TRUE;
-	card_set release_list;
-	uint32 ex = FALSE;
-	if(pcard->current.controler != toplayer)
-		ex = TRUE;
-	int32 m = get_summon_release_list(pcard, &release_list, 0, 0, mg, ex);
-	if((int32)release_list.size() < -fcount + 1)
+	// check if the usable count is enough
+	int32 fcount = pduel->game_field->get_useable_count(toplayer, LOCATION_MZONE, pcard->current.controler, LOCATION_REASON_TOFIELD);
+	if(self_max > (int32)test.size())
+		self_max = (int32)test.size();
+	if(fcount + self_max - 1 < 0)
 		return FALSE;
-	if(m >= min)
-		return TRUE;
-	return FALSE;
+	return TRUE;
 }
 int32 field::check_with_sum_limit(const card_vector& mats, int32 acc, int32 index, int32 count, int32 min, int32 max) {
 	if(count > max)
