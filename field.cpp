@@ -1326,26 +1326,40 @@ int32 field::get_draw_count(uint8 playerid) {
 	return count;
 }
 void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* material) {
-	card* pcard;
 	for(int i = 0; i < 5; ++i) {
-		pcard = player[playerid].list_mzone[i];
-		if(pcard && pcard->get_level() && pcard->is_affect_by_effect(core.reason_effect)
+		card* pcard = player[playerid].list_mzone[i];
+		if(pcard && pcard->get_level() && pcard->is_affect_by_effect(peffect)
 		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect))
 			material->insert(pcard);
 	}
 	for(int i = 0; i < 5; ++i) {
-		pcard = player[1 - playerid].list_mzone[i];
-		if(pcard && pcard->get_level() && pcard->is_affect_by_effect(core.reason_effect)
+		card* pcard = player[1 - playerid].list_mzone[i];
+		if(pcard && pcard->get_level() && pcard->is_affect_by_effect(peffect)
 		        && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
 		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect))
 			material->insert(pcard);
 	}
 	for(auto cit = player[playerid].list_hand.begin(); cit != player[playerid].list_hand.end(); ++cit)
 		if(((*cit)->data.type & TYPE_MONSTER) && (*cit)->is_releasable_by_nonsummon(playerid))
-			material->insert((*cit));
+			material->insert(*cit);
 	for(auto cit = player[playerid].list_grave.begin(); cit != player[playerid].list_grave.end(); ++cit)
 		if(((*cit)->data.type & TYPE_MONSTER) && (*cit)->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL) && (*cit)->is_removeable(playerid))
-			material->insert((*cit));
+			material->insert(*cit);
+}
+void field::get_fusion_material(uint8 playerid, card_set* material) {
+	for(int i = 0; i < 5; ++i) {
+		card* pcard = player[playerid].list_mzone[i];
+		if(pcard)
+			material->insert(pcard);
+	}
+	for(int i = 0; i < 8; ++i) {
+		card* pcard = player[playerid].list_szone[i];
+		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
+			material->insert(pcard);
+	}
+	for(auto cit = player[playerid].list_hand.begin(); cit != player[playerid].list_hand.end(); ++cit)
+		if((*cit)->data.type & TYPE_MONSTER)
+			material->insert(*cit);
 }
 void field::ritual_release(card_set* material) {
 	card_set rel;

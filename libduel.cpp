@@ -2317,6 +2317,17 @@ int32 scriptlib::duel_release_ritual_material(lua_State *L) {
 	pgroup->pduel->game_field->ritual_release(&pgroup->container);
 	return lua_yield(L, 0);
 }
+int32 scriptlib::duel_get_fusion_material(lua_State *L) {
+	check_param_count(L, 1);
+	int32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	group* pgroup = pduel->new_group();
+	pduel->game_field->get_fusion_material(playerid, &pgroup->container);
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
 int32 scriptlib::duel_set_must_select_cards(lua_State *L) {
 	check_param_count(L, 1);
 	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
