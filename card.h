@@ -169,6 +169,7 @@ public:
 	int32 is_pre_set_card(uint32 set_code);
 	int32 is_fusion_set_card(uint32 set_code);
 	uint32 get_type();
+	uint32 get_fusion_type();
 	int32 get_base_attack();
 	int32 get_attack();
 	int32 get_base_defense();

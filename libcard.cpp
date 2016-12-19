@@ -146,6 +146,13 @@ int32 scriptlib::card_get_origin_type(lua_State *L) {
 	lua_pushinteger(L, pcard->data.type);
 	return 1;
 }
+int32 scriptlib::card_get_fusion_type(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_pushinteger(L, pcard->get_fusion_type());
+	return 1;
+}
 int32 scriptlib::card_get_level(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -571,6 +578,17 @@ int32 scriptlib::card_is_type(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 ttype = lua_tointeger(L, 2);
 	if(pcard->get_type() & ttype)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::card_is_fusion_type(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 ttype = lua_tointeger(L, 2);
+	if(pcard->get_fusion_type() & ttype)
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);

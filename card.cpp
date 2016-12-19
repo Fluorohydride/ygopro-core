@@ -395,6 +395,11 @@ uint32 card::get_type() {
 	temp.type = 0xffffffff;
 	return type;
 }
+uint32 card::get_fusion_type() {
+	if(current.location == LOCATION_SZONE)
+		return data.type;
+	return get_type();
+}
 // Atk and def are sepcial cases since text atk/def ? are involved.
 // Asuumption: we can only change the atk/def of cards in LOCATION_MZONE.
 int32 card::get_base_attack() {
@@ -942,7 +947,7 @@ uint32 card::get_fusion_attribute(uint8 playerid) {
 	filter_effect(EFFECT_CHANGE_FUSION_ATTRIBUTE, &effects);
 	if(!effects.size())
 		return get_attribute();
-	uint32 attribute;
+	uint32 attribute = 0;
 	for(int32 i = 0; i < effects.size(); ++i) {
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		attribute = effects[i]->get_value(this, 1);
