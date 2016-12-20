@@ -396,7 +396,7 @@ uint32 card::get_type() {
 	return type;
 }
 uint32 card::get_fusion_type() {
-	if(current.location == LOCATION_SZONE)
+	if(current.location == LOCATION_SZONE && (data.type & TYPE_MONSTER))
 		return data.type;
 	return get_type();
 }
