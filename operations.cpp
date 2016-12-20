@@ -1350,10 +1350,10 @@ int32 field::summon(uint16 step, uint8 sumplayer, card * target, effect * proc, 
 			return FALSE;
 		}
 		effect_set eset;
-		target->filter_summon_procedure(sumplayer, &eset, ignore_count, min_tribute);
+		int32 res = target->filter_summon_procedure(sumplayer, &eset, ignore_count, min_tribute);
 		core.select_effects.clear();
 		core.select_options.clear();
-		if(target->check_ordinary_procedure(sumplayer, min_tribute, true)) {
+		if(res > 0) {
 			core.select_effects.push_back(0);
 			core.select_options.push_back(1);
 		}
@@ -1848,10 +1848,10 @@ int32 field::mset(uint16 step, uint8 setplayer, card * target, effect * proc, ui
 			return FALSE;
 		}
 		effect_set eset;
-		target->filter_set_procedure(setplayer, &eset, ignore_count, min_tribute);
+		int32 res = target->filter_set_procedure(setplayer, &eset, ignore_count, min_tribute);
 		core.select_effects.clear();
 		core.select_options.clear();
-		if(target->check_ordinary_procedure(setplayer, min_tribute, false)) {
+		if(res > 0) {
 			core.select_effects.push_back(0);
 			core.select_options.push_back(1);
 		}

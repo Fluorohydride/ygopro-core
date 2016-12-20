@@ -2018,17 +2018,20 @@ int32 scriptlib::duel_check_tribute(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* target = *(card**) lua_touserdata(L, 1);
-	uint32 rcount = lua_tointeger(L, 2);
-	group* mg = NULL;
-	if(lua_gettop(L) >= 3 && !lua_isnil(L, 3)) {
-		check_param(L, PARAM_TYPE_GROUP, 3);
-		mg = *(group**) lua_touserdata(L, 3);
+	uint32 min = lua_tointeger(L, 2);
+	uint32 max = min;
+	if(lua_gettop(L) >= 3 && !lua_isnil(L, 3))
+		max = lua_tointeger(L, 3);
+	group* mg = 0;
+	if(lua_gettop(L) >= 4 && !lua_isnil(L, 4)) {
+		check_param(L, PARAM_TYPE_GROUP, 4);
+		mg = *(group**)lua_touserdata(L, 4);
 	}
 	uint8 toplayer = target->current.controler;
-	if(lua_gettop(L) >= 4 && !lua_isnil(L, 4))
-		toplayer = lua_tointeger(L, 4);
+	if(lua_gettop(L) >= 5 && !lua_isnil(L, 5))
+		toplayer = lua_tointeger(L, 5);
 	duel* pduel = target->pduel;
-	lua_pushboolean(L, pduel->game_field->check_tribute(target, rcount, mg, toplayer));
+	lua_pushboolean(L, pduel->game_field->check_tribute(target, min, max, mg, toplayer));
 	return 1;
 }
 int32 scriptlib::duel_select_tribute(lua_State *L) {

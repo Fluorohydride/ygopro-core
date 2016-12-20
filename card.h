@@ -235,7 +235,6 @@ public:
 	void filter_single_continuous_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_immune_effect();
 	void filter_disable_related_cards();
-	int32 check_ordinary_procedure(uint8 playerid, uint8 min_tribute, bool summon);
 	int32 filter_summon_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute);
 	int32 filter_set_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute);
 	void filter_spsummon_procedure(uint8 playerid, effect_set* eset, uint32 summon_type);
