@@ -2043,8 +2043,8 @@ int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ign
 		return FALSE;
 	int32 rcount = get_summon_tribute_count();
 	int32 min = rcount & 0xffff, max = (rcount >> 16) & 0xffff;
-	if(min > 0 && !pduel->game_field->is_player_can_summon(SUMMON_TYPE_ADVANCE, playerid, this))
-		return FALSE;
+	if(!pduel->game_field->is_player_can_summon(SUMMON_TYPE_ADVANCE, playerid, this))
+		max = 0;
 	if(max < min_tribute)
 		return FALSE;
 	if(min < min_tribute)
@@ -2076,8 +2076,8 @@ int32 card::filter_set_procedure(uint8 playerid, effect_set* peset, uint8 ignore
 		return FALSE;
 	int32 rcount = get_summon_tribute_count();
 	int32 min = rcount & 0xffff, max = (rcount >> 16) & 0xffff;
-	if(min > 0 && !pduel->game_field->is_player_can_mset(SUMMON_TYPE_ADVANCE, playerid, this))
-		return FALSE;
+	if(!pduel->game_field->is_player_can_mset(SUMMON_TYPE_ADVANCE, playerid, this))
+		max = 0;
 	if(max < min_tribute)
 		return FALSE;
 	if(min < min_tribute)
