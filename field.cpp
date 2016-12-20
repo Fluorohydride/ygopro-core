@@ -2253,6 +2253,8 @@ int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 t
 	} else {
 		if((int32)test.size() < -fcount + 1)
 			return FALSE;
+		if(max < -fcount + 1)
+			return FALSE;
 	}
 	return TRUE;
 }
