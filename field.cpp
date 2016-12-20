@@ -1323,7 +1323,6 @@ int32 field::get_summon_release_olist(card* target, card_set* ex_list, card_set*
 int32 field::get_summon_release_exlist(card* target, card_set* ex_list, group* mg) {
 	uint8 p = target->current.controler;
 	card* pcard;
-	uint32 rcount = 0;
 	for(int i = 0; i < 5; ++i) {
 		pcard = player[1 - p].list_mzone[i];
 		if(!(pcard && pcard->is_releasable_by_summon(p, target)))
@@ -1332,14 +1331,9 @@ int32 field::get_summon_release_exlist(card* target, card_set* ex_list, group* m
 			continue;
 		if(pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
 			ex_list->insert(pcard);
-			if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
-				pcard->release_param = 2;
-			else
-				pcard->release_param = 1;
-			rcount += pcard->release_param;
 		}
 	}
-	return rcount;
+	return TRUE;
 }
 int32 field::get_summon_count_limit(uint8 playerid) {
 	effect_set eset;
@@ -2225,6 +2219,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	pduel->restore_assumes();
 	return FALSE;
 }
+// check if "releasing min~max tributes" is available
 int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer) {
 	card_set test, exset;
 	int32 m1 = 0, m2 = 0;
@@ -2241,22 +2236,29 @@ int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 t
 	if(min > max)
 		return FALSE;
 	int32 fcount = get_useable_count(toplayer, LOCATION_MZONE, pcard->current.controler, LOCATION_REASON_TOFIELD);
-	if(toplayer == pcard->current.controler) {
-		uint32 rmax = get_summon_release_exlist(pcard, &exset, mg);
-		uint32 rmin = exset.size();
-		min -= rmax;
-		max -= rmin;
+	// test "releasing i tributes"
+	for(int32 i = min; i <= max; ++i){
+		int32 rmax = 0;
+		if(toplayer == pcard->current.controler) {
+			get_summon_release_exlist(pcard, &exset, mg);
+			// let r be the number of monsters released from mzone of toplayer
+			// r<=i-ex, r<=test
+			// rmax = min{i-ex, test}
+			if(i >= (int32)exset.size()){
+				rmax = i - (int32)exset.size();
+				if(rmax > (int32)test.size())
+					rmax = (int32)test.size();
+			}
+			else
+				rmax = 0;
+		}
+		else
+			rmax = (int32)test.size();
+		// this is the # of slots after the advance summon
+		if(fcount + rmax - 1 >= 0)
+			return TRUE;
 	}
-	if(min <= 0 && max <= 0) {
-		if(fcount <= 0)
-			return FALSE;
-	} else {
-		if((int32)test.size() < -fcount + 1)
-			return FALSE;
-		if(max < -fcount + 1)
-			return FALSE;
-	}
-	return TRUE;
+	return FALSE;
 }
 int32 field::check_with_sum_limit(const card_vector& mats, int32 acc, int32 index, int32 count, int32 min, int32 max) {
 	if(count > max)

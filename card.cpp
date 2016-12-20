@@ -1995,10 +1995,10 @@ void card::filter_disable_related_cards() {
 }
 // put all summon procedures except ordinay summon in peset (see is_can_be_summoned())
 // return value:
-// -2 = this has EFFECT_LIMIT_SUMMON_PROC, 0 available
-// -1 = this has EFFECT_LIMIT_SUMMON_PROC, at least 1 available
-// 0 =  no EFFECT_LIMIT_SUMMON_PROC, no available EFFECT_SUMMON_PROC
-// 1 = no EFFECT_LIMIT_SUMMON_PROC, at least 1 available EFFECT_SUMMON_PROC
+// -2 = this has a EFFECT_LIMIT_SUMMON_PROC, 0 available
+// -1 = this has a EFFECT_LIMIT_SUMMON_PROC, at least 1 available
+// 0 = no EFFECT_LIMIT_SUMMON_PROC, and ordinary summon ia not available
+// 1 = no EFFECT_LIMIT_SUMMON_PROC, and ordinary summon ia available
 int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ignore_count, uint8 min_tribute) {
 	effect_set eset;
 	uint8 toplayer;
@@ -2012,6 +2012,7 @@ int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ign
 					toplayer = 1 - playerid;
 			} else
 				toplayer = playerid;
+			// the script will check min_tribute, Duel.CheckTribute()
 			if(eset[i]->check_count_limit(playerid) && is_summonable(eset[i], min_tribute)
 				&& !pduel->game_field->check_unique_onfield(this, toplayer, LOCATION_MZONE)
 				&& pduel->game_field->is_player_can_summon(eset[i]->get_value(this), playerid, this))
@@ -2037,6 +2038,7 @@ int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ign
 			&& pduel->game_field->is_player_can_summon(eset[i]->get_value(this), playerid, this))
 			peset->add_item(eset[i]);
 	}
+	// ordinary summon
 	if(!pduel->game_field->is_player_can_summon(SUMMON_TYPE_NORMAL, playerid, this))
 		return FALSE;
 	if(pduel->game_field->check_unique_onfield(this, playerid, LOCATION_MZONE))
@@ -2045,10 +2047,10 @@ int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ign
 	int32 min = rcount & 0xffff, max = (rcount >> 16) & 0xffff;
 	if(!pduel->game_field->is_player_can_summon(SUMMON_TYPE_ADVANCE, playerid, this))
 		max = 0;
-	if(max < min_tribute)
-		return FALSE;
 	if(min < min_tribute)
 		min = min_tribute;
+	if(max < min)
+		return FALSE;
 	return pduel->game_field->check_tribute(this, min, max, 0, current.controler);
 }
 // put all set procedures except ordinay set in peset (see is_can_be_summoned())
@@ -2078,10 +2080,10 @@ int32 card::filter_set_procedure(uint8 playerid, effect_set* peset, uint8 ignore
 	int32 min = rcount & 0xffff, max = (rcount >> 16) & 0xffff;
 	if(!pduel->game_field->is_player_can_mset(SUMMON_TYPE_ADVANCE, playerid, this))
 		max = 0;
-	if(max < min_tribute)
-		return FALSE;
 	if(min < min_tribute)
 		min = min_tribute;
+	if(max < min)
+		return FALSE;
 	return pduel->game_field->check_tribute(this, min, max, 0, current.controler);
 }
 void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 summon_type) {
@@ -2340,7 +2342,7 @@ int32 card::is_summonable(effect* peffect, uint8 min_tribute) {
 }
 // if this does not have a summon procedure, it will check ordinary summon
 // ignore_count: ignore the summon count in this turn or not
-// peffect: effects that changes the ordinary summon procedure (c80921533)
+// peffect: effects that change the ordinary summon procedure (c80921533)
 // min_tribute: the limit of min tribute number by EFFECT_EXTRA_SUMMON_COUNT
 // return: whether playerid can summon this or not
 int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffect, uint8 min_tribute) {
@@ -2388,10 +2390,17 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 		}
 		effect_set proc;
 		int32 res = filter_summon_procedure(playerid, &proc, ignore_count, min_tribute);
-		if((peffect && res < 0) || (!peffect && (!res || res == -2) && !proc.size())
-			|| (peffect && (proc.size() == 0) && !pduel->game_field->is_player_can_summon(peffect->get_value(), playerid, this))) {
-			pduel->game_field->restore_lp_cost();
-			return FALSE;
+		if(peffect) {
+			if(res < 0 || !pduel->game_field->is_player_can_summon(peffect->get_value(), playerid, this)){
+				pduel->game_field->restore_lp_cost();
+				return FALSE;
+			}				
+		}
+		else {
+			if(!proc.size() && res == 0) {
+				pduel->game_field->restore_lp_cost();
+				return FALSE;
+			}
 		}
 	}
 	pduel->game_field->restore_lp_cost();
@@ -2609,10 +2618,17 @@ int32 card::is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect
 	}
 	eset.clear();
 	int32 res = filter_set_procedure(playerid, &eset, ignore_count, min_tribute);
-	if((peffect && res < 0) || (!peffect && (!res || res == -2) && !eset.size())
-		|| (peffect && (eset.size() == 0) && !pduel->game_field->is_player_can_mset(peffect->get_value(), playerid, this))) {
-		pduel->game_field->restore_lp_cost();
-		return FALSE;
+	if(peffect) {
+		if(res < 0 || !pduel->game_field->is_player_can_mset(peffect->get_value(), playerid, this)){
+			pduel->game_field->restore_lp_cost();
+			return FALSE;
+		}				
+	}
+	else {
+		if(!eset.size() && res == 0) {
+			pduel->game_field->restore_lp_cost();
+			return FALSE;
+		}
 	}
 	pduel->game_field->restore_lp_cost();
 	return TRUE;
