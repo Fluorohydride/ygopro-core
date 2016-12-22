@@ -2391,13 +2391,12 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 		effect_set proc;
 		int32 res = filter_summon_procedure(playerid, &proc, ignore_count, min_tribute);
 		if(peffect) {
-			if(res < 0 || !pduel->game_field->is_player_can_summon(peffect->get_value(), playerid, this)){
+			if(res < 0 || !pduel->game_field->is_player_can_summon(peffect->get_value(), playerid, this)) {
 				pduel->game_field->restore_lp_cost();
 				return FALSE;
 			}				
-		}
-		else {
-			if(!proc.size() && res == 0) {
+		} else {
+			if(!proc.size() && (!res || res == -2)) {
 				pduel->game_field->restore_lp_cost();
 				return FALSE;
 			}
@@ -2619,13 +2618,12 @@ int32 card::is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect
 	eset.clear();
 	int32 res = filter_set_procedure(playerid, &eset, ignore_count, min_tribute);
 	if(peffect) {
-		if(res < 0 || !pduel->game_field->is_player_can_mset(peffect->get_value(), playerid, this)){
+		if(res < 0 || !pduel->game_field->is_player_can_mset(peffect->get_value(), playerid, this)) {
 			pduel->game_field->restore_lp_cost();
 			return FALSE;
 		}				
-	}
-	else {
-		if(!eset.size() && res == 0) {
+	} else {
+		if(!eset.size() && (!res || res == -2)) {
 			pduel->game_field->restore_lp_cost();
 			return FALSE;
 		}
