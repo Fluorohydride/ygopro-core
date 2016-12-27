@@ -1254,18 +1254,10 @@ int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int3
 }
 // return: the max release count of mg or all monsters on field
 int32 field::get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum, group* mg, uint32 ex) {
-	int32 m1 = get_summon_release_slist(target, release_list, mg);
-	int32 m2 = get_summon_release_olist(target, ex_list, ex_list_sum, mg, ex);
-	return m1 + m2;
-}
-// let the controller of target be p
-// search in mg or mzone of p, and put the tribute monsters in release_list
-int32 field::get_summon_release_slist(card* target, card_set* release_list, group* mg) {
 	uint8 p = target->current.controler;
-	card* pcard;
 	uint32 rcount = 0;
 	for(int i = 0; i < 5; ++i) {
-		pcard = player[p].list_mzone[i];
+		card* pcard = player[p].list_mzone[i];
 		if(pcard && pcard->is_releasable_by_summon(p, target)) {
 			if(mg && !mg->has_card(pcard))
 				continue;
@@ -1278,20 +1270,10 @@ int32 field::get_summon_release_slist(card* target, card_set* release_list, grou
 			rcount += pcard->release_param;
 		}
 	}
-	return rcount;
-}
-// ex: the procedure of target can release opponent monster
-// ex_list: the tribute monsters controlled by 1-p
-// ex_list_sum: the opponent monsters affected by EFFECT_EXTRA_RELEASE_SUM
-// search in mg or mzone of 1-p, and maintain ex_list, ex_list_sum
-int32 field::get_summon_release_olist(card* target, card_set* ex_list, card_set* ex_list_sum, group* mg, uint32 ex) {
-	uint8 p = target->current.controler;
-	card* pcard;
-	uint32 rcount = 0;
 	uint32 ex_sum_max = 0;
 	for(int i = 0; i < 5; ++i) {
-		pcard = player[1 - p].list_mzone[i];
-		if(!(pcard && pcard->is_releasable_by_summon(p, target)))
+		card* pcard = player[1 - p].list_mzone[i];
+		if(!pcard || !pcard->is_releasable_by_summon(p, target))
 			continue;
 		if(mg && !mg->has_card(pcard))
 			continue;
@@ -1318,22 +1300,6 @@ int32 field::get_summon_release_olist(card* target, card_set* ex_list, card_set*
 		}
 	}
 	return rcount + ex_sum_max;
-}
-// put the monsters of 1-p affected by EFFECT_EXTRA_RELEASE
-int32 field::get_summon_release_exlist(card* target, card_set* ex_list, group* mg) {
-	uint8 p = target->current.controler;
-	card* pcard;
-	for(int i = 0; i < 5; ++i) {
-		pcard = player[1 - p].list_mzone[i];
-		if(!(pcard && pcard->is_releasable_by_summon(p, target)))
-			continue;
-		if(mg && !mg->has_card(pcard))
-			continue;
-		if(pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
-			ex_list->insert(pcard);
-		}
-	}
-	return TRUE;
 }
 int32 field::get_summon_count_limit(uint8 playerid) {
 	effect_set eset;
@@ -2219,46 +2185,31 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	pduel->restore_assumes();
 	return FALSE;
 }
-// check if "releasing min~max tributes" is available
 int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer) {
-	card_set test, exset;
-	int32 m1 = 0, m2 = 0;
-	if(toplayer == pcard->current.controler) {
-		m1 = get_summon_release_slist(pcard, &test, mg);
-		m2 = get_summon_release_olist(pcard, NULL, NULL, mg, 0);
-	} else {
-		m1 = get_summon_release_olist(pcard, &test, NULL, mg, 1);
-		m2 = get_summon_release_slist(pcard, NULL, mg);
-	}
-	// sum of release count is the real upper bound
-	if(max > m1 + m2)
-		max = m1 + m2;
+	int32 ex = FALSE;
+	if(toplayer == 1 - pcard->current.controler)
+		ex = TRUE;
+	card_set release_list, ex_list;
+	int32 m = get_summon_release_list(pcard, &release_list, &ex_list, 0, mg, ex);
+	if(max > m)
+		max = m;
 	if(min > max)
 		return FALSE;
-	int32 fcount = get_useable_count(toplayer, LOCATION_MZONE, pcard->current.controler, LOCATION_REASON_TOFIELD);
-	// test "releasing i tributes"
-	for(int32 i = min; i <= max; ++i){
-		int32 rmax = 0;
-		if(toplayer == pcard->current.controler) {
-			get_summon_release_exlist(pcard, &exset, mg);
-			// let r be the number of monsters released from mzone of toplayer
-			// r<=i-ex, r<=test
-			// rmax = min{i-ex, test}
-			if(i >= (int32)exset.size()){
-				rmax = i - (int32)exset.size();
-				if(rmax > (int32)test.size())
-					rmax = (int32)test.size();
-			}
-			else
-				rmax = 0;
-		}
-		else
-			rmax = (int32)test.size();
-		// this is the # of slots after the advance summon
-		if(fcount + rmax - 1 >= 0)
-			return TRUE;
+	int32 s;
+	if(toplayer == pcard->current.controler) {
+		s = release_list.size();
+		max -= (int32)ex_list.size();
+	} else {
+		s = ex_list.size();
 	}
-	return FALSE;
+	int32 fcount = get_useable_count(toplayer, LOCATION_MZONE, pcard->current.controler, LOCATION_REASON_TOFIELD);
+	if(s < -fcount + 1)
+		return FALSE;
+	if(max < 0)
+		max = 0;
+	if(max < -fcount + 1)
+		return FALSE;
+	return TRUE;
 }
 int32 field::check_with_sum_limit(const card_vector& mats, int32 acc, int32 index, int32 count, int32 min, int32 max) {
 	if(count > max)
