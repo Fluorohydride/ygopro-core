@@ -18,7 +18,7 @@ int32 field::negate_chain(uint8 chaincount) {
 	if(chaincount > core.current_chain.size() || chaincount < 1)
 		chaincount = core.current_chain.size();
 	chain& pchain = core.current_chain[chaincount - 1];
-	if(!(pchain.flag & CHAIN_DISABLE_ACTIVATE) && check_chain_negate(pchain.chain_count)
+	if(!(pchain.flag & CHAIN_DISABLE_ACTIVATE) && is_chain_negatable(pchain.chain_count)
 	        && pchain.triggering_effect->handler->is_affect_by_effect(core.reason_effect) ) {
 		pchain.flag |= CHAIN_DISABLE_ACTIVATE;
 		pchain.disable_reason = core.reason_effect;
@@ -41,7 +41,7 @@ int32 field::disable_chain(uint8 chaincount) {
 	if(chaincount > core.current_chain.size() || chaincount < 1)
 		chaincount = core.current_chain.size();
 	chain& pchain = core.current_chain[chaincount - 1];
-	if(!(pchain.flag & CHAIN_DISABLE_EFFECT) && check_chain_disable(pchain.chain_count)
+	if(!(pchain.flag & CHAIN_DISABLE_EFFECT) && is_chain_disablable(pchain.chain_count)
 	        && pchain.triggering_effect->handler->is_affect_by_effect(core.reason_effect)) {
 		core.current_chain[chaincount - 1].flag |= CHAIN_DISABLE_EFFECT;
 		core.current_chain[chaincount - 1].disable_reason = core.reason_effect;

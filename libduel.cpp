@@ -3182,14 +3182,42 @@ int32 scriptlib::duel_is_chain_negatable(lua_State * L) {
 	check_param_count(L, 1);
 	int32 chaincount = lua_tointeger(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushboolean(L, pduel->game_field->is_chain_negatable(chaincount, TRUE));
+	int32 ret = 0;
+	if(chaincount < 0 || chaincount > (int32)pduel->game_field->core.current_chain.size())
+		ret = FALSE;
+	else {
+		effect* peffect;
+		if(chaincount == 0)
+			peffect = pduel->game_field->core.current_chain.back().triggering_effect;
+		else
+			peffect = pduel->game_field->core.current_chain[chaincount - 1].triggering_effect;
+		if(peffect->is_flag(EFFECT_FLAG2_NAGA))
+			ret = FALSE;
+		else
+			ret = TRUE;
+	}
+	lua_pushboolean(L, ret);
 	return 1;
 }
 int32 scriptlib::duel_is_chain_disablable(lua_State * L) {
 	check_param_count(L, 1);
 	int32 chaincount = lua_tointeger(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushboolean(L, pduel->game_field->is_chain_disablable(chaincount, TRUE));
+	int32 ret = 0;
+	if(chaincount < 0 || chaincount > (int32)pduel->game_field->core.current_chain.size())
+		ret = FALSE;
+	else {
+		effect* peffect;
+		if(chaincount == 0)
+			peffect = pduel->game_field->core.current_chain.back().triggering_effect;
+		else
+			peffect = pduel->game_field->core.current_chain[chaincount - 1].triggering_effect;
+		if(peffect->is_flag(EFFECT_FLAG2_NAGA))
+			ret = FALSE;
+		else
+			ret = TRUE;
+	}
+	lua_pushboolean(L, ret);
 	return 1;
 }
 int32 scriptlib::duel_check_chain_target(lua_State *L) {

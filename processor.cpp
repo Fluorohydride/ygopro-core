@@ -4564,7 +4564,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 	}
 	case 1: {
 		effect* peffect = cait->triggering_effect;
-		if(cait->flag & CHAIN_DISABLE_ACTIVATE && check_chain_negate(cait->chain_count)) {
+		if(cait->flag & CHAIN_DISABLE_ACTIVATE && is_chain_negatable(cait->chain_count)) {
 			remove_oath_effect(peffect);
 			if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && (peffect->count_code & EFFECT_COUNT_CODE_OATH)) {
 				dec_effect_code(peffect->count_code, cait->triggering_player);
@@ -4601,7 +4601,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		core.spsummon_state_count_tmp[0] = core.spsummon_state_count[0];
 		core.spsummon_state_count_tmp[1] = core.spsummon_state_count[1];
 		card* pcard = cait->triggering_effect->get_handler();
-		if(check_chain_disable(cait->chain_count)) {
+		if(is_chain_disablable(cait->chain_count)) {
 			if(is_chain_disabled(cait->chain_count) || (pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && pcard->is_has_relation(*cait))) {
 				if(!(cait->flag & CHAIN_DISABLE_EFFECT)) {
 					pduel->write_buffer8(MSG_CHAIN_DISABLED);

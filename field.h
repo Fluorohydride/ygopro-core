@@ -425,12 +425,10 @@ public:
 	int32 is_player_can_send_to_hand(uint8 playerid, card* pcard);
 	int32 is_player_can_send_to_deck(uint8 playerid, card* pcard);
 	int32 is_player_can_remove(uint8 playerid, card* pcard);
-	int32 is_chain_negatable(uint8 chaincount, uint8 naga_check);
-	int32 is_chain_disablable(uint8 chaincount, uint8 naga_check);
+	int32 is_chain_negatable(uint8 chaincount);
+	int32 is_chain_disablable(uint8 chaincount);
 	int32 is_chain_disabled(uint8 chaincount);
 	int32 check_chain_target(uint8 chaincount, card* pcard);
-	int32 check_chain_negate(uint8 chaincount);
-	int32 check_chain_disable(uint8 chaincount);
 	int32 is_able_to_enter_bp();
 
 	void add_process(uint16 type, uint16 step, effect* peffect, group* target, ptr arg1, ptr arg2, ptr arg3 = 0, ptr arg4 = 0, void* ptr1 = NULL, void* ptr2 = NULL);
