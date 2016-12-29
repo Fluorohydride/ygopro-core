@@ -303,6 +303,17 @@ int32 card::is_set_card(uint32 set_code) {
 	}
 	return FALSE;
 }
+int32 card::is_origin_set_card(uint32 set_code) {
+	uint64 setcode = data.setcode;
+	uint32 settype = set_code & 0xfff;
+	uint32 setsubtype = set_code & 0xf000;
+	while(setcode) {
+		if((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
+			return TRUE;
+		setcode = setcode >> 16;
+	}
+	return FALSE;
+}
 int32 card::is_pre_set_card(uint32 set_code) {
 	uint32 code = previous.code;
 	uint64 setcode;

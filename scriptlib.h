@@ -24,6 +24,7 @@ public:
 	static int32 card_get_fusion_code(lua_State *L);
 	static int32 card_is_fusion_code(lua_State *L);
 	static int32 card_is_set_card(lua_State *L);
+	static int32 card_is_origin_set_card(lua_State *L);
 	static int32 card_is_pre_set_card(lua_State *L);
 	static int32 card_is_fusion_set_card(lua_State *L);
 	static int32 card_get_type(lua_State *L);
