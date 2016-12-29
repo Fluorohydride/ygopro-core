@@ -710,8 +710,8 @@ int32 field::remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplay
 	}
 	case 2: {
 		for(uint32 i = 0; i < core.select_cards.size(); ++i)
-			if(returns.bvalue[i] > 0)
-				core.select_cards[i]->remove_counter(countertype, returns.bvalue[i]);
+			if(returns.svalue[i] > 0)
+				core.select_cards[i]->remove_counter(countertype, returns.svalue[i]);
 		return FALSE;
 	}
 	case 3: {
