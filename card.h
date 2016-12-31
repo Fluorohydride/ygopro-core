@@ -249,7 +249,7 @@ public:
 	
 	int32 is_equipable(card* pcard);
 	int32 is_summonable_card();
-	int32 is_fusion_summonable_card();
+	int32 is_fusion_summonable_card(uint32 summon_type);
 	int32 is_spsummonable(effect* peffect);
 	int32 is_summonable(effect* peffect, uint8 min_tribute);
 	int32 is_can_be_summoned(uint8 playerid, uint8 ingore_count, effect* peffect, uint8 min_tribute);

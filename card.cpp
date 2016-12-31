@@ -2307,15 +2307,16 @@ int32 card::is_summonable_card() {
 		return FALSE;
 	return !is_affected_by_effect(EFFECT_UNSUMMONABLE_CARD);
 }
-int32 card::is_fusion_summonable_card() {
+int32 card::is_fusion_summonable_card(uint32 summon_type) {
 	if(!(data.type & TYPE_FUSION))
 		return FALSE;
+	summon_type |= SUMMON_TYPE_FUSION;
 	effect_set eset;
 	filter_effect(EFFECT_SPSUMMON_CONDITION, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		pduel->lua->add_param((void*)0, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param((void*)0, PARAM_TYPE_INT);
-		pduel->lua->add_param(SUMMON_TYPE_FUSION, PARAM_TYPE_INT);
+		pduel->lua->add_param(summon_type, PARAM_TYPE_INT);
 		pduel->lua->add_param((void*)0, PARAM_TYPE_INT);
 		pduel->lua->add_param((void*)0, PARAM_TYPE_INT);
 		if(!eset[i]->check_value_condition(5))
