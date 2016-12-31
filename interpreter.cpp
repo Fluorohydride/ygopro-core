@@ -151,6 +151,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsDisabled", scriptlib::card_is_disabled },
 	{ "IsDestructable", scriptlib::card_is_destructable },
 	{ "IsSummonableCard", scriptlib::card_is_summonable },
+	{ "IsFusionSummonableCard", scriptlib::card_is_fusion_summonable_card },
 	{ "IsSpecialSummonable", scriptlib::card_is_special_summonable },
 	{ "IsSynchroSummonable", scriptlib::card_is_synchro_summonable },
 	{ "IsXyzSummonable", scriptlib::card_is_xyz_summonable },
