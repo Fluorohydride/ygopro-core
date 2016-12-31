@@ -4590,6 +4590,62 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* scard, int32 min, int32 max) {
 	switch(step) {
 	case 0: {
+		if(!(core.global_flag & GLOBALFLAG_TUNE_MAGICIAN)) {
+			core.units.begin()->step = 1;
+			return FALSE;
+		}
+		std::multimap<int32, card*, std::greater<int32> > mat1, mat2;
+		effect* peffect = 0;
+		for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
+			effect* plimit = cit->second->is_affected_by_effect(EFFECT_TUNE_MAGICIAN_X);
+			if(plimit)
+				peffect = plimit;
+			else
+				mat1.insert(*cit);
+		}
+		if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
+			int32 maxc = std::min(max, (int32)mat1.size());
+			auto iter = mat1.lower_bound(maxc);
+			mat1.erase(mat1.begin(), iter);
+		}
+		if(peffect) {
+			for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
+				if(!peffect->get_value(cit->second))
+					mat2.insert(*cit);
+			}
+			if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
+				int32 maxc = std::min(max, (int32)mat2.size());
+				auto iter = mat2.lower_bound(maxc);
+				mat2.erase(mat2.begin(), iter);
+			}
+		}
+		if(mat2.size() == core.xmaterial_lst.size()) {
+			core.units.begin()->step = 1;
+		} else if((int32)mat1.size() < min) {
+			core.xmaterial_lst.swap(mat2);
+			core.units.begin()->step = 1;
+		} else if((int32)mat2.size() < min) {
+			core.xmaterial_lst.swap(mat1);
+			core.units.begin()->step = 1;
+		} else {
+			auto ptr = new std::multimap<int32, card*, std::greater<int32> >[2];
+			ptr[0].swap(mat1);
+			ptr[1].swap(mat2);
+			core.units.begin()->ptr1 = ptr;
+			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, playerid, peffect->description);
+		}
+		return FALSE;
+	}
+	case 1: {
+		auto ptr = (std::multimap<int32, card*, std::greater<int32> >*)core.units.begin()->ptr1;
+		if(!returns.ivalue[0])
+			core.xmaterial_lst.swap(ptr[0]);
+		else
+			core.xmaterial_lst.swap(ptr[1]);
+		delete[] ptr;
+		return FALSE;
+	}
+	case 2: {
 		int maxv = 0;
 		if(core.xmaterial_lst.size())
 			maxv = core.xmaterial_lst.begin()->first;
@@ -4603,10 +4659,10 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 			pduel->write_buffer32(513);
 			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + ((uint32)core.summon_cancelable << 16), min + (max << 16));
 		} else
-			core.units.begin()->step = 1;
+			core.units.begin()->step = 3;
 		return FALSE;
 	}
-	case 1: {
+	case 3: {
 		if(returns.ivalue[0] == -1) {
 			pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
 			return TRUE;
@@ -4619,7 +4675,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
 		return TRUE;
 	}
-	case 2: {
+	case 4: {
 		core.operated_set.clear();
 		core.select_cards.clear();
 		for(auto iter = core.xmaterial_lst.begin(); iter != core.xmaterial_lst.end(); ++iter)
@@ -4631,7 +4687,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + ((uint32)core.summon_cancelable << 16), min + (min << 16));
 		return FALSE;
 	}
-	case 3: {
+	case 5: {
 		if(returns.ivalue[0] == -1) {
 			pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
 			return TRUE;
@@ -4666,7 +4722,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		returns.ivalue[0] = 1;
 		return FALSE;
 	}
-	case 4: {
+	case 6: {
 		if(!returns.ivalue[0]) {
 			group* pgroup = pduel->new_group(core.operated_set);
 			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
@@ -4686,11 +4742,11 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, min + (max << 16));
 		else {
 			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, min + (min << 16));
-			core.units.begin()->step = 2;
+			core.units.begin()->step = 4;
 		}
 		return FALSE;
 	}
-	case 5: {
+	case 7: {
 		group* pgroup = pduel->new_group(core.operated_set);
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];

@@ -2273,7 +2273,45 @@ int32 field::check_with_sum_greater_limit_m(const card_vector& mats, int32 acc, 
 }
 int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, int32 max, group* mg) {
 	get_xyz_material(scard, findex, lv, max, mg);
-	return (int32)core.xmaterial_lst.size() >= min;
+	if(!(core.global_flag & GLOBALFLAG_TUNE_MAGICIAN))
+		return (int32)core.xmaterial_lst.size() >= min;
+	std::multimap<int32, card*, std::greater<int32> > mat;
+	effect* peffect = 0;
+	for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
+		effect* plimit = cit->second->is_affected_by_effect(EFFECT_TUNE_MAGICIAN_X);
+		if(plimit)
+			peffect = plimit;
+		else
+			mat.insert(*cit);
+	}
+	if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
+		int32 maxc = std::min(max, (int32)mat.size());
+		auto iter = mat.lower_bound(maxc);
+		std::size_t size = std::distance(iter, mat.end());
+		if((int32)size >= min)
+			return TRUE;
+	} else {
+		if((int32)mat.size() >= min)
+			return TRUE;
+	}
+	if(!peffect)
+		return FALSE;
+	mat.clear();
+	for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
+		if(!peffect->get_value(cit->second))
+			mat.insert(*cit);
+	}
+	if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
+		int32 maxc = std::min(max, (int32)mat.size());
+		auto iter = mat.lower_bound(maxc);
+		std::size_t size = std::distance(iter, mat.end());
+		if((int32)size >= min)
+			return TRUE;
+	} else {
+		if((int32)mat.size() >= min)
+			return TRUE;
+	}
+	return FALSE;
 }
 int32 field::is_player_can_draw(uint8 playerid) {
 	return !is_player_affected_by_effect(playerid, EFFECT_CANNOT_DRAW);
