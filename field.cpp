@@ -2275,41 +2275,38 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 	get_xyz_material(scard, findex, lv, max, mg);
 	if(!(core.global_flag & GLOBALFLAG_TUNE_MAGICIAN))
 		return (int32)core.xmaterial_lst.size() >= min;
+	for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit)
+		cit->second->sum_param = 0;
+	int32 digit = 1;
+	for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
+		card* pcard = cit->second;
+		effect* peffect = pcard->is_affected_by_effect(EFFECT_TUNE_MAGICIAN_X);
+		if(peffect) {
+			digit <<= 1;
+			for(auto mit = core.xmaterial_lst.begin(); mit != core.xmaterial_lst.end(); ++mit) {
+				if(!peffect->get_value(mit->second))
+					mit->second->sum_param |= digit;
+			}
+			pcard->sum_param |= digit;
+		} else
+			pcard->sum_param |= 1;
+	}
 	std::multimap<int32, card*, std::greater<int32> > mat;
-	effect* peffect = 0;
-	for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
-		effect* plimit = cit->second->is_affected_by_effect(EFFECT_TUNE_MAGICIAN_X);
-		if(plimit)
-			peffect = plimit;
-		else
-			mat.insert(*cit);
-	}
-	if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
-		int32 maxc = std::min(max, (int32)mat.size());
-		auto iter = mat.lower_bound(maxc);
-		std::size_t size = std::distance(iter, mat.end());
-		if((int32)size >= min)
-			return TRUE;
-	} else {
-		if((int32)mat.size() >= min)
-			return TRUE;
-	}
-	if(!peffect)
-		return FALSE;
-	mat.clear();
-	for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
-		if(!peffect->get_value(cit->second))
-			mat.insert(*cit);
-	}
-	if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
-		int32 maxc = std::min(max, (int32)mat.size());
-		auto iter = mat.lower_bound(maxc);
-		std::size_t size = std::distance(iter, mat.end());
-		if((int32)size >= min)
-			return TRUE;
-	} else {
-		if((int32)mat.size() >= min)
-			return TRUE;
+	for(int32 icheck = 1; icheck <= digit; icheck <<= 1) {
+		mat.clear();
+		for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
+			if(cit->second->sum_param & icheck)
+				mat.insert(*cit);
+		}
+		if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
+			int32 maxc = std::min(max, (int32)mat.size());
+			auto iter = mat.lower_bound(maxc);
+			if((int32)std::distance(iter, mat.end()) >= min)
+				return TRUE;
+		} else {
+			if((int32)mat.size() >= min)
+				return TRUE;
+		}
 	}
 	return FALSE;
 }
