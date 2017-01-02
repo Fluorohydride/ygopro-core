@@ -992,7 +992,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		if(location & LOCATION_MZONE) {
 			for(uint32 i = 0; i < 5; ++i) {
 				pcard = player[self].list_mzone[i];
-				if(pcard && !pcard->is_status(STATUS_SUMMONING) && !pcard->is_status(STATUS_SUMMON_DISABLED) && !pcard->is_status(STATUS_SPSUMMON_STEP) 
+				if(pcard && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP)
 						&& pcard != pexception && pduel->lua->check_matching(pcard, findex, extraargs) 
 						&& (!is_target || pcard->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
@@ -1116,6 +1116,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 	}
 	return FALSE;
 }
+// Duel.GetFieldGroup(), Duel.GetFieldGroupCount()
 int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, group* pgroup) {
 	if(self != 0 && self != 1)
 		return 0;
@@ -1126,7 +1127,7 @@ int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, g
 		if(location & LOCATION_MZONE) {
 			for(int i = 0; i < 5; ++i) {
 				pcard = player[self].list_mzone[i];
-				if(pcard && !pcard->is_status(STATUS_SUMMONING)) {
+				if(pcard && !pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)) {
 					if(pgroup)
 						pgroup->container.insert(pcard);
 					count++;
@@ -1406,7 +1407,7 @@ void field::get_overlay_group(uint8 self, uint8 s, uint8 o, card_set* pset) {
 		if(c) {
 			for(int i = 0; i < 5; ++i) {
 				pcard = player[self].list_mzone[i];
-				if(pcard && !pcard->is_status(STATUS_SUMMONING) && pcard->xyz_materials.size())
+				if(pcard && !pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP) && pcard->xyz_materials.size())
 					pset->insert(pcard->xyz_materials.begin(), pcard->xyz_materials.end());
 			}
 		}
@@ -1421,7 +1422,7 @@ int32 field::get_overlay_count(uint8 self, uint8 s, uint8 o) {
 		if(c) {
 			for(int i = 0; i < 5; ++i) {
 				card* pcard = player[self].list_mzone[i];
-				if(pcard && !pcard->is_status(STATUS_SUMMONING))
+				if(pcard && !pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
 					count += pcard->xyz_materials.size();
 			}
 		}

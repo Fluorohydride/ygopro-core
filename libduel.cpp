@@ -1459,7 +1459,7 @@ int32 scriptlib::duel_get_field_card(lua_State *L) {
 		return 0;
 	duel* pduel = interpreter::get_duel_info(L);
 	card* pcard = pduel->game_field->get_field_card(playerid, location, sequence);
-	if(!pcard || pcard->is_status(STATUS_SUMMONING))
+	if(!pcard || pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
 		return 0;
 	interpreter::card2value(L, pcard);
 	return 1;

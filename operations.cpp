@@ -3107,7 +3107,7 @@ int32 field::release(uint16 step, group * targets, effect * reason_effect, uint3
 		for (auto cit = targets->container.begin(); cit != targets->container.end();) {
 			auto rm = cit++;
 			card* pcard = *rm;
-			if (pcard->is_status(STATUS_SUMMONING)
+			if (pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
 			        || ((reason & REASON_SUMMON) && !pcard->is_releasable_by_summon(reason_player, pcard->current.reason_card))
 			        || (!(pcard->current.reason & (REASON_RULE | REASON_SUMMON | REASON_COST))
 			            && (!pcard->is_affect_by_effect(pcard->current.reason_effect) || !pcard->is_releasable_by_nonsummon(reason_player)))) {
@@ -3216,7 +3216,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			card* pcard = *rm;
 			dest = (pcard->operation_param >> 8) & 0xff;
 			if(!(reason & REASON_RULE) &&
-			        (pcard->is_status(STATUS_SUMMONING)
+			        (pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
 			         || (!(pcard->current.reason & REASON_COST) && !pcard->is_affect_by_effect(pcard->current.reason_effect))
 			         || (dest == LOCATION_HAND && !pcard->is_capable_send_to_hand(core.reason_player))
 			         || (dest == LOCATION_DECK && !pcard->is_capable_send_to_deck(core.reason_player))
@@ -3841,7 +3841,7 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 			uint32 ct = get_useable_count(playerid, location, move_player, lreason, &flag);
 			if((ret == 1) && (ct <= 0 || target->is_status(STATUS_FORBIDDEN) || check_unique_onfield(target, playerid, location))) {
 				core.units.begin()->step = 3;
-				send_to(target, core.reason_effect, REASON_EFFECT, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
+				send_to(target, core.reason_effect, REASON_RULE, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
 				return FALSE;
 			}
 			if(!ct)
@@ -3984,10 +3984,11 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 			uint8 npos = pcard->position_param & 0xff;
 			uint8 opos = pcard->current.position;
 			uint8 flag = pcard->position_param >> 16;
-			if(pcard->is_status(STATUS_SUMMONING) || pcard->overlay_target || !(pcard->current.location & LOCATION_ONFIELD)
-			        || !pcard->is_affect_by_effect(reason_effect) || npos == opos
-			        || (!(pcard->data.type & TYPE_TOKEN) && (opos & POS_FACEUP) &&  (npos & POS_FACEDOWN) && !pcard->is_capable_turn_set(reason_player))
-			        || (reason_effect && pcard->is_affected_by_effect(EFFECT_CANNOT_CHANGE_POS_E))) {
+			if(pcard->current.location != LOCATION_MZONE || pcard->current.location != LOCATION_SZONE 
+					|| pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
+					|| !pcard->is_affect_by_effect(reason_effect) || npos == opos
+					|| (!(pcard->data.type & TYPE_TOKEN) && (opos & POS_FACEUP) &&  (npos & POS_FACEDOWN) && !pcard->is_capable_turn_set(reason_player))
+					|| (reason_effect && pcard->is_affected_by_effect(EFFECT_CANNOT_CHANGE_POS_E))) {
 				targets->container.erase(pcard);
 			} else {
 				if((pcard->data.type & TYPE_TOKEN) && (npos & POS_FACEDOWN))

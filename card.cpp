@@ -416,7 +416,7 @@ uint32 card::get_fusion_type() {
 int32 card::get_base_attack() {
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
-	if (current.location != LOCATION_MZONE || is_status(STATUS_SUMMONING))
+	if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
 		return data.attack;
 	if (temp.base_attack != -1)
 		return temp.base_attack;
@@ -481,7 +481,7 @@ int32 card::get_attack() {
 		return assume_value;
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
-	if (current.location != LOCATION_MZONE || is_status(STATUS_SUMMONING))
+	if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
 		return data.attack;
 	if (temp.attack != -1)
 		return temp.attack;
@@ -610,7 +610,7 @@ int32 card::get_attack() {
 int32 card::get_base_defense() {
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
-	if (current.location != LOCATION_MZONE || is_status(STATUS_SUMMONING))
+	if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
 		return data.defense;
 	if (temp.base_defense != -1)
 		return temp.base_defense;
@@ -674,7 +674,7 @@ int32 card::get_defense() {
 		return assume_value;
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
-	if (current.location != LOCATION_MZONE || is_status(STATUS_SUMMONING))
+	if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
 		return data.defense;
 	if (temp.defense != -1)
 		return temp.defense;
@@ -802,7 +802,7 @@ int32 card::get_defense() {
 }
 // Level/Attribute/Race is available for:
 // 1. cards with original type TYPE_MONSTER or
-// 2. cards with current type TYPE_MONSTER
+// 2. cards with current type TYPE_MONSTER or
 // 3. cards with EFFECT_PRE_MONSTER
 uint32 card::get_level() {
 	if((data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL) 
