@@ -1355,7 +1355,6 @@ int32 scriptlib::duel_negate_effect(lua_State *L) {
 	lua_pushboolean(L, pduel->game_field->disable_chain(c));
 	return 1;
 }
-// negate the effects activated on field
 int32 scriptlib::duel_negate_related_chain(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -1363,7 +1362,7 @@ int32 scriptlib::duel_negate_related_chain(lua_State *L) {
 	uint32 reset_flag = lua_tointeger(L, 2);
 	duel* pduel = pcard->pduel;
 	if(pduel->game_field->core.current_chain.size() < 2)
-		return FALSE;
+		return 0;
 	if(!pcard->is_affect_by_effect(pduel->game_field->core.reason_effect))
 		return 0;
 	for(auto it = pduel->game_field->core.current_chain.rbegin(); it != pduel->game_field->core.current_chain.rend(); ++it) {
@@ -3182,9 +3181,9 @@ int32 scriptlib::duel_is_chain_negatable(lua_State * L) {
 	check_param_count(L, 1);
 	int32 chaincount = lua_tointeger(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	int32 ret = 0;
+	int32 res = 0;
 	if(chaincount < 0 || chaincount > (int32)pduel->game_field->core.current_chain.size())
-		ret = FALSE;
+		res = FALSE;
 	else {
 		effect* peffect;
 		if(chaincount == 0)
@@ -3192,20 +3191,20 @@ int32 scriptlib::duel_is_chain_negatable(lua_State * L) {
 		else
 			peffect = pduel->game_field->core.current_chain[chaincount - 1].triggering_effect;
 		if(peffect->is_flag(EFFECT_FLAG2_NAGA))
-			ret = FALSE;
+			res = FALSE;
 		else
-			ret = TRUE;
+			res = TRUE;
 	}
-	lua_pushboolean(L, ret);
+	lua_pushboolean(L, res);
 	return 1;
 }
 int32 scriptlib::duel_is_chain_disablable(lua_State * L) {
 	check_param_count(L, 1);
 	int32 chaincount = lua_tointeger(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	int32 ret = 0;
+	int32 res = 0;
 	if(chaincount < 0 || chaincount > (int32)pduel->game_field->core.current_chain.size())
-		ret = FALSE;
+		res = FALSE;
 	else {
 		effect* peffect;
 		if(chaincount == 0)
@@ -3213,11 +3212,13 @@ int32 scriptlib::duel_is_chain_disablable(lua_State * L) {
 		else
 			peffect = pduel->game_field->core.current_chain[chaincount - 1].triggering_effect;
 		if(peffect->is_flag(EFFECT_FLAG2_NAGA))
-			ret = FALSE;
+			res = FALSE;
 		else
-			ret = TRUE;
+			res = TRUE;
+		if(pduel->game_field->core.chain_solving)
+			res = pduel->game_field->is_chain_disablable(chaincount);
 	}
-	lua_pushboolean(L, ret);
+	lua_pushboolean(L, res);
 	return 1;
 }
 int32 scriptlib::duel_check_chain_target(lua_State *L) {
