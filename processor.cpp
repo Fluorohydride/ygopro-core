@@ -3672,7 +3672,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 		core.attack_target = (card*)core.units.begin()->ptarget;
 		core.units.begin()->ptarget = (group*)tmp;
 		core.units.begin()->arg1 = infos.phase;
-		if(core.attacker->current.location != LOCATION_MZONE || core.attack_target->current.location != LOCATION_MZONE) {
+		if(core.attacker->current.location != LOCATION_MZONE || core.attack_target && core.attack_target->current.location != LOCATION_MZONE) {
 			core.units.begin()->step = 2;
 			return FALSE;
 		}
@@ -3684,19 +3684,23 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 		attack_all_target_check();
 		pduel->write_buffer8(MSG_ATTACK);
 		pduel->write_buffer32(core.attacker->get_info_location());
-		pduel->write_buffer32(core.attack_target->get_info_location());
+		if(core.attack_target)
+			pduel->write_buffer32(core.attack_target->get_info_location());
+		else
+			pduel->write_buffer32(0);
 		infos.phase = PHASE_DAMAGE;
 		pduel->write_buffer8(MSG_DAMAGE_STEP_START);
 		core.pre_field[0] = core.attacker->fieldid_r;
 		core.attacker->attacked_count++;
-		if(core.attack_target)
+		if(core.attack_target) {
 			core.pre_field[1] = core.attack_target->fieldid_r;
+			if(core.attack_target->is_position(POS_FACEDOWN)) {
+				change_position(core.attack_target, 0, PLAYER_NONE, core.attack_target->current.position >> 1, 0, TRUE);
+				adjust_all();
+			}
+		}
 		else
 			core.pre_field[1] = 0;
-		if(core.attack_target->is_position(POS_FACEDOWN)) {
-			change_position(core.attack_target, 0, PLAYER_NONE, core.attack_target->current.position >> 1, 0, TRUE);
-			adjust_all();
-		}
 		return FALSE;
 	}
 	case 1: {

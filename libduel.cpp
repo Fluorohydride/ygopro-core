@@ -1264,9 +1264,14 @@ int32 scriptlib::duel_calculate_damage(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
-	check_param(L, PARAM_TYPE_CARD, 2);
 	card* attacker = *(card**)lua_touserdata(L, 1);
-	card* attack_target = *(card**)lua_touserdata(L, 2);
+	card* attack_target;
+	if(lua_isnil(L, 2))
+		attack_target = NULL;
+	else {
+		check_param(L, PARAM_TYPE_CARD, 2);
+		attack_target = *(card**)lua_touserdata(L, 2);
+	}
 	int32 new_attack = FALSE;
 	if(lua_gettop(L) >= 3)
 		new_attack = lua_toboolean(L, 3);
