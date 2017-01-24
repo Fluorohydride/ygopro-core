@@ -818,9 +818,12 @@ int32 scriptlib::duel_raise_event(lua_State *L) {
 		pduel = pgroup->pduel;
 	} else
 		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
-	check_param(L, PARAM_TYPE_EFFECT, 3);
 	uint32 code = lua_tointeger(L, 2);
-	effect* peffect = *(effect**) lua_touserdata(L, 3);
+	effect* peffect = 0;
+	if(!lua_isnil(L, 3)) {
+		check_param(L, PARAM_TYPE_EFFECT, 3);
+		peffect = *(effect**)lua_touserdata(L, 3);
+	}
 	uint32 r = lua_tointeger(L, 4);
 	uint32 rp = lua_tointeger(L, 5);
 	uint32 ep = lua_tointeger(L, 6);
@@ -836,10 +839,13 @@ int32 scriptlib::duel_raise_single_event(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 7);
 	check_param(L, PARAM_TYPE_CARD, 1);
-	check_param(L, PARAM_TYPE_EFFECT, 3);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 code = lua_tointeger(L, 2);
-	effect* peffect = *(effect**) lua_touserdata(L, 3);
+	effect* peffect = 0;
+	if(!lua_isnil(L, 3)) {
+		check_param(L, PARAM_TYPE_EFFECT, 3);
+		peffect = *(effect**)lua_touserdata(L, 3);
+	}
 	uint32 r = lua_tointeger(L, 4);
 	uint32 rp = lua_tointeger(L, 5);
 	uint32 ep = lua_tointeger(L, 6);
