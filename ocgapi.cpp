@@ -322,9 +322,9 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
 	*buf++ = ptduel->game_field->core.current_chain.size();
 	for(auto chit = ptduel->game_field->core.current_chain.begin(); chit != ptduel->game_field->core.current_chain.end(); ++chit) {
 		effect* peffect = chit->triggering_effect;
-		*((int*)(buf)) = peffect->handler->data.code;
+		*((int*)(buf)) = peffect->get_handler()->data.code;
 		buf += 4;
-		*((int*)(buf)) = peffect->handler->get_info_location();
+		*((int*)(buf)) = peffect->get_handler()->get_info_location();
 		buf += 4;
 		*buf++ = chit->triggering_controler;
 		*buf++ = chit->triggering_location;

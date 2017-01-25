@@ -50,6 +50,7 @@ public:
 	uint32 hint_timing[2];
 	uint32 card_type;
 	uint32 active_type;
+	card* active_handler;
 	uint16 field_ref;
 	uint16 status;
 	void* label_object;
@@ -84,7 +85,9 @@ public:
 	int32 get_value(effect* peffect, uint32 extraargs = 0);
 	int32 check_value_condition(uint32 extraargs = 0);
 	int32 get_speed();
+	card* get_owner() const;
 	uint8 get_owner_player();
+	card* get_handler() const;
 	uint8 get_handler_player();
 	int32 in_range(int32 loc, int32 seq);
 	bool is_flag(effect_flag flag) const {
@@ -138,6 +141,7 @@ public:
 #define EFFECT_TYPE_TRIGGER_F		0x0200	//
 #define EFFECT_TYPE_QUICK_F			0x0400	//
 #define EFFECT_TYPE_CONTINUOUS		0x0800	//
+#define EFFECT_TYPE_XMATERIAL		0x1000	//
 
 //========== Flags ==========
 enum effect_flag : uint32 {
@@ -311,6 +315,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_EXTRA_RELEASE			153
 #define EFFECT_TRIBUTE_LIMIT			154
 #define EFFECT_EXTRA_RELEASE_SUM		155
+//#define EFFECT_TRIPLE_TRIBUTE			156
 #define EFFECT_PUBLIC					160
 #define EFFECT_COUNTER_PERMIT			0x10000
 #define EFFECT_COUNTER_LIMIT			0x20000
@@ -358,6 +363,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_NONTUNER						244
 #define EFFECT_OVERLAY_REMOVE_REPLACE		245
 #define EFFECT_SCRAP_CHIMERA				246
+#define EFFECT_TUNE_MAGICIAN_X				247
 #define EFFECT_PRE_MONSTER				250
 #define EFFECT_MATERIAL_CHECK			251
 #define EFFECT_DISABLE_FIELD			260
@@ -392,7 +398,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_ADD_SETCODE				334
 #define EFFECT_NO_EFFECT_DAMAGE			335
 #define EFFECT_UNSUMMONABLE_CARD		336
-#define EFFECT_DISABLE_CHAIN_FIELD		337
+//#define EFFECT_DISABLE_CHAIN_FIELD		337
 #define EFFECT_DISCARD_COST_CHANGE		338
 #define EFFECT_HAND_SYNCHRO				339
 #define EFFECT_ADD_FUSION_CODE			340
@@ -402,6 +408,12 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_MUST_ATTACK_MONSTER		344
 #define EFFECT_PATRICIAN_OF_DARKNESS	345
 #define EFFECT_EXTRA_ATTACK_MONSTER		346
+#define EFFECT_UNION_STATUS				347
+#define EFFECT_OLDUNION_STATUS			348
+//#define EFFECT_ADD_FUSION_ATTRIBUTE		349
+//#define EFFECT_REMOVE_FUSION_ATTRIBUTE	350
+#define EFFECT_CHANGE_FUSION_ATTRIBUTE	351
+#define EFFECT_EXTRA_FUSION_MATERIAL	352
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

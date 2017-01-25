@@ -18,7 +18,7 @@ int32 scriptlib::debug_message(lua_State *L) {
 	lua_getglobal(L, "tostring");
 	lua_pushvalue(L, -2);
 	lua_pcall(L, 1, 1, 0);
-	sprintf(pduel->strbuffer, "%s", lua_tostring(L, -1));
+	interpreter::strcpy(pduel->strbuffer, lua_tostring(L, -1));
 	handle_message(pduel, 2);
 	return 0;
 }
@@ -59,6 +59,11 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		pcard->current.controler = PLAYER_NONE;
 		pcard->current.location = LOCATION_OVERLAY;
 		pcard->current.sequence = fcard->xyz_materials.size() - 1;
+		for(auto eit = pcard->xmaterial_effect.begin(); eit != pcard->xmaterial_effect.end(); ++eit) {
+			effect* peffect = eit->second;
+			if(peffect->type & EFFECT_TYPE_FIELD)
+				pduel->game_field->add_effect(peffect);
+		}
 		interpreter::card2value(L, pcard);
 		return 1;
 	}

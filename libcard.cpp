@@ -116,6 +116,14 @@ int32 scriptlib::card_is_set_card(lua_State *L) {
 	lua_pushboolean(L, pcard->is_set_card(set_code));
 	return 1;
 }
+int32 scriptlib::card_is_origin_set_card(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 set_code = lua_tointeger(L, 2);
+	lua_pushboolean(L, pcard->is_origin_set_card(set_code));
+	return 1;
+}
 int32 scriptlib::card_is_pre_set_card(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -144,6 +152,13 @@ int32 scriptlib::card_get_origin_type(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	lua_pushinteger(L, pcard->data.type);
+	return 1;
+}
+int32 scriptlib::card_get_fusion_type(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_pushinteger(L, pcard->get_fusion_type());
 	return 1;
 }
 int32 scriptlib::card_get_level(lua_State *L) {
@@ -249,6 +264,18 @@ int32 scriptlib::card_get_origin_attribute(lua_State *L) {
 		lua_pushinteger(L, 0);
 	else
 		lua_pushinteger(L, pcard->data.attribute);
+	return 1;
+}
+int32 scriptlib::card_get_fusion_attribute(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	int32 playerid = PLAYER_NONE;
+	if(lua_gettop(L) > 1 && !lua_isnil(L, 2))
+		playerid = lua_tointeger(L, 2);
+	else
+		playerid = pcard->pduel->game_field->core.reason_player;
+	lua_pushinteger(L, pcard->get_fusion_attribute(playerid));
 	return 1;
 }
 int32 scriptlib::card_get_race(lua_State *L) {
@@ -450,7 +477,7 @@ int32 scriptlib::card_get_location(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	if(pcard->is_status(STATUS_SUMMONING) || pcard->is_status(STATUS_SUMMON_DISABLED))
+	if(pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED | STATUS_SPSUMMON_STEP))
 		lua_pushinteger(L, 0);
 	else
 		lua_pushinteger(L, pcard->current.location);
@@ -564,6 +591,17 @@ int32 scriptlib::card_is_type(lua_State *L) {
 		lua_pushboolean(L, 0);
 	return 1;
 }
+int32 scriptlib::card_is_fusion_type(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 ttype = lua_tointeger(L, 2);
+	if(pcard->get_fusion_type() & ttype)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
 int32 scriptlib::card_is_race(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -581,6 +619,22 @@ int32 scriptlib::card_is_attribute(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 tattrib = lua_tointeger(L, 2);
 	if(pcard->get_attribute() & tattrib)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::card_is_fusion_attribute(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	uint32 tattrib = lua_tointeger(L, 2);
+	int32 playerid = PLAYER_NONE;
+	if(lua_gettop(L) > 2 && !lua_isnil(L, 3))
+		playerid = lua_tointeger(L, 3);
+	else
+		playerid = pcard->pduel->game_field->core.reason_player;
+	if(pcard->get_fusion_attribute(playerid) & tattrib)
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
@@ -634,7 +688,12 @@ int32 scriptlib::card_is_dual_state(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushboolean(L, (ptr)pcard->is_affected_by_effect(EFFECT_DUAL_STATUS));
+	int32 ret = 0;
+	if(pcard->is_affected_by_effect(EFFECT_DUAL_STATUS))
+		ret = 1;
+	else
+		ret = 0;
+	lua_pushboolean(L, ret);
 	return 1;
 }
 int32 scriptlib::card_enable_dual_state(lua_State *L) {
@@ -729,7 +788,8 @@ int32 scriptlib::card_check_equip_target(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	card* target = *(card**) lua_touserdata(L, 2);
 	if(pcard->is_affected_by_effect(EFFECT_EQUIP_LIMIT, target)
-	        && (!pcard->is_status(STATUS_UNION) || target->get_union_count() == 0))
+		&& ((!pcard->is_affected_by_effect(EFFECT_OLDUNION_STATUS) || target->get_union_count() == 0)
+			&& (!pcard->is_affected_by_effect(EFFECT_UNION_STATUS) || target->get_old_union_count() == 0)))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
@@ -740,7 +800,8 @@ int32 scriptlib::card_get_union_count(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	lua_pushinteger(L, pcard->get_union_count());
-	return 1;
+	lua_pushinteger(L, pcard->get_old_union_count());
+	return 2;
 }
 int32 scriptlib::card_get_overlay_group(lua_State *L) {
 	check_param_count(L, 1);
@@ -978,6 +1039,9 @@ int32 scriptlib::card_register_effect(lua_State *L) {
 		pduel->game_field->core.reseted_effects.insert(peffect);
 		return 0;
 	}
+	if((peffect->type & 0x7f0)
+		|| (pduel->game_field->core.reason_effect && (pduel->game_field->core.reason_effect->status & EFFECT_STATUS_ACTIVATED)))
+		peffect->status |= EFFECT_STATUS_ACTIVATED;
 	int32 id;
 	if (peffect->handler)
 		id = -1;
@@ -1286,8 +1350,18 @@ int32 scriptlib::card_is_destructable(lua_State *L) {
 int32 scriptlib::card_is_summonable(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
-	card * pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushboolean(L, pcard->is_summonable());
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_pushboolean(L, pcard->is_summonable_card());
+	return 1;
+}
+int32 scriptlib::card_is_fusion_summonable_card(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 summon_type = 0;
+	if(lua_gettop(L) > 1)
+		summon_type = lua_tointeger(L, 2);
+	lua_pushboolean(L, pcard->is_fusion_summonable_card(summon_type));
 	return 1;
 }
 int32 scriptlib::card_is_msetable(lua_State *L) {
@@ -1606,7 +1680,7 @@ int32 scriptlib::card_is_chain_attackable(lua_State *L) {
 	}
 	pduel->game_field->core.select_cards.clear();
 	pduel->game_field->get_attack_target(attacker, &pduel->game_field->core.select_cards, TRUE);
-	if(pduel->game_field->core.select_cards.size() == 0 && (monsteronly || attacker->operation_param == 0))
+	if(pduel->game_field->core.select_cards.size() == 0 && (monsteronly || attacker->direct_attackable == 0))
 		lua_pushboolean(L, 0);
 	else
 		lua_pushboolean(L, 1);
@@ -1671,7 +1745,8 @@ int32 scriptlib::card_is_onfield(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	if((pcard->current.location & LOCATION_ONFIELD) && !pcard->is_status(STATUS_SUMMONING) && !pcard->is_status(STATUS_SUMMON_DISABLED))
+	if((pcard->current.location & LOCATION_ONFIELD) 
+			&& !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED | STATUS_SPSUMMON_STEP))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
@@ -1683,7 +1758,12 @@ int32 scriptlib::card_is_location(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 loc = lua_tointeger(L, 2);
 	if(pcard->current.location == LOCATION_MZONE) {
-		if((loc & LOCATION_MZONE) && !pcard->is_status(STATUS_SUMMONING) && !pcard->is_status(STATUS_SUMMON_DISABLED))
+		if((loc & LOCATION_MZONE) && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
+			lua_pushboolean(L, 1);
+		else
+			lua_pushboolean(L, 0);
+	} else if(pcard->current.location == LOCATION_SZONE) {
+		if((loc & LOCATION_SZONE) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
 			lua_pushboolean(L, 1);
 		else
 			lua_pushboolean(L, 0);
@@ -1860,7 +1940,7 @@ int32 scriptlib::card_remove_counter(lua_State *L) {
 	uint32 count = lua_tointeger(L, 4);
 	uint32 reason = lua_tointeger(L, 5);
 	if(countertype == 0) {
-		// c38834303
+		// c38834303: remove all counters
 		for(auto cmit = pcard->counters.begin(); cmit != pcard->counters.end(); ++cmit) {
 			pcard->pduel->write_buffer8(MSG_REMOVE_COUNTER);
 			pcard->pduel->write_buffer16(cmit->first);
@@ -1957,14 +2037,11 @@ int32 scriptlib::card_is_can_be_fusion_material(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	card* fcard = 0;
-	uint32 ign = FALSE;
 	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
 		check_param(L, PARAM_TYPE_CARD, 2);
 		fcard = *(card**)lua_touserdata(L, 2);
 	}
-	if(lua_gettop(L) >= 3)
-		ign = lua_toboolean(L, 3);
-	lua_pushboolean(L, pcard->is_can_be_fusion_material(fcard, ign));
+	lua_pushboolean(L, pcard->is_can_be_fusion_material(fcard));
 	return 1;
 }
 int32 scriptlib::card_is_can_be_synchro_material(lua_State *L) {
@@ -2012,7 +2089,7 @@ int32 scriptlib::card_check_fusion_material(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	int32 chkf = PLAYER_NONE;
+	uint32 chkf = PLAYER_NONE;
 	group* pgroup = 0;
 	if(lua_gettop(L) > 1 && !lua_isnil(L, 2)) {
 		check_param(L, PARAM_TYPE_GROUP, 2);
@@ -2229,7 +2306,7 @@ int32 scriptlib::card_get_attackable_target(lua_State *L) {
 	group* newgroup = pduel->new_group();
 	newgroup->container.insert(targets.begin(), targets.end());
 	interpreter::group2value(L, newgroup);
-	lua_pushboolean(L, pcard->operation_param);
+	lua_pushboolean(L, (int32)pcard->direct_attackable);
 	return 2;
 }
 int32 scriptlib::card_set_hint(lua_State *L) {

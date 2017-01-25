@@ -22,6 +22,7 @@ extern "C" {
 #include "common.h"
 #include <unordered_map>
 #include <list>
+#include <cstring>
 
 class card;
 class effect;
@@ -73,6 +74,11 @@ public:
 	static int32 get_function_handle(lua_State* L, int32 index);
 	static void set_duel_info(lua_State* L, duel* pduel);
 	static duel* get_duel_info(lua_State* L);
+
+	template <size_t N>
+	static char* strcpy(char (&dst)[N], const char* src) {
+		return std::strncpy(reinterpret_cast<char*>(&dst), src, N);
+	}
 };
 
 #define	PARAM_TYPE_INT		0x01

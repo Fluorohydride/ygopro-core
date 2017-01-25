@@ -22,10 +22,12 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetFusionCode", scriptlib::card_get_fusion_code },
 	{ "IsFusionCode", scriptlib::card_is_fusion_code },
 	{ "IsSetCard", scriptlib::card_is_set_card },
+	{ "IsOriginalSetCard", scriptlib::card_is_origin_set_card },
 	{ "IsPreviousSetCard", scriptlib::card_is_pre_set_card },
 	{ "IsFusionSetCard", scriptlib::card_is_fusion_set_card },
 	{ "GetType", scriptlib::card_get_type },
 	{ "GetOriginalType", scriptlib::card_get_origin_type },
+	{ "GetFusionType", scriptlib::card_get_fusion_type },
 	{ "GetLevel", scriptlib::card_get_level },
 	{ "GetRank", scriptlib::card_get_rank },
 	{ "GetSynchroLevel", scriptlib::card_get_synchro_level },
@@ -39,6 +41,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetOriginalRightScale", scriptlib::card_get_origin_rscale },
 	{ "GetAttribute", scriptlib::card_get_attribute },
 	{ "GetOriginalAttribute", scriptlib::card_get_origin_attribute },
+	{ "GetFusionAttribute", scriptlib::card_get_fusion_attribute },
 	{ "GetRace", scriptlib::card_get_race },
 	{ "GetOriginalRace", scriptlib::card_get_origin_race },
 	{ "GetAttack", scriptlib::card_get_attack },
@@ -79,8 +82,10 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetRealFieldID", scriptlib::card_get_fieldidr },
 	{ "IsCode", scriptlib::card_is_code },
 	{ "IsType", scriptlib::card_is_type },
+	{ "IsFusionType", scriptlib::card_is_fusion_type },
 	{ "IsRace", scriptlib::card_is_race },
 	{ "IsAttribute", scriptlib::card_is_attribute },
+	{ "IsFusionAttribute", scriptlib::card_is_fusion_attribute },
 	{ "IsReason", scriptlib::card_is_reason },
 	{ "IsStatus", scriptlib::card_is_status },
 	{ "IsNotTuner", scriptlib::card_is_not_tuner },
@@ -146,6 +151,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsDisabled", scriptlib::card_is_disabled },
 	{ "IsDestructable", scriptlib::card_is_destructable },
 	{ "IsSummonableCard", scriptlib::card_is_summonable },
+	{ "IsFusionSummonableCard", scriptlib::card_is_fusion_summonable_card },
 	{ "IsSpecialSummonable", scriptlib::card_is_special_summonable },
 	{ "IsSynchroSummonable", scriptlib::card_is_synchro_summonable },
 	{ "IsXyzSummonable", scriptlib::card_is_xyz_summonable },
@@ -425,6 +431,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "SelectReleaseGroupEx", scriptlib::duel_select_release_group_ex },
 	{ "GetTributeGroup", scriptlib::duel_get_tribute_group },
 	{ "GetTributeCount", scriptlib::duel_get_tribute_count },
+	{ "CheckTribute", scriptlib::duel_check_tribute },
 	{ "SelectTribute", scriptlib::duel_select_tribute },
 	{ "GetTargetCount", scriptlib::duel_get_target_count },
 	{ "IsExistingTarget", scriptlib::duel_is_existing_target },
@@ -438,6 +445,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "CheckTunerMaterial", scriptlib::duel_check_tuner_material },
 	{ "GetRitualMaterial", scriptlib::duel_get_ritual_material },
 	{ "ReleaseRitualMaterial", scriptlib::duel_release_ritual_material },
+	{ "GetFusionMaterial", scriptlib::duel_get_fusion_material },
 	{ "SetSelectedCard", scriptlib::duel_set_must_select_cards },
 	{ "SetTargetCard", scriptlib::duel_set_target_card },
 	{ "ClearTargetCard", scriptlib::duel_clear_target_card },
@@ -465,6 +473,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "AnnounceAttribute", scriptlib::duel_announce_attribute },
 	{ "AnnounceLevel", scriptlib::duel_announce_level },
 	{ "AnnounceCard", scriptlib::duel_announce_card },
+	{ "AnnounceCardFilter", scriptlib::duel_announce_card_filter },
 	{ "AnnounceType", scriptlib::duel_announce_type },
 	{ "AnnounceNumber", scriptlib::duel_announce_number },
 	{ "AnnounceCoin", scriptlib::duel_announce_coin },
@@ -645,7 +654,7 @@ int32 interpreter::load_script(char* script_name) {
 	no_action++;
 	error = luaL_loadbuffer(current_state, (const char*) buffer, len, (const char*) script_name) || lua_pcall(current_state, 0, 0, 0);
 	if (error) {
-		sprintf(pduel->strbuffer, lua_tostring(current_state, -1));
+		interpreter::strcpy(pduel->strbuffer, lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);
 		no_action--;
@@ -672,9 +681,9 @@ int32 interpreter::load_card_script(uint32 code) {
 		lua_pushvalue(current_state, -2);
 		lua_rawset(current_state, -3);
 		//load extra scripts
-		sprintf(script_name, "./script/c%d.lua", code);
+		sprintf(script_name, "./expansions/script/c%d.lua", code);
 		if (!load_script(script_name)) {
-			sprintf(script_name, "./expansions/script/c%d.lua", code);
+			sprintf(script_name, "./script/c%d.lua", code);
 	 		if (!load_script(script_name)) {
 	 			return OPERATION_FAIL;
  			}
@@ -780,7 +789,7 @@ int32 interpreter::call_function(int32 f, uint32 param_count, uint32 ret_count) 
 	call_depth++;
 	push_param(current_state);
 	if (lua_pcall(current_state, param_count, ret_count, 0)) {
-		sprintf(pduel->strbuffer, lua_tostring(current_state, -1));
+		interpreter::strcpy(pduel->strbuffer, lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);
 		no_action--;
@@ -820,7 +829,7 @@ int32 interpreter::call_card_function(card* pcard, char* f, uint32 param_count, 
 	lua_remove(current_state, -2);
 	push_param(current_state);
 	if (lua_pcall(current_state, param_count, ret_count, 0)) {
-		sprintf(pduel->strbuffer, lua_tostring(current_state, -1));
+		interpreter::strcpy(pduel->strbuffer, lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);
 		no_action--;
@@ -860,7 +869,7 @@ int32 interpreter::call_code_function(uint32 code, char* f, uint32 param_count, 
 	call_depth++;
 	push_param(current_state);
 	if (lua_pcall(current_state, param_count, ret_count, 0)) {
-		sprintf(pduel->strbuffer, lua_tostring(current_state, -1));
+		interpreter::strcpy(pduel->strbuffer, lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);
 		no_action--;
@@ -917,7 +926,7 @@ int32 interpreter::check_matching(card* pcard, int32 findex, int32 extraargs) {
 	for(int32 i = 0; i < extraargs; ++i)
 		lua_pushvalue(current_state, (int32)(-extraargs - 2));
 	if (lua_pcall(current_state, 1 + extraargs, 1, 0)) {
-		sprintf(pduel->strbuffer, lua_tostring(current_state, -1));
+		interpreter::strcpy(pduel->strbuffer, lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);
 		no_action--;
@@ -949,7 +958,7 @@ int32 interpreter::get_operation_value(card* pcard, int32 findex, int32 extraarg
 	for(int32 i = 0; i < extraargs; ++i)
 		lua_pushvalue(current_state, (int32)(-extraargs - 2));
 	if (lua_pcall(current_state, 1 + extraargs, 1, 0)) {
-		sprintf(pduel->strbuffer, lua_tostring(current_state, -1));
+		interpreter::strcpy(pduel->strbuffer, lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);
 		no_action--;
@@ -1059,7 +1068,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 		return COROUTINE_YIELD;
 	} else {
 		coroutines.erase(f);
-		sprintf(pduel->strbuffer, lua_tostring(rthread, -1));
+		interpreter::strcpy(pduel->strbuffer, lua_tostring(rthread, -1));
 		handle_message(pduel, 1);
 		lua_pop(rthread, 1);
 		current_state = lua_state;
