@@ -1311,6 +1311,8 @@ int32 card::add_effect(effect* peffect) {
 					remove_effect(rm->second);
 			}
 		}
+		if(peffect->code == EFFECT_CHANGE_CODE)
+			unique_uid = pduel->game_field->infos.field_id++;
 		eit = single_effect.insert(std::make_pair(peffect->code, peffect));
 	} else if (peffect->type & EFFECT_TYPE_EQUIP) {
 		eit = equip_effect.insert(std::make_pair(peffect->code, peffect));
@@ -1388,6 +1390,8 @@ void card::remove_effect(effect* peffect) {
 void card::remove_effect(effect* peffect, effect_container::iterator it) {
 	card* check_target = this;
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
+		if(peffect->code == EFFECT_CHANGE_CODE)
+			unique_uid = pduel->game_field->infos.field_id++;
 		single_effect.erase(it);
 	} else if (peffect->type & EFFECT_TYPE_EQUIP) {
 		equip_effect.erase(it);
@@ -2289,16 +2293,17 @@ int32 card::check_fusion_substitute(card* fcard) {
 			return TRUE;
 	return FALSE;
 }
-int32 card::is_equipable(card* pcard) {
-	effect_set eset;
-	if(this == pcard || pcard->current.location != LOCATION_MZONE)
+int32 card::check_unique_code(card* pcard) {
+	if(!unique_code)
 		return FALSE;
-	filter_effect(EFFECT_EQUIP_LIMIT, &eset);
-	if(eset.size() == 0)
-		return FALSE;
-	for(int32 i = 0; i < eset.size(); ++i)
-		if(eset[i]->get_value(pcard))
-			return TRUE;
+	if(unique_code == 1) {
+		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+		return pduel->lua->get_function_value(unique_function, 1);
+	}
+	uint32 code1 = pcard->get_code();
+	uint32 code2 = pcard->get_another_code();
+	if(code1 == unique_code || (code2 && code2 == unique_code))
+		return TRUE;
 	return FALSE;
 }
 // check if this is a normal summonable card

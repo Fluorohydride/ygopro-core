@@ -2346,7 +2346,11 @@ int32 scriptlib::card_set_unique_onfield(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	pcard->unique_pos[0] = lua_tointeger(L, 2);
 	pcard->unique_pos[1] = lua_tointeger(L, 3);
-	pcard->unique_code = lua_tointeger(L, 4);
+	if(lua_isfunction(L, 4)) {
+		pcard->unique_code = 1;
+		pcard->unique_function = interpreter::get_function_handle(L, 4);
+	} else
+		pcard->unique_code = lua_tointeger(L, 4);
 	uint32 location = LOCATION_ONFIELD;
 	if(lua_gettop(L) > 4)
 		location = lua_tointeger(L, 5) & LOCATION_ONFIELD;

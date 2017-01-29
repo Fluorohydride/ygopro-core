@@ -1759,6 +1759,7 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target) {
 		target->previous.position = target->current.position;
 		target->current.position = POS_FACEUP_ATTACK;
 		target->fieldid = infos.field_id++;
+		target->unique_uid = target->fieldid;
 		core.phase_action = TRUE;
 		core.flipsummon_state_count[sumplayer]++;
 		check_card_counter(target, 4, sumplayer);
@@ -4009,6 +4010,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 				core.hint_timing[pcard->current.controler] |= TIMING_POS_CHANGE;
 				if((opos & POS_FACEDOWN) && (npos & POS_FACEUP)) {
 					pcard->fieldid = infos.field_id++;
+					pcard->unique_uid = pcard->fieldid;
 					if(pcard->current.location == LOCATION_MZONE) {
 						raise_single_event(pcard, 0, EVENT_FLIP, reason_effect, 0, reason_player, 0, flag);
 						flips.insert(pcard);

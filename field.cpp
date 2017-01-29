@@ -218,6 +218,7 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 	pcard->apply_field_effect();
 	pcard->fieldid = infos.field_id++;
 	pcard->fieldid_r = pcard->fieldid;
+	pcard->unique_uid = pcard->fieldid;
 	pcard->turnid = infos.turn_id;
 	if (location == LOCATION_MZONE)
 		player[playerid].used_location |= 1 << sequence;
@@ -1529,7 +1530,6 @@ void field::add_unique_card(card* pcard) {
 		core.unique_cards[con].insert(pcard);
 	if(pcard->unique_pos[1])
 		core.unique_cards[1 - con].insert(pcard);
-	pcard->unique_uid = infos.copy_id++;
 }
 
 void field::remove_unique_card(card* pcard) {
@@ -1543,15 +1543,41 @@ void field::remove_unique_card(card* pcard) {
 }
 // return: pcard->unique_effect or 0
 effect* field::check_unique_onfield(card* pcard, uint8 controler, uint8 location) {
-	if(!pcard->unique_code)
-		return 0;
 	for(auto iter = core.unique_cards[controler].begin(); iter != core.unique_cards[controler].end(); ++iter) {
 		card* ucard = *iter;
-		if((ucard != pcard) && ucard->is_position(POS_FACEUP) && ucard->get_status(STATUS_EFFECT_ENABLED)
-			&& (ucard->unique_code == pcard->unique_code) && (ucard->unique_location & location)
+		if(ucard == pcard)
+			continue;
+		if(ucard->is_position(POS_FACEUP) && ucard->get_status(STATUS_EFFECT_ENABLED)
+			&& !ucard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN)
+			&& ucard->check_unique_code(ucard) && ucard->check_unique_code(pcard) && (ucard->unique_location & location)
 			&& (!(pcard->current.location & ucard->unique_location) || pcard->is_position(POS_FACEDOWN)
-				|| ((!pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) || !ucard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN)) && ucard->unique_uid < pcard->unique_uid)))
-			return pcard->unique_effect;
+				|| (ucard->unique_uid < pcard->unique_uid)))
+			return ucard->unique_effect;
+	}
+	if(!pcard->unique_code || !pcard->check_unique_code(pcard))
+		return 0;
+	int32 is_tofield = !(pcard->current.location & location);
+	int32 is_flipping = pcard->is_position(POS_FACEDOWN);
+	int32 is_enabled = pcard->get_status(STATUS_EFFECT_ENABLED) && !pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN);
+	for(int32 p = 0; p < 2; ++p) {
+		if(pcard->unique_pos[p]) {
+			if(pcard->unique_location & LOCATION_MZONE) {
+				for(int32 i = 0; i < 5; ++i) {
+					card* ucard = player[controler ^ p].list_mzone[i];
+					if(ucard && (ucard != pcard) && ucard->is_position(POS_FACEUP) && pcard->check_unique_code(ucard)
+						&& (is_tofield || is_flipping || (is_enabled && (ucard->unique_uid < pcard->unique_uid))))
+						return pcard->unique_effect;
+				}
+			}
+			if(pcard->unique_location & LOCATION_SZONE) {
+				for(int32 i = 0; i < 8; ++i) {
+					card* ucard = player[controler ^ p].list_szone[i];
+					if(ucard && (ucard != pcard) && ucard->is_position(POS_FACEUP) && pcard->check_unique_code(ucard)
+						&& (is_tofield || is_flipping || (is_enabled && (ucard->unique_uid < pcard->unique_uid))))
+						return pcard->unique_effect;
+				}
+			}
+		}
 	}
 	return 0;
 }

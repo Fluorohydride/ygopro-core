@@ -126,15 +126,16 @@ public:
 	uint16 turnid;
 	uint16 turn_counter;
 	uint8 unique_pos[2];
-	uint16 unique_uid;
+	uint32 unique_uid;
 	uint32 unique_code;
 	uint32 unique_location;
+	int32 unique_function;
+	effect* unique_effect;
 	uint32 spsummon_code;
 	uint16 spsummon_counter[2];
 	uint16 spsummon_counter_rst[2];
 	uint8 assume_type;
 	uint32 assume_value;
-	effect* unique_effect;
 	card* equiping_target;
 	card* pre_equip_target;
 	card* overlay_target;
@@ -247,7 +248,7 @@ public:
 	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf);
 	int32 check_fusion_substitute(card* fcard);
 	
-	int32 is_equipable(card* pcard);
+	int32 check_unique_code(card* pcard);
 	int32 is_summonable_card();
 	int32 is_fusion_summonable_card(uint32 summon_type);
 	int32 is_spsummonable(effect* peffect);
