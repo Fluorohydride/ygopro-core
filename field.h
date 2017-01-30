@@ -199,6 +199,7 @@ struct processor {
 	card_set special_summoning;
 	card_set equiping_cards;
 	card_set control_adjust_set[2];
+	card_set unique_destroy_set;
 	card_set self_destroy_set;
 	card_set self_tograve_set;
 	card_set release_cards;

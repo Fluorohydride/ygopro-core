@@ -218,7 +218,6 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 	pcard->apply_field_effect();
 	pcard->fieldid = infos.field_id++;
 	pcard->fieldid_r = pcard->fieldid;
-	pcard->unique_uid = pcard->fieldid;
 	pcard->turnid = infos.turn_id;
 	if (location == LOCATION_MZONE)
 		player[playerid].used_location |= 1 << sequence;
@@ -1478,15 +1477,74 @@ void field::adjust_disable_check_list() {
 		}
 	} while(effects.disable_check_list.size());
 }
-// adjust check_unique_onfield(), EFFECT_SELF_DESTROY, EFFECT_SELF_TOGRAVE
+// adjust SetUniqueOnField(), EFFECT_SELF_DESTROY, EFFECT_SELF_TOGRAVE
 void field::adjust_self_destroy_set() {
-	if(core.selfdes_disabled || !core.self_destroy_set.empty() || !core.self_tograve_set.empty())
+	if(core.selfdes_disabled || !core.unique_destroy_set.empty() || !core.self_destroy_set.empty() || !core.self_tograve_set.empty())
 		return;
+	core.unique_destroy_set.clear();
 	card_set cset;
+	int32 p = infos.turn_player;
+	for(int32 p1 = 0; p1 < 2; ++p1) {
+		for(auto iter = core.unique_cards[p].begin(); iter != core.unique_cards[p].end(); ++iter) {
+			card* ucard = *iter;
+			if(ucard->is_position(POS_FACEUP) && ucard->get_status(STATUS_EFFECT_ENABLED)
+					&& !ucard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN)) {
+				cset.clear();
+				for(int32 p2 = 0; p2 < 2; ++p2) {
+					if(ucard->unique_pos[p2]) {
+						if(ucard->unique_location & LOCATION_MZONE) {
+							for(int32 i = 0; i < 5; ++i) {
+								card* pcard = player[p ^ p2].list_mzone[i];
+								if(pcard && pcard->is_position(POS_FACEUP) && !pcard->is_status(STATUS_BATTLE_DESTROYED)
+										&& ucard->check_unique_code(pcard))
+									cset.insert(pcard);
+							}
+						}
+						if(ucard->unique_location & LOCATION_SZONE) {
+							for(int32 i = 0; i < 8; ++i) {
+								card* pcard = player[p ^ p2].list_szone[i];
+								if(pcard && pcard->is_position(POS_FACEUP) && ucard->check_unique_code(pcard))
+									cset.insert(pcard);
+							}
+						}
+					}
+				}
+				if(cset.size() == 0)
+					ucard->unique_fieldid = 0;
+				else if(cset.size() == 1) {
+					auto cit = cset.begin();
+					ucard->unique_fieldid = (*cit)->fieldid;
+				} else {
+					card* mcard = 0;
+					for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
+						card* pcard = *cit;
+						if(ucard->unique_fieldid == pcard->fieldid) {
+							mcard = pcard;
+							break;
+						}
+						if(!mcard || pcard->fieldid < mcard->fieldid)
+							mcard = pcard;
+					}
+					ucard->unique_fieldid = mcard->fieldid;
+					cset.erase(mcard);
+					for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
+						card* pcard = *cit;
+						core.unique_destroy_set.insert(pcard);
+						pcard->temp.reason_effect = pcard->current.reason_effect;
+						pcard->temp.reason_player = pcard->current.reason_player;
+						pcard->current.reason_effect = ucard->unique_effect;
+						pcard->current.reason_player = ucard->current.controler;
+					}
+				}
+			}
+		}
+		p = 1 - p;
+	}
+	cset.clear();
 	for(uint8 p = 0; p < 2; ++p) {
 		for(uint8 i = 0; i < 5; ++i) {
 			card* pcard = player[p].list_mzone[i];
-			if(pcard && pcard->is_position(POS_FACEUP))
+			if(pcard && pcard->is_position(POS_FACEUP) && !pcard->is_status(STATUS_BATTLE_DESTROYED))
 				cset.insert(pcard);
 		}
 		for(uint8 i = 0; i < 8; ++i) {
@@ -1497,11 +1555,10 @@ void field::adjust_self_destroy_set() {
 	}
 	core.self_destroy_set.clear();
 	core.self_tograve_set.clear();
-	effect* peffect;
 	for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
 		card* pcard = *cit;
-		if((peffect = check_unique_onfield(pcard, pcard->current.controler, pcard->current.location))
-		        || (peffect = pcard->is_affected_by_effect(EFFECT_SELF_DESTROY)) && !pcard->is_status(STATUS_BATTLE_DESTROYED)) {
+		effect* peffect = pcard->is_affected_by_effect(EFFECT_SELF_DESTROY);
+		if(peffect) {
 			core.self_destroy_set.insert(pcard);
 			pcard->temp.reason_effect = pcard->current.reason_effect;
 			pcard->temp.reason_player = pcard->current.reason_player;
@@ -1512,7 +1569,8 @@ void field::adjust_self_destroy_set() {
 	if(core.global_flag & GLOBALFLAG_SELF_TOGRAVE) {
 		for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
 			card* pcard = *cit;
-			if(peffect = pcard->is_affected_by_effect(EFFECT_SELF_TOGRAVE)) {
+			effect* peffect = pcard->is_affected_by_effect(EFFECT_SELF_TOGRAVE);
+			if(peffect) {
 				core.self_tograve_set.insert(pcard);
 				pcard->temp.reason_effect = pcard->current.reason_effect;
 				pcard->temp.reason_player = pcard->current.reason_player;
@@ -1521,7 +1579,7 @@ void field::adjust_self_destroy_set() {
 			}
 		}
 	}
-	if(!core.self_destroy_set.empty() || !core.self_tograve_set.empty())
+	if(!core.unique_destroy_set.empty() || !core.self_destroy_set.empty() || !core.self_tograve_set.empty())
 		add_process(PROCESSOR_SELF_DESTROY, 0, 0, 0, 0, 0);
 }
 void field::add_unique_card(card* pcard) {
@@ -1530,6 +1588,7 @@ void field::add_unique_card(card* pcard) {
 		core.unique_cards[con].insert(pcard);
 	if(pcard->unique_pos[1])
 		core.unique_cards[1 - con].insert(pcard);
+	pcard->unique_fieldid = 0;
 }
 
 void field::remove_unique_card(card* pcard) {
@@ -1545,35 +1604,26 @@ void field::remove_unique_card(card* pcard) {
 effect* field::check_unique_onfield(card* pcard, uint8 controler, uint8 location) {
 	for(auto iter = core.unique_cards[controler].begin(); iter != core.unique_cards[controler].end(); ++iter) {
 		card* ucard = *iter;
-		if(ucard == pcard)
-			continue;
-		if(ucard->is_position(POS_FACEUP) && ucard->get_status(STATUS_EFFECT_ENABLED)
+		if((ucard != pcard) && ucard->is_position(POS_FACEUP) && ucard->get_status(STATUS_EFFECT_ENABLED)
 			&& !ucard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN)
-			&& ucard->check_unique_code(ucard) && ucard->check_unique_code(pcard) && (ucard->unique_location & location)
-			&& (!(pcard->current.location & ucard->unique_location) || pcard->is_position(POS_FACEDOWN)
-				|| (ucard->unique_uid < pcard->unique_uid)))
+			&& ucard->unique_fieldid && ucard->check_unique_code(pcard) && (ucard->unique_location & location))
 			return ucard->unique_effect;
 	}
-	if(!pcard->unique_code || !pcard->check_unique_code(pcard))
+	if(!pcard->unique_code || !pcard->unique_fieldid || pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN))
 		return 0;
-	int32 is_tofield = !(pcard->current.location & location);
-	int32 is_flipping = pcard->is_position(POS_FACEDOWN);
-	int32 is_enabled = pcard->get_status(STATUS_EFFECT_ENABLED) && !pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN);
 	for(int32 p = 0; p < 2; ++p) {
 		if(pcard->unique_pos[p]) {
 			if(pcard->unique_location & LOCATION_MZONE) {
 				for(int32 i = 0; i < 5; ++i) {
 					card* ucard = player[controler ^ p].list_mzone[i];
-					if(ucard && (ucard != pcard) && ucard->is_position(POS_FACEUP) && pcard->check_unique_code(ucard)
-						&& (is_tofield || is_flipping || (is_enabled && (ucard->unique_uid < pcard->unique_uid))))
+					if(ucard && (ucard != pcard) && ucard->is_position(POS_FACEUP) && pcard->check_unique_code(ucard))
 						return pcard->unique_effect;
 				}
 			}
 			if(pcard->unique_location & LOCATION_SZONE) {
 				for(int32 i = 0; i < 8; ++i) {
 					card* ucard = player[controler ^ p].list_szone[i];
-					if(ucard && (ucard != pcard) && ucard->is_position(POS_FACEUP) && pcard->check_unique_code(ucard)
-						&& (is_tofield || is_flipping || (is_enabled && (ucard->unique_uid < pcard->unique_uid))))
+					if(ucard && (ucard != pcard) && ucard->is_position(POS_FACEUP) && pcard->check_unique_code(ucard))
 						return pcard->unique_effect;
 				}
 			}

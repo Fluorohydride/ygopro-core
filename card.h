@@ -126,7 +126,7 @@ public:
 	uint16 turnid;
 	uint16 turn_counter;
 	uint8 unique_pos[2];
-	uint32 unique_uid;
+	uint32 unique_fieldid;
 	uint32 unique_code;
 	uint32 unique_location;
 	int32 unique_function;

@@ -1311,8 +1311,6 @@ int32 card::add_effect(effect* peffect) {
 					remove_effect(rm->second);
 			}
 		}
-		if(peffect->code == EFFECT_CHANGE_CODE)
-			unique_uid = pduel->game_field->infos.field_id++;
 		eit = single_effect.insert(std::make_pair(peffect->code, peffect));
 	} else if (peffect->type & EFFECT_TYPE_EQUIP) {
 		eit = equip_effect.insert(std::make_pair(peffect->code, peffect));
@@ -1390,8 +1388,6 @@ void card::remove_effect(effect* peffect) {
 void card::remove_effect(effect* peffect, effect_container::iterator it) {
 	card* check_target = this;
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
-		if(peffect->code == EFFECT_CHANGE_CODE)
-			unique_uid = pduel->game_field->infos.field_id++;
 		single_effect.erase(it);
 	} else if (peffect->type & EFFECT_TYPE_EQUIP) {
 		equip_effect.erase(it);
