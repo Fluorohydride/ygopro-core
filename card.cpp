@@ -76,6 +76,7 @@ card::card(duel* pd) {
 	spsummon_counter[0] = spsummon_counter[1] = 0;
 	spsummon_counter_rst[0] = spsummon_counter_rst[1] = 0;
 	unique_code = 0;
+	unique_fieldid = 0;
 	assume_type = 0;
 	assume_value = 0;
 	spsummon_code = 0;
@@ -2301,6 +2302,29 @@ int32 card::check_unique_code(card* pcard) {
 	if(code1 == unique_code || (code2 && code2 == unique_code))
 		return TRUE;
 	return FALSE;
+}
+void card::get_unique_target(card_set* cset, int32 controler) {
+	cset->clear();
+	for(int32 p = 0; p < 2; ++p) {
+		if(!unique_pos[p])
+			continue;
+		const auto& player = pduel->game_field->player[controler ^ p];
+		if(unique_location & LOCATION_MZONE) {
+			for(int32 i = 0; i < 5; ++i) {
+				card* pcard = player.list_mzone[i];
+				if(pcard && pcard->is_position(POS_FACEUP) && !pcard->is_status(STATUS_BATTLE_DESTROYED)
+					&& check_unique_code(pcard))
+					cset->insert(pcard);
+			}
+		}
+		if(unique_location & LOCATION_SZONE) {
+			for(int32 i = 0; i < 8; ++i) {
+				card* pcard = player.list_szone[i];
+				if(pcard && pcard->is_position(POS_FACEUP) && check_unique_code(pcard))
+					cset->insert(pcard);
+			}
+		}
+	}
 }
 // check if this is a normal summonable card
 int32 card::is_summonable_card() {

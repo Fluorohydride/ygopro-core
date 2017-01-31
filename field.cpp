@@ -1489,26 +1489,7 @@ void field::adjust_self_destroy_set() {
 			card* ucard = *iter;
 			if(ucard->is_position(POS_FACEUP) && ucard->get_status(STATUS_EFFECT_ENABLED)
 					&& !ucard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN)) {
-				cset.clear();
-				for(int32 p2 = 0; p2 < 2; ++p2) {
-					if(ucard->unique_pos[p2]) {
-						if(ucard->unique_location & LOCATION_MZONE) {
-							for(int32 i = 0; i < 5; ++i) {
-								card* pcard = player[p ^ p2].list_mzone[i];
-								if(pcard && pcard->is_position(POS_FACEUP) && !pcard->is_status(STATUS_BATTLE_DESTROYED)
-										&& ucard->check_unique_code(pcard))
-									cset.insert(pcard);
-							}
-						}
-						if(ucard->unique_location & LOCATION_SZONE) {
-							for(int32 i = 0; i < 8; ++i) {
-								card* pcard = player[p ^ p2].list_szone[i];
-								if(pcard && pcard->is_position(POS_FACEUP) && ucard->check_unique_code(pcard))
-									cset.insert(pcard);
-							}
-						}
-					}
-				}
+				ucard->get_unique_target(&cset, p);
 				if(cset.size() == 0)
 					ucard->unique_fieldid = 0;
 				else if(cset.size() == 1) {
@@ -1609,26 +1590,14 @@ effect* field::check_unique_onfield(card* pcard, uint8 controler, uint8 location
 			&& ucard->unique_fieldid && ucard->check_unique_code(pcard) && (ucard->unique_location & location))
 			return ucard->unique_effect;
 	}
-	if(!pcard->unique_code || !pcard->unique_fieldid || pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN))
+	if(!pcard->unique_code || !(pcard->unique_location & location) || pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN))
 		return 0;
-	for(int32 p = 0; p < 2; ++p) {
-		if(pcard->unique_pos[p]) {
-			if(pcard->unique_location & LOCATION_MZONE) {
-				for(int32 i = 0; i < 5; ++i) {
-					card* ucard = player[controler ^ p].list_mzone[i];
-					if(ucard && (ucard != pcard) && ucard->is_position(POS_FACEUP) && pcard->check_unique_code(ucard))
-						return pcard->unique_effect;
-				}
-			}
-			if(pcard->unique_location & LOCATION_SZONE) {
-				for(int32 i = 0; i < 8; ++i) {
-					card* ucard = player[controler ^ p].list_szone[i];
-					if(ucard && (ucard != pcard) && ucard->is_position(POS_FACEUP) && pcard->check_unique_code(ucard))
-						return pcard->unique_effect;
-				}
-			}
-		}
-	}
+	card_set cset;
+	pcard->get_unique_target(&cset, controler);
+	if(pcard->check_unique_code(pcard))
+		cset.insert(pcard);
+	if(cset.size() >= 2)
+		return pcard->unique_effect;
 	return 0;
 }
 
