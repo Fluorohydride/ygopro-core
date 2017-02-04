@@ -2542,20 +2542,27 @@ int32 field::special_summon_step(uint16 step, group * targets, card * target) {
 	uint8 positions = target->spsummon_param & 0xff;
 	switch(step) {
 	case 0: {
-		returns.ivalue[0] = FALSE;
-		uint32 result = TRUE;
 		effect_set eset;
 		if(target->is_affected_by_effect(EFFECT_REVIVE_LIMIT) && !target->is_status(STATUS_PROC_COMPLETE)) {
-			if((!nolimit && (target->current.location & 0x38)) || (!nocheck && !nolimit && (target->current.location & 0x3)))
-				result = FALSE;
+			if((!nolimit && (target->current.location & 0x38)) || (!nocheck && !nolimit && (target->current.location & 0x3))) {
+				core.units.begin()->step = 4;
+				return FALSE;
+			}
 		}
-		if(!result || (target->current.location == LOCATION_MZONE)
+		if((target->current.location == LOCATION_MZONE)
 				|| check_unique_onfield(target, playerid, LOCATION_MZONE)
 		        || !is_player_can_spsummon(core.reason_effect, target->summon_info & 0xff00ffff, positions, target->summon_player, playerid, target)
-		        || get_useable_count(playerid, LOCATION_MZONE, target->summon_player, LOCATION_REASON_TOFIELD) <= 0
-		        || (!nocheck && !(target->data.type & TYPE_MONSTER)))
-			result = FALSE;
-		if(result && !nocheck) {
+		        || (!nocheck && !(target->data.type & TYPE_MONSTER))) {
+			core.units.begin()->step = 4;
+			return FALSE;
+		}
+		if(get_useable_count(playerid, LOCATION_MZONE, target->summon_player, LOCATION_REASON_TOFIELD) <= 0) {
+			if(target->current.location != LOCATION_GRAVE)
+				core.ss_tograve_set.insert(target);
+			core.units.begin()->step = 4;
+			return FALSE;
+		}
+		if(!nocheck) {
 			target->filter_effect(EFFECT_SPSUMMON_CONDITION, &eset);
 			for(int32 i = 0; i < eset.size(); ++i) {
 				pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
@@ -2564,18 +2571,10 @@ int32 field::special_summon_step(uint16 step, group * targets, card * target) {
 				pduel->lua->add_param(positions, PARAM_TYPE_INT);
 				pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 				if(!eset[i]->check_value_condition(5)) {
-					result = FALSE;
-					break;
+					core.units.begin()->step = 4;
+					return FALSE;
 				}
 			}
-		}
-		if(!result) {
-			target->current.reason = target->temp.reason;
-			target->current.reason_effect = target->temp.reason_effect;
-			target->current.reason_player = target->temp.reason_player;
-			if(targets)
-				targets->container.erase(target);
-			return TRUE;
 		}
 		eset.clear();
 		target->filter_effect(EFFECT_SPSUMMON_COST, &eset);
@@ -2606,6 +2605,15 @@ int32 field::special_summon_step(uint16 step, group * targets, card * target) {
 		if(target->owner != target->current.controler)
 			set_control(target, target->current.controler, 0, 0);
 		target->set_status(STATUS_SPSUMMON_STEP, TRUE);
+		return TRUE;
+	}
+	case 5: {
+		returns.ivalue[0] = FALSE;
+		target->current.reason = target->temp.reason;
+		target->current.reason_effect = target->temp.reason_effect;
+		target->current.reason_player = target->temp.reason_player;
+		if(targets)
+			targets->container.erase(target);
 		return TRUE;
 	}
 	}
@@ -2639,6 +2647,12 @@ int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_pl
 		return FALSE;
 	}
 	case 1: {
+		if(core.ss_tograve_set.size())
+			send_to(&core.ss_tograve_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+		return FALSE;
+	}
+	case 2: {
+		core.ss_tograve_set.clear();
 		if(targets->container.size() == 0) {
 			returns.ivalue[0] = 0;
 			core.operated_set.clear();
@@ -2672,7 +2686,7 @@ int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_pl
 		adjust_instant();
 		return FALSE;
 	}
-	case 2: {
+	case 3: {
 		pduel->write_buffer8(MSG_SPSUMMONED);
 		for(auto cit = targets->container.begin(); cit != targets->container.end(); ++cit) {
 			if(!((*cit)->current.position & POS_FACEDOWN))
@@ -2689,12 +2703,12 @@ int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_pl
 		process_instant_event();
 		return FALSE;
 	}
-	case 3: {
+	case 4: {
 		raise_event(&targets->container, EVENT_SPSUMMON_SUCCESS, reason_effect, 0, reason_player, PLAYER_NONE, 0);
 		process_instant_event();
 		return FALSE;
 	}
-	case 4: {
+	case 5: {
 		core.operated_set.clear();
 		core.operated_set = targets->container;
 		returns.ivalue[0] = targets->container.size();
