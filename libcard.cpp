@@ -2405,3 +2405,11 @@ int32 scriptlib::card_set_spsummon_once(lua_State *L) {
 	pcard->pduel->game_field->core.global_flag |= GLOBALFLAG_SPSUMMON_ONCE;
 	return 0;
 }
+int32 scriptlib::card_set_entity_code(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 trace = lua_tointeger(L, 2);
+	lua_pushinteger(L, pcard->set_entity_code(trace));
+	return 1;
+}
