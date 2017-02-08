@@ -982,7 +982,7 @@ void field::filter_player_effect(uint8 playerid, uint32 code, effect_set* eset, 
 	if(sort)
 		eset->sort();
 }
-int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, uint32 location2, group* pgroup, card* pexception, uint32 extraargs, card** pret, int32 fcount, int32 is_target) {
+int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, uint32 location2, group* pgroup, card* pexception, group* pexgroup, uint32 extraargs, card** pret, int32 fcount, int32 is_target) {
 	if(self != 0 && self != 1)
 		return FALSE;
 	card* pcard;
@@ -993,7 +993,8 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 			for(uint32 i = 0; i < 5; ++i) {
 				pcard = player[self].list_mzone[i];
 				if(pcard && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP)
-						&& pcard != pexception && pduel->lua->check_matching(pcard, findex, extraargs) 
+						&& pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
+						&& pduel->lua->check_matching(pcard, findex, extraargs)
 						&& (!is_target || pcard->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = pcard;
@@ -1011,7 +1012,9 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		if(location & LOCATION_SZONE) {
 			for(uint32 i = 0; i < 8; ++i) {
 				pcard = player[self].list_szone[i];
-				if(pcard && !pcard->is_status(STATUS_ACTIVATE_DISABLED) && pcard != pexception && pduel->lua->check_matching(pcard, findex, extraargs)
+				if(pcard && !pcard->is_status(STATUS_ACTIVATE_DISABLED)
+				        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
+				        && pduel->lua->check_matching(pcard, findex, extraargs)
 				        && (!is_target || pcard->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = pcard;
@@ -1028,7 +1031,8 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		}
 		if(location & LOCATION_DECK) {
 			for(auto cit = player[self].list_main.rbegin(); cit != player[self].list_main.rend(); ++cit) {
-				if(*cit != pexception && pduel->lua->check_matching(*cit, findex, extraargs)
+				if(*cit != pexception && !(pexgroup && pexgroup->has_card(*cit))
+				        && pduel->lua->check_matching(*cit, findex, extraargs)
 				        && (!is_target || (*cit)->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = *cit;
@@ -1045,7 +1049,8 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		}
 		if(location & LOCATION_EXTRA) {
 			for(auto cit = player[self].list_extra.rbegin(); cit != player[self].list_extra.rend(); ++cit) {
-				if(*cit != pexception && pduel->lua->check_matching(*cit, findex, extraargs)
+				if(*cit != pexception && !(pexgroup && pexgroup->has_card(*cit))
+				        && pduel->lua->check_matching(*cit, findex, extraargs)
 				        && (!is_target || (*cit)->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = *cit;
@@ -1062,7 +1067,8 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		}
 		if(location & LOCATION_HAND) {
 			for(auto cit = player[self].list_hand.begin(); cit != player[self].list_hand.end(); ++cit) {
-				if(*cit != pexception && pduel->lua->check_matching(*cit, findex, extraargs)
+				if(*cit != pexception && !(pexgroup && pexgroup->has_card(*cit))
+				        && pduel->lua->check_matching(*cit, findex, extraargs)
 				        && (!is_target || (*cit)->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = *cit;
@@ -1079,7 +1085,8 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		}
 		if(location & LOCATION_GRAVE) {
 			for(auto cit = player[self].list_grave.rbegin(); cit != player[self].list_grave.rend(); ++cit) {
-				if(*cit != pexception && pduel->lua->check_matching(*cit, findex, extraargs)
+				if(*cit != pexception && !(pexgroup && pexgroup->has_card(*cit))
+				        && pduel->lua->check_matching(*cit, findex, extraargs)
 				        && (!is_target || (*cit)->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = *cit;
@@ -1096,7 +1103,8 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		}
 		if(location & LOCATION_REMOVED) {
 			for(auto cit = player[self].list_remove.rbegin(); cit != player[self].list_remove.rend(); ++cit) {
-				if(*cit != pexception && pduel->lua->check_matching(*cit, findex, extraargs)
+				if(*cit != pexception && !(pexgroup && pexgroup->has_card(*cit))
+				        && pduel->lua->check_matching(*cit, findex, extraargs)
 				        && (!is_target || (*cit)->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = *cit;
@@ -1183,12 +1191,12 @@ effect* field::is_player_affected_by_effect(uint8 playerid, uint32 code) {
 	}
 	return 0;
 }
-int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* ex_list, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exp) {
+int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* ex_list, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg) {
 	card* pcard;
 	uint32 rcount = 0;
 	for(uint32 i = 0; i < 5; ++i) {
 		pcard = player[playerid].list_mzone[i];
-		if(pcard && pcard != exp && pcard->is_releasable_by_nonsummon(playerid)
+		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && pcard->is_releasable_by_nonsummon(playerid)
 		        && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
 			if(release_list)
 				release_list->insert(pcard);
@@ -1199,7 +1207,7 @@ int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* 
 	if(use_hand) {
 		for(uint32 i = 0; i < player[playerid].list_hand.size(); ++i) {
 			pcard = player[playerid].list_hand[i];
-			if(pcard && pcard != exp && pcard->is_releasable_by_nonsummon(playerid)
+			if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && pcard->is_releasable_by_nonsummon(playerid)
 			        && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
 				if(release_list)
 					release_list->insert(pcard);
@@ -1210,7 +1218,7 @@ int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* 
 	}
 	for(uint32 i = 0; i < 5; ++i) {
 		pcard = player[1 - playerid].list_mzone[i];
-		if(pcard && pcard != exp && (pcard->is_position(POS_FACEUP) || !use_con) && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
+		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (pcard->is_position(POS_FACEUP) || !use_con) && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
 		        && pcard->is_releasable_by_nonsummon(playerid) && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
 			if(ex_list)
 				ex_list->insert(pcard);
@@ -1220,11 +1228,11 @@ int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* 
 	}
 	return rcount;
 }
-int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exp) {
+int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg) {
 	card* pcard;
 	for(uint32 i = 0; i < 5; ++i) {
 		pcard = player[playerid].list_mzone[i];
-		if(pcard && pcard != exp && pcard->is_releasable_by_nonsummon(playerid)
+		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && pcard->is_releasable_by_nonsummon(playerid)
 		        && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
 			count--;
 			if(count == 0)
@@ -1234,7 +1242,7 @@ int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int3
 	if(use_hand) {
 		for(uint32 i = 0; i < player[playerid].list_hand.size(); ++i) {
 			pcard = player[playerid].list_hand[i];
-			if(pcard && pcard != exp && pcard->is_releasable_by_nonsummon(playerid)
+			if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && pcard->is_releasable_by_nonsummon(playerid)
 			        && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
 				count--;
 				if(count == 0)
@@ -1244,7 +1252,7 @@ int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int3
 	}
 	for(uint32 i = 0; i < 5; ++i) {
 		pcard = player[1 - playerid].list_mzone[i];
-		if(pcard && pcard != exp && (!use_con || pcard->is_position(POS_FACEUP)) && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
+		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (!use_con || pcard->is_position(POS_FACEUP)) && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
 		        && pcard->is_releasable_by_nonsummon(playerid) && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
 			count--;
 			if(count == 0)
