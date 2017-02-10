@@ -104,7 +104,7 @@ struct field_effect {
 	effect_collection cheff;
 	effect_collection rechargeable;
 	effect_collection spsummon_count_eff;
-	
+
 	std::list<card*> disable_check_list;
 	std::unordered_set<card*> disable_check_set;
 };
@@ -294,6 +294,8 @@ struct processor {
 	uint8 attack_state_count[2];
 	uint8 battle_phase_count[2];
 	uint8 battled_count[2];
+	uint8 tossed_coin_count[2];
+	uint8 tossed_dice_count[2];
 	uint8 phase_action;
 	uint32 hint_timing[2];
 	uint8 current_player;
@@ -333,7 +335,7 @@ public:
 	explicit field(duel* pduel);
 	~field();
 	void reload_field_info();
-	
+
 	void add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence);
 	void remove_card(card* pcard);
 	void move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence);
@@ -346,7 +348,7 @@ public:
 	void swap_deck_and_grave(uint8 playerid);
 	void reverse_deck(uint8 playerid);
 	void tag_swap(uint8 playerid);
-	
+
 	void add_effect(effect* peffect, uint8 owner_player = 2);
 	void remove_effect(effect* peffect);
 	void remove_oath_effect(effect* reason_effect);
@@ -355,7 +357,7 @@ public:
 	void add_effect_code(uint32 code, uint32 playerid);
 	uint32 get_effect_code(uint32 code, uint32 playerid);
 	void dec_effect_code(uint32 code, uint32 playerid);
-	
+
 	void filter_field_effect(uint32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_affected_cards(effect* peffect, card_set* cset);
 	void filter_player_effect(uint8 playerid, uint32 code, effect_set* eset, uint8 sort = TRUE);
@@ -386,7 +388,7 @@ public:
 	void check_chain_counter(effect* peffect, int32 playerid, int32 chainid, bool cancel = false);
 	void set_spsummon_counter(uint8 playerid, bool add = true, bool chain = false);
 	int32 check_spsummon_counter(uint8 playerid, uint8 ct = 1);
-	
+
 	int32 check_lp_cost(uint8 playerid, uint32 cost);
 	void save_lp_cost();
 	void restore_lp_cost();
@@ -405,7 +407,7 @@ public:
 	static int32 check_with_sum_greater_limit(const card_vector& mats, int32 acc, int32 index, int32 opmin);
 	static int32 check_with_sum_greater_limit_m(const card_vector& mats, int32 acc, int32 index, int32 opmin, int32 must_count);
 	int32 check_xyz_material(card* pcard, int32 findex, int32 lv, int32 min, int32 max, group* mg);
-	
+
 	int32 is_player_can_draw(uint8 playerid);
 	int32 is_player_can_discard_deck(uint8 playerid, int32 count);
 	int32 is_player_can_discard_deck_as_cost(uint8 playerid, int32 count);

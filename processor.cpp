@@ -1409,7 +1409,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 				core.hint_timing[infos.turn_player] = TIMING_BATTLE_START;
 			else if(phase == PHASE_BATTLE)
 				core.hint_timing[infos.turn_player] = TIMING_BATTLE_END;
-			else 
+			else
 				core.hint_timing[infos.turn_player] = TIMING_END_PHASE;
 			pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
 			for(; pr.first != pr.second; ++pr.first) {
@@ -2720,7 +2720,7 @@ int32 field::process_idle_command(uint16 step) {
 			add_process(PROCESSOR_SELECT_POSITION, 0, 0, 0, infos.turn_player + (positions << 16), target->data.code);
 			core.units.begin()->step = 12;
 			return FALSE;
-		} else 
+		} else
 			add_process(PROCESSOR_FLIP_SUMMON, 0, 0, (group*)target, target->current.controler, 0);
 		target->set_status(STATUS_FORM_CHANGED, TRUE);
 		core.units.begin()->step = -1;
@@ -3126,7 +3126,7 @@ int32 field::process_battle_command(uint16 step) {
 			core.units.begin()->arg1 = 2;
 			if(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE))
 				core.units.begin()->arg2 = 1;
-			else 
+			else
 				core.units.begin()->arg2 = 0;
 			reset_phase(PHASE_DAMAGE);
 			if(core.attacker->fieldid_r == afid && !atk_disabled) {
@@ -3643,7 +3643,7 @@ int32 field::process_battle_command(uint16 step) {
 		// normal end of battle step
 		if(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE))
 			core.units.begin()->arg2 = 1;
-		else 
+		else
 			core.units.begin()->arg2 = 0;
 		infos.phase = PHASE_BATTLE;
 		add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
@@ -3936,6 +3936,8 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 			core.attack_state_count[p] = 0;
 			core.battle_phase_count[p] = 0;
 			core.battled_count[p] = 0;
+			core.tossed_coin_count[p] = 0;
+			core.tossed_dice_count[p] = 0;
 			core.summon_count[p] = 0;
 			core.extra_summon[p] = 0;
 			core.spsummon_once_map[p].clear();
