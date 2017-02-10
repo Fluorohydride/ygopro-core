@@ -99,7 +99,8 @@ extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int options) {
 			pcard->current.position = POS_FACEDOWN;
 		}
 	}
-	pd->game_field->add_process(PROCESSOR_TURN, 0, 0, 0, 0, 0);
+	int first_player = (options & DUEL_PLAYER_2_FIRST) ? 1 : 0;
+	pd->game_field->add_process(PROCESSOR_TURN, 0, 0, 0, first_player, 0);
 }
 extern "C" DECL_DLLEXPORT void end_duel(ptr pduel) {
 	duel* pd = (duel*)pduel;

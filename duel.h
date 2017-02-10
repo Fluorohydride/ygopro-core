@@ -84,4 +84,5 @@ private:
 #define DUEL_PSEUDO_SHUFFLE		0x10
 #define DUEL_TAG_MODE			0x20
 #define DUEL_SIMPLE_AI			0x40
+#define DUEL_PLAYER_2_FIRST		0x80
 #endif /* DUEL_H_ */
