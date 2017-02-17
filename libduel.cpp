@@ -2965,6 +2965,16 @@ int32 scriptlib::duel_set_dice_result(lua_State * L) {
 	}
 	return 0;
 }
+int32 scriptlib::duel_is_duel_type(lua_State *L) {
+	check_param_count(L, 1);
+	duel* pduel = interpreter::get_duel_info(L);
+	int32 duel_type = lua_tointeger(L, 1);
+	if (pduel->game_field->core.duel_options & duel_type)
+		lua_pushboolean(L, TRUE);
+	else
+		lua_pushboolean(L, FALSE);
+	return 1;
+}
 int32 scriptlib::duel_is_player_affected_by_effect(lua_State *L) {
 	check_param_count(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);

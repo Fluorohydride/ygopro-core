@@ -483,6 +483,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetDiceResult", scriptlib::duel_get_dice_result },
 	{ "SetCoinResult", scriptlib::duel_set_coin_result },
 	{ "SetDiceResult", scriptlib::duel_set_dice_result },
+	{ "IsDuelType", scriptlib::duel_is_duel_type },
 	{ "IsPlayerAffectedByEffect", scriptlib::duel_is_player_affected_by_effect },
 	{ "IsPlayerCanDraw", scriptlib::duel_is_player_can_draw },
 	{ "IsPlayerCanDiscardDeck", scriptlib::duel_is_player_can_discard_deck },
