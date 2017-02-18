@@ -390,8 +390,8 @@ int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count)
 			p = returns.bvalue[pt];
 			l = returns.bvalue[pt + 1];
 			s = returns.bvalue[pt + 2];
-			if((p != 0 && p != 1) 
-					|| ((l != LOCATION_MZONE) && (l != LOCATION_SZONE)) 
+			if((p != 0 && p != 1)
+					|| ((l != LOCATION_MZONE) && (l != LOCATION_SZONE))
 					|| ((0x1u << s) & (flag >> (((p == playerid) ? 0 : 16) + ((l == LOCATION_MZONE) ? 0 : 8))))) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
@@ -715,7 +715,7 @@ int32 field::sort_card(int16 step, uint8 playerid, uint8 is_chain) {
 int32 field::announce_race(int16 step, uint8 playerid, int32 count, int32 available) {
 	if(step == 0) {
 		int32 scount = 0;
-		for(int32 ft = 0x1; ft != 0x1000000; ft <<= 1) {
+		for(int32 ft = 0x1; ft != 0x2000000; ft <<= 1) {
 			if(ft & available)
 				scount++;
 		}
@@ -731,7 +731,7 @@ int32 field::announce_race(int16 step, uint8 playerid, int32 count, int32 availa
 	} else {
 		int32 rc = returns.ivalue[0];
 		int32 sel = 0;
-		for(int32 ft = 0x1; ft != 0x1000000; ft <<= 1) {
+		for(int32 ft = 0x1; ft != 0x2000000; ft <<= 1) {
 			if(!(ft & rc)) continue;
 			if(!(ft & available)) {
 				pduel->write_buffer8(MSG_RETRY);
