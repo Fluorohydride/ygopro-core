@@ -342,6 +342,7 @@ public:
 #define TYPE_TOON			0x400000	//
 #define TYPE_XYZ			0x800000	//
 #define TYPE_PENDULUM		0x1000000	//
+#define TYPE_SPSUMMON		0x2000000	//
 
 //Attributes
 #define ATTRIBUTE_EARTH		0x01		//
