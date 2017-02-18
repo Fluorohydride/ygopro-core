@@ -231,7 +231,7 @@ public:
 	void set_material(card_set* materials);
 	void add_card_target(card* pcard);
 	void cancel_card_target(card* pcard);
-	
+
 	void filter_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_single_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_single_continuous_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
@@ -247,7 +247,7 @@ public:
 	int32 fusion_check(group* fusion_m, card* cg, uint32 chkf);
 	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf);
 	int32 check_fusion_substitute(card* fcard);
-	
+
 	int32 check_unique_code(card* pcard);
 	void get_unique_target(card_set* cset, int32 controler);
 	int32 is_summonable_card();
@@ -376,7 +376,8 @@ public:
 #define RACE_PSYCHO			0x100000	//
 #define RACE_DEVINE			0x200000	//
 #define RACE_CREATORGOD		0x400000	//
-#define RACE_PHANTOMDRAGON		0x800000	//
+#define RACE_WYRM		0x800000	//
+#define RACE_CYBERS		0x1000000	//
 //Reason
 #define REASON_DESTROY		0x1		//
 #define REASON_RELEASE		0x2		//
