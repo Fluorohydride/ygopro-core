@@ -376,8 +376,8 @@ public:
 #define RACE_PSYCHO			0x100000	//
 #define RACE_DEVINE			0x200000	//
 #define RACE_CREATORGOD		0x400000	//
-#define RACE_WYRM		0x800000	//
-#define RACE_CYBERS		0x1000000	//
+#define RACE_WYRM			0x800000	//
+#define RACE_CYBERS			0x1000000	//
 //Reason
 #define REASON_DESTROY		0x1		//
 #define REASON_RELEASE		0x2		//
