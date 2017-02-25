@@ -15,11 +15,9 @@
 class card;
 class duel;
 
-class group {
+class group : public ScriptClaxx {
 public:
 	typedef std::set<card*, card_sort> card_set;
-	int32 scrtype;
-	int32 ref_handle;
 	duel* pduel;
 	card_set container;
 	card_set::iterator it;

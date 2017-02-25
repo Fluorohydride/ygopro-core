@@ -25,10 +25,8 @@ struct effect_set_v;
 enum effect_flag : uint32;
 enum effect_flag2 : uint32;
 
-class effect {
+class effect : public ScriptClaxx {
 public:
-	int32 scrtype;
-	int32 ref_handle;
 	duel* pduel;
 	card* owner;
 	card* handler;

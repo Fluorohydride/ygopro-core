@@ -8,12 +8,12 @@
 #include "duel.h"
 
 int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 retfalse) {
-	int32 result;
+	ScriptType result;
 	switch (param_type) {
 	case PARAM_TYPE_CARD:
 		if (lua_isuserdata(L, index)) {
-			result = **(int32**)lua_touserdata(L, index);
-			if(result == 1)
+			result = (*(ScriptClaxx**)lua_touserdata(L, index))->scrtype;
+			if(result == ScriptType::Card)
 				return TRUE;
 		}
 		if(retfalse)
@@ -22,8 +22,8 @@ int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 
 		break;
 	case PARAM_TYPE_GROUP:
 		if (lua_isuserdata(L, index)) {
-			result = **(int32**)lua_touserdata(L, index);
-			if(result == 2)
+			result = (*(ScriptClaxx**)lua_touserdata(L, index))->scrtype;
+			if(result == ScriptType::Group)
 				return TRUE;
 		}
 		if(retfalse)
@@ -32,8 +32,8 @@ int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 
 		break;
 	case PARAM_TYPE_EFFECT:
 		if (lua_isuserdata(L, index)) {
-			result = **(int32**)lua_touserdata(L, index);
-			if(result == 3)
+			result = (*(ScriptClaxx**)lua_touserdata(L, index))->scrtype;
+			if(result == ScriptType::Effect)
 				return TRUE;
 		}
 		if(retfalse)
