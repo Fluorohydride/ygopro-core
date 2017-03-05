@@ -3936,8 +3936,6 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 			core.attack_state_count[p] = 0;
 			core.battle_phase_count[p] = 0;
 			core.battled_count[p] = 0;
-			core.tossed_coin_count[p] = 0;
-			core.tossed_dice_count[p] = 0;
 			core.summon_count[p] = 0;
 			core.extra_summon[p] = 0;
 			core.spsummon_once_map[p].clear();

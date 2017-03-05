@@ -5051,7 +5051,6 @@ int32 field::toss_coin(uint16 step, effect * reason_effect, uint8 reason_player,
 			pduel->write_buffer8(count);
 			for(int32 i = 0; i < count; ++i) {
 				core.coin_result[i] = pduel->get_next_integer(0, 1);
-				core.tossed_coin_count[playerid]++;
 				pduel->write_buffer8(core.coin_result[i]);
 			}
 			raise_event((card*)0, EVENT_TOSS_COIN_NEGATE, reason_effect, 0, reason_player, playerid, count);
@@ -5097,7 +5096,6 @@ int32 field::toss_dice(uint16 step, effect * reason_effect, uint8 reason_player,
 			pduel->write_buffer8(count1);
 			for(int32 i = 0; i < count1; ++i) {
 				core.dice_result[i] = pduel->get_next_integer(1, 6);
-				core.tossed_dice_count[playerid]++;
 				pduel->write_buffer8(core.dice_result[i]);
 			}
 			if(count2 > 0) {
@@ -5106,7 +5104,6 @@ int32 field::toss_dice(uint16 step, effect * reason_effect, uint8 reason_player,
 				pduel->write_buffer8(count2);
 				for(int32 i = 0; i < count2; ++i) {
 					core.dice_result[count1 + i] = pduel->get_next_integer(1, 6);
-						core.tossed_dice_count[1 - playerid]++;
 					pduel->write_buffer8(core.dice_result[count1 + i]);
 				}
 			}
