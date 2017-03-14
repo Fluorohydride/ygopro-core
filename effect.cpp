@@ -423,7 +423,7 @@ int32 effect::is_activate_check(uint8 playerid, const tevent& e, int32 neglect_c
 int32 effect::is_target(card* pcard) {
 	if(type & EFFECT_TYPE_ACTIONS)
 		return FALSE;
-	if(type & (EFFECT_TYPE_SINGLE | EFFECT_TYPE_EQUIP | EFFECT_TYPE_XMATERIAL))
+	if(type & (EFFECT_TYPE_SINGLE | EFFECT_TYPE_EQUIP | EFFECT_TYPE_XMATERIAL) && !(type & EFFECT_TYPE_FIELD))
 		return TRUE;
 	if(pcard && !is_flag(EFFECT_FLAG_SET_AVAILABLE) && (pcard->current.location & LOCATION_ONFIELD)
 			&& !pcard->is_position(POS_FACEUP))
@@ -680,7 +680,7 @@ uint8 effect::get_handler_player() {
 }
 int32 effect::in_range(int32 loc, int32 seq) {
 	if(type & EFFECT_TYPE_XMATERIAL)
-		return (int32)(!!handler->overlay_target);
+		return handler->overlay_target ? TRUE : FALSE;
 	if(loc != LOCATION_SZONE)
 		return range & loc;
 	if(seq < 5)

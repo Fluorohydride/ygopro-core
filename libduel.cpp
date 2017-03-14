@@ -1187,7 +1187,6 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 	uint8 seq[5];
 	uint8 tp = 2;
 	uint8 ct = 0;
-	card* pcard = 0;
 	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 		card* pcard = *cit;
 		if(pcard->current.location != LOCATION_MZONE || (pcard->current.position & POS_FACEUP) || (tp != 2 && (pcard->current.controler != tp)))

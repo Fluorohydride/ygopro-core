@@ -1921,6 +1921,8 @@ void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {
 		rg = (*cit)->xmaterial_effect.equal_range(code);
 		for (; rg.first != rg.second; ++rg.first) {
 			peffect = rg.first->second;
+			if (peffect->type & EFFECT_TYPE_FIELD)
+				continue;
 			if (peffect->is_available() && is_affect_by_effect(peffect))
 				eset->add_item(peffect);
 		}
@@ -1957,8 +1959,12 @@ void card::filter_single_continuous_effect(int32 code, effect_set* eset, uint8 s
 	}
 	for (auto cit = xyz_materials.begin(); cit != xyz_materials.end(); ++cit) {
 		rg = (*cit)->xmaterial_effect.equal_range(code);
-		for (; rg.first != rg.second; ++rg.first)
-			eset->add_item(rg.first->second);
+		for (; rg.first != rg.second; ++rg.first) {
+			effect* peffect = rg.first->second;
+			if (peffect->type & EFFECT_TYPE_FIELD)
+				continue;
+			eset->add_item(peffect);
+		}
 	}
 	if(sort)
 		eset->sort();
@@ -1985,6 +1991,8 @@ void card::filter_immune_effect() {
 		rg = (*cit)->xmaterial_effect.equal_range(EFFECT_IMMUNE_EFFECT);
 		for (; rg.first != rg.second; ++rg.first) {
 			peffect = rg.first->second;
+			if (peffect->type & EFFECT_TYPE_FIELD)
+				continue;
 			if (peffect->is_available())
 				immune_effect.add_item(peffect);
 		}
@@ -2178,6 +2186,8 @@ effect* card::is_affected_by_effect(int32 code) {
 		rg = (*cit)->xmaterial_effect.equal_range(code);
 		for (; rg.first != rg.second; ++rg.first) {
 			peffect = rg.first->second;
+			if (peffect->type & EFFECT_TYPE_FIELD)
+				continue;
 			if (peffect->is_available() && is_affect_by_effect(peffect))
 				return peffect;
 		}
@@ -2212,6 +2222,8 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 		rg = (*cit)->xmaterial_effect.equal_range(code);
 		for (; rg.first != rg.second; ++rg.first) {
 			peffect = rg.first->second;
+			if (peffect->type & EFFECT_TYPE_FIELD)
+				continue;
 			if (peffect->is_available() && is_affect_by_effect(peffect) && peffect->get_value(target))
 				return peffect;
 		}
@@ -2239,6 +2251,8 @@ effect* card::check_control_effect() {
 		auto rg = (*cit)->xmaterial_effect.equal_range(EFFECT_SET_CONTROL);
 		for (; rg.first != rg.second; ++rg.first) {
 			effect* peffect = rg.first->second;
+			if (peffect->type & EFFECT_TYPE_FIELD)
+				continue;
 			if(!ret_effect || peffect->id > ret_effect->id)
 				ret_effect = peffect;
 		}

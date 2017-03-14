@@ -5133,9 +5133,8 @@ int32 field::adjust_step(uint16 step) {
 			core.control_adjust_set[0].clear();
 			core.control_adjust_set[1].clear();
 			effect_set eset;
-			uint32 res = 0;
 			filter_field_effect(EFFECT_REMOVE_BRAINWASHING, &eset, FALSE);
-			res = eset.size() ? TRUE : FALSE;
+			uint32 res = eset.size() ? TRUE : FALSE;
 			if(res) {
 				for(uint8 p = 0; p < 2; ++p) {
 					for(uint8 i = 0; i < 5; ++i) {
