@@ -4821,9 +4821,15 @@ void field::adjust_all() {
 void field::refresh_location_info_instant() {
 	effect_set eset;
 	uint32 value, p;
-	int32 dis1 = player[0].disabled_location | (player[1].disabled_location << 16);
+	uint32 dis1 = player[0].disabled_location | (player[1].disabled_location << 16);
 	player[0].disabled_location = 0;
 	player[1].disabled_location = 0;
+	if(core.duel_rule >= 4) {
+		uint32 loc = player[0].used_location;
+		player[0].disabled_location = ((loc & 0x100) << 6) | ((loc & 0x1000) << 3) | ((loc >> 6) & 0x100) | ((loc >> 3) & 0x1000);
+		loc = player[1].used_location;
+		player[1].disabled_location = ((loc & 0x100) << 6) | ((loc & 0x1000) << 3) | ((loc >> 6) & 0x100) | ((loc >> 3) & 0x1000);
+	}
 	filter_field_effect(EFFECT_DISABLE_FIELD, &eset);
 	for (int32 i = 0; i < eset.size(); ++i) {
 		value = eset[i]->get_value();
@@ -4844,7 +4850,7 @@ void field::refresh_location_info_instant() {
 		value = eset[i]->get_value();
 		player[p].disabled_location |= (value >> 8) & 0x1f00;
 	}
-	int32 dis2 = player[0].disabled_location | (player[1].disabled_location << 16);
+	uint32 dis2 = player[0].disabled_location | (player[1].disabled_location << 16);
 	if(dis1 != dis2) {
 		pduel->write_buffer8(MSG_FIELD_DISABLED);
 		pduel->write_buffer32(dis2);
@@ -4859,6 +4865,12 @@ int32 field::refresh_location_info(uint16 step) {
 		core.units.begin()->arg2 = player[0].disabled_location | (player[1].disabled_location << 16);
 		player[0].disabled_location = 0;
 		player[1].disabled_location = 0;
+		if(core.duel_rule >= 4) {
+			uint32 loc = player[0].used_location;
+			player[0].disabled_location = ((loc & 0x100) << 6) | ((loc & 0x1000) << 3) | ((loc >> 6) & 0x100) | ((loc >> 3) & 0x1000);
+			loc = player[1].used_location;
+			player[1].disabled_location = ((loc & 0x100) << 6) | ((loc & 0x1000) << 3) | ((loc >> 6) & 0x100) | ((loc >> 3) & 0x1000);
+		}
 		core.disfield_effects.clear();
 		core.extram_effects.clear();
 		core.extras_effects.clear();
@@ -4974,7 +4986,7 @@ int32 field::refresh_location_info(uint16 step) {
 		core.units.begin()->peffect = peffect;
 		core.extras_effects.remove_item(0);
 		uint32 p = peffect->get_handler_player();
-		uint32 szone_flag = ((player[p].disabled_location | player[p].used_location) & 0x1f00) >> 8;
+		uint32 szone_flag = ((player[p].disabled_location | player[p].used_location) >> 8) & 0x1f;
 		if(szone_flag == 0x1f) {
 			core.units.begin()->step = 6;
 			return FALSE;

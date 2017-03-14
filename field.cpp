@@ -484,7 +484,7 @@ card* field::get_field_card(uint8 playerid, uint8 location, uint8 sequence) {
 int32 field::is_location_useable(uint8 playerid, uint8 location, uint8 sequence) {
 	if (location != LOCATION_MZONE && location != LOCATION_SZONE)
 		return TRUE;
-	int32 flag = player[playerid].disabled_location | player[playerid].used_location;
+	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
 	if (location == LOCATION_MZONE && flag & (0x1u << sequence))
 		return FALSE;
 	if (location == LOCATION_SZONE && flag & (0x100u << sequence))
@@ -506,8 +506,8 @@ int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, ui
 		if(uplayer < 2)
 			filter_player_effect(playerid, EFFECT_MAX_MZONE, &eset);
 	} else {
-		flag = (flag & 0x1f00) >> 8;
-		used_flag = (used_flag & 0x1f00) >> 8;
+		flag = (flag >> 8) & 0x1f;
+		used_flag = (used_flag >> 8) & 0x1f;
 		if(uplayer < 2)
 			filter_player_effect(playerid, EFFECT_MAX_SZONE, &eset);
 	}
