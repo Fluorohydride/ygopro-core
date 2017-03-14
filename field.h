@@ -260,6 +260,7 @@ struct processor {
 	uint8 extra_summon[2];
 	int32 spe_effect[2];
 	int32 duel_options;
+	int32 duel_rule;
 	uint32 copy_reset;
 	uint8 copy_reset_count;
 	uint32 last_control_changed_id;

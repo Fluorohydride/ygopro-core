@@ -71,6 +71,10 @@ extern "C" DECL_DLLEXPORT ptr create_duel(uint32 seed) {
 extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int options) {
 	duel* pd = (duel*)pduel;
 	pd->game_field->core.duel_options |= options;
+	if(options & DUEL_OBSOLETE_RULING)
+		pd->game_field->core.duel_rule = 1;
+	else
+		pd->game_field->core.duel_rule = 3;
 	pd->game_field->core.shuffle_hand_check[0] = FALSE;
 	pd->game_field->core.shuffle_hand_check[1] = FALSE;
 	pd->game_field->core.shuffle_deck_check[0] = FALSE;
