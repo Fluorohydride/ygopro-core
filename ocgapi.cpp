@@ -70,8 +70,11 @@ extern "C" DECL_DLLEXPORT ptr create_duel(uint32 seed) {
 }
 extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int options) {
 	duel* pd = (duel*)pduel;
-	pd->game_field->core.duel_options |= options;
-	if(options & DUEL_OBSOLETE_RULING)
+	pd->game_field->core.duel_options |= options & 0xffff;
+	int32 duel_rule = options >> 16;
+	if(duel_rule)
+		pd->game_field->core.duel_rule = duel_rule;
+	else if(options & DUEL_OBSOLETE_RULING)		//provide backward compatibility with replay
 		pd->game_field->core.duel_rule = 1;
 	else
 		pd->game_field->core.duel_rule = 3;
