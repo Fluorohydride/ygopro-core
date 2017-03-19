@@ -1183,8 +1183,8 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 	if(pgroup->container.size() <= 1)
 		return 0;
 	duel* pduel = pgroup->pduel;
-	card* ms[5];
-	uint8 seq[5];
+	card* ms[7];
+	uint8 seq[7];
 	uint8 tp = 2;
 	uint8 ct = 0;
 	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
@@ -1242,14 +1242,15 @@ int32 scriptlib::duel_change_attack_target(lua_State *L) {
 	}
 	field::card_vector cv;
 	pduel->game_field->get_attack_target(attacker, &cv, pduel->game_field->core.chain_attack);
-	auto turnp=pduel->game_field->infos.turn_player;
+	auto turnp = pduel->game_field->infos.turn_player;
 	if(target && std::find(cv.begin(), cv.end(), target) != cv.end()
 			|| !target && !attacker->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK)) {
 		pduel->game_field->core.attack_target = target;
 		pduel->game_field->core.attack_rollback = FALSE;
-		for(uint32 i = 0; i < 5; ++i) {
-			if(pduel->game_field->player[1 - turnp].list_mzone[i])
-				pduel->game_field->core.opp_mzone[i] = pduel->game_field->player[1 - turnp].list_mzone[i]->fieldid_r;
+		for(uint32 i = 0; i < pduel->game_field->player[1 - turnp].list_mzone.size(); ++i) {
+			card* pcard = pduel->game_field->player[1 - turnp].list_mzone[i];
+			if(pcard)
+				pduel->game_field->core.opp_mzone[i] = pcard->fieldid_r;
 			else
 				pduel->game_field->core.opp_mzone[i] = 0;
 		}

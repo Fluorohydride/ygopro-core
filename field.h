@@ -116,6 +116,7 @@ struct field_info {
 	int16 card_id;
 	uint16 phase;
 	uint8 turn_player;
+	uint8 usable_exmzone;
 	uint8 priorities[2];
 	uint8 can_shuffle;
 };
@@ -231,7 +232,7 @@ struct processor {
 	ptr temp_var[4];
 	uint32 global_flag;
 	uint16 pre_field[2];
-	uint16 opp_mzone[5];
+	uint16 opp_mzone[7];
 	int32 chain_limit;
 	uint8 chain_limp;
 	int32 chain_limit_p;
@@ -342,6 +343,7 @@ public:
 	card* get_field_card(uint8 playerid, uint8 location, uint8 sequence);
 	int32 is_location_useable(uint8 playerid, uint8 location, uint8 sequence);
 	int32 get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32* list = 0);
+	int32 get_useable_count_fromex(uint8 playerid, uint8 location, uint8 uplayer, uint32* list = 0);
 	void shuffle(uint8 playerid, uint8 location);
 	void reset_sequence(uint8 playerid, uint8 location);
 	void swap_deck_and_grave(uint8 playerid);

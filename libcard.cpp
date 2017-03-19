@@ -1134,7 +1134,7 @@ int32 scriptlib::card_set_flag_effect_label(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 code = (lua_tounsigned(L, 2) & 0xfffffff) | 0x10000000;
-	int lab = lua_tointeger(L, 3);
+	int32 lab = lua_tointeger(L, 3);
 	auto eit = pcard->single_effect.find(code);
 	if(eit == pcard->single_effect.end())
 		lua_pushboolean(L, FALSE);
@@ -1835,7 +1835,7 @@ int32 scriptlib::card_is_attack_below(lua_State *L) {
 	if(!(pcard->data.type & TYPE_MONSTER) && !(pcard->get_type() & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE))
 		lua_pushboolean(L, 0);
 	else {
-		int _atk = pcard->get_attack();
+		int32 _atk = pcard->get_attack();
 		lua_pushboolean(L, _atk >= 0 && _atk <= atk);
 	}
 	return 1;
@@ -1848,7 +1848,7 @@ int32 scriptlib::card_is_attack_above(lua_State *L) {
 	if(!(pcard->data.type & TYPE_MONSTER) && !(pcard->get_type() & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE))
 		lua_pushboolean(L, 0);
 	else {
-		int _atk = pcard->get_attack();
+		int32 _atk = pcard->get_attack();
 		lua_pushboolean(L, _atk >= atk);
 	}
 	return 1;
@@ -1861,7 +1861,7 @@ int32 scriptlib::card_is_defense_below(lua_State *L) {
 	if(!(pcard->data.type & TYPE_MONSTER) && !(pcard->get_type() & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE))
 		lua_pushboolean(L, 0);
 	else {
-		int _def = pcard->get_defense();
+		int32 _def = pcard->get_defense();
 		lua_pushboolean(L, _def >= 0 && _def <= def);
 	}
 	return 1;
@@ -1874,7 +1874,7 @@ int32 scriptlib::card_is_defense_above(lua_State *L) {
 	if(!(pcard->data.type & TYPE_MONSTER) && !(pcard->get_type() & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE))
 		lua_pushboolean(L, 0);
 	else {
-		int _def = pcard->get_defense();
+		int32 _def = pcard->get_defense();
 		lua_pushboolean(L, _def >= def);
 	}
 	return 1;

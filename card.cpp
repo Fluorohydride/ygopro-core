@@ -1880,7 +1880,7 @@ void card::set_material(card_set* materials) {
 		(*cit)->current.reason_card = this;
 	effect_set eset;
 	filter_effect(EFFECT_MATERIAL_CHECK, &eset);
-	for(int i = 0; i < eset.size(); ++i) {
+	for(int32 i = 0; i < eset.size(); ++i) {
 		eset[i]->get_value(this);
 	}
 }
@@ -2324,16 +2324,16 @@ void card::get_unique_target(card_set* cset, int32 controler) {
 			continue;
 		const auto& player = pduel->game_field->player[controler ^ p];
 		if(unique_location & LOCATION_MZONE) {
-			for(int32 i = 0; i < 5; ++i) {
-				card* pcard = player.list_mzone[i];
+			for(auto cit = player.list_mzone.begin(); cit != player.list_mzone.end(); ++cit) {
+				card* pcard = *cit;
 				if(pcard && pcard->is_position(POS_FACEUP) && !pcard->is_status(STATUS_BATTLE_DESTROYED)
 					&& check_unique_code(pcard))
 					cset->insert(pcard);
 			}
 		}
 		if(unique_location & LOCATION_SZONE) {
-			for(int32 i = 0; i < 8; ++i) {
-				card* pcard = player.list_szone[i];
+			for(auto cit = player.list_szone.begin(); cit != player.list_szone.end(); ++cit) {
+				card* pcard = *cit;
 				if(pcard && pcard->is_position(POS_FACEUP) && check_unique_code(pcard))
 					cset->insert(pcard);
 			}
