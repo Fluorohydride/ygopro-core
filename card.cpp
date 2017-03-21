@@ -105,6 +105,7 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 		if(query_flag & QUERY_TYPE) q_cache.type = *p++ = get_type();
 		if(query_flag & QUERY_LEVEL) q_cache.level = *p++ = get_level();
 		if(query_flag & QUERY_RANK) q_cache.rank = *p++ = get_rank();
+		if(query_flag & QUERY_LINK) q_cache.link = *p++ = get_link();
 		if(query_flag & QUERY_ATTRIBUTE) q_cache.attribute = *p++ = get_attribute();
 		if(query_flag & QUERY_RACE) q_cache.race = *p++ = get_race();
 		if(query_flag & QUERY_ATTACK) q_cache.attack = *p++ = get_attack();
@@ -129,6 +130,11 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 			q_cache.rank = tdata;
 			*p++ = tdata;
 		} else query_flag &= ~QUERY_RANK;
+		if((query_flag & QUERY_LINK) && ((uint32)(tdata = get_link()) != q_cache.link)) {
+			q_cache.link = tdata;
+			*p++ = tdata;
+		}
+		else query_flag &= ~QUERY_LINK;
 		if((query_flag & QUERY_ATTRIBUTE) && ((uint32)(tdata = get_attribute()) != q_cache.attribute)) {
 			q_cache.attribute = tdata;
 			*p++ = tdata;
@@ -429,8 +435,11 @@ int32 card::get_base_attack() {
 		bdef = 0;
 	temp.base_attack = batk;
 	effect_set eset;
-	filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
-	int32 swap = eset.size();
+	int32 swap = 0;
+	if(!(data.type & TYPE_LINK)) {
+		filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
+		swap = eset.size();
+	}
 	filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
 	if(swap)
 		filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
@@ -577,7 +586,8 @@ int32 card::get_attack() {
 			swap_final = !swap_final;
 			break;
 		case EFFECT_SWAP_BASE_AD:
-			std::swap(batk, bdef);
+			if(!(data.type & TYPE_LINK))
+				std::swap(batk, bdef);
 			break;
 		}
 		temp.base_attack = batk;
@@ -592,7 +602,7 @@ int32 card::get_attack() {
 	for(int32 i = 0; i < effects_atk.size(); ++i)
 		temp.attack = effects_atk[i]->get_value(this);
 	if(temp.defense == -1) {
-		if(swap_final) {
+		if(swap_final && !(data.type & TYPE_LINK)) {
 			temp.attack = get_defense();
 		}
 		for(int32 i = 0; i < effects_atk_r.size(); ++i) {
@@ -609,7 +619,7 @@ int32 card::get_attack() {
 	return atk;
 }
 int32 card::get_base_defense() {
-	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
+	if((!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)) || (data.type & TYPE_LINK))
 		return 0;
 	if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
 		return data.defense;
@@ -671,6 +681,8 @@ int32 card::get_base_defense() {
 	return bdef;
 }
 int32 card::get_defense() {
+	if(data.type & TYPE_LINK)
+		return 0;
 	if(assume_type == ASSUME_DEFENSE)
 		return assume_value;
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
@@ -806,7 +818,7 @@ int32 card::get_defense() {
 // 2. cards with current type TYPE_MONSTER or
 // 3. cards with EFFECT_PRE_MONSTER
 uint32 card::get_level() {
-	if((data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL) 
+	if((data.type & TYPE_XYZ) || (data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL)
 	        || (!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)))
 		return 0;
 	if(assume_type == ASSUME_LEVEL)
@@ -888,8 +900,23 @@ uint32 card::get_rank() {
 	temp.level = 0xffffffff;
 	return rank;
 }
+uint32 card::get_link() {
+	if(!(data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL))
+		 return 0;
+	if(!(current.location & LOCATION_MZONE))
+		 return data.level;
+	if(temp.level != 0xffffffff)
+		return temp.level;
+	effect_set effects;
+	int32 link = data.level;
+	temp.level = link;
+	if (link < 1 && (get_type() & TYPE_MONSTER))
+		link = 1;
+	temp.level = 0xffffffff;
+	return link;
+}
 uint32 card::get_synchro_level(card* pcard) {
-	if((data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL))
+	if((data.type & TYPE_XYZ) || (data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL))
 		return 0;
 	uint32 lev;
 	effect_set eset;
@@ -901,7 +928,7 @@ uint32 card::get_synchro_level(card* pcard) {
 	return lev;
 }
 uint32 card::get_ritual_level(card* pcard) {
-	if((data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL))
+	if((data.type & TYPE_XYZ) || (data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL))
 		return 0;
 	uint32 lev;
 	effect_set eset;
@@ -2840,7 +2867,7 @@ int32 card::is_capable_send_to_grave(uint8 playerid) {
 int32 card::is_capable_send_to_hand(uint8 playerid) {
 	if(is_status(STATUS_LEAVE_CONFIRMED))
 		return FALSE;
-	if((current.location == LOCATION_EXTRA) && (data.type & (TYPE_FUSION + TYPE_SYNCHRO + TYPE_XYZ)))
+	if((current.location == LOCATION_EXTRA) && (data.type & (TYPE_FUSION + TYPE_SYNCHRO + TYPE_XYZ + TYPE_LINK)))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_TO_HAND))
 		return FALSE;
@@ -2851,7 +2878,7 @@ int32 card::is_capable_send_to_hand(uint8 playerid) {
 int32 card::is_capable_send_to_deck(uint8 playerid) {
 	if(is_status(STATUS_LEAVE_CONFIRMED))
 		return FALSE;
-	if((current.location == LOCATION_EXTRA) && (data.type & (TYPE_FUSION + TYPE_SYNCHRO + TYPE_XYZ)))
+	if((current.location == LOCATION_EXTRA) && (data.type & (TYPE_FUSION + TYPE_SYNCHRO + TYPE_XYZ + TYPE_LINK)))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
 		return FALSE;
@@ -2860,7 +2887,7 @@ int32 card::is_capable_send_to_deck(uint8 playerid) {
 	return TRUE;
 }
 int32 card::is_capable_send_to_extra(uint8 playerid) {
-	if(!(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_PENDULUM)))
+	if(!(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_PENDULUM | TYPE_LINK)))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
 		return FALSE;
@@ -2896,7 +2923,7 @@ int32 card::is_capable_cost_to_grave(uint8 playerid) {
 int32 card::is_capable_cost_to_hand(uint8 playerid) {
 	uint32 redirect = 0;
 	uint32 dest = LOCATION_HAND;
-	if(data.type & (TYPE_TOKEN | TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ))
+	if(data.type & (TYPE_TOKEN | TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK))
 		return FALSE;
 	if(current.location == LOCATION_HAND)
 		return FALSE;
@@ -2919,7 +2946,7 @@ int32 card::is_capable_cost_to_hand(uint8 playerid) {
 int32 card::is_capable_cost_to_deck(uint8 playerid) {
 	uint32 redirect = 0;
 	uint32 dest = LOCATION_DECK;
-	if(data.type & (TYPE_TOKEN | TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ))
+	if(data.type & (TYPE_TOKEN | TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK))
 		return FALSE;
 	if(current.location == LOCATION_DECK)
 		return FALSE;
@@ -2942,7 +2969,7 @@ int32 card::is_capable_cost_to_deck(uint8 playerid) {
 int32 card::is_capable_cost_to_extra(uint8 playerid) {
 	uint32 redirect = 0;
 	uint32 dest = LOCATION_DECK;
-	if(!(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)))
+	if(!(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK)))
 		return FALSE;
 	if(current.location == LOCATION_EXTRA)
 		return FALSE;
@@ -3085,7 +3112,7 @@ int32 card::is_can_be_fusion_material(card* fcard) {
 	return TRUE;
 }
 int32 card::is_can_be_synchro_material(card* scard, card* tuner) {
-	if(data.type & TYPE_XYZ)
+	if((data.type & TYPE_XYZ) || (data.type & TYPE_LINK))
 		return FALSE;
 	if(!(get_type() & TYPE_MONSTER))
 		return FALSE;
