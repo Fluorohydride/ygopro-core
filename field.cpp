@@ -533,17 +533,17 @@ int32 field::get_useable_count_fromex(uint8 playerid, uint8 uplayer, uint32* lis
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
 	uint32 used_flag = player[playerid].used_location;
 	uint32 zones = get_linked_zone(playerid);
-	flag = flag & ~zones & 0x1f;
+	flag = (flag | ~zones) & 0x1f;
 	used_flag = used_flag & 0x1f;
 	int32 used_count = field_used_count[flag];
 	int32 maxcount = 6;
 	if(player[playerid].list_mzone[5] || player[playerid].list_mzone[6]) {
-		flag |= (1 << 5) | (1 << 6);
+		flag |= (1u << 5) | (1u << 6);
 		maxcount = 5;
 	} else if(player[1 - playerid].list_mzone[5])
-		flag |= 1 << 6;
+		flag |= 1u << 6;
 	else if(player[1 - playerid].list_mzone[6])
-		flag |= 1 << 5;
+		flag |= 1u << 5;
 	if(list)
 		*list = flag;
 	int32 count = maxcount - used_count;

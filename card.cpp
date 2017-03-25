@@ -105,7 +105,6 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 		if(query_flag & QUERY_TYPE) q_cache.type = *p++ = get_type();
 		if(query_flag & QUERY_LEVEL) q_cache.level = *p++ = get_level();
 		if(query_flag & QUERY_RANK) q_cache.rank = *p++ = get_rank();
-		if(query_flag & QUERY_LINK) q_cache.link = *p++ = get_link();
 		if(query_flag & QUERY_ATTRIBUTE) q_cache.attribute = *p++ = get_attribute();
 		if(query_flag & QUERY_RACE) q_cache.race = *p++ = get_race();
 		if(query_flag & QUERY_ATTACK) q_cache.attack = *p++ = get_attack();
@@ -130,11 +129,6 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 			q_cache.rank = tdata;
 			*p++ = tdata;
 		} else query_flag &= ~QUERY_RANK;
-		if((query_flag & QUERY_LINK) && ((uint32)(tdata = get_link()) != q_cache.link)) {
-			q_cache.link = tdata;
-			*p++ = tdata;
-		}
-		else query_flag &= ~QUERY_LINK;
 		if((query_flag & QUERY_ATTRIBUTE) && ((uint32)(tdata = get_attribute()) != q_cache.attribute)) {
 			q_cache.attribute = tdata;
 			*p++ = tdata;
@@ -202,6 +196,10 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 	if(!use_cache) {
 		if(query_flag & QUERY_LSCALE) q_cache.lscale = *p++ = get_lscale();
 		if(query_flag & QUERY_RSCALE) q_cache.rscale = *p++ = get_rscale();
+		if(query_flag & QUERY_LINK) {
+			q_cache.link = *p++ = get_link();
+			q_cache.link_marker = *p++ = get_link_marker();
+		}
 	} else {
 		if((query_flag & QUERY_LSCALE) && ((uint32)(tdata = get_lscale()) != q_cache.lscale)) {
 			q_cache.lscale = tdata;
@@ -211,6 +209,12 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 			q_cache.rscale = tdata;
 			*p++ = tdata;
 		} else query_flag &= ~QUERY_RSCALE;
+		if((query_flag & QUERY_LINK) && ((get_link() != q_cache.link) || (get_link_marker() != q_cache.link_marker))) {
+			q_cache.link = get_link();
+			*p++ = tdata;
+			q_cache.link_marker = get_link_marker();
+			*p++ = tdata;
+		} else query_flag &= ~QUERY_LINK;
 	}
 	*(uint32*)buf = (byte*)p - buf;
 	*(uint32*)(buf + 4) = query_flag;
@@ -1074,13 +1078,13 @@ uint32 card::get_rscale() {
 	temp.rscale = 0xffffffff;
 	return rscale;
 }
-int32 card::get_link_marker() {
+uint32 card::get_link_marker() {
 	if(!(data.type & TYPE_LINK))
 		return 0;
 	return data.link_marker;
 }
-int32 card::is_link_marker(int32 dir) {
-	return get_link_marker() & dir;
+int32 card::is_link_marker(uint32 dir) {
+	return (int32)(get_link_marker() & dir);
 }
 uint32 card::get_linked_zone() {
 	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE)

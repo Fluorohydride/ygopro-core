@@ -33,7 +33,7 @@ struct card_data {
 	int32 defense;
 	uint32 lscale;
 	uint32 rscale;
-	int32 link_marker;
+	uint32 link_marker;
 };
 
 struct card_state {
@@ -80,6 +80,7 @@ struct query_cache {
 	int32 is_disabled;
 	uint32 lscale;
 	uint32 rscale;
+	uint32 link_marker;
 };
 
 class card {
@@ -190,8 +191,8 @@ public:
 	uint32 get_race();
 	uint32 get_lscale();
 	uint32 get_rscale();
-	int32 get_link_marker();
-	int32 is_link_marker(int32 dir);
+	uint32 get_link_marker();
+	int32 is_link_marker(uint32 dir);
 	uint32 get_linked_zone();
 	void get_linked_cards(card_set* cset);
 	int32 is_position(int32 pos);
@@ -494,13 +495,13 @@ public:
 #define ASSUME_ATTACK		7
 #define ASSUME_DEFENSE		8
 
-#define LINK_MARKER_TOP				0x1
-#define LINK_MARKER_TOP_LEFT		0x2
-#define LINK_MARKER_LEFT			0x4
-#define LINK_MARKER_BOTTOM_LEFT		0x8
-#define LINK_MARKER_BOTTOM			0x10
-#define LINK_MARKER_BOTTOM_RIGHT	0x20
-#define LINK_MARKER_RIGHT			0x40
-#define LINK_MARKER_TOP_RIGHT		0x80
+#define LINK_MARKER_BOTTOM_LEFT		0001
+#define LINK_MARKER_BOTTOM			0002
+#define LINK_MARKER_BOTTOM_RIGHT	0004
+#define LINK_MARKER_LEFT			0010
+#define LINK_MARKER_RIGHT			0040
+#define LINK_MARKER_TOP_LEFT		0100
+#define LINK_MARKER_TOP				0200
+#define LINK_MARKER_TOP_RIGHT		0400
 
 #endif /* CARD_H_ */
