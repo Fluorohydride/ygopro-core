@@ -515,14 +515,16 @@ int32 card::get_attack() {
 	int32 up_atk = 0, upc_atk = 0;
 	int32 swap_final = FALSE;
 	effect_set eset;
-	filter_effect(EFFECT_SWAP_AD, &eset, FALSE);
 	filter_effect(EFFECT_UPDATE_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SET_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SET_ATTACK_FINAL, &eset, FALSE);
 	filter_effect(EFFECT_SWAP_ATTACK_FINAL, &eset, FALSE);
-	filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
 	filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
-	filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
+	if(!(data.type & TYPE_LINK)) {
+		filter_effect(EFFECT_SWAP_AD, &eset, FALSE);
+		filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
+		filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
+	}
 	eset.sort();
 	int32 rev = FALSE;
 	if(is_affected_by_effect(EFFECT_REVERSE_UPDATE))
@@ -594,8 +596,7 @@ int32 card::get_attack() {
 			swap_final = !swap_final;
 			break;
 		case EFFECT_SWAP_BASE_AD:
-			if(!(data.type & TYPE_LINK))
-				std::swap(batk, bdef);
+			std::swap(batk, bdef);
 			break;
 		}
 		temp.base_attack = batk;
@@ -610,7 +611,7 @@ int32 card::get_attack() {
 	for(int32 i = 0; i < effects_atk.size(); ++i)
 		temp.attack = effects_atk[i]->get_value(this);
 	if(temp.defense == -1) {
-		if(swap_final && !(data.type & TYPE_LINK)) {
+		if(swap_final) {
 			temp.attack = get_defense();
 		}
 		for(int32 i = 0; i < effects_atk_r.size(); ++i) {
@@ -627,7 +628,9 @@ int32 card::get_attack() {
 	return atk;
 }
 int32 card::get_base_defense() {
-	if((!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)) || (data.type & TYPE_LINK))
+	if(data.type & TYPE_LINK)
+		return 0;
+	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
 		return data.defense;
@@ -826,7 +829,7 @@ int32 card::get_defense() {
 // 2. cards with current type TYPE_MONSTER or
 // 3. cards with EFFECT_PRE_MONSTER
 uint32 card::get_level() {
-	if((data.type & TYPE_XYZ) || (data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL)
+	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL)
 	        || (!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)))
 		return 0;
 	if(assume_type == ASSUME_LEVEL)
@@ -914,7 +917,7 @@ uint32 card::get_link() {
 	return data.level;
 }
 uint32 card::get_synchro_level(card* pcard) {
-	if((data.type & TYPE_XYZ) || (data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL))
+	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL))
 		return 0;
 	uint32 lev;
 	effect_set eset;
@@ -926,7 +929,7 @@ uint32 card::get_synchro_level(card* pcard) {
 	return lev;
 }
 uint32 card::get_ritual_level(card* pcard) {
-	if((data.type & TYPE_XYZ) || (data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL))
+	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL))
 		return 0;
 	uint32 lev;
 	effect_set eset;
@@ -3102,7 +3105,9 @@ int32 card::is_capable_attack_announce(uint8 playerid) {
 	return TRUE;
 }
 int32 card::is_capable_change_position(uint8 playerid) {
-	if(is_status(STATUS_SUMMON_TURN) || is_status(STATUS_FLIP_SUMMON_TURN) || is_status(STATUS_SPSUMMON_TURN) || is_status(STATUS_FORM_CHANGED))
+	if(get_status(STATUS_SUMMON_TURN | STATUS_FLIP_SUMMON_TURN | STATUS_SPSUMMON_TURN | STATUS_FORM_CHANGED))
+		return FALSE;
+	if(data.type & TYPE_LINK)
 		return FALSE;
 	if(announce_count > 0)
 		return FALSE;
@@ -3190,7 +3195,7 @@ int32 card::is_can_be_fusion_material(card* fcard) {
 	return TRUE;
 }
 int32 card::is_can_be_synchro_material(card* scard, card* tuner) {
-	if((data.type & TYPE_XYZ) || (data.type & TYPE_LINK))
+	if(data.type & (TYPE_XYZ | TYPE_LINK))
 		return FALSE;
 	if(!(get_type() & TYPE_MONSTER))
 		return FALSE;
