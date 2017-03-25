@@ -116,7 +116,6 @@ struct field_info {
 	int16 card_id;
 	uint16 phase;
 	uint8 turn_player;
-	uint8 usable_exmzone;
 	uint8 priorities[2];
 	uint8 can_shuffle;
 };
@@ -343,7 +342,8 @@ public:
 	card* get_field_card(uint8 playerid, uint8 location, uint8 sequence);
 	int32 is_location_useable(uint8 playerid, uint8 location, uint8 sequence);
 	int32 get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32* list = 0);
-	int32 get_useable_count_fromex(uint8 playerid, uint8 location, uint8 uplayer, uint32* list = 0);
+	int32 get_useable_count_fromex(uint8 playerid, uint8 uplayer, uint32* list = 0);
+	uint32 get_linked_zone(int32 playerid);
 	void shuffle(uint8 playerid, uint8 location);
 	void reset_sequence(uint8 playerid, uint8 location);
 	void swap_deck_and_grave(uint8 playerid);

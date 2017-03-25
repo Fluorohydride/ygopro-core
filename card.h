@@ -33,6 +33,7 @@ struct card_data {
 	int32 defense;
 	uint32 lscale;
 	uint32 rscale;
+	int32 link_marker;
 };
 
 struct card_state {
@@ -178,6 +179,7 @@ public:
 	int32 get_defense();
 	uint32 get_level();
 	uint32 get_rank();
+	uint32 get_link();
 	uint32 get_synchro_level(card* pcard);
 	uint32 get_ritual_level(card* pcard);
 	uint32 check_xyz_level(card* pcard, uint32 lv);
@@ -186,6 +188,10 @@ public:
 	uint32 get_race();
 	uint32 get_lscale();
 	uint32 get_rscale();
+	int32 get_link_marker();
+	int32 is_link_marker(int32 dir);
+	uint32 get_linked_zone();
+	void get_linked_cards(card_set* cset);
 	int32 is_position(int32 pos);
 	void set_status(uint32 status, int32 enabled);
 	int32 get_status(uint32 status);
@@ -343,6 +349,7 @@ public:
 #define TYPE_XYZ			0x800000	//
 #define TYPE_PENDULUM		0x1000000	//
 #define TYPE_SPSUMMON		0x2000000	//
+#define TYPE_LINK			0x4000000	//
 
 //Attributes
 #define ATTRIBUTE_EARTH		0x01		//
@@ -483,4 +490,14 @@ public:
 #define ASSUME_RACE			6
 #define ASSUME_ATTACK		7
 #define ASSUME_DEFENSE		8
+
+#define LINK_MARKER_TOP				0x1
+#define LINK_MARKER_TOP_LEFT		0x2
+#define LINK_MARKER_LEFT			0x4
+#define LINK_MARKER_BOTTOM_LEFT		0x8
+#define LINK_MARKER_BOTTOM			0x10
+#define LINK_MARKER_BOTTOM_RIGHT	0x20
+#define LINK_MARKER_RIGHT			0x40
+#define LINK_MARKER_TOP_RIGHT		0x80
+
 #endif /* CARD_H_ */
