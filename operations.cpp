@@ -3840,7 +3840,7 @@ int32 field::move_to_field(uint16 step, card * target, uint32 enable, uint32 ret
 			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1);
 		} else if(core.duel_rule >= 4 && location == LOCATION_MZONE && target->current.location == LOCATION_EXTRA) {
 			uint32 flag;
-			int32 ct = get_useable_count_fromex(playerid, location, move_player, &flag);
+			int32 ct = get_useable_count_fromex(playerid, move_player, &flag);
 			if((ret == 1) && (ct <= 0 || target->is_status(STATUS_FORBIDDEN) || check_unique_onfield(target, playerid, location))) {
 				core.units.begin()->step = 3;
 				send_to(target, core.reason_effect, REASON_RULE, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, 0);

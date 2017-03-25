@@ -34,7 +34,6 @@ field::field(duel* pduel) {
 	infos.card_id = 1;
 	infos.phase = 0;
 	infos.turn_player = 0;
-	infos.usable_exmzone = 0;
 	for (int32 i = 0; i < 2; ++i) {
 		cost[i].count = 0;
 		cost[i].amount = 0;
@@ -215,10 +214,6 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 	pcard->fieldid = infos.field_id++;
 	pcard->fieldid_r = pcard->fieldid;
 	pcard->turnid = infos.turn_id;
-	if (location == LOCATION_MZONE) {
-		if (!infos.usable_exmzone && sequence >= 5)
-			infos.usable_exmzone = sequence;
-	}
 	if (location == LOCATION_MZONE)
 		player[playerid].used_location |= 1 << sequence;
 	if (location == LOCATION_SZONE)
@@ -534,25 +529,86 @@ int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, ui
 		return count;
 	}
 }
-int32 field::get_useable_count_fromex(uint8 playerid, uint8 location, uint8 uplayer, uint32* list) {
-	uint32 flag = 0x1f;
-	int32 count = 1;
-	if(infos.usable_exmzone == 5) {
+int32 field::get_useable_count_fromex(uint8 playerid, uint8 uplayer, uint32* list) {
+	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
+	uint32 used_flag = player[playerid].used_location;
+	uint32 zones = get_linked_zone(playerid);
+	flag = flag & ~zones & 0x1f;
+	used_flag = used_flag & 0x1f;
+	int32 used_count = field_used_count[flag];
+	int32 maxcount = 6;
+	if(player[playerid].list_mzone[5] || player[playerid].list_mzone[6]) {
+		flag |= (1 << 5) | (1 << 6);
+		maxcount = 5;
+	} else if(player[1 - playerid].list_mzone[5])
 		flag |= 1 << 6;
-		if(player[playerid].list_mzone[5]) {
-			flag |= 1 << 5;
-			count = 0;
-		}
-	} else if(infos.usable_exmzone == 6) {
+	else if(player[1 - playerid].list_mzone[6])
 		flag |= 1 << 5;
-		if(player[playerid].list_mzone[6]) {
-			flag |= 1 << 6;
-			count = 0;
-		}
-	}
 	if(list)
 		*list = flag;
+	int32 count = maxcount - used_count;
+	effect_set eset;
+	if(uplayer < 2)
+		filter_player_effect(playerid, EFFECT_MAX_MZONE, &eset);
+	if(eset.size()) {
+		int32 max = maxcount;
+		for (int32 i = 0; i < eset.size(); ++i) {
+			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+			pduel->lua->add_param(uplayer, PARAM_TYPE_INT);
+			pduel->lua->add_param(LOCATION_REASON_TOFIELD, PARAM_TYPE_INT);
+			int32 v = eset[i]->get_value(3);
+			if (max > v)
+				max = v;
+		}
+		int32 limit = max - field_used_count[used_flag];
+		if(count > limit)
+			count = limit;
+	}
 	return count;
+}
+uint32 field::get_linked_zone(int32 playerid) {
+	uint32 zones = 0;
+	for(uint32 i = 1; i < 5; ++i) {
+		card* pcard = player[playerid].list_mzone[i];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_LEFT))
+			zones |= 1u << (i - 1);
+	}
+	for(uint32 i = 0; i < 4; ++i) {
+		card* pcard = player[playerid].list_mzone[i];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_RIGHT))
+			zones |= 1u << (i + 1);
+	}
+	//if((player[playerid].list_mzone[0] && player[playerid].list_mzone[0]->is_link_marker(LINK_MARKER_TOP_RIGHT))
+	//	|| (player[playerid].list_mzone[1] && player[playerid].list_mzone[1]->is_link_marker(LINK_MARKER_TOP))
+	//	|| (player[playerid].list_mzone[2] && player[playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_LEFT)))
+	//	zones |= 1u << 5;
+	//if((player[playerid].list_mzone[2] && player[playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_RIGHT))
+	//	|| (player[playerid].list_mzone[3] && player[playerid].list_mzone[3]->is_link_marker(LINK_MARKER_TOP))
+	//	|| (player[playerid].list_mzone[4] && player[playerid].list_mzone[4]->is_link_marker(LINK_MARKER_TOP_LEFT)))
+	//	zones |= 1u << 6;
+	for(uint32 i = 0; i < 2; ++i) {
+		card* pcard = player[playerid].list_mzone[i + 5];
+		if(pcard) {
+			if(pcard->is_link_marker(LINK_MARKER_BOTTOM_LEFT))
+				zones |= 1u << (i * 2);
+			if(pcard->is_link_marker(LINK_MARKER_BOTTOM))
+				zones |= 1u << (i * 2 + 1);
+			if(pcard->is_link_marker(LINK_MARKER_BOTTOM_RIGHT))
+				zones |= 1u << (i * 2 + 2);
+		}
+	}
+	for(uint32 i = 0; i < 2; ++i) {
+		card* pcard = player[1 - playerid].list_mzone[i + 5];
+		if(pcard) {
+			if(pcard->is_link_marker(LINK_MARKER_TOP_LEFT))
+				zones |= 1u << (4 - i * 2);
+			if(pcard->is_link_marker(LINK_MARKER_TOP))
+				zones |= 1u << (3 - i * 2);
+			if(pcard->is_link_marker(LINK_MARKER_TOP_RIGHT))
+				zones |= 1u << (2 - i * 2);
+		}
+	}
+	return zones;
 }
 void field::shuffle(uint8 playerid, uint8 location) {
 	if(!(location & (LOCATION_HAND | LOCATION_DECK)))
