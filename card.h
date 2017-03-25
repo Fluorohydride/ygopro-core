@@ -43,6 +43,7 @@ struct card_state {
 	uint32 type;
 	uint32 level;
 	uint32 rank;
+	uint32 link;
 	uint32 lscale;
 	uint32 rscale;
 	uint32 attribute;
@@ -67,6 +68,7 @@ struct query_cache {
 	uint32 type;
 	uint32 level;
 	uint32 rank;
+	uint32 link;
 	uint32 attribute;
 	uint32 race;
 	int32 attack;
@@ -481,6 +483,7 @@ public:
 #define QUERY_IS_PUBLIC		0x100000
 #define QUERY_LSCALE		0x200000
 #define QUERY_RSCALE		0x400000
+#define QUERY_LINK			0x800000
 
 #define ASSUME_CODE			1
 #define ASSUME_TYPE			2
