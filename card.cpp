@@ -209,12 +209,16 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 			q_cache.rscale = tdata;
 			*p++ = tdata;
 		} else query_flag &= ~QUERY_RSCALE;
-		if((query_flag & QUERY_LINK) && ((get_link() != q_cache.link) || (get_link_marker() != q_cache.link_marker))) {
-			q_cache.link = get_link();
-			*p++ = tdata;
-			q_cache.link_marker = get_link_marker();
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_LINK;
+		if(query_flag & QUERY_LINK) {
+			uint32 link = get_link();
+			uint32 link_marker = get_link_marker();
+			if((link != q_cache.link) || (link_marker != q_cache.link_marker)) {
+				q_cache.link = link;
+				*p++ = (int32)link;
+				q_cache.link_marker = link_marker;
+				*p++ = (int32)link_marker;
+			} else query_flag &= ~QUERY_LINK;
+		}
 	}
 	*(uint32*)buf = (byte*)p - buf;
 	*(uint32*)(buf + 4) = query_flag;

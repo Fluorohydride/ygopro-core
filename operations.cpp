@@ -2300,7 +2300,13 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 	}
 	case 6: {
 		effect* proc = core.units.begin()->peffect;
-		int32 matreason = proc->value == SUMMON_TYPE_SYNCHRO ? REASON_SYNCHRO : proc->value == SUMMON_TYPE_XYZ ? REASON_XYZ : REASON_SPSUMMON;
+		int32 matreason = REASON_SPSUMMON;
+		if(proc->value == SUMMON_TYPE_SYNCHRO)
+			matreason = REASON_SYNCHRO;
+		else if(proc->value == SUMMON_TYPE_XYZ)
+			matreason = SUMMON_TYPE_XYZ;
+		else if(proc->value == SUMMON_TYPE_LINK)
+			matreason = REASON_LINK;
 		if (target->material_cards.size()) {
 			for (auto mit = target->material_cards.begin(); mit != target->material_cards.end(); ++mit)
 				raise_single_event(*mit, 0, EVENT_BE_PRE_MATERIAL, proc, matreason, sumplayer, sumplayer, 0);
@@ -2366,7 +2372,13 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		pduel->write_buffer8(MSG_SPSUMMONED);
 		adjust_instant();
 		effect* proc = core.units.begin()->peffect;
-		int32 matreason = proc->value == SUMMON_TYPE_SYNCHRO ? REASON_SYNCHRO : proc->value == SUMMON_TYPE_XYZ ? REASON_XYZ : REASON_SPSUMMON;
+		int32 matreason = REASON_SPSUMMON;
+		if(proc->value == SUMMON_TYPE_SYNCHRO)
+			matreason = REASON_SYNCHRO;
+		else if(proc->value == SUMMON_TYPE_XYZ)
+			matreason = SUMMON_TYPE_XYZ;
+		else if(proc->value == SUMMON_TYPE_LINK)
+			matreason = REASON_LINK;
 		if(target->material_cards.size()) {
 			for(auto mit = target->material_cards.begin(); mit != target->material_cards.end(); ++mit)
 				raise_single_event(*mit, 0, EVENT_BE_MATERIAL, proc, matreason, sumplayer, sumplayer, 0);

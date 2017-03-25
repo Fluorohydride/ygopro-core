@@ -175,6 +175,13 @@ int32 scriptlib::card_get_rank(lua_State *L) {
 	lua_pushinteger(L, pcard->get_rank());
 	return 1;
 }
+int32 scriptlib::card_get_link(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_pushinteger(L, pcard->get_link());
+	return 1;
+}
 int32 scriptlib::card_get_synchro_level(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 2);
@@ -247,6 +254,33 @@ int32 scriptlib::card_get_origin_rscale(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	lua_pushinteger(L, pcard->data.rscale);
+	return 1;
+}
+int32 scriptlib::card_is_link_marker(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 dir = lua_tointeger(L, 2);
+	lua_pushboolean(L, pcard->is_link_marker(dir));
+	return 1;
+}
+int32 scriptlib::card_get_linked_group(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	card::card_set cset;
+	pcard->get_linked_cards(&cset);
+	group* pgroup = pcard->pduel->new_group(cset);
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
+int32 scriptlib::card_get_linked_group_count(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	card::card_set cset;
+	pcard->get_linked_cards(&cset);
+	lua_pushinteger(L, cset.size());
 	return 1;
 }
 int32 scriptlib::card_get_attribute(lua_State *L) {
