@@ -2705,7 +2705,7 @@ int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 	pduel->game_field->restore_lp_cost();
 	return eset.size();
 }
-int32 card::is_can_be_special_summoned(effect * reason_effect, uint32 sumtype, uint8 sumpos, uint8 sumplayer, uint8 toplayer, uint8 nocheck, uint8 nolimit) {
+int32 card::is_can_be_special_summoned(effect* reason_effect, uint32 sumtype, uint8 sumpos, uint8 sumplayer, uint8 toplayer, uint8 nocheck, uint8 nolimit, uint32 zone) {
 	if(current.location == LOCATION_MZONE)
 		return FALSE;
 	if(current.location == LOCATION_REMOVED && (current.position & POS_FACEDOWN))
@@ -2728,6 +2728,15 @@ int32 card::is_can_be_special_summoned(effect * reason_effect, uint32 sumtype, u
 		return FALSE;
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
+	if(zone != 0xff) {
+		int32 ct;
+		if(pduel->game_field->core.duel_rule >= 4 && current.location == LOCATION_EXTRA)
+			ct = pduel->game_field->get_useable_count_fromex(toplayer, sumplayer, zone);
+		else
+			ct = pduel->game_field->get_useable_count(toplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD, zone);
+		if(ct <= 0)
+			return FALSE;
+	}
 	pduel->game_field->save_lp_cost();
 	effect_set eset;
 	filter_effect(EFFECT_SPSUMMON_COST, &eset);

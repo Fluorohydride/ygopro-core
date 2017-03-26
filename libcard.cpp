@@ -1114,6 +1114,13 @@ int32 scriptlib::card_get_effect_count(lua_State *L) {
 	lua_pushinteger(L, eset.size());
 	return 1;
 }
+int32 scriptlib::card_get_linked_zone(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_pushinteger(L, pcard->get_linked_zone());
+	return 1;
+}
 int32 scriptlib::card_register_flag_effect(lua_State *L) {
 	check_param_count(L, 5);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -1511,11 +1518,14 @@ int32 scriptlib::card_is_can_be_special_summoned(lua_State *L) {
 	uint32 nolimit = lua_toboolean(L, 6);
 	uint32 sumpos = POS_FACEUP;
 	uint32 toplayer = sumplayer;
-	if(lua_gettop(L) > 6)
+	uint32 zone = 0xff;
+	if(lua_gettop(L) >= 7)
 		sumpos = lua_tointeger(L, 7);
-	if(lua_gettop(L) > 7)
+	if(lua_gettop(L) >= 8)
 		toplayer = lua_tointeger(L, 8);
-	if(pcard->is_can_be_special_summoned(peffect, sumtype, sumpos, sumplayer, toplayer, nocheck, nolimit))
+	if(lua_gettop(L) >= 9)
+		zone = lua_tointeger(L, 9);
+	if(pcard->is_can_be_special_summoned(peffect, sumtype, sumpos, sumplayer, toplayer, nocheck, nolimit, zone))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);

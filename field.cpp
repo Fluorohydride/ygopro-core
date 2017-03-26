@@ -493,14 +493,14 @@ int32 field::is_location_useable(uint8 playerid, uint8 location, uint8 sequence)
 // uplayer: request player, PLAYER_NONE means ignoring EFFECT_MAX_MZONE, EFFECT_MAX_SZONE
 // list: store local flag in list
 // return: usable count of LOCATION_MZONE or real LOCATION_SZONE of plaerid requested by uplayer (may be negative)
-int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32* list) {
+int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone, uint32* list) {
 	if (location != LOCATION_MZONE && location != LOCATION_SZONE)
 		return 0;
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
 	uint32 used_flag = player[playerid].used_location;
 	effect_set eset;
 	if (location == LOCATION_MZONE) {
-		flag = flag & 0x1f;
+		flag = (flag | ~zone) & 0x1f;
 		used_flag = used_flag & 0x1f;
 		if(uplayer < 2)
 			filter_player_effect(playerid, EFFECT_MAX_MZONE, &eset);
@@ -529,20 +529,20 @@ int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, ui
 		return count;
 	}
 }
-int32 field::get_useable_count_fromex(uint8 playerid, uint8 uplayer, uint32* list) {
+int32 field::get_useable_count_fromex(uint8 playerid, uint8 uplayer, uint32 zone, uint32* list) {
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
 	uint32 used_flag = player[playerid].used_location;
-	uint32 zones = get_linked_zone(playerid);
-	flag = (flag | ~zones) & 0x1f;
+	uint32 linked_zone = get_linked_zone(playerid);
+	flag = (flag | ~zone | ~linked_zone) & 0x1f;
 	used_flag = used_flag & 0x1f;
 	int32 used_count = field_used_count[flag];
 	int32 maxcount = 6;
-	if(player[playerid].list_mzone[5] || player[playerid].list_mzone[6]) {
+	if(player[playerid].list_mzone[5] || player[playerid].list_mzone[6] || !(zone & ((1u << 5) | (1u << 6)))) {
 		flag |= (1u << 5) | (1u << 6);
 		maxcount = 5;
-	} else if(player[1 - playerid].list_mzone[5])
+	} else if(player[1 - playerid].list_mzone[5] || !(zone & (1u << 6)))
 		flag |= 1u << 6;
-	else if(player[1 - playerid].list_mzone[6])
+	else if(player[1 - playerid].list_mzone[6] || !(zone & (1u << 5)))
 		flag |= 1u << 5;
 	if(list)
 		*list = flag;
