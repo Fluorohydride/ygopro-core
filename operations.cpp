@@ -2647,19 +2647,20 @@ int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_pl
 			else
 				cvo.push_back(pcard);
 		}
+		uint32 zone = 0xff;
 		if(!cvs.empty()) {
 			if(cvs.size() > 1)
 				std::sort(cvs.begin(), cvs.end(), card::card_operation_sort);
 			core.hint_timing[infos.turn_player] |= TIMING_SPSUMMON;
 			for(auto cvit = cvs.begin(); cvit != cvs.end(); ++cvit)
-				add_process(PROCESSOR_SPSUMMON_STEP, 0, NULL, targets, 0, 0, 0, 0, *cvit);
+				add_process(PROCESSOR_SPSUMMON_STEP, 0, NULL, targets, zone, 0, 0, 0, *cvit);
 		}
 		if(!cvo.empty()) {
 			if(cvo.size() > 1)
 				std::sort(cvo.begin(), cvo.end(), card::card_operation_sort);
 			core.hint_timing[1 - infos.turn_player] |= TIMING_SPSUMMON;
 			for(auto cvit = cvo.begin(); cvit != cvo.end(); ++cvit)
-				add_process(PROCESSOR_SPSUMMON_STEP, 0, NULL, targets, 0, 0, 0, 0, *cvit);
+				add_process(PROCESSOR_SPSUMMON_STEP, 0, NULL, targets, zone, 0, 0, 0, *cvit);
 		}
 		return FALSE;
 	}
