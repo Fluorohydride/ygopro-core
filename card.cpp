@@ -3129,7 +3129,7 @@ int32 card::is_capable_change_position(uint8 playerid) {
 	return TRUE;
 }
 int32 card::is_capable_turn_set(uint8 playerid) {
-	if(data.type & TYPE_TOKEN)
+	if(data.type & (TYPE_LINK | TYPE_TOKEN))
 		return FALSE;
 	if(is_position(POS_FACEDOWN))
 		return FALSE;
