@@ -76,7 +76,7 @@ extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int options) {
 		pd->game_field->core.duel_rule = duel_rule;
 	else if(options & DUEL_OBSOLETE_RULING)		//provide backward compatibility with replay
 		pd->game_field->core.duel_rule = 1;
-	else
+	else if(!pd->game_field->core.duel_rule)
 		pd->game_field->core.duel_rule = 3;
 	pd->game_field->core.shuffle_hand_check[0] = FALSE;
 	pd->game_field->core.shuffle_hand_check[1] = FALSE;

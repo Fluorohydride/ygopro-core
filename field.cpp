@@ -83,6 +83,7 @@ field::field(duel* pduel) {
 	core.limit_xyz_maxc = 0;
 	core.last_control_changed_id = 0;
 	core.duel_options = 0;
+	core.duel_rule = 0;
 	core.attacker = 0;
 	core.attack_target = 0;
 	core.attack_rollback = FALSE;
