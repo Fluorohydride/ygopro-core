@@ -554,10 +554,10 @@ int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer
 	int32 maxcount = 6;
 	if(player[playerid].list_mzone[5] && is_location_useable(playerid, LOCATION_MZONE, 6)
 		&& (zone & (1u << 6)) && check_extra_link(playerid, pcard, 6)) {
-		flag |= 1u << 6;
+		flag |= 1u << 5;
 	} else if(player[playerid].list_mzone[6] && is_location_useable(playerid, LOCATION_MZONE, 5)
 		&& (zone & (1u << 5)) && check_extra_link(playerid, pcard, 5)) {
-		flag |= 1u << 5;
+		flag |= 1u << 6;
 	} else if(player[playerid].list_mzone[5] || player[playerid].list_mzone[6] || !(zone & ((1u << 5) | (1u << 6)))) {
 		flag |= (1u << 5) | (1u << 6);
 		maxcount = 5;
