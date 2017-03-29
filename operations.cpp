@@ -2568,12 +2568,7 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 			core.units.begin()->step = 4;
 			return FALSE;
 		}
-		int32 ct;
-		if(core.duel_rule >= 4 && target->current.location == LOCATION_EXTRA)
-			ct = get_useable_count_fromex(playerid, target->summon_player, zone);
-		else
-			ct = get_useable_count(playerid, LOCATION_MZONE, target->summon_player, LOCATION_REASON_TOFIELD, zone);
-		if(ct <= 0) {
+		if(get_useable_count(target, playerid, LOCATION_MZONE, target->summon_player, LOCATION_REASON_TOFIELD, zone) <= 0) {
 			if(target->current.location != LOCATION_GRAVE)
 				core.ss_tograve_set.insert(target);
 			core.units.begin()->step = 4;
@@ -3866,7 +3861,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1);
 		} else if(core.duel_rule >= 4 && location == LOCATION_MZONE && target->current.location == LOCATION_EXTRA) {
 			uint32 flag;
-			int32 ct = get_useable_count_fromex(playerid, move_player, zone, &flag);
+			int32 ct = get_useable_count_fromex(target, playerid, move_player, zone, &flag);
 			if((ret == 1) && (ct <= 0 || target->is_status(STATUS_FORBIDDEN) || check_unique_onfield(target, playerid, location))) {
 				core.units.begin()->step = 3;
 				send_to(target, core.reason_effect, REASON_RULE, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, 0);

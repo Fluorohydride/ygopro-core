@@ -4849,8 +4849,8 @@ void field::refresh_location_info_instant() {
 		value = eset[i]->get_value();
 		player[p].disabled_location |= (value >> 8) & 0x1f00;
 	}
-	player[0].disabled_location |= ((player[1].disabled_location >> 5) << 6) | ((player[1].disabled_location >> 6) << 5);
-	player[1].disabled_location |= ((player[0].disabled_location >> 5) << 6) | ((player[0].disabled_location >> 6) << 5);
+	player[0].disabled_location |= (((player[1].disabled_location >> 5) & 1) << 6) | (((player[1].disabled_location >> 6) & 1) << 5);
+	player[1].disabled_location |= (((player[0].disabled_location >> 5) & 1) << 6) | (((player[0].disabled_location >> 6) & 1) << 5);
 	uint32 dis2 = player[0].disabled_location | (player[1].disabled_location << 16);
 	if(dis1 != dis2) {
 		pduel->write_buffer8(MSG_FIELD_DISABLED);
@@ -5018,8 +5018,8 @@ int32 field::refresh_location_info(uint16 step) {
 		return FALSE;
 	}
 	case 7: {
-		player[0].disabled_location |= ((player[1].disabled_location >> 5) << 6) | ((player[1].disabled_location >> 6) << 5);
-		player[1].disabled_location |= ((player[0].disabled_location >> 5) << 6) | ((player[0].disabled_location >> 6) << 5);
+		player[0].disabled_location |= (((player[1].disabled_location >> 5) & 1) << 6) | (((player[1].disabled_location >> 6) & 1) << 5);
+		player[1].disabled_location |= (((player[0].disabled_location >> 5) & 1) << 6) | (((player[0].disabled_location >> 6) & 1) << 5);
 		uint32 dis = player[0].disabled_location | (player[1].disabled_location << 16);
 		if(dis != (uint32)core.units.begin()->arg2) {
 			pduel->write_buffer8(MSG_FIELD_DISABLED);

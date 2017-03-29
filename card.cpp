@@ -1165,6 +1165,136 @@ void card::get_linked_cards(card_set* cset) {
 		icheck <<= 1;
 	}
 }
+uint32 card::get_mutual_linked_zone() {
+	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE)
+		return 0;
+	int32 zones = 0;
+	int32 p = current.controler;
+	int32 s = current.sequence;
+	if(s > 0 && s <= 4 && is_link_marker(LINK_MARKER_LEFT)) {
+		card* pcard = pduel->game_field->player[p].list_mzone[s - 1];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_RIGHT))
+			zones |= 1u << (s - 1);
+	}
+	if(s <= 3 && is_link_marker(LINK_MARKER_RIGHT)) {
+		card* pcard = pduel->game_field->player[p].list_mzone[s + 1];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_LEFT))
+			zones |= 1u << (s + 1);
+	}
+	if(s == 0 && is_link_marker(LINK_MARKER_TOP_RIGHT)) {
+		card* pcard = pduel->game_field->player[p].list_mzone[5];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_BOTTOM_LEFT))
+			zones |= 1u << 5;
+		pcard = pduel->game_field->player[1 - p].list_mzone[6];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_TOP_RIGHT))
+			zones |= 1u << (16 + 6);
+	}
+	if(s == 1 && is_link_marker(LINK_MARKER_TOP)) {
+		card* pcard = pduel->game_field->player[p].list_mzone[5];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_BOTTOM))
+			zones |= 1u << 5;
+		pcard = pduel->game_field->player[1 - p].list_mzone[6];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_TOP))
+			zones |= 1u << (16 + 6);
+	}
+	if(s == 2 && is_link_marker(LINK_MARKER_TOP_LEFT)) {
+		card* pcard = pduel->game_field->player[p].list_mzone[5];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_BOTTOM_RIGHT))
+			zones |= 1u << 5;
+		pcard = pduel->game_field->player[1 - p].list_mzone[6];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_TOP_LEFT))
+			zones |= 1u << (16 + 6);
+	}
+	if(s == 2 && is_link_marker(LINK_MARKER_TOP_RIGHT)) {
+		card* pcard = pduel->game_field->player[p].list_mzone[6];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_BOTTOM_LEFT))
+			zones |= 1u << 6;
+		pcard = pduel->game_field->player[1 - p].list_mzone[5];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_TOP_RIGHT))
+			zones |= 1u << (16 + 5);
+	}
+	if(s == 3 && is_link_marker(LINK_MARKER_TOP)) {
+		card* pcard = pduel->game_field->player[p].list_mzone[6];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_BOTTOM))
+			zones |= 1u << 6;
+		pcard = pduel->game_field->player[1 - p].list_mzone[5];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_TOP))
+			zones |= 1u << (16 + 5);
+	}
+	if(s == 4 && is_link_marker(LINK_MARKER_TOP_LEFT)) {
+		card* pcard = pduel->game_field->player[p].list_mzone[6];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_BOTTOM_RIGHT))
+			zones |= 1u << 6;
+		pcard = pduel->game_field->player[1 - p].list_mzone[5];
+		if(pcard && pcard->is_link_marker(LINK_MARKER_TOP_LEFT))
+			zones |= 1u << (16 + 5);
+	}
+	if(s == 5) {
+		if(is_link_marker(LINK_MARKER_BOTTOM_LEFT)) {
+			card* pcard = pduel->game_field->player[p].list_mzone[0];
+			if(pcard && pcard->is_link_marker(LINK_MARKER_TOP_RIGHT))
+				zones |= 1u << 0;
+		}
+		if(is_link_marker(LINK_MARKER_BOTTOM)) {
+			card* pcard = pduel->game_field->player[p].list_mzone[1];
+			if(pcard && pcard->is_link_marker(LINK_MARKER_TOP))
+				zones |= 1u << 1;
+		}
+		if(is_link_marker(LINK_MARKER_BOTTOM_RIGHT)) {
+			card* pcard = pduel->game_field->player[p].list_mzone[2];
+			if(pcard && pcard->is_link_marker(LINK_MARKER_TOP_LEFT))
+				zones |= 1u << 2;
+		}
+		if(is_link_marker(LINK_MARKER_TOP_LEFT)) {
+			card* pcard = pduel->game_field->player[1 - p].list_mzone[4];
+			if(pcard && pcard->is_link_marker(LINK_MARKER_TOP_LEFT))
+				zones |= 1u << (16 + 4);
+		}
+		if(is_link_marker(LINK_MARKER_TOP)) {
+			card* pcard = pduel->game_field->player[1 - p].list_mzone[3];
+			if(pcard && pcard->is_link_marker(LINK_MARKER_TOP))
+				zones |= 1u << (16 + 3);
+		}
+		if(is_link_marker(LINK_MARKER_TOP_RIGHT)) {
+			card* pcard = pduel->game_field->player[1 - p].list_mzone[2];
+			if(pcard && pcard->is_link_marker(LINK_MARKER_TOP_RIGHT))
+				zones |= 1u << (16 + 2);
+		}
+	}
+	if(s == 6) {
+		if(is_link_marker(LINK_MARKER_BOTTOM_LEFT)) {
+			card* pcard = pduel->game_field->player[p].list_mzone[2];
+			if(pcard && pcard->is_link_marker(LINK_MARKER_TOP_RIGHT))
+				zones |= 1u << 2;
+		}
+		if(is_link_marker(LINK_MARKER_BOTTOM)) {
+			card* pcard = pduel->game_field->player[p].list_mzone[3];
+			if(pcard && pcard->is_link_marker(LINK_MARKER_TOP))
+				zones |= 1u << 3;
+		}
+		if(is_link_marker(LINK_MARKER_BOTTOM_RIGHT)) {
+			card* pcard = pduel->game_field->player[p].list_mzone[4];
+			if(pcard && pcard->is_link_marker(LINK_MARKER_TOP_LEFT))
+				zones |= 1u << 4;
+		}
+		if(is_link_marker(LINK_MARKER_TOP_LEFT)) {
+			card* pcard = pduel->game_field->player[1 - p].list_mzone[2];
+			if(pcard && pcard->is_link_marker(LINK_MARKER_TOP_LEFT))
+				zones |= 1u << (16 + 2);
+		}
+		if(is_link_marker(LINK_MARKER_TOP)) {
+			card* pcard = pduel->game_field->player[1 - p].list_mzone[1];
+			if(pcard && pcard->is_link_marker(LINK_MARKER_TOP))
+				zones |= 1u << (16 + 1);
+		}
+		if(is_link_marker(LINK_MARKER_TOP_RIGHT)) {
+			card* pcard = pduel->game_field->player[1 - p].list_mzone[0];
+			if(pcard && pcard->is_link_marker(LINK_MARKER_TOP_RIGHT))
+				zones |= 1u << (16 + 0);
+		}
+	}
+	return zones;
+}
 int32 card::is_position(int32 pos) {
 	return current.position & pos;
 }
@@ -2729,12 +2859,7 @@ int32 card::is_can_be_special_summoned(effect* reason_effect, uint32 sumtype, ui
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
 	if(zone != 0xff) {
-		int32 ct;
-		if(pduel->game_field->core.duel_rule >= 4 && current.location == LOCATION_EXTRA)
-			ct = pduel->game_field->get_useable_count_fromex(toplayer, sumplayer, zone);
-		else
-			ct = pduel->game_field->get_useable_count(toplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD, zone);
-		if(ct <= 0)
+		if(pduel->game_field->get_useable_count(this, toplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD, zone) <= 0)
 			return FALSE;
 	}
 	pduel->game_field->save_lp_cost();
