@@ -638,13 +638,16 @@ int32 scriptlib::duel_return_to_field(lua_State *L) {
 	if(!(pcard->current.reason & REASON_TEMPORARY))
 		return 0;
 	int32 pos = pcard->previous.position;
-	if(lua_gettop(L) > 1)
+	if(lua_gettop(L) >= 2)
 		pos = lua_tointeger(L, 2);
+	uint32 zone = 0xff;
+	if(lua_gettop(L) >= 3)
+		zone = lua_tointeger(L, 3);
 	duel* pduel = pcard->pduel;
 	pcard->enable_field_effect(false);
 	pduel->game_field->adjust_instant();
 	pduel->game_field->refresh_location_info_instant();
-	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, pcard->previous.location, pos, TRUE, 1);
+	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, pcard->previous.location, pos, TRUE, 1, 0, zone);
 	pduel->game_field->core.subunits.back().type = PROCESSOR_MOVETOFIELD_S;
 	return lua_yield(L, 0);
 }

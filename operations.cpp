@@ -3891,10 +3891,6 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			}
 			if(ct <= 0)
 				return TRUE;
-			if(ret && is_location_useable(playerid, location, target->previous.sequence)) {
-				returns.bvalue[2] = target->previous.sequence;
-				return FALSE;
-			}
 			if(move_player == playerid) {
 				if(location == LOCATION_SZONE)
 					flag = ((flag & 0xff) << 8) | 0xffff00ff;
