@@ -381,6 +381,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "EquipComplete", scriptlib::duel_equip_complete },
 	{ "GetControl", scriptlib::duel_get_control },
 	{ "SwapControl", scriptlib::duel_swap_control },
+	{ "SwapMonsters", scriptlib::duel_swap_monsters },
 	{ "CheckLPCost", scriptlib::duel_check_lp_cost },
 	{ "PayLPCost", scriptlib::duel_pay_lp_cost },
 	{ "DiscardDeck", scriptlib::duel_discard_deck },

@@ -129,6 +129,13 @@ void field::swap_control(effect* reason_effect, uint32 reason_player, card* pcar
 	tset2.insert(pcard2);
 	swap_control(reason_effect, reason_player, &tset1, &tset2, reset_phase, reset_count);
 }
+void field::swap_monsters(effect* reason_effect, uint32 reason_player, card_set* targets1, card_set* targets2) {
+	group* ng1 = pduel->new_group(*targets1);
+	ng1->is_readonly = TRUE;
+	group* ng2 = pduel->new_group(*targets2);
+	ng2->is_readonly = TRUE;
+	add_process(PROCESSOR_SWAP_MONSTERS, 0, reason_effect, ng1, reason_player, 0, 0, 0, ng2);
+}
 void field::equip(uint32 equip_player, card* equip_card, card* target, uint32 up, uint32 is_step) {
 	add_process(PROCESSOR_EQUIP, 0, NULL, (group*)target, 0, equip_player + (up << 16) + (is_step << 24), 0, 0, equip_card);
 }
@@ -1022,6 +1029,74 @@ int32 field::swap_control(uint16 step, effect* reason_effect, uint8 reason_playe
 		return FALSE;
 	}
 	case 2: {
+		core.operated_set = targets1->container;
+		returns.ivalue[0] = 1;
+		pduel->delete_group(targets1);
+		pduel->delete_group(targets2);
+		return TRUE;
+	}
+	case 10: {
+		core.operated_set.clear();
+		returns.ivalue[0] = 0;
+		pduel->delete_group(targets1);
+		pduel->delete_group(targets2);
+		return TRUE;
+	}
+	}
+	return TRUE;
+}
+int32 field::swap_monsters(uint16 step, effect* reason_effect, uint8 reason_player, group* targets1, group* targets2) {
+	switch(step) {
+	case 0: {
+		core.units.begin()->step = 9;
+		if(targets1->container.size() == 0)
+			return FALSE;
+		if(targets2->container.size() == 0)
+			return FALSE;
+		if(targets1->container.size() != targets2->container.size())
+			return FALSE;
+		auto cit1 = targets1->container.begin();
+		auto cit2 = targets2->container.begin();
+		uint8 p1 = (*cit1)->current.controler, p2 = (*cit2)->current.controler;
+		if(p1 != p2 || p1 == PLAYER_NONE || p2 == PLAYER_NONE)
+			return FALSE;
+		for(auto cit = targets1->container.begin(); cit != targets1->container.end(); ++cit) {
+			card* pcard = *cit;
+			if(pcard->overlay_target)
+				return FALSE;
+			if(pcard->current.location != LOCATION_MZONE)
+				return FALSE;
+			if(!pcard->is_affect_by_effect(reason_effect))
+				return FALSE;
+		}
+		for(auto cit = targets2->container.begin(); cit != targets2->container.end(); ++cit) {
+			card* pcard = *cit;
+			if(pcard->overlay_target)
+				return FALSE;
+			if(pcard->current.location != LOCATION_MZONE)
+				return FALSE;
+			if(!pcard->is_affect_by_effect(reason_effect))
+				return FALSE;
+		}
+		while(cit1 != targets1->container.end()) {
+			card* pcard1 = *cit1++;
+			card* pcard2 = *cit2++;
+			uint8 l1 = pcard1->current.location, l2 = pcard2->current.location;
+			uint8 s1 = pcard1->current.sequence, s2 = pcard2->current.sequence;
+			remove_card(pcard1);
+			remove_card(pcard2);
+			add_card(p1, pcard1, l2, s2);
+			add_card(p1, pcard2, l1, s1);
+			pduel->write_buffer8(MSG_SWAP);
+			pduel->write_buffer32(pcard1->data.code);
+			pduel->write_buffer32(pcard2->get_info_location());
+			pduel->write_buffer32(pcard2->data.code);
+			pduel->write_buffer32(pcard1->get_info_location());
+		}
+		core.units.begin()->step = 0;
+		return FALSE;
+	}
+	case 1: {
 		core.operated_set = targets1->container;
 		returns.ivalue[0] = 1;
 		pduel->delete_group(targets1);

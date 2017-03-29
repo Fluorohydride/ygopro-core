@@ -378,6 +378,7 @@ public:
 	static int32 duel_equip_complete(lua_State *L);
 	static int32 duel_get_control(lua_State *L);
 	static int32 duel_swap_control(lua_State *L);
+	static int32 duel_swap_monsters(lua_State *L);
 	static int32 duel_check_lp_cost(lua_State *L);
 	static int32 duel_pay_lp_cost(lua_State *L);
 	static int32 duel_discard_deck(lua_State *L);

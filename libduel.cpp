@@ -1095,6 +1095,25 @@ int32 scriptlib::duel_swap_control(lua_State *L) {
 	pduel->game_field->core.subunits.back().type = PROCESSOR_SWAP_CONTROL_S;
 	return lua_yield(L, 0);
 }
+int32 scriptlib::duel_swap_monsters(lua_State *L) {
+	check_action_permission(L);
+	check_param_count(L, 2);
+	card* pcard1 = 0;
+	card* pcard2 = 0;
+	duel* pduel;
+	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE) && check_param(L, PARAM_TYPE_CARD, 2, TRUE)) {
+		pcard1 = *(card**) lua_touserdata(L, 1);
+		pcard2 = *(card**) lua_touserdata(L, 2);
+		pduel = pcard1->pduel;
+	} else
+		luaL_error(L, "Parameter %d should be \"Card\".", 1);
+	field::card_set cset1, cset2;
+	cset1.insert(pcard1);
+	cset2.insert(pcard2);
+	pduel->game_field->swap_monsters(pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, &cset1, &cset2);
+	pduel->game_field->core.subunits.back().type = PROCESSOR_SWAP_MONSTERS_S;
+	return lua_yield(L, 0);
+}
 int32 scriptlib::duel_check_lp_cost(lua_State *L) {
 	check_param_count(L, 2);
 	uint32 playerid = lua_tointeger(L, 1);
