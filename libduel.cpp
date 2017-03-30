@@ -660,6 +660,32 @@ int32 scriptlib::duel_move_sequence(lua_State *L) {
 	pduel->game_field->move_card(pcard->current.controler, pcard, pcard->current.location, seq);
 	return 0;
 }
+int32 scriptlib::duel_swap_sequence(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	check_param(L, PARAM_TYPE_CARD, 2);
+	card* pcard1 = *(card**) lua_touserdata(L, 1);
+	card* pcard2 = *(card**) lua_touserdata(L, 2);
+	uint8 player = pcard1->current.controler;
+	uint8 location = pcard1->current.location;
+	duel* pduel = pcard1->pduel;
+	if(pcard2->current.controler == player
+		&& location == LOCATION_MZONE && pcard2->current.location == location
+		&& pcard1->is_affect_by_effect(pduel->game_field->core.reason_effect)
+		&& pcard2->is_affect_by_effect(pduel->game_field->core.reason_effect)) {
+		uint8 s1 = pcard1->current.sequence, s2 = pcard2->current.sequence;
+		pduel->game_field->remove_card(pcard1);
+		pduel->game_field->remove_card(pcard2);
+		pduel->game_field->add_card(player, pcard1, location, s2);
+		pduel->game_field->add_card(player, pcard2, location, s1);
+		pduel->write_buffer8(MSG_SWAP);
+		pduel->write_buffer32(pcard1->data.code);
+		pduel->write_buffer32(pcard2->get_info_location());
+		pduel->write_buffer32(pcard2->data.code);
+		pduel->write_buffer32(pcard1->get_info_location());
+	}
+	return 0;
+}
 int32 scriptlib::duel_set_chain_limit(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_FUNCTION, 1);

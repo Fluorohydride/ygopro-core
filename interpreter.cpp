@@ -360,6 +360,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "MoveToField", scriptlib::duel_move_to_field },
 	{ "ReturnToField", scriptlib::duel_return_to_field },
 	{ "MoveSequence", scriptlib::duel_move_sequence },
+	{ "SwapSequence", scriptlib::duel_swap_sequence },
 	{ "SetChainLimit", scriptlib::duel_set_chain_limit },
 	{ "SetChainLimitTillChainEnd", scriptlib::duel_set_chain_limit_p },
 	{ "GetChainMaterial", scriptlib::duel_get_chain_material },
