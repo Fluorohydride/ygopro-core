@@ -973,23 +973,46 @@ int32 field::swap_control(uint16 step, effect* reason_effect, uint8 reason_playe
 			if(!pcard->is_affect_by_effect(reason_effect))
 				return FALSE;
 		}
-		for(int32 p = 0; p < 2; ++p) {
-			int32 max = 5;
-			effect_set eset;
-			filter_player_effect(p, EFFECT_MAX_MZONE, &eset);
-			for (int32 i = 0; i < eset.size(); ++i) {
-				pduel->lua->add_param(p, PARAM_TYPE_INT);
-				pduel->lua->add_param(reason_player, PARAM_TYPE_INT);
-				pduel->lua->add_param(LOCATION_REASON_CONTROL, PARAM_TYPE_INT);
-				int32 v = eset[i]->get_value(3);
-				if (max > v)
-					max = v;
-			}
-			int32 count = std::count_if(player[p].list_mzone.begin(), player[p].list_mzone.end(),
-				[](card* pcard) { return pcard; });
-			if(count > max)
-				return FALSE;
+		int32 max = 5;
+		effect_set eset;
+		filter_player_effect(p1, EFFECT_MAX_MZONE, &eset);
+		for (int32 i = 0; i < eset.size(); ++i) {
+			pduel->lua->add_param(p1, PARAM_TYPE_INT);
+			pduel->lua->add_param(reason_player, PARAM_TYPE_INT);
+			pduel->lua->add_param(LOCATION_REASON_CONTROL, PARAM_TYPE_INT);
+			int32 v = eset[i]->get_value(3);
+			if (max > v)
+				max = v;
 		}
+		std::set<card*> cset;
+		cset.insert(targets1->container.begin(), targets1->container.end());
+		for(int32 i = 0; i < 5; ++i) {
+			card* pcard = player[p1].list_mzone[i];
+			if(pcard)
+				cset.insert(pcard);
+		}
+		if((int32)cset.size() > max)
+			return FALSE;
+		max = 5;
+		eset.clear();
+		filter_player_effect(p2, EFFECT_MAX_MZONE, &eset);
+		for (int32 i = 0; i < eset.size(); ++i) {
+			pduel->lua->add_param(p2, PARAM_TYPE_INT);
+			pduel->lua->add_param(reason_player, PARAM_TYPE_INT);
+			pduel->lua->add_param(LOCATION_REASON_CONTROL, PARAM_TYPE_INT);
+			int32 v = eset[i]->get_value(3);
+			if (max > v)
+				max = v;
+		}
+		cset.clear();
+		cset.insert(targets2->container.begin(), targets2->container.end());
+		for(int32 i = 0; i < 5; ++i) {
+			card* pcard = player[p2].list_mzone[i];
+			if(pcard)
+				cset.insert(pcard);
+		}
+		if((int32)cset.size() > max)
+			return FALSE;
 		for(auto cit = targets1->container.begin(); cit != targets1->container.end(); ++cit) {
 			card* pcard = *cit;
 			if(pcard->unique_code && (pcard->unique_location & LOCATION_MZONE))
