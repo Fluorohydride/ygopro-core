@@ -465,6 +465,7 @@ public:
 	static int32 duel_get_overlay_count(lua_State *L);
 	static int32 duel_check_remove_overlay_card(lua_State *L);
 	static int32 duel_remove_overlay_card(lua_State *L);
+	static int32 duel_get_disable_field(lua_State *L);
 
 	static int32 duel_hint(lua_State *L);
 	static int32 duel_hint_selection(lua_State *L);

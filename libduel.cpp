@@ -2811,6 +2811,11 @@ int32 scriptlib::duel_select_position(lua_State * L) {
 	pduel->game_field->add_process(PROCESSOR_SELECT_POSITION_S, 0, 0, 0, playerid + (positions << 16), pcard->data.code);
 	return lua_yield(L, 0);
 }
+int32 scriptlib::duel_get_disable_field(lua_State * L){
+	duel* pduel = interpreter::get_duel_info(L);
+	lua_pushinteger(L, pduel->game_field->player[0].disabled_location + (pduel->game_field->player[1].disabled_location << 16));
+	return 1;
+}
 int32 scriptlib::duel_select_disable_field(lua_State * L) {
 	check_action_permission(L);
 	check_param_count(L, 5);

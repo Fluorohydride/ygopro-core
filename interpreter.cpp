@@ -474,6 +474,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "SelectOption", scriptlib::duel_select_option },
 	{ "SelectSequence", scriptlib::duel_select_sequence },
 	{ "SelectPosition", scriptlib::duel_select_position },
+	{ "GetDisableField", scriptlib::duel_get_disable_field },
 	{ "SelectDisableField", scriptlib::duel_select_disable_field },
 	{ "AnnounceRace", scriptlib::duel_announce_race },
 	{ "AnnounceAttribute", scriptlib::duel_announce_attribute },
