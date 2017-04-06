@@ -1637,7 +1637,7 @@ int32 scriptlib::card_is_able_to_deck_or_extra_as_cost(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
-	int32 val = (pcard->data.type & 0x802040) ? pcard->is_capable_cost_to_extra(p) : pcard->is_capable_cost_to_deck(p);
+	int32 val = (pcard->data.type & 0x4802040) ? pcard->is_capable_cost_to_extra(p) : pcard->is_capable_cost_to_deck(p);
 	if(val)
 		lua_pushboolean(L, 1);
 	else
