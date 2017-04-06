@@ -151,7 +151,7 @@ void field::summon(uint32 sumplayer, card* target, effect* proc, uint32 ignore_c
 void field::special_summon_rule(uint32 sumplayer, card* target, uint32 summon_type) {
 	add_process(PROCESSOR_SPSUMMON_RULE, 0, 0, (group*)target, sumplayer, summon_type);
 }
-void field::special_summon(card_set* target, uint32 sumtype, uint32 sumplayer, uint32 playerid, uint32 nocheck, uint32 nolimit, uint32 positions) {
+void field::special_summon(card_set* target, uint32 sumtype, uint32 sumplayer, uint32 playerid, uint32 nocheck, uint32 nolimit, uint32 positions, uint32 zone) {
 	if((positions & POS_FACEDOWN) && is_player_affected_by_effect(sumplayer, EFFECT_DEVINE_LIGHT))
 		positions = (positions & POS_FACEUP) | (positions >> 1);
 	for(auto cit = target->begin(); cit != target->end(); ++cit) {
@@ -168,7 +168,7 @@ void field::special_summon(card_set* target, uint32 sumtype, uint32 sumplayer, u
 	}
 	group* pgroup = pduel->new_group(*target);
 	pgroup->is_readonly = TRUE;
-	add_process(PROCESSOR_SPSUMMON, 0, core.reason_effect, pgroup, core.reason_player, 0);
+	add_process(PROCESSOR_SPSUMMON, 0, core.reason_effect, pgroup, core.reason_player, zone);
 }
 void field::special_summon_step(card* target, uint32 sumtype, uint32 sumplayer, uint32 playerid, uint32 nocheck, uint32 nolimit, uint32 positions, uint32 zone) {
 	if((positions & POS_FACEDOWN) && is_player_affected_by_effect(sumplayer, EFFECT_DEVINE_LIGHT))
@@ -2728,7 +2728,7 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 	}
 	return TRUE;
 }
-int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_player, group * targets) {
+int32 field::special_summon(uint16 step, effect* reason_effect, uint8 reason_player, group* targets, uint32 zone) {
 	switch(step) {
 	case 0: {
 		card_vector cvs, cvo;
@@ -2739,7 +2739,6 @@ int32 field::special_summon(uint16 step, effect * reason_effect, uint8 reason_pl
 			else
 				cvo.push_back(pcard);
 		}
-		uint32 zone = 0xff;
 		if(!cvs.empty()) {
 			if(cvs.size() > 1)
 				std::sort(cvs.begin(), cvs.end(), card::card_operation_sort);

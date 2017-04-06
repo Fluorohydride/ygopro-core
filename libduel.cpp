@@ -386,12 +386,15 @@ int32 scriptlib::duel_special_summon(lua_State *L) {
 	uint32 nocheck = lua_toboolean(L, 5);
 	uint32 nolimit = lua_toboolean(L, 6);
 	uint32 positions = lua_tointeger(L, 7);
+	uint32 zone = 0xff;
+	if(lua_gettop(L) >= 8)
+		zone = lua_tointeger(L, 8);
 	if(pcard) {
 		field::card_set cset;
 		cset.insert(pcard);
-		pduel->game_field->special_summon(&cset, sumtype, sumplayer, playerid, nocheck, nolimit, positions);
+		pduel->game_field->special_summon(&cset, sumtype, sumplayer, playerid, nocheck, nolimit, positions, zone);
 	} else
-		pduel->game_field->special_summon(&(pgroup->container), sumtype, sumplayer, playerid, nocheck, nolimit, positions);
+		pduel->game_field->special_summon(&(pgroup->container), sumtype, sumplayer, playerid, nocheck, nolimit, positions, zone);
 	pduel->game_field->core.subunits.back().type = PROCESSOR_SPSUMMON_S;
 	return lua_yield(L, 0);
 }
@@ -1490,8 +1493,20 @@ int32 scriptlib::duel_get_location_count(lua_State *L) {
 		uplayer = lua_tointeger(L, 3);
 	if(lua_gettop(L) > 3)
 		reason = lua_tointeger(L, 4);
-	lua_pushinteger(L, pduel->game_field->get_useable_count(playerid, location, uplayer, reason));
-	return 1;
+	uint32 zone = 0xff;
+	if(location == LOCATION_MZONE) {
+		uint32 flag1, flag2;
+		int32 ct1 = pduel->game_field->get_useable_count(playerid, location, uplayer, reason, zone, &flag1);
+		int32 ct2 = pduel->game_field->get_useable_count_fromex(0, playerid, uplayer, zone, &flag2);
+		int32 ct3 = field::field_used_count[~(flag1 | flag2) & 0x1f];
+		lua_pushinteger(L, ct1);
+		lua_pushinteger(L, ct2);
+		lua_pushinteger(L, ct1 + ct2 - ct3);
+		return 3;
+	} else {
+		lua_pushinteger(L, pduel->game_field->get_useable_count(playerid, location, uplayer, reason));
+		return 1;
+	}
 }
 int32 scriptlib::duel_get_field_card(lua_State *L) {
 	check_param_count(L, 3);

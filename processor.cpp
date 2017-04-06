@@ -366,7 +366,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_SPSUMMON: {
-		if (special_summon(it->step, it->peffect, it->arg1, it->ptarget))
+		if (special_summon(it->step, it->peffect, it->arg1, it->ptarget, it->arg2))
 			core.units.pop_front();
 		else
 			it->step++;

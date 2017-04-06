@@ -492,7 +492,7 @@ public:
 	void recover(effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 amount, uint32 is_step = FALSE);
 	void summon(uint32 sumplayer, card* target, effect* proc, uint32 ignore_count, uint32 min_tribute);
 	void special_summon_rule(uint32 sumplayer, card* target, uint32 summon_type);
-	void special_summon(card_set* target, uint32 sumtype, uint32 sumplayer, uint32 playerid, uint32 nocheck, uint32 nolimit, uint32 positions);
+	void special_summon(card_set* target, uint32 sumtype, uint32 sumplayer, uint32 playerid, uint32 nocheck, uint32 nolimit, uint32 positions, uint32 zone);
 	void special_summon_step(card* target, uint32 sumtype, uint32 sumplayer, uint32 playerid, uint32 nocheck, uint32 nolimit, uint32 positions, uint32 zone);
 	void special_summon_complete(effect* reason_effect, uint8 reason_player);
 	void destroy(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid = 2, uint32 destination = 0, uint32 sequence = 0);
@@ -522,7 +522,7 @@ public:
 	int32 sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget);
 	int32 special_summon_rule(uint16 step, uint8 sumplayer, card* target, uint32 summon_type);
 	int32 special_summon_step(uint16 step, group* targets, card* target, uint32 zone);
-	int32 special_summon(uint16 step, effect* reason_effect, uint8 reason_player, group* targets);
+	int32 special_summon(uint16 step, effect* reason_effect, uint8 reason_player, group* targets, uint32 zone);
 	int32 destroy(uint16 step, group* targets, card* target, uint8 battle);
 	int32 destroy(uint16 step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player);
 	int32 release(uint16 step, group* targets, card* target);
