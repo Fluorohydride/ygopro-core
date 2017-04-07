@@ -328,7 +328,7 @@ int32 field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 fo
 		return TRUE;
 	}
 }
-int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count) {
+int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count, uint32 code) {
 	if(step == 0) {
 		if(count == 0)
 			return TRUE;
@@ -384,6 +384,7 @@ int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count)
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer8(count);
 		pduel->write_buffer32(flag);
+		pduel->write_buffer32(code);
 		returns.bvalue[0] = 0;
 		return FALSE;
 	} else {

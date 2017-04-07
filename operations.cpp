@@ -1035,23 +1035,27 @@ int32 field::swap_control(uint16 step, effect* reason_effect, uint8 reason_playe
 			return FALSE;
 		}
 		card* pcard1 = *targets1->it;
+		card* pcard2 = *targets2->it;
 		uint8 p1 = pcard1->current.controler;
 		uint8 s1 = pcard1->current.sequence;
+		uint32 c2 = pcard2->data.code;
 		uint32 flag;
 		get_useable_count(p1, LOCATION_MZONE, reason_player, LOCATION_REASON_CONTROL, 0xff, &flag);
 		flag = (flag & ~(1 << s1) & 0xff) | ~0x1f;
-		add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, p1, flag, 1);
+		add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, p1, flag, 1, c2);
 		return FALSE;
 	}
 	case 2: {
 		core.units.begin()->arg4 = returns.bvalue[2];
+		card* pcard1 = *targets1->it;
 		card* pcard2 = *targets2->it;
 		uint8 p2 = pcard2->current.controler;
 		uint8 s2 = pcard2->current.sequence;
+		uint32 c1 = pcard1->data.code;
 		uint32 flag;
 		get_useable_count(p2, LOCATION_MZONE, reason_player, LOCATION_REASON_CONTROL, 0xff, &flag);
 		flag = (flag & ~(1 << s2) & 0xff) | ~0x1f;
-		add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, p2, flag, 1);
+		add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, p2, flag, 1, c1);
 		return FALSE;
 	}
 	case 3: {
@@ -3616,7 +3620,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		uint32 flag;
 		get_useable_count(pcard->current.controler, LOCATION_SZONE, pcard->current.controler, LOCATION_REASON_TOFIELD, 0xff, &flag);
 		flag = ((flag << 8) & 0xff00) | 0xffffe0ff;
-		add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, pcard->current.controler, flag, 1);
+		add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, pcard->current.controler, flag, 1, pcard->data.code);
 		return FALSE;
 	}
 	case 8: {
@@ -3957,7 +3961,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			if(move_player != playerid)
 				flag = flag << 16;
 			flag = ~flag;
-			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1);
+			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1, target->data.code);
 		} else if(core.duel_rule >= 4 && location == LOCATION_MZONE && target->current.location == LOCATION_EXTRA) {
 			uint32 flag;
 			int32 ct = get_useable_count_fromex(target, playerid, move_player, zone, &flag);
@@ -3973,7 +3977,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			else
 				flag = ((flag & 0xff) << 16) | 0xff00ffff;
 			flag |= 0xff80ff80;
-			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1);
+			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1, target->data.code);
 		} else {
 			uint32 flag;
 			uint32 lreason = (target->current.location == LOCATION_MZONE) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
@@ -3997,7 +4001,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 					flag = ((flag & 0xff) << 16) | 0xff00ffff;
 			}
 			flag |= 0xe0e0e0e0;
-			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1);
+			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1, target->data.code);
 		}
 		return FALSE;
 	}
