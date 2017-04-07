@@ -115,6 +115,15 @@ int32 field::process() {
 			return PROCESSOR_WAITING + pduel->bufferlen;
 		}
 	}
+	case PROCESSOR_SELECT_UNSELECT_CARD: {
+		if (select_unselect_card(it->step, it->arg1 & 0xff, (it->arg1 >> 16) & 0xff, (it->arg2) & 0xff, (it->arg2 >> 16) & 0xff, (it->arg3) & 0xff)) {
+			core.units.pop_front();
+			return pduel->bufferlen;
+		} else {
+			it->step = 1;
+			return PROCESSOR_WAITING + pduel->bufferlen;
+		}
+	}
 	case PROCESSOR_SELECT_CHAIN: {
 		if (select_chain(it->step, it->arg1, (it->arg2 & 0xffff), it->arg2 >> 16)) {
 			core.units.pop_front();
@@ -678,6 +687,26 @@ int32 field::process() {
 				pgroup->container.insert(pcard);
 			}
 			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+			core.units.pop_front();
+		}
+		return pduel->bufferlen;
+	}
+	case PROCESSOR_SELECT_UNSELECT_CARD_S: {
+		if(it->step == 0) {
+			add_process(PROCESSOR_SELECT_UNSELECT_CARD, 0, it->peffect, it->ptarget, it->arg1, it->arg2, it->arg3);
+			it->step++;
+		} else {
+			if (returns.bvalue[0] == -1)
+				pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
+			else {
+				group* pgroup = pduel->new_group();
+				card* pcard;
+				if (returns.bvalue[1] < core.select_cards.size())
+					pcard = core.select_cards[returns.bvalue[1]];
+				else
+					pcard = core.unselect_cards[returns.bvalue[1] - core.select_cards.size()];
+				pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+			}
 			core.units.pop_front();
 		}
 		return pduel->bufferlen;
