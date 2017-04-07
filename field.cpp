@@ -456,11 +456,13 @@ card* field::get_field_card(uint32 playerid, uint32 location, uint32 sequence) {
 		break;
 	}
 	case LOCATION_PZONE: {
-		if(sequence == 0)
-			return player[playerid].list_szone[core.duel_rule >= 4 ? 0 : 6];
-		else if(sequence == 1)
-			return player[playerid].list_szone[core.duel_rule >= 4 ? 4 : 7];
-		else
+		if(sequence == 0) {
+			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? 0 : 6];
+			return pcard && pcard->current.pzone ? pcard : 0;
+		} else if(sequence == 1) {
+			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? 4 : 7];
+			return pcard && pcard->current.pzone ? pcard : 0;
+		} else
 			return 0;
 		break;
 	}
@@ -1237,7 +1239,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		if(location & LOCATION_PZONE) {
 			for(int32 i = 0; i < 2; ++i) {
 				pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
-				if(pcard && !pcard->is_status(STATUS_ACTIVATE_DISABLED)
+				if(pcard && pcard->current.pzone && !pcard->is_status(STATUS_ACTIVATE_DISABLED)
 				        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
 				        && pduel->lua->check_matching(pcard, findex, extraargs)
 				        && (!is_target || pcard->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
@@ -1388,7 +1390,7 @@ int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, g
 		if(location & LOCATION_PZONE) {
 			for(int32 i = 0; i < 2; ++i) {
 				pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
-				if(pcard) {
+				if(pcard && pcard->current.pzone) {
 					if(pgroup)
 						pgroup->container.insert(pcard);
 					count++;
