@@ -21,6 +21,15 @@ bool card_sort::operator()(void* const & p1, void* const & p2) const {
 	card* c2 = (card*)p2;
 	return c1->cardid < c2->cardid;
 }
+bool card_state::is_location(int32 loc) const {
+	if((loc & LOCATION_FZONE) && location == LOCATION_SZONE && sequence == 5)
+		return true;
+	if((loc & LOCATION_PZONE) && location == LOCATION_SZONE && pzone)
+		return true;
+	if(location & loc)
+		return true;
+	return false;
+}
 bool card::card_operation_sort(card* c1, card* c2) {
 	duel* pduel = c1->pduel;
 	int32 cp1 = c1->overlay_target ? c1->overlay_target->current.controler : c1->current.controler;
@@ -397,9 +406,9 @@ int32 card::is_fusion_set_card(uint32 set_code) {
 uint32 card::get_type() {
 	if(assume_type == ASSUME_TYPE)
 		return assume_value;
-	if(!(current.location & 0x1e))
+	if(!(current.location & (LOCATION_ONFIELD | LOCATION_HAND | LOCATION_GRAVE)))
 		return data.type;
-	if((current.location == LOCATION_SZONE) && (current.sequence >= 6))
+	if(current.is_location(LOCATION_PZONE))
 		return TYPE_PENDULUM + TYPE_SPELL;
 	if (temp.type != 0xffffffff)
 		return temp.type;
@@ -1032,7 +1041,7 @@ uint32 card::get_race() {
 	return race;
 }
 uint32 card::get_lscale() {
-	if(!(current.location & LOCATION_SZONE))
+	if(!current.is_location(LOCATION_PZONE))
 		return data.lscale;
 	if (temp.lscale != 0xffffffff)
 		return temp.lscale;
@@ -1059,7 +1068,7 @@ uint32 card::get_lscale() {
 	return lscale;
 }
 uint32 card::get_rscale() {
-	if(!(current.location & LOCATION_SZONE))
+	if(!current.is_location(LOCATION_PZONE))
 		return data.rscale;
 	if (temp.rscale != 0xffffffff)
 		return temp.rscale;
@@ -1394,17 +1403,10 @@ void card::xyz_add(card* mat, card_set* des) {
 		return;
 	pduel->write_buffer8(MSG_MOVE);
 	pduel->write_buffer32(mat->data.code);
+	pduel->write_buffer32(mat->get_info_location());
 	if(mat->overlay_target) {
-		pduel->write_buffer8(mat->overlay_target->current.controler);
-		pduel->write_buffer8(mat->overlay_target->current.location | LOCATION_OVERLAY);
-		pduel->write_buffer8(mat->overlay_target->current.sequence);
-		pduel->write_buffer8(mat->current.sequence);
 		mat->overlay_target->xyz_remove(mat);
 	} else {
-		pduel->write_buffer8(mat->current.controler);
-		pduel->write_buffer8(mat->current.location);
-		pduel->write_buffer8(mat->current.sequence);
-		pduel->write_buffer8(mat->current.position);
 		mat->enable_field_effect(false);
 		pduel->game_field->remove_card(mat);
 		pduel->game_field->add_to_disable_check_list(mat);
@@ -1438,6 +1440,7 @@ void card::xyz_remove(card* mat) {
 	mat->previous.controler = mat->current.controler;
 	mat->previous.location = mat->current.location;
 	mat->previous.sequence = mat->current.sequence;
+	mat->previous.pzone = mat->current.pzone;
 	mat->current.controler = PLAYER_NONE;
 	mat->current.location = 0;
 	mat->current.sequence = 0;
@@ -1454,7 +1457,7 @@ void card::apply_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto it = field_effect.begin(); it != field_effect.end(); ++it) {
-		if (it->second->in_range(current.location, current.sequence) 
+		if (it->second->in_range(this)
 				|| ((it->second->range & LOCATION_HAND) && (it->second->type & EFFECT_TYPE_TRIGGER_O) && !(it->second->code & EVENT_PHASE))) {
 			pduel->game_field->add_effect(it->second);
 		}
@@ -1468,7 +1471,7 @@ void card::cancel_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto it = field_effect.begin(); it != field_effect.end(); ++it) {
-		if (it->second->in_range(current.location, current.sequence) 
+		if (it->second->in_range(this)
 				|| ((it->second->range & LOCATION_HAND) && (it->second->type & EFFECT_TYPE_TRIGGER_O) && !(it->second->code & EVENT_PHASE))) {
 			pduel->game_field->remove_effect(it->second);
 		}
@@ -1488,11 +1491,11 @@ void card::enable_field_effect(bool enabled) {
 	if (enabled) {
 		set_status(STATUS_EFFECT_ENABLED, TRUE);
 		for (auto it = single_effect.begin(); it != single_effect.end(); ++it) {
-			if (it->second->is_flag(EFFECT_FLAG_SINGLE_RANGE) && it->second->in_range(current.location, current.sequence))
+			if (it->second->is_flag(EFFECT_FLAG_SINGLE_RANGE) && it->second->in_range(this))
 				it->second->id = pduel->game_field->infos.field_id++;
 		}
 		for (auto it = field_effect.begin(); it != field_effect.end(); ++it) {
-			if (it->second->in_range(current.location, current.sequence))
+			if (it->second->in_range(this))
 				it->second->id = pduel->game_field->infos.field_id++;
 		}
 		if(current.location == LOCATION_SZONE) {
@@ -1585,7 +1588,7 @@ int32 card::add_effect(effect* peffect) {
 	}
 	indexer.insert(std::make_pair(peffect, eit));
 	peffect->handler = this;
-	if (peffect->in_range(current.location, current.sequence) && (peffect->type & EFFECT_TYPE_FIELD))
+	if (peffect->in_range(this) && (peffect->type & EFFECT_TYPE_FIELD))
 		pduel->game_field->add_effect(peffect);
 	if (current.controler != PLAYER_NONE && check_target) {
 		if (peffect->is_disable_related())
@@ -1646,7 +1649,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			pduel->game_field->update_disable_check_list(peffect);
 		}
 		field_effect.erase(it);
-		if (peffect->in_range(current.location, current.sequence))
+		if (peffect->in_range(this))
 			pduel->game_field->remove_effect(peffect);
 	}
 	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && check_target) {

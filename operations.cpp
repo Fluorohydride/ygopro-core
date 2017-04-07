@@ -351,6 +351,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			pcard->previous.location = pcard->current.location;
 			pcard->previous.sequence = pcard->current.sequence;
 			pcard->previous.position = pcard->current.position;
+			pcard->previous.pzone = pcard->current.pzone;
 			pcard->current.controler = PLAYER_NONE;
 			pcard->current.reason_effect = reason_effect;
 			pcard->current.reason_player = reason_player;
@@ -3540,6 +3541,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			pcard->previous.location = pcard->current.location;
 			pcard->previous.sequence = pcard->current.sequence;
 			pcard->previous.position = pcard->current.position;
+			pcard->previous.pzone = pcard->current.pzone;
 			pcard->current.reason &= ~REASON_TEMPORARY;
 			pcard->fieldid = infos.field_id++;
 			pcard->fieldid_r = pcard->fieldid;
@@ -3875,6 +3877,7 @@ int32 field::discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reaso
 			pcard->previous.location = pcard->current.location;
 			pcard->previous.sequence = pcard->current.sequence;
 			pcard->previous.position = pcard->current.position;
+			pcard->previous.pzone = pcard->current.pzone;
 			pcard->current.controler = PLAYER_NONE;
 			pcard->current.location = 0;
 			add_card(pcard->owner, pcard, dest, 0);
@@ -3947,10 +3950,10 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			}
 		} else if(!is_equip && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM)) {
 			uint32 flag = 0;
-			if(is_location_useable(playerid, LOCATION_SZONE, 6))
-				flag |= 0x1u << 14;
-			if(is_location_useable(playerid, LOCATION_SZONE, 7))
-				flag |= 0x1u << 15;
+			if(is_location_useable(playerid, LOCATION_PZONE, 0))
+				flag |= 0x1u << (core.duel_rule >= 4 ? 8 : 14);
+			if(is_location_useable(playerid, LOCATION_PZONE, 1))
+				flag |= 0x1u << (core.duel_rule >= 4 ? 12 : 15);
 			if(move_player != playerid)
 				flag = flag << 16;
 			flag = ~flag;
@@ -4063,7 +4066,10 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 		if(target->overlay_target)
 			target->overlay_target->xyz_remove(target);
 		// call move_card()
-		move_card(playerid, target, location, target->temp.sequence);
+		uint8 pzone = FALSE;
+		if(!is_equip && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM))
+			pzone = TRUE;
+		move_card(playerid, target, location, target->temp.sequence, pzone);
 		target->current.position = returns.ivalue[0];
 		if((target->previous.location & LOCATION_ONFIELD) && (location & LOCATION_ONFIELD))
 			target->set_status(STATUS_LEAVE_CONFIRMED, FALSE);

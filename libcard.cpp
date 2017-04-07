@@ -1807,7 +1807,7 @@ int32 scriptlib::card_is_location(lua_State *L) {
 		else
 			lua_pushboolean(L, 0);
 	} else if(pcard->current.location == LOCATION_SZONE) {
-		if((loc & LOCATION_SZONE) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
+		if(pcard->current.is_location(loc) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
 			lua_pushboolean(L, 1);
 		else
 			lua_pushboolean(L, 0);
@@ -1820,7 +1820,7 @@ int32 scriptlib::card_is_pre_location(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 loc = lua_tointeger(L, 2);
-	lua_pushboolean(L, pcard->previous.location & loc);
+	lua_pushboolean(L, pcard->previous.is_location(loc));
 	return 1;
 }
 int32 scriptlib::card_is_level_below(lua_State *L) {

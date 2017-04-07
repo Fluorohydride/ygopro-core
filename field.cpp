@@ -146,7 +146,7 @@ void field::reload_field_info() {
 }
 // The core of moving cards, and Debug.AddCard() will call this function directly.
 // check Fusion/S/X monster redirection by the rule, set fieldid_r
-void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence) {
+void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence, uint8 pzone) {
 	if (pcard->current.location != 0)
 		return;
 	if (!is_location_useable(playerid, location, sequence))
@@ -211,6 +211,10 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 		break;
 	}
 	}
+	if(pzone)
+		pcard->current.pzone = true;
+	else
+		pcard->current.pzone = false;
 	pcard->apply_field_effect();
 	pcard->fieldid = infos.field_id++;
 	pcard->fieldid_r = pcard->fieldid;
@@ -265,6 +269,7 @@ void field::remove_card(card* pcard) {
 	pcard->previous.location = pcard->current.location;
 	pcard->previous.sequence = pcard->current.sequence;
 	pcard->previous.position = pcard->current.position;
+	pcard->previous.pzone = pcard->current.pzone;
 	pcard->current.controler = PLAYER_NONE;
 	pcard->current.location = 0;
 	pcard->current.sequence = 0;
@@ -276,7 +281,7 @@ void field::remove_card(card* pcard) {
 // 4. control_adjust()
 // 5. move_card()
 // check Fusion/S/X monster redirection by the rule
-void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence) {
+void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence, uint8 pzone) {
 	if (!is_location_useable(playerid, location, sequence))
 		return;
 	uint8 preplayer = pcard->current.controler;
@@ -329,6 +334,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 				pcard->previous.location = pcard->current.location;
 				pcard->previous.sequence = pcard->current.sequence;
 				pcard->previous.position = pcard->current.position;
+				pcard->previous.pzone = pcard->current.pzone;
 				if (location == LOCATION_MZONE) {
 					player[preplayer].list_mzone[presequence] = 0;
 					player[preplayer].used_location &= ~(1 << presequence);
@@ -399,7 +405,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 			remove_card(pcard);
 		}
 	}
-	add_card(playerid, pcard, location, sequence);
+	add_card(playerid, pcard, location, sequence, pzone);
 }
 // add EFFECT_SET_CONTROL
 void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 reset_count) {
@@ -426,7 +432,7 @@ void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 r
 	pcard->current.controler = playerid;
 }
 
-card* field::get_field_card(uint8 playerid, uint8 location, uint8 sequence) {
+card* field::get_field_card(uint32 playerid, uint32 location, uint32 sequence) {
 	switch(location) {
 	case LOCATION_MZONE: {
 		if(sequence < player[playerid].list_mzone.size())
@@ -438,6 +444,22 @@ card* field::get_field_card(uint8 playerid, uint8 location, uint8 sequence) {
 	case LOCATION_SZONE: {
 		if(sequence < player[playerid].list_szone.size())
 			return player[playerid].list_szone[sequence];
+		else
+			return 0;
+		break;
+	}
+	case LOCATION_FZONE: {
+		if(sequence == 0)
+			return player[playerid].list_szone[5];
+		else
+			return 0;
+		break;
+	}
+	case LOCATION_PZONE: {
+		if(sequence == 0)
+			return player[playerid].list_szone[core.duel_rule >= 4 ? 0 : 6];
+		else if(sequence == 1)
+			return player[playerid].list_szone[core.duel_rule >= 4 ? 4 : 7];
 		else
 			return 0;
 		break;
@@ -481,9 +503,7 @@ card* field::get_field_card(uint8 playerid, uint8 location, uint8 sequence) {
 	return 0;
 }
 // return: the given slot in LOCATION_MZONE or all LOCATION_SZONE is available or not
-int32 field::is_location_useable(uint8 playerid, uint8 location, uint8 sequence) {
-	if (location != LOCATION_MZONE && location != LOCATION_SZONE)
-		return TRUE;
+int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequence) {
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
 	if (location == LOCATION_MZONE) {
 		if(flag & (0x1u << sequence))
@@ -493,9 +513,20 @@ int32 field::is_location_useable(uint8 playerid, uint8 location, uint8 sequence)
 			if(oppo & (0x1u << (11 - sequence)))
 				return FALSE;
 		}
-	} else {
+	} else if (location == LOCATION_SZONE) {
 		if(flag & (0x100u << sequence))
 			return FALSE;
+	} else if (location == LOCATION_FZONE) {
+		if(flag & (0x100u << (5 + sequence)))
+			return FALSE;
+	} else if (location == LOCATION_PZONE) {
+		if(core.duel_rule >= 4) {
+			if(flag & (0x100u << (sequence * 4)))
+				return FALSE;
+		} else {
+			if(flag & (0x100u << (6 + sequence)))
+				return FALSE;
+		}
 	}
 	return TRUE;
 }
@@ -1185,6 +1216,44 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 				}
 			}
 		}
+		if(location & LOCATION_FZONE) {
+			pcard = player[self].list_szone[5];
+			if(pcard && !pcard->is_status(STATUS_ACTIVATE_DISABLED)
+			        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
+			        && pduel->lua->check_matching(pcard, findex, extraargs)
+			        && (!is_target || pcard->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
+				if(pret) {
+					*pret = pcard;
+					return TRUE;
+				}
+				count ++;
+				if(fcount && count >= fcount)
+					return TRUE;
+				if(pgroup) {
+					pgroup->container.insert(pcard);
+				}
+			}
+		}
+		if(location & LOCATION_PZONE) {
+			for(int32 i = 0; i < 2; ++i) {
+				pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
+				if(pcard && !pcard->is_status(STATUS_ACTIVATE_DISABLED)
+				        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
+				        && pduel->lua->check_matching(pcard, findex, extraargs)
+				        && (!is_target || pcard->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
+					if(pret) {
+						*pret = pcard;
+						return TRUE;
+					}
+					count ++;
+					if(fcount && count >= fcount)
+						return TRUE;
+					if(pgroup) {
+						pgroup->container.insert(pcard);
+					}
+				}
+			}
+		}
 		if(location & LOCATION_DECK) {
 			for(auto cit = player[self].list_main.rbegin(); cit != player[self].list_main.rend(); ++cit) {
 				if(*cit != pexception && !(pexgroup && pexgroup->has_card(*cit))
@@ -1301,6 +1370,24 @@ int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, g
 		if(location & LOCATION_SZONE) {
 			for(auto cit = player[self].list_szone.begin(); cit != player[self].list_szone.end(); ++cit) {
 				pcard = *cit;
+				if(pcard) {
+					if(pgroup)
+						pgroup->container.insert(pcard);
+					count++;
+				}
+			}
+		}
+		if(location & LOCATION_FZONE) {
+			pcard = player[self].list_szone[5];
+			if(pcard) {
+				if(pgroup)
+					pgroup->container.insert(pcard);
+				count++;
+			}
+		}
+		if(location & LOCATION_PZONE) {
+			for(int32 i = 0; i < 2; ++i) {
+				pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
 				if(pcard) {
 					if(pgroup)
 						pgroup->container.insert(pcard);

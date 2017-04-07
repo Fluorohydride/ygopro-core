@@ -77,7 +77,7 @@ int32 effect::is_available() {
 		card* powner = get_owner();
 		if (phandler->current.controler == PLAYER_NONE)
 			return FALSE;
-		if(is_flag(EFFECT_FLAG_SINGLE_RANGE) && !in_range(phandler->current.location, phandler->current.sequence))
+		if(is_flag(EFFECT_FLAG_SINGLE_RANGE) && !in_range(phandler))
 			return FALSE;
 		if(is_flag(EFFECT_FLAG_SINGLE_RANGE) && !phandler->get_status(STATUS_EFFECT_ENABLED) && !is_flag(EFFECT_FLAG_IMMEDIATELY_APPLY))
 			return FALSE;
@@ -116,7 +116,7 @@ int32 effect::is_available() {
 		if (!is_flag(EFFECT_FLAG_FIELD_ONLY)) {
 			if(phandler->current.controler == PLAYER_NONE)
 				return FALSE;
-			if(!in_range(phandler->current.location, phandler->current.sequence))
+			if(!in_range(phandler))
 				return FALSE;
 			if(!phandler->get_status(STATUS_EFFECT_ENABLED) && !is_flag(EFFECT_FLAG_IMMEDIATELY_APPLY))
 				return FALSE;
@@ -192,8 +192,8 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				if(handler->data.type & TYPE_MONSTER) {
 					if(!(handler->data.type & TYPE_PENDULUM))
 						return FALSE;
-					if(!pduel->game_field->is_location_useable(playerid, LOCATION_SZONE, 6)
-							&& !pduel->game_field->is_location_useable(playerid, LOCATION_SZONE, 7))
+					if(!pduel->game_field->is_location_useable(playerid, LOCATION_PZONE, 0)
+							&& !pduel->game_field->is_location_useable(playerid, LOCATION_PZONE, 1))
 						return FALSE;
 				} else if(!(handler->data.type & TYPE_FIELD)
 						&& pduel->game_field->get_useable_count(playerid, LOCATION_SZONE, playerid, LOCATION_REASON_TOFIELD) <= 0)
@@ -243,7 +243,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 		} else if(!(type & EFFECT_TYPE_CONTINUOUS)) {
 			card* phandler = get_handler();
 			if((phandler->data.type & TYPE_MONSTER) && (phandler->current.location & LOCATION_SZONE)
-					&& !in_range(phandler->current.location, phandler->current.sequence))
+					&& !in_range(phandler))
 				return FALSE;
 			if((phandler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED))) {
 				// effects which can be activated while face-down:
@@ -276,7 +276,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			if(((type & EFFECT_TYPE_FIELD) || ((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE))) && (phandler->current.location & LOCATION_ONFIELD)
 			        && (!phandler->is_position(POS_FACEUP) || !phandler->is_status(STATUS_EFFECT_ENABLED)))
 				return FALSE;
-			if((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE) && !in_range(phandler->current.location, phandler->current.sequence))
+			if((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE) && !in_range(phandler))
 				return FALSE;
 			if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && owner->is_status(STATUS_FORBIDDEN))
 				return FALSE;
@@ -689,4 +689,9 @@ int32 effect::in_range(int32 loc, int32 seq) {
 	if(seq == 5)
 		return range & (LOCATION_SZONE | LOCATION_FZONE);
 	return range & LOCATION_PZONE;
+}
+int32 effect::in_range(card* pcard) {
+	if(type & EFFECT_TYPE_XMATERIAL)
+		return handler->overlay_target ? TRUE : FALSE;
+	return pcard->current.is_location(range);
 }

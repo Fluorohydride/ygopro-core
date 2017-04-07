@@ -57,9 +57,11 @@ struct card_state {
 	uint8 sequence;
 	uint8 position;
 	uint32 reason;
+	bool pzone;
 	card* reason_card;
 	uint8 reason_player;
 	effect* reason_effect;
+	bool is_location(int32 loc) const;
 };
 
 struct query_cache {

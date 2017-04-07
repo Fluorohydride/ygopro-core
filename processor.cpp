@@ -4823,12 +4823,6 @@ void field::refresh_location_info_instant() {
 	uint32 dis1 = player[0].disabled_location | (player[1].disabled_location << 16);
 	player[0].disabled_location = 0;
 	player[1].disabled_location = 0;
-	if(core.duel_rule >= 4) {
-		uint32 loc = player[0].used_location;
-		player[0].disabled_location = ((loc & 0x100) << 6) | ((loc & 0x1000) << 3) | ((loc >> 6) & 0x100) | ((loc >> 3) & 0x1000);
-		loc = player[1].used_location;
-		player[1].disabled_location = ((loc & 0x100) << 6) | ((loc & 0x1000) << 3) | ((loc >> 6) & 0x100) | ((loc >> 3) & 0x1000);
-	}
 	filter_field_effect(EFFECT_DISABLE_FIELD, &eset);
 	for (int32 i = 0; i < eset.size(); ++i) {
 		value = eset[i]->get_value();
@@ -4866,12 +4860,6 @@ int32 field::refresh_location_info(uint16 step) {
 		core.units.begin()->arg2 = player[0].disabled_location | (player[1].disabled_location << 16);
 		player[0].disabled_location = 0;
 		player[1].disabled_location = 0;
-		if(core.duel_rule >= 4) {
-			uint32 loc = player[0].used_location;
-			player[0].disabled_location = ((loc & 0x100) << 6) | ((loc & 0x1000) << 3) | ((loc >> 6) & 0x100) | ((loc >> 3) & 0x1000);
-			loc = player[1].used_location;
-			player[1].disabled_location = ((loc & 0x100) << 6) | ((loc & 0x1000) << 3) | ((loc >> 6) & 0x100) | ((loc >> 3) & 0x1000);
-		}
 		core.disfield_effects.clear();
 		core.extram_effects.clear();
 		core.extras_effects.clear();

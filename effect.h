@@ -90,6 +90,7 @@ public:
 	card* get_handler() const;
 	uint8 get_handler_player();
 	int32 in_range(int32 loc, int32 seq);
+	int32 in_range(card* pcard);
 	bool is_flag(effect_flag flag) const {
 		return !!(this->flag[0] & flag);
 	}
