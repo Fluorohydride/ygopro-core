@@ -434,18 +434,18 @@ int32 effect::is_target(card* pcard) {
 			return FALSE;
 		if(is_flag(EFFECT_FLAG_ABSOLUTE_TARGET)) {
 			if(pcard->current.controler == 0) {
-				if (!(s_range & pcard->current.location))
+				if(!pcard->current.is_location(s_range))
 					return FALSE;
 			} else {
-				if(!(o_range & pcard->current.location))
+				if(!pcard->current.is_location(o_range))
 					return FALSE;
 			}
 		} else {
 			if(pcard->current.controler == get_handler_player()) {
-				if(!(s_range & pcard->current.location))
+				if(!pcard->current.is_location(s_range))
 					return FALSE;
 			} else {
-				if(!(o_range & pcard->current.location))
+				if(!pcard->current.is_location(o_range))
 					return FALSE;
 			}
 		}
@@ -464,9 +464,9 @@ int32 effect::is_target_player(uint8 playerid) {
 		return FALSE;
 	uint8 self = get_handler_player();
 	if(is_flag(EFFECT_FLAG_ABSOLUTE_TARGET)) {
-		if(s_range && playerid == 0 )
+		if(s_range && playerid == 0)
 			return TRUE;
-		if(o_range && playerid == 1 )
+		if(o_range && playerid == 1)
 			return TRUE;
 	} else {
 		if(s_range && self == playerid)
