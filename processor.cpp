@@ -126,7 +126,7 @@ int32 field::process() {
 	}
 	case PROCESSOR_SELECT_DISFIELD:
 	case PROCESSOR_SELECT_PLACE: {
-		if (select_place(it->step, it->arg1, it->arg2, it->arg3)) {
+		if (select_place(it->step, it->arg1, it->arg2, it->arg3, it->arg4)) {
 			core.units.pop_front();
 			return pduel->bufferlen;
 		} else {
