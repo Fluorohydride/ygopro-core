@@ -1368,8 +1368,8 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			core.select_chains.push_back(newchain);
 			cn_count++;
 		}
-		for(auto eit = effects.pheff.begin(); eit != effects.pheff.end(); ++eit) {
-			peffect = *eit;
+		for(auto eit = effects.pheff.begin(); eit != effects.pheff.end();) {
+			peffect = *eit++;
 			if(peffect->code != EFFECT_SET_CONTROL)
 				continue;
 			if(peffect->get_owner_player() != check_player)
@@ -1382,6 +1382,14 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 				continue;
 			if((peffect->reset_count & 0xff) != 1)
 				continue;
+			card* phandler = peffect->get_handler();
+			if(peffect->get_owner_player() != phandler->current.controler) {
+				if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
+					remove_effect(peffect);
+				else
+					phandler->remove_effect(peffect);
+				continue;
+			}
 			newchain.triggering_effect = peffect;
 			core.select_chains.push_back(newchain);
 			cn_count++;
