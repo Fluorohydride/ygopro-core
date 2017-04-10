@@ -2341,143 +2341,189 @@ int32 field::check_synchro_material(card* pcard, int32 findex1, int32 findex2, i
 	return FALSE;
 }
 int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg) {
-	if(tuner && tuner->is_position(POS_FACEUP) && (tuner->get_type() & TYPE_TUNER) && tuner->is_can_be_synchro_material(pcard)) {
-		effect* pcheck = tuner->is_affected_by_effect(EFFECT_SYNCHRO_CHECK);
-		if(pcheck)
-			pcheck->get_value(tuner);
-		if((mg && !mg->has_card(tuner)) || !pduel->lua->check_matching(tuner, findex1, 0)) {
+	if(!tuner || !tuner->is_position(POS_FACEUP) || !(tuner->get_type() & TYPE_TUNER) || !tuner->is_can_be_synchro_material(pcard))
+		return FALSE;
+	effect* pcheck = tuner->is_affected_by_effect(EFFECT_SYNCHRO_CHECK);
+	if(pcheck)
+		pcheck->get_value(tuner);
+	if((mg && !mg->has_card(tuner)) || !pduel->lua->check_matching(tuner, findex1, 0)) {
+		pduel->restore_assumes();
+		return FALSE;
+	}
+	effect* pcustom = tuner->is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL_CUSTOM, pcard);
+	if(pcustom) {
+		if(!pcustom->target) {
 			pduel->restore_assumes();
 			return FALSE;
 		}
-		effect* pcustom = tuner->is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL_CUSTOM, pcard);
-		if(pcustom) {
-			if(!pcustom->target) {
+		pduel->lua->add_param(pcustom, PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+		pduel->lua->add_param(findex2, PARAM_TYPE_INDEX);
+		pduel->lua->add_param(min, PARAM_TYPE_INT);
+		pduel->lua->add_param(max, PARAM_TYPE_INT);
+		if(pduel->lua->check_condition(pcustom->target, 5)) {
+			pduel->restore_assumes();
+			return TRUE;
+		}
+		pduel->restore_assumes();
+		return FALSE;
+	}
+	int32 playerid = pcard->current.controler;
+	//int32 ct = get_useable_count(pcard, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD);
+	int32 location = LOCATION_MZONE;
+	effect* ptuner = tuner->is_affected_by_effect(EFFECT_TUNER_MATERIAL_LIMIT);
+	if(ptuner) {
+		if(ptuner->value)
+			location = ptuner->value;
+		if(ptuner->s_range && ptuner->s_range > min)
+			min = ptuner->s_range;
+		if(ptuner->o_range && ptuner->o_range < max)
+			max = ptuner->o_range;
+		if(min > max) {
+			pduel->restore_assumes();
+			return FALSE;
+		}
+	}
+	int32 lv = pcard->get_level();
+	card_vector nsyn;
+	int32 mcount = 1;
+	nsyn.push_back(tuner);
+	tuner->sum_param = tuner->get_synchro_level(pcard);
+	if(smat) {
+		if(pcheck)
+			pcheck->get_value(smat);
+		if(!smat->is_position(POS_FACEUP) || !smat->is_can_be_synchro_material(pcard, tuner) || !pduel->lua->check_matching(smat, findex2, 0)) {
+			pduel->restore_assumes();
+			return FALSE;
+		}
+		if(ptuner && ptuner->target) {
+			pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(smat, PARAM_TYPE_CARD);
+			if(!pduel->lua->get_function_value(ptuner->target, 2)) {
 				pduel->restore_assumes();
 				return FALSE;
 			}
-			pduel->lua->add_param(pcustom, PARAM_TYPE_EFFECT);
-			pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
-			pduel->lua->add_param(findex2, PARAM_TYPE_INDEX);
-			pduel->lua->add_param(min, PARAM_TYPE_INT);
-			pduel->lua->add_param(max, PARAM_TYPE_INT);
-			if(pduel->lua->check_condition(pcustom->target, 5)) {
+		}
+		min--;
+		max--;
+		nsyn.push_back(smat);
+		smat->sum_param = smat->get_synchro_level(pcard);
+		mcount++;
+		if(min == 0) {
+			if(check_with_sum_limit_m(nsyn, lv, 0, 0, 0, 2)) {
 				pduel->restore_assumes();
 				return TRUE;
 			}
-		} else {
-			int32 lv = pcard->get_level();
-			card_vector nsyn;
-			int32 mcount = 1;
-			nsyn.push_back(tuner);
-			tuner->sum_param = tuner->get_synchro_level(pcard);
-			if(smat) {
-				if(pcheck)
-					pcheck->get_value(smat);
-				if(!smat->is_position(POS_FACEUP) || !smat->is_can_be_synchro_material(pcard, tuner) || !pduel->lua->check_matching(smat, findex2, 0)) {
-					pduel->restore_assumes();
-					return FALSE;
-				}
-				min--;
-				max--;
-				nsyn.push_back(smat);
-				smat->sum_param = smat->get_synchro_level(pcard);
-				mcount++;
-				if(min == 0) {
-					if(check_with_sum_limit_m(nsyn, lv, 0, 0, 0, 2)) {
-						pduel->restore_assumes();
-						return TRUE;
-					}
-					if(max == 0) {
-						pduel->restore_assumes();
-						return FALSE;
-					}
-				}
+			if(max == 0) {
+				pduel->restore_assumes();
+				return FALSE;
 			}
-			if(mg) {
-				for(auto cit = mg->container.begin(); cit != mg->container.end(); ++cit) {
-					card* pm = *cit;
-					if(pm != tuner && pm != smat && pm->is_can_be_synchro_material(pcard, tuner)) {
-						if(pcheck)
-							pcheck->get_value(pm);
-						if(pm->current.location == LOCATION_MZONE && !pm->is_position(POS_FACEUP))
-							continue;
-						if(!pduel->lua->check_matching(pm, findex2, 0))
-							continue;
-						nsyn.push_back(pm);
-						pm->sum_param = pm->get_synchro_level(pcard);
-					}
-				}
-			} else {
-				for(uint8 p = 0; p < 2; ++p) {
-					for(auto cit = player[p].list_mzone.begin(); cit != player[p].list_mzone.end(); ++cit) {
-						card* pm = *cit;
-						if(pm && pm != tuner && pm != smat && pm->is_position(POS_FACEUP) && pm->is_can_be_synchro_material(pcard, tuner)) {
-							if(pcheck)
-								pcheck->get_value(pm);
-							if(!pduel->lua->check_matching(pm, findex2, 0))
-								continue;
-							nsyn.push_back(pm);
-							pm->sum_param = pm->get_synchro_level(pcard);
-						}
-					}
-				}
+		}
+	}
+	if(mg) {
+		for(auto cit = mg->container.begin(); cit != mg->container.end(); ++cit) {
+			card* pm = *cit;
+			if(pm == tuner || pm == smat || !pm->is_can_be_synchro_material(pcard, tuner))
+				continue;
+			if(ptuner && ptuner->target) {
+				pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+				pduel->lua->add_param(pm, PARAM_TYPE_CARD);
+				if(!pduel->lua->get_function_value(ptuner->target, 2))
+					continue;
 			}
-			if(!(core.global_flag & GLOBALFLAG_SCRAP_CHIMERA)) {
-				if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
-					pduel->restore_assumes();
-					return TRUE;
-				}
-			} else {
-				effect* pscrap = 0;
-				for(auto cit = nsyn.begin(); cit != nsyn.end(); ++cit) {
-					pscrap = (*cit)->is_affected_by_effect(EFFECT_SCRAP_CHIMERA);
-					if(pscrap)
-						break;
-				}
-				if(pscrap) {
-					card_vector nsyn_filtered;
-					for(auto cit = nsyn.begin(); cit != nsyn.end(); ++cit) {
-						if(!pscrap->get_value(*cit))
-							nsyn_filtered.push_back(*cit);
-					}
-					if(nsyn_filtered.size() == nsyn.size()) {
-						if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
-							pduel->restore_assumes();
-							return TRUE;
-						}
-					} else {
-						bool mfiltered = true;
-						for(int32 i = 0; i < mcount; ++i) {
-							if(pscrap->get_value(nsyn[i]))
-								mfiltered = false;
-						}
-						if(mfiltered && check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, mcount)) {
-							pduel->restore_assumes();
-							return TRUE;
-						}
-						for(int32 i = 0; i < mcount; ++i) {
-							if(nsyn[i]->is_affected_by_effect(EFFECT_SCRAP_CHIMERA)) {
-								pduel->restore_assumes();
-								return FALSE;
-							}
-						}
-						card_vector nsyn_removed;
-						for(auto cit = nsyn.begin(); cit != nsyn.end(); ++cit) {
-							if(!(*cit)->is_affected_by_effect(EFFECT_SCRAP_CHIMERA))
-								nsyn_removed.push_back(*cit);
-						}
-						if(check_with_sum_limit_m(nsyn_removed, lv, 0, min, max, mcount)) {
-							pduel->restore_assumes();
-							return TRUE;
-						}
-					}
-				} else {
-					if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
-						pduel->restore_assumes();
-						return TRUE;
-					}
-				}
+			if(pcheck)
+				pcheck->get_value(pm);
+			if(pm->current.location == LOCATION_MZONE && !pm->is_position(POS_FACEUP))
+				continue;
+			if(!pduel->lua->check_matching(pm, findex2, 0))
+				continue;
+			nsyn.push_back(pm);
+			pm->sum_param = pm->get_synchro_level(pcard);
+		}
+	} else {
+		card_vector cv;
+		if(location & LOCATION_MZONE) {
+			cv.insert(cv.end(), player[0].list_mzone.begin(), player[0].list_mzone.end());
+			cv.insert(cv.end(), player[1].list_mzone.begin(), player[1].list_mzone.end());
+		}
+		if(location & LOCATION_HAND)
+			cv.insert(cv.end(), player[playerid].list_hand.begin(), player[playerid].list_hand.end());
+		for(auto cit = cv.begin(); cit != cv.end(); ++cit) {
+			card* pm = *cit;
+			if(!pm || pm == tuner || pm == smat || !pm->is_can_be_synchro_material(pcard, tuner))
+				continue;
+			if(ptuner && ptuner->target) {
+				pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+				pduel->lua->add_param(pm, PARAM_TYPE_CARD);
+				if(!pduel->lua->get_function_value(ptuner->target, 2))
+					continue;
 			}
+			if(pcheck)
+				pcheck->get_value(pm);
+			if(pm->current.location == LOCATION_MZONE && !pm->is_position(POS_FACEUP))
+				continue;
+			if(!pduel->lua->check_matching(pm, findex2, 0))
+				continue;
+			nsyn.push_back(pm);
+			pm->sum_param = pm->get_synchro_level(pcard);
+		}
+	}
+	if(!(core.global_flag & GLOBALFLAG_SCRAP_CHIMERA)) {
+		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
+			pduel->restore_assumes();
+			return TRUE;
+		}
+		pduel->restore_assumes();
+		return FALSE;
+	}
+	effect* pscrap = 0;
+	for(auto cit = nsyn.begin(); cit != nsyn.end(); ++cit) {
+		pscrap = (*cit)->is_affected_by_effect(EFFECT_SCRAP_CHIMERA);
+		if(pscrap)
+			break;
+	}
+	if(!pscrap) {
+		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
+			pduel->restore_assumes();
+			return TRUE;
+		}
+		pduel->restore_assumes();
+		return FALSE;
+	}
+	card_vector nsyn_filtered;
+	for(auto cit = nsyn.begin(); cit != nsyn.end(); ++cit) {
+		if(!pscrap->get_value(*cit))
+			nsyn_filtered.push_back(*cit);
+	}
+	if(nsyn_filtered.size() == nsyn.size()) {
+		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
+			pduel->restore_assumes();
+			return TRUE;
+		}
+	} else {
+		bool mfiltered = true;
+		for(int32 i = 0; i < mcount; ++i) {
+			if(pscrap->get_value(nsyn[i]))
+				mfiltered = false;
+		}
+		if(mfiltered && check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, mcount)) {
+			pduel->restore_assumes();
+			return TRUE;
+		}
+		for(int32 i = 0; i < mcount; ++i) {
+			if(nsyn[i]->is_affected_by_effect(EFFECT_SCRAP_CHIMERA)) {
+				pduel->restore_assumes();
+				return FALSE;
+			}
+		}
+		card_vector nsyn_removed;
+		for(auto cit = nsyn.begin(); cit != nsyn.end(); ++cit) {
+			if(!(*cit)->is_affected_by_effect(EFFECT_SCRAP_CHIMERA))
+				nsyn_removed.push_back(*cit);
+		}
+		if(check_with_sum_limit_m(nsyn_removed, lv, 0, min, max, mcount)) {
+			pduel->restore_assumes();
+			return TRUE;
 		}
 	}
 	pduel->restore_assumes();

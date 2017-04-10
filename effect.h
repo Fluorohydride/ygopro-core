@@ -415,6 +415,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 //#define EFFECT_REMOVE_FUSION_ATTRIBUTE	350
 #define EFFECT_CHANGE_FUSION_ATTRIBUTE	351
 #define EFFECT_EXTRA_FUSION_MATERIAL	352
+#define EFFECT_TUNER_MATERIAL_LIMIT		353
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

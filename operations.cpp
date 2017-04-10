@@ -4602,9 +4602,21 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		return FALSE;
 	}
 	case 4: {
+		card* tuner = core.limit_tuner;
+		int32 playerid = pcard->current.controler;
+		//int32 ct = get_useable_count(pcard, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD);
+		int32 location = LOCATION_MZONE;
+		effect* ptuner = tuner->is_affected_by_effect(EFFECT_TUNER_MATERIAL_LIMIT);
+		if(ptuner) {
+			if(ptuner->value)
+				location = ptuner->value;
+			if(ptuner->s_range && ptuner->s_range > min)
+				min = ptuner->s_range;
+			if(ptuner->o_range && ptuner->o_range < max)
+				max = ptuner->o_range;
+		}
 		int32 lv = pcard->get_level();
 		int32 mcount = 1;
-		card* tuner = core.limit_tuner;
 		effect* pcheck = tuner->is_affected_by_effect(EFFECT_SYNCHRO_CHECK);
 		core.must_select_cards.clear();
 		core.must_select_cards.push_back(tuner);
@@ -4620,30 +4632,49 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		if(mg) {
 			for(auto cit = mg->container.begin(); cit != mg->container.end(); ++cit) {
 				card* pm = *cit;
-				if(pm != tuner && pm != smat && pm->is_can_be_synchro_material(pcard, tuner)) {
-					if(pcheck)
-						pcheck->get_value(pm);
-					if(pm->current.location == LOCATION_MZONE && !pm->is_position(POS_FACEUP))
+				if(pm == tuner || pm == smat || !pm->is_can_be_synchro_material(pcard, tuner))
+					continue;
+				if(ptuner && ptuner->target) {
+					pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+					pduel->lua->add_param(pm, PARAM_TYPE_CARD);
+					if(!pduel->lua->get_function_value(ptuner->target, 2))
 						continue;
-					if(!pduel->lua->check_matching(pm, -1, 0))
-						continue;
-					core.select_cards.push_back(pm);
-					pm->sum_param = pm->get_synchro_level(pcard);
 				}
+				if(pcheck)
+					pcheck->get_value(pm);
+				if(pm->current.location == LOCATION_MZONE && !pm->is_position(POS_FACEUP))
+					continue;
+				if(!pduel->lua->check_matching(pm, -1, 0))
+					continue;
+				core.select_cards.push_back(pm);
+				pm->sum_param = pm->get_synchro_level(pcard);
 			}
 		} else {
-			for(uint8 np = 0; np < 2; ++np) {
-				for(auto cit = player[np].list_mzone.begin(); cit != player[np].list_mzone.end(); ++cit) {
-					card* pm = *cit;
-					if(pm && pm != tuner && pm != smat && pm->is_position(POS_FACEUP) && pm->is_can_be_synchro_material(pcard, tuner)) {
-						if(pcheck)
-							pcheck->get_value(pm);
-						if(!pduel->lua->check_matching(pm, -1, 0))
-							continue;
-						core.select_cards.push_back(pm);
-						pm->sum_param = pm->get_synchro_level(pcard);
-					}
+			card_vector cv;
+			if(location & LOCATION_MZONE) {
+				cv.insert(cv.end(), player[0].list_mzone.begin(), player[0].list_mzone.end());
+				cv.insert(cv.end(), player[1].list_mzone.begin(), player[1].list_mzone.end());
+			}
+			if(location & LOCATION_HAND)
+				cv.insert(cv.end(), player[playerid].list_hand.begin(), player[playerid].list_hand.end());
+			for(auto cit = cv.begin(); cit != cv.end(); ++cit) {
+				card* pm = *cit;
+				if(!pm || pm == tuner || pm == smat || !pm->is_can_be_synchro_material(pcard, tuner))
+					continue;
+				if(ptuner && ptuner->target) {
+					pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+					pduel->lua->add_param(pm, PARAM_TYPE_CARD);
+					if(!pduel->lua->get_function_value(ptuner->target, 2))
+						continue;
 				}
+				if(pcheck)
+					pcheck->get_value(pm);
+				if(pm->current.location == LOCATION_MZONE && !pm->is_position(POS_FACEUP))
+					continue;
+				if(!pduel->lua->check_matching(pm, -1, 0))
+					continue;
+				core.select_cards.push_back(pm);
+				pm->sum_param = pm->get_synchro_level(pcard);
 			}
 		}
 		if(core.global_flag & GLOBALFLAG_SCRAP_CHIMERA) {
