@@ -2369,7 +2369,23 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		return FALSE;
 	}
 	int32 playerid = pcard->current.controler;
-	//int32 ct = get_useable_count(pcard, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD);
+	int32 ct = get_useable_count(pcard, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD);
+	card_set linked_cards;
+	if(ct <= 0) {
+		uint32 linked_zone = get_linked_zone(playerid);
+		linked_zone |= (1u << 5) | (1u << 6);
+		uint32 icheck = 0x1;
+		for(auto it = player[playerid].list_mzone.begin(); it != player[playerid].list_mzone.end(); ++it) {
+			if(linked_zone & icheck) {
+				card* pcard = *it;
+				if(pcard)
+					linked_cards.insert(pcard);
+			}
+			icheck <<= 1;
+		}
+		if(linked_cards.find(tuner) != linked_cards.end())
+			ct++;
+	}
 	int32 location = LOCATION_MZONE;
 	effect* ptuner = tuner->is_affected_by_effect(EFFECT_TUNER_MATERIAL_LIMIT);
 	if(ptuner) {
@@ -2409,8 +2425,12 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		nsyn.push_back(smat);
 		smat->sum_param = smat->get_synchro_level(pcard);
 		mcount++;
+		if(ct <= 0) {
+			if(linked_cards.find(smat) != linked_cards.end())
+				ct++;
+		}
 		if(min == 0) {
-			if(check_with_sum_limit_m(nsyn, lv, 0, 0, 0, 2)) {
+			if(ct > 0 && check_with_sum_limit_m(nsyn, lv, 0, 0, 0, 2)) {
 				pduel->restore_assumes();
 				return TRUE;
 			}
@@ -2468,12 +2488,33 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 			pm->sum_param = pm->get_synchro_level(pcard);
 		}
 	}
-	if(!(core.global_flag & GLOBALFLAG_SCRAP_CHIMERA)) {
-		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
+	if(ct > 0) {
+		int32 ret = check_other_synchro_material(nsyn, lv, min, max, mcount);
+		pduel->restore_assumes();
+		return ret;
+	}
+	auto start = nsyn.begin() + mcount;
+	for(auto cit = start; cit != nsyn.end(); ++cit) {
+		card* pm = *cit;
+		if(linked_cards.find(pm) == linked_cards.end())
+			continue;
+		if(start != cit)
+			std::iter_swap(start, cit);
+		if(check_other_synchro_material(nsyn, lv, min - 1, max - 1, mcount + 1)) {
 			pduel->restore_assumes();
 			return TRUE;
 		}
-		pduel->restore_assumes();
+		if(start != cit)
+			std::iter_swap(start, cit);
+	}
+	pduel->restore_assumes();
+	return FALSE;
+}
+int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int32 min, int32 max, int32 mcount) {
+	if(!(core.global_flag & GLOBALFLAG_SCRAP_CHIMERA)) {
+		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
+			return TRUE;
+		}
 		return FALSE;
 	}
 	effect* pscrap = 0;
@@ -2484,10 +2525,8 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	}
 	if(!pscrap) {
 		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
-			pduel->restore_assumes();
 			return TRUE;
 		}
-		pduel->restore_assumes();
 		return FALSE;
 	}
 	card_vector nsyn_filtered;
@@ -2497,7 +2536,6 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	}
 	if(nsyn_filtered.size() == nsyn.size()) {
 		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
-			pduel->restore_assumes();
 			return TRUE;
 		}
 	} else {
@@ -2507,12 +2545,10 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 				mfiltered = false;
 		}
 		if(mfiltered && check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, mcount)) {
-			pduel->restore_assumes();
 			return TRUE;
 		}
 		for(int32 i = 0; i < mcount; ++i) {
 			if(nsyn[i]->is_affected_by_effect(EFFECT_SCRAP_CHIMERA)) {
-				pduel->restore_assumes();
 				return FALSE;
 			}
 		}
@@ -2522,11 +2558,9 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 				nsyn_removed.push_back(*cit);
 		}
 		if(check_with_sum_limit_m(nsyn_removed, lv, 0, min, max, mcount)) {
-			pduel->restore_assumes();
 			return TRUE;
 		}
 	}
-	pduel->restore_assumes();
 	return FALSE;
 }
 int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer) {
