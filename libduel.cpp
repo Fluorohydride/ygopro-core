@@ -1497,11 +1497,17 @@ int32 scriptlib::duel_get_location_count(lua_State *L) {
 	if(location == LOCATION_MZONE) {
 		uint32 flag1, flag2;
 		int32 ct1 = pduel->game_field->get_useable_count(playerid, location, uplayer, reason, zone, &flag1);
-		int32 ct2 = pduel->game_field->get_useable_count_fromex(0, playerid, uplayer, zone, &flag2);
-		int32 ct3 = field::field_used_count[~(flag1 | flag2) & 0x1f];
-		lua_pushinteger(L, ct1);
-		lua_pushinteger(L, ct2);
-		lua_pushinteger(L, ct1 + ct2 - ct3);
+		if(pduel->game_field->core.duel_rule >= 4) {
+			int32 ct2 = pduel->game_field->get_useable_count_fromex(0, playerid, uplayer, zone, &flag2);
+			int32 ct3 = field::field_used_count[~(flag1 | flag2) & 0x1f];
+			lua_pushinteger(L, ct1);
+			lua_pushinteger(L, ct2);
+			lua_pushinteger(L, ct1 + ct2 - ct3);
+		} else {
+			lua_pushinteger(L, ct1);
+			lua_pushinteger(L, ct1);
+			lua_pushinteger(L, ct1);
+		}
 		return 3;
 	} else {
 		lua_pushinteger(L, pduel->game_field->get_useable_count(playerid, location, uplayer, reason));

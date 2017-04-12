@@ -576,9 +576,11 @@ int32 field::get_tofield_count(uint8 playerid, uint8 location, uint8 uplayer, ui
 		flag = (flag | ~zone) & 0x1f;
 	else
 		flag = (flag >> 8) & 0x1f;
+	int32 count = 5 - field_used_count[flag];
+	if(location == LOCATION_MZONE)
+		flag |= (1u << 5) | (1u << 6);
 	if(list)
 		*list = flag;
-	int32 count = 5 - field_used_count[flag];
 	return count;
 }
 int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone, uint32* list) {

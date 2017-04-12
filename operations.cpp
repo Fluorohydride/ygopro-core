@@ -3976,30 +3976,10 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			pduel->write_buffer8(move_player);
 			pduel->write_buffer32(target->data.code);
 			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1);
-		} else if(core.duel_rule >= 4 && location == LOCATION_MZONE && target->current.location == LOCATION_EXTRA) {
-			uint32 flag;
-			int32 ct = get_useable_count_fromex(target, playerid, move_player, zone, &flag);
-			if((ret == 1) && (ct <= 0 || target->is_status(STATUS_FORBIDDEN) || check_unique_onfield(target, playerid, location))) {
-				core.units.begin()->step = 3;
-				send_to(target, core.reason_effect, REASON_RULE, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
-				return FALSE;
-			}
-			if(ct <= 0)
-				return TRUE;
-			if(move_player == playerid)
-				flag = (flag & 0xff) | 0xffffff00;
-			else
-				flag = ((flag & 0xff) << 16) | 0xff00ffff;
-			flag |= 0xff80ff80;
-			pduel->write_buffer8(MSG_HINT);
-			pduel->write_buffer8(HINT_SELECTMSG);
-			pduel->write_buffer8(move_player);
-			pduel->write_buffer32(target->data.code);
-			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1);
 		} else {
 			uint32 flag;
 			uint32 lreason = (target->current.location == LOCATION_MZONE) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
-			int32 ct = get_useable_count(playerid, location, move_player, lreason, zone, &flag);
+			int32 ct = get_useable_count(target, playerid, location, move_player, lreason, zone, &flag);
 			if((ret == 1) && (ct <= 0 || target->is_status(STATUS_FORBIDDEN) || check_unique_onfield(target, playerid, location))) {
 				core.units.begin()->step = 3;
 				send_to(target, core.reason_effect, REASON_RULE, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
@@ -4018,7 +3998,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				else
 					flag = ((flag & 0xff) << 16) | 0xff00ffff;
 			}
-			flag |= 0xe0e0e0e0;
+			flag |= 0xe080e080;
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(move_player);
