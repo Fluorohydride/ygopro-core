@@ -343,8 +343,13 @@ public:
 	card* get_field_card(uint32 playerid, uint32 location, uint32 sequence);
 	int32 is_location_useable(uint32 playerid, uint32 location, uint32 sequence);
 	int32 get_useable_count(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone = 0xff, uint32* list = 0);
+	int32 get_spsummonable_count(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = 0);
 	int32 get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone = 0xff, uint32* list = 0);
+	int32 get_tofield_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 zone = 0xff, uint32* list = 0);
 	int32 get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = 0);
+	int32 get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = 0);
+	int32 get_mzone_limit(uint8 playerid, uint8 uplayer, uint32 reason);
+	int32 get_szone_limit(uint8 playerid, uint8 uplayer, uint32 reason);
 	uint32 get_linked_zone(int32 playerid);
 	int32 check_extra_link(int32 playerid);
 	int32 check_extra_link(int32 playerid, card* pcard, int32 sequence);

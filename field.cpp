@@ -551,50 +551,48 @@ int32 field::get_useable_count(card* pcard, uint8 playerid, uint8 location, uint
 	else
 		return get_useable_count(playerid, location, uplayer, reason, zone, list);
 }
+int32 field::get_spsummonable_count(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone, uint32* list) {
+	if(core.duel_rule >= 4 && pcard->current.location == LOCATION_EXTRA)
+		return get_spsummonable_count_fromex(pcard, playerid, uplayer, zone, list);
+	else
+		return get_tofield_count(playerid, LOCATION_MZONE, uplayer, zone, list);
+}
 int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone, uint32* list) {
+	int32 count = get_tofield_count(playerid, location, uplayer, zone, list);
+	int32 limit;
+	if(location == LOCATION_MZONE)
+		limit = get_mzone_limit(playerid, uplayer, LOCATION_REASON_TOFIELD);
+	else
+		limit = get_szone_limit(playerid, uplayer, LOCATION_REASON_TOFIELD);
+	if(count > limit)
+		count = limit;
+	return count;
+}
+int32 field::get_tofield_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 zone, uint32* list) {
 	if (location != LOCATION_MZONE && location != LOCATION_SZONE)
 		return 0;
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
-	uint32 used_flag = player[playerid].used_location;
-	effect_set eset;
-	if (location == LOCATION_MZONE) {
+	if (location == LOCATION_MZONE)
 		flag = (flag | ~zone) & 0x1f;
-		used_flag = used_flag & 0x1f;
-		if(uplayer < 2)
-			filter_player_effect(playerid, EFFECT_MAX_MZONE, &eset);
-	} else {
+	else
 		flag = (flag >> 8) & 0x1f;
-		used_flag = (used_flag >> 8) & 0x1f;
-		if(uplayer < 2)
-			filter_player_effect(playerid, EFFECT_MAX_SZONE, &eset);
-	}
 	if(list)
 		*list = flag;
 	int32 count = 5 - field_used_count[flag];
-	if(eset.size()) {
-		int32 max = 5;
-		for (int32 i = 0; i < eset.size(); ++i) {
-			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-			pduel->lua->add_param(uplayer, PARAM_TYPE_INT);
-			pduel->lua->add_param(reason, PARAM_TYPE_INT);
-			int32 v = eset[i]->get_value(3);
-			if (max > v)
-				max = v;
-		}
-		int32 limit = max - field_used_count[used_flag];
-		return count < limit ? count : limit;
-	} else {
-		return count;
-	}
+	return count;
 }
 int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone, uint32* list) {
+	int32 count = get_spsummonable_count_fromex(pcard, playerid, uplayer, zone, list);
+	int32 limit = get_mzone_limit(playerid, uplayer, LOCATION_REASON_TOFIELD);
+	if(count > limit)
+		count = limit;
+	return count;
+}
+int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone, uint32* list) {
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
-	uint32 used_flag = player[playerid].used_location;
 	uint32 linked_zone = get_linked_zone(playerid);
 	flag = (flag | ~zone | ~linked_zone) & 0x1f;
-	used_flag = used_flag & 0x1f;
-	int32 used_count = field_used_count[flag];
-	int32 maxcount = 6;
+	int32 count = 6 - field_used_count[flag];
 	if(player[playerid].list_mzone[5] && is_location_useable(playerid, LOCATION_MZONE, 6)
 		&& (zone & (1u << 6)) && pcard && check_extra_link(playerid, pcard, 6)) {
 		flag |= 1u << 5;
@@ -603,32 +601,58 @@ int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer
 		flag |= 1u << 6;
 	} else if(player[playerid].list_mzone[5] || player[playerid].list_mzone[6] || !(zone & ((1u << 5) | (1u << 6)))) {
 		flag |= (1u << 5) | (1u << 6);
-		maxcount = 5;
+		count--;
 	} else if(player[1 - playerid].list_mzone[5] || !is_location_useable(playerid, LOCATION_MZONE, 6) || !(zone & (1u << 6)))
 		flag |= 1u << 6;
 	else if(player[1 - playerid].list_mzone[6] || !is_location_useable(playerid, LOCATION_MZONE, 5) || !(zone & (1u << 5)))
 		flag |= 1u << 5;
 	if(list)
 		*list = flag;
-	int32 count = maxcount - used_count;
+	return count;
+}
+int32 field::get_mzone_limit(uint8 playerid, uint8 uplayer, uint32 reason) {
+	uint32 used_flag = player[playerid].used_location;
+	used_flag = used_flag & 0x1f;
+	int32 max = 5;
+	int32 used_count = field_used_count[used_flag];
+	if(core.duel_rule >= 4) {
+		max = 7;
+		if(player[playerid].list_mzone[5])
+			used_count++;
+		if(player[playerid].list_mzone[6])
+			used_count++;
+	}
 	effect_set eset;
 	if(uplayer < 2)
 		filter_player_effect(playerid, EFFECT_MAX_MZONE, &eset);
-	if(eset.size()) {
-		int32 max = maxcount;
-		for (int32 i = 0; i < eset.size(); ++i) {
-			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-			pduel->lua->add_param(uplayer, PARAM_TYPE_INT);
-			pduel->lua->add_param(LOCATION_REASON_TOFIELD, PARAM_TYPE_INT);
-			int32 v = eset[i]->get_value(3);
-			if (max > v)
-				max = v;
-		}
-		int32 limit = max - field_used_count[used_flag];
-		if(count > limit)
-			count = limit;
+	for(int32 i = 0; i < eset.size(); ++i) {
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		pduel->lua->add_param(uplayer, PARAM_TYPE_INT);
+		pduel->lua->add_param(reason, PARAM_TYPE_INT);
+		int32 v = eset[i]->get_value(3);
+		if(max > v)
+			max = v;
 	}
-	return count;
+	int32 limit = max - used_count;
+	return limit;
+}
+int32 field::get_szone_limit(uint8 playerid, uint8 uplayer, uint32 reason) {
+	uint32 used_flag = player[playerid].used_location;
+	used_flag = (used_flag >> 8) & 0x1f;
+	effect_set eset;
+	if(uplayer < 2)
+		filter_player_effect(playerid, EFFECT_MAX_SZONE, &eset);
+	int32 max = 5;
+	for(int32 i = 0; i < eset.size(); ++i) {
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		pduel->lua->add_param(uplayer, PARAM_TYPE_INT);
+		pduel->lua->add_param(reason, PARAM_TYPE_INT);
+		int32 v = eset[i]->get_value(3);
+		if(max > v)
+			max = v;
+	}
+	int32 limit = max - field_used_count[used_flag];
+	return limit;
 }
 uint32 field::get_linked_zone(int32 playerid) {
 	uint32 zones = 0;
