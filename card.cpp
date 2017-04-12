@@ -1154,25 +1154,9 @@ void card::get_linked_cards(card_set* cset) {
 	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE)
 		return;
 	int32 p = current.controler;
-	uint32 zones = get_linked_zone();
-	uint32 icheck = 0x1;
-	for(auto it = pduel->game_field->player[p].list_mzone.begin(); it != pduel->game_field->player[p].list_mzone.end(); ++it) {
-		if(zones & icheck) {
-			card* pcard = *it;
-			if(pcard)
-				cset->insert(pcard);
-		}
-		icheck <<= 1;
-	}
-	icheck = 0x10000;
-	for(auto it = pduel->game_field->player[1 - p].list_mzone.begin(); it != pduel->game_field->player[1 - p].list_mzone.end(); ++it) {
-		if(zones & icheck) {
-			card* pcard = *it;
-			if(pcard)
-				cset->insert(pcard);
-		}
-		icheck <<= 1;
-	}
+	uint32 linked_zone = get_linked_zone();
+	pduel->game_field->get_cards_in_zone(cset, linked_zone, p);
+	pduel->game_field->get_cards_in_zone(cset, linked_zone >> 16, 1 - p);
 }
 uint32 card::get_mutual_linked_zone() {
 	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE)

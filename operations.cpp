@@ -4681,17 +4681,8 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		int32 ct = get_useable_count(pcard, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD);
 		if(ct <= 0) {
 			card_set linked_cards;
-			uint32 linked_zone = get_linked_zone(playerid);
-			linked_zone |= (1u << 5) | (1u << 6);
-			uint32 icheck = 0x1;
-			for(auto it = player[playerid].list_mzone.begin(); it != player[playerid].list_mzone.end(); ++it) {
-				if(linked_zone & icheck) {
-					card* pcard = *it;
-					if(pcard)
-						linked_cards.insert(pcard);
-				}
-				icheck <<= 1;
-			}
+			uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
+			get_cards_in_zone(&linked_cards, linked_zone, playerid);
 			if(linked_cards.find(tuner) != linked_cards.end())
 				ct++;
 			if(smat) {
@@ -4707,17 +4698,8 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		int32 lv = pcard->get_level();
 		int32 playerid = pcard->current.controler;
 		card_set linked_cards;
-		uint32 linked_zone = get_linked_zone(playerid);
-		linked_zone |= (1u << 5) | (1u << 6);
-		uint32 icheck = 0x1;
-		for(auto it = player[playerid].list_mzone.begin(); it != player[playerid].list_mzone.end(); ++it) {
-			if(linked_zone & icheck) {
-				card* pcard = *it;
-				if(pcard)
-					linked_cards.insert(pcard);
-			}
-			icheck <<= 1;
-		}
+		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
+		get_cards_in_zone(&linked_cards, linked_zone, playerid);
 		card_vector* select_cards = new card_vector;
 		select_cards->swap(core.select_cards);
 		card_vector* must_select_cards = new card_vector;

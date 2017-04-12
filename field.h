@@ -49,7 +49,7 @@ struct chain {
 	uint8 chain_count;
 	uint8 triggering_player;
 	uint8 triggering_controler;
-	uint8 triggering_location;
+	uint16 triggering_location;
 	uint8 triggering_sequence;
 	effect* triggering_effect;
 	group* target_cards;
@@ -62,6 +62,7 @@ struct chain {
 	opmap opinfos;
 	uint32 flag;
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
+	void set_triggering_place(card* pcard);
 };
 
 struct player_info {
@@ -347,6 +348,7 @@ public:
 	uint32 get_linked_zone(int32 playerid);
 	int32 check_extra_link(int32 playerid);
 	int32 check_extra_link(int32 playerid, card* pcard, int32 sequence);
+	void get_cards_in_zone(card_set* cset, uint32 zone, int32 playerid);
 	void shuffle(uint8 playerid, uint8 location);
 	void reset_sequence(uint8 playerid, uint8 location);
 	void swap_deck_and_grave(uint8 playerid);

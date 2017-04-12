@@ -20,6 +20,16 @@ int32 field::field_used_count[32] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3
 bool chain::chain_operation_sort(const chain& c1, const chain& c2) {
 	return c1.triggering_effect->id < c2.triggering_effect->id;
 }
+void chain::set_triggering_place(card* pcard) {
+	triggering_controler = pcard->current.controler;
+	if(pcard->current.is_location(LOCATION_FZONE))
+		triggering_location = LOCATION_SZONE | LOCATION_FZONE;
+	else if(pcard->current.is_location(LOCATION_PZONE))
+		triggering_location = LOCATION_SZONE | LOCATION_PZONE;
+	else
+		triggering_location = pcard->current.location;
+	triggering_sequence = pcard->current.sequence;
+}
 bool tevent::operator< (const tevent& v) const {
 	return memcmp(this, &v, sizeof(tevent)) < 0;
 }
@@ -139,7 +149,7 @@ void field::reload_field_info() {
 		pduel->write_buffer32(peffect->get_handler()->data.code);
 		pduel->write_buffer32(peffect->get_handler()->get_info_location());
 		pduel->write_buffer8(chit->triggering_controler);
-		pduel->write_buffer8(chit->triggering_location);
+		pduel->write_buffer8((uint8)chit->triggering_location);
 		pduel->write_buffer8(chit->triggering_sequence);
 		pduel->write_buffer32(peffect->description);
 	}
@@ -718,6 +728,17 @@ int32 field::check_extra_link(int32 playerid, card* pcard, int32 sequence) {
 	pcard->current.location = cur_location;
 	pcard->current.sequence = cur_sequence;
 	return ret;
+}
+void field::get_cards_in_zone(card_set* cset, uint32 zone, int32 playerid) {
+	uint32 icheck = 0x1;
+	for(auto it = player[playerid].list_mzone.begin(); it != player[playerid].list_mzone.end(); ++it) {
+		if(zone & icheck) {
+			card* pcard = *it;
+			if(pcard)
+				cset->insert(pcard);
+		}
+		icheck <<= 1;
+	}
 }
 void field::shuffle(uint8 playerid, uint8 location) {
 	if(!(location & (LOCATION_HAND | LOCATION_DECK)))
@@ -2372,17 +2393,8 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	int32 ct = get_useable_count(pcard, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD);
 	card_set linked_cards;
 	if(ct <= 0) {
-		uint32 linked_zone = get_linked_zone(playerid);
-		linked_zone |= (1u << 5) | (1u << 6);
-		uint32 icheck = 0x1;
-		for(auto it = player[playerid].list_mzone.begin(); it != player[playerid].list_mzone.end(); ++it) {
-			if(linked_zone & icheck) {
-				card* pcard = *it;
-				if(pcard)
-					linked_cards.insert(pcard);
-			}
-			icheck <<= 1;
-		}
+		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
+		get_cards_in_zone(&linked_cards, linked_zone, playerid);
 		if(linked_cards.find(tuner) != linked_cards.end())
 			ct++;
 	}

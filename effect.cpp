@@ -679,19 +679,13 @@ uint8 effect::get_handler_player() {
 		return effect_owner;
 	return get_handler()->current.controler;
 }
-int32 effect::in_range(int32 loc, int32 seq) {
-	if(type & EFFECT_TYPE_XMATERIAL)
-		return handler->overlay_target ? TRUE : FALSE;
-	if(loc != LOCATION_SZONE)
-		return range & loc;
-	if(seq < 5)
-		return range & LOCATION_SZONE;
-	if(seq == 5)
-		return range & (LOCATION_SZONE | LOCATION_FZONE);
-	return range & LOCATION_PZONE;
-}
 int32 effect::in_range(card* pcard) {
 	if(type & EFFECT_TYPE_XMATERIAL)
 		return handler->overlay_target ? TRUE : FALSE;
 	return pcard->current.is_location(range);
+}
+int32 effect::in_range(const chain& ch) {
+	if(type & EFFECT_TYPE_XMATERIAL)
+		return handler->overlay_target ? TRUE : FALSE;
+	return range & ch.triggering_location;
 }
