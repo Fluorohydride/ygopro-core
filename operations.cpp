@@ -4592,6 +4592,13 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 				max = ptuner->o_range;
 			core.units.begin()->arg2 = min + (max << 16);
 		}
+		int32 mzone_limit = get_mzone_limit(playerid, playerid, LOCATION_REASON_TOFIELD);
+		if(mzone_limit < 0) {
+			int32 ft = -mzone_limit;
+			if(ft > min)
+				min = ft;
+			core.units.begin()->arg2 = min + (max << 16);
+		}
 		if(!smat)
 			return FALSE;
 		min--;
@@ -4678,7 +4685,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 			}
 		}
 		int32 playerid = pcard->current.controler;
-		int32 ct = get_useable_count(pcard, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD);
+		int32 ct = get_spsummonable_count(pcard, playerid, playerid);
 		if(ct <= 0) {
 			card_set linked_cards;
 			uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
@@ -4739,6 +4746,9 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		must_select_cards->swap(core.must_select_cards);
 		delete select_cards;
 		delete must_select_cards;
+		min--;
+		max--;
+		core.units.begin()->arg2 = min + (max << 16);
 		return FALSE;
 	}
 	case 7: {

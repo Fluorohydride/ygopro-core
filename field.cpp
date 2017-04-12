@@ -2414,7 +2414,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		return FALSE;
 	}
 	int32 playerid = pcard->current.controler;
-	int32 ct = get_useable_count(pcard, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD);
+	int32 ct = get_spsummonable_count(pcard, playerid, playerid);
 	card_set linked_cards;
 	if(ct <= 0) {
 		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
@@ -2431,6 +2431,20 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 			min = ptuner->s_range;
 		if(ptuner->o_range && ptuner->o_range < max)
 			max = ptuner->o_range;
+		if(min > max) {
+			pduel->restore_assumes();
+			return FALSE;
+		}
+	}
+	int32 mzone_limit = get_mzone_limit(playerid, playerid, LOCATION_REASON_TOFIELD);
+	if(mzone_limit < 0) {
+		if(location == LOCATION_HAND) {
+			pduel->restore_assumes();
+			return FALSE;
+		}
+		int32 ft = -mzone_limit;
+		if(ft > min)
+			min = ft;
 		if(min > max) {
 			pduel->restore_assumes();
 			return FALSE;
