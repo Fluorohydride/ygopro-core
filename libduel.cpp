@@ -1514,6 +1514,19 @@ int32 scriptlib::duel_get_location_count(lua_State *L) {
 		return 1;
 	}
 }
+int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
+	check_param_count(L, 1);
+	uint32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	uint32 uplayer = pduel->game_field->core.reason_player;
+	uint32 reason = LOCATION_REASON_TOFIELD;
+	if(lua_gettop(L) > 1)
+		uplayer = lua_tointeger(L, 2);
+	lua_pushinteger(L, pduel->game_field->get_useable_count_fromex(playerid, uplayer));
+	return 1;
+}
 int32 scriptlib::duel_get_field_card(lua_State *L) {
 	check_param_count(L, 3);
 	uint32 playerid = lua_tointeger(L, 1);
