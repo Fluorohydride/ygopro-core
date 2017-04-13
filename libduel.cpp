@@ -1514,6 +1514,15 @@ int32 scriptlib::duel_get_location_count(lua_State *L) {
 		return 1;
 	}
 }
+int32 scriptlib::duel_get_linked_zone(lua_State *L) {
+	check_param_count(L, 1);
+	uint32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	lua_pushinteger(L, pduel->game_field->get_linked_zone(playerid));
+	return 1;
+}
 int32 scriptlib::duel_get_field_card(lua_State *L) {
 	check_param_count(L, 3);
 	uint32 playerid = lua_tointeger(L, 1);
