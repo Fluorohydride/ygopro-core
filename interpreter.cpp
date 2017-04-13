@@ -485,6 +485,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "AnnounceCoin", scriptlib::duel_announce_coin },
 	{ "TossCoin", scriptlib::duel_toss_coin },
 	{ "TossDice", scriptlib::duel_toss_dice },
+	{ "RockPaperScissors", scriptlib::duel_rock_paper_scissors },
 	{ "GetCoinResult", scriptlib::duel_get_coin_result },
 	{ "GetDiceResult", scriptlib::duel_get_dice_result },
 	{ "SetCoinResult", scriptlib::duel_set_coin_result },

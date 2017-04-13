@@ -547,6 +547,7 @@ public:
 	int32 select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, int32 min, int32 max);
 	int32 toss_coin(uint16 step, effect* reason_effect, uint8 reason_player, uint8 playerid, uint8 count);
 	int32 toss_dice(uint16 step, effect* reason_effect, uint8 reason_player, uint8 playerid, uint8 count1, uint8 count2);
+	int32 rock_paper_scissors(uint16 step);
 
 	int32 select_battle_command(uint16 step, uint8 playerid);
 	int32 select_idle_command(uint16 step, uint8 playerid);
@@ -709,6 +710,7 @@ public:
 #define PROCESSOR_ANNOUNCE_COIN		116
 #define PROCESSOR_TOSS_DICE			117
 #define PROCESSOR_TOSS_COIN			118
+#define PROCESSOR_ROCK_PAPER_SCISSORS	119
 #define PROCESSOR_SELECT_YESNO_S	120
 #define PROCESSOR_SELECT_OPTION_S	121
 #define PROCESSOR_SELECT_CARD_S		122
@@ -857,6 +859,8 @@ public:
 #define MSG_RELEASE_RELATION	123
 #define MSG_TOSS_COIN			130
 #define MSG_TOSS_DICE			131
+#define MSG_ROCK_PAPER_SCISSORS	132
+#define MSG_HAND_RES			133
 #define MSG_ANNOUNCE_RACE		140
 #define MSG_ANNOUNCE_ATTRIB		141
 #define MSG_ANNOUNCE_CARD		142

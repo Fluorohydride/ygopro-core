@@ -2984,6 +2984,11 @@ int32 scriptlib::duel_toss_dice(lua_State * L) {
 	pduel->game_field->add_process(PROCESSOR_TOSS_DICE, 0, pduel->game_field->core.reason_effect, 0, (pduel->game_field->core.reason_player << 16) + playerid, count1 + (count2 << 16));
 	return lua_yield(L, 0);
 }
+int32 scriptlib::duel_rock_paper_scissors(lua_State * L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	pduel->game_field->add_process(PROCESSOR_ROCK_PAPER_SCISSORS, 1, 0, 0, 0, 0);
+	return lua_yield(L, 0);
+}
 int32 scriptlib::duel_get_coin_result(lua_State * L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	for(int32 i = 0; i < 5; ++i)
