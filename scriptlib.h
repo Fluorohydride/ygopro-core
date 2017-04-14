@@ -404,6 +404,7 @@ public:
 	static int32 duel_increase_summon_count(lua_State *L);
 	static int32 duel_check_summon_count(lua_State *L);
 	static int32 duel_get_location_count(lua_State *L);
+	static int32 duel_get_location_count_fromex(lua_State *L);
 	static int32 duel_get_linked_zone(lua_State *L);
 	static int32 duel_get_field_card(lua_State *L);
 	static int32 duel_check_location(lua_State *L);
