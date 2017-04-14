@@ -407,6 +407,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IncreaseSummonedCount", scriptlib::duel_increase_summon_count },
 	{ "CheckSummonedCount", scriptlib::duel_check_summon_count },
 	{ "GetLocationCount", scriptlib::duel_get_location_count },
+	{ "GetLocationCountFromEx", scriptlib::duel_get_location_count_fromex },
 	{ "GetFieldCard", scriptlib::duel_get_field_card },
 	{ "CheckLocation", scriptlib::duel_check_location },
 	{ "GetCurrentChain", scriptlib::duel_get_current_chain },
