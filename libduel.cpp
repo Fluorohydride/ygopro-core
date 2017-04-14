@@ -1514,7 +1514,7 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 	return 1;
 }
 int32 scriptlib::duel_get_usable_mzone_count(lua_State *L) {
-	check_param_count(L, 2);
+	check_param_count(L, 1);
 	uint32 playerid = lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
