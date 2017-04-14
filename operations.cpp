@@ -5374,7 +5374,7 @@ int32 field::toss_dice(uint16 step, effect * reason_effect, uint8 reason_player,
 	}
 	return TRUE;
 }
-int32 field::rock_paper_scissors(uint16 step) {
+int32 field::rock_paper_scissors(uint16 step, uint8 repeat) {
 	switch (step) {
 	case 1: {
 		pduel->write_buffer8(MSG_ROCK_PAPER_SCISSORS);
@@ -5382,22 +5382,24 @@ int32 field::rock_paper_scissors(uint16 step) {
 		return FALSE;
 	}
 	case 2: {
-		core.units.begin()->arg1 = returns.ivalue[0];
+		core.units.begin()->arg2 = returns.ivalue[0];
 		pduel->write_buffer8(MSG_ROCK_PAPER_SCISSORS);
 		pduel->write_buffer8(1);
 		return FALSE;
 	}
 	case 3: {
-		core.units.begin()->arg2 = returns.ivalue[0];
+		core.units.begin()->arg2 = core.units.begin()->arg2 + (returns.ivalue[0] << 2);
 		pduel->write_buffer8(MSG_HAND_RES);
-		pduel->write_buffer8(core.units.begin()->arg1);
 		pduel->write_buffer8(core.units.begin()->arg2);
-		if(core.units.begin()->arg1 == core.units.begin()->arg2) {
-			core.units.begin()->step = 0;
-			return FALSE;
-		} else if((core.units.begin()->arg1 == 1 && core.units.begin()->arg2 == 2)
-		          || (core.units.begin()->arg1 == 2 && core.units.begin()->arg2 == 3)
-		          || (core.units.begin()->arg1 == 3 && core.units.begin()->arg2 == 1)) {
+		if((core.units.begin()->arg2 & 0x3) == ((core.units.begin()->arg2 >> 2) & 0x3)) {
+			if(repeat) {
+				core.units.begin()->step = 0;
+				return FALSE;
+			} else
+				returns.ivalue[0] = PLAYER_NONE;
+		} else if(((core.units.begin()->arg2 & 0x3) == 1 && ((core.units.begin()->arg2 >> 2) & 0x3) == 2)
+		          || ((core.units.begin()->arg2 & 0x3) == 2 && ((core.units.begin()->arg2 >> 2) & 0x3) == 3)
+		          || ((core.units.begin()->arg2 & 0x3) == 3 && ((core.units.begin()->arg2 >> 2) & 0x3) == 1)) {
 			returns.ivalue[0] = 1;
 		} else {
 			returns.ivalue[0] = 0;

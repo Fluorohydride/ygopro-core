@@ -618,7 +618,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_ROCK_PAPER_SCISSORS: {
-		if (rock_paper_scissors(it->step)) {
+		if (rock_paper_scissors(it->step, it->arg1)) {
 			pduel->lua->add_param(returns.ivalue[0], PARAM_TYPE_INT);
 			core.units.pop_front();
 		} else

@@ -2986,7 +2986,10 @@ int32 scriptlib::duel_toss_dice(lua_State * L) {
 }
 int32 scriptlib::duel_rock_paper_scissors(lua_State * L) {
 	duel* pduel = interpreter::get_duel_info(L);
-	pduel->game_field->add_process(PROCESSOR_ROCK_PAPER_SCISSORS, 1, 0, 0, 0, 0);
+	uint8 repeat = TRUE;
+	if (lua_gettop(L) > 0)
+		repeat = lua_toboolean(L, 1);
+	pduel->game_field->add_process(PROCESSOR_ROCK_PAPER_SCISSORS, 1, 0, 0, repeat, 0);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_get_coin_result(lua_State * L) {
