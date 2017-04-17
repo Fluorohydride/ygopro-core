@@ -2627,12 +2627,23 @@ int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 t
 		return FALSE;
 	int32 s;
 	if(toplayer == pcard->current.controler) {
+		int32 ct = get_tofield_count(toplayer, LOCATION_MZONE);
+		if(ct <= 0) {
+			if(max <= 0)
+				return FALSE;
+			for(auto it = release_list.begin(); it != release_list.end(); ++it) {
+				if((*it)->current.sequence < 5)
+					ct++;
+			}
+			if(ct <= 0)
+				return FALSE;
+		}
 		s = release_list.size();
 		max -= (int32)ex_list.size();
 	} else {
 		s = ex_list.size();
 	}
-	int32 fcount = get_useable_count(toplayer, LOCATION_MZONE, pcard->current.controler, LOCATION_REASON_TOFIELD);
+	int32 fcount = get_mzone_limit(toplayer, pcard->current.controler, LOCATION_REASON_TOFIELD);
 	if(s < -fcount + 1)
 		return FALSE;
 	if(max < 0)
