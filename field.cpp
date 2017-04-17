@@ -551,14 +551,14 @@ int32 field::get_useable_count(card* pcard, uint8 playerid, uint8 location, uint
 	else
 		return get_useable_count(playerid, location, uplayer, reason, zone, list);
 }
-int32 field::get_spsummonable_count(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone, uint32* list) {
+int32 field::get_spsummonable_count(card* pcard, uint8 playerid, uint32 zone, uint32* list) {
 	if(core.duel_rule >= 4 && pcard->current.location == LOCATION_EXTRA)
-		return get_spsummonable_count_fromex(pcard, playerid, uplayer, zone, list);
+		return get_spsummonable_count_fromex(pcard, playerid, zone, list);
 	else
-		return get_tofield_count(playerid, LOCATION_MZONE, uplayer, zone, list);
+		return get_tofield_count(playerid, LOCATION_MZONE, zone, list);
 }
 int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone, uint32* list) {
-	int32 count = get_tofield_count(playerid, location, uplayer, zone, list);
+	int32 count = get_tofield_count(playerid, location, zone, list);
 	int32 limit;
 	if(location == LOCATION_MZONE)
 		limit = get_mzone_limit(playerid, uplayer, LOCATION_REASON_TOFIELD);
@@ -568,7 +568,7 @@ int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, ui
 		count = limit;
 	return count;
 }
-int32 field::get_tofield_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 zone, uint32* list) {
+int32 field::get_tofield_count(uint8 playerid, uint8 location, uint32 zone, uint32* list) {
 	if (location != LOCATION_MZONE && location != LOCATION_SZONE)
 		return 0;
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
@@ -584,13 +584,13 @@ int32 field::get_tofield_count(uint8 playerid, uint8 location, uint8 uplayer, ui
 	return count;
 }
 int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone, uint32* list) {
-	int32 count = get_spsummonable_count_fromex(pcard, playerid, uplayer, zone, list);
+	int32 count = get_spsummonable_count_fromex(pcard, playerid, zone, list);
 	int32 limit = get_mzone_limit(playerid, uplayer, LOCATION_REASON_TOFIELD);
 	if(count > limit)
 		count = limit;
 	return count;
 }
-int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone, uint32* list) {
+int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint32 zone, uint32* list) {
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
 	uint32 linked_zone = get_linked_zone(playerid);
 	flag = (flag | ~zone | ~linked_zone) & 0x1f;
@@ -2017,7 +2017,7 @@ int32 field::check_lp_cost(uint8 playerid, uint32 lp) {
 	e.reason_effect = core.reason_effect;
 	e.reason_player = playerid;
 	if(effect_replace_check(EFFECT_LPCOST_REPLACE, e))
-		return true;
+		return TRUE;
 	cost[playerid].amount += val;
 	if(cost[playerid].amount <= player[playerid].lp)
 		return TRUE;

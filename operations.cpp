@@ -625,6 +625,7 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost) {
 		effect* peffect = core.select_effects[returns.ivalue[0]];
 		if(!peffect) {
 			player[playerid].lp -= cost;
+			this->cost[playerid].amount -= cost;
 			pduel->write_buffer8(MSG_PAY_LPCOST);
 			pduel->write_buffer8(playerid);
 			pduel->write_buffer32(cost);
@@ -3968,6 +3969,8 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				flag |= 0x1u << (core.duel_rule >= 4 ? 8 : 14);
 			if(is_location_useable(playerid, LOCATION_PZONE, 1))
 				flag |= 0x1u << (core.duel_rule >= 4 ? 12 : 15);
+			if(!flag)
+				return TRUE;
 			if(move_player != playerid)
 				flag = flag << 16;
 			flag = ~flag;
@@ -4615,7 +4618,8 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 			core.must_select_cards.push_back(smat);
 			smat->sum_param = smat->get_synchro_level(pcard);
 		}
-		core.select_cards.clear();
+		card_vector nsyn(core.must_select_cards);
+		int32 mcount = nsyn.size();
 		if(mg) {
 			for(auto cit = mg->container.begin(); cit != mg->container.end(); ++cit) {
 				card* pm = *cit;
@@ -4633,7 +4637,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 					continue;
 				if(!pduel->lua->check_matching(pm, -1, 0))
 					continue;
-				core.select_cards.push_back(pm);
+				nsyn.push_back(pm);
 				pm->sum_param = pm->get_synchro_level(pcard);
 			}
 		} else {
@@ -4660,45 +4664,15 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 					continue;
 				if(!pduel->lua->check_matching(pm, -1, 0))
 					continue;
-				core.select_cards.push_back(pm);
+				nsyn.push_back(pm);
 				pm->sum_param = pm->get_synchro_level(pcard);
 			}
 		}
-		int32 playerid = pcard->current.controler;
-		int32 ct = get_spsummonable_count(pcard, playerid, playerid);
-		if(ct <= 0) {
-			card_set linked_cards;
-			uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
-			get_cards_in_zone(&linked_cards, linked_zone, playerid);
-			if(linked_cards.find(tuner) != linked_cards.end())
-				ct++;
-			if(smat) {
-				if(linked_cards.find(smat) != linked_cards.end())
-					ct++;
-			}
-		}
-		if(ct > 0)
-			core.units.begin()->step = 6;
-		return FALSE;
-	}
-	case 5: {
 		int32 lv = pcard->get_level();
-		int32 playerid = pcard->current.controler;
-		card_set linked_cards;
-		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
-		get_cards_in_zone(&linked_cards, linked_zone, playerid);
-		card_vector* select_cards = new card_vector;
-		select_cards->swap(core.select_cards);
-		card_vector* must_select_cards = new card_vector;
-		must_select_cards->swap(core.must_select_cards);
-		int32 mcount = must_select_cards->size();
-		card_vector nsyn(*must_select_cards);
-		nsyn.insert(nsyn.end(), select_cards->begin(), select_cards->end());
+		core.select_cards.clear();
 		auto start = nsyn.begin() + mcount;
 		for(auto cit = start; cit != nsyn.end(); ++cit) {
 			card* pm = *cit;
-			if(linked_cards.find(pm) == linked_cards.end())
-				continue;
 			if(start != cit)
 				std::iter_swap(start, cit);
 			if(check_other_synchro_material(nsyn, lv, min - 1, max - 1, mcount + 1))
@@ -4706,6 +4680,41 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 			if(start != cit)
 				std::iter_swap(start, cit);
 		}
+		return FALSE;
+	}
+	case 5: {
+		card* tuner = core.limit_tuner;
+		int32 playerid = pcard->current.controler;
+		int32 ct = get_spsummonable_count(pcard, playerid);
+		if(ct > 0) {
+			core.units.begin()->step = 6;
+			return FALSE;
+		}
+		card_set linked_cards;
+		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
+		get_cards_in_zone(&linked_cards, linked_zone, playerid);
+		if(linked_cards.find(tuner) != linked_cards.end())
+			ct++;
+		if(smat && linked_cards.find(smat) != linked_cards.end())
+			ct++;
+		if(ct > 0) {
+			core.units.begin()->step = 6;
+			return FALSE;
+		}
+		card_vector* select_cards = new card_vector;
+		for(auto cit = core.select_cards.begin(); cit != core.select_cards.end(); ++cit) {
+			card* pm = *cit;
+			if(linked_cards.find(pm) != linked_cards.end())
+				select_cards->push_back(pm);
+		}
+		if(select_cards->size() == core.select_cards.size()) {
+			delete select_cards;
+			core.units.begin()->step = 6;
+			return FALSE;
+		}
+		select_cards->swap(core.select_cards);
+		card_vector* must_select_cards = new card_vector;
+		must_select_cards->swap(core.must_select_cards);
 		core.units.begin()->ptr1 = select_cards;
 		core.units.begin()->ptr2 = must_select_cards;
 		pduel->write_buffer8(MSG_HINT);
