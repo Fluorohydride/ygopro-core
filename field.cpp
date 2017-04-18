@@ -153,6 +153,7 @@ void field::reload_field_info() {
 		pduel->write_buffer8(chit->triggering_sequence);
 		pduel->write_buffer32(peffect->description);
 	}
+	pduel->write_buffer8(core.duel_rule - 1);
 }
 // The core of moving cards, and Debug.AddCard() will call this function directly.
 // check Fusion/S/X monster redirection by the rule, set fieldid_r
