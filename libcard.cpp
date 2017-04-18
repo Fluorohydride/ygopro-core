@@ -2453,17 +2453,17 @@ int32 scriptlib::card_set_spsummon_once(lua_State *L) {
 	return 0;
 }
 int32 scriptlib::card_check_mzone_from_ex(lua_State *L) {
-	check_param_count(L, 1);
+	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	card::card_set linked_cards;
-	for(int32 playerid = 0; playerid < 2; ++playerid) {
-		uint32 linked_zone = pcard->pduel->game_field->core.duel_rule >= 4 ? pcard->pduel->game_field->get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
-		pcard->pduel->game_field->get_cards_in_zone(&linked_cards, linked_zone, playerid);
-		if(linked_cards.find(pcard) != linked_cards.end())
-			lua_pushboolean(L, 1);
-		else
-			lua_pushboolean(L, 0);
-	}
+	int32 playerid = lua_tointeger(L, 2);
+	duel* pduel = pcard->pduel;
+	field::card_set linked_cards;
+	uint32 linked_zone = pduel->game_field->core.duel_rule >= 4 ? pduel->game_field->get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
+	pduel->game_field->get_cards_in_zone(&linked_cards, linked_zone, playerid);
+	if(linked_cards.find(pcard) != linked_cards.end())
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
 	return 1;
 }
