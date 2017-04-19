@@ -4925,6 +4925,10 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		return FALSE;
 	}
 	case 2: {
+		if(returns.ivalue[0] == -1) {
+			pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
+			return TRUE;
+		}
 		card* pcard = core.select_cards[returns.bvalue[1]];
 		core.operated_set.insert(pcard);
 		int32 pv = 0;
