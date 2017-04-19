@@ -1525,9 +1525,14 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 		std::swap(used_location, pduel->game_field->player[playerid].used_location);
 		pduel->game_field->player[playerid].list_mzone.swap(list_mzone);
 	}
+	card* pcard = 0;
+	if(lua_gettop(L) >= 4) {
+		check_param(L, PARAM_TYPE_CARD, 4);
+		pcard = *(card**)lua_touserdata(L, 4);
+	}
 	uint32 zone = 0xff;
 	if(pduel->game_field->core.duel_rule >= 4)
-		lua_pushinteger(L, pduel->game_field->get_useable_count_fromex(0, playerid, uplayer, zone));
+		lua_pushinteger(L, pduel->game_field->get_useable_count_fromex(pcard, playerid, uplayer, zone));
 	else
 		lua_pushinteger(L, pduel->game_field->get_useable_count(playerid, LOCATION_MZONE, uplayer, LOCATION_REASON_TOFIELD, zone));
 	if(mg) {
