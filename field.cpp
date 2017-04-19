@@ -2416,7 +2416,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		return FALSE;
 	}
 	int32 playerid = pcard->current.controler;
-	int32 ct = get_spsummonable_count(pcard, playerid, playerid);
+	int32 ct = get_spsummonable_count(pcard, playerid);
 	card_set linked_cards;
 	if(ct <= 0) {
 		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
@@ -2714,6 +2714,21 @@ int32 field::check_with_sum_greater_limit_m(const card_vector& mats, int32 acc, 
 }
 int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, int32 max, group* mg) {
 	get_xyz_material(scard, findex, lv, max, mg);
+	int32 playerid = scard->current.controler;
+	int32 ct = get_spsummonable_count(scard, playerid);
+	card_set linked_cards;
+	if(ct <= 0) {
+		int32 ft = ct;
+		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
+		get_cards_in_zone(&linked_cards, linked_zone, playerid);
+		for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
+			card* pcard = cit->second;
+			if(linked_cards.find(pcard) != linked_cards.end())
+				ft++;
+		}
+		if(ft <= 0)
+			return FALSE;
+	}
 	if(!(core.global_flag & GLOBALFLAG_TUNE_MAGICIAN))
 		return (int32)core.xmaterial_lst.size() >= min;
 	for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit)
@@ -2742,12 +2757,20 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 		if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
 			int32 maxc = std::min(max, (int32)mat.size());
 			auto iter = mat.lower_bound(maxc);
-			if((int32)std::distance(iter, mat.end()) >= min)
-				return TRUE;
-		} else {
-			if((int32)mat.size() >= min)
-				return TRUE;
+			mat.erase(mat.begin(), iter);
 		}
+		if(ct <= 0) {
+			int32 ft = ct;
+			for(auto cit = mat.begin(); cit != mat.end(); ++cit) {
+				card* pcard = cit->second;
+				if(linked_cards.find(pcard) != linked_cards.end())
+					ft++;
+			}
+			if(ft <= 0)
+				continue;
+		}
+		if((int32)mat.size() >= min)
+			return TRUE;
 	}
 	return FALSE;
 }
