@@ -1565,6 +1565,33 @@ int32 scriptlib::duel_get_usable_mzone_count(lua_State *L) {
 		lua_pushinteger(L, pduel->game_field->get_useable_count(playerid, LOCATION_MZONE, uplayer, LOCATION_REASON_TOFIELD, zone));
 	return 1;
 }
+int32 scriptlib::duel_get_linked_group(lua_State *L) {
+	check_param_count(L, 3);
+	uint32 rplayer = lua_tointeger(L, 1);
+	if(rplayer != 0 && rplayer != 1)
+		return 0;
+	uint32 s = lua_tointeger(L, 2);
+	uint32 o = lua_tointeger(L, 3);
+	duel* pduel = interpreter::get_duel_info(L);
+	field::card_set cset;
+	pduel->game_field->get_linked_cards(rplayer, s, o, &cset);
+	group* pgroup = pduel->new_group(cset);
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
+int32 scriptlib::duel_get_linked_group_count(lua_State *L) {
+	check_param_count(L, 3);
+	uint32 rplayer = lua_tointeger(L, 1);
+	if(rplayer != 0 && rplayer != 1)
+		return 0;
+	uint32 s = lua_tointeger(L, 2);
+	uint32 o = lua_tointeger(L, 3);
+	duel* pduel = interpreter::get_duel_info(L);
+	field::card_set cset;
+	pduel->game_field->get_linked_cards(rplayer, s, o, &cset);
+	lua_pushinteger(L, cset.size());
+	return 1;
+}
 int32 scriptlib::duel_get_linked_zone(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 playerid = lua_tointeger(L, 1);

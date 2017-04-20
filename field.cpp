@@ -700,6 +700,18 @@ uint32 field::get_linked_zone(int32 playerid) {
 	}
 	return zones;
 }
+void field::get_linked_cards(uint8 self, uint8 s, uint8 o, card_set* cset) {
+	cset->clear();
+	uint8 c = s;
+	for(int32 p = 0; p < 2; ++p) {
+		if(c) {
+			uint32 linked_zone = get_linked_zone(self);
+			get_cards_in_zone(cset, linked_zone, self);
+		}
+		self = 1 - self;
+		c = o;
+	}
+}
 int32 field::check_extra_link(int32 playerid) {
 	if(!player[playerid].list_mzone[5] || !player[playerid].list_mzone[6])
 		return FALSE;
@@ -2142,7 +2154,7 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 			// effects with target limit
 			if((peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL))
 					&& pcard->announced_cards.find(0) == pcard->announced_cards.end() && pcard->battled_cards.find(0) == pcard->battled_cards.end()
-					&& pcard->attack_all_target) { 
+					&& pcard->attack_all_target) {
 				for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
 					card* atarget = *cit;
 					if(!atarget)
@@ -2182,7 +2194,7 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 			dir = false;
 		else {
 			// effects with target limit
-			if((peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL)) && pcard->attack_all_target) { 
+			if((peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL)) && pcard->attack_all_target) {
 				for(auto cit = pv->begin(); cit != pv->end(); ++cit) {
 					card* atarget = *cit;
 					if(!atarget)
@@ -2193,7 +2205,7 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 						continue;
 					// enough effect count
 					auto it = pcard->announced_cards.find(atarget->fieldid_r);
-					if(it != pcard->announced_cards.end() 
+					if(it != pcard->announced_cards.end()
 							&& (atarget == core.attack_target ? (int32)it->second.second > peffect->get_value(atarget) : (int32)it->second.second >= peffect->get_value(atarget))) {
 						continue;
 					}
@@ -2249,7 +2261,7 @@ bool field::confirm_attack_target() {
 	card_vector must_be_attack;
 	card_vector only_be_attack;
 	effect_set eset;
-	
+
 	// find the universal set
 	for(auto cit = player[1 - p].list_mzone.begin(); cit != player[1 - p].list_mzone.end(); ++cit) {
 		card* atarget = *cit;
@@ -2312,7 +2324,7 @@ bool field::confirm_attack_target() {
 		dir = false;
 	else {
 		// effects with target limit
-		if((peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL)) && pcard->attack_all_target && core.attack_target) { 
+		if((peffect = pcard->is_affected_by_effect(EFFECT_ATTACK_ALL)) && pcard->attack_all_target && core.attack_target) {
 			// valid target
 			pduel->lua->add_param(core.attack_target, PARAM_TYPE_CARD);
 			if(!peffect->check_value_condition(1))
@@ -2345,7 +2357,7 @@ bool field::confirm_attack_target() {
 	if(core.attack_target)
 		return std::find(pv->begin(), pv->end(), core.attack_target) != pv->end();
 	else
-		return (mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK) || core.attack_player) 
+		return (mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK) || core.attack_player)
 			&& !pcard->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK) && dir;
 }
 // update the validity for EFFECT_ATTACK_ALL (approximate solution)

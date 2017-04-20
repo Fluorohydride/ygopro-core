@@ -1288,6 +1288,22 @@ uint32 card::get_mutual_linked_zone() {
 	}
 	return zones;
 }
+int32 card::is_link_state() {
+	if(!(get_type() & TYPE_MONSTER))
+		return FALSE;
+	card::card_set cset1;
+	this->get_linked_cards(&cset1);
+	if(cset1.size() > 0)
+		return TRUE;
+	field::card_set cset2;
+	int32 p = current.controler;
+	uint32 linked_zone = pduel->game_field->get_linked_zone(p) | pduel->game_field->get_linked_zone(1 - p);
+	pduel->game_field->get_cards_in_zone(&cset2, linked_zone, p);
+	pduel->game_field->get_cards_in_zone(&cset2, linked_zone, 1 - p);
+	if(cset2.find(this) != cset2.end())
+		return TRUE;
+	return FALSE;
+}
 int32 card::is_position(int32 pos) {
 	return current.position & pos;
 }
@@ -1992,7 +2008,7 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 		filter_effect(EFFECT_TO_GRAVE_REDIRECT, &es);
 	else if(destination == LOCATION_REMOVED)
 		filter_effect(EFFECT_REMOVE_REDIRECT, &es);
-	else 
+	else
 		return 0;
 	for(int32 i = 0; i < es.size(); ++i) {
 		redirect = es[i]->get_value(this, 0);
@@ -2230,7 +2246,7 @@ void card::filter_immune_effect() {
 	}
 	immune_effect.sort();
 }
-// for all disable-related peffect of this, 
+// for all disable-related peffect of this,
 // 1. put all cards in the target of peffect into effects.disable_check_set, effects.disable_check_list
 // 2. add equiping_target of peffect into effects.disable_check_set, effects.disable_check_list
 void card::filter_disable_related_cards() {
@@ -2694,7 +2710,7 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 			if(res < 0 || !pduel->game_field->is_player_can_summon(peffect->get_value(), playerid, this)) {
 				pduel->game_field->restore_lp_cost();
 				return FALSE;
-			}				
+			}
 		} else {
 			if(!proc.size() && (!res || res == -2)) {
 				pduel->game_field->restore_lp_cost();
@@ -2924,7 +2940,7 @@ int32 card::is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect
 		if(res < 0 || !pduel->game_field->is_player_can_mset(peffect->get_value(), playerid, this)) {
 			pduel->game_field->restore_lp_cost();
 			return FALSE;
-		}				
+		}
 	} else {
 		if(!eset.size() && (!res || res == -2)) {
 			pduel->game_field->restore_lp_cost();
