@@ -115,6 +115,7 @@ field::~field() {
 }
 void field::reload_field_info() {
 	pduel->write_buffer8(MSG_RELOAD_FIELD);
+	pduel->write_buffer8(core.duel_rule - 1);
 	for(int32 playerid = 0; playerid < 2; ++playerid) {
 		pduel->write_buffer32(player[playerid].lp);
 		for(auto cit = player[playerid].list_mzone.begin(); cit != player[playerid].list_mzone.end(); ++cit) {

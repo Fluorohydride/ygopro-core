@@ -297,6 +297,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(ptr pduel, uint8 playerid, uint
 extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
 	duel* ptduel = (duel*)pduel;
 	*buf++ = MSG_RELOAD_FIELD;
+	*buf++ = ptduel->game_field->core.duel_rule;
 	for(int playerid = 0; playerid < 2; ++playerid) {
 		auto& player = ptduel->game_field->player[playerid];
 		*((int*)(buf)) = player.lp;
