@@ -617,6 +617,14 @@ int32 field::process() {
 			it->step++;
 		return pduel->bufferlen;
 	}
+	case PROCESSOR_ROCK_PAPER_SCISSORS: {
+		if (rock_paper_scissors(it->step, it->arg1)) {
+			pduel->lua->add_param(returns.ivalue[0], PARAM_TYPE_INT);
+			core.units.pop_front();
+		} else
+			it->step++;
+		return pduel->bufferlen;
+	}
 	case PROCESSOR_SELECT_EFFECTYN_S: {
 		if(it->step == 0) {
 			add_process(PROCESSOR_SELECT_EFFECTYN, 0, it->peffect, it->ptarget, it->arg1, it->arg2);
