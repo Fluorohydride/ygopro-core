@@ -593,24 +593,27 @@ int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer
 }
 int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint32 zone, uint32* list) {
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
-	uint32 linked_zone = get_linked_zone(playerid);
-	flag = (flag | ~zone | ~linked_zone) & 0x1f;
-	int32 count = 6 - field_used_count[flag];
+	uint32 linked_zone = get_linked_zone(playerid) | (1u << 5) | (1u << 6);
+	flag = flag | ~zone | ~linked_zone;
 	if(player[playerid].list_mzone[5] && is_location_useable(playerid, LOCATION_MZONE, 6)
-		&& (zone & (1u << 6)) && pcard && check_extra_link(playerid, pcard, 6)) {
+		&& check_extra_link(playerid, pcard, 6)) {
 		flag |= 1u << 5;
 	} else if(player[playerid].list_mzone[6] && is_location_useable(playerid, LOCATION_MZONE, 5)
-		&& (zone & (1u << 5)) && pcard && check_extra_link(playerid, pcard, 5)) {
+		&& check_extra_link(playerid, pcard, 5)) {
 		flag |= 1u << 6;
-	} else if(player[playerid].list_mzone[5] || player[playerid].list_mzone[6] || !(zone & ((1u << 5) | (1u << 6)))) {
+	} else if(player[playerid].list_mzone[5] || player[playerid].list_mzone[6]) {
 		flag |= (1u << 5) | (1u << 6);
-		count--;
-	} else if(player[1 - playerid].list_mzone[5] || !is_location_useable(playerid, LOCATION_MZONE, 6) || !(zone & (1u << 6)))
-		flag |= 1u << 6;
-	else if(player[1 - playerid].list_mzone[6] || !is_location_useable(playerid, LOCATION_MZONE, 5) || !(zone & (1u << 5)))
-		flag |= 1u << 5;
+	} else {
+		if(!is_location_useable(playerid, LOCATION_MZONE, 5))
+			flag |= 1u << 5;
+		if(!is_location_useable(playerid, LOCATION_MZONE, 6))
+			flag |= 1u << 6;
+	}
 	if(list)
-		*list = flag;
+		*list = flag & 0x7f;
+	int32 count = 5 - field_used_count[flag & 0x1f];
+	if(~flag & ((1u << 5) | (1u << 6)))
+		count++;
 	return count;
 }
 int32 field::get_mzone_limit(uint8 playerid, uint8 uplayer, uint32 reason) {
@@ -740,6 +743,8 @@ int32 field::check_extra_link(int32 playerid) {
 	return FALSE;
 }
 int32 field::check_extra_link(int32 playerid, card* pcard, int32 sequence) {
+	if(!pcard)
+		return FALSE;
 	if(player[playerid].list_mzone[sequence])
 		return FALSE;
 	uint8 cur_controler = pcard->current.controler;
