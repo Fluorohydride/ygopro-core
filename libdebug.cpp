@@ -40,8 +40,6 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		card* pcard = pduel->new_card(code);
 		pcard->owner = owner;
 		pcard->operation_param = position << 24;
-		pduel->game_field->add_card(playerid, pcard, location, sequence);
-		pcard->current.position = position;
 		if (location == LOCATION_PZONE) {
 			int32 seq = (pduel->game_field->core.duel_rule >= 4) ? (sequence * 4) : (6 + sequence);
 			pduel->game_field->add_card(playerid, pcard, LOCATION_SZONE, seq, true);
