@@ -1506,36 +1506,44 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 	uint32 uplayer = pduel->game_field->core.reason_player;
 	if(lua_gettop(L) >= 2)
 		uplayer = lua_tointeger(L, 2);
-	group* mg = 0;
+	bool swapped = false;
+	card* mcard = 0;
+	group* mgroup = 0;
 	uint32 used_location = 0;
 	player_info::card_vector list_mzone;
 	if(lua_gettop(L) >= 3 && !lua_isnil(L, 3)) {
-		check_param(L, PARAM_TYPE_GROUP, 3);
-		mg = *(group**)lua_touserdata(L, 3);
+		if(check_param(L, PARAM_TYPE_CARD, 3, TRUE)) {
+			mcard = *(card**) lua_touserdata(L, 3);
+		} else if(check_param(L, PARAM_TYPE_GROUP, 3, TRUE)) {
+			mgroup = *(group**) lua_touserdata(L, 3);
+		} else
+			luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 3);
 		uint32 digit = 1;
 		for(auto cit = pduel->game_field->player[playerid].list_mzone.begin(); cit != pduel->game_field->player[playerid].list_mzone.end(); ++cit) {
 			card* pcard = *cit;
-			if(pcard && mg->container.find(pcard) == mg->container.end()) {
+			if(pcard && pcard != mcard && !(mgroup && mgroup->container.find(pcard) != mgroup->container.end())) {
 				used_location |= digit;
 				list_mzone.push_back(pcard);
 			} else
 				list_mzone.push_back(0);
 			digit <<= 1;
 		}
+		used_location |= pduel->game_field->player[playerid].used_location & 0xff00;
 		std::swap(used_location, pduel->game_field->player[playerid].used_location);
 		pduel->game_field->player[playerid].list_mzone.swap(list_mzone);
+		swapped = true;
 	}
-	card* pcard = 0;
+	card* scard = 0;
 	if(lua_gettop(L) >= 4) {
 		check_param(L, PARAM_TYPE_CARD, 4);
-		pcard = *(card**)lua_touserdata(L, 4);
+		scard = *(card**)lua_touserdata(L, 4);
 	}
 	uint32 zone = 0xff;
 	if(pduel->game_field->core.duel_rule >= 4)
-		lua_pushinteger(L, pduel->game_field->get_useable_count_fromex(pcard, playerid, uplayer, zone));
+		lua_pushinteger(L, pduel->game_field->get_useable_count_fromex(scard, playerid, uplayer, zone));
 	else
 		lua_pushinteger(L, pduel->game_field->get_useable_count(playerid, LOCATION_MZONE, uplayer, LOCATION_REASON_TOFIELD, zone));
-	if(mg) {
+	if(swapped) {
 		pduel->game_field->player[playerid].used_location = used_location;
 		pduel->game_field->player[playerid].list_mzone.swap(list_mzone);
 	}
