@@ -3057,7 +3057,7 @@ int32 scriptlib::duel_rock_paper_scissors(lua_State * L) {
 	uint8 repeat = TRUE;
 	if (lua_gettop(L) > 0)
 		repeat = lua_toboolean(L, 1);
-	pduel->game_field->add_process(PROCESSOR_ROCK_PAPER_SCISSORS, 1, 0, 0, repeat, 0);
+	pduel->game_field->add_process(PROCESSOR_ROCK_PAPER_SCISSORS, 0, 0, 0, repeat, 0);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_get_coin_result(lua_State * L) {
