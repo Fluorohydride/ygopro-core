@@ -196,6 +196,7 @@ public:
 	uint32 get_link_marker();
 	int32 is_link_marker(uint32 dir);
 	uint32 get_linked_zone();
+	uint32 get_free_linked_zone();
 	void get_linked_cards(card_set* cset);
 	uint32 get_mutual_linked_zone();
 	int32 is_position(int32 pos);

@@ -1111,41 +1111,94 @@ uint32 card::get_linked_zone() {
 		zones |= 1u << (s - 1);
 	if(s <= 3 && is_link_marker(LINK_MARKER_RIGHT))
 		zones |= 1u << (s + 1);
-	if((s == 0 && is_link_marker(LINK_MARKER_TOP_RIGHT))
-		|| (s == 1 && is_link_marker(LINK_MARKER_TOP))
-		|| (s == 2 && is_link_marker(LINK_MARKER_TOP_LEFT)))
-		zones |= (1u << 5) | (1u << (16 + 6));
-	if((s == 2 && is_link_marker(LINK_MARKER_TOP_RIGHT))
-		|| (s == 3 && is_link_marker(LINK_MARKER_TOP))
-		|| (s == 4 && is_link_marker(LINK_MARKER_TOP_LEFT)))
-		zones |= (1u << 6) | (1u << (16 + 5));
-	if(s == 5) {
-		if(is_link_marker(LINK_MARKER_BOTTOM_LEFT))
-			zones |= 1u << 0;
-		if(is_link_marker(LINK_MARKER_BOTTOM))
-			zones |= 1u << 1;
-		if(is_link_marker(LINK_MARKER_BOTTOM_RIGHT))
-			zones |= 1u << 2;
-		if(is_link_marker(LINK_MARKER_TOP_LEFT))
-			zones |= 1u << (16 + 4);
-		if(is_link_marker(LINK_MARKER_TOP))
-			zones |= 1u << (16 + 3);
-		if(is_link_marker(LINK_MARKER_TOP_RIGHT))
-			zones |= 1u << (16 + 2);
+	if (pduel->game_field->core.duel_rule > 3) {
+		if ((s == 0 && is_link_marker(LINK_MARKER_TOP_RIGHT))
+			|| (s == 1 && is_link_marker(LINK_MARKER_TOP))
+			|| (s == 2 && is_link_marker(LINK_MARKER_TOP_LEFT)))
+			zones |= (1u << 5) | (1u << (16 + 6));
+		if ((s == 2 && is_link_marker(LINK_MARKER_TOP_RIGHT))
+			|| (s == 3 && is_link_marker(LINK_MARKER_TOP))
+			|| (s == 4 && is_link_marker(LINK_MARKER_TOP_LEFT)))
+			zones |= (1u << 6) | (1u << (16 + 5));
+		if (s == 5) {
+			if (is_link_marker(LINK_MARKER_BOTTOM_LEFT))
+				zones |= 1u << 0;
+			if (is_link_marker(LINK_MARKER_BOTTOM))
+				zones |= 1u << 1;
+			if (is_link_marker(LINK_MARKER_BOTTOM_RIGHT))
+				zones |= 1u << 2;
+			if (is_link_marker(LINK_MARKER_TOP_LEFT))
+				zones |= 1u << (16 + 4);
+			if (is_link_marker(LINK_MARKER_TOP))
+				zones |= 1u << (16 + 3);
+			if (is_link_marker(LINK_MARKER_TOP_RIGHT))
+				zones |= 1u << (16 + 2);
+		}
+		if (s == 6) {
+			if (is_link_marker(LINK_MARKER_BOTTOM_LEFT))
+				zones |= 1u << 2;
+			if (is_link_marker(LINK_MARKER_BOTTOM))
+				zones |= 1u << 3;
+			if (is_link_marker(LINK_MARKER_BOTTOM_RIGHT))
+				zones |= 1u << 4;
+			if (is_link_marker(LINK_MARKER_TOP_LEFT))
+				zones |= 1u << (16 + 2);
+			if (is_link_marker(LINK_MARKER_TOP))
+				zones |= 1u << (16 + 1);
+			if (is_link_marker(LINK_MARKER_TOP_RIGHT))
+				zones |= 1u << (16 + 0);
+		}
 	}
-	if(s == 6) {
-		if(is_link_marker(LINK_MARKER_BOTTOM_LEFT))
-			zones |= 1u << 2;
-		if(is_link_marker(LINK_MARKER_BOTTOM))
-			zones |= 1u << 3;
-		if(is_link_marker(LINK_MARKER_BOTTOM_RIGHT))
-			zones |= 1u << 4;
-		if(is_link_marker(LINK_MARKER_TOP_LEFT))
-			zones |= 1u << (16 + 2);
-		if(is_link_marker(LINK_MARKER_TOP))
-			zones |= 1u << (16 + 1);
-		if(is_link_marker(LINK_MARKER_TOP_RIGHT))
-			zones |= 1u << (16 + 0);
+	return zones;
+}
+uint32 card::get_free_linked_zone() {
+	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE)
+		return 0;
+	int32 zones = 0;
+	int32 s = current.sequence;
+	if(s > 0 && s <= 4 && is_link_marker(LINK_MARKER_LEFT) && pduel->game_field->is_location_useable(0, LOCATION_MZONE, s - 1))
+		zones |= 1u << (s - 1);
+	if(s <= 3 && is_link_marker(LINK_MARKER_RIGHT) && pduel->game_field->is_location_useable(0, LOCATION_MZONE, s + 1))
+		zones |= 1u << (s + 1);
+	if (pduel->game_field->core.duel_rule > 3) {
+		if (((s == 0 && is_link_marker(LINK_MARKER_TOP_RIGHT))
+			|| (s == 1 && is_link_marker(LINK_MARKER_TOP))
+			|| (s == 2 && is_link_marker(LINK_MARKER_TOP_LEFT)))
+			&& pduel->game_field->is_location_useable(0, LOCATION_MZONE, 5))
+			zones |= (1u << 5) | (1u << (16 + 6));
+		if (((s == 2 && is_link_marker(LINK_MARKER_TOP_RIGHT))
+			|| (s == 3 && is_link_marker(LINK_MARKER_TOP))
+			|| (s == 4 && is_link_marker(LINK_MARKER_TOP_LEFT)))
+			&& pduel->game_field->is_location_useable(0, LOCATION_MZONE, 6))
+			zones |= (1u << 6) | (1u << (16 + 5));
+		if (s == 5) {
+			if (is_link_marker(LINK_MARKER_BOTTOM_LEFT) && pduel->game_field->is_location_useable(0, LOCATION_MZONE, 0))
+				zones |= 1u << 0;
+			if (is_link_marker(LINK_MARKER_BOTTOM) && pduel->game_field->is_location_useable(0, LOCATION_MZONE, 1))
+				zones |= 1u << 1;
+			if (is_link_marker(LINK_MARKER_BOTTOM_RIGHT) && pduel->game_field->is_location_useable(0, LOCATION_MZONE, 2))
+				zones |= 1u << 2;
+			if (is_link_marker(LINK_MARKER_TOP_LEFT) && pduel->game_field->is_location_useable(1, LOCATION_MZONE, 4))
+				zones |= 1u << (16 + 4);
+			if (is_link_marker(LINK_MARKER_TOP) && pduel->game_field->is_location_useable(1, LOCATION_MZONE, 3))
+				zones |= 1u << (16 + 3);
+			if (is_link_marker(LINK_MARKER_TOP_RIGHT) && pduel->game_field->is_location_useable(1, LOCATION_MZONE, 2))
+				zones |= 1u << (16 + 2);
+		}
+		if (s == 6) {
+			if (is_link_marker(LINK_MARKER_BOTTOM_LEFT) && pduel->game_field->is_location_useable(0, LOCATION_MZONE, 2))
+				zones |= 1u << 2;
+			if (is_link_marker(LINK_MARKER_BOTTOM) && pduel->game_field->is_location_useable(0, LOCATION_MZONE, 3))
+				zones |= 1u << 3;
+			if (is_link_marker(LINK_MARKER_BOTTOM_RIGHT) && pduel->game_field->is_location_useable(0, LOCATION_MZONE, 4))
+				zones |= 1u << 4;
+			if (is_link_marker(LINK_MARKER_TOP_LEFT) && pduel->game_field->is_location_useable(1, LOCATION_MZONE, 2))
+				zones |= 1u << (16 + 2);
+			if (is_link_marker(LINK_MARKER_TOP) && pduel->game_field->is_location_useable(1, LOCATION_MZONE, 1))
+				zones |= 1u << (16 + 1);
+			if (is_link_marker(LINK_MARKER_TOP_RIGHT) && pduel->game_field->is_location_useable(1, LOCATION_MZONE, 0))
+				zones |= 1u << (16 + 0);
+		}
 	}
 	return zones;
 }
