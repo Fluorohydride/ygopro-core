@@ -2539,8 +2539,8 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		uint32 zone = 0xff;
 		if(core.duel_rule >= 4) {
 			uint32 flag1, flag2;
-			int32 ct1 = pduel->game_field->get_tofield_count(sumplayer, LOCATION_MZONE, zone, &flag1);
-			int32 ct2 = pduel->game_field->get_spsummonable_count_fromex(pcard, sumplayer, zone, &flag2);
+			int32 ct1 = get_tofield_count(sumplayer, LOCATION_MZONE, zone, &flag1);
+			int32 ct2 = get_spsummonable_count_fromex(pcard, sumplayer, zone, &flag2);
 			for(auto it = pgroup->it; it != pgroup->container.end(); ++it) {
 				if((*it)->current.location != LOCATION_EXTRA)
 					ct1--;
@@ -2549,10 +2549,10 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 			}
 			if(pcard->current.location != LOCATION_EXTRA) {
 				if(ct2 == 0)
-					zone = ~flag1 & flag2;
+					zone = flag2;
 			} else {
 				if(ct1 == 0)
-					zone = flag1 & ~flag2;
+					zone = flag1;
 			}
 		}
 		move_to_field(pcard, sumplayer, sumplayer, LOCATION_MZONE, POS_FACEUP, FALSE, 0, FALSE, zone);
