@@ -626,10 +626,13 @@ int32 scriptlib::duel_move_to_field(lua_State *L) {
 	uint32 destination = lua_tointeger(L, 4);
 	uint32 positions = lua_tointeger(L, 5);
 	uint32 enable = lua_toboolean(L, 6);
+	uint32 flag = 0
+	if (lua_gettop(L) >= 7)
+		flag = lua_tointeger(L, 7);
 	duel* pduel = pcard->pduel;
 	pcard->enable_field_effect(false);
 	pduel->game_field->adjust_instant();
-	pduel->game_field->move_to_field(pcard, move_player, playerid, destination, positions, enable);
+	pduel->game_field->move_to_field(pcard, move_player, playerid, destination, positions, enable, flag);
 	pduel->game_field->core.subunits.back().type = PROCESSOR_MOVETOFIELD_S;
 	return lua_yield(L, 0);
 }
@@ -1086,8 +1089,11 @@ int32 scriptlib::duel_get_control(lua_State *L) {
 		reset_phase = lua_tointeger(L, 3) & 0x3ff;
 		reset_count = lua_tointeger(L, 4) & 0xff;
 	}
+	uint32 flag = 0;
+	if (lua_gettop(L) >= 5)
+		flag = lua_tointeger(L, 5);
 	if(pcard)
-		pduel->game_field->get_control(pcard, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, playerid, reset_phase, reset_count);
+		pduel->game_field->get_control(pcard, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, playerid, reset_phase, reset_count, flag);
 	else
 		pduel->game_field->get_control(&pgroup->container, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, playerid, reset_phase, reset_count);
 	pduel->game_field->core.subunits.back().type = PROCESSOR_GET_CONTROL_S;
