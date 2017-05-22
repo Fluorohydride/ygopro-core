@@ -1082,14 +1082,17 @@ int32 scriptlib::duel_get_control(lua_State *L) {
 		return 0;
 	uint32 reset_phase = 0;
 	uint32 reset_count = 0;
-	if(lua_gettop(L) > 2) {
+	if(lua_gettop(L) >= 3) {
 		reset_phase = lua_tointeger(L, 3) & 0x3ff;
 		reset_count = lua_tointeger(L, 4) & 0xff;
 	}
+	uint32 zone = 0xff;
+	if(lua_gettop(L) >= 5)
+		zone = lua_tointeger(L, 5);
 	if(pcard)
-		pduel->game_field->get_control(pcard, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, playerid, reset_phase, reset_count);
+		pduel->game_field->get_control(pcard, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, playerid, reset_phase, reset_count, zone);
 	else
-		pduel->game_field->get_control(&pgroup->container, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, playerid, reset_phase, reset_count);
+		pduel->game_field->get_control(&pgroup->container, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, playerid, reset_phase, reset_count, zone);
 	pduel->game_field->core.subunits.back().type = PROCESSOR_GET_CONTROL_S;
 	return lua_yield(L, 0);
 }

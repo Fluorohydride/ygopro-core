@@ -1957,7 +1957,10 @@ int32 scriptlib::card_is_controler_can_be_changed(lua_State *L) {
 	int32 ign = FALSE;
 	if(lua_gettop(L) >= 2)
 		ign = lua_toboolean(L, 2);
-	if(pcard->is_control_can_be_changed(ign))
+	uint32 zone = 0xff;
+	if(lua_gettop(L) >= 3)
+		zone = lua_tointeger(L, 3);
+	if(pcard->is_control_can_be_changed(ign, zone))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);

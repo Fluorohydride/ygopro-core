@@ -3256,12 +3256,12 @@ int32 card::is_capable_change_control() {
 		return FALSE;
 	return TRUE;
 }
-int32 card::is_control_can_be_changed(int32 ignore_mzone) {
+int32 card::is_control_can_be_changed(int32 ignore_mzone, uint32 zone) {
 	if(current.controler == PLAYER_NONE)
 		return FALSE;
 	if(current.location != LOCATION_MZONE)
 		return FALSE;
-	if(!ignore_mzone && pduel->game_field->get_useable_count(1 - current.controler, LOCATION_MZONE, current.controler, LOCATION_REASON_CONTROL) <= 0)
+	if(!ignore_mzone && pduel->game_field->get_useable_count(1 - current.controler, LOCATION_MZONE, current.controler, LOCATION_REASON_CONTROL, zone) <= 0)
 		return FALSE;
 	if((get_type() & TYPE_TRAPMONSTER) && pduel->game_field->get_useable_count(1 - current.controler, LOCATION_SZONE, current.controler, LOCATION_REASON_CONTROL) <= 0)
 		return FALSE;
