@@ -884,6 +884,8 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 		}
 		card* pcard = *targets->it;
 		move_to_field(pcard, playerid, playerid, LOCATION_MZONE, pcard->current.position, FALSE, 0, FALSE, zone);
+		pcard->fieldid = infos.field_id++;
+		pcard->fieldid_r = pcard->fieldid;
 		return FALSE;
 	}
 	case 4: {

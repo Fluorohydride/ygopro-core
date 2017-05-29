@@ -435,6 +435,11 @@ uint32 card::get_fusion_type() {
 		return data.type;
 	return get_type();
 }
+uint32 card::get_synchro_type() {
+	if(current.location == LOCATION_SZONE && (data.type & TYPE_MONSTER))
+		return data.type;
+	return get_type();
+}
 // Atk and def are sepcial cases since text atk/def ? are involved.
 // Asuumption: we can only change the atk/def of cards in LOCATION_MZONE.
 int32 card::get_base_attack() {
@@ -3318,7 +3323,7 @@ int32 card::is_can_be_fusion_material(card* fcard) {
 int32 card::is_can_be_synchro_material(card* scard, card* tuner) {
 	if(data.type & (TYPE_XYZ | TYPE_LINK))
 		return FALSE;
-	if(!(get_type() & TYPE_MONSTER))
+	if(!(get_synchro_type() & TYPE_MONSTER))
 		return FALSE;
 	if(scard && current.location == LOCATION_MZONE && current.controler != scard->current.controler && !is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL))
 		return FALSE;
