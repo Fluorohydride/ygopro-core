@@ -241,6 +241,7 @@ struct processor {
 	uint8 conti_solving;
 	uint8 win_player;
 	uint8 win_reason;
+	uint32 win_code;
 	uint8 re_adjust;
 	effect* reason_effect;
 	uint8 reason_player;

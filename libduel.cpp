@@ -955,15 +955,16 @@ int32 scriptlib::duel_is_environment(lua_State *L) {
 	return 1;
 }
 int32 scriptlib::duel_win(lua_State *L) {
-	check_param_count(L, 2);
+	check_param_count(L, 1);
 	uint32 playerid = lua_tointeger(L, 1);
-	uint32 reason = lua_tointeger(L, 2);
+	uint32 reason = 0x10;
 	if(playerid != 0 && playerid != 1 && playerid != 2)
 		return 0;
 	duel* pduel = interpreter::get_duel_info(L);
 	if(pduel->game_field->core.win_player == 5) {
 		pduel->game_field->core.win_player = playerid;
 		pduel->game_field->core.win_reason = reason;
+		pduel->game_field->core.win_code = (pduel->game_field->core.reason_effect->owner->data.code);
 	}
 	return 0;
 }
