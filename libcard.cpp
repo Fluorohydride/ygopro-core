@@ -1114,10 +1114,8 @@ int32 scriptlib::card_is_has_effect(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 code = lua_tointeger(L, 2);
-	if(pcard && pcard->is_affected_by_effect(code))
-		lua_pushboolean(L, 1);
-	else
-		lua_pushboolean(L, 0);
+	effect* peffect = pcard->is_affected_by_effect(code);
+	interpreter::effect2value(L, peffect);
 	return 1;
 }
 int32 scriptlib::card_reset_effect(lua_State *L) {
