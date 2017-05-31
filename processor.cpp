@@ -1464,9 +1464,6 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			returns.ivalue[0] = 0;
 			core.units.begin()->step = 1;
 			return FALSE;
-		} else if(tf_count == 0 && to_count == 1 && fc_count == 0 && cn_count == 0) {
-			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.select_chains[0].triggering_effect->get_handler(), check_player, 0);
-			return FALSE;
 		} else {
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_EVENT);
@@ -1481,9 +1478,14 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 				pduel->write_buffer32(25);
 			else
 				pduel->write_buffer32(26);
-			add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, check_player, core.spe_effect[check_player] | (tf_count + cn_count ? 0x10000 : 0));
-			core.units.begin()->step = 1;
-			return FALSE;
+			if(tf_count == 0 && to_count == 1 && fc_count == 0 && cn_count == 0) {
+				add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.select_chains[0].triggering_effect->get_handler(), check_player, 0);
+				return FALSE;
+			} else {
+				add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, check_player, core.spe_effect[check_player] | (tf_count + cn_count ? 0x10000 : 0));
+				core.units.begin()->step = 1;
+				return FALSE;
+			}
 		}
 		return FALSE;
 	}
