@@ -45,8 +45,8 @@ field::field(duel* pduel) {
 	infos.phase = 0;
 	infos.turn_player = 0;
 	for (int32 i = 0; i < 2; ++i) {
-		cost[i].count = 0;
-		cost[i].amount = 0;
+		//cost[i].count = 0;
+		//cost[i].amount = 0;
 		core.hint_timing[i] = 0;
 		player[i].lp = 8000;
 		player[i].start_count = 5;
@@ -2024,11 +2024,12 @@ int32 field::check_lp_cost(uint8 playerid, uint32 lp) {
 	e.reason_player = playerid;
 	if(effect_replace_check(EFFECT_LPCOST_REPLACE, e))
 		return TRUE;
-	cost[playerid].amount += val;
-	if(cost[playerid].amount <= player[playerid].lp)
+	//cost[playerid].amount += val;
+	if(val <= player[playerid].lp)
 		return TRUE;
 	return FALSE;
 }
+/*
 void field::save_lp_cost() {
 	for(uint8 playerid = 0; playerid < 2; ++playerid) {
 		if(cost[playerid].count < 8)
@@ -2043,6 +2044,7 @@ void field::restore_lp_cost() {
 			cost[playerid].amount = cost[playerid].lpstack[cost[playerid].count];
 	}
 }
+*/
 uint32 field::get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype) {
 	uint8 c = s;
 	uint32 count = 0;

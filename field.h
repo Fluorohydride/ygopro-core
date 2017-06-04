@@ -325,7 +325,7 @@ public:
 	player_info player[2];
 	card* temp_card;
 	field_info infos;
-	lpcost cost[2];
+	//lpcost cost[2];
 	field_effect effects;
 	processor core;
 	return_value returns;
@@ -401,8 +401,8 @@ public:
 	int32 check_spsummon_counter(uint8 playerid, uint8 ct = 1);
 
 	int32 check_lp_cost(uint8 playerid, uint32 cost);
-	void save_lp_cost();
-	void restore_lp_cost();
+	void save_lp_cost() {}
+	void restore_lp_cost() {}
 	int32 pay_lp_cost(uint32 step, uint8 playerid, uint32 cost);
 
 	uint32 get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype);

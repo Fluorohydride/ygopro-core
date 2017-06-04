@@ -625,7 +625,6 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost) {
 		effect* peffect = core.select_effects[returns.ivalue[0]];
 		if(!peffect) {
 			player[playerid].lp -= cost;
-			this->cost[playerid].amount -= cost;
 			pduel->write_buffer8(MSG_PAY_LPCOST);
 			pduel->write_buffer8(playerid);
 			pduel->write_buffer32(cost);
