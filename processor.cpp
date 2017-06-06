@@ -479,6 +479,14 @@ int32 field::process() {
 			it->step++;
 		return pduel->bufferlen;
 	}
+	case PROCESSOR_SWAP_MONSTERS: {
+		if (swap_monsters(it->step, it->peffect, it->arg1, it->ptarget, (group*)it->ptr1)) {
+			core.units.pop_front();
+		}
+		else
+			it->step++;
+		return pduel->bufferlen;
+	}
 	case PROCESSOR_PAY_LPCOST: {
 		if (pay_lp_cost(it->step, it->arg1, it->arg2))
 			core.units.pop_front();
@@ -962,6 +970,17 @@ int32 field::process() {
 			add_process(PROCESSOR_SWAP_CONTROL, 0, it->peffect, it->ptarget, it->arg1, it->arg2, it->arg3, it->arg4, it->ptr1);
 			it->step++;
 		} else {
+			pduel->lua->add_param(returns.ivalue[0], PARAM_TYPE_BOOLEAN);
+			core.units.pop_front();
+		}
+		return pduel->bufferlen;
+	}
+	case PROCESSOR_SWAP_MONSTERS_S: {
+		if (it->step == 0) {
+			add_process(PROCESSOR_SWAP_MONSTERS, 0, it->peffect, it->ptarget, it->arg1, it->arg2, it->arg3, it->arg4, it->ptr1);
+			it->step++;
+		}
+		else {
 			pduel->lua->add_param(returns.ivalue[0], PARAM_TYPE_BOOLEAN);
 			core.units.pop_front();
 		}
