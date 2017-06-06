@@ -93,6 +93,7 @@ public:
 	static int32 card_is_fusion_type(lua_State *L);
 	static int32 card_is_synchro_type(lua_State *L);
 	static int32 card_is_race(lua_State *L);
+	static int32 card_is_fusion_attribute(lua_State *L);
 	static int32 card_is_attribute(lua_State *L);
 	static int32 card_is_fusion_attribute(lua_State *L);
 	static int32 card_is_reason(lua_State *L);

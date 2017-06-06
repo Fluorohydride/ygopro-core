@@ -299,6 +299,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_ADD_ATTRIBUTE			125	//
 #define EFFECT_REMOVE_ATTRIBUTE			126	//
 #define EFFECT_CHANGE_ATTRIBUTE			127	//
+#define EFFECT_ADD_FUSION_ATTRIBUTE		128
+#define EFFECT_CHANGE_FUSION_ATTRIBUTE	129
 #define EFFECT_UPDATE_LEVEL				130	//
 #define EFFECT_CHANGE_LEVEL				131	//
 #define EFFECT_UPDATE_RANK				132 //
