@@ -18,7 +18,7 @@ int32 scriptlib::debug_message(lua_State *L) {
 	lua_getglobal(L, "tostring");
 	lua_pushvalue(L, -2);
 	lua_pcall(L, 1, 1, 0);
-	sprintf(pduel->strbuffer, "%s", lua_tostring(L, -1));
+	interpreter::strcpy(pduel->strbuffer, lua_tostring(L, -1));
 	handle_message(pduel, 2);
 	return 0;
 }
@@ -43,7 +43,7 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		pduel->game_field->add_card(playerid, pcard, location, sequence);
 		pcard->current.position = position;
 		if(!(location & LOCATION_ONFIELD) || (position & POS_FACEUP)) {
-			pcard->enable_field_effect(TRUE);
+			pcard->enable_field_effect(true);
 			pduel->game_field->adjust_instant();
 		}
 		if(proc)
@@ -59,6 +59,11 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		pcard->current.controler = PLAYER_NONE;
 		pcard->current.location = LOCATION_OVERLAY;
 		pcard->current.sequence = fcard->xyz_materials.size() - 1;
+		for(auto eit = pcard->xmaterial_effect.begin(); eit != pcard->xmaterial_effect.end(); ++eit) {
+			effect* peffect = eit->second;
+			if(peffect->type & EFFECT_TYPE_FIELD)
+				pduel->game_field->add_effect(peffect);
+		}
 		interpreter::card2value(L, pcard);
 		return 1;
 	}
@@ -76,6 +81,17 @@ int32 scriptlib::debug_set_player_info(lua_State *L) {
 	pduel->game_field->player[playerid].lp = lp;
 	pduel->game_field->player[playerid].start_count = startcount;
 	pduel->game_field->player[playerid].draw_count = drawcount;
+	return 0;
+}
+int32 scriptlib::debug_pre_summon(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 summon_type = lua_tointeger(L, 2);
+	uint8 summon_location = 0;
+	if(lua_gettop(L) > 2)
+		summon_location = lua_tointeger(L, 3);
+	pcard->summon_info = summon_type | (summon_location << 16);
 	return 0;
 }
 int32 scriptlib::debug_pre_equip(lua_State *L) {
@@ -109,17 +125,34 @@ int32 scriptlib::debug_pre_add_counter(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint32 ctype = lua_tointeger(L, 2);
-	uint32 ccount = lua_tointeger(L, 3);
-	pcard->counters[ctype] += ccount;
+	uint32 countertype = lua_tointeger(L, 2);
+	uint32 count = lua_tointeger(L, 3);
+	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
+	auto pr = pcard->counters.insert(std::make_pair(cttype, card::counter_map::mapped_type()));
+	auto cmit = pr.first;
+	if(pr.second) {
+		cmit->second[0] = 0;
+		cmit->second[1] = 0;
+	}
+	if((countertype & COUNTER_WITHOUT_PERMIT) && !(countertype & COUNTER_NEED_ENABLE))
+		cmit->second[0] += count;
+	else
+		cmit->second[1] += count;
 	return 0;
 }
 int32 scriptlib::debug_reload_field_begin(lua_State *L) {
 	check_param_count(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
 	uint32 flag = lua_tointeger(L, 1);
+	int32 rule = lua_tointeger(L, 2);
 	pduel->clear();
 	pduel->game_field->core.duel_options = flag;
+	if (rule)
+		pduel->game_field->core.duel_rule = rule;
+	else if (flag & DUEL_OBSOLETE_RULING)
+		pduel->game_field->core.duel_rule = 1;
+	else
+		pduel->game_field->core.duel_rule = 3;
 	return 0;
 }
 int32 scriptlib::debug_reload_field_end(lua_State *L) {

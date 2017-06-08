@@ -11,6 +11,7 @@
 #include "common.h"
 #include "mtrandom.h"
 #include <set>
+#include <unordered_set>
 
 class card;
 class group;
@@ -18,11 +19,6 @@ class effect;
 class field;
 class interpreter;
 
-struct duel_arg {
-	int16 start_lp;
-	int8 start_hand;
-	int8 draw_count;
-};
 class duel {
 public:
 	typedef std::set<card*, card_sort> card_set;
@@ -33,12 +29,12 @@ public:
 	interpreter* lua;
 	field* game_field;
 	mtrandom random;
-	std::set<card*> cards;
-	std::set<card*> assumes;
-	std::set<group*> groups;
-	std::set<group*> sgroups;
-	std::set<effect*> effects;
-	std::set<effect*> uncopy;
+	std::unordered_set<card*> cards;
+	std::unordered_set<card*> assumes;
+	std::unordered_set<group*> groups;
+	std::unordered_set<group*> sgroups;
+	std::unordered_set<effect*> effects;
+	std::unordered_set<effect*> uncopy;
 	
 	duel();
 	~duel();
@@ -70,18 +66,20 @@ private:
 #define PLAYER_NONE		2	//
 #define PLAYER_ALL		3	//
 //Phase
-#define PHASE_DRAW			0x01	//
-#define PHASE_STANDBY		0x02	//
-#define PHASE_MAIN1			0x04	//
-#define PHASE_BATTLE		0x08	//
-#define PHASE_DAMAGE		0x10	//
-#define PHASE_DAMAGE_CAL	0x20	//
-#define PHASE_MAIN2			0x40	//
-#define PHASE_END			0x80	//
+#define PHASE_DRAW			0x01
+#define PHASE_STANDBY		0x02
+#define PHASE_MAIN1			0x04
+#define PHASE_BATTLE_START	0x08
+#define PHASE_BATTLE_STEP	0x10
+#define PHASE_DAMAGE		0x20
+#define PHASE_DAMAGE_CAL	0x40
+#define PHASE_BATTLE		0x80
+#define PHASE_MAIN2			0x100
+#define PHASE_END			0x200
 //Options
 #define DUEL_TEST_MODE			0x01
 #define DUEL_ATTACK_FIRST_TURN	0x02
-#define DUEL_NO_CHAIN_HINT		0x04
+//#define DUEL_NO_CHAIN_HINT		0x04
 #define DUEL_OBSOLETE_RULING	0x08
 #define DUEL_PSEUDO_SHUFFLE		0x10
 #define DUEL_TAG_MODE			0x20

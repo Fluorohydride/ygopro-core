@@ -15,8 +15,6 @@
 #include <vector>
 #include <map>
 
-using namespace std;
-
 class card;
 class duel;
 class group;
@@ -24,6 +22,8 @@ class effect;
 struct tevent;
 struct effect_set;
 struct effect_set_v;
+enum effect_flag : uint32;
+enum effect_flag2 : uint32;
 
 class effect {
 public:
@@ -35,7 +35,7 @@ public:
 	uint8 effect_owner;
 	uint32 description;
 	uint32 code;
-	uint32 flag;
+	uint32 flag[2];
 	uint32 id;
 	uint16 type;
 	uint16 copy_id;
@@ -50,6 +50,7 @@ public:
 	uint32 hint_timing[2];
 	uint32 card_type;
 	uint32 active_type;
+	card* active_handler;
 	uint16 field_ref;
 	uint16 status;
 	void* label_object;
@@ -63,6 +64,7 @@ public:
 	~effect();
 
 	int32 is_disable_related();
+	int32 is_can_be_forbidden();
 	int32 is_available();
 	int32 check_count_limit(uint8 playerid);
 	int32 is_activateable(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
@@ -73,7 +75,7 @@ public:
 	int32 is_target(card* pcard);
 	int32 is_target_player(uint8 playerid);
 	int32 is_player_effect_target(card* pcard);
-	int32 is_immuned(effect_set_v* effects);
+	int32 is_immuned(card* pcard);
 	int32 is_chainable(uint8 tp);
 	int32 reset(uint32 reset_level, uint32 reset_type);
 	void dec_count(uint32 playerid = 2);
@@ -83,9 +85,18 @@ public:
 	int32 get_value(effect* peffect, uint32 extraargs = 0);
 	int32 check_value_condition(uint32 extraargs = 0);
 	int32 get_speed();
+	card* get_owner() const;
 	uint8 get_owner_player();
+	card* get_handler() const;
 	uint8 get_handler_player();
-	int32 in_range(int32 loc, int32 seq);
+	int32 in_range(card* pcard);
+	int32 in_range(const chain& ch);
+	bool is_flag(effect_flag flag) const {
+		return !!(this->flag[0] & flag);
+	}
+	bool is_flag(effect_flag2 flag) const {
+		return !!(this->flag[1] & flag);
+	}
 };
 
 //status
@@ -96,18 +107,10 @@ public:
 #define EFFECT_COUNT_CODE_DUEL 0x20000000
 
 //========== Reset ==========
-#define RESET_DRAW			PHASE_DRAW
-#define RESET_STANDBY		PHASE_STANDBY
-#define RESET_MAIN1			PHASE_MAIN1
-#define RESET_BATTLE		PHASE_BATTLE
-#define RESET_DAMAGE		PHASE_DAMAGE
-#define RESET_DAMAGE_CAL	PHASE_DAMAGE_CAL
-#define RESET_MAIN2			PHASE_MAIN2
-#define RESET_END			PHASE_END
-#define RESET_SELF_TURN		0x0100
-#define RESET_OPPO_TURN		0x0200
-#define RESET_PHASE			0x0400
-#define RESET_CHAIN			0x0800
+#define RESET_SELF_TURN		0x10000000
+#define RESET_OPPO_TURN		0x20000000
+#define RESET_PHASE			0x40000000
+#define RESET_CHAIN			0x80000000
 #define RESET_EVENT			0x1000
 #define RESET_CARD			0x2000
 #define RESET_CODE			0x4000
@@ -139,40 +142,51 @@ public:
 #define EFFECT_TYPE_TRIGGER_F		0x0200	//
 #define EFFECT_TYPE_QUICK_F			0x0400	//
 #define EFFECT_TYPE_CONTINUOUS		0x0800	//
+#define EFFECT_TYPE_XMATERIAL		0x1000	//
 
 //========== Flags ==========
-#define EFFECT_FLAG_INITIAL			0x0001	//
-#define EFFECT_FLAG_FUNC_VALUE		0x0002	//
-#define EFFECT_FLAG_COUNT_LIMIT		0x0004	//
-#define EFFECT_FLAG_FIELD_ONLY		0x0008	//
-#define EFFECT_FLAG_CARD_TARGET		0x0010	//
-#define EFFECT_FLAG_IGNORE_RANGE	0x0020	//
-#define EFFECT_FLAG_ABSOLUTE_TARGET	0x0040	//
-#define EFFECT_FLAG_IGNORE_IMMUNE	0x0080	//
-#define EFFECT_FLAG_SET_AVAILABLE	0x0100	//
-#define EFFECT_FLAG_CONTINUOUS		0x0200	//
-#define EFFECT_FLAG_CANNOT_DISABLE	0x0400	//
-#define EFFECT_FLAG_PLAYER_TARGET	0x0800	//
-#define EFFECT_FLAG_BOTH_SIDE		0x1000	//
-#define EFFECT_FLAG_COPY_INHERIT	0x2000	//
-#define EFFECT_FLAG_DAMAGE_STEP		0x4000	//
-#define EFFECT_FLAG_DAMAGE_CAL		0x8000	//
-#define EFFECT_FLAG_DELAY			0x10000	//
-#define EFFECT_FLAG_SINGLE_RANGE	0x20000	//
-#define EFFECT_FLAG_UNCOPYABLE		0x40000	//
-#define EFFECT_FLAG_OATH			0x80000	//
-#define EFFECT_FLAG_SPSUM_PARAM		0x100000	//
-#define EFFECT_FLAG_REPEAT			0x200000	//
-#define EFFECT_FLAG_NO_TURN_RESET	0x400000	//
-#define EFFECT_FLAG_EVENT_PLAYER	0x800000	//
-#define EFFECT_FLAG_OWNER_RELATE	0x1000000	//
-#define EFFECT_FLAG_AVAILABLE_BD	0x2000000	//
-#define EFFECT_FLAG_CLIENT_HINT		0x4000000	//
-#define EFFECT_FLAG_CHAIN_UNIQUE	0x8000000	//
-#define EFFECT_FLAG_NAGA			0x10000000	//
-#define EFFECT_FLAG_COF				0x20000000	//
-#define EFFECT_FLAG_CVAL_CHECK		0x40000000	//
-#define EFFECT_FLAG_IMMEDIATELY_APPLY	0x80000000	//
+enum effect_flag : uint32 {
+	EFFECT_FLAG_INITIAL				= 0x0001,
+	EFFECT_FLAG_FUNC_VALUE			= 0x0002,
+	EFFECT_FLAG_COUNT_LIMIT			= 0x0004,
+	EFFECT_FLAG_FIELD_ONLY			= 0x0008,
+	EFFECT_FLAG_CARD_TARGET			= 0x0010,
+	EFFECT_FLAG_IGNORE_RANGE		= 0x0020,
+	EFFECT_FLAG_ABSOLUTE_TARGET		= 0x0040,
+	EFFECT_FLAG_IGNORE_IMMUNE		= 0x0080,
+	EFFECT_FLAG_SET_AVAILABLE		= 0x0100,
+	EFFECT_FLAG_CANNOT_NEGATE		= 0x0200,
+	EFFECT_FLAG_CANNOT_DISABLE		= 0x0400,
+	EFFECT_FLAG_PLAYER_TARGET		= 0x0800,
+	EFFECT_FLAG_BOTH_SIDE			= 0x1000,
+	EFFECT_FLAG_COPY_INHERIT		= 0x2000,
+	EFFECT_FLAG_DAMAGE_STEP			= 0x4000,
+	EFFECT_FLAG_DAMAGE_CAL			= 0x8000,
+	EFFECT_FLAG_DELAY				= 0x10000,
+	EFFECT_FLAG_SINGLE_RANGE		= 0x20000,
+	EFFECT_FLAG_UNCOPYABLE			= 0x40000,
+	EFFECT_FLAG_OATH				= 0x80000,
+	EFFECT_FLAG_SPSUM_PARAM			= 0x100000,
+	EFFECT_FLAG_REPEAT				= 0x200000,
+	EFFECT_FLAG_NO_TURN_RESET		= 0x400000,
+	EFFECT_FLAG_EVENT_PLAYER		= 0x800000,
+	EFFECT_FLAG_OWNER_RELATE		= 0x1000000,
+	EFFECT_FLAG_AVAILABLE_BD		= 0x2000000,
+	EFFECT_FLAG_CLIENT_HINT			= 0x4000000,
+	EFFECT_FLAG_CHAIN_UNIQUE		= 0x8000000,
+//	EFFECT_FLAG_NAGA				= 0x10000000,
+//	EFFECT_FLAG_COF					= 0x20000000,
+	EFFECT_FLAG_CVAL_CHECK			= 0x40000000,
+	EFFECT_FLAG_IMMEDIATELY_APPLY	= 0x80000000,
+};
+enum effect_flag2 : uint32 {
+	EFFECT_FLAG2_NAGA				= 0x0001,
+	EFFECT_FLAG2_COF				= 0x0002,
+};
+inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
+{
+	return static_cast<effect_flag>(static_cast<uint32>(flag1) | static_cast<uint32>(flag2));
+}
 //========== Codes ==========
 #define EFFECT_IMMUNE_EFFECT			1	//
 #define EFFECT_DISABLE					2	//
@@ -265,13 +279,15 @@ public:
 #define EFFECT_SET_ATTACK				101	//
 #define EFFECT_SET_ATTACK_FINAL			102	//
 #define EFFECT_SET_BASE_ATTACK			103	//
-#define EFFECT_UPDATE_DEFENCE			104	//
-#define EFFECT_SET_DEFENCE				105	//
-#define EFFECT_SET_DEFENCE_FINAL		106	//
-#define EFFECT_SET_BASE_DEFENCE			107	//
+#define EFFECT_UPDATE_DEFENSE			104	//
+#define EFFECT_SET_DEFENSE				105	//
+#define EFFECT_SET_DEFENSE_FINAL		106	//
+#define EFFECT_SET_BASE_DEFENSE			107	//
 #define EFFECT_REVERSE_UPDATE			108	//
 #define EFFECT_SWAP_AD					109	//
 #define EFFECT_SWAP_BASE_AD				110	//
+#define EFFECT_SWAP_ATTACK_FINAL		111
+#define EFFECT_SWAP_DEFENSE_FINAL		112
 #define EFFECT_ADD_CODE					113	//
 #define EFFECT_CHANGE_CODE				114	//
 #define EFFECT_ADD_TYPE					115	//
@@ -300,6 +316,7 @@ public:
 #define EFFECT_EXTRA_RELEASE			153
 #define EFFECT_TRIBUTE_LIMIT			154
 #define EFFECT_EXTRA_RELEASE_SUM		155
+//#define EFFECT_TRIPLE_TRIBUTE			156
 #define EFFECT_PUBLIC					160
 #define EFFECT_COUNTER_PERMIT			0x10000
 #define EFFECT_COUNTER_LIMIT			0x20000
@@ -315,13 +332,13 @@ public:
 #define EFFECT_CANNOT_M2				186
 #define EFFECT_CANNOT_EP				187
 #define EFFECT_SKIP_TURN				188
-#define EFFECT_DEFENCE_ATTACK			190
+#define EFFECT_DEFENSE_ATTACK			190
 #define EFFECT_MUST_ATTACK				191
 #define EFFECT_FIRST_ATTACK				192
 #define EFFECT_ATTACK_ALL				193
 #define EFFECT_EXTRA_ATTACK				194
 #define EFFECT_MUST_BE_ATTACKED			195
-#define EFFECT_AUTO_BE_ATTACKED			196
+#define EFFECT_ONLY_BE_ATTACKED			196
 #define EFFECT_ATTACK_DISABLED			197
 #define EFFECT_NO_BATTLE_DAMAGE			200
 #define EFFECT_AVOID_BATTLE_DAMAGE		201
@@ -347,7 +364,8 @@ public:
 #define EFFECT_NONTUNER						244
 #define EFFECT_OVERLAY_REMOVE_REPLACE		245
 #define EFFECT_SCRAP_CHIMERA				246
-#define EFFECT_SPSUM_EFFECT_ACTIVATED	250
+#define EFFECT_TUNE_MAGICIAN_X				247
+#define EFFECT_PRE_MONSTER				250
 #define EFFECT_MATERIAL_CHECK			251
 #define EFFECT_DISABLE_FIELD			260
 #define EFFECT_USE_EXTRA_MZONE			261
@@ -381,7 +399,23 @@ public:
 #define EFFECT_ADD_SETCODE				334
 #define EFFECT_NO_EFFECT_DAMAGE			335
 #define EFFECT_UNSUMMONABLE_CARD		336
-#define EFFECT_DISABLE_CHAIN_FIELD		337
+//#define EFFECT_DISABLE_CHAIN_FIELD		337
+#define EFFECT_DISCARD_COST_CHANGE		338
+#define EFFECT_HAND_SYNCHRO				339
+#define EFFECT_ADD_FUSION_CODE			340
+#define EFFECT_ADD_FUSION_SETCODE		341
+#define EFFECT_RISE_TO_FULL_HEIGHT		342
+#define EFFECT_ONLY_ATTACK_MONSTER		343
+#define EFFECT_MUST_ATTACK_MONSTER		344
+#define EFFECT_PATRICIAN_OF_DARKNESS	345
+#define EFFECT_EXTRA_ATTACK_MONSTER		346
+#define EFFECT_UNION_STATUS				347
+#define EFFECT_OLDUNION_STATUS			348
+//#define EFFECT_ADD_FUSION_ATTRIBUTE		349
+//#define EFFECT_REMOVE_FUSION_ATTRIBUTE	350
+#define EFFECT_CHANGE_FUSION_ATTRIBUTE	351
+#define EFFECT_EXTRA_FUSION_MATERIAL	352
+#define EFFECT_TUNER_MATERIAL_LIMIT		353
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
@@ -399,7 +433,7 @@ public:
 #define EVENT_CHAIN_SOLVING		1020
 #define EVENT_CHAIN_ACTIVATING	1021
 #define EVENT_CHAIN_SOLVED		1022
-#define EVENT_CHAIN_ACTIVATED	1023
+//#define EVENT_CHAIN_ACTIVATED	1023
 #define EVENT_CHAIN_NEGATED		1024
 #define EVENT_CHAIN_DISABLED	1025
 #define EVENT_CHAIN_END			1026
@@ -430,7 +464,7 @@ public:
 #define EVENT_PRE_DAMAGE_CALCULATE	1134
 #define EVENT_DAMAGE_CALCULATING	1135
 #define EVENT_PRE_BATTLE_DAMAGE		1136
-#define EVENT_BATTLE_END			1137
+//#define EVENT_BATTLE_END			1137
 #define EVENT_BATTLED				1138
 #define EVENT_BATTLE_DESTROYING		1139
 #define EVENT_BATTLE_DESTROYED		1140
@@ -448,8 +482,8 @@ public:
 #define EVENT_TURN_END				1210
 #define EVENT_PHASE					0x1000
 #define EVENT_PHASE_START			0x2000
-#define EVENT_PHASE_PRESTART		0x2100
 #define EVENT_ADD_COUNTER			0x10000
 #define EVENT_REMOVE_COUNTER		0x20000
+#define EVENT_CUSTOM				0x10000000
 
 #endif /* EFFECT_H_ */
