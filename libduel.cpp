@@ -225,11 +225,14 @@ int32 scriptlib::duel_summon(lua_State *L) {
 	card* pcard = *(card**)lua_touserdata(L, 2);
 	uint32 ignore_count = lua_toboolean(L, 3);
 	uint32 min_tribute = 0;
-	if(lua_gettop(L) > 4)
+	if(lua_gettop(L) >= 5)
 		min_tribute = lua_tointeger(L, 5);
+	uint32 zone = 0;
+	if(lua_gettop(L) >= 6)
+		zone = lua_tointeger(L, 6);
 	duel * pduel = pcard->pduel;
 	pduel->game_field->core.summon_cancelable = FALSE;
-	pduel->game_field->summon(playerid, pcard, peffect, ignore_count, min_tribute);
+	pduel->game_field->summon(playerid, pcard, peffect, ignore_count, min_tribute, zone);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_special_summon_rule(lua_State *L) {
@@ -2171,8 +2174,11 @@ int32 scriptlib::duel_check_tribute(lua_State *L) {
 	uint8 toplayer = target->current.controler;
 	if(lua_gettop(L) >= 5 && !lua_isnil(L, 5))
 		toplayer = lua_tointeger(L, 5);
+	uint32 zone = 0x1f;
+	if(lua_gettop(L) >= 6 && !lua_isnil(L, 6))
+		zone = lua_tointeger(L, 6);
 	duel* pduel = target->pduel;
-	lua_pushboolean(L, pduel->game_field->check_tribute(target, min, max, mg, toplayer));
+	lua_pushboolean(L, pduel->game_field->check_tribute(target, min, max, mg, toplayer, zone));
 	return 1;
 }
 int32 scriptlib::duel_select_tribute(lua_State *L) {

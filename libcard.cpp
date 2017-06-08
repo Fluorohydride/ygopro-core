@@ -1519,9 +1519,12 @@ int32 scriptlib::card_is_can_be_summoned(lua_State *L) {
 		peffect = *(effect**)lua_touserdata(L, 3);
 	}
 	uint32 minc = 0;
-	if(lua_gettop(L) > 3)
+	if(lua_gettop(L) >= 4)
 		minc = lua_tointeger(L, 4);
-	lua_pushboolean(L, pcard->is_can_be_summoned(p, ign, peffect, minc));
+	uint32 zone = 0x1f;
+	if(lua_gettop(L) >= 5)
+		zone = lua_tointeger(L, 5);
+	lua_pushboolean(L, pcard->is_can_be_summoned(p, ign, peffect, minc, zone));
 	return 1;
 }
 int32 scriptlib::card_is_can_be_special_summoned(lua_State *L) {

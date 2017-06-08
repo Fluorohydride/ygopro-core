@@ -1609,9 +1609,9 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 int32 field::get_summon_count_limit(uint8 playerid) {
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_SET_SUMMON_COUNT_LIMIT, &eset);
-	int32 count = 1, c;
+	int32 count = 1;
 	for(int32 i = 0; i < eset.size(); ++i) {
-		c = eset[i]->get_value();
+		int32 c = eset[i]->get_value();
 		if(c > count)
 			count = c;
 	}
@@ -2623,7 +2623,7 @@ int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int
 	}
 	return FALSE;
 }
-int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer) {
+int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer, uint32 zone) {
 	int32 ex = FALSE;
 	if(toplayer == 1 - pcard->current.controler)
 		ex = TRUE;
@@ -2633,14 +2633,15 @@ int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 t
 		max = m;
 	if(min > max)
 		return FALSE;
+	zone &= 0x1f;
 	int32 s;
 	if(toplayer == pcard->current.controler) {
-		int32 ct = get_tofield_count(toplayer, LOCATION_MZONE);
+		int32 ct = get_tofield_count(toplayer, LOCATION_MZONE, zone);
 		if(ct <= 0) {
 			if(max <= 0)
 				return FALSE;
 			for(auto it = release_list.begin(); it != release_list.end(); ++it) {
-				if((*it)->current.sequence < 5)
+				if((zone >> (*it)->current.sequence) & 1)
 					ct++;
 			}
 			if(ct <= 0)
