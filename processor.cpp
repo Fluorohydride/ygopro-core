@@ -380,7 +380,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_MSET: {
-		if (mset(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff))
+		if (mset(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff, (it->arg1 >> 24) & 0xff))
 			core.units.pop_front();
 		else
 			it->step++;
@@ -2717,7 +2717,7 @@ int32 field::process_idle_command(uint16 step) {
 	case 8: {
 		card* target = core.msetable_cards[returns.ivalue[0] >> 16];
 		core.summon_cancelable = TRUE;
-		add_process(PROCESSOR_MSET, 0, 0, (group*)target, target->current.controler, 0);
+		mset(target->current.controler, target, 0, FALSE, 0);
 		core.units.begin()->step = -1;
 		return FALSE;
 	}

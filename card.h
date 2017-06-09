@@ -252,7 +252,8 @@ public:
 	void filter_disable_related_cards();
 	int32 filter_summon_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute, uint32 zone);
 	int32 check_summon_procedure(effect* peffect, uint8 playerid, uint8 ignore_count, uint8 min_tribute, uint32 zone);
-	int32 filter_set_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute);
+	int32 filter_set_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute, uint32 zone);
+	int32 check_set_procedure(effect* peffect, uint8 playerid, uint8 ignore_count, uint8 min_tribute, uint32 zone);
 	void filter_spsummon_procedure(uint8 playerid, effect_set* eset, uint32 summon_type);
 	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset);
 	effect* is_affected_by_effect(int32 code);
@@ -274,7 +275,7 @@ public:
 	int32 is_can_be_flip_summoned(uint8 playerid);
 	int32 is_special_summonable(uint8 playerid, uint32 summon_type);
 	int32 is_can_be_special_summoned(effect* reason_effect, uint32 sumtype, uint8 sumpos, uint8 sumplayer, uint8 toplayer, uint8 nocheck, uint8 nolimit, uint32 zone);
-	int32 is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect, uint8 min_tribute);
+	int32 is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect, uint8 min_tribute, uint32 zone = 0x1f);
 	int32 is_setable_szone(uint8 playerid, uint8 ignore_fd = 0);
 	int32 is_affect_by_effect(effect* peffect);
 	int32 is_destructable();
