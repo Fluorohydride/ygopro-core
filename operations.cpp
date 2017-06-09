@@ -1693,6 +1693,8 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		if(core.summon_depth)
 			return TRUE;
 		break_effect();
+		if(ignore_count)
+			return FALSE;
 		effect* pextra = (effect*)core.units.begin()->ptr1;
 		if(!pextra)
 			core.summon_count[sumplayer]++;
@@ -1745,6 +1747,8 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		return FALSE;
 	}
 	case 10: {
+		if(ignore_count)
+			return FALSE;
 		effect* pextra = (effect*)core.units.begin()->ptr1;
 		if(!pextra)
 			core.summon_count[sumplayer]++;
@@ -2173,6 +2177,8 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 	}
 	case 7: {
 		break_effect();
+		if(ignore_count)
+			return FALSE;
 		effect* pextra = (effect*)core.units.begin()->ptr1;
 		if(!pextra)
 			core.summon_count[setplayer]++;
