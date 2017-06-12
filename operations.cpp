@@ -407,8 +407,10 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 				}
 				shuffle(playerid, LOCATION_HAND);
 			}
-			for(auto cit = drawed_set->begin(); cit != drawed_set->end(); ++cit)
+			for (auto cit = drawed_set->begin(); cit != drawed_set->end(); ++cit) {
+				raise_single_event((*cit), 0, EVENT_DRAW, reason_effect, reason, reason_player, playerid, 0);
 				raise_single_event((*cit), 0, EVENT_TO_HAND, reason_effect, reason, reason_player, playerid, 0);
+			}
 			process_single_event();
 			raise_event(drawed_set, EVENT_DRAW, reason_effect, reason, reason_player, playerid, drawed);
 			raise_event(drawed_set, EVENT_TO_HAND, reason_effect, reason, reason_player, playerid, drawed);
