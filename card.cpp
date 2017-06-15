@@ -1294,18 +1294,15 @@ uint32 card::get_mutual_linked_zone() {
 	return zones;
 }
 int32 card::is_link_state() {
-	if(!(get_type() & TYPE_MONSTER))
+	if(current.location != LOCATION_MZONE)
 		return FALSE;
-	card::card_set cset1;
-	this->get_linked_cards(&cset1);
-	if(cset1.size() > 0)
+	card_set cset;
+	get_linked_cards(&cset);
+	if(cset.size())
 		return TRUE;
-	field::card_set cset2;
 	int32 p = current.controler;
-	uint32 linked_zone = pduel->game_field->get_linked_zone(p) | pduel->game_field->get_linked_zone(1 - p);
-	pduel->game_field->get_cards_in_zone(&cset2, linked_zone, p);
-	pduel->game_field->get_cards_in_zone(&cset2, linked_zone, 1 - p);
-	if(cset2.find(this) != cset2.end())
+	uint32 linked_zone = pduel->game_field->get_linked_zone(p);
+	if((linked_zone >> current.sequence) & 1)
 		return TRUE;
 	return FALSE;
 }
