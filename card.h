@@ -266,6 +266,8 @@ public:
 
 	int32 check_unique_code(card* pcard);
 	void get_unique_target(card_set* cset, int32 controler);
+	int32 check_cost_condition(int32 ecode, int32 playerid);
+	int32 check_cost_condition(int32 ecode, int32 playerid, int32 sumtype);
 	int32 is_summonable_card();
 	int32 is_fusion_summonable_card(uint32 summon_type);
 	int32 is_spsummonable(effect* peffect);
