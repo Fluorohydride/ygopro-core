@@ -1531,6 +1531,10 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 				zone &= new_zone;
 			core.units.begin()->arg1 = sumplayer + (ignore_count << 8) + (min_tribute << 16) + (zone << 24);
 		}
+		if(proc) {
+			core.units.begin()->step = 3;
+			return FALSE;
+		}
 		core.select_cards.clear();
 		int32 required = target->get_summon_tribute_count();
 		int32 min = required & 0xffff;
@@ -2075,6 +2079,10 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 			if(new_zone)
 				zone &= new_zone;
 			core.units.begin()->arg1 = setplayer + (ignore_count << 8) + (min_tribute << 16) + (zone << 24);
+		}
+		if(proc) {
+			core.units.begin()->step = 3;
+			return FALSE;
 		}
 		core.select_cards.clear();
 		int32 required = target->get_set_tribute_count();

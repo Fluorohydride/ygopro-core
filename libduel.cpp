@@ -2229,12 +2229,13 @@ int32 scriptlib::duel_select_tribute(lua_State *L) {
 	uint32 ex = 0;
 	if(lua_gettop(L) >= 6)
 		ex = lua_toboolean(L, 6);
+	uint32 zone = 0x1f;
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->game_field->core.release_cards.clear();
 	pduel->game_field->core.release_cards_ex.clear();
 	pduel->game_field->core.release_cards_ex_sum.clear();
 	pduel->game_field->get_summon_release_list(target, &pduel->game_field->core.release_cards, &pduel->game_field->core.release_cards_ex, &pduel->game_field->core.release_cards_ex_sum, mg, ex);
-	pduel->game_field->add_process(PROCESSOR_SELECT_TRIBUTE_S, 0, 0, 0, playerid, (max << 16) + min);
+	pduel->game_field->add_process(PROCESSOR_SELECT_TRIBUTE_S, 0, 0, 0, playerid, (max << 16) + min, zone);
 	return lua_yield(L, 0);
 }
 /**
