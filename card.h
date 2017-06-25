@@ -310,6 +310,7 @@ public:
 	int32 is_can_be_synchro_material(card* scard, card* tuner = 0);
 	int32 is_can_be_ritual_material(card* scard);
 	int32 is_can_be_xyz_material(card* scard);
+	int32 is_can_be_link_material(card* scard);
 };
 
 //Locations

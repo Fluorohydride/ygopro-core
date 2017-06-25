@@ -3421,3 +3421,15 @@ int32 card::is_can_be_xyz_material(card* scard) {
 			return FALSE;
 	return TRUE;
 }
+int32 card::is_can_be_link_material(card* scard) {
+	if(!(get_type() & TYPE_MONSTER))
+		return FALSE;
+	if(is_status(STATUS_FORBIDDEN))
+		return FALSE;
+	effect_set eset;
+	filter_effect(EFFECT_CANNOT_BE_LINK_MATERIAL, &eset);
+	for(int32 i = 0; i < eset.size(); ++i)
+		if(eset[i]->get_value(scard))
+			return FALSE;
+	return TRUE;
+}

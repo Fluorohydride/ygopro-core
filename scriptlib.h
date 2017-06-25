@@ -220,6 +220,7 @@ public:
 	static int32 card_is_can_be_synchro_material(lua_State *L);
 	static int32 card_is_can_be_ritual_material(lua_State *L);
 	static int32 card_is_can_be_xyz_material(lua_State *L);
+	static int32 card_is_can_be_link_material(lua_State *L);
 	static int32 card_check_fusion_material(lua_State *L);
 	static int32 card_check_fusion_substitute(lua_State *L);
 	static int32 card_is_immune_to_effect(lua_State *L);

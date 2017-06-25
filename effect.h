@@ -357,6 +357,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CANNOT_BE_SYNCHRO_MATERIAL	236
 #define EFFECT_SYNCHRO_MATERIAL_CUSTOM		237
 #define EFFECT_CANNOT_BE_XYZ_MATERIAL		238
+#define EFFECT_CANNOT_BE_LINK_MATERIAL		239
 #define EFFECT_SYNCHRO_LEVEL				240
 #define EFFECT_RITUAL_LEVEL					241
 #define EFFECT_XYZ_LEVEL					242
