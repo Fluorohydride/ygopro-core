@@ -440,6 +440,11 @@ uint32 card::get_synchro_type() {
 		return data.type;
 	return get_type();
 }
+uint32 card::get_link_type() {
+	if(current.location == LOCATION_SZONE && (data.type & TYPE_MONSTER))
+		return data.type;
+	return get_type();
+}
 // Atk and def are sepcial cases since text atk/def ? are involved.
 // Asuumption: we can only change the atk/def of cards in LOCATION_MZONE.
 int32 card::get_base_attack() {
@@ -3422,7 +3427,7 @@ int32 card::is_can_be_xyz_material(card* scard) {
 	return TRUE;
 }
 int32 card::is_can_be_link_material(card* scard) {
-	if(!(get_type() & TYPE_MONSTER))
+	if(!(get_link_type() & TYPE_MONSTER))
 		return FALSE;
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
