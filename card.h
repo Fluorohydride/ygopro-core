@@ -179,6 +179,7 @@ public:
 	uint32 get_type();
 	uint32 get_fusion_type();
 	uint32 get_synchro_type();
+	uint32 get_link_type();
 	int32 get_base_attack();
 	int32 get_attack();
 	int32 get_base_defense();
@@ -310,6 +311,7 @@ public:
 	int32 is_can_be_synchro_material(card* scard, card* tuner = 0);
 	int32 is_can_be_ritual_material(card* scard);
 	int32 is_can_be_xyz_material(card* scard);
+	int32 is_can_be_link_material(card* scard);
 };
 
 //Locations

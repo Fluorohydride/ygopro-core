@@ -31,6 +31,7 @@ public:
 	static int32 card_get_origin_type(lua_State *L);
 	static int32 card_get_fusion_type(lua_State *L);
 	static int32 card_get_synchro_type(lua_State *L);
+	static int32 card_get_link_type(lua_State *L);
 	static int32 card_get_level(lua_State *L);
 	static int32 card_get_rank(lua_State *L);
 	static int32 card_get_link(lua_State *L);
@@ -93,6 +94,7 @@ public:
 	static int32 card_is_type(lua_State *L);
 	static int32 card_is_fusion_type(lua_State *L);
 	static int32 card_is_synchro_type(lua_State *L);
+	static int32 card_is_link_type(lua_State *L);
 	static int32 card_is_race(lua_State *L);
 	static int32 card_is_attribute(lua_State *L);
 	static int32 card_is_fusion_attribute(lua_State *L);
@@ -220,6 +222,7 @@ public:
 	static int32 card_is_can_be_synchro_material(lua_State *L);
 	static int32 card_is_can_be_ritual_material(lua_State *L);
 	static int32 card_is_can_be_xyz_material(lua_State *L);
+	static int32 card_is_can_be_link_material(lua_State *L);
 	static int32 card_check_fusion_material(lua_State *L);
 	static int32 card_check_fusion_substitute(lua_State *L);
 	static int32 card_is_immune_to_effect(lua_State *L);
