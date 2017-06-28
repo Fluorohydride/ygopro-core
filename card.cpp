@@ -440,6 +440,11 @@ uint32 card::get_synchro_type() {
 		return data.type;
 	return get_type();
 }
+uint32 card::get_xyz_type() {
+	if(current.location == LOCATION_SZONE && (data.type & TYPE_MONSTER))
+		return data.type;
+	return get_type();
+}
 uint32 card::get_link_type() {
 	if(current.location == LOCATION_SZONE && (data.type & TYPE_MONSTER))
 		return data.type;
@@ -3415,7 +3420,7 @@ int32 card::is_can_be_ritual_material(card* scard) {
 int32 card::is_can_be_xyz_material(card* scard) {
 	if(data.type & TYPE_TOKEN)
 		return FALSE;
-	if(!(get_type() & TYPE_MONSTER))
+	if(!(get_xyz_type() & TYPE_MONSTER))
 		return FALSE;
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;

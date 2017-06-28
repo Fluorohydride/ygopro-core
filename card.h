@@ -179,6 +179,7 @@ public:
 	uint32 get_type();
 	uint32 get_fusion_type();
 	uint32 get_synchro_type();
+	uint32 get_xyz_type();
 	uint32 get_link_type();
 	int32 get_base_attack();
 	int32 get_attack();
