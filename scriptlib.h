@@ -50,6 +50,9 @@ public:
 	static int32 card_get_linked_group_count(lua_State *L);
 	static int32 card_get_linked_zone(lua_State *L);
 	static int32 card_is_link_state(lua_State *L);
+	static int32 card_get_column_group(lua_State *L);
+	static int32 card_get_column_group_count(lua_State *L);
+	static int32 card_is_all_column(lua_State *L);
 	static int32 card_get_attribute(lua_State *L);
 	static int32 card_get_origin_attribute(lua_State *L);
 	static int32 card_get_fusion_attribute(lua_State *L);

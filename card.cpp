@@ -1170,8 +1170,8 @@ void card::get_linked_cards(card_set* cset) {
 		return;
 	int32 p = current.controler;
 	uint32 linked_zone = get_linked_zone();
-	pduel->game_field->get_cards_in_zone(cset, linked_zone, p);
-	pduel->game_field->get_cards_in_zone(cset, linked_zone >> 16, 1 - p);
+	pduel->game_field->get_cards_in_zone(cset, linked_zone, p, LOCATION_MZONE);
+	pduel->game_field->get_cards_in_zone(cset, linked_zone >> 16, 1 - p, LOCATION_MZONE);
 }
 uint32 card::get_mutual_linked_zone() {
 	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE)
@@ -1332,6 +1332,48 @@ int32 card::get_status(uint32 status) {
 // match all status
 int32 card::is_status(uint32 status) {
 	if ((this->status & status) == status)
+		return TRUE;
+	return FALSE;
+}
+uint32 card::get_column_zone(int32 loc1, uint32 excheck) {
+	int32 zones = 0;
+	int32 loc2 = current.location;
+	int32 s = current.sequence;
+	if(!(loc1 & LOCATION_ONFIELD) || !(loc2 & LOCATION_ONFIELD) || loc2 == LOCATION_SZONE && s >=5)
+		return 0;
+	if(s <= 4) {
+		if(loc1 != loc2)
+			zones |= 1u << s;
+		zones |= 1u << (16 + (4 - s));
+		if(s == 1 && excheck)
+			zones |= (1u << 5) | (1u << (16 + 6));
+		if(s == 3 && excheck)
+			zones |= (1u << 6) | (1u << (16 + 5));
+	}
+	if(s == 5)
+		zones |= (1u << 1) | (1u << (16 + 3));
+	if(s == 6)
+		zones |= (1u << 3) | (1u << (16 + 1));
+	return zones;
+}
+void card::get_column_cards(card_set* cset) {
+	cset->clear();
+	if(!(current.location & LOCATION_ONFIELD))
+		return;
+	int32 p = current.controler;
+	uint32 column_mzone = get_column_zone(LOCATION_MZONE, true);
+	uint32 column_szone = get_column_zone(LOCATION_SZONE, false);
+	pduel->game_field->get_cards_in_zone(cset, column_mzone, p, LOCATION_MZONE);
+	pduel->game_field->get_cards_in_zone(cset, column_mzone >> 16, 1 - p, LOCATION_MZONE);
+	pduel->game_field->get_cards_in_zone(cset, column_szone, p, LOCATION_SZONE);
+	pduel->game_field->get_cards_in_zone(cset, column_szone >> 16, 1 - p, LOCATION_SZONE);
+}
+int32 card::is_all_column() {
+	if(!(current.location & LOCATION_ONFIELD))
+		return FALSE;
+	card_set cset;
+	get_column_cards(&cset);
+	if((cset.size() == 3 && pduel->game_field->core.duel_rule < 4) || (cset.size() == 4 && pduel->game_field->core.duel_rule >= 4))
 		return TRUE;
 	return FALSE;
 }

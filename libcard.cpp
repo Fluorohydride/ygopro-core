@@ -318,6 +318,32 @@ int32 scriptlib::card_is_link_state(lua_State *L) {
 	lua_pushboolean(L, pcard->is_link_state());
 	return 1;
 }
+int32 scriptlib::card_get_column_group(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	card::card_set cset;
+	pcard->get_column_cards(&cset);
+	group* pgroup = pcard->pduel->new_group(cset);
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
+int32 scriptlib::card_get_column_group_count(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	card::card_set cset;
+	pcard->get_column_cards(&cset);
+	lua_pushinteger(L, cset.size());
+	return 1;
+}
+int32 scriptlib::card_is_all_column(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_pushboolean(L, pcard->is_all_column());
+	return 1;
+}
 int32 scriptlib::card_get_attribute(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -2553,7 +2579,7 @@ int32 scriptlib::card_check_mzone_from_ex(lua_State *L) {
 	duel* pduel = pcard->pduel;
 	field::card_set linked_cards;
 	uint32 linked_zone = pduel->game_field->core.duel_rule >= 4 ? pduel->game_field->get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
-	pduel->game_field->get_cards_in_zone(&linked_cards, linked_zone, playerid);
+	pduel->game_field->get_cards_in_zone(&linked_cards, linked_zone, playerid, LOCATION_MZONE);
 	if(linked_cards.find(pcard) != linked_cards.end())
 		lua_pushboolean(L, 1);
 	else
