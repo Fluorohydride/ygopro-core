@@ -170,7 +170,7 @@ int32 effect::check_count_limit(uint8 playerid) {
 // check if an EFFECT_TYPE_ACTIONS effect can be activated
 // for triggering effects, it checks EFFECT_FLAG_DAMAGE_STEP, EFFECT_FLAG_SET_AVAILABLE
 // for continuous effect, it checks EFFECT_FLAG_AVAILABLE_BD
-int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_cond, int32 neglect_cost, int32 neglect_target) {
+int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_cond, int32 neglect_cost, int32 neglect_target, int32 neglect_loc) {
 	if(!(type & EFFECT_TYPE_ACTIONS))
 		return FALSE;
 	if(!check_count_limit(playerid))
@@ -210,7 +210,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			}
 			// check activate in hand/in set turn
 			int32 ecode = 0;
-			if(handler->current.location == LOCATION_HAND) {
+			if(handler->current.location == LOCATION_HAND && !neglect_loc) {
 				if(handler->data.type & TYPE_TRAP)
 					ecode = EFFECT_TRAP_ACT_IN_HAND;
 				else if((handler->data.type & TYPE_SPELL) && pduel->game_field->infos.turn_player != playerid) {

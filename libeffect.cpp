@@ -527,7 +527,10 @@ int32 scriptlib::effect_is_activatable(lua_State *L) {
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	uint32 playerid = lua_tointeger(L, 2);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	lua_pushboolean(L, peffect->is_activateable(playerid, peffect->pduel->game_field->nil_event));
+	uint32 neglect_loc = 0;
+	if(lua_gettop(L) > 2)
+		neglect_loc = lua_toboolean(L, 3);
+	lua_pushboolean(L, peffect->is_activateable(playerid, peffect->pduel->game_field->nil_event, 0, 0, 0, neglect_loc));
 	return 1;
 }
 int32 scriptlib::effect_is_activated(lua_State * L) {
