@@ -4345,7 +4345,7 @@ int32 field::add_chain(uint16 step) {
 				phandler->set_status(STATUS_LEAVE_CONFIRMED, TRUE);
 		}
 		core.phase_action = TRUE;
-		if(clit.opinfos.count(0x200)) {
+		if(clit.opinfos.count(0x200) && clit.opinfos[0x200].op_count) {
 			core.spsummon_rst = true;
 			set_spsummon_counter(clit.triggering_player, true, true);
 			if(clit.opinfos[0x200].op_player == PLAYER_ALL)
@@ -4622,7 +4622,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 	}
 	case 4: {
 		if(core.units.begin()->arg4 == 0) {
-			if(cait->opinfos.count(0x200)) {
+			if(cait->opinfos.count(0x200) && cait->opinfos[0x200].op_count) {
 				if(core.spsummon_state_count_tmp[cait->triggering_player] == core.spsummon_state_count[cait->triggering_player])
 					set_spsummon_counter(cait->triggering_player);
 				if(cait->opinfos[0x200].op_player == PLAYER_ALL && core.spsummon_state_count_tmp[1 - cait->triggering_player] == core.spsummon_state_count[1 - cait->triggering_player])
