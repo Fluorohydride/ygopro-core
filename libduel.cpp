@@ -695,6 +695,15 @@ int32 scriptlib::duel_swap_sequence(lua_State *L) {
 	}
 	return 0;
 }
+int32 scriptlib::duel_activate_effect(lua_State *L) {
+	check_action_permission(L);
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**)lua_touserdata(L, 1);
+	duel* pduel = peffect->pduel;
+	pduel->game_field->add_process(PROCESSOR_ACTIVATE_EFFECT, 0, peffect, 0, 0, 0);
+	return 0;
+}
 int32 scriptlib::duel_set_chain_limit(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_FUNCTION, 1);
@@ -1660,16 +1669,7 @@ int32 scriptlib::duel_get_chain_info(lua_State *L) {
 	uint32 flag;
 	uint32 args = lua_gettop(L) - 1;
 	duel* pduel = interpreter::get_duel_info(L);
-	chain* ch;
-	if(c == 0 && pduel->game_field->core.continuous_chain.size())
-		ch = &pduel->game_field->core.continuous_chain.back();
-	else {
-		if(c > pduel->game_field->core.current_chain.size() || c < 1)
-			c = pduel->game_field->core.current_chain.size();
-		if(c == 0)
-			return 0;
-		ch = &pduel->game_field->core.current_chain[c - 1];
-	}
+	chain* ch = pduel->game_field->get_chain(c);
 	for(uint32 i = 0; i < args; ++i) {
 		flag = lua_tointeger(L, 2 + i);
 		switch(flag) {
@@ -1725,14 +1725,9 @@ int32 scriptlib::duel_get_chain_info(lua_State *L) {
 	return args;
 }
 int32 scriptlib::duel_get_first_target(lua_State *L) {
-	chain* ch;
 	duel* pduel = interpreter::get_duel_info(L);
-	if(pduel->game_field->core.continuous_chain.size())
-		ch = &pduel->game_field->core.continuous_chain.back();
-	else if(pduel->game_field->core.current_chain.size())
-		ch = &pduel->game_field->core.current_chain.back();
-	else return 0;
-	if(!ch->target_cards || ch->target_cards->container.size() == 0)
+	chain* ch = pduel->game_field->get_chain(0);
+	if(!ch || !ch->target_cards || ch->target_cards->container.size() == 0)
 		return 0;
 	for(auto iter = ch->target_cards->container.begin(); iter != ch->target_cards->container.end(); ++iter)
 		interpreter::card2value(L, *iter);
@@ -2535,22 +2530,21 @@ int32 scriptlib::duel_set_target_card(lua_State *L) {
 		pduel = pgroup->pduel;
 	} else
 		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
-	if(pduel->game_field->core.continuous_chain.size()) {
-		if(!pduel->game_field->core.continuous_chain.rbegin()->target_cards) {
-			pduel->game_field->core.continuous_chain.rbegin()->target_cards = pduel->new_group();
-			pduel->game_field->core.continuous_chain.rbegin()->target_cards->is_readonly = TRUE;
-		}
+	chain* ch = pduel->game_field->get_chain(0);
+	if(!ch)
+		return 0;
+	if(!ch->target_cards) {
+		ch->target_cards = pduel->new_group();
+		ch->target_cards->is_readonly = TRUE;
+	}
+	group* targets = ch->target_cards;
+	effect* peffect = ch->triggering_effect;
+	if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
 		if(pcard)
-			pduel->game_field->core.continuous_chain.rbegin()->target_cards->container.insert(pcard);
+			targets->container.insert(pcard);
 		else
-			pduel->game_field->core.continuous_chain.rbegin()->target_cards->container = pgroup->container;
+			targets->container = pgroup->container;
 	} else if(pduel->game_field->core.current_chain.size()) {
-		effect* peffect = pduel->game_field->core.current_chain.rbegin()->triggering_effect;
-		if(!pduel->game_field->core.current_chain.rbegin()->target_cards) {
-			pduel->game_field->core.current_chain.rbegin()->target_cards = pduel->new_group();
-			pduel->game_field->core.current_chain.rbegin()->target_cards->is_readonly = TRUE;
-		}
-		group* targets = pduel->game_field->core.current_chain.rbegin()->target_cards;
 		if(pcard) {
 			targets->container.insert(pcard);
 			pcard->create_relation(peffect);
@@ -2581,13 +2575,9 @@ int32 scriptlib::duel_set_target_card(lua_State *L) {
 }
 int32 scriptlib::duel_clear_target_card(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
-	if(pduel->game_field->core.continuous_chain.size()) {
-		if(pduel->game_field->core.continuous_chain.rbegin()->target_cards)
-			pduel->game_field->core.continuous_chain.rbegin()->target_cards->container.clear();
-	} else if(pduel->game_field->core.current_chain.size()) {
-		if(pduel->game_field->core.current_chain.rbegin()->target_cards)
-			pduel->game_field->core.current_chain.rbegin()->target_cards->container.clear();
-	}
+	chain* ch = pduel->game_field->get_chain(0);
+	if(ch && ch->target_cards)
+		ch->target_cards->container.clear();
 	return 0;
 }
 int32 scriptlib::duel_set_target_player(lua_State *L) {
@@ -2595,11 +2585,9 @@ int32 scriptlib::duel_set_target_player(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 playerid = lua_tointeger(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	if(pduel->game_field->core.continuous_chain.size()) {
-		pduel->game_field->core.continuous_chain.rbegin()->target_player = playerid;
-	} else if(pduel->game_field->core.current_chain.size()) {
-		pduel->game_field->core.current_chain.rbegin()->target_player = playerid;
-	}
+	chain* ch = pduel->game_field->get_chain(0);
+	if(ch)
+		ch->target_player = playerid;
 	return 0;
 }
 int32 scriptlib::duel_set_target_param(lua_State *L) {
@@ -2607,11 +2595,9 @@ int32 scriptlib::duel_set_target_param(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 param = lua_tointeger(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	if(pduel->game_field->core.continuous_chain.size()) {
-		pduel->game_field->core.continuous_chain.rbegin()->target_param = param;
-	} else if(pduel->game_field->core.current_chain.size()) {
-		pduel->game_field->core.current_chain.rbegin()->target_param = param;
-	}
+	chain* ch = pduel->game_field->get_chain(0);
+	if(ch)
+		ch->target_param = param;
 	return 0;
 }
 /**
@@ -2639,9 +2625,8 @@ int32 scriptlib::duel_set_operation_info(lua_State *L) {
 		pduel = pgroup->pduel;
 	} else
 		pduel = interpreter::get_duel_info(L);
-	if(!pduel->game_field->core.continuous_chain.size() && !pduel->game_field->core.current_chain.size())
-		return 0;
-	if( ct && !pduel->game_field->core.current_chain.size())
+	chain* ch = pduel->game_field->get_chain(ct);
+	if(!ch)
 		return 0;
 	if(pgroup) {
 		pg = pduel->new_group(pgroup->container);
@@ -2656,29 +2641,10 @@ int32 scriptlib::duel_set_operation_info(lua_State *L) {
 	opt.op_count = count;
 	opt.op_player = playerid;
 	opt.op_param = param;
-	if(ct == 0 && pduel->game_field->core.continuous_chain.size()) {
-		auto clit = pduel->game_field->core.continuous_chain.rbegin();
-		auto omit = clit->opinfos.find(cate);
-		if(omit != clit->opinfos.end() && omit->second.op_cards)
-			pduel->delete_group(omit->second.op_cards);
-		clit->opinfos[cate] = opt;
-	} else {
-		if (pduel->game_field->core.current_chain.size() == 0)
-			return 0;
-		if(ct < 1 || ct > pduel->game_field->core.current_chain.size()) {
-			auto cait = pduel->game_field->core.current_chain.rbegin();
-			auto omit = cait->opinfos.find(cate);
-			if(omit != cait->opinfos.end() && omit->second.op_cards)
-				pduel->delete_group(omit->second.op_cards);
-			cait->opinfos[cate] = opt;
-		} else {
-			chain* ch = &pduel->game_field->core.current_chain[ct - 1];
-			auto omit = ch->opinfos.find(cate);
-			if(omit != ch->opinfos.end() && omit->second.op_cards)
-				pduel->delete_group(omit->second.op_cards);
-			ch->opinfos[cate] = opt;
-		}
-	}
+	auto omit = ch->opinfos.find(cate);
+	if(omit != ch->opinfos.end() && omit->second.op_cards)
+		pduel->delete_group(omit->second.op_cards);
+	ch->opinfos[cate] = opt;
 	return 0;
 }
 int32 scriptlib::duel_get_operation_info(lua_State *L) {
@@ -2686,37 +2652,12 @@ int32 scriptlib::duel_get_operation_info(lua_State *L) {
 	uint32 ct = lua_tointeger(L, 1);
 	uint32 cate = lua_tointeger(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
-	if(!pduel->game_field->core.continuous_chain.size() && !pduel->game_field->core.current_chain.size())
+	chain* ch = pduel->game_field->get_chain(ct);
+	if(!ch)
 		return 0;
-	if(ct && !pduel->game_field->core.current_chain.size())
-		return 0;
-	bool found = false;
-	optarget opt;
-	if(ct == 0 && pduel->game_field->core.continuous_chain.size()) {
-		auto oit = pduel->game_field->core.continuous_chain.rbegin()->opinfos.find(cate);
-		if(oit != pduel->game_field->core.continuous_chain.rbegin()->opinfos.end()) {
-			opt = oit->second;
-			found = true;
-		}
-	} else {
-		if(ct < 1 || ct > pduel->game_field->core.current_chain.size()) {
-			auto oit = pduel->game_field->core.current_chain.rbegin()->opinfos.find(cate);
-			if(oit != pduel->game_field->core.current_chain.rbegin()->opinfos.end()) {
-				opt = oit->second;
-				found = true;
-			}
-		} else {
-			auto oit = pduel->game_field->core.current_chain[ct - 1].opinfos.find(cate);
-			if(oit != pduel->game_field->core.current_chain[ct - 1].opinfos.end()) {
-				opt = oit->second;
-				found = true;
-			}
-		}
-	}
-	if(!found) {
-		lua_pushboolean(L, 0);
-		return 1;
-	} else {
+	auto oit = ch->opinfos.find(cate);
+	if(oit != ch->opinfos.end()) {
+		optarget& opt = oit->second;
 		lua_pushboolean(L, 1);
 		if(opt.op_cards)
 			interpreter::group2value(L, opt.op_cards);
@@ -2726,24 +2667,19 @@ int32 scriptlib::duel_get_operation_info(lua_State *L) {
 		lua_pushinteger(L, opt.op_player);
 		lua_pushinteger(L, opt.op_param);
 		return 5;
+	} else {
+		lua_pushboolean(L, 0);
+		return 1;
 	}
 }
 int32 scriptlib::duel_get_operation_count(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 ct = lua_tointeger(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	if(!pduel->game_field->core.continuous_chain.size() && !pduel->game_field->core.current_chain.size())
+	chain* ch = pduel->game_field->get_chain(ct);
+	if(!ch)
 		return 0;
-	if( ct && !pduel->game_field->core.current_chain.size())
-		return 0;
-	if(ct == 0 && pduel->game_field->core.continuous_chain.size()) {
-		lua_pushinteger(L, pduel->game_field->core.continuous_chain.rbegin()->opinfos.size());
-	} else {
-		if(ct < 1 || ct > pduel->game_field->core.current_chain.size())
-			lua_pushinteger(L, pduel->game_field->core.current_chain.rbegin()->opinfos.size());
-		else
-			lua_pushinteger(L, pduel->game_field->core.current_chain[ct - 1].opinfos.size());
-	}
+	lua_pushinteger(L, ch->opinfos.size());
 	return 1;
 }
 int32 scriptlib::duel_check_xyz_material(lua_State *L) {

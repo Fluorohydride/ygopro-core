@@ -367,6 +367,7 @@ public:
 	static int32 duel_return_to_field(lua_State *L);
 	static int32 duel_move_sequence(lua_State *L);
 	static int32 duel_swap_sequence(lua_State *L);
+	static int32 duel_activate_effect(lua_State *L);
 	static int32 duel_set_chain_limit(lua_State *L);
 	static int32 duel_set_chain_limit_p(lua_State *L);
 	static int32 duel_get_chain_material(lua_State *L);
