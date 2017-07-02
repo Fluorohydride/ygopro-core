@@ -322,8 +322,11 @@ int32 scriptlib::card_get_column_group(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 excheck = TRUE;
+	if(lua_gettop(L) >= 2)
+		excheck = lua_toboolean(L, 2);
 	card::card_set cset;
-	pcard->get_column_cards(&cset);
+	pcard->get_column_cards(&cset, excheck);
 	group* pgroup = pcard->pduel->new_group(cset);
 	interpreter::group2value(L, pgroup);
 	return 1;
@@ -332,8 +335,11 @@ int32 scriptlib::card_get_column_group_count(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 excheck = TRUE;
+	if(lua_gettop(L) >= 2)
+		excheck = lua_toboolean(L, 2);
 	card::card_set cset;
-	pcard->get_column_cards(&cset);
+	pcard->get_column_cards(&cset, excheck);
 	lua_pushinteger(L, cset.size());
 	return 1;
 }

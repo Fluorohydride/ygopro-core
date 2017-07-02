@@ -1356,12 +1356,12 @@ uint32 card::get_column_zone(int32 loc1, uint32 excheck) {
 		zones |= (1u << 3) | (1u << (16 + 1));
 	return zones;
 }
-void card::get_column_cards(card_set* cset) {
+void card::get_column_cards(card_set* cset, uint32 excheck) {
 	cset->clear();
 	if(!(current.location & LOCATION_ONFIELD))
 		return;
 	int32 p = current.controler;
-	uint32 column_mzone = get_column_zone(LOCATION_MZONE, true);
+	uint32 column_mzone = get_column_zone(LOCATION_MZONE, excheck);
 	uint32 column_szone = get_column_zone(LOCATION_SZONE, false);
 	pduel->game_field->get_cards_in_zone(cset, column_mzone, p, LOCATION_MZONE);
 	pduel->game_field->get_cards_in_zone(cset, column_mzone >> 16, 1 - p, LOCATION_MZONE);

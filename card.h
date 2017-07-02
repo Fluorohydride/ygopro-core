@@ -207,7 +207,7 @@ public:
 	int32 get_status(uint32 status);
 	int32 is_status(uint32 status);
 	uint32 get_column_zone(int32 loc1, uint32 excheck);
-	void get_column_cards(card_set* cset);
+	void get_column_cards(card_set* cset, uint32 excheck);
 	int32 is_all_column();
 
 	void equip(card *target, uint32 send_msg = TRUE);
