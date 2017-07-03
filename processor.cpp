@@ -4350,6 +4350,11 @@ int32 field::add_chain(uint16 step) {
 			        && !phandler->is_affected_by_effect(EFFECT_REMAIN_FIELD))
 				phandler->set_status(STATUS_LEAVE_CONFIRMED, TRUE);
 		}
+		if((phandler->data.type & (TYPE_SPELL + TYPE_TRAP))
+				&& (phandler->data.type & (TYPE_CONTINUOUS + TYPE_FIELD + TYPE_EQUIP + TYPE_PENDULUM))
+				&& phandler->is_has_relation(clit) && phandler->current.location == LOCATION_SZONE
+				&& !peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
+			clit.flag |= CHAIN_CONTINUOUS_CARD;
 		core.phase_action = TRUE;
 		if(clit.opinfos.count(0x200) && clit.opinfos[0x200].op_count) {
 			core.spsummon_rst = true;
@@ -4611,6 +4616,8 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			cait->triggering_effect->operation = cait->replace_op;
 		} else
 			core.units.begin()->arg4 = 0;
+		if((cait->flag & CHAIN_CONTINUOUS_CARD) && !pcard->is_has_relation(*cait))
+			return FALSE;
 		if(cait->triggering_effect->operation) {
 			core.sub_solving_event.push_back(cait->evt);
 			add_process(PROCESSOR_EXECUTE_OPERATION, 0, cait->triggering_effect, 0, cait->triggering_player, 0);
