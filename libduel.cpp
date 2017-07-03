@@ -2544,14 +2544,14 @@ int32 scriptlib::duel_set_target_card(lua_State *L) {
 			targets->container.insert(pcard);
 		else
 			targets->container = pgroup->container;
-	} else if(pduel->game_field->core.current_chain.size()) {
+	} else {
 		if(pcard) {
 			targets->container.insert(pcard);
-			pcard->create_relation(peffect);
+			pcard->create_relation(*ch);
 		} else {
 			targets->container.insert(pgroup->container.begin(), pgroup->container.end());
 			for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit)
-				(*cit)->create_relation(peffect);
+				(*cit)->create_relation(*ch);
 		}
 		if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
 			if(pcard) {
