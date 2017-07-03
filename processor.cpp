@@ -4940,7 +4940,7 @@ int32 field::refresh_location_info(uint16 step) {
 		int32 val = peffect->get_value();
 		int32 dis_count = (val & 0xffff) - field_used_count[(val >> 16) & 0x1f];
 		int32 empty_count = 5 - field_used_count[mzone_flag];
-		uint32 flag = mzone_flag | 0xffffff00;
+		uint32 flag = mzone_flag | 0xffffffe0;
 		if(dis_count > empty_count)
 			dis_count = empty_count;
 		core.units.begin()->arg1 = dis_count;
