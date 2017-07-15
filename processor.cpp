@@ -3200,9 +3200,10 @@ int32 field::process_battle_command(uint16 step) {
 		// start of PHASE_DAMAGE;
 		pduel->write_buffer8(MSG_DAMAGE_STEP_START);
 		raise_single_event(core.attacker, 0, EVENT_BATTLE_START, 0, 0, 0, 0, 0);
+		core.attacker->attack_controler = core.attacker->current.controler;
 		if(core.attack_target) {
 			raise_single_event(core.attack_target, 0, EVENT_BATTLE_START, 0, 0, 0, 0, 1);
-			core.attack_target->attack_target_controler = core.attack_target->current.controler;
+			core.attack_target->attack_controler = core.attack_target->current.controler;
 		}
 		raise_event((card*)0, EVENT_BATTLE_START, 0, 0, 0, 0, 0);
 		process_single_event();
@@ -3221,8 +3222,9 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 21: {
 		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]
+		        || core.attacker->current.controler != core.attacker->attack_controler
 		        || (core.attack_target && (core.attack_target->current.location != LOCATION_MZONE
-		                                || core.attack_target->attack_target_controler != core.attack_target->current.controler
+		                                || core.attack_target->current.controler != core.attack_target->attack_controler
 		                                || core.attack_target->fieldid_r != core.pre_field[1]))) {
 			core.units.begin()->step = 32;
 			return FALSE;
@@ -3264,8 +3266,9 @@ int32 field::process_battle_command(uint16 step) {
 	case 23: {
 		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]
 		        || ((core.attacker->current.position & POS_DEFENSE) && !(core.attacker->is_affected_by_effect(EFFECT_DEFENSE_ATTACK)))
+		        || core.attacker->current.controler != core.attacker->attack_controler
 		        || (core.attack_target && (core.attack_target->current.location != LOCATION_MZONE
-		                                || core.attack_target->attack_target_controler != core.attack_target->current.controler
+		                                || core.attack_target->current.controler != core.attack_target->attack_controler
 		                                || core.attack_target->fieldid_r != core.pre_field[1]))) {
 			core.units.begin()->step = 32;
 			return FALSE;
@@ -3297,8 +3300,9 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 25: {
 		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]
+		        || core.attacker->current.controler != core.attacker->attack_controler
 		        || (core.attack_target && (core.attack_target->current.location != LOCATION_MZONE
-		                                || core.attack_target->attack_target_controler != core.attack_target->current.controler
+		                                || core.attack_target->current.controler != core.attack_target->attack_controler
 		                                || core.attack_target->fieldid_r != core.pre_field[1]))) {
 			reset_phase(PHASE_DAMAGE_CAL);
 			infos.phase = PHASE_DAMAGE;
