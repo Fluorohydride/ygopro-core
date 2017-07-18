@@ -1335,11 +1335,11 @@ int32 card::is_status(uint32 status) {
 		return TRUE;
 	return FALSE;
 }
-uint32 card::get_column_zone(int32 loc1, uint32 excheck) {
+uint32 card::get_column_zone(int32 loc1, int32 left, int32 right, uint32 excheck) {
 	int32 zones = 0;
 	int32 loc2 = current.location;
 	int32 s = current.sequence;
-	if(!(loc1 & LOCATION_ONFIELD) || !(loc2 & LOCATION_ONFIELD) || loc2 == LOCATION_SZONE && s >=5)
+	if(!(loc1 & LOCATION_ONFIELD) || !(loc2 & LOCATION_ONFIELD) || loc2 == LOCATION_SZONE && s >=5 || left < 0 || right < 0)
 		return 0;
 	if(s <= 4) {
 		if(loc1 != loc2)
@@ -1354,15 +1354,47 @@ uint32 card::get_column_zone(int32 loc1, uint32 excheck) {
 		zones |= (1u << 1) | (1u << (16 + 3));
 	if(s == 6)
 		zones |= (1u << 3) | (1u << (16 + 1));
+	for (int32 i = 1; i <= left; ++i) {
+		int32 seq = s - i;
+		if(seq >= 0) {
+			if(seq <= 4) {
+				zones |= 1u << seq | 1u << (16 + (4 - seq));
+				if(seq == 1 && excheck)
+					zones |= (1u << 5) | (1u << (16 + 6));
+				if(seq == 3 && excheck)
+					zones |= (1u << 6) | (1u << (16 + 5));
+			}
+			if(seq == 5)
+				zones |= (1u << 1) | (1u << (16 + 3));
+			if(seq == 6)
+				zones |= (1u << 3) | (1u << (16 + 1));
+		}
+	}
+	for (int32 i = 1; i <= right; ++i) {
+		int32 seq = s + i;
+		if(seq <= 6) {
+			if(seq <= 4) {
+				zones |= 1u << seq | 1u << (16 + (4 - seq));
+				if(seq == 1 && excheck)
+					zones |= (1u << 5) | (1u << (16 + 6));
+				if(seq == 3 && excheck)
+					zones |= (1u << 6) | (1u << (16 + 5));
+			}
+			if(seq == 5)
+				zones |= (1u << 1) | (1u << (16 + 3));
+			if(seq == 6)
+				zones |= (1u << 3) | (1u << (16 + 1));
+		}
+	}
 	return zones;
 }
-void card::get_column_cards(card_set* cset, uint32 excheck) {
+void card::get_column_cards(card_set* cset, int32 left, int32 right, uint32 excheck) {
 	cset->clear();
 	if(!(current.location & LOCATION_ONFIELD))
 		return;
 	int32 p = current.controler;
-	uint32 column_mzone = get_column_zone(LOCATION_MZONE, excheck);
-	uint32 column_szone = get_column_zone(LOCATION_SZONE, false);
+	uint32 column_mzone = get_column_zone(LOCATION_MZONE, left, right, excheck);
+	uint32 column_szone = get_column_zone(LOCATION_SZONE, left, right, false);
 	pduel->game_field->get_cards_in_zone(cset, column_mzone, p, LOCATION_MZONE);
 	pduel->game_field->get_cards_in_zone(cset, column_mzone >> 16, 1 - p, LOCATION_MZONE);
 	pduel->game_field->get_cards_in_zone(cset, column_szone, p, LOCATION_SZONE);
@@ -1372,7 +1404,7 @@ int32 card::is_all_column() {
 	if(!(current.location & LOCATION_ONFIELD))
 		return FALSE;
 	card_set cset;
-	get_column_cards(&cset);
+	get_column_cards(&cset, 0, 0, true);
 	if((cset.size() == 3 && pduel->game_field->core.duel_rule < 4) || (cset.size() == 4 && pduel->game_field->core.duel_rule >= 4))
 		return TRUE;
 	return FALSE;
