@@ -126,6 +126,7 @@ public:
 	uint8 announce_count;
 	uint8 attacked_count;
 	uint8 attack_all_target;
+	uint8 attack_controler;
 	uint16 cardid;
 	uint32 fieldid;
 	uint32 fieldid_r;
