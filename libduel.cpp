@@ -708,22 +708,16 @@ int32 scriptlib::duel_set_chain_limit(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_FUNCTION, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	if(pduel->game_field->core.chain_limit)
-		luaL_unref(L, LUA_REGISTRYINDEX, pduel->game_field->core.chain_limit);
 	int32 f = interpreter::get_function_handle(L, 1);
-	pduel->game_field->core.chain_limit = f;
-	pduel->game_field->core.chain_limp = pduel->game_field->core.reason_player;
+	pduel->game_field->core.chain_limit.push_back(processor::chain_limit_t(f, pduel->game_field->core.reason_player));
 	return 0;
 }
 int32 scriptlib::duel_set_chain_limit_p(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_FUNCTION, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	if(pduel->game_field->core.chain_limit_p)
-		luaL_unref(L, LUA_REGISTRYINDEX, pduel->game_field->core.chain_limit_p);
 	int32 f = interpreter::get_function_handle(L, 1);
-	pduel->game_field->core.chain_limit_p = f;
-	pduel->game_field->core.chain_limp_p = pduel->game_field->core.reason_player;
+	pduel->game_field->core.chain_limit_p.push_back(processor::chain_limit_t(f, pduel->game_field->core.reason_player));
 	return 0;
 }
 int32 scriptlib::duel_get_chain_material(lua_State *L) {

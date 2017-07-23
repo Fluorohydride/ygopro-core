@@ -72,8 +72,8 @@ field::field(duel* pduel) {
 	core.summoning_card = 0;
 	core.summon_depth = 0;
 	core.summon_cancelable = FALSE;
-	core.chain_limit = 0;
-	core.chain_limit_p = 0;
+	core.chain_limit.clear();
+	core.chain_limit_p.clear();
 	core.chain_solving = FALSE;
 	core.conti_solving = FALSE;
 	core.conti_player = PLAYER_NONE;

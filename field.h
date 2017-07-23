@@ -155,6 +155,12 @@ struct processor {
 	typedef std::list<processor_unit> processor_list;
 	typedef std::set<card*, card_sort> card_set;
 	typedef std::set<std::pair<effect*, tevent> > delayed_effect_collection;
+	struct chain_limit_t {
+		chain_limit_t(int32 f, int32 p): function(f), player(p) {}
+		int32 function;
+		int32 player;
+	};
+	typedef std::vector<chain_limit_t> chain_limit_list;
 
 	processor_list units;
 	processor_list subunits;
@@ -233,10 +239,8 @@ struct processor {
 	uint32 global_flag;
 	uint16 pre_field[2];
 	uint16 opp_mzone[7];
-	int32 chain_limit;
-	uint8 chain_limp;
-	int32 chain_limit_p;
-	uint8 chain_limp_p;
+	chain_limit_list chain_limit;
+	chain_limit_list chain_limit_p;
 	uint8 chain_solving;
 	uint8 conti_solving;
 	uint8 win_player;

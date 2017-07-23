@@ -4637,10 +4637,9 @@ int32 field::activate_effect(uint16 step, effect* peffect) {
 		return FALSE;
 	}
 	case 1: {
-		if(core.chain_limit) {
-			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, core.chain_limit);
-			core.chain_limit = 0;
-		}
+		for(auto it = core.chain_limit.begin(); it != core.chain_limit.end(); ++it)
+			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, it->function);
+		core.chain_limit.clear();
 		for(auto cait = core.current_chain.begin(); cait != core.current_chain.end(); ++cait)
 			cait->triggering_effect->get_handler()->set_status(STATUS_CHAINING, FALSE);
 		add_process(PROCESSOR_SOLVE_CHAIN, 0, 0, 0, FALSE, 0);

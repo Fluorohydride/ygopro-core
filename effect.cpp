@@ -515,18 +515,18 @@ int32 effect::is_chainable(uint8 tp) {
 		} else if(sp < pduel->game_field->core.current_chain.rbegin()->triggering_effect->get_speed())
 			return FALSE;
 	}
-	if(pduel->game_field->core.chain_limit) {
+	for(auto it = pduel->game_field->core.chain_limit.begin(); it != pduel->game_field->core.chain_limit.end(); ++it) {
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
-		pduel->lua->add_param(pduel->game_field->core.chain_limp, PARAM_TYPE_INT);
+		pduel->lua->add_param(it->player, PARAM_TYPE_INT);
 		pduel->lua->add_param(tp, PARAM_TYPE_INT);
-		if(!pduel->lua->check_condition(pduel->game_field->core.chain_limit, 3))
+		if(!pduel->lua->check_condition(it->function, 3))
 			return FALSE;
 	}
-	if(pduel->game_field->core.chain_limit_p) {
+	for(auto it = pduel->game_field->core.chain_limit_p.begin(); it != pduel->game_field->core.chain_limit_p.end(); ++it) {
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
-		pduel->lua->add_param(pduel->game_field->core.chain_limp_p, PARAM_TYPE_INT);
+		pduel->lua->add_param(it->player, PARAM_TYPE_INT);
 		pduel->lua->add_param(tp, PARAM_TYPE_INT);
-		if(!pduel->lua->check_condition(pduel->game_field->core.chain_limit_p, 3))
+		if(!pduel->lua->check_condition(it->function, 3))
 			return FALSE;
 	}
 	return TRUE;
