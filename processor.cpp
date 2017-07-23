@@ -80,7 +80,7 @@ int32 field::process() {
 		}
 	}
 	case PROCESSOR_SELECT_EFFECTYN: {
-		if (select_effect_yes_no(it->step, it->arg1, (card*)it->ptarget)) {
+		if (select_effect_yes_no(it->step, it->arg1, it->arg2, (card*)it->ptarget)) {
 			core.units.pop_front();
 			return pduel->bufferlen;
 		} else {

@@ -559,7 +559,7 @@ public:
 
 	int32 select_battle_command(uint16 step, uint8 playerid);
 	int32 select_idle_command(uint16 step, uint8 playerid);
-	int32 select_effect_yes_no(uint16 step, uint8 playerid, card* pcard);
+	int32 select_effect_yes_no(uint16 step, uint8 playerid, uint32 description, card* pcard);
 	int32 select_yes_no(uint16 step, uint8 playerid, uint32 description);
 	int32 select_option(uint16 step, uint8 playerid);
 	int32 select_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max);

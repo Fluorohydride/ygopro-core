@@ -2832,8 +2832,11 @@ int32 scriptlib::duel_select_effect_yesno(lua_State * L) {
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	card* pcard = *(card**) lua_touserdata(L, 2);
+	int32 desc = 95;
+	if(lua_gettop(L) >= 3)
+		desc = lua_tointeger(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
-	pduel->game_field->add_process(PROCESSOR_SELECT_EFFECTYN_S, 0, 0, (group*)pcard, playerid, 0);
+	pduel->game_field->add_process(PROCESSOR_SELECT_EFFECTYN_S, 0, 0, (group*)pcard, playerid, desc);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_select_yesno(lua_State * L) {
