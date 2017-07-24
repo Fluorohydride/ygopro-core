@@ -1303,6 +1303,15 @@ uint32 card::get_mutual_linked_zone() {
 	}
 	return zones;
 }
+void card::get_mutual_linked_cards(card_set* cset) {
+	cset->clear();
+	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE)
+		return;
+	int32 p = current.controler;
+	uint32 mutual_linked_zone = get_mutual_linked_zone();
+	pduel->game_field->get_cards_in_zone(cset, mutual_linked_zone, p);
+	pduel->game_field->get_cards_in_zone(cset, mutual_linked_zone >> 16, 1 - p);
+}
 int32 card::is_link_state() {
 	if(current.location != LOCATION_MZONE)
 		return FALSE;
