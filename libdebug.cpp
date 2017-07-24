@@ -40,9 +40,14 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		card* pcard = pduel->new_card(code);
 		pcard->owner = owner;
 		pcard->operation_param = position << 24;
-		pduel->game_field->add_card(playerid, pcard, location, sequence);
+		if(location == LOCATION_PZONE) {
+			int32 seq = pduel->game_field->core.duel_rule >= 4 ? sequence * 4 : sequence + 6;
+			pduel->game_field->add_card(playerid, pcard, LOCATION_SZONE, seq, TRUE);
+		} else {
+			pduel->game_field->add_card(playerid, pcard, location, sequence);
+		}
 		pcard->current.position = position;
-		if(!(location & LOCATION_ONFIELD) || (position & POS_FACEUP)) {
+		if(!(location & (LOCATION_ONFIELD + LOCATION_PZONE)) || (position & POS_FACEUP)) {
 			pcard->enable_field_effect(true);
 			pduel->game_field->adjust_instant();
 		}
