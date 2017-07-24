@@ -358,7 +358,7 @@ public:
 	void get_linked_cards(uint8 self, uint8 s, uint8 o, card_set* cset);
 	int32 check_extra_link(int32 playerid);
 	int32 check_extra_link(int32 playerid, card* pcard, int32 sequence);
-	void get_cards_in_zone(card_set* cset, uint32 zone, int32 playerid);
+	void get_cards_in_zone(card_set* cset, uint32 zone, int32 playerid, int32 location);
 	void shuffle(uint8 playerid, uint8 location);
 	void reset_sequence(uint8 playerid, uint8 location);
 	void swap_deck_and_grave(uint8 playerid);
