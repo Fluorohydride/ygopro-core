@@ -1354,10 +1354,12 @@ uint32 card::get_column_zone(int32 loc1, int32 left, int32 right) {
 		if(loc1 != loc2)
 			zones |= 1u << s;
 		zones |= 1u << (16 + (4 - s));
-		if(s == 1)
-			zones |= (1u << 5) | (1u << (16 + 6));
-		if(s == 3)
-			zones |= (1u << 6) | (1u << (16 + 5));
+		if(loc1 & LOCATION_MZONE) {
+			if(s == 1)
+				zones |= (1u << 5) | (1u << (16 + 6));
+			if(s == 3)
+				zones |= (1u << 6) | (1u << (16 + 5));
+		}
 	}
 	if(s == 5)
 		zones |= (1u << 1) | (1u << (16 + 3));
@@ -1368,10 +1370,12 @@ uint32 card::get_column_zone(int32 loc1, int32 left, int32 right) {
 		if(seq >= 0) {
 			if(seq <= 4) {
 				zones |= 1u << seq | 1u << (16 + (4 - seq));
-				if(seq == 1)
-					zones |= (1u << 5) | (1u << (16 + 6));
-				if(seq == 3)
-					zones |= (1u << 6) | (1u << (16 + 5));
+				if(loc1 & LOCATION_MZONE) {
+					if(seq == 1)
+						zones |= (1u << 5) | (1u << (16 + 6));
+					if(seq == 3)
+						zones |= (1u << 6) | (1u << (16 + 5));
+				}
 			}
 			if(seq == 5)
 				zones |= (1u << 1) | (1u << (16 + 3));
@@ -1384,10 +1388,12 @@ uint32 card::get_column_zone(int32 loc1, int32 left, int32 right) {
 		if(seq <= 6) {
 			if(seq <= 4) {
 				zones |= 1u << seq | 1u << (16 + (4 - seq));
-				if(seq == 1)
-					zones |= (1u << 5) | (1u << (16 + 6));
-				if(seq == 3)
-					zones |= (1u << 6) | (1u << (16 + 5));
+				if(loc1 & LOCATION_MZONE) {
+					if(seq == 1)
+						zones |= (1u << 5) | (1u << (16 + 6));
+					if(seq == 3)
+						zones |= (1u << 6) | (1u << (16 + 5));
+				}
 			}
 			if(seq == 5)
 				zones |= (1u << 1) | (1u << (16 + 3));
