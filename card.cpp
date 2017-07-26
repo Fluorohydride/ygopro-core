@@ -1471,37 +1471,6 @@ int32 card::get_old_union_count() {
 	}
 	return count;
 }
-void card::xyz_overlay(card_set* materials) {
-	if(materials->size() == 0)
-		return;
-	card_set des;
-	if(materials->size() == 1) {
-		card* pcard = *materials->begin();
-		pcard->reset(RESET_LEAVE + RESET_OVERLAY, RESET_EVENT);
-		if(pcard->unique_code)
-			pduel->game_field->remove_unique_card(pcard);
-		if(pcard->equiping_target)
-			pcard->unequip();
-		xyz_add(pcard, &des);
-	} else {
-		field::card_vector cv;
-		for(auto cit = materials->begin(); cit != materials->end(); ++cit)
-			cv.push_back(*cit);
-		std::sort(cv.begin(), cv.end(), card::card_operation_sort);
-		for(auto cvit = cv.begin(); cvit != cv.end(); ++cvit) {
-			(*cvit)->reset(RESET_LEAVE + RESET_OVERLAY, RESET_EVENT);
-			if((*cvit)->unique_code)
-				pduel->game_field->remove_unique_card(*cvit);
-			if((*cvit)->equiping_target)
-				(*cvit)->unequip();
-			xyz_add(*cvit, &des);
-		}
-	}
-	if(des.size())
-		pduel->game_field->destroy(&des, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
-	else
-		pduel->game_field->adjust_instant();
-}
 void card::xyz_add(card* mat, card_set* des) {
 	if(mat->overlay_target == this)
 		return;

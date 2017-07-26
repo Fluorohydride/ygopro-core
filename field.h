@@ -519,6 +519,7 @@ public:
 	void move_to_field(card* target, uint32 move_player, uint32 playerid, uint32 destination, uint32 positions, uint32 enable = FALSE, uint32 ret = 0, uint32 is_equip = FALSE, uint32 zone = 0xff);
 	void change_position(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 au, uint32 ad, uint32 du, uint32 dd, uint32 flag, uint32 enable = FALSE);
 	void change_position(card* target, effect* reason_effect, uint32 reason_player, uint32 npos, uint32 flag, uint32 enable = FALSE);
+	void xyz_overlay(card* target, card_set* material, uint32 overlay);
 
 	int32 remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplayer, uint8 s, uint8 o, uint16 countertype, uint16 count);
 	int32 remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 rplayer, uint8 s, uint8 o, uint16 min, uint16 max);
@@ -526,6 +527,7 @@ public:
 	int32 swap_control(uint16 step, effect* reason_effect, uint8 reason_player, group* targets1, group* targets2, uint16 reset_phase, uint8 reset_count);
 	int32 control_adjust(uint16 step);
 	int32 self_destroy(uint16 step);
+	int32 xyz_overlay(uint16 step, card* target, group* material, uint32 overlay);
 	int32 equip(uint16 step, uint8 equip_player, card* equip_card, card* target, uint32 up, uint32 is_step);
 	int32 draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, uint32 count);
 	int32 damage(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, card* reason_card, uint8 playerid, uint32 amount, uint32 is_step);
@@ -702,6 +704,7 @@ public:
 #define PROCESSOR_SWAP_CONTROL		75
 #define PROCESSOR_CONTROL_ADJUST	76
 #define PROCESSOR_SELF_DESTROY		77
+#define PROCESSOR_XYZ_OVERLAY		78
 #define PROCESSOR_PAY_LPCOST		80
 #define PROCESSOR_REMOVE_COUNTER	81
 #define PROCESSOR_ATTACK_DISABLE	82

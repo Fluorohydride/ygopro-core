@@ -328,6 +328,11 @@ void field::change_position(card* target, effect* reason_effect, uint32 reason_p
 	target->position_param |= flag;
 	add_process(PROCESSOR_CHANGEPOS, 0, reason_effect, ng, reason_player, enable);
 }
+void field::xyz_overlay(card* target, card_set* material, uint32 overlay) {
+	group* ng = pduel->new_group(*material);
+	ng->is_readonly = TRUE;
+	add_process(PROCESSOR_XYZ_OVERLAY, 0, 0, ng, (ptr)target, overlay);
+}
 int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, uint32 count) {
 	switch(step) {
 	case 0: {
@@ -1298,6 +1303,65 @@ int32 field::self_destroy(uint16 step) {
 		core.self_tograve_set.clear();
 		core.operated_set.clear();
 		returns.ivalue[0] = 0;
+		return TRUE;
+	}
+	}
+	return TRUE;
+}
+int32 field::xyz_overlay(uint16 step, card * target, group * material, uint32 overlay) {
+	switch(step) {
+	case 0: {
+		for(auto cit = material->container.begin(); cit != material->container.end();) {
+			card* pcard = *cit++;
+			if(pcard == target || (pcard->data.type & TYPE_TOKEN)) {
+				material->container.erase(pcard);
+				continue;
+			}
+		}
+		if(!material->container.size())
+			return TRUE;
+		card_set submat;
+		for(auto cit = material->container.begin(); cit != material->container.end(); ++cit) {
+			card* pcard = *cit;
+			if(pcard->xyz_materials.size()) {
+				for(auto cit = pcard->xyz_materials.begin(); cit != pcard->xyz_materials.end(); ++cit)
+					submat.insert(*cit);
+			}
+		}
+		if(overlay)
+			xyz_overlay(target, &submat, FALSE);
+		else
+			send_to(&submat, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
+		return FALSE;
+	}
+	case 1: {
+		card_set des;
+		if(material->container.size() == 1) {
+			card* pcard = *material->container.begin();
+			pcard->reset(RESET_LEAVE + RESET_OVERLAY, RESET_EVENT);
+			if(pcard->unique_code)
+				remove_unique_card(pcard);
+			if(pcard->equiping_target)
+				pcard->unequip();
+			target->xyz_add(pcard, &des);
+		} else {
+			card_vector cv;
+			for(auto cit = material->container.begin(); cit != material->container.end(); ++cit)
+				cv.push_back(*cit);
+			std::sort(cv.begin(), cv.end(), card::card_operation_sort);
+			for(auto cvit = cv.begin(); cvit != cv.end(); ++cvit) {
+				(*cvit)->reset(RESET_LEAVE + RESET_OVERLAY, RESET_EVENT);
+				if((*cvit)->unique_code)
+					remove_unique_card(*cvit);
+				if((*cvit)->equiping_target)
+					(*cvit)->unequip();
+				target->xyz_add(*cvit, &des);
+			}
+		}
+		if(des.size())
+			destroy(&des, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
+		else
+			adjust_instant();
 		return TRUE;
 	}
 	}
