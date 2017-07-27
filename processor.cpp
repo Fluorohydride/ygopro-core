@@ -345,7 +345,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_OPERATION_REPLACE: {
-		if (operation_replace(it->step, it->peffect, it->ptarget, (card*)it->ptr1, it->arg2))
+		if (operation_replace(it->step, it->peffect, it->ptarget, (card*)it->ptr1, it->arg1))
 			core.units.pop_front();
 		else
 			it->step++;
