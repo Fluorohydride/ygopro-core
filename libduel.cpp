@@ -1649,7 +1649,19 @@ int32 scriptlib::duel_check_location(lua_State *L) {
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushboolean(L, pduel->game_field->is_location_useable(playerid, location, sequence));
+	uint32 isOpen = pduel->game_field->is_location_useable(playerid, location, sequence);
+	uint32 hasleave = FALSE;
+	if (lua_gettop(L) >= 4)
+		hasleave = lua_toboolean(L, 4);
+	card* pcard = pduel->game_field->get_field_card(playerid, location, sequence);
+	if (hasleave && pcard) {
+		pduel->game_field->save_lp_cost();
+		pduel->game_field->remove_card(pcard);
+		isOpen = pduel->game_field->is_location_useable(playerid, location, sequence);
+		pduel->game_field->add_card(playerid, pcard, location, sequence);
+		pduel->game_field->restore_lp_cost();
+	}
+	lua_pushboolean(L, isOpen);
 	return 1;
 }
 int32 scriptlib::duel_get_current_chain(lua_State *L) {
