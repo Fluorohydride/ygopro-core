@@ -1661,13 +1661,16 @@ int32 scriptlib::card_is_can_be_special_summoned(lua_State *L) {
 	uint32 sumpos = POS_FACEUP;
 	uint32 toplayer = sumplayer;
 	uint32 zone = 0xff;
+	uint32 nozoneusedcheck = 0;
 	if(lua_gettop(L) >= 7)
 		sumpos = lua_tointeger(L, 7);
 	if(lua_gettop(L) >= 8)
 		toplayer = lua_tointeger(L, 8);
 	if(lua_gettop(L) >= 9)
 		zone = lua_tointeger(L, 9);
-	if(pcard->is_can_be_special_summoned(peffect, sumtype, sumpos, sumplayer, toplayer, nocheck, nolimit, zone))
+	if(lua_gettop(L) >= 10)
+		nozoneusedcheck = lua_toboolean(L, 10);
+	if(pcard->is_can_be_special_summoned(peffect, sumtype, sumpos, sumplayer, toplayer, nocheck, nolimit, zone, nozoneusedcheck))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);

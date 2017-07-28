@@ -1646,10 +1646,13 @@ int32 scriptlib::duel_check_location(lua_State *L) {
 	uint32 playerid = lua_tointeger(L, 1);
 	uint32 location = lua_tointeger(L, 2);
 	uint32 sequence = lua_tointeger(L, 3);
+	uint32 neglect_used = 0;
+	if(lua_gettop(L) >= 4)
+		neglect_used = lua_toboolean(L, 4);
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushboolean(L, pduel->game_field->is_location_useable(playerid, location, sequence));
+	lua_pushboolean(L, pduel->game_field->is_location_useable(playerid, location, sequence, neglect_used));
 	return 1;
 }
 int32 scriptlib::duel_get_current_chain(lua_State *L) {
