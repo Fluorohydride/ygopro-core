@@ -218,6 +218,7 @@ public:
 	static int32 card_is_forbidden(lua_State *L);
 	static int32 card_is_able_to_change_controler(lua_State *L);
 	static int32 card_is_controler_can_be_changed(lua_State *L);
+	static int32 card_is_position_can_be_changed(lua_State *L);
 	static int32 card_add_counter(lua_State *L);
 	static int32 card_remove_counter(lua_State *L);
 	static int32 card_get_counter(lua_State *L);
