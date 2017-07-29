@@ -3416,6 +3416,8 @@ int32 card::is_capable_turn_set(uint8 playerid) {
 		return FALSE;
 	if(pduel->game_field->is_player_affected_by_effect(playerid, EFFECT_CANNOT_TURN_SET))
 		return FALSE;
+	if (is_position(POS_ATTACK) && !is_position_can_be_changed())
+		return FALSE;
 	return TRUE;
 }
 int32 card::is_capable_change_control() {
