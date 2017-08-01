@@ -308,6 +308,7 @@ public:
 	int32 is_capable_attack();
 	int32 is_capable_attack_announce(uint8 playerid);
 	int32 is_capable_change_position(uint8 playerid);
+	int32 is_capable_change_position_by_effect(uint8 playerid);
 	int32 is_capable_turn_set(uint8 playerid);
 	int32 is_capable_change_control();
 	int32 is_control_can_be_changed(int32 ignore_mzone, uint32 zone);

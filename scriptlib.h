@@ -223,6 +223,7 @@ public:
 	static int32 card_get_counter(lua_State *L);
 	static int32 card_enable_counter_permit(lua_State *L);
 	static int32 card_set_counter_limit(lua_State *L);
+	static int32 card_is_can_change_position(lua_State *L);
 	static int32 card_is_can_turn_set(lua_State *L);
 	static int32 card_is_can_add_counter(lua_State *L);
 	static int32 card_is_can_remove_counter(lua_State *L);

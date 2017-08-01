@@ -3400,6 +3400,11 @@ int32 card::is_capable_change_position(uint8 playerid) {
 		return FALSE;
 	return TRUE;
 }
+int32 card::is_capable_change_position_by_effect(uint8 playerid) {
+	if(data.type & TYPE_LINK)
+		return FALSE;
+	return TRUE;
+}
 int32 card::is_capable_turn_set(uint8 playerid) {
 	if(data.type & (TYPE_LINK | TYPE_TOKEN))
 		return FALSE;

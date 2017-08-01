@@ -221,6 +221,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetCounter", scriptlib::card_get_counter },
 	{ "EnableCounterPermit", scriptlib::card_enable_counter_permit },
 	{ "SetCounterLimit", scriptlib::card_set_counter_limit },
+	{ "IsCanChangePosition", scriptlib::card_is_can_change_position },
 	{ "IsCanTurnSet", scriptlib::card_is_can_turn_set },
 	{ "IsCanAddCounter", scriptlib::card_is_can_add_counter },
 	{ "IsCanRemoveCounter", scriptlib::card_is_can_remove_counter },
