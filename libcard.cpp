@@ -1524,6 +1524,18 @@ int32 scriptlib::card_is_destructable(lua_State *L) {
 		lua_pushboolean(L, pcard->is_destructable());
 	return 1;
 }
+int32 scriptlib::card_is_can_replace_destroy(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	check_param(L, PARAM_TYPE_EFFECT, 2);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	effect* peffect = *(effect**)lua_touserdata(L, 2);
+	if(pcard && pcard->is_capable_replace_destroy_by_effect(peffect, pcard->pduel->game_field->core.reason_player))
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
 int32 scriptlib::card_is_summonable(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
