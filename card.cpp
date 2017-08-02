@@ -3165,11 +3165,6 @@ effect* card::check_indestructable_by_effect(effect* peffect, uint8 playerid) {
 	return 0;
 }
 int32 card::is_destructable_by_effect(effect* peffect, uint8 playerid) {
-	return !check_indestructable_by_effect(peffect, playerid);
-}
-int32 card::is_capable_replace_destroy_by_effect(effect* peffect, uint8 playerid) {
-	if(is_status(STATUS_DESTROY_CONFIRMED) || is_status(STATUS_BATTLE_DESTROYED))
-		return FALSE;
 	if(!is_affect_by_effect(peffect))
 		return FALSE;
 	if(check_indestructable_by_effect(peffect, playerid))
@@ -3179,7 +3174,7 @@ int32 card::is_capable_replace_destroy_by_effect(effect* peffect, uint8 playerid
 	filter_effect(EFFECT_INDESTRUCTABLE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
-		pduel->lua->add_param(REASON_EFFECT+REASON_REPLACE, PARAM_TYPE_INT);
+		pduel->lua->add_param(REASON_EFFECT + REASON_REPLACE, PARAM_TYPE_INT);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		if(eset[i]->check_value_condition(3)) {
 			return FALSE;
@@ -3193,7 +3188,7 @@ int32 card::is_capable_replace_destroy_by_effect(effect* peffect, uint8 playerid
 			if((eset[i]->reset_count & 0xf00) == 0)
 				continue;
 			pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
-			pduel->lua->add_param(REASON_EFFECT+REASON_REPLACE, PARAM_TYPE_INT);
+			pduel->lua->add_param(REASON_EFFECT + REASON_REPLACE, PARAM_TYPE_INT);
 			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 			if(eset[i]->check_value_condition(3)) {
 				return FALSE;
@@ -3201,7 +3196,7 @@ int32 card::is_capable_replace_destroy_by_effect(effect* peffect, uint8 playerid
 			}
 		} else {
 			pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
-			pduel->lua->add_param(REASON_EFFECT+REASON_REPLACE, PARAM_TYPE_INT);
+			pduel->lua->add_param(REASON_EFFECT + REASON_REPLACE, PARAM_TYPE_INT);
 			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 			int32 ct;
 			if(ct = eset[i]->get_value(3)) {
