@@ -3686,7 +3686,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			return FALSE;
 		}
 		if(param->predirect && get_useable_count(pcard->current.controler, LOCATION_SZONE, pcard->current.controler, LOCATION_REASON_TOFIELD) > 0)
-			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)pcard, pcard->current.controler, 0);
+			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)pcard, pcard->current.controler, 97);
 		else
 			returns.ivalue[0] = 0;
 		return FALSE;
