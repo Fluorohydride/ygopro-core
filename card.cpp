@@ -3206,7 +3206,7 @@ int32 card::is_capable_replace_destroy_by_effect(effect* peffect, uint8 playerid
 			int32 ct;
 			if(ct = eset[i]->get_value(3)) {
 				auto it = indestructable_effects.insert(std::make_pair(eset[i]->id, 0));
-				if(++it.first->second <= ct) {
+				if(it.first->second + 1 <= ct) {
 					return FALSE;
 					break;
 				}
