@@ -42,4 +42,18 @@ struct card_sort {
 	bool operator()(void* const & c1, void* const & c2) const;
 };
 
+enum class ScriptType
+{
+	Card = 1,
+	Group = 2,
+	Effect = 3,
+};
+
+class ScriptClaxx
+{
+public:
+	ScriptType scrtype;
+	int32 ref_handle;
+};
+
 #endif /* COMMON_H_ */

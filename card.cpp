@@ -61,7 +61,7 @@ void card::attacker_map::addcard(card* pcard) {
 	pr.first->second.second++;
 }
 card::card(duel* pd) {
-	scrtype = 1;
+	scrtype = ScriptType::Card;
 	ref_handle = 0;
 	pduel = pd;
 	owner = PLAYER_NONE;

@@ -85,7 +85,7 @@ struct query_cache {
 	uint32 link_marker;
 };
 
-class card {
+class card : public ScriptClaxx {
 public:
 	struct effect_relation_hash {
 		inline std::size_t operator()(const std::pair<effect*, uint16>& v) const {
@@ -104,8 +104,6 @@ public:
 	public:
 		void addcard(card* pcard);
 	};
-	int32 scrtype;
-	int32 ref_handle;
 	duel* pduel;
 	card_data data;
 	card_state previous;
