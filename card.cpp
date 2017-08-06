@@ -65,7 +65,7 @@ card::card(duel* pd) {
 	ref_handle = 0;
 	pduel = pd;
 	owner = PLAYER_NONE;
-	operation_param = 0;
+	sendto_param.clear();
 	release_param = 0;
 	sum_param = 0;
 	position_param = 0;
@@ -3321,14 +3321,14 @@ int32 card::is_capable_cost_to_grave(uint8 playerid) {
 		return FALSE;
 	if(!is_capable_send_to_grave(playerid))
 		return FALSE;
-	uint32 op_param = operation_param;
-	operation_param = dest << 8;
+	auto op_param = sendto_param;
+	sendto_param.location = dest;
 	if(current.location & LOCATION_ONFIELD)
 		redirect = leave_field_redirect(REASON_COST) & 0xffff;
 	if(redirect) dest = redirect;
 	redirect = destination_redirect(dest, REASON_COST) & 0xffff;
 	if(redirect) dest = redirect;
-	operation_param = op_param;
+	sendto_param = op_param;
 	if(dest != LOCATION_GRAVE)
 		return FALSE;
 	return TRUE;
@@ -3344,14 +3344,14 @@ int32 card::is_capable_cost_to_hand(uint8 playerid) {
 		return FALSE;
 	if(!is_capable_send_to_hand(playerid))
 		return FALSE;
-	uint32 op_param = operation_param;
-	operation_param = dest << 8;
+	auto op_param = sendto_param;
+	sendto_param.location = dest;
 	if(current.location & LOCATION_ONFIELD)
 		redirect = leave_field_redirect(REASON_COST) & 0xffff;
 	if(redirect) dest = redirect;
 	redirect = destination_redirect(dest, REASON_COST) & 0xffff;
 	if(redirect) dest = redirect;
-	operation_param = op_param;
+	sendto_param = op_param;
 	if(dest != LOCATION_HAND)
 		return FALSE;
 	return TRUE;
@@ -3367,14 +3367,14 @@ int32 card::is_capable_cost_to_deck(uint8 playerid) {
 		return FALSE;
 	if(!is_capable_send_to_deck(playerid))
 		return FALSE;
-	uint32 op_param = operation_param;
-	operation_param = dest << 8;
+	auto op_param = sendto_param;
+	sendto_param.location = dest;
 	if(current.location & LOCATION_ONFIELD)
 		redirect = leave_field_redirect(REASON_COST) & 0xffff;
 	if(redirect) dest = redirect;
 	redirect = destination_redirect(dest, REASON_COST) & 0xffff;
 	if(redirect) dest = redirect;
-	operation_param = op_param;
+	sendto_param = op_param;
 	if(dest != LOCATION_DECK)
 		return FALSE;
 	return TRUE;
@@ -3390,14 +3390,14 @@ int32 card::is_capable_cost_to_extra(uint8 playerid) {
 		return FALSE;
 	if(!is_capable_send_to_deck(playerid))
 		return FALSE;
-	uint32 op_param = operation_param;
-	operation_param = dest << 8;
+	auto op_param = sendto_param;
+	sendto_param.location = dest;
 	if(current.location & LOCATION_ONFIELD)
 		redirect = leave_field_redirect(REASON_COST) & 0xffff;
 	if(redirect) dest = redirect;
 	redirect = destination_redirect(dest, REASON_COST) & 0xffff;
 	if(redirect) dest = redirect;
-	operation_param = op_param;
+	sendto_param = op_param;
 	if(dest != LOCATION_DECK)
 		return FALSE;
 	return TRUE;
