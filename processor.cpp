@@ -2839,9 +2839,9 @@ int32 field::process_battle_command(uint16 step) {
 				uint8 chain_attack = FALSE;
 				if(core.chain_attack && core.chain_attacker_id == pcard->fieldid)
 					chain_attack = TRUE;
-				core.select_cards.clear();
-				get_attack_target(pcard, &core.select_cards, chain_attack);
-				if(core.select_cards.size() == 0 && pcard->direct_attackable == 0)
+				card_vector cv;
+				get_attack_target(pcard, &cv, chain_attack);
+				if(cv.size() == 0 && pcard->direct_attackable == 0)
 					continue;
 				core.attackable_cards.push_back(pcard);
 				if(pcard->is_affected_by_effect(EFFECT_FIRST_ATTACK))
@@ -2953,7 +2953,6 @@ int32 field::process_battle_command(uint16 step) {
 		core.attack_player = FALSE;
 		core.select_cards.clear();
 		auto atype = get_attack_target(core.attacker, &core.select_cards, core.chain_attack);
-		core.units.begin()->arg2 = (ptr)core.select_cards.size();
 		// direct attack
 		if(core.attacker->direct_attackable) {
 			if(core.select_cards.size() == 0) {
@@ -3149,7 +3148,9 @@ int32 field::process_battle_command(uint16 step) {
 			return FALSE;
 		}
 		// attack canceled
-		if(!core.units.begin()->arg2 && !core.attacker->direct_attackable) {
+		card_vector cv;
+		get_attack_target(core.attacker, &cv, core.chain_attack);
+		if(!cv.size() && !core.attacker->direct_attackable) {
 			core.chain_attack = FALSE;
 			core.units.begin()->step = -1;
 			reset_phase(PHASE_DAMAGE);

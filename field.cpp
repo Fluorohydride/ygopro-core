@@ -2115,12 +2115,11 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 		std::set<uint32> idset;
 		for(int32 i = 0; i < eset.size(); ++i)
 			idset.insert(eset[i]->label);
-		if(idset.size()==1 && only_be_attack.size() == 1 && only_be_attack.front()->fieldid_r == *idset.begin())
+		if(idset.size() == 1 && only_be_attack.size() == 1 && only_be_attack.front()->fieldid_r == *idset.begin())
 			pv = &only_be_attack;
 		else
 			return atype;
-	}
-	else if(pcard->is_affected_by_effect(EFFECT_ONLY_ATTACK_MONSTER)) {
+	} else if(pcard->is_affected_by_effect(EFFECT_ONLY_ATTACK_MONSTER)) {
 		atype = 2;
 		if(only_be_attack.size() == 1)
 			pv = &only_be_attack;
