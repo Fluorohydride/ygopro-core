@@ -2495,7 +2495,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		}
 		if(positions == 0)
 			positions = POS_FACEUP_ATTACK;
-		uint32 zone = peffect->get_value(target) >> 16;
+		uint32 zone = (peffect->get_value(target) >> 16) & 0xff;
 		if(zone == 0)
 			zone = 0xff;
 		target->enable_field_effect(false);
