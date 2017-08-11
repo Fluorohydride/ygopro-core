@@ -2588,7 +2588,12 @@ int32 scriptlib::card_check_unique_onfield(lua_State *L) {
 	uint32 check_location = LOCATION_ONFIELD;
 	if(lua_gettop(L) > 2)
 		check_location = lua_tointeger(L, 3) & LOCATION_ONFIELD;
-	lua_pushboolean(L, pcard->pduel->game_field->check_unique_onfield(pcard, check_player, check_location) ? 0 : 1);
+	card* icard = 0;
+	if(lua_gettop(L) > 3) {
+		if(check_param(L, PARAM_TYPE_CARD, 4, TRUE))
+			icard = *(card**)lua_touserdata(L, 4);
+	}
+	lua_pushboolean(L, pcard->pduel->game_field->check_unique_onfield(pcard, check_player, check_location, icard) ? 0 : 1);
 	return 1;
 }
 int32 scriptlib::card_reset_negate_effect(lua_State *L) {

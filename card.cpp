@@ -2740,7 +2740,7 @@ int32 card::check_unique_code(card* pcard) {
 		return TRUE;
 	return FALSE;
 }
-void card::get_unique_target(card_set* cset, int32 controler) {
+void card::get_unique_target(card_set* cset, int32 controler, card* icard) {
 	cset->clear();
 	for(int32 p = 0; p < 2; ++p) {
 		if(!unique_pos[p])
@@ -2749,7 +2749,7 @@ void card::get_unique_target(card_set* cset, int32 controler) {
 		if(unique_location & LOCATION_MZONE) {
 			for(auto cit = player.list_mzone.begin(); cit != player.list_mzone.end(); ++cit) {
 				card* pcard = *cit;
-				if(pcard && pcard->is_position(POS_FACEUP) && !pcard->is_status(STATUS_BATTLE_DESTROYED)
+				if(pcard && (pcard != icard) && pcard->is_position(POS_FACEUP) && !pcard->is_status(STATUS_BATTLE_DESTROYED)
 					&& check_unique_code(pcard))
 					cset->insert(pcard);
 			}
@@ -2757,7 +2757,7 @@ void card::get_unique_target(card_set* cset, int32 controler) {
 		if(unique_location & LOCATION_SZONE) {
 			for(auto cit = player.list_szone.begin(); cit != player.list_szone.end(); ++cit) {
 				card* pcard = *cit;
-				if(pcard && pcard->is_position(POS_FACEUP) && check_unique_code(pcard))
+				if(pcard && (pcard != icard) && pcard->is_position(POS_FACEUP) && check_unique_code(pcard))
 					cset->insert(pcard);
 			}
 		}
