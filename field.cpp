@@ -29,6 +29,7 @@ void chain::set_triggering_place(card* pcard) {
 	else
 		triggering_location = pcard->current.location;
 	triggering_sequence = pcard->current.sequence;
+	triggering_position = pcard->current.position;
 }
 bool tevent::operator< (const tevent& v) const {
 	return memcmp(this, &v, sizeof(tevent)) < 0;

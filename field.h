@@ -51,6 +51,7 @@ struct chain {
 	uint8 triggering_controler;
 	uint16 triggering_location;
 	uint8 triggering_sequence;
+	uint8 triggering_position;
 	effect* triggering_effect;
 	group* target_cards;
 	int32 replace_op;
@@ -599,6 +600,7 @@ public:
 #define CHAININFO_CHAIN_ID				0x800
 #define CHAININFO_TYPE					0x1000
 #define CHAININFO_EXTTYPE				0x2000
+#define CHAININFO_TRIGGERING_POSITION	0x4000
 //Timing
 #define TIMING_DRAW_PHASE			0x1
 #define TIMING_STANDBY_PHASE		0x2

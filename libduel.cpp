@@ -1663,14 +1663,13 @@ int32 scriptlib::duel_get_current_chain(lua_State *L) {
 int32 scriptlib::duel_get_chain_info(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 c = lua_tointeger(L, 1);
-	uint32 flag;
 	uint32 args = lua_gettop(L) - 1;
 	duel* pduel = interpreter::get_duel_info(L);
 	chain* ch = pduel->game_field->get_chain(c);
 	if(!ch)
 		return 0;
 	for(uint32 i = 0; i < args; ++i) {
-		flag = lua_tointeger(L, 2 + i);
+		uint32 flag = lua_tointeger(L, 2 + i);
 		switch(flag) {
 		case CHAININFO_CHAIN_COUNT:
 			lua_pushinteger(L, ch->chain_count);
@@ -1689,6 +1688,9 @@ int32 scriptlib::duel_get_chain_info(lua_State *L) {
 			break;
 		case CHAININFO_TRIGGERING_SEQUENCE:
 			lua_pushinteger(L, ch->triggering_sequence);
+			break;
+		case CHAININFO_TRIGGERING_POSITION:
+			lua_pushinteger(L, ch->triggering_position);
 			break;
 		case CHAININFO_TARGET_CARDS:
 			interpreter::group2value(L, ch->target_cards);
