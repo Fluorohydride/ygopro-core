@@ -794,7 +794,7 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	}
 	params.clear();
 }
-int32 interpreter::call_function(int32 f, uint32 param_count, uint32 ret_count) {
+int32 interpreter::call_function(int32 f, uint32 param_count, int32 ret_count) {
 	if (!f) {
 		sprintf(pduel->strbuffer, "\"CallFunction\": attempt to call a null function.");
 		handle_message(pduel, 1);
@@ -838,7 +838,7 @@ int32 interpreter::call_function(int32 f, uint32 param_count, uint32 ret_count) 
 	}
 	return OPERATION_SUCCESS;
 }
-int32 interpreter::call_card_function(card* pcard, char* f, uint32 param_count, uint32 ret_count) {
+int32 interpreter::call_card_function(card* pcard, char* f, uint32 param_count, int32 ret_count) {
 	if (param_count != params.size()) {
 		sprintf(pduel->strbuffer, "\"CallCardFunction\"(c%d.%s): incorrect parameter count", pcard->data.code, f);
 		handle_message(pduel, 1);
@@ -878,7 +878,7 @@ int32 interpreter::call_card_function(card* pcard, char* f, uint32 param_count, 
 	}
 	return OPERATION_SUCCESS;
 }
-int32 interpreter::call_code_function(uint32 code, char* f, uint32 param_count, uint32 ret_count) {
+int32 interpreter::call_code_function(uint32 code, char* f, uint32 param_count, int32 ret_count) {
 	if (param_count != params.size()) {
 		sprintf(pduel->strbuffer, "\"CallCodeFunction\": incorrect parameter count");
 		handle_message(pduel, 1);
@@ -1038,6 +1038,36 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count) {
 		pduel->restore_assumes();
 	}
 	return OPERATION_FAIL;
+}
+int32 interpreter::get_function_value(int32 f, uint32 param_count, std::vector<int32>* result) {
+	int32 is_success = OPERATION_FAIL;
+	if(!f) {
+		params.clear();
+		return is_success;
+	}
+	int32 stack_top = lua_gettop(current_state);
+	no_action++;
+	call_depth++;
+	if (call_function(f, param_count, LUA_MULTRET)) {
+		int32 stack_newtop = lua_gettop(current_state);
+		for (int32 index = stack_top + 1; index <= stack_newtop; ++index) {
+			int32 return_value = 0;
+			if (lua_isboolean(current_state, index))
+				return_value = lua_toboolean(current_state, index);
+			else
+				return_value = lua_tointeger(current_state, index);
+			result->push_back(return_value);
+		}
+		lua_settop(current_state, stack_top);
+		is_success = OPERATION_SUCCESS;
+	}
+	no_action--;
+	call_depth--;
+	if(call_depth == 0) {
+		pduel->release_script_group();
+		pduel->restore_assumes();
+	}
+	return is_success;
 }
 int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_value, uint16 step) {
 	*yield_value = 0;

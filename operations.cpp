@@ -1461,8 +1461,9 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 			core.units.begin()->step = 3;
 			if(!ignore_count && !core.extra_summon[sumplayer]) {
 				for(int32 i = 0; i < eset.size(); ++i) {
-					int32 val = eset[i]->get_value();
-					if(!val) {
+					std::vector<int32> retval;
+					eset[i]->get_value(target, 0, &retval);
+					if(retval.size() < 2) {
 						core.units.begin()->ptr1 = eset[i];
 						return FALSE;
 					}
@@ -1483,21 +1484,19 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		}
 		if(!ignore_count && !core.extra_summon[sumplayer]) {
 			for(int32 i = 0; i < eset.size(); ++i) {
-				int32 val = eset[i]->get_value();
-				int32 new_min_tribute = val & 0xff;
-				int32 new_zone = (val >> 16) & 0x1f;
-				bool unchanged = true;
-				if(new_zone && (new_zone & zone) != zone) {
-					new_zone &= zone;
-					unchanged = false;
-				} else
-					new_zone = zone;
+				std::vector<int32> retval;
+				eset[i]->get_value(target, 0, &retval);
+				int32 new_min_tribute = retval.size() > 0 ? retval[0] : 0;
+				int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
+				int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff - retval[2] : retval[2]) : 0xff00ff;
+				new_zone &= zone;
+				bool unchanged = (new_zone == zone);
 				if(peffect) {
 					if(new_min_tribute < (int32)min_tribute) {
 						new_min_tribute = min_tribute;
 						unchanged = false;
 					}
-					if(!target->is_summonable(peffect, new_min_tribute, new_zone))
+					if(!target->is_summonable(peffect, new_min_tribute, new_zone, releasable))
 						continue;
 				} else {
 					int32 rcount = target->get_summon_tribute_count();
@@ -1513,7 +1512,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 						min = new_min_tribute;
 						unchanged = false;
 					}
-					if(!check_tribute(target, min, max, 0, target->current.controler, new_zone))
+					if(!check_tribute(target, min, max, 0, target->current.controler, new_zone, releasable))
 						continue;
 				}
 				if(unlimited < 0 && unchanged)
@@ -1535,14 +1534,16 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 	case 2: {
 		effect* pextra = core.select_effects[returns.ivalue[0]];
 		core.units.begin()->ptr1 = pextra;
+		int32 releasable = 0xff00ff;
 		if(pextra) {
-			int32 val = pextra->get_value();
-			int32 new_min_tribute = val & 0xff;
-			int32 new_zone = (val >> 16) & 0x1f;
+			std::vector<int32> retval;
+			pextra->get_value(target, 0, &retval);
+			int32 new_min_tribute = retval.size() > 0 ? retval[0] : 0;
+			int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
+			releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
 			if((int32)min_tribute < new_min_tribute)
 				min_tribute = new_min_tribute;
-			if(new_zone)
-				zone &= new_zone;
+			zone &= new_zone;
 			core.units.begin()->arg1 = sumplayer + (ignore_count << 8) + (min_tribute << 16) + (zone << 24);
 		}
 		if(proc) {
@@ -1565,7 +1566,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 			core.release_cards.clear();
 			core.release_cards_ex.clear();
 			core.release_cards_ex_sum.clear();
-			int32 rcount = get_summon_release_list(target, &core.release_cards, &core.release_cards_ex, &core.release_cards_ex_sum);
+			int32 rcount = get_summon_release_list(target, &core.release_cards, &core.release_cards_ex, &core.release_cards_ex_sum, NULL, 0, releasable);
 			if(rcount == 0) {
 				returns.bvalue[0] = 0;
 				core.units.begin()->step = 3;
@@ -2010,8 +2011,9 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 			core.units.begin()->step = 3;
 			if(!ignore_count && !core.extra_summon[setplayer]) {
 				for(int32 i = 0; i < eset.size(); ++i) {
-					int32 val = eset[i]->get_value();
-					if(!val) {
+					std::vector<int32> retval;
+					eset[i]->get_value(target, 0, &retval);
+					if(retval.size() < 2) {
 						core.units.begin()->ptr1 = eset[i];
 						return FALSE;
 					}
@@ -2032,21 +2034,19 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 		}
 		if(!ignore_count && !core.extra_summon[setplayer]) {
 			for(int32 i = 0; i < eset.size(); ++i) {
-				int32 val = eset[i]->get_value();
-				int32 new_min_tribute = val & 0xff;
-				int32 new_zone = (val >> 16) & 0x1f;
-				bool unchanged = true;
-				if(new_zone && (new_zone & zone) != zone) {
-					new_zone &= zone;
-					unchanged = false;
-				} else
-					new_zone = zone;
+				std::vector<int32> retval;
+				eset[i]->get_value(target, 0, &retval);
+				int32 new_min_tribute = retval.size() > 0 ? retval[0] : 0;
+				int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
+				int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff - retval[2] : retval[2]) : 0xff00ff;
+				new_zone &= zone;
+				bool unchanged = (new_zone == zone);
 				if(peffect) {
 					if(new_min_tribute < (int32)min_tribute) {
 						new_min_tribute = min_tribute;
 						unchanged = false;
 					}
-					if(!target->is_summonable(peffect, new_min_tribute, new_zone))
+					if(!target->is_summonable(peffect, new_min_tribute, new_zone, releasable))
 						continue;
 				} else {
 					int32 rcount = target->get_set_tribute_count();
@@ -2062,7 +2062,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 						min = new_min_tribute;
 						unchanged = false;
 					}
-					if(!check_tribute(target, min, max, 0, target->current.controler, new_zone))
+					if(!check_tribute(target, min, max, 0, target->current.controler, new_zone, releasable))
 						continue;
 				}
 				if(unlimited < 0 && unchanged)
@@ -2084,14 +2084,16 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 	case 2: {
 		effect* pextra = core.select_effects[returns.ivalue[0]];
 		core.units.begin()->ptr1 = pextra;
+		int32 releasable = 0xff00ff;
 		if(pextra) {
-			int32 val = pextra->get_value();
-			int32 new_min_tribute = val & 0xff;
-			int32 new_zone = (val >> 16) & 0x1f;
+			std::vector<int32> retval;
+			pextra->get_value(target, 0, &retval);
+			int32 new_min_tribute = retval.size() > 0 ? retval[0] : 0;
+			int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
+			releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
 			if((int32)min_tribute < new_min_tribute)
 				min_tribute = new_min_tribute;
-			if(new_zone)
-				zone &= new_zone;
+			zone &= new_zone;
 			core.units.begin()->arg1 = setplayer + (ignore_count << 8) + (min_tribute << 16) + (zone << 24);
 		}
 		if(proc) {
@@ -2114,7 +2116,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 			core.release_cards.clear();
 			core.release_cards_ex.clear();
 			core.release_cards_ex_sum.clear();
-			int32 rcount = get_summon_release_list(target, &core.release_cards, &core.release_cards_ex, &core.release_cards_ex_sum);
+			int32 rcount = get_summon_release_list(target, &core.release_cards, &core.release_cards_ex, &core.release_cards_ex_sum, NULL, 0, releasable);
 			if(rcount == 0) {
 				returns.bvalue[0] = 0;
 				core.units.begin()->step = 3;
@@ -2386,7 +2388,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 	}
 	return TRUE;
 }
-int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, uint32 summon_type) {
+int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uint32 summon_type) {
 	switch(step) {
 	case 0: {
 		effect_set eset;
@@ -2457,7 +2459,12 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 	case 3: {
 		effect* peffect = core.units.begin()->peffect;
 		target->material_cards.clear();
-		target->summon_info = (peffect->get_value(target) & 0xf00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)target->current.location << 16);
+		std::vector<int32> retval;
+		peffect->get_value(target, 0, &retval);
+		uint32 summon_info = retval.size() > 0 ? retval[0] : 0;
+		uint32 zone = retval.size() > 1 ? retval[1] : 0xff;
+		core.units.begin()->arg3 = zone;
+		target->summon_info = (summon_info & 0xf00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)target->current.location << 16);
 		if(peffect->operation) {
 			pduel->lua->add_param(target, PARAM_TYPE_CARD);
 			if(core.limit_tuner || core.limit_syn) {
@@ -2495,9 +2502,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card * target, ui
 		}
 		if(positions == 0)
 			positions = POS_FACEUP_ATTACK;
-		uint32 zone = (peffect->get_value(target) >> 16) & 0xff;
-		if(zone == 0)
-			zone = 0xff;
+		uint32 zone = core.units.begin()->arg3;
 		target->enable_field_effect(false);
 		move_to_field(target, sumplayer, targetplayer, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
 		target->current.reason = REASON_SPSUMMON;
