@@ -1677,14 +1677,14 @@ int32 card::add_effect(effect* peffect) {
 	if (get_status(STATUS_COPYING_EFFECT)) {
 		peffect->copy_id = pduel->game_field->infos.copy_id;
 		peffect->reset_flag |= pduel->game_field->core.copy_reset;
-		peffect->reset_count = (peffect->reset_count & 0xffffff00) | pduel->game_field->core.copy_reset_count;
+		peffect->reset_count = pduel->game_field->core.copy_reset_count;
 	}
 	effect* reason_effect = pduel->game_field->core.reason_effect;
 	if(peffect->is_flag(EFFECT_FLAG_COPY_INHERIT) && reason_effect && reason_effect->copy_id) {
 		peffect->copy_id = reason_effect->copy_id;
 		peffect->reset_flag |= reason_effect->reset_flag;
-		if((peffect->reset_count & 0xff) > (reason_effect->reset_count & 0xff))
-			peffect->reset_count = (peffect->reset_count & 0xffffff00) | (reason_effect->reset_count & 0xff);
+		if(peffect->reset_count > reason_effect->reset_count)
+			peffect->reset_count = reason_effect->reset_count;
 	}
 	indexer.insert(std::make_pair(peffect, eit));
 	peffect->handler = this;
@@ -1699,7 +1699,7 @@ int32 card::add_effect(effect* peffect) {
 	}
 	if(peffect->reset_flag & RESET_PHASE) {
 		pduel->game_field->effects.pheff.insert(peffect);
-		if((peffect->reset_count & 0xff) == 0)
+		if(peffect->reset_count == 0)
 			peffect->reset_count += 1;
 	}
 	if(peffect->reset_flag & RESET_CHAIN)
@@ -1830,7 +1830,7 @@ int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
 		peffect->value = TYPE_EFFECT;
 		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 		peffect->reset_flag = reset;
-		peffect->reset_count |= count & 0xff;
+		peffect->reset_count = count;
 		this->add_effect(peffect);
 	}
 	return pduel->game_field->infos.copy_id - 1;
@@ -1874,7 +1874,7 @@ int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 		peffect->value = TYPE_EFFECT;
 		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
 		peffect->reset_flag = reset;
-		peffect->reset_count |= count & 0xff;
+		peffect->reset_count = count;
 		this->add_effect(peffect);
 	}
 	return pduel->game_field->infos.copy_id - 1;
@@ -2932,7 +2932,7 @@ int32 card::get_summon_tribute_count() {
 				minul = dec & 0xffff;
 			if(maxul < (dec >> 16))
 				maxul = dec >> 16;
-		} else if((eset[i]->reset_count & 0xf00) > 0) {
+		} else if(eset[i]->count_limit > 0) {
 			min -= dec & 0xffff;
 			max -= dec >> 16;
 		}
@@ -3178,7 +3178,7 @@ int32 card::is_destructable_by_effect(effect* peffect, uint8 playerid) {
 	filter_effect(EFFECT_INDESTRUCTABLE_COUNT, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		if(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
-			if((eset[i]->reset_count & 0xf00) == 0)
+			if(eset[i]->count_limit == 0)
 				continue;
 			pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(REASON_EFFECT, PARAM_TYPE_INT);

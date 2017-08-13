@@ -145,7 +145,8 @@ int32 scriptlib::effect_set_count_limit(lua_State *L) {
 	if(v == 0)
 		v = 1;
 	peffect->flag[0] |= EFFECT_FLAG_COUNT_LIMIT;
-	peffect->reset_count |= ((v << 12) & 0xf000) | ((v << 8) & 0xf00);
+	peffect->count_limit = v;
+	peffect->count_limit_max = v;
 	peffect->count_code = code;
 	return 0;
 }
@@ -160,7 +161,7 @@ int32 scriptlib::effect_set_reset(lua_State *L) {
 	if(v & (RESET_PHASE) && !(v & (RESET_SELF_TURN | RESET_OPPO_TURN)))
 		v |= (RESET_SELF_TURN | RESET_OPPO_TURN);
 	peffect->reset_flag = v;
-	peffect->reset_count = (peffect->reset_count & 0xff00) | (c & 0xff);
+	peffect->reset_count = c;
 	return 0;
 }
 int32 scriptlib::effect_set_type(lua_State *L) {

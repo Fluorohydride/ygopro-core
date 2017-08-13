@@ -35,6 +35,8 @@ effect::effect(duel* pd) {
 	range = 0;
 	s_range = 0;
 	o_range = 0;
+	count_limit = 0;
+	count_limit_max = 0;
 	reset_count = 0;
 	reset_flag = 0;
 	count_code = 0;
@@ -146,16 +148,16 @@ int32 effect::is_available() {
 		status &= ~EFFECT_STATUS_AVAILABLE;
 	return res;
 }
-// reset_count: 
-// 0x00ff: count of effect reset 
-// 0xf000: max count of activation, 0x0f00: left count of activation
+// reset_count: count of effect reset
+// count_limit: left count of activation
+// count_limit_max: max count of activation
 int32 effect::check_count_limit(uint8 playerid) {
 	if(is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
-		if((reset_count & 0xf00) == 0)
+		if(count_limit == 0)
 			return FALSE;
 		if(count_code) {
 			uint32 code = count_code & 0xfffffff;
-			uint32 count = (reset_count >> 12) & 0xf;
+			uint32 count = count_limit_max;
 			if(code == 1) {
 				if(pduel->game_field->get_effect_code((count_code & 0xf0000000) | get_handler()->fieldid, PLAYER_NONE) >= count)
 					return FALSE;
@@ -558,7 +560,7 @@ int32 effect::reset(uint32 reset_level, uint32 reset_type) {
 		if((((reset_flag & RESET_SELF_TURN) && pid == tp) || ((reset_flag & RESET_OPPO_TURN) && pid != tp)) 
 				&& (reset_level & 0x3ff & reset_flag))
 			reset_count--;
-		if((reset_count & 0xff) == 0)
+		if(reset_count == 0)
 			return TRUE;
 		return FALSE;
 		break;
@@ -578,9 +580,9 @@ int32 effect::reset(uint32 reset_level, uint32 reset_type) {
 void effect::dec_count(uint32 playerid) {
 	if(!is_flag(EFFECT_FLAG_COUNT_LIMIT))
 		return;
-	if((reset_count & 0xf00) == 0)
+	if(count_limit == 0)
 		return;
-	reset_count -= 0x100;
+	count_limit -= 1;
 	if(count_code) {
 		uint32 code = count_code & 0xfffffff;
 		if(code == 1)
@@ -591,8 +593,7 @@ void effect::dec_count(uint32 playerid) {
 }
 void effect::recharge() {
 	if(is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
-		reset_count &= 0xf0ff;
-		reset_count |= (reset_count >> 4) & 0xf00;
+		count_limit = count_limit_max;
 	}
 }
 int32 effect::get_value(uint32 extraargs) {

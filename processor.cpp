@@ -1393,7 +1393,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			uint8 tp = infos.turn_player;
 			if(!(((peffect->reset_flag & RESET_SELF_TURN) && pid == tp) || ((peffect->reset_flag & RESET_OPPO_TURN) && pid != tp)))
 				continue;
-			if((peffect->reset_count & 0xff) != 1)
+			if(peffect->reset_count != 1)
 				continue;
 			card* phandler = peffect->get_handler();
 			if(peffect->get_owner_player() != phandler->current.controler) {

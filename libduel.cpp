@@ -107,7 +107,7 @@ int32 scriptlib::duel_register_flag_effect(lua_State *L) {
 	peffect->flag[0] = flag | EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_PLAYER_TARGET | EFFECT_FLAG_FIELD_ONLY;
 	peffect->s_range = 1;
 	peffect->o_range = 0;
-	peffect->reset_count |= count & 0xff;
+	peffect->reset_count = count;
 	pduel->game_field->add_effect(peffect, playerid);
 	interpreter::effect2value(L, peffect);
 	return 1;
@@ -1773,7 +1773,7 @@ int32 scriptlib::duel_skip_phase(lua_State *L) {
 	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_PLAYER_TARGET;
 	peffect->s_range = 1;
 	peffect->o_range = 0;
-	peffect->reset_count |= count & 0xff;
+	peffect->reset_count = count;
 	peffect->value = value;
 	pduel->game_field->add_effect(peffect, playerid);
 	return 0;
@@ -3641,7 +3641,7 @@ int32 scriptlib::duel_majestic_copy(lua_State *L) {
 			ceffect->operation = luaL_ref(L, LUA_REGISTRYINDEX);
 		}
 		ceffect->reset_flag = RESET_EVENT + 0x1fe0000 + RESET_PHASE + PHASE_END + RESET_SELF_TURN + RESET_OPPO_TURN;
-		ceffect->reset_count = (ceffect->reset_count & 0xff00) | 0x1;
+		ceffect->reset_count = 0x1;
 		ceffect->recharge();
 		if(ceffect->type & EFFECT_TYPE_TRIGGER_F) {
 			ceffect->type &= ~EFFECT_TYPE_TRIGGER_F;

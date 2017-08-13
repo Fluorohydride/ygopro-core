@@ -42,6 +42,8 @@ public:
 	uint16 range;
 	uint16 s_range;
 	uint16 o_range;
+	uint8 count_limit;
+	uint8 count_limit_max;
 	uint16 reset_count;
 	uint32 reset_flag;
 	uint32 count_code;

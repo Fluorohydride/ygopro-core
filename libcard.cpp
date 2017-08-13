@@ -1283,7 +1283,7 @@ int32 scriptlib::card_register_flag_effect(lua_State *L) {
 	peffect->code = code;
 	peffect->reset_flag = reset;
 	peffect->flag[0] = flag | EFFECT_FLAG_CANNOT_DISABLE;
-	peffect->reset_count |= count & 0xff;
+	peffect->reset_count = count;
 	peffect->label = lab;
 	peffect->description = desc;
 	pcard->add_effect(peffect);

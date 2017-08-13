@@ -438,7 +438,7 @@ void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 r
 		peffect->reset_flag |= RESET_PHASE | reset_phase;
 		if(!(peffect->reset_flag & (RESET_SELF_TURN | RESET_OPPO_TURN)))
 			peffect->reset_flag |= (RESET_SELF_TURN | RESET_OPPO_TURN);
-		peffect->reset_count |= reset_count & 0xff;
+		peffect->reset_count = reset_count;
 	}
 	pcard->add_effect(peffect);
 	pcard->current.controler = playerid;
@@ -1608,7 +1608,7 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 			rcount += pcard->release_param;
 		} else {
 			effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_SUM);
-			if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && (peffect->reset_count & 0xf00) == 0))
+			if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && peffect->count_limit == 0))
 				continue;
 			if(ex_list_sum)
 				ex_list_sum->insert(pcard);
