@@ -545,6 +545,6 @@ int32 scriptlib::effect_get_activate_location(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	lua_pushinteger(L, peffect->s_range);
+	lua_pushinteger(L, peffect->active_location);
 	return 1;
 }

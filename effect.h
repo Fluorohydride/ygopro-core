@@ -46,13 +46,13 @@ public:
 	uint32 reset_flag;
 	uint32 count_code;
 	uint32 category;
-	uint32 label;
 	uint32 hint_timing[2];
 	uint32 card_type;
 	uint32 active_type;
+	uint32 active_location;
 	card* active_handler;
-	uint16 field_ref;
 	uint16 status;
+	uint32 label;
 	void* label_object;
 	int32 condition;
 	int32 cost;
@@ -94,6 +94,7 @@ public:
 	uint8 get_handler_player();
 	int32 in_range(card* pcard);
 	int32 in_range(const chain& ch);
+	void set_activate_location();
 	bool is_flag(effect_flag flag) const {
 		return !!(this->flag[0] & flag);
 	}

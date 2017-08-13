@@ -1362,8 +1362,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 		auto pr = effects.trigger_f_effect.equal_range(phase_event);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
-			peffect->s_range = peffect->get_handler()->current.location;
-			peffect->o_range = peffect->get_handler()->current.sequence;
+			peffect->set_activate_location();
 			if(!peffect->is_activateable(check_player, nil_event))
 				continue;
 			peffect->id = infos.field_id++;
@@ -1413,8 +1412,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			pr = effects.trigger_o_effect.equal_range(phase_event);
 			for(; pr.first != pr.second; ++pr.first) {
 				peffect = pr.first->second;
-				peffect->s_range = peffect->get_handler()->current.location;
-				peffect->o_range = peffect->get_handler()->current.sequence;
+				peffect->set_activate_location();
 				if(!peffect->is_activateable(check_player, nil_event))
 					continue;
 				peffect->id = infos.field_id++;
@@ -1436,8 +1434,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
 			for(; pr.first != pr.second; ++pr.first) {
 				peffect = pr.first->second;
-				peffect->s_range = peffect->get_handler()->current.location;
-				peffect->o_range = peffect->get_handler()->current.sequence;
+				peffect->set_activate_location();
 				if(!peffect->is_chainable(check_player) || !peffect->is_activateable(check_player, nil_event))
 					continue;
 				peffect->id = infos.field_id++;
@@ -1450,8 +1447,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			pr = effects.quick_o_effect.equal_range(EVENT_FREE_CHAIN);
 			for(; pr.first != pr.second; ++pr.first) {
 				peffect = pr.first->second;
-				peffect->s_range = peffect->get_handler()->current.location;
-				peffect->o_range = peffect->get_handler()->current.sequence;
+				peffect->set_activate_location();
 				if(!peffect->is_chainable(check_player) || !peffect->is_activateable(check_player, nil_event))
 					continue;
 				peffect->id = infos.field_id++;
@@ -2054,10 +2050,9 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 				auto pr = effects.activate_effect.equal_range(evit->event_code);
 				for(; pr.first != pr.second; ++pr.first) {
 					effect* peffect = pr.first->second;
-					card* phandler = peffect->get_handler();
-					peffect->s_range = phandler->current.location;
-					peffect->o_range = phandler->current.sequence;
+					peffect->set_activate_location();
 					if(!peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_chainable(priority) && peffect->is_activateable(priority, *evit)) {
+						card* phandler = peffect->get_handler();
 						newchain.flag = 0;
 						newchain.chain_id = infos.field_id++;
 						newchain.evt = *evit;
@@ -2070,10 +2065,9 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 				pr = effects.quick_o_effect.equal_range(evit->event_code);
 				for(; pr.first != pr.second; ++pr.first) {
 					effect* peffect = pr.first->second;
-					card* phandler = peffect->get_handler();
-					peffect->s_range = phandler->current.location;
-					peffect->o_range = phandler->current.sequence;
+					peffect->set_activate_location();
 					if(peffect->is_chainable(priority) && peffect->is_activateable(priority, *evit)) {
+						card* phandler = peffect->get_handler();
 						newchain.flag = 0;
 						newchain.chain_id = infos.field_id++;
 						newchain.evt = *evit;
@@ -2121,10 +2115,9 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 				auto pr = effects.activate_effect.equal_range(eit->event_code);
 				for(; pr.first != pr.second; ++pr.first) {
 					effect* peffect = pr.first->second;
-					card* phandler = peffect->get_handler();
-					peffect->s_range = phandler->current.location;
-					peffect->o_range = phandler->current.sequence;
+					peffect->set_activate_location();
 					if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_chainable(priority) && peffect->is_activateable(priority, *eit)) {
+						card* phandler = peffect->get_handler();
 						newchain.flag = 0;
 						newchain.chain_id = infos.field_id++;
 						newchain.evt = *eit;
@@ -2138,11 +2131,10 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 			// delayed quick
 			for(auto eit = core.delayed_quick.begin(); eit != core.delayed_quick.end(); ++eit) {
 				effect* peffect = eit->first;
-				card* phandler = peffect->get_handler();
-				peffect->s_range = phandler->current.location;
-				peffect->o_range = phandler->current.sequence;
+				peffect->set_activate_location();
 				const tevent& evt = eit->second;
 				if(peffect->is_chainable(priority) && peffect->is_activateable(priority, evt, TRUE, FALSE, FALSE)) {
+					card* phandler = peffect->get_handler();
 					newchain.flag = 0;
 					newchain.chain_id = infos.field_id++;
 					newchain.evt = evt;
@@ -2158,10 +2150,9 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 				auto pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
 				for(; pr.first != pr.second; ++pr.first) {
 					effect* peffect = pr.first->second;
-					card* phandler = peffect->get_handler();
-					peffect->s_range = phandler->current.location;
-					peffect->o_range = phandler->current.sequence;
+					peffect->set_activate_location();
 					if(peffect->is_chainable(priority) && peffect->is_activateable(priority, nil_event)) {
+						card* phandler = peffect->get_handler();
 						newchain.flag = 0;
 						newchain.chain_id = infos.field_id++;
 						newchain.evt = nil_event;
@@ -2176,10 +2167,9 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 				pr = effects.quick_o_effect.equal_range(EVENT_FREE_CHAIN);
 				for(; pr.first != pr.second; ++pr.first) {
 					effect* peffect = pr.first->second;
-					card* phandler = peffect->get_handler();
-					peffect->s_range = phandler->current.location;
-					peffect->o_range = phandler->current.sequence;
+					peffect->set_activate_location();
 					if(peffect->is_chainable(priority) && peffect->is_activateable(priority, nil_event)) {
+						card* phandler = peffect->get_handler();
 						newchain.flag = 0;
 						newchain.chain_id = infos.field_id++;
 						newchain.evt = nil_event;
@@ -2281,8 +2271,7 @@ int32 field::process_instant_event() {
 			card* phandler = peffect->get_handler();
 			if(!phandler->is_status(STATUS_EFFECT_ENABLED) || !peffect->is_condition_check(phandler->current.controler, *elit))
 				continue;
-			peffect->s_range = phandler->current.location;
-			peffect->o_range = phandler->current.sequence;
+			peffect->set_activate_location();
 			newchain.flag = 0;
 			newchain.chain_id = infos.field_id++;
 			newchain.evt = *elit;
@@ -2300,8 +2289,7 @@ int32 field::process_instant_event() {
 			card* phandler = peffect->get_handler();
 			if(!phandler->is_status(STATUS_EFFECT_ENABLED) || !peffect->is_condition_check(phandler->current.controler, *elit))
 				continue;
-			peffect->s_range = phandler->current.location;
-			peffect->o_range = phandler->current.sequence;
+			peffect->set_activate_location();
 			newchain.flag = 0;
 			newchain.chain_id = infos.field_id++;
 			newchain.evt = *elit;
@@ -2321,8 +2309,7 @@ int32 field::process_instant_event() {
 		for(; pr.first != pr.second; ++pr.first) {
 			effect* peffect = pr.first->second;
 			card* phandler = peffect->get_handler();
-			peffect->s_range = phandler->current.location;
-			peffect->o_range = phandler->current.sequence;
+			peffect->set_activate_location();
 			if(peffect->is_activateable(phandler->current.controler, *elit)) {
 				newchain.flag = 0;
 				newchain.chain_id = infos.field_id++;
@@ -2426,8 +2413,7 @@ int32 field::process_single_event(effect* peffect, const tevent& e, effect_vecto
 		card* phandler = peffect->get_handler();
 		if(!peffect->is_condition_check(phandler->current.controler, e))
 			return FALSE;
-		peffect->s_range = phandler->current.location;
-		peffect->o_range = phandler->current.sequence;
+		peffect->set_activate_location();
 		chain newchain;
 		newchain.flag = 0;
 		newchain.chain_id = infos.field_id++;
@@ -2519,8 +2505,7 @@ int32 field::process_idle_command(uint16 step) {
 		auto pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
-			peffect->s_range = peffect->get_handler()->current.location;
-			peffect->o_range = peffect->get_handler()->current.sequence;
+			peffect->set_activate_location();
 			newchain.triggering_effect = peffect;
 			if(peffect->is_activateable(infos.turn_player, nil_event))
 				core.select_chains.push_back(newchain);
@@ -2528,16 +2513,14 @@ int32 field::process_idle_command(uint16 step) {
 		pr = effects.quick_o_effect.equal_range(EVENT_FREE_CHAIN);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
-			peffect->s_range = peffect->get_handler()->current.location;
-			peffect->o_range = peffect->get_handler()->current.sequence;
+			peffect->set_activate_location();
 			newchain.triggering_effect = peffect;
 			if(peffect->is_activateable(infos.turn_player, nil_event))
 				core.select_chains.push_back(newchain);
 		}
 		for(auto eit = effects.ignition_effect.begin(); eit != effects.ignition_effect.end(); ++eit) {
 			peffect = eit->second;
-			peffect->s_range = peffect->get_handler()->current.location;
-			peffect->o_range = peffect->get_handler()->current.sequence;
+			peffect->set_activate_location();
 			newchain.triggering_effect = peffect;
 			if(peffect->is_activateable(infos.turn_player, nil_event))
 				core.select_chains.push_back(newchain);
@@ -2811,8 +2794,7 @@ int32 field::process_battle_command(uint16 step) {
 		auto pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
-			peffect->s_range = peffect->get_handler()->current.location;
-			peffect->o_range = peffect->get_handler()->current.sequence;
+			peffect->set_activate_location();
 			newchain.triggering_effect = peffect;
 			if(peffect->is_activateable(infos.turn_player, nil_event) && peffect->get_speed() > 1)
 				core.select_chains.push_back(newchain);
@@ -2820,8 +2802,7 @@ int32 field::process_battle_command(uint16 step) {
 		pr = effects.quick_o_effect.equal_range(EVENT_FREE_CHAIN);
 		for(; pr.first != pr.second; ++pr.first) {
 			peffect = pr.first->second;
-			peffect->s_range = peffect->get_handler()->current.location;
-			peffect->o_range = peffect->get_handler()->current.sequence;
+			peffect->set_activate_location();
 			newchain.triggering_effect = peffect;
 			if(peffect->is_activateable(infos.turn_player, nil_event))
 				core.select_chains.push_back(newchain);

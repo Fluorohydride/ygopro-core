@@ -24,6 +24,7 @@ effect::effect(duel* pd) {
 	effect_owner = PLAYER_NONE;
 	card_type = 0;
 	active_type = 0;
+	active_location = 0;
 	active_handler = 0;
 	id = 0;
 	code = 0;
@@ -42,7 +43,6 @@ effect::effect(duel* pd) {
 	label_object = 0;
 	hint_timing[0] = 0;
 	hint_timing[1] = 0;
-	field_ref = 0;
 	status = 0;
 	condition = 0;
 	cost = 0;
@@ -717,4 +717,9 @@ int32 effect::in_range(const chain& ch) {
 	if(type & EFFECT_TYPE_XMATERIAL)
 		return handler->overlay_target ? TRUE : FALSE;
 	return range & ch.triggering_location;
+}
+void effect::set_activate_location() {
+	card* phandler = get_handler();
+	active_location = phandler->current.location;
+	//active_sequence = phandler->current.sequence;
 }
