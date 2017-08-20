@@ -3706,7 +3706,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		exargs* param = (exargs*)targets;
 		card* pcard = *param->cvit;
 		uint8 oloc = pcard->current.location;
-		uint8 playerid = pcard->sendto_param.playerid;
+		uint8 playerid = pcard->sendto_param.playerid & 0x7;
 		uint8 dest = pcard->sendto_param.location;
 		uint8 seq = pcard->sendto_param.sequence;
 		if(dest == LOCATION_GRAVE) {
