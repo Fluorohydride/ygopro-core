@@ -2124,7 +2124,7 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 // cmit->second[0]: permanent
 // cmit->second[1]: reset while negated
 int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly) {
-	if(!is_can_add_counter(playerid, countertype, count, singly))
+	if(!is_can_add_counter(playerid, countertype, count, singly, FALSE))
 		return FALSE;
 	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
 	auto pr = counters.insert(std::make_pair(cttype, counter_map::mapped_type()));
@@ -2182,11 +2182,11 @@ int32 card::remove_counter(uint16 countertype, uint16 count) {
 	pduel->write_buffer16(count);
 	return TRUE;
 }
-int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly) {
+int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint8 temp) {
 	effect_set eset;
 	if(!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
 		return FALSE;
-	if(!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP))
+	if((!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)) && !temp)
 		return FALSE;
 	if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
 		return FALSE;
