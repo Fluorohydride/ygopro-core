@@ -2189,8 +2189,6 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 	if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
 		return FALSE;
 	filter_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff), &eset);
-	if (eset.size() < 1 && !(countertype & COUNTER_WITHOUT_PERMIT))
-		return FALSE;
 	bool check = false;
 	for(int32 i = 0; i < eset.size(); ++i){
 		uint32 prange = eset[i]->get_value();
