@@ -3537,6 +3537,26 @@ int32 scriptlib::duel_is_able_to_enter_bp(lua_State *L) {
 	lua_pushboolean(L, pduel->game_field->is_able_to_enter_bp());
 	return 1;
 }
+int32 scriptlib::duel_filter_player_effect(lua_State *L) {
+	check_param_count(L, 2);
+	duel* pduel = interpreter::get_duel_info(L);
+	int32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1) {
+		lua_pushnil(L);
+		return 1;
+	}
+	int32 code = lua_tointeger(L, 2);
+	effect_set eset;
+	pduel->game_field->filter_player_effect(playerid, code, &eset);
+	if(eset.size() <= 0)
+		return 0;
+	int32 count = 0;
+	for(int32 i = 0; i < eset.size(); ++i) {
+		interpreter::effect2value(L, eset[i]);
+		count = count + 1;
+	}
+	return count;
+}
 int32 scriptlib::duel_venom_swamp_check(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 2);

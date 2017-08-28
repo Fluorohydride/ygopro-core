@@ -249,6 +249,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "AssumeProperty", scriptlib::card_assume_prop },
 	{ "SetSPSummonOnce", scriptlib::card_set_spsummon_once },
 	{ "CheckMZoneFromEx", scriptlib::card_check_mzone_from_ex },
+	{ "FilterEffect", scriptlib::card_filter_effect },
 	{ NULL, NULL }
 };
 
@@ -537,6 +538,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetCustomActivityCount", scriptlib::duel_get_custom_activity_count },
 	{ "GetBattledCount", scriptlib::duel_get_battled_count },
 	{ "IsAbleToEnterBP", scriptlib::duel_is_able_to_enter_bp },
+	{ "FilterPlayerEffect", scriptlib::duel_filter_player_effect },
 	{ "VenomSwampCheck", scriptlib::duel_venom_swamp_check },
 	{ "SwapDeckAndGrave", scriptlib::duel_swap_deck_and_grave },
 	{ "MajesticCopy", scriptlib::duel_majestic_copy },
