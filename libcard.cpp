@@ -2173,13 +2173,11 @@ int32 scriptlib::card_enable_counter_permit(lua_State *L) {
 		prange = LOCATION_MZONE;
 	else
 		prange = LOCATION_SZONE | LOCATION_FZONE;
-	prange |= LOCATION_GRAVE + LOCATION_REMOVED + LOCATION_EXTRA + LOCATION_OVERLAY + LOCATION_HAND + LOCATION_DECK;
 	effect* peffect = pcard->pduel->new_effect();
 	peffect->owner = pcard;
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_COUNTER_PERMIT | countertype;
-	peffect->flag[0] = EFFECT_FLAG_SINGLE_RANGE;
-	peffect->range = prange;
+	peffect->value = prange;
 	pcard->add_effect(peffect);
 	return 0;
 }
