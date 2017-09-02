@@ -2201,7 +2201,7 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 				break;
 		}
 	}
-	if(!check)
+	if(!check && !(countertype & COUNTER_WITHOUT_PERMIT))
 		return FALSE;
 	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
 	int32 limit = -1;
