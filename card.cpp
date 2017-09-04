@@ -2182,26 +2182,27 @@ int32 card::remove_counter(uint16 countertype, uint16 count) {
 	pduel->write_buffer16(count);
 	return TRUE;
 }
-int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 temploc) {
+int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 loc) {
 	effect_set eset;
 	if(!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
 		return FALSE;
 	if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
 		return FALSE;
-	filter_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff), &eset);
-	bool check = false;
-	for(int32 i = 0; i < eset.size(); ++i){
-		uint32 prange = eset[i]->get_value();
-		if (!(countertype & COUNTER_WITHOUT_PERMIT)) {
-			if(temploc)
-				check = (temploc & prange);
+	uint32 check = countertype & COUNTER_WITHOUT_PERMIT;
+	if(!check) {
+		filter_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff), &eset);
+		for(int32 i = 0; i < eset.size(); ++i) {
+			uint32 prange = eset[i]->get_value();
+			if(loc)
+				check = loc & prange;
 			else
-				check = (current.is_location(prange) && is_position(POS_FACEUP));
+				check = current.is_location(prange) && is_position(POS_FACEUP);
 			if(check)
 				break;
 		}
+		eset.clear();
 	}
-	if(!check && !(countertype & COUNTER_WITHOUT_PERMIT))
+	if(!check)
 		return FALSE;
 	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
 	int32 limit = -1;
