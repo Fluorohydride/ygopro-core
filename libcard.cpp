@@ -2177,8 +2177,7 @@ int32 scriptlib::card_enable_counter_permit(lua_State *L) {
 	peffect->owner = pcard;
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_COUNTER_PERMIT | countertype;
-	peffect->flag[0] = EFFECT_FLAG_SINGLE_RANGE;
-	peffect->range = prange;
+	peffect->value = prange;
 	pcard->add_effect(peffect);
 	return 0;
 }
@@ -2218,7 +2217,10 @@ int32 scriptlib::card_is_can_add_counter(lua_State *L) {
 	uint8 singly = FALSE;
 	if(lua_gettop(L) > 3)
 		singly = lua_toboolean(L, 4);
-	lua_pushboolean(L, pcard->is_can_add_counter(pcard->pduel->game_field->core.reason_player, countertype, count, singly));
+	uint8 temp = FALSE;
+	if(lua_gettop(L) > 4)
+		temp = lua_toboolean(L, 5);
+	lua_pushboolean(L, pcard->is_can_add_counter(pcard->pduel->game_field->core.reason_player, countertype, count, singly,temp));
 	return 1;
 }
 int32 scriptlib::card_is_can_remove_counter(lua_State *L) {
