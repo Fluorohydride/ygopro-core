@@ -1265,9 +1265,25 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 int32 scriptlib::duel_change_attacker(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
-	card* target = *(card**) lua_touserdata(L, 1);
-	duel* pduel = target->pduel;
-	pduel->game_field->core.attacker = target;
+	card* attacker = *(card**) lua_touserdata(L, 1);
+	int32 ignore_count = FALSE;
+	if(lua_gettop(L) >= 2)
+		ignore_count = lua_toboolean(L, 2);
+	duel* pduel = attacker->pduel;
+	if(pduel->game_field->core.attacker == attacker)
+		return 0;
+	pduel->game_field->core.attacker = attacker;
+	attacker->attack_controler = attacker->current.controler;
+	pduel->game_field->core.pre_field[0] = attacker->fieldid_r;
+	if(!ignore_count) {
+		card* attack_target = pduel->game_field->core.attack_target;
+		attacker->announce_count++;
+		attacker->announced_cards.addcard(attack_target);
+		if(pduel->game_field->infos.phase == PHASE_DAMAGE) {
+			attacker->attacked_count++;
+			attacker->attacked_cards.addcard(attack_target);
+		}
+	}
 	return 0;
 }
 int32 scriptlib::duel_change_attack_target(lua_State *L) {
