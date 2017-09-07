@@ -935,21 +935,58 @@ int32 scriptlib::duel_is_environment(lua_State *L) {
 	uint32 playerid = PLAYER_ALL;
 	if(lua_gettop(L) >= 2)
 		playerid = lua_tointeger(L, 2);
+	uint32 loc = LOCATION_FZONE + LOCATION_ONFIELD;
+	if(lua_gettop(L) >= 3)
+		loc = lua_tointeger(L, 3);
 	if(playerid != 0 && playerid != 1 && playerid != PLAYER_ALL)
 		return 0;
 	duel* pduel = interpreter::get_duel_info(L);
 	int32 ret = 0, fc = 0;
-	card* pcard = pduel->game_field->player[0].list_szone[5];
-	if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED)) {
-		fc = 1;
-		if(code == pcard->get_code() && (playerid == 0 || playerid == PLAYER_ALL))
-			ret = 1;
+	if(loc & LOCATION_FZONE) {
+		card* pcard = pduel->game_field->player[0].list_szone[5];
+		if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED)) {
+			fc = 1;
+			if(code == pcard->get_code() && (playerid == 0 || playerid == PLAYER_ALL))
+				ret = 1;
+		}
+		pcard = pduel->game_field->player[1].list_szone[5];
+		if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED)) {
+			fc = 1;
+			if(code == pcard->get_code() && (playerid == 1 || playerid == PLAYER_ALL))
+				ret = 1;
+		}
 	}
-	pcard = pduel->game_field->player[1].list_szone[5];
-	if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED)) {
-		fc = 1;
-		if(code == pcard->get_code() && (playerid == 1 || playerid == PLAYER_ALL))
-			ret = 1;
+	if(!ret && (loc & LOCATION_SZONE)) {
+		if(playerid == 0 || playerid == PLAYER_ALL) {
+			for(auto cit = pduel->game_field->player[0].list_szone.begin(); cit != pduel->game_field->player[0].list_szone.end(); ++cit) {
+				card* pcard = *cit;
+				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
+					ret = 1;
+			}
+		}
+		if(playerid == 1 || playerid == PLAYER_ALL) {
+			for(auto cit = pduel->game_field->player[1].list_szone.begin(); cit != pduel->game_field->player[1].list_szone.end(); ++cit) {
+				card* pcard = *cit;
+				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
+					ret = 1;
+			}
+		}
+	}
+	if(!ret && (loc & LOCATION_MZONE)) {
+		if(playerid == 0 || playerid == PLAYER_ALL) {
+			for(auto cit = pduel->game_field->player[0].list_mzone.begin(); cit != pduel->game_field->player[0].list_mzone.end(); ++cit) {
+				card* pcard = *cit;
+				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
+					ret = 1;
+			}
+		}
+		if(playerid == 1 || playerid == PLAYER_ALL) {
+			for(auto cit = pduel->game_field->player[1].list_mzone.begin(); cit != pduel->game_field->player[1].list_mzone.end(); ++cit) {
+				card* pcard = *cit;
+				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
+					ret = 1;
+			}
+		}
 	}
 	if(!fc) {
 		effect_set eset;
