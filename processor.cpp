@@ -2877,6 +2877,7 @@ int32 field::process_battle_command(uint16 step) {
 			core.attacker = attacker;
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, FALSE);
 			core.pre_field[0] = core.attacker->fieldid_r;
+			core.attacker->attack_controler = core.attacker->current.controler;
 			bool cost = false;
 			effect_set eset;
 			filter_player_effect(infos.turn_player, EFFECT_ATTACK_COST, &eset, FALSE);
@@ -2887,6 +2888,7 @@ int32 field::process_battle_command(uint16 step) {
 					cost = true;
 					core.sub_solving_event.push_back(nil_event);
 					add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, infos.turn_player, 0);
+					adjust_all();
 				}
 			}
 			if(cost) {
@@ -2923,7 +2925,7 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 3: {
-		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]) {
+		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0] || core.attacker->attack_controler != core.attacker->current.controler) {
 			core.chain_attack = FALSE;
 			core.units.begin()->step = -1;
 			return FALSE;
@@ -3154,6 +3156,7 @@ int32 field::process_battle_command(uint16 step) {
 			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, infos.turn_player, 30);
 		else {
 			returns.ivalue[0] = TRUE;
+			core.must_attack = TRUE;
 		}
 		return FALSE;
 	}
