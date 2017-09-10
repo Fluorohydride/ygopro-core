@@ -2978,7 +2978,7 @@ int32 field::process_battle_command(uint16 step) {
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(infos.turn_player);
 			pduel->write_buffer32(549);
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + (core.must_attack == FALSE ? 0x20000 : 0), 0x10001);
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + ((core.must_attack == FALSE || core.units.begin()->arg1) ? 0x20000 : 0), 0x10001);
 		}
 		core.units.begin()->step = 5;
 		return FALSE;
@@ -2993,7 +2993,7 @@ int32 field::process_battle_command(uint16 step) {
 				pduel->write_buffer8(HINT_SELECTMSG);
 				pduel->write_buffer8(infos.turn_player);
 				pduel->write_buffer32(549);
-				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + (core.must_attack == FALSE ? 0x20000 : 0), 0x10001);
+				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + ((core.must_attack == FALSE || core.units.begin()->arg1) ? 0x20000 : 0), 0x10001);
 			} else {
 				core.chain_attack = FALSE;
 				core.units.begin()->step = -1;
