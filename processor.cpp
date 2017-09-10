@@ -2877,6 +2877,24 @@ int32 field::process_battle_command(uint16 step) {
 			core.attacker = attacker;
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, FALSE);
 			core.pre_field[0] = core.attacker->fieldid_r;
+			bool cost = false;
+			effect_set eset;
+			filter_player_effect(infos.turn_player, EFFECT_ATTACK_COST, &eset, FALSE);
+			core.attacker->filter_effect(EFFECT_ATTACK_COST, &eset);
+			for (int32 i = 0; i < eset.size(); ++i) {
+				if (eset[i]->operation) {
+					core.must_attack = TRUE;
+					cost = true;
+					core.sub_solving_event.push_back(nil_event);
+					add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, infos.turn_player, 0);
+				}
+			}
+			if(cost) {
+				core.phase_action = TRUE;
+				core.attack_state_count[infos.turn_player]++;
+				check_card_counter(core.attacker, 5, infos.turn_player);
+				core.attacker->announce_count++;
+			}
 			return FALSE;
 		} else {
 			core.units.begin()->step = 39;
@@ -2905,6 +2923,11 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 3: {
+		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]) {
+			core.chain_attack = FALSE;
+			core.units.begin()->step = -1;
+			return FALSE;
+		}
 		core.units.begin()->arg1 = FALSE;
 		return FALSE;
 	}
@@ -2986,20 +3009,11 @@ int32 field::process_battle_command(uint16 step) {
 			core.attack_target = 0;
 		else
 			core.attack_target = core.select_cards[returns.bvalue[1]];
-		if(!core.units.begin()->arg1) {
+		if(!core.units.begin()->arg1 && !core.must_attack) {
 			core.phase_action = TRUE;
 			core.attack_state_count[infos.turn_player]++;
 			check_card_counter(core.attacker, 5, infos.turn_player);
 			core.attacker->announce_count++;
-			effect_set eset;
-			filter_player_effect(infos.turn_player, EFFECT_ATTACK_COST, &eset, FALSE);
-			core.attacker->filter_effect(EFFECT_ATTACK_COST, &eset);
-			for (int32 i = 0; i < eset.size(); ++i) {
-				if (eset[i]->operation) {
-					core.sub_solving_event.push_back(nil_event);
-					add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, infos.turn_player, 0);
-				}
-			}
 		}
 		if(core.attack_target)
 			core.pre_field[1] = core.attack_target->fieldid_r;
@@ -3012,11 +3026,6 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 7: {
-		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]) {
-			core.chain_attack = FALSE;
-			core.units.begin()->step = -1;
-			return FALSE;
-		}
 		if(!core.units.begin()->arg1)
 			core.attacker->announced_cards.addcard(core.attack_target);
 		bool evt = false;
