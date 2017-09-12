@@ -259,6 +259,7 @@ struct processor {
 	group* limit_xyz;
 	int32 limit_xyz_minc;
 	int32 limit_xyz_maxc;
+	uint8 attack_cancelable;
 	uint8 attack_rollback;
 	uint8 effect_damage_step;
 	int32 battle_damage[2];
