@@ -53,6 +53,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsLinkState", scriptlib::card_is_link_state },
 	{ "GetColumnGroup", scriptlib::card_get_column_group },
 	{ "GetColumnGroupCount", scriptlib::card_get_column_group_count },
+	{ "GetColumnZone", scriptlib::card_get_column_zone },
 	{ "IsAllColumn", scriptlib::card_is_all_column },
 	{ "GetAttribute", scriptlib::card_get_attribute },
 	{ "GetOriginalAttribute", scriptlib::card_get_origin_attribute },
