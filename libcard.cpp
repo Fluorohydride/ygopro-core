@@ -2644,12 +2644,11 @@ int32 scriptlib::card_filter_effect(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 code = lua_tointeger(L, 2);
-	int32 sort = lua_toboolean(L, 3);
+	uint8 sort = TRUE;
+	if(lua_gettop(L) >= 3)
+		sort = lua_toboolean(L, 3);
 	effect_set eset;
-	if(sort || (lua_gettop(L) < 3))
-		pcard->filter_effect(code, &eset, TRUE);
-	else
-		pcard->filter_effect(code, &eset, FALSE);
+	pcard->filter_effect(code, &eset, sort);
 	if(eset.size() <= 0)
 		return 0;
 	int32 count = 0;
