@@ -480,7 +480,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_SELF_DESTROY: {
-		if (self_destroy(it->step)) {
+		if (self_destroy(it->step, (card*)it->ptr1, it->arg1)) {
 			core.units.pop_front();
 		} else
 			it->step++;

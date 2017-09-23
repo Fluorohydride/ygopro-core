@@ -856,7 +856,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 			if((pcard->get_type() & TYPE_TRAPMONSTER) && get_useable_count(playerid, LOCATION_SZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
 				change = false;
 			if(!change)
-				targets->container.erase(pcard);
+				targets->container.erase(rm);
 		}
 		int32 fcount = get_useable_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_CONTROL, zone);
 		if(fcount <= 0) {
@@ -902,8 +902,6 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 		}
 		card* pcard = *targets->it;
 		move_to_field(pcard, playerid, playerid, LOCATION_MZONE, pcard->current.position, FALSE, 0, FALSE, zone);
-		pcard->fieldid = infos.field_id++;
-		pcard->fieldid_r = pcard->fieldid;
 		return FALSE;
 	}
 	case 4: {
@@ -1218,20 +1216,9 @@ int32 field::control_adjust(uint16 step) {
 		while(cit1 != core.control_adjust_set[0].end() && cit2 != core.control_adjust_set[1].end()) {
 			card* pcard1 = *cit1++;
 			card* pcard2 = *cit2++;
-			uint8 p1 = pcard1->current.controler, p2 = pcard2->current.controler;
-			uint8 l1 = pcard1->current.location, l2 = pcard2->current.location;
-			uint8 s1 = pcard1->current.sequence, s2 = pcard2->current.sequence;
-			remove_card(pcard1);
-			remove_card(pcard2);
-			add_card(p2, pcard1, l2, s2);
-			add_card(p1, pcard2, l1, s1);
+			swap_card(pcard1, pcard2);
 			pcard1->reset(RESET_CONTROL, RESET_EVENT);
 			pcard2->reset(RESET_CONTROL, RESET_EVENT);
-			pduel->write_buffer8(MSG_SWAP);
-			pduel->write_buffer32(pcard1->data.code);
-			pduel->write_buffer32(pcard2->get_info_location());
-			pduel->write_buffer32(pcard2->data.code);
-			pduel->write_buffer32(pcard1->get_info_location());
 		}
 		card_set* adjust_set = new card_set;
 		core.units.begin()->ptarget = (group*)adjust_set;
@@ -1282,36 +1269,85 @@ int32 field::control_adjust(uint16 step) {
 	}
 	return TRUE;
 }
-int32 field::self_destroy(uint16 step) {
+int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 	switch(step) {
 	case 0: {
-		if(!core.unique_destroy_set.empty())
-			destroy(&core.unique_destroy_set, 0, REASON_RULE, 5);
-		return FALSE;
-	}
-	case 1: {
-		core.unique_destroy_set.clear();
-		core.operated_set.clear();
-		if(!core.self_destroy_set.empty())
-			destroy(&core.self_destroy_set, 0, REASON_EFFECT, 5);
-		return FALSE;
-	}
-	case 2: {
-		core.self_destroy_set.clear();
-		core.operated_set.clear();
-		returns.ivalue[0] = 0;
-		if(!(core.global_flag & GLOBALFLAG_SELF_TOGRAVE))
+		core.unique_destroy_set.erase(ucard);
+		if(core.unique_cards[p].find(ucard) == core.unique_cards[p].end())
 			return TRUE;
-		if(!core.self_tograve_set.empty())
-			send_to(&core.self_tograve_set, 0, REASON_EFFECT, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
-		else
-			return TRUE;
+		card_set cset;
+		ucard->get_unique_target(&cset, p);
+		if(cset.size() == 0)
+			ucard->unique_fieldid = 0;
+		else if(cset.size() == 1) {
+			auto cit = cset.begin();
+			ucard->unique_fieldid = (*cit)->fieldid;
+		} else {
+			card* mcard = 0;
+			for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
+				card* pcard = *cit;
+				if(ucard->unique_fieldid == pcard->fieldid) {
+					mcard = pcard;
+					break;
+				}
+				if(!mcard || pcard->fieldid < mcard->fieldid)
+					mcard = pcard;
+			}
+			ucard->unique_fieldid = mcard->fieldid;
+			cset.erase(mcard);
+			for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
+				card* pcard = *cit;
+				pcard->temp.reason_effect = pcard->current.reason_effect;
+				pcard->temp.reason_player = pcard->current.reason_player;
+				pcard->current.reason_effect = ucard->unique_effect;
+				pcard->current.reason_player = ucard->current.controler;
+			}
+			destroy(&cset, 0, REASON_RULE, 5);
+		}
+		return TRUE;
+	}
+	case 10: {
+		if(core.self_destroy_set.empty())
+			return FALSE;
+		auto it = core.self_destroy_set.begin();
+		card* pcard = *it;
+		effect* peffect = pcard->is_affected_by_effect(EFFECT_SELF_DESTROY);
+		if(peffect) {
+			pcard->temp.reason_effect = pcard->current.reason_effect;
+			pcard->temp.reason_player = pcard->current.reason_player;
+			pcard->current.reason_effect = peffect;
+			pcard->current.reason_player = peffect->get_handler_player();
+			destroy(pcard, 0, REASON_EFFECT, 5);
+		}
+		core.self_destroy_set.erase(it);
+		core.units.begin()->step = 9;
 		return FALSE;
 	}
-	case 3: {
-		core.self_tograve_set.clear();
-		core.operated_set.clear();
+	case 11: {
 		returns.ivalue[0] = 0;
+		core.operated_set.clear();
+		return TRUE;
+	}
+	case 20: {
+		if(core.self_tograve_set.empty())
+			return FALSE;
+		auto it = core.self_tograve_set.begin();
+		card* pcard = *it;
+		effect* peffect = pcard->is_affected_by_effect(EFFECT_SELF_TOGRAVE);
+		if(peffect) {
+			pcard->temp.reason_effect = pcard->current.reason_effect;
+			pcard->temp.reason_player = pcard->current.reason_player;
+			pcard->current.reason_effect = peffect;
+			pcard->current.reason_player = peffect->get_handler_player();
+			send_to(pcard, 0, REASON_EFFECT, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+		}
+		core.self_tograve_set.erase(it);
+		core.units.begin()->step = 19;
+		return FALSE;
+	}
+	case 21: {
+		returns.ivalue[0] = 0;
+		core.operated_set.clear();
 		return TRUE;
 	}
 	}
