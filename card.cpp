@@ -2186,6 +2186,8 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 	effect_set eset;
 	if(!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
 		return FALSE;
+	if(!loc && (!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)))
+		return FALSE;
 	if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
 		return FALSE;
 	uint32 check = countertype & COUNTER_WITHOUT_PERMIT;
