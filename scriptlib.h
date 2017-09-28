@@ -147,6 +147,8 @@ public:
 	static int32 card_get_owner_target_count(lua_State *L);
 	static int32 card_get_activate_effect(lua_State *L);
 	static int32 card_check_activate_effect(lua_State *L);
+	static int32 card_get_tuner_limit(lua_State * L);
+	static int32 card_get_hand_synchro(lua_State * L);
 	static int32 card_register_effect(lua_State *L);
 	static int32 card_is_has_effect(lua_State *L);
 	static int32 card_reset_effect(lua_State *L);
