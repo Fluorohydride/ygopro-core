@@ -145,6 +145,8 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetOwnerTargetCount", scriptlib::card_get_owner_target_count },
 	{ "GetActivateEffect", scriptlib::card_get_activate_effect },
 	{ "CheckActivateEffect", scriptlib::card_check_activate_effect },
+	{ "GetTunerLimit", scriptlib::card_get_tuner_limit },
+	{ "GetHandSynchro", scriptlib::card_get_hand_synchro },
 	{ "RegisterEffect", scriptlib::card_register_effect },
 	{ "IsHasEffect", scriptlib::card_is_has_effect },
 	{ "ResetEffect", scriptlib::card_reset_effect },
