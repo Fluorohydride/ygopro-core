@@ -68,6 +68,7 @@ public:
 	int32 get_function_value(int32 f, uint32 param_count);
 	int32 get_function_value(int32 f, uint32 param_count, std::vector<int32>* result);
 	int32 call_coroutine(int32 f, uint32 param_count, uint32* yield_value, uint16 step);
+	int32 interpreter::clone_function_ref(int32 func_ref);
 
 	static void card2value(lua_State* L, card* pcard);
 	static void group2value(lua_State* L, group* pgroup);

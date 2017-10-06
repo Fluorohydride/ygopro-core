@@ -3669,30 +3669,10 @@ int32 scriptlib::duel_majestic_copy(lua_State *L) {
 		effect* peffect = eit->second;
 		if(!(peffect->type & 0x7c)) continue;
 		if(!peffect->is_flag(EFFECT_FLAG_INITIAL)) continue;
-		effect* ceffect = pduel->new_effect();
-		int32 ref = ceffect->ref_handle;
-		*ceffect = *peffect;
-		ceffect->ref_handle = ref;
+		effect* ceffect = peffect->clone();
 		ceffect->owner = pcard;
-		ceffect->handler = 0;
 		ceffect->flag[0] &= ~EFFECT_FLAG_INITIAL;
 		ceffect->effect_owner = PLAYER_NONE;
-		if(peffect->condition) {
-			lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->condition);
-			ceffect->condition = luaL_ref(L, LUA_REGISTRYINDEX);
-		}
-		if(peffect->cost) {
-			lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->cost);
-			ceffect->cost = luaL_ref(L, LUA_REGISTRYINDEX);
-		}
-		if(peffect->target) {
-			lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->target);
-			ceffect->target = luaL_ref(L, LUA_REGISTRYINDEX);
-		}
-		if(peffect->operation) {
-			lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->operation);
-			ceffect->operation = luaL_ref(L, LUA_REGISTRYINDEX);
-		}
 		ceffect->reset_flag = RESET_EVENT + 0x1fe0000 + RESET_PHASE + PHASE_END + RESET_SELF_TURN + RESET_OPPO_TURN;
 		ceffect->reset_count = 0x1;
 		ceffect->recharge();

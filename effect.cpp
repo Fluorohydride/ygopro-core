@@ -689,9 +689,29 @@ int32 effect::get_speed() {
 	}
 	return 0;
 }
+effect* effect::clone() {
+	effect* ceffect = pduel->new_effect();
+	int32 ref = ceffect->ref_handle;
+	*ceffect = *this;
+	ceffect->ref_handle = ref;
+	ceffect->handler = 0;
+	if(condition)
+		ceffect->condition = pduel->lua->clone_function_ref(condition);
+	if(cost)
+		ceffect->cost = pduel->lua->clone_function_ref(cost);
+	if(target)
+		ceffect->target = pduel->lua->clone_function_ref(target);
+	if(operation)
+		ceffect->operation = pduel->lua->clone_function_ref(operation);
+	if(value && is_flag(EFFECT_FLAG_FUNC_VALUE))
+		ceffect->value = pduel->lua->clone_function_ref(value);
+	return ceffect;
+}
 card* effect::get_owner() const {
+	if(active_handler)
+		return active_handler;
 	if(type & EFFECT_TYPE_XMATERIAL)
-		return active_handler ? active_handler : handler->overlay_target;
+		return handler->overlay_target;
 	return owner;
 }
 uint8 effect::get_owner_player() {
@@ -700,8 +720,10 @@ uint8 effect::get_owner_player() {
 	return get_owner()->current.controler;
 }
 card* effect::get_handler() const {
+	if(active_handler)
+		return active_handler;
 	if(type & EFFECT_TYPE_XMATERIAL)
-		return active_handler ? active_handler : handler->overlay_target;
+		return handler->overlay_target;
 	return handler;
 }
 uint8 effect::get_handler_player() {
