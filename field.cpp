@@ -1072,7 +1072,7 @@ void field::remove_effect(effect* peffect) {
 		if(peffect->code == EFFECT_SPSUMMON_COUNT_LIMIT)
 			effects.spsummon_count_eff.erase(peffect);
 		if(peffect->type & EFFECT_TYPE_GRANT)
-			effects.grant_effect.erase(peffect);
+			erase_grant_effect(peffect);
 	} else {
 		if (peffect->type & EFFECT_TYPE_IGNITION)
 			effects.ignition_effect.erase(it);
@@ -1879,14 +1879,21 @@ void field::adjust_self_destroy_set() {
 	if(!core.self_tograve_set.empty())
 		add_process(PROCESSOR_SELF_DESTROY, 20, 0, 0, 0, 0);
 }
+void field::erase_grant_effect(effect* peffect) {
+	auto eit = effects.grant_effect.find(peffect);
+	for(auto it = eit->second.begin(); it != eit->second.end(); ++it)
+		it->first->remove_effect(it->second);
+	effects.grant_effect.erase(eit);
+}
 int32 field::adjust_grant_effect() {
 	int32 adjusted = FALSE;
 	for(auto eit = effects.grant_effect.begin(); eit != effects.grant_effect.end(); ++eit) {
 		effect* peffect = eit->first;
-		if(!peffect->is_available() || !peffect->label_object)
+		if(!peffect->label_object)
 			continue;
 		card_set cset;
-		filter_affected_cards(peffect, &cset);
+		if(peffect->is_available())
+			filter_affected_cards(peffect, &cset);
 		card_set add_set;
 		for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
 			card* pcard = *cit;
@@ -1896,7 +1903,7 @@ int32 field::adjust_grant_effect() {
 		card_set remove_set;
 		for(auto cit = eit->second.begin(); cit != eit->second.end(); ++cit) {
 			card* pcard = cit->first;
-			if(!peffect->is_target(pcard) || !pcard->is_affect_by_effect(peffect))
+			if(!pcard->is_affect_by_effect(peffect) || !cset.count(pcard))
 				remove_set.insert(pcard);
 		}
 		for(auto cit = add_set.begin(); cit != add_set.end(); ++cit) {
