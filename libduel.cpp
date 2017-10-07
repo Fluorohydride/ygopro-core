@@ -3001,11 +3001,11 @@ int32 scriptlib::duel_announce_level(lua_State * L) {
 	int32 playerid = lua_tointeger(L, 1);
 	int32 min = 1;
 	int32 max = 12;
-	if (lua_gettop(L) >= 2 && !lua_isnil(L, 2))
+	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2))
 		min = lua_tointeger(L, 2);
-	if (lua_gettop(L) >= 3 && !lua_isnil(L, 3))
+	if(lua_gettop(L) >= 3 && !lua_isnil(L, 3))
 		max = lua_tointeger(L, 3);
-	if (min > max) {
+	if(min > max) {
 		int32 aux = max;
 		max = min;
 		min = aux;
@@ -3013,28 +3013,27 @@ int32 scriptlib::duel_announce_level(lua_State * L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->game_field->core.select_options.clear();
 	int32 count = 0;
-	if (lua_gettop(L) > 3) {
-		for (int32 i = min; i <= max; ++i) {
+	if(lua_gettop(L) > 3) {
+		for(int32 i = min; i <= max; ++i) {
 			int32 chk = 1;
-			for (int32 j = 4; j <= lua_gettop(L); ++j) {
-				if (!lua_isnil(L, j)) {
-					int32 ex = lua_tointeger(L, j);
-					if (ex == i)
-						chk = 0;
+			for(int32 j = 4; j <= lua_gettop(L); ++j) {
+				if (!lua_isnil(L, j) && i == lua_tointeger(L, j)) {
+					chk = 0;
+					break;
 				}
 			}
-			if (chk == 1) {
+			if(chk) {
 				count += 1;
 				pduel->game_field->core.select_options.push_back(i);
 			}
 		}
 	} else {
-		for (int32 i = min; i <= max; ++i) {
+		for(int32 i = min; i <= max; ++i) {
 			count += 1;
 			pduel->game_field->core.select_options.push_back(i);
 		}
 	}
-	if (count == 0)
+	if(count == 0)
 		return 0;
 	pduel->game_field->add_process(PROCESSOR_ANNOUNCE_NUMBER, 0, 0, 0, playerid + 0x10000, 0xc0001);
 	return lua_yield(L, 0);
