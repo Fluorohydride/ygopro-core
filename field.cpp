@@ -1011,6 +1011,8 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 		it = effects.aura_effect.insert(std::make_pair(peffect->code, peffect));
 		if(peffect->code == EFFECT_SPSUMMON_COUNT_LIMIT)
 			effects.spsummon_count_eff.insert(peffect);
+		if(peffect->type & EFFECT_TYPE_GRANT)
+			effects.grant_effect.insert(std::make_pair(peffect, field_effect::gain_effects()));
 	} else {
 		if (peffect->type & EFFECT_TYPE_IGNITION)
 			it = effects.ignition_effect.insert(std::make_pair(peffect->code, peffect));
@@ -1069,6 +1071,8 @@ void field::remove_effect(effect* peffect) {
 		effects.aura_effect.erase(it);
 		if(peffect->code == EFFECT_SPSUMMON_COUNT_LIMIT)
 			effects.spsummon_count_eff.erase(peffect);
+		if(peffect->type & EFFECT_TYPE_GRANT)
+			erase_grant_effect(peffect);
 	} else {
 		if (peffect->type & EFFECT_TYPE_IGNITION)
 			effects.ignition_effect.erase(it);
@@ -1875,6 +1879,52 @@ void field::adjust_self_destroy_set() {
 	if(!core.self_tograve_set.empty())
 		add_process(PROCESSOR_SELF_DESTROY, 20, 0, 0, 0, 0);
 }
+void field::erase_grant_effect(effect* peffect) {
+	auto eit = effects.grant_effect.find(peffect);
+	for(auto it = eit->second.begin(); it != eit->second.end(); ++it)
+		it->first->remove_effect(it->second);
+	effects.grant_effect.erase(eit);
+}
+int32 field::adjust_grant_effect() {
+	int32 adjusted = FALSE;
+	for(auto eit = effects.grant_effect.begin(); eit != effects.grant_effect.end(); ++eit) {
+		effect* peffect = eit->first;
+		if(!peffect->label_object)
+			continue;
+		card_set cset;
+		if(peffect->is_available())
+			filter_affected_cards(peffect, &cset);
+		card_set add_set;
+		for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
+			card* pcard = *cit;
+			if(pcard->is_affect_by_effect(peffect) && !eit->second.count(pcard))
+				add_set.insert(pcard);
+		}
+		card_set remove_set;
+		for(auto cit = eit->second.begin(); cit != eit->second.end(); ++cit) {
+			card* pcard = cit->first;
+			if(!pcard->is_affect_by_effect(peffect) || !cset.count(pcard))
+				remove_set.insert(pcard);
+		}
+		for(auto cit = add_set.begin(); cit != add_set.end(); ++cit) {
+			card* pcard = *cit;
+			effect* geffect = (effect*)peffect->label_object;
+			effect* ceffect = geffect->clone();
+			ceffect->owner = pcard;
+			pcard->add_effect(ceffect);
+			eit->second.insert(std::make_pair(pcard, ceffect));
+		}
+		for(auto cit = remove_set.begin(); cit != remove_set.end(); ++cit) {
+			card* pcard = *cit;
+			auto it = eit->second.find(pcard);
+			pcard->remove_effect(it->second);
+			eit->second.erase(it);
+		}
+		if(!add_set.empty() || !remove_set.empty())
+			adjusted = TRUE;
+	}
+	return adjusted;
+}
 void field::add_unique_card(card* pcard) {
 	uint8 con = pcard->current.controler;
 	if(pcard->unique_pos[0])
@@ -1883,7 +1933,6 @@ void field::add_unique_card(card* pcard) {
 		core.unique_cards[1 - con].insert(pcard);
 	pcard->unique_fieldid = 0;
 }
-
 void field::remove_unique_card(card* pcard) {
 	uint8 con = pcard->current.controler;
 	if(con == PLAYER_NONE)
@@ -1912,7 +1961,6 @@ effect* field::check_unique_onfield(card* pcard, uint8 controler, uint8 location
 		return pcard->unique_effect;
 	return 0;
 }
-
 int32 field::check_spsummon_once(card* pcard, uint8 playerid) {
 	if(pcard->spsummon_code == 0)
 		return TRUE;

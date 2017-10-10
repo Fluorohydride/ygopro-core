@@ -5155,7 +5155,12 @@ int32 field::adjust_step(uint16 step) {
 				add_process(PROCESSOR_CONTROL_ADJUST, 0, 0, 0, 0, 0);
 			}
 		}
-		core.units.begin()->step = 8;
+		core.units.begin()->step = 7;
+		return FALSE;
+	}
+	case 8: {
+		if(adjust_grant_effect())
+			core.re_adjust = TRUE;
 		return FALSE;
 	}
 	case 9: {

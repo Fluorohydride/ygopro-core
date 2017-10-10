@@ -90,6 +90,7 @@ public:
 	void get_value(effect* peffect, uint32 extraargs, std::vector<int32>* result);
 	int32 check_value_condition(uint32 extraargs = 0);
 	int32 get_speed();
+	effect* clone();
 	card* get_owner() const;
 	uint8 get_owner_player();
 	card* get_handler() const;
@@ -149,6 +150,7 @@ public:
 #define EFFECT_TYPE_QUICK_F			0x0400	//
 #define EFFECT_TYPE_CONTINUOUS		0x0800	//
 #define EFFECT_TYPE_XMATERIAL		0x1000	//
+#define EFFECT_TYPE_GRANT			0x2000	//
 
 //========== Flags ==========
 enum effect_flag : uint32 {

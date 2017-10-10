@@ -91,6 +91,8 @@ struct field_effect {
 	typedef std::unordered_map<effect*, effect_container::iterator> effect_indexer;
 	typedef std::unordered_map<effect*, effect*> oath_effects;
 	typedef std::unordered_set<effect*> effect_collection;
+	typedef std::unordered_map<card*, effect*> gain_effects;
+	typedef std::unordered_map<effect*, gain_effects> grant_effect_container;
 
 	effect_container aura_effect;
 	effect_container ignition_effect;
@@ -109,6 +111,8 @@ struct field_effect {
 
 	std::list<card*> disable_check_list;
 	std::unordered_set<card*> disable_check_set;
+
+	grant_effect_container grant_effect;
 };
 struct field_info {
 	int32 field_id;
@@ -399,6 +403,8 @@ public:
 	void add_to_disable_check_list(card* pcard);
 	void adjust_disable_check_list();
 	void adjust_self_destroy_set();
+	void erase_grant_effect(effect* peffect);
+	int32 adjust_grant_effect();
 	void add_unique_card(card* pcard);
 	void remove_unique_card(card* pcard);
 	effect* check_unique_onfield(card* pcard, uint8 controler, uint8 location, card* icard = 0);

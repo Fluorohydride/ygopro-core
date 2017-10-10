@@ -2999,7 +2999,42 @@ int32 scriptlib::duel_announce_level(lua_State * L) {
 	check_action_permission(L);
 	check_param_count(L, 1);
 	int32 playerid = lua_tointeger(L, 1);
+	int32 min = 1;
+	int32 max = 12;
+	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2))
+		min = lua_tointeger(L, 2);
+	if(lua_gettop(L) >= 3 && !lua_isnil(L, 3))
+		max = lua_tointeger(L, 3);
+	if(min > max) {
+		int32 aux = max;
+		max = min;
+		min = aux;
+	}
 	duel* pduel = interpreter::get_duel_info(L);
+	pduel->game_field->core.select_options.clear();
+	int32 count = 0;
+	if(lua_gettop(L) > 3) {
+		for(int32 i = min; i <= max; ++i) {
+			int32 chk = 1;
+			for(int32 j = 4; j <= lua_gettop(L); ++j) {
+				if (!lua_isnil(L, j) && i == lua_tointeger(L, j)) {
+					chk = 0;
+					break;
+				}
+			}
+			if(chk) {
+				count += 1;
+				pduel->game_field->core.select_options.push_back(i);
+			}
+		}
+	} else {
+		for(int32 i = min; i <= max; ++i) {
+			count += 1;
+			pduel->game_field->core.select_options.push_back(i);
+		}
+	}
+	if(count == 0)
+		return 0;
 	pduel->game_field->add_process(PROCESSOR_ANNOUNCE_NUMBER, 0, 0, 0, playerid + 0x10000, 0xc0001);
 	return lua_yield(L, 0);
 }
@@ -3669,30 +3704,10 @@ int32 scriptlib::duel_majestic_copy(lua_State *L) {
 		effect* peffect = eit->second;
 		if(!(peffect->type & 0x7c)) continue;
 		if(!peffect->is_flag(EFFECT_FLAG_INITIAL)) continue;
-		effect* ceffect = pduel->new_effect();
-		int32 ref = ceffect->ref_handle;
-		*ceffect = *peffect;
-		ceffect->ref_handle = ref;
+		effect* ceffect = peffect->clone();
 		ceffect->owner = pcard;
-		ceffect->handler = 0;
 		ceffect->flag[0] &= ~EFFECT_FLAG_INITIAL;
 		ceffect->effect_owner = PLAYER_NONE;
-		if(peffect->condition) {
-			lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->condition);
-			ceffect->condition = luaL_ref(L, LUA_REGISTRYINDEX);
-		}
-		if(peffect->cost) {
-			lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->cost);
-			ceffect->cost = luaL_ref(L, LUA_REGISTRYINDEX);
-		}
-		if(peffect->target) {
-			lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->target);
-			ceffect->target = luaL_ref(L, LUA_REGISTRYINDEX);
-		}
-		if(peffect->operation) {
-			lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->operation);
-			ceffect->operation = luaL_ref(L, LUA_REGISTRYINDEX);
-		}
 		ceffect->reset_flag = RESET_EVENT + 0x1fe0000 + RESET_PHASE + PHASE_END + RESET_SELF_TURN + RESET_OPPO_TURN;
 		ceffect->reset_count = 0x1;
 		ceffect->recharge();
