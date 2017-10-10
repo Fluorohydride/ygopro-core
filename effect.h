@@ -425,6 +425,12 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CHANGE_FUSION_ATTRIBUTE	351
 #define EFFECT_EXTRA_FUSION_MATERIAL	352
 #define EFFECT_TUNER_MATERIAL_LIMIT		353
+#define EFFECT_UPDATE_LINK              354
+#define EFFECT_CHANGE_LINK              355
+#define EFFECT_CHANGE_LINK_FINAL        356
+#define EFFECT_ADD_LINKMARKER           357
+#define EFFECT_REMOVE_LINKMARKER        358
+#define EFFECT_CHANGE_LINKMARKER        359
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

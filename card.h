@@ -44,6 +44,7 @@ struct card_state {
 	uint32 level;
 	uint32 rank;
 	uint32 link;
+	uint32 link_marker;
 	uint32 lscale;
 	uint32 rscale;
 	uint32 attribute;
@@ -533,6 +534,8 @@ public:
 #define ASSUME_RACE			6
 #define ASSUME_ATTACK		7
 #define ASSUME_DEFENSE		8
+#define ASSUME_LINK         9
+#define ASSUME_LINKMARKER   10
 
 #define LINK_MARKER_BOTTOM_LEFT		0001
 #define LINK_MARKER_BOTTOM			0002

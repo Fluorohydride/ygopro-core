@@ -938,7 +938,44 @@ uint32 card::get_rank() {
 uint32 card::get_link() {
 	if(!(data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL))
 		return 0;
-	return data.level;
+	if(assume_type == ASSUME_LINK)
+		return assume_value;
+	if(!(current.location & LOCATION_MZONE))
+		return data.level;
+	if(temp.level != 0xffffffff)
+		return temp.level;
+	effect_set effects;
+	int32 link = data.level;
+	temp.level = link;
+	int32 up = 0, upc = 0;
+	filter_effect(EFFECT_UPDATE_LINK, &effects, FALSE);
+	filter_effect(EFFECT_CHANGE_LINK, &effects, FALSE);
+	filter_effect(EFFECT_CHANGE_LINK_FINAL, &effects);
+	for (int32 i = 0; i < effects.size(); ++i) {
+		switch (effects[i]->code) {
+		case EFFECT_UPDATE_LINK:
+			if ((effects[i]->type & EFFECT_TYPE_SINGLE) && !effects[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+				up += effects[i]->get_value(this);
+			else
+				upc += effects[i]->get_value(this);
+			break;
+		case EFFECT_CHANGE_LINK:
+			link = effects[i]->get_value(this);
+			up = 0;
+			break;
+		case EFFECT_CHANGE_LINK_FINAL:
+			link = effects[i]->get_value(this);
+			up = 0;
+			upc = 0;
+			break;
+		}
+		temp.level = link + up + upc;
+	}
+	link += up + upc;
+	if(link < 1 && (get_type() & TYPE_MONSTER))
+		link = 1;
+	temp.level = 0xffffffff;
+	return link;
 }
 uint32 card::get_synchro_level(card* pcard) {
 	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL))
@@ -1110,9 +1147,34 @@ uint32 card::get_rscale() {
 	return rscale;
 }
 uint32 card::get_link_marker() {
-	if(!(data.type & TYPE_LINK))
+	if (assume_type == ASSUME_LINKMARKER)
+		return assume_value;
+	if (!(data.type & TYPE_LINK))
 		return 0;
-	return data.link_marker;
+	if (!(current.location & LOCATION_MZONE))
+		return data.link_marker;
+	if (temp.link_marker != 0xffffffff)
+		return temp.link_marker;
+	effect_set effects;
+	effect_set effects2;
+	int32 link_marker = data.link_marker;
+	temp.link_marker = data.link_marker;
+	filter_effect(EFFECT_ADD_LINKMARKER, &effects, FALSE);
+	filter_effect(EFFECT_REMOVE_LINKMARKER, &effects);
+	filter_effect(EFFECT_CHANGE_LINKMARKER, &effects2);
+	for (int32 i = 0; i < effects.size(); ++i) {
+		if (effects[i]->code == EFFECT_ADD_LINKMARKER)
+			link_marker |= effects[i]->get_value(this);
+		else
+			link_marker &= ~(effects[i]->get_value(this));
+		temp.link_marker = link_marker;
+	}
+	for (int32 i = 0; i < effects2.size(); ++i) {
+		link_marker = effects2[i]->get_value(this);
+		temp.link_marker = link_marker;
+	}
+	temp.link_marker = 0xffffffff;
+	return link_marker;
 }
 int32 card::is_link_marker(uint32 dir) {
 	return (int32)(get_link_marker() & dir);

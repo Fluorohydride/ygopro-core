@@ -239,6 +239,16 @@ int32 scriptlib::card_get_origin_rank(lua_State *L) {
 		lua_pushinteger(L, pcard->data.level);
 	return 1;
 }
+int32 scriptlib::card_get_origin_link(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	if (!(pcard->data.type & TYPE_LINK))
+		lua_pushinteger(L, 0);
+	else
+		lua_pushinteger(L, pcard->data.level);
+	return 1;
+}
 int32 scriptlib::card_is_xyz_level(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -413,6 +423,16 @@ int32 scriptlib::card_get_origin_attribute(lua_State *L) {
 		lua_pushinteger(L, pcard->data.attribute);
 	return 1;
 }
+int32 scriptlib::card_get_origin_link_marker(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	if (pcard->status & STATUS_NO_LEVEL)
+		lua_pushinteger(L, 0);
+	else
+		lua_pushinteger(L, pcard->data.link_marker);
+	return 1;
+}
 int32 scriptlib::card_get_fusion_attribute(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -520,6 +540,20 @@ int32 scriptlib::card_get_previous_rank_onfield(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	lua_pushinteger(L, pcard->previous.rank);
+	return 1;
+}
+int32 scriptlib::card_get_previous_link_onfield(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	lua_pushinteger(L, pcard->previous.link);
+	return 1;
+}
+int32 scriptlib::card_get_previous_link_marker_onfield(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	lua_pushinteger(L, pcard->previous.link_marker);
 	return 1;
 }
 int32 scriptlib::card_get_previous_attribute_onfield(lua_State *L) {
