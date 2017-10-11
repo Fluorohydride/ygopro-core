@@ -47,6 +47,8 @@ struct card_state {
 	uint32 link_marker;
 	uint32 lscale;
 	uint32 rscale;
+	uint32 orb;
+	uint32 sheer;
 	uint32 attribute;
 	uint32 race;
 	int32 attack;
@@ -72,6 +74,8 @@ struct query_cache {
 	uint32 level;
 	uint32 rank;
 	uint32 link;
+	uint32 orb;
+	uint32 sheer;
 	uint32 attribute;
 	uint32 race;
 	int32 attack;
@@ -196,11 +200,11 @@ public:
 	int32 is_origin_set_card(uint32 set_code);
 	int32 is_pre_set_card(uint32 set_code);
 	int32 is_fusion_set_card(uint32 set_code);
-	uint32 get_type();
-	uint32 get_fusion_type();
-	uint32 get_synchro_type();
-	uint32 get_xyz_type();
-	uint32 get_link_type();
+	uint32 get_set_card();
+	uint32 get_origin_set_card();
+	uint32 get_pre_set_card();
+	uint32 get_fusion_set_card();
+	uint32 get_type(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 0);
 	int32 get_base_attack();
 	int32 get_attack();
 	int32 get_base_defense();
@@ -208,17 +212,19 @@ public:
 	uint32 get_level();
 	uint32 get_rank();
 	uint32 get_link();
+	uint32 get_orb();
+	uint32 get_sheer();
 	uint32 get_synchro_level(card* pcard);
 	uint32 get_ritual_level(card* pcard);
 	uint32 check_xyz_level(card* pcard, uint32 lv);
-	uint32 get_attribute();
-	uint32 get_fusion_attribute(uint8 playerid);
-	uint32 get_race();
+	uint32 get_attribute(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 0);
+	uint32 get_race(card* scard = 0, uint32 sumtype = 0, uint8 playerid = 0);
 	uint32 get_lscale();
 	uint32 get_rscale();
 	uint32 get_link_marker();
 	int32 is_link_marker(uint32 dir);
 	uint32 get_linked_zone();
+	uint32 get_free_linked_zone();
 	void get_linked_cards(card_set* cset);
 	uint32 get_mutual_linked_zone();
 	void get_mutual_linked_cards(card_set * cset);
@@ -285,9 +291,10 @@ public:
 	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset);
 	effect* is_affected_by_effect(int32 code);
 	effect* is_affected_by_effect(int32 code, card* target);
+	int32 get_card_effect(int32 code);
 	effect* check_control_effect();
 	int32 fusion_check(group* fusion_m, card* cg, uint32 chkf);
-	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf);
+	void fusion_filter_valid(group* fusion_m, card* cg, uint32 chkf, effect_set* eset);
 	int32 check_fusion_substitute(card* fcard);
 
 	int32 check_unique_code(card* pcard);
@@ -311,8 +318,8 @@ public:
 	int32 is_destructable_by_battle(card* pcard);
 	effect* check_indestructable_by_effect(effect* peffect, uint8 playerid);
 	int32 is_destructable_by_effect(effect* peffect, uint8 playerid);
-	int32 is_removeable(uint8 playerid);
-	int32 is_removeable_as_cost(uint8 playerid);
+	int32 is_removeable(uint8 playerid, int32 pos = 0x5);
+	int32 is_removeable_as_cost(uint8 playerid, int32 pos = 0x5);
 	int32 is_releasable_by_summon(uint8 playerid, card* pcard);
 	int32 is_releasable_by_nonsummon(uint8 playerid);
 	int32 is_releasable_by_effect(uint8 playerid, effect* peffect);
@@ -334,10 +341,12 @@ public:
 	int32 is_capable_be_battle_target(card* pcard);
 	int32 is_capable_be_effect_target(effect* peffect, uint8 playerid);
 	int32 is_can_be_fusion_material(card* fcard);
-	int32 is_can_be_synchro_material(card* scard, card* tuner = 0);
+	int32 is_can_be_synchro_material(card* scard, uint8 playerid, card* tuner = 0);
 	int32 is_can_be_ritual_material(card* scard);
-	int32 is_can_be_xyz_material(card* scard);
-	int32 is_can_be_link_material(card* scard);
+	int32 is_can_be_xyz_material(card* scard, uint8 playerid);
+	int32 is_can_be_link_material(card* scard, uint8 playerid);
+	int32 is_can_be_universal_material(card* scard, uint8 playerid);
+	int32 is_can_be_sheer_material(card* scard, uint8 playerid);
 };
 
 //Locations
@@ -390,6 +399,8 @@ public:
 #define TYPE_PENDULUM		0x1000000	//
 #define TYPE_SPSUMMON		0x2000000	//
 #define TYPE_LINK			0x4000000	//
+#define TYPE_UNIVERSAL      0x8000000   //
+#define TYPE_TIMESHEER      0x10000000  //
 
 //Attributes
 #define ATTRIBUTE_EARTH		0x01		//
@@ -399,6 +410,7 @@ public:
 #define ATTRIBUTE_LIGHT		0x10		//
 #define ATTRIBUTE_DARK		0x20		//
 #define ATTRIBUTE_DEVINE	0x40		//
+#define ATTRIBUTE_TIME      0x80        //
 //Races
 #define RACE_WARRIOR		0x1			//
 #define RACE_SPELLCASTER	0x2			//
@@ -453,6 +465,8 @@ public:
 #define REASON_REDIRECT		0x4000000	//
 //#define REASON_REVEAL			0x8000000	//
 #define REASON_LINK			0x10000000	//
+#define REASON_UNIVERSAL    0x20000000  //
+#define REASON_SHEER		0x40000000  //
 //Summon Type
 #define SUMMON_TYPE_NORMAL		0x10000000
 #define SUMMON_TYPE_ADVANCE		0x11000000
@@ -465,6 +479,8 @@ public:
 #define SUMMON_TYPE_XYZ			0x49000000
 #define SUMMON_TYPE_PENDULUM	0x4a000000
 #define SUMMON_TYPE_LINK		0x4c000000
+#define SUMMON_TYPE_UNIVERSAL   0x80000000
+#define SUMMON_TYPE_TIMESHEER   0x81000000
 //Status
 #define STATUS_DISABLED				0x0001	//
 #define STATUS_TO_ENABLE			0x0002	//
@@ -525,6 +541,8 @@ public:
 #define QUERY_LSCALE		0x200000
 #define QUERY_RSCALE		0x400000
 #define QUERY_LINK			0x800000
+#define QUERY_ORB           0x1000000
+#define QUERY_SHEER         0x2000000
 
 #define ASSUME_CODE			1
 #define ASSUME_TYPE			2
@@ -536,6 +554,8 @@ public:
 #define ASSUME_DEFENSE		8
 #define ASSUME_LINK         9
 #define ASSUME_LINKMARKER   10
+#define ASSUME_ORB          11
+#define ASSUME_SHEER        12
 
 #define LINK_MARKER_BOTTOM_LEFT		0001
 #define LINK_MARKER_BOTTOM			0002
