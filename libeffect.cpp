@@ -34,7 +34,32 @@ int32 scriptlib::effect_clone(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	effect* ceffect = peffect->clone();
+	duel* pduel = peffect->pduel;
+	effect* ceffect = pduel->new_effect();
+	int32 ref = ceffect->ref_handle;
+	*ceffect = *peffect;
+	ceffect->ref_handle = ref;
+	ceffect->handler = 0;
+	if(peffect->condition) {
+		lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->condition);
+		ceffect->condition = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
+	if(peffect->cost) {
+		lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->cost);
+		ceffect->cost = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
+	if(peffect->target) {
+		lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->target);
+		ceffect->target = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
+	if(peffect->operation) {
+		lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->operation);
+		ceffect->operation = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
+	if(peffect->value && peffect->is_flag(EFFECT_FLAG_FUNC_VALUE)) {
+		lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->value);
+		ceffect->value = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
 	interpreter::effect2value(L, ceffect);
 	return 1;
 }
@@ -300,6 +325,29 @@ int32 scriptlib::effect_get_code(lua_State *L) {
 	if (peffect) {
 		lua_pushinteger(L, peffect->code);
 		return 1;
+	}
+	return 0;
+}
+int32 scriptlib::effect_get_count_limit(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	if (peffect) {
+		lua_pushinteger(L, peffect->reset_flag);
+		lua_pushinteger(L, peffect->reset_count);
+		return 2;
+	}
+	return 0;
+}
+int32 scriptlib::effect_get_reset(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	if (peffect) {
+		lua_pushinteger(L, peffect->count_limit);
+		lua_pushinteger(L, peffect->count_limit_max);
+		lua_pushinteger(L, peffect->count_code);
+		return 3;
 	}
 	return 0;
 }
