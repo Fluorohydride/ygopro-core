@@ -3326,6 +3326,8 @@ int32 card::is_capable_cost_to_grave(uint8 playerid) {
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_USE_AS_COST))
 		return FALSE;
+	if(is_affected_by_effect(EFFECT_CANNOT_TO_GRAVE_AS_COST))
+		return FALSE;
 	if(!is_capable_send_to_grave(playerid))
 		return FALSE;
 	auto op_param = sendto_param;

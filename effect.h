@@ -249,7 +249,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CANNOT_DISCARD_DECK		56	//
 #define EFFECT_CANNOT_USE_AS_COST		57	//
 #define EFFECT_CANNOT_PLACE_COUNTER		58	//
-
+#define EFFECT_CANNOT_TO_GRAVE_AS_COST	59	//
 #define EFFECT_LEAVE_FIELD_REDIRECT		60	//
 #define EFFECT_TO_HAND_REDIRECT			61	//
 #define EFFECT_TO_DECK_REDIRECT			62	//
