@@ -282,6 +282,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_MSET_COST				94	//
 #define EFFECT_SSET_COST				95	//
 #define EFFECT_ATTACK_COST				96	//
+#define EFFECT_CANNOT_TO_GRAVE_AS_COST	97	//
 
 #define EFFECT_UPDATE_ATTACK			100	//
 #define EFFECT_SET_ATTACK				101	//
