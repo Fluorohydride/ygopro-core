@@ -341,7 +341,14 @@ int32 scriptlib::card_get_mutual_linked_zone(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**)lua_touserdata(L, 1);
-	lua_pushinteger(L, pcard->get_mutual_linked_zone());
+	uint32 zone = pcard->get_mutual_linked_zone();
+	int32 cp = pcard->current.controler;
+	if (lua_gettop(L) >= 2)
+		cp = lua_tointeger(L, 2);
+	if (cp == 1 - pcard->current.controler)
+		lua_pushinteger(L, (((zone & 0xffff) << 16) | (zone >> 16)));
+	else
+		lua_pushinteger(L, zone);
 	return 1;
 }
 int32 scriptlib::card_is_link_state(lua_State *L) {
