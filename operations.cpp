@@ -1609,7 +1609,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 			} else {
 				int32 ct = get_tofield_count(sumplayer, LOCATION_MZONE, zone);
 				int32 fcount = get_mzone_limit(sumplayer, sumplayer, LOCATION_REASON_TOFIELD);
-				if(min == 0 && ct > 0) {
+				if(min == 0 && ct > 0 && fcount > 0) {
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, sumplayer, 90);
 					core.units.begin()->arg2 = required;
 				} else {
@@ -2159,7 +2159,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 			} else {
 				int32 ct = get_tofield_count(setplayer, LOCATION_MZONE, zone);
 				int32 fcount = get_mzone_limit(setplayer, setplayer, LOCATION_REASON_TOFIELD);
-				if(min == 0 && ct > 0) {
+				if(min == 0 && ct > 0 && fcount > 0) {
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, setplayer, 90);
 					core.units.begin()->arg2 = required;
 				} else {
