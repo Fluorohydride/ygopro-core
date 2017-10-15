@@ -68,8 +68,7 @@ field::field(duel* pduel) {
 	}
 	core.pre_field[0] = 0;
 	core.pre_field[1] = 0;
-	for (int32 i = 0; i < 7; ++i)
-		core.opp_mzone[i] = 0;
+	core.opp_mzone.clear();
 	core.summoning_card = 0;
 	core.summon_depth = 0;
 	core.summon_cancelable = FALSE;
