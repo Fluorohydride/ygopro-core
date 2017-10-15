@@ -310,7 +310,7 @@ int32 scriptlib::card_get_linked_zone(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 zone = pcard->get_linked_zone();
 	int32 cp = pcard->current.controler;
-	if(lua_gettop(L) >= 2)
+	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2))
 		cp = lua_tointeger(L, 2);
 	if(cp == 1 - pcard->current.controler)
 		lua_pushinteger(L, (((zone & 0xffff) << 16) | (zone >> 16)));
@@ -343,7 +343,7 @@ int32 scriptlib::card_get_mutual_linked_zone(lua_State *L) {
 	card* pcard = *(card**)lua_touserdata(L, 1);
 	uint32 zone = pcard->get_mutual_linked_zone();
 	int32 cp = pcard->current.controler;
-	if(lua_gettop(L) >= 2)
+	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2))
 		cp = lua_tointeger(L, 2);
 	if(cp == 1 - pcard->current.controler)
 		lua_pushinteger(L, (((zone & 0xffff) << 16) | (zone >> 16)));
@@ -401,7 +401,7 @@ int32 scriptlib::card_get_column_zone(lua_State *L) {
 		left = lua_tointeger(L, 3);
 	if(lua_gettop(L) >= 4)
 		right = lua_tointeger(L, 4);
-	if(lua_gettop(L) >= 5)
+	if(lua_gettop(L) >= 5 && !lua_isnil(L, 5))
 		cp = lua_tointeger(L, 5);
 	uint32 zone = pcard->get_column_zone(loc, left, right);
 	if(cp == 1 - pcard->current.controler)
