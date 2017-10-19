@@ -574,7 +574,7 @@ int32 field::get_spsummonable_count(card* pcard, uint8 playerid, uint32 zone, ui
 		return get_tofield_count(playerid, LOCATION_MZONE, zone, list);
 }
 int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone, uint32* list, uint8 neglect_used) {
-	int32 count = get_tofield_count(playerid, location, zone, list, neglect_used);
+	int32 count = get_tofield_count(playerid, location, zone, list, neglect_used, reason);
 	int32 limit;
 	if(location == LOCATION_MZONE)
 		limit = get_mzone_limit(playerid, uplayer, LOCATION_REASON_TOFIELD);
@@ -584,10 +584,20 @@ int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, ui
 		count = limit;
 	return count;
 }
-int32 field::get_tofield_count(uint8 playerid, uint8 location, uint32 zone, uint32* list, uint8 neglect_used) {
+int32 field::get_tofield_count(uint8 playerid, uint8 location, uint32 zone, uint32* list, uint8 neglect_used, uint32 reason) {
 	if (location != LOCATION_MZONE && location != LOCATION_SZONE)
 		return 0;
 	uint32 flag = player[playerid].disabled_location | (neglect_used ? 0 : player[playerid].used_location);
+	effect_set eset;
+	uint32 value;
+	if((reason & (LOCATION_REASON_TOFIELD | LOCATION_REASON_CONTROL) != 0) && location == LOCATION_MZONE)
+		filter_player_effect(playerid, EFFECT_FORCE_MZONE, &eset);
+	for (int32 i = 0; i < eset.size(); ++i) {
+		value = eset[i]->get_value();
+		if((flag & value)==0)
+			flag |= ~(value >> 16 * playerid) & 0xff7f;
+	}
+	eset.clear();
 	if (location == LOCATION_MZONE)
 		flag = (flag | ~zone) & 0x1f;
 	else
@@ -608,6 +618,15 @@ int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer
 }
 int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint32 zone, uint32* list) {
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
+	effect_set eset;
+	uint32 value;
+	filter_player_effect(playerid, EFFECT_FORCE_MZONE, &eset);
+	for (int32 i = 0; i < eset.size(); ++i) {
+		value = eset[i]->get_value();
+		if((flag & value)==0)
+			flag |= ~(value >> 16 * playerid) & 0xff7f;
+	}
+	eset.clear();
 	uint32 linked_zone = get_linked_zone(playerid) | (1u << 5) | (1u << 6);
 	flag = flag | ~zone | ~linked_zone;
 	if(player[playerid].list_mzone[5] && is_location_useable(playerid, LOCATION_MZONE, 6)
