@@ -1629,7 +1629,7 @@ int32 scriptlib::duel_get_usable_mzone_count(lua_State *L) {
 	if(pduel->game_field->core.duel_rule >= 4) {
 		uint32 flag1, flag2;
 		int32 ct1 = pduel->game_field->get_tofield_count(playerid, LOCATION_MZONE, zone, &flag1);
-		int32 ct2 = pduel->game_field->get_spsummonable_count_fromex(0, playerid, zone, &flag2);
+		int32 ct2 = pduel->game_field->get_spsummonable_count_fromex(0, playerid, uplayer, zone, &flag2);
 		int32 ct3 = field::field_used_count[~(flag1 | flag2) & 0x1f];
 		int32 count = ct1 + ct2 - ct3;
 		int32 limit = pduel->game_field->get_mzone_limit(playerid, uplayer, LOCATION_REASON_TOFIELD);
