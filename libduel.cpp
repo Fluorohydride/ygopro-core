@@ -1560,6 +1560,59 @@ int32 scriptlib::duel_get_location_count(lua_State *L) {
 	lua_pushinteger(L, pduel->game_field->get_useable_count(playerid, location, uplayer, reason, zone));
 	return 1;
 }
+int32 scriptlib::duel_get_mzone_count(lua_State *L) {
+	check_param_count(L, 1);
+	uint32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	bool swapped = false;
+	card* mcard = 0;
+	group* mgroup = 0;
+	uint32 used_location[2] = { 0, 0 };
+	player_info::card_vector list_mzone[2];
+	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
+		if(check_param(L, PARAM_TYPE_CARD, 2, TRUE)) {
+			mcard = *(card**)lua_touserdata(L, 2);
+		} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
+			mgroup = *(group**)lua_touserdata(L, 2);
+		} else
+			luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 3);
+		for(int32 p = 0; p < 2; p++) {
+			uint32 digit = 1;
+			for(auto cit = pduel->game_field->player[p].list_mzone.begin(); cit != pduel->game_field->player[p].list_mzone.end(); ++cit) {
+				card* pcard = *cit;
+				if(pcard && pcard != mcard && !(mgroup && mgroup->container.find(pcard) != mgroup->container.end())) {
+					used_location[p] |= digit;
+					list_mzone[p].push_back(pcard);
+				} else
+					list_mzone[p].push_back(0);
+				digit <<= 1;
+			}
+			used_location[p] |= pduel->game_field->player[p].used_location & 0xff00;
+			std::swap(used_location[p], pduel->game_field->player[p].used_location);
+			pduel->game_field->player[p].list_mzone.swap(list_mzone[p]);
+		}
+		swapped = true;
+	}
+	uint32 uplayer = pduel->game_field->core.reason_player;
+	uint32 reason = LOCATION_REASON_TOFIELD;
+	uint32 zone = 0xff;
+	if(lua_gettop(L) >= 3)
+		uplayer = lua_tointeger(L, 3);
+	if(lua_gettop(L) >= 4)
+		reason = lua_tointeger(L, 4);
+	if(lua_gettop(L) >= 5)
+		zone = lua_tointeger(L, 5);
+	lua_pushinteger(L, pduel->game_field->get_useable_count(playerid, LOCATION_MZONE, uplayer, reason, zone));
+	if(swapped) {
+		pduel->game_field->player[0].used_location = used_location[0];
+		pduel->game_field->player[1].used_location = used_location[1];
+		pduel->game_field->player[0].list_mzone.swap(list_mzone[0]);
+		pduel->game_field->player[1].list_mzone.swap(list_mzone[1]);
+	}
+	return 1;
+}
 int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 playerid = lua_tointeger(L, 1);
@@ -1695,13 +1748,10 @@ int32 scriptlib::duel_check_location(lua_State *L) {
 	uint32 playerid = lua_tointeger(L, 1);
 	uint32 location = lua_tointeger(L, 2);
 	uint32 sequence = lua_tointeger(L, 3);
-	uint32 neglect_used = 0;
-	if(lua_gettop(L) >= 4)
-		neglect_used = lua_toboolean(L, 4);
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushboolean(L, pduel->game_field->is_location_useable(playerid, location, sequence, neglect_used));
+	lua_pushboolean(L, pduel->game_field->is_location_useable(playerid, location, sequence));
 	return 1;
 }
 int32 scriptlib::duel_get_current_chain(lua_State *L) {
