@@ -577,9 +577,9 @@ int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, ui
 	int32 count = get_tofield_count(playerid, location, zone, list, neglect_used);
 	int32 limit;
 	if(location == LOCATION_MZONE)
-		limit = get_mzone_limit(playerid, uplayer, LOCATION_REASON_TOFIELD);
+		limit = get_mzone_limit(playerid, uplayer, reason);
 	else
-		limit = get_szone_limit(playerid, uplayer, LOCATION_REASON_TOFIELD);
+		limit = get_szone_limit(playerid, uplayer, reason);
 	if(count > limit)
 		count = limit;
 	return count;
