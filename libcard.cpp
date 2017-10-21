@@ -2797,3 +2797,22 @@ int32 scriptlib::card_check_mzone_from_ex(lua_State *L) {
 		lua_pushboolean(L, 0);
 	return 1;
 }
+int32 scriptlib::card_filter_effect(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 code = lua_tointeger(L, 2);
+	uint8 sort = TRUE;
+	if(lua_gettop(L) >= 3)
+		sort = lua_toboolean(L, 3);
+	effect_set eset;
+	pcard->filter_effect(code, &eset, sort);
+	if(eset.size() <= 0)
+		return 0;
+	int32 count = 0;
+	for(int32 i = 0; i < eset.size(); ++i) {
+		interpreter::effect2value(L, eset[i]);
+		count = count + 1;
+	}
+	return count;
+}

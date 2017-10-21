@@ -259,6 +259,7 @@ public:
 	static int32 card_assume_prop(lua_State *L);
 	static int32 card_set_spsummon_once(lua_State *L);
 	static int32 card_check_mzone_from_ex(lua_State *L);
+	static int32 card_filter_effect(lua_State *L);
 
 	//Effect functions
 	static int32 effect_new(lua_State *L);
@@ -545,6 +546,7 @@ public:
 	static int32 duel_get_custom_activity_count(lua_State *L);
 	static int32 duel_is_able_to_enter_bp(lua_State *L);
 	static int32 duel_get_battled_count(lua_State *L);
+	static int32 duel_filter_player_effect(lua_State *L);
 
 	//specific card functions
 	static int32 duel_venom_swamp_check(lua_State *L);
