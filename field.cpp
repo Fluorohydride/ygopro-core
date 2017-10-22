@@ -548,7 +548,9 @@ int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequen
 		if(flag & (0x100u << (5 + sequence)))
 			return FALSE;
 	} else if (location == LOCATION_PZONE) {
-		if(core.duel_rule >= 4) {
+		if(core.duel_rule < 3)
+			return FALSE;
+		else if(core.duel_rule >= 4) {
 			if(flag & (0x100u << (sequence * 4)))
 				return FALSE;
 		} else {

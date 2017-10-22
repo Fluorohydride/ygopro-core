@@ -4126,7 +4126,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 					destroy(pcard, 0, REASON_RULE, pcard->current.controler);
 				adjust_all();
 			}
-		} else if(!is_equip && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM)) {
+		} else if(!is_equip && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM) && core.duel_rule > 2) {
 			uint32 flag = 0;
 			if(is_location_useable(playerid, LOCATION_PZONE, 0))
 				flag |= 0x1u << (core.duel_rule >= 4 ? 8 : 14);
@@ -4239,7 +4239,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			target->overlay_target->xyz_remove(target);
 		// call move_card()
 		uint8 pzone = FALSE;
-		if(!is_equip && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM))
+		if(!is_equip && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM) && core.duel_rule > 2)
 			pzone = TRUE;
 		move_card(playerid, target, location, target->temp.sequence, pzone);
 		target->current.position = returns.ivalue[0];
