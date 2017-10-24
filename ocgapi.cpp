@@ -65,14 +65,27 @@ extern "C" DECL_DLLEXPORT ptr create_duel(uint32 seed) {
 }
 extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int options) {
 	duel* pd = (duel*)pduel;
-	pd->game_field->core.duel_options |= options & 0xffff;
-	int32 duel_rule = options >> 16;
-	if(duel_rule)
-		pd->game_field->core.duel_rule = duel_rule;
-	else if(options & DUEL_OBSOLETE_RULING)		//provide backward compatibility with replay
-		pd->game_field->core.duel_rule = 1;
-	else if(!pd->game_field->core.duel_rule)
-		pd->game_field->core.duel_rule = 3;
+	pd->game_field->core.duel_options |= options;
+	int32 duel_rule = 5;
+	switch(options) {
+	case MASTER_RULE_1: {
+		duel_rule = 1;
+	break;
+	}
+	case MASTER_RULE_2: {
+		duel_rule = 2;
+	break;
+	}
+	case MASTER_RULE_3: {
+		duel_rule = 3;
+	break;
+	}
+	case MASTER_RULE_4: {
+		duel_rule = 4;
+	break;
+	}
+	}
+	pd->game_field->core.duel_rule = duel_rule;
 	pd->game_field->core.shuffle_hand_check[0] = FALSE;
 	pd->game_field->core.shuffle_hand_check[1] = FALSE;
 	pd->game_field->core.shuffle_deck_check[0] = FALSE;

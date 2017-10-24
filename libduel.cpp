@@ -1657,7 +1657,7 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 		scard = *(card**)lua_touserdata(L, 4);
 	}
 	uint32 zone = 0xff;
-	if(pduel->game_field->core.duel_rule >= 4)
+	if(pduel->game_field->core.duel_options & DUEL_EMZONE)
 		lua_pushinteger(L, pduel->game_field->get_useable_count_fromex(scard, playerid, uplayer, zone));
 	else
 		lua_pushinteger(L, pduel->game_field->get_useable_count(playerid, LOCATION_MZONE, uplayer, LOCATION_REASON_TOFIELD, zone));
@@ -1679,7 +1679,7 @@ int32 scriptlib::duel_get_usable_mzone_count(lua_State *L) {
 	if(lua_gettop(L) >= 2)
 		uplayer = lua_tointeger(L, 2);
 	uint32 zone = 0xff;
-	if(pduel->game_field->core.duel_rule >= 4) {
+	if(pduel->game_field->core.duel_options & DUEL_EMZONE) {
 		uint32 flag1, flag2;
 		int32 ct1 = pduel->game_field->get_tofield_count(playerid, LOCATION_MZONE, zone, &flag1);
 		int32 ct2 = pduel->game_field->get_spsummonable_count_fromex(0, playerid, zone, &flag2);

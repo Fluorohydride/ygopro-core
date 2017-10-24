@@ -483,10 +483,10 @@ card* field::get_field_card(uint32 playerid, uint32 location, uint32 sequence) {
 	}
 	case LOCATION_PZONE: {
 		if(sequence == 0) {
-			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? 0 : 6];
+			card* pcard = player[playerid].list_szone[(pduel->game_field->core.duel_options & DUEL_EMZONE) ? 0 : 6];
 			return pcard && pcard->current.pzone ? pcard : 0;
 		} else if(sequence == 1) {
-			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? 4 : 7];
+			card* pcard = player[playerid].list_szone[(pduel->game_field->core.duel_options & DUEL_EMZONE) ? 4 : 7];
 			return pcard && pcard->current.pzone ? pcard : 0;
 		} else
 			return 0;
@@ -548,9 +548,9 @@ int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequen
 		if(flag & (0x100u << (5 + sequence)))
 			return FALSE;
 	} else if (location == LOCATION_PZONE) {
-		if(core.duel_rule < 3)
+		if((!(pduel->game_field->core.duel_options & DUEL_PZONE))
 			return FALSE;
-		else if(core.duel_rule >= 4) {
+		else if(pduel->game_field->core.duel_options & DUEL_EMZONE) {
 			if(flag & (0x100u << (sequence * 4)))
 				return FALSE;
 		} else {
@@ -564,13 +564,13 @@ int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequen
 // list: store local flag in list
 // return: usable count of LOCATION_MZONE or real LOCATION_SZONE of playerid requested by uplayer (may be negative)
 int32 field::get_useable_count(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone, uint32* list) {
-	if(core.duel_rule >= 4 && location == LOCATION_MZONE && pcard->current.location == LOCATION_EXTRA)
+	if((pduel->game_field->core.duel_options & DUEL_EMZONE) && location == LOCATION_MZONE && pcard->current.location == LOCATION_EXTRA)
 		return get_useable_count_fromex(pcard, playerid, uplayer, zone, list);
 	else
 		return get_useable_count(playerid, location, uplayer, reason, zone, list);
 }
 int32 field::get_spsummonable_count(card* pcard, uint8 playerid, uint32 zone, uint32* list) {
-	if(core.duel_rule >= 4 && pcard->current.location == LOCATION_EXTRA)
+	if((pduel->game_field->core.duel_options & DUEL_EMZONE) && pcard->current.location == LOCATION_EXTRA)
 		return get_spsummonable_count_fromex(pcard, playerid, zone, list);
 	else
 		return get_tofield_count(playerid, LOCATION_MZONE, zone, list);
@@ -638,7 +638,7 @@ int32 field::get_mzone_limit(uint8 playerid, uint8 uplayer, uint32 reason) {
 	used_flag = used_flag & 0x1f;
 	int32 max = 5;
 	int32 used_count = field_used_count[used_flag];
-	if(core.duel_rule >= 4) {
+	if(pduel->game_field->core.duel_options & DUEL_EMZONE) {
 		max = 7;
 		if(player[playerid].list_mzone[5])
 			used_count++;
@@ -1327,7 +1327,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		}
 		if(location & LOCATION_PZONE) {
 			for(int32 i = 0; i < 2; ++i) {
-				pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
+				pcard = player[self].list_szone[(pduel->game_field->core.duel_options & DUEL_EMZONE) ? i * 4 : i + 6];
 				if(pcard && pcard->current.pzone && !pcard->is_status(STATUS_ACTIVATE_DISABLED)
 				        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
 				        && pduel->lua->check_matching(pcard, findex, extraargs)
@@ -1478,7 +1478,7 @@ int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, g
 		}
 		if(location & LOCATION_PZONE) {
 			for(int32 i = 0; i < 2; ++i) {
-				pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
+				pcard = player[self].list_szone[(pduel->game_field->core.duel_options & DUEL_EMZONE) ? i * 4 : i + 6];
 				if(pcard && pcard->current.pzone) {
 					if(pgroup)
 						pgroup->container.insert(pcard);
@@ -2484,7 +2484,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	int32 ct = get_spsummonable_count(pcard, playerid);
 	card_set linked_cards;
 	if(ct <= 0) {
-		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
+		uint32 linked_zone = (pduel->game_field->core.duel_options & DUEL_EMZONE) ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
 		get_cards_in_zone(&linked_cards, linked_zone, playerid, LOCATION_MZONE);
 		if(linked_cards.find(tuner) != linked_cards.end())
 			ct++;
@@ -2785,7 +2785,7 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 	card_set linked_cards;
 	if(ct <= 0) {
 		int32 ft = ct;
-		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
+		uint32 linked_zone = (pduel->game_field->core.duel_options & DUEL_EMZONE) ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
 		get_cards_in_zone(&linked_cards, linked_zone, playerid, LOCATION_MZONE);
 		for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
 			card* pcard = cit->second;
