@@ -1400,7 +1400,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 				if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 					remove_effect(peffect);
 				else
-					phandler->remove_effect(peffect);
+					peffect->handler->remove_effect(peffect);
 				continue;
 			}
 			newchain.triggering_effect = peffect;
@@ -1518,7 +1518,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 				remove_effect(peffect);
 			else
-				phandler->remove_effect(peffect);
+				peffect->handler->remove_effect(peffect);
 			adjust_all();
 			core.units.begin()->step = 3;
 		} else if(!(peffect->type & EFFECT_TYPE_CONTINUOUS)) {
