@@ -356,7 +356,7 @@ public:
 	int32 get_useable_count(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone = 0xff, uint32* list = 0);
 	int32 get_spsummonable_count(card* pcard, uint8 playerid, uint32 zone = 0xff, uint32* list = 0);
 	int32 get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone = 0xff, uint32* list = 0);
-	int32 get_tofield_count(uint8 playerid, uint8 location, uint32 zone = 0xff, uint32* list = 0, uint32 reason = 0x1, uint32 uplayer = 2);
+	int32 get_tofield_count(uint8 playerid, uint8 location, uint32 uplayer, uint32 reason, uint32 zone = 0xff, uint32* list = 0);
 	int32 get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = 0);
 	int32 get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = 0);
 	int32 get_mzone_limit(uint8 playerid, uint8 uplayer, uint32 reason);
@@ -589,7 +589,6 @@ public:
 //Location Use Reason
 #define LOCATION_REASON_TOFIELD	0x1
 #define LOCATION_REASON_CONTROL	0x2
-#define LOCATION_REASON_COUNT	0x4
 //Chain Info
 #define CHAIN_DISABLE_ACTIVATE	0x01
 #define CHAIN_DISABLE_EFFECT	0x02
