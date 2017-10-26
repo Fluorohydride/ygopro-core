@@ -569,12 +569,12 @@ int32 field::get_useable_count(card* pcard, uint8 playerid, uint8 location, uint
 }
 int32 field::get_spsummonable_count(card* pcard, uint8 playerid, uint32 zone, uint32* list) {
 	if(core.duel_rule >= 4 && pcard->current.location == LOCATION_EXTRA)
-		return get_spsummonable_count_fromex(pcard, playerid, zone, list);
+		return get_spsummonable_count_fromex(pcard, playerid, playerid, zone, list);
 	else
 		return get_tofield_count(playerid, LOCATION_MZONE, zone, list);
 }
 int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone, uint32* list) {
-	int32 count = get_tofield_count(playerid, location, zone, list);
+	int32 count = get_tofield_count(playerid, location, zone, list, reason, uplayer);
 	int32 limit;
 	if(location == LOCATION_MZONE)
 		limit = get_mzone_limit(playerid, uplayer, reason);
@@ -584,10 +584,27 @@ int32 field::get_useable_count(uint8 playerid, uint8 location, uint8 uplayer, ui
 		count = limit;
 	return count;
 }
-int32 field::get_tofield_count(uint8 playerid, uint8 location, uint32 zone, uint32* list) {
+int32 field::get_tofield_count(uint8 playerid, uint8 location, uint32 zone, uint32* list, uint32 reason, uint32 uplayer) {
 	if (location != LOCATION_MZONE && location != LOCATION_SZONE)
 		return 0;
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
+	effect_set eset;
+	uint32 value;
+	if(uplayer == 2)
+		uplayer = playerid;
+	if((reason & (LOCATION_REASON_TOFIELD) != 0) && location == LOCATION_MZONE)
+		filter_player_effect(uplayer, EFFECT_FORCE_MZONE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		value = eset[i]->get_value();
+		uint32 flag1 = ~(value) & 0xff7f;
+		uint32 flag2 = ~(value >> 16) & 0xff7f;
+		if ((flag1 & flag) != flag1 && (uplayer == playerid)) {
+			flag |= flag1;
+		} else if ((flag2 & flag) != flag2 && (uplayer != playerid)) {
+			flag |= flag2;
+		}
+	}
+	eset.clear();
 	if (location == LOCATION_MZONE)
 		flag = (flag | ~zone) & 0x1f;
 	else
@@ -600,14 +617,28 @@ int32 field::get_tofield_count(uint8 playerid, uint8 location, uint32 zone, uint
 	return count;
 }
 int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone, uint32* list) {
-	int32 count = get_spsummonable_count_fromex(pcard, playerid, zone, list);
+	int32 count = get_spsummonable_count_fromex(pcard, playerid, uplayer, zone, list);
 	int32 limit = get_mzone_limit(playerid, uplayer, LOCATION_REASON_TOFIELD);
 	if(count > limit)
 		count = limit;
 	return count;
 }
-int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint32 zone, uint32* list) {
+int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone, uint32* list) {
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
+	effect_set eset;
+	uint32 value;
+	filter_player_effect(uplayer, EFFECT_FORCE_MZONE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		value = eset[i]->get_value();
+		uint32 flag1 = ~(value) & 0xff7f;
+		uint32 flag2 = ~(value >> 16) & 0xff7f;
+		if ((flag1 & flag) != flag1 && (uplayer == playerid)) {
+			flag |= flag1;
+		} else if ((flag2 & flag) != flag2 && (uplayer != playerid)) {
+			flag |= flag2;
+		}
+	}
+	eset.clear();
 	uint32 linked_zone = get_linked_zone(playerid) | (1u << 5) | (1u << 6);
 	flag = flag | ~zone | ~linked_zone;
 	if(player[playerid].list_mzone[5] && is_location_useable(playerid, LOCATION_MZONE, 6)
