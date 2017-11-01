@@ -183,7 +183,7 @@ int32 scriptlib::debug_reload_field_begin(lua_State *L) {
 	if(flag & DUEL_EMZONE)
 		pduel->game_field->core.duel_rule = 4;
 	else if (flag & DUEL_PZONE)
-		pduel->game_field->core.duel_rule = 4;
+		pduel->game_field->core.duel_rule = 3;
 	pduel->game_field->core.duel_options = flag;
 	return 0;
 }
