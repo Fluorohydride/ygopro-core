@@ -1607,7 +1607,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 				returns.bvalue[0] = 0;
 				core.units.begin()->step = 3;
 			} else {
-				int32 ct = get_tofield_count(sumplayer, LOCATION_MZONE, zone);
+				int32 ct = get_tofield_count(sumplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD, zone);
 				int32 fcount = get_mzone_limit(sumplayer, sumplayer, LOCATION_REASON_TOFIELD);
 				if(min == 0 && ct > 0 && fcount > 0) {
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, sumplayer, 90);
@@ -2157,7 +2157,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 				returns.bvalue[0] = 0;
 				core.units.begin()->step = 3;
 			} else {
-				int32 ct = get_tofield_count(setplayer, LOCATION_MZONE, zone);
+				int32 ct = get_tofield_count(setplayer, LOCATION_MZONE, setplayer, LOCATION_REASON_TOFIELD, zone);
 				int32 fcount = get_mzone_limit(setplayer, setplayer, LOCATION_REASON_TOFIELD);
 				if(min == 0 && ct > 0 && fcount > 0) {
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, setplayer, 90);
@@ -2722,8 +2722,8 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		uint32 zone = 0xff;
 		if(pduel->game_field->core.duel_options & DUEL_EMZONE) {
 			uint32 flag1, flag2;
-			int32 ct1 = get_tofield_count(sumplayer, LOCATION_MZONE, zone, &flag1);
-			int32 ct2 = get_spsummonable_count_fromex(pcard, sumplayer, zone, &flag2);
+			int32 ct1 = get_tofield_count(sumplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD, zone, &flag1);
+			int32 ct2 = get_spsummonable_count_fromex(pcard, sumplayer, sumplayer, zone, &flag2);
 			for(auto it = pgroup->it; it != pgroup->container.end(); ++it) {
 				if((*it)->current.location != LOCATION_EXTRA)
 					ct1--;
@@ -4265,6 +4265,23 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 		}
 		if((target->previous.location == LOCATION_SZONE) && target->equiping_target)
 			target->unequip();
+		if(target->current.location == LOCATION_MZONE) {
+			effect_set eset;
+			filter_player_effect(0, EFFECT_MUST_USE_MZONE, &eset);
+			filter_player_effect(1, EFFECT_MUST_USE_MZONE, &eset);
+			for(int32 i = 0; i < eset.size();) {
+				effect* peffect = eset[i++];
+				uint32 value = peffect->get_value();
+				if(peffect->get_handler_player() != target->current.controler)
+					value = value >> 16 | value << 16;
+				if(value & (0x1 << target->current.sequence)) {
+					if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
+						pduel->game_field->remove_effect(peffect);
+					else
+						peffect->handler->remove_effect(peffect);
+				}
+			}
+		}
 		if(enable || ((ret == 1) && target->is_position(POS_FACEUP)))
 			target->enable_field_effect(true);
 		if(ret == 1 && target->current.location == LOCATION_MZONE && !(target->data.type & TYPE_MONSTER))
@@ -5454,7 +5471,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		}
 		core.operated_set.clear();
 		zone &= 0x1f;
-		int32 ct = get_tofield_count(playerid, LOCATION_MZONE, zone);
+		int32 ct = get_tofield_count(playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD, zone);
 		if(ct > 0) {
 			returns.ivalue[0] = TRUE;
 			core.units.begin()->step = 1;
@@ -5653,7 +5670,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 	case 20: {
 		core.operated_set.clear();
 		zone &= 0x1f;
-		int32 ct = get_tofield_count(toplayer, LOCATION_MZONE, zone);
+		int32 ct = get_tofield_count(toplayer, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD, zone);
 		if(ct > 0) {
 			returns.ivalue[0] = TRUE;
 			core.units.begin()->step = 21;
