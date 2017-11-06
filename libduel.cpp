@@ -1616,7 +1616,7 @@ int32 scriptlib::duel_get_mzone_count(lua_State *L) {
 		} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
 			mgroup = *(group**)lua_touserdata(L, 2);
 		} else
-			luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 3);
+			luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
 		for(int32 p = 0; p < 2; p++) {
 			uint32 digit = 1;
 			for(auto cit = pduel->game_field->player[p].list_mzone.begin(); cit != pduel->game_field->player[p].list_mzone.end(); ++cit) {
