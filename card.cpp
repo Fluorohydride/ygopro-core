@@ -2510,11 +2510,11 @@ int32 card::filter_set_procedure(uint8 playerid, effect_set* peset, uint8 ignore
 			if(new_min < min)
 				new_min = min;
 			new_zone &= zone;
-			if(pduel->game_field->check_tribute(this, new_min, max, 0, current.controler, new_zone, releasable))
+			if(pduel->game_field->check_tribute(this, new_min, max, 0, current.controler, new_zone, releasable, POS_FACEDOWN_DEFENSE))
 				return TRUE;
 		}
 	} else
-		return pduel->game_field->check_tribute(this, min, max, 0, current.controler, zone);
+		return pduel->game_field->check_tribute(this, min, max, 0, current.controler, zone, 0xff00ff, POS_FACEDOWN_DEFENSE);
 	return FALSE;
 }
 int32 card::check_set_procedure(effect* peffect, uint8 playerid, uint8 ignore_count, uint8 min_tribute, uint32 zone) {

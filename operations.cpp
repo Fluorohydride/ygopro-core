@@ -2098,7 +2098,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 						min = new_min_tribute;
 						unchanged = false;
 					}
-					if(!check_tribute(target, min, max, 0, target->current.controler, new_zone, releasable))
+					if(!check_tribute(target, min, max, 0, target->current.controler, new_zone, releasable, POS_FACEDOWN_DEFENSE))
 						continue;
 				}
 				if(unlimited < 0 && unchanged)
@@ -2152,7 +2152,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 			core.release_cards.clear();
 			core.release_cards_ex.clear();
 			core.release_cards_ex_sum.clear();
-			int32 rcount = get_summon_release_list(target, &core.release_cards, &core.release_cards_ex, &core.release_cards_ex_sum, NULL, 0, releasable);
+			int32 rcount = get_summon_release_list(target, &core.release_cards, &core.release_cards_ex, &core.release_cards_ex_sum, NULL, 0, releasable, POS_FACEDOWN_DEFENSE);
 			if(rcount == 0) {
 				returns.bvalue[0] = 0;
 				core.units.begin()->step = 3;
@@ -5480,7 +5480,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		int32 rmax = 0;
 		core.select_cards.clear();
 		for(auto cit = core.release_cards.begin(); cit != core.release_cards.end(); ++cit) {
-			if((zone >> (*cit)->current.sequence) & 1)
+			if((*cit)->current.location == LOCATION_MZONE && ((zone >> (*cit)->current.sequence) & 1))
 				core.select_cards.push_back(*cit);
 			else
 				rmax += (*cit)->release_param;
@@ -5679,7 +5679,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		int32 rmax = 0;
 		core.select_cards.clear();
 		for(auto cit = core.release_cards_ex.begin(); cit != core.release_cards_ex.end(); ++cit) {
-			if((zone >> (*cit)->current.sequence) & 1)
+			if((*cit)->current.location == LOCATION_MZONE && ((zone >> (*cit)->current.sequence) & 1))
 				core.select_cards.push_back(*cit);
 			else
 				rmax += (*cit)->release_param;

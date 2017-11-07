@@ -1210,7 +1210,12 @@ void field::filter_field_effect(uint32 code, effect_set* eset, uint8 sort) {
 }
 // put all cards in the target of peffect into cset
 void field::filter_affected_cards(effect* peffect, card_set* cset) {
-	if ((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD) || peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET))
+	if((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD))
+		return;
+	filter_inrange_cards(peffect, cset);
+}
+void field::filter_inrange_cards(effect* peffect, card_set* cset) {
+	if(peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET))
 		return;
 	uint8 self = peffect->get_handler_player();
 	if(self == PLAYER_NONE)
@@ -1614,7 +1619,7 @@ int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int3
 	return FALSE;
 }
 // return: the max release count of mg or all monsters on field
-int32 field::get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum, group* mg, uint32 ex, uint32 releasable) {
+int32 field::get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum, group* mg, uint32 ex, uint32 releasable, uint32 pos) {
 	uint8 p = target->current.controler;
 	uint32 rcount = 0;
 	for(auto cit = player[p].list_mzone.begin(); cit != player[p].list_mzone.end(); ++cit) {
@@ -1659,6 +1664,22 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 			if(ex_sum_max < pcard->release_param)
 				ex_sum_max = pcard->release_param;
 		}
+	}
+	card_set cset;
+	effect_set eset;
+	target->filter_effect(EFFECT_ADD_EXTRA_TRIBUTE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		if(eset[i]->get_value() & pos)
+			filter_inrange_cards(eset[i], &cset);
+	}
+	for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
+		card* pcard = *cit;
+		if(pcard->current.location == LOCATION_MZONE || !pcard->is_releasable_by_summon(p, target))
+			continue;
+		if(release_list)
+			release_list->insert(pcard);
+		pcard->release_param = 1;
+		rcount += pcard->release_param;
 	}
 	return rcount + ex_sum_max;
 }
@@ -2700,31 +2721,31 @@ int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int
 	}
 	return FALSE;
 }
-int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer, uint32 zone, uint32 releasable) {
+int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer, uint32 zone, uint32 releasable, uint32 pos) {
 	int32 ex = FALSE;
 	if(toplayer == 1 - pcard->current.controler)
 		ex = TRUE;
 	card_set release_list, ex_list;
-	int32 m = get_summon_release_list(pcard, &release_list, &ex_list, 0, mg, ex, releasable);
+	int32 m = get_summon_release_list(pcard, &release_list, &ex_list, 0, mg, ex, releasable, pos);
 	if(max > m)
 		max = m;
 	if(min > max)
 		return FALSE;
 	zone &= 0x1f;
-	int32 s;
+	int32 s = 0;
 	if(toplayer == pcard->current.controler) {
 		int32 ct = get_tofield_count(toplayer, LOCATION_MZONE, pcard->current.controler, LOCATION_REASON_TOFIELD, zone);
-		if(ct <= 0) {
-			if(max <= 0)
-				return FALSE;
-			for(auto it = release_list.begin(); it != release_list.end(); ++it) {
+		if(ct <= 0 && max <= 0)
+			return FALSE;
+		for(auto it = release_list.begin(); it != release_list.end(); ++it) {
+			if((*it)->current.location == LOCATION_MZONE) {
+				s++;
 				if((zone >> (*it)->current.sequence) & 1)
 					ct++;
 			}
-			if(ct <= 0)
-				return FALSE;
 		}
-		s = release_list.size();
+		if(ct <= 0)
+			return FALSE;
 		max -= (int32)ex_list.size();
 	} else {
 		s = ex_list.size();
