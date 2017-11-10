@@ -2836,15 +2836,60 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 		if(ft <= 0)
 			return FALSE;
 	}
-	if(!(core.global_flag & GLOBALFLAG_TUNE_MAGICIAN))
+	effect_set eset;
+	filter_player_effect(playerid, EFFECT_MUST_BE_XMATERIAL, &eset);
+	card_set mcset;
+	for(int i = 0; i < eset.size(); ++i)
+		mcset.insert(eset[i]->handler);
+	int32 mct = mcset.size();
+	if(mct > 0) {
+		if(ct == 0 && std::none_of(mcset.begin(), mcset.end(),
+			[=](card* pcard) { return linked_cards.find(pcard) != linked_cards.end(); }))
+			mct++;
+		if(mct > max)
+			return FALSE;
+	}
+	if(!(core.global_flag & GLOBALFLAG_TUNE_MAGICIAN)) {
+		if(std::any_of(mcset.begin(), mcset.end(),
+			[=](card* pcard) { return std::find_if(core.xmaterial_lst.begin(), core.xmaterial_lst.end(),
+				[=](const std::pair<int32, card*>& v) { return v.second == pcard; }) == core.xmaterial_lst.end(); }))
+			return FALSE;
 		return (int32)core.xmaterial_lst.size() >= min;
+	}
+	for(auto mit = mcset.begin(); mit != mcset.end(); ++mit) {
+		card* pcard = *mit;
+		effect* peffect = pcard->is_affected_by_effect(EFFECT_TUNE_MAGICIAN_X);
+		if(peffect) {
+			for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end();) {
+				if(pcard != cit->second && peffect->get_value(cit->second))
+					cit = core.xmaterial_lst.erase(cit);
+				else
+					++cit;
+			}
+		}
+	}
+	for(auto cit = mcset.begin(); cit != mcset.end(); ++cit) {
+		card* pcard = *cit;
+		auto it = std::find_if(core.xmaterial_lst.begin(), core.xmaterial_lst.end(),
+			[=](const std::pair<int32, card*>& v) { return v.second == pcard; });
+		if(it == core.xmaterial_lst.end())
+			return FALSE;
+		if(min < it->first)
+			min = it->first;
+		core.xmaterial_lst.erase(it);
+	}
 	for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit)
 		cit->second->sum_param = 0;
 	int32 digit = 1;
-	for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
+	for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end();) {
 		card* pcard = cit->second;
 		effect* peffect = pcard->is_affected_by_effect(EFFECT_TUNE_MAGICIAN_X);
 		if(peffect) {
+			if(std::any_of(mcset.begin(), mcset.end(),
+				[=](card* mcard) { return !!peffect->get_value(mcard); })) {
+				cit = core.xmaterial_lst.erase(cit);
+				continue;
+			}
 			digit <<= 1;
 			for(auto mit = core.xmaterial_lst.begin(); mit != core.xmaterial_lst.end(); ++mit) {
 				if(!peffect->get_value(mit->second))
@@ -2853,7 +2898,10 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 			pcard->sum_param |= digit;
 		} else
 			pcard->sum_param |= 1;
+		++cit;
 	}
+	ct += std::count_if(mcset.begin(), mcset.end(),
+		[=](card* pcard) { return linked_cards.find(pcard) != linked_cards.end(); });
 	std::multimap<int32, card*, std::greater<int32> > mat;
 	for(int32 icheck = 1; icheck <= digit; icheck <<= 1) {
 		mat.clear();
@@ -2862,7 +2910,7 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 				mat.insert(*cit);
 		}
 		if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
-			int32 maxc = std::min(max, (int32)mat.size());
+			int32 maxc = std::min(max, (int32)mat.size() + mct);
 			auto iter = mat.lower_bound(maxc);
 			mat.erase(mat.begin(), iter);
 		}
@@ -2876,7 +2924,7 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 			if(ft <= 0)
 				continue;
 		}
-		if((int32)mat.size() >= min)
+		if((int32)mat.size() + mct >= min)
 			return TRUE;
 	}
 	return FALSE;
