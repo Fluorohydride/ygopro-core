@@ -836,8 +836,10 @@ public:
 #define MSG_SHUFFLE_SET_CARD	36
 #define MSG_REVERSE_DECK		37
 #define MSG_DECK_TOP			38
+#define MSG_SHUFFLE_EXTRA		39
 #define MSG_NEW_TURN			40
 #define MSG_NEW_PHASE			41
+#define MSG_CONFIRM_EXTRATOP	42
 #define MSG_MOVE				50
 #define MSG_POS_CHANGE			53
 #define MSG_SET					54
