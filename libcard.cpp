@@ -1802,7 +1802,6 @@ int32 scriptlib::card_is_can_be_special_summoned(lua_State *L) {
 	uint32 sumpos = POS_FACEUP;
 	uint32 toplayer = sumplayer;
 	uint32 zone = 0xff;
-	uint32 nozoneusedcheck = 0;
 	if(lua_gettop(L) >= 7)
 		sumpos = lua_tointeger(L, 7);
 	if(lua_gettop(L) >= 8)
