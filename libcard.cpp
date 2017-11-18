@@ -1364,11 +1364,20 @@ int32 scriptlib::card_is_has_effect(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 code = lua_tointeger(L, 2);
-	if(pcard)
-		interpreter::effect2value(L, pcard->is_affected_by_effect(code));
-	else
+	if(!pcard) {
 		lua_pushnil(L);
-	return 1;
+		return 1;
+	}
+	effect_set eset;
+	pcard->filter_effect(code, &eset);
+	int32 size = eset.size();
+	if(!size) {
+		lua_pushnil(L);
+		return 1;
+	}
+	for(int32 i = 0; i < size; ++i)
+		interpreter::effect2value(L, eset[i]);
+	return size;
 }
 int32 scriptlib::card_reset_effect(lua_State *L) {
 	check_param_count(L, 3);
