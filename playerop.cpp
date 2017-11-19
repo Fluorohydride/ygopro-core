@@ -440,7 +440,7 @@ int32 field::select_position(uint16 step, uint8 playerid, uint32 code, uint8 pos
 		return FALSE;
 	} else {
 		uint32 pos = returns.ivalue[0];
-		if(pos != 0x1 && pos != 0x2 && pos != 0x4 && pos != 0x8 && !(pos & positions)) {
+		if(pos != 0x1 && pos != 0x2 && pos != 0x4 && pos != 0x8 || !(pos & positions)) {
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
