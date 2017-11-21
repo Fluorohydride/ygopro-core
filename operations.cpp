@@ -2890,6 +2890,24 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 		target->enable_field_effect(false);
 		check_card_counter(target, 3, target->summon_player);
 		uint32 move_player = (target->data.type & TYPE_TOKEN) ? target->owner : target->summon_player;
+		if(targets && core.duel_rule >= 4) {
+			uint32 flag1, flag2;
+			int32 ct1 = get_tofield_count(playerid, LOCATION_MZONE, target->summon_player, LOCATION_REASON_TOFIELD, zone, &flag1);
+			int32 ct2 = get_spsummonable_count_fromex(target, playerid, target->summon_player, zone, &flag2);
+			for(auto it = targets->container.begin(); it != targets->container.end(); ++it) {
+				if((*it)->current.location != LOCATION_EXTRA)
+					ct1--;
+				else
+					ct2--;
+			}
+			if(target->current.location != LOCATION_EXTRA) {
+				if(ct2 == 0)
+					zone = flag2;
+			} else {
+				if(ct1 == 0)
+					zone = flag1;
+			}
+		}
 		move_to_field(target, move_player, playerid, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
 		return FALSE;
 	}
