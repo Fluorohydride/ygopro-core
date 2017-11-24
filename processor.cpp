@@ -1371,8 +1371,10 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			tf_count++;
 		}
 		pr = effects.continuous_effect.equal_range(phase_event);
-		for(; pr.first != pr.second; ++pr.first) {
+		for(; pr.first != pr.second;) {
 			peffect = pr.first->second;
+			++pr.first;
+			//effects.continuous_effect may be changed in is_activateable (e.g. Rescue Cat)
 			if(peffect->get_handler_player() != check_player || !peffect->is_activateable(check_player, nil_event))
 				continue;
 			peffect->id = infos.field_id++;
