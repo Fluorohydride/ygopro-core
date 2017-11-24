@@ -132,9 +132,12 @@ int32 scriptlib::group_for_each(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	int32 f = interpreter::get_function_handle(L, 2);
+	int32 extraargs = lua_gettop(L) - 2;
 	for (auto it = pgroup->container.begin(); it != pgroup->container.end(); ++it) {
-		pduel->lua->add_param((*it), PARAM_TYPE_CARD);
-		pduel->lua->call_function(f, 1, 0);
+		pduel->lua->add_param(*it, PARAM_TYPE_CARD);
+		for(int32 i = 0; i < extraargs; ++i)
+			pduel->lua->add_param(-extraargs + i, PARAM_TYPE_INDEX);
+		pduel->lua->call_function(f, 1 + extraargs, 0);
 	}
 	return 0;
 }
