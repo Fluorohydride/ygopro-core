@@ -3128,7 +3128,6 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 						pduel->lua->add_param(pcard->current.reason, PARAM_TYPE_INT);
 						pduel->lua->add_param(pcard->current.reason_player, PARAM_TYPE_INT);
 						if(eset[i]->check_value_condition(3)) {
-							eset[i]->dec_count();
 							indestructable_effect_set.insert(eset[i]);
 							is_destructable = false;
 						}
@@ -3194,6 +3193,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 			}
 		}
 		for (auto eit = indestructable_effect_set.begin(); eit != indestructable_effect_set.end(); ++eit) {
+			(*eit)->dec_count();
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_CARD);
 			pduel->write_buffer8(0);
