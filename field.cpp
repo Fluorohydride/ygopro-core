@@ -3326,6 +3326,64 @@ chain* field::get_chain(uint32 chaincount) {
 	}
 	return &core.current_chain[chaincount - 1];
 }
+int32 field::get_cteffect(effect* peffect, int32 playerid, int32 store) {
+	card* phandler = peffect->get_handler();
+	if(phandler->data.type != (TYPE_TRAP | TYPE_CONTINUOUS))
+		return FALSE;
+	if(!(peffect->type & EFFECT_TYPE_ACTIVATE))
+		return FALSE;
+	if(peffect->code != EVENT_FREE_CHAIN)
+		return FALSE;
+	if(peffect->cost || peffect->target || peffect->operation)
+		return FALSE;
+	if(store) {
+		core.select_chains.clear();
+		core.select_options.clear();
+	}
+	const bool damage_step = infos.phase == PHASE_DAMAGE && !peffect->is_flag(EFFECT_FLAG_DAMAGE_STEP);
+	const bool damage_cal = infos.phase == PHASE_DAMAGE_CAL && !peffect->is_flag(EFFECT_FLAG_DAMAGE_CAL);
+	for(auto efit = phandler->field_effect.begin(); efit != phandler->field_effect.end(); ++efit) {
+		effect* feffect = efit->second;
+		if(!(feffect->type & (EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_QUICK_O)))
+			continue;
+		if(damage_step && !feffect->is_flag(EFFECT_FLAG_DAMAGE_STEP))
+			continue;
+		if(damage_cal && !feffect->is_flag(EFFECT_FLAG_DAMAGE_CAL))
+			continue;
+		uint32 code = efit->first;
+		if(code == EVENT_FREE_CHAIN || code == EVENT_PHASE + infos.phase) {
+			nil_event.event_code = code;
+			if(get_cteffect_evt(feffect, playerid, nil_event, store) && !store)
+				return TRUE;
+		} else {
+			for(auto evit = core.point_event.begin(); evit != core.point_event.end(); ++evit) {
+				if(code != evit->event_code)
+					continue;
+				if(get_cteffect_evt(feffect, playerid, *evit, store) && !store)
+					return TRUE;
+			}
+			for(auto evit = core.instant_event.begin(); evit != core.instant_event.end(); ++evit) {
+				if(code != evit->event_code)
+					continue;
+				if(get_cteffect_evt(feffect, playerid, *evit, store) && !store)
+					return TRUE;
+			}
+		}
+	}
+	return (store && !core.select_chains.empty()) ? TRUE : FALSE;
+}
+int32 field::get_cteffect_evt(effect* feffect, int32 playerid, const tevent& e, int32 store) {
+	if(!feffect->is_activateable(playerid, e, FALSE, FALSE, FALSE, FALSE, TRUE))
+		return FALSE;
+	if(store) {
+		chain newchain;
+		newchain.evt = e;
+		newchain.triggering_effect = feffect;
+		core.select_chains.push_back(newchain);
+		core.select_options.push_back(feffect->description);
+	}
+	return TRUE;
+}
 int32 field::is_able_to_enter_bp() {
 	return ((core.duel_options & DUEL_ATTACK_FIRST_TURN) || infos.turn_id != 1)
 	        && infos.phase < PHASE_BATTLE_START
