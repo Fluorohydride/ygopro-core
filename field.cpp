@@ -600,6 +600,18 @@ int32 field::get_tofield_count(uint8 playerid, uint8 location, uint32 uplayer, u
 				flag |= ~(value >> 16) & 0x1f;
 		}
 	}
+	effect_set eset2;
+	if(location == LOCATION_MZONE && (reason & LOCATION_REASON_TOFIELD) && core.duel_rule <= 3) {
+		if(uplayer < 2)
+			filter_player_effect(uplayer, EFFECT_LIMIT_MZONE_EXTRA, &eset2);
+		for(int32 i = 0; i < eset2.size(); ++i) {
+			uint32 value = eset2[i]->get_value();
+			if(eset2[i]->get_handler_player() == playerid)
+				flag |= ~value & 0x1f;
+			else
+				flag |= ~(value >> 16) & 0x1f;
+		}
+	}
 	if (location == LOCATION_MZONE)
 		flag = (flag | ~zone) & 0x1f;
 	else
@@ -626,6 +638,16 @@ int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 up
 	for(int32 i = 0; i < eset.size(); ++i) {
 		uint32 value = eset[i]->get_value();
 		if(eset[i]->get_handler_player() == playerid)
+			flag |= ~value & 0x1f;
+		else
+			flag |= ~(value >> 16) & 0x1f;
+	}
+	effect_set eset2;
+	if(uplayer < 2)
+		filter_player_effect(uplayer, EFFECT_LIMIT_MZONE_EXTRA, &eset2);
+	for(int32 i = 0; i < eset2.size(); ++i) {
+		uint32 value = eset2[i]->get_value();
+		if(eset2[i]->get_handler_player() == playerid)
 			flag |= ~value & 0x1f;
 		else
 			flag |= ~(value >> 16) & 0x1f;
