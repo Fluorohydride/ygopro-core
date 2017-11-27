@@ -4435,7 +4435,7 @@ int32 field::add_chain(uint16 step) {
 				returns.ivalue[0] = TRUE;
 				return FALSE;
 			}
-			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, playerid, 94);
+			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)peffect->get_handler(), playerid, 94);
 		} else
 			returns.ivalue[0] = FALSE;
 		return FALSE;
