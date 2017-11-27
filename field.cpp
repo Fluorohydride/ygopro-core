@@ -1210,9 +1210,38 @@ void field::filter_field_effect(uint32 code, effect_set* eset, uint8 sort) {
 }
 // put all cards in the target of peffect into cset
 void field::filter_affected_cards(effect* peffect, card_set* cset) {
-	if((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD))
+	if((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD) || peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET))
 		return;
-	filter_inrange_cards(peffect, cset);
+	uint8 self = peffect->get_handler_player();
+	if(self == PLAYER_NONE)
+		return;
+	std::vector<card_vector*> cvec;
+	uint16 range = peffect->s_range;
+	for(uint32 p = 0; p < 2; ++p) {
+		if(range & LOCATION_MZONE)
+			cvec.push_back(&player[self].list_mzone);
+		if(range & LOCATION_SZONE)
+			cvec.push_back(&player[self].list_szone);
+		if(range & LOCATION_GRAVE)
+			cvec.push_back(&player[self].list_grave);
+		if(range & LOCATION_REMOVED)
+			cvec.push_back(&player[self].list_remove);
+		if(range & LOCATION_HAND)
+			cvec.push_back(&player[self].list_hand);
+		if(range & LOCATION_DECK)
+			cvec.push_back(&player[self].list_main);
+		if(range & LOCATION_EXTRA)
+			cvec.push_back(&player[self].list_extra);
+		range = peffect->o_range;
+		self = 1 - self;
+	}
+	for(auto cvit = cvec.begin(); cvit != cvec.end(); ++cvit) {
+		for(auto it = (*cvit)->begin(); it != (*cvit)->end(); ++it) {
+			card* pcard = *it;
+			if(pcard && peffect->is_target(pcard))
+				cset->insert(pcard);
+		}
+	}
 }
 void field::filter_inrange_cards(effect* peffect, card_set* cset) {
 	if(peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET))
@@ -1221,58 +1250,31 @@ void field::filter_inrange_cards(effect* peffect, card_set* cset) {
 	if(self == PLAYER_NONE)
 		return;
 	uint16 range = peffect->s_range;
+	std::vector<card_vector*> cvec;
 	for(uint32 p = 0; p < 2; ++p) {
-		if (range & LOCATION_MZONE) {
-			for (auto it = player[self].list_mzone.begin(); it != player[self].list_mzone.end(); ++it) {
-				card* pcard = *it;
-				if (pcard && peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
-		if (range & LOCATION_SZONE) {
-			for (auto it = player[self].list_szone.begin(); it != player[self].list_szone.end(); ++it) {
-				card* pcard = *it;
-				if (pcard && peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
-		if (range & LOCATION_GRAVE) {
-			for (auto it = player[self].list_grave.begin(); it != player[self].list_grave.end(); ++it) {
-				card* pcard = *it;
-				if (peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
-		if (range & LOCATION_REMOVED) {
-			for (auto it = player[self].list_remove.begin(); it != player[self].list_remove.end(); ++it) {
-				card* pcard = *it;
-				if (peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
-		if (range & LOCATION_HAND) {
-			for (auto it = player[self].list_hand.begin(); it != player[self].list_hand.end(); ++it) {
-				card* pcard = *it;
-				if (peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
-		if(range & LOCATION_DECK) {
-			for(auto it = player[self].list_main.begin(); it != player[self].list_main.end(); ++it) {
-				card* pcard = *it;
-				if(peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
-		if(range & LOCATION_EXTRA) {
-			for(auto it = player[self].list_extra.begin(); it != player[self].list_extra.end(); ++it) {
-				card* pcard = *it;
-				if(peffect->is_target(pcard))
-					cset->insert(pcard);
-			}
-		}
+		if(range & LOCATION_MZONE)
+			cvec.push_back(&player[self].list_mzone);
+		if(range & LOCATION_SZONE)
+			cvec.push_back(&player[self].list_szone);
+		if(range & LOCATION_GRAVE)
+			cvec.push_back(&player[self].list_grave);
+		if(range & LOCATION_REMOVED)
+			cvec.push_back(&player[self].list_remove);
+		if(range & LOCATION_HAND)
+			cvec.push_back(&player[self].list_hand);
+		if(range & LOCATION_DECK)
+			cvec.push_back(&player[self].list_main);
+		if(range & LOCATION_EXTRA)
+			cvec.push_back(&player[self].list_extra);
 		range = peffect->o_range;
 		self = 1 - self;
+	}
+	for(auto cvit = cvec.begin(); cvit != cvec.end(); ++cvit) {
+		for(auto it = (*cvit)->begin(); it != (*cvit)->end(); ++it) {
+			card* pcard = *it;
+			if(pcard && peffect->is_fit_target_function(pcard))
+				cset->insert(pcard);
+		}
 	}
 }
 void field::filter_player_effect(uint8 playerid, uint32 code, effect_set* eset, uint8 sort) {
@@ -3340,15 +3342,11 @@ int32 field::get_cteffect(effect* peffect, int32 playerid, int32 store) {
 		core.select_chains.clear();
 		core.select_options.clear();
 	}
-	const bool damage_step = infos.phase == PHASE_DAMAGE && !peffect->is_flag(EFFECT_FLAG_DAMAGE_STEP);
-	const bool damage_cal = infos.phase == PHASE_DAMAGE_CAL && !peffect->is_flag(EFFECT_FLAG_DAMAGE_CAL);
 	for(auto efit = phandler->field_effect.begin(); efit != phandler->field_effect.end(); ++efit) {
 		effect* feffect = efit->second;
 		if(!(feffect->type & (EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_QUICK_O)))
 			continue;
-		if(damage_step && !feffect->is_flag(EFFECT_FLAG_DAMAGE_STEP))
-			continue;
-		if(damage_cal && !feffect->is_flag(EFFECT_FLAG_DAMAGE_CAL))
+		if(!feffect->in_range(phandler))
 			continue;
 		uint32 code = efit->first;
 		if(code == EVENT_FREE_CHAIN || code == EVENT_PHASE + infos.phase) {

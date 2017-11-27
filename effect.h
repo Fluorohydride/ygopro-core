@@ -75,6 +75,7 @@ public:
 	int32 is_condition_check(uint8 playerid, const tevent& e);
 	int32 is_activate_check(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
 	int32 is_target(card* pcard);
+	int32 is_fit_target_function(card* pcard);
 	int32 is_target_player(uint8 playerid);
 	int32 is_player_effect_target(card* pcard);
 	int32 is_immuned(card* pcard);
