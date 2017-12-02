@@ -22,7 +22,7 @@ typedef long ptr;
 typedef long long int64;
 typedef int int32;
 typedef short int16;
-typedef char int8;
+typedef signed char int8;
 typedef int BOOL;
 
 #define MATCH_ALL(x,y) (((x)&(y))==(y))
