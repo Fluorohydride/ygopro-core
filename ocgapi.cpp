@@ -185,22 +185,20 @@ extern "C" DECL_DLLEXPORT int32 query_card(ptr pduel, uint8 playerid, uint8 loca
 		pcard = ptduel->game_field->get_field_card(playerid, location, sequence);
 	else {
 		field::card_vector* lst = 0;
-		if(location == LOCATION_HAND )
+		if(location == LOCATION_HAND)
 			lst = &ptduel->game_field->player[playerid].list_hand;
-		else if(location == LOCATION_GRAVE )
+		else if(location == LOCATION_GRAVE)
 			lst = &ptduel->game_field->player[playerid].list_grave;
-		else if(location == LOCATION_REMOVED )
+		else if(location == LOCATION_REMOVED)
 			lst = &ptduel->game_field->player[playerid].list_remove;
-		else if(location == LOCATION_EXTRA )
+		else if(location == LOCATION_EXTRA)
 			lst = &ptduel->game_field->player[playerid].list_extra;
-		else if(location == LOCATION_DECK )
+		else if(location == LOCATION_DECK)
 			lst = &ptduel->game_field->player[playerid].list_main;
-		if(!lst || sequence > lst->size())
+		if(!lst || sequence >= lst->size())
 			pcard = 0;
 		else {
-			auto cit = lst->begin();
-			for(uint32 i = 0; i < sequence; ++i, ++cit);
-			pcard = *cit;
+			pcard = (*lst)[sequence];
 		}
 	}
 	if(pcard)
