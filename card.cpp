@@ -403,6 +403,26 @@ int32 card::is_fusion_set_card(uint32 set_code) {
 	}
 	return FALSE;
 }
+int32 card::is_link_set_card(uint32 set_code) {
+	if(is_set_card(set_code))
+		return TRUE;
+	uint32 settype = set_code & 0xfff;
+	uint32 setsubtype = set_code & 0xf000;
+	effect_set eset;
+	filter_effect(EFFECT_ADD_LINK_CODE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		uint32 code = eset[i]->get_value(this);
+		card_data dat;
+		::read_card(code, &dat);
+		uint64 setcode = dat.setcode;
+		while(setcode) {
+			if ((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
+				return TRUE;
+			setcode = setcode >> 16;
+		}
+	}
+	return FALSE;
+}
 uint32 card::get_type() {
 	if(assume_type == ASSUME_TYPE)
 		return assume_value;
@@ -1026,6 +1046,16 @@ uint32 card::get_fusion_attribute(uint8 playerid) {
 	}
 	return attribute;
 }
+uint32 card::get_link_attribute(uint8 playerid) {
+	effect_set effects;
+	filter_effect(EFFECT_ADD_LINK_ATTRIBUTE, &effects);
+	uint32 attribute = get_attribute();
+	for (int32 i = 0; i < effects.size(); ++i) {
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		attribute |= effects[i]->get_value(this, 1);
+	}
+	return attribute;
+}
 // see get_level()
 uint32 card::get_race() {
 	if(assume_type == ASSUME_RACE)
@@ -1053,6 +1083,16 @@ uint32 card::get_race() {
 		temp.race = race;
 	}
 	temp.race = 0xffffffff;
+	return race;
+}
+uint32 card::get_link_race(uint8 playerid) {
+	effect_set effects;
+	filter_effect(EFFECT_ADD_LINK_RACE, &effects);
+	uint32 race = get_race();
+	for (int32 i = 0; i < effects.size(); ++i) {
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		attribute |= effects[i]->get_value(this, 1);
+	}
 	return race;
 }
 uint32 card::get_lscale() {
