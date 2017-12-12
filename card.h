@@ -195,6 +195,7 @@ public:
 	int32 is_origin_set_card(uint32 set_code);
 	int32 is_pre_set_card(uint32 set_code);
 	int32 is_fusion_set_card(uint32 set_code);
+	int32 is_link_set_card(uint32 set_code);
 	uint32 get_type();
 	uint32 get_fusion_type();
 	uint32 get_synchro_type();
@@ -212,7 +213,9 @@ public:
 	uint32 check_xyz_level(card* pcard, uint32 lv);
 	uint32 get_attribute();
 	uint32 get_fusion_attribute(uint8 playerid);
+	uint32 get_link_attribute(uint8 playerid);
 	uint32 get_race();
+	uint32 get_link_race(uint8 playerid);
 	uint32 get_lscale();
 	uint32 get_rscale();
 	uint32 get_link_marker();
