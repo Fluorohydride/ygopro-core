@@ -1091,7 +1091,7 @@ uint32 card::get_link_race(uint8 playerid) {
 	uint32 race = get_race();
 	for (int32 i = 0; i < effects.size(); ++i) {
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-		attribute |= effects[i]->get_value(this, 1);
+		race |= effects[i]->get_value(this, 1);
 	}
 	return race;
 }
