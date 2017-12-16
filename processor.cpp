@@ -1665,7 +1665,8 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			bool act = true;
 			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 					&& (!(peffect->type & EFFECT_TYPE_FIELD) || phandler->is_has_relation(*clit))
-					&& (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x43)
+					&& (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE
+						|| (clit->triggering_location & 0x43) && (clit->triggering_position & POS_FACEDOWN)
 						|| !(phandler->current.location & 0x43) || phandler->is_position(POS_FACEUP))) {
 				if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) {
 					if(tp == infos.turn_player) {
@@ -1731,8 +1732,8 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			effect* peffect = clit->triggering_effect;
 			card* phandler = peffect->get_handler();
 			if((!peffect->is_flag(EFFECT_FLAG_EVENT_PLAYER | EFFECT_FLAG_BOTH_SIDE) && phandler->is_has_relation(*clit))
-			        || (!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && (peffect->type & EFFECT_TYPE_FIELD)
-			            && (peffect->range & LOCATION_HAND) && phandler->current.location == LOCATION_HAND)) {
+				|| (!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && (peffect->type & EFFECT_TYPE_FIELD)
+					&& (peffect->range & LOCATION_HAND) && phandler->current.location == LOCATION_HAND)) {
 				if(!phandler->is_has_relation(*clit))
 					phandler->create_relation(*clit);
 				clit->triggering_player = phandler->current.controler;
@@ -1771,8 +1772,9 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		bool act = true;
 		if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 				&& (!(peffect->type & EFFECT_TYPE_FIELD) || phandler->is_has_relation(*clit))
-				&& (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x43)
-		            || !(phandler->current.location & 0x43) || phandler->is_position(POS_FACEUP))) {
+				&& (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE
+					|| (clit->triggering_location & 0x43) && (clit->triggering_position & POS_FACEDOWN)
+					|| !(phandler->current.location & 0x43) || phandler->is_position(POS_FACEUP))) {
 			if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && clit->triggering_location == LOCATION_HAND && (peffect->range & LOCATION_HAND)) {
 				core.new_ochain_h.push_back(*clit);
 				act = false;
@@ -1832,8 +1834,9 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			bool act = true;
 			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 					&& (!(peffect->type & EFFECT_TYPE_FIELD) || phandler->is_has_relation(*clit))
-					&& (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE || (clit->triggering_location & 0x43)
-			            || !(phandler->current.location & 0x43) || phandler->is_position(POS_FACEUP))) {
+					&& (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE
+						|| (clit->triggering_location & 0x43) && (clit->triggering_position & POS_FACEDOWN)
+						|| !(phandler->current.location & 0x43) || phandler->is_position(POS_FACEUP))) {
 				if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && clit->triggering_location == LOCATION_HAND && (peffect->range & LOCATION_HAND)) {
 					continue;
 				} else if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) || !(peffect->type & EFFECT_TYPE_FIELD)
