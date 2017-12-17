@@ -2065,9 +2065,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 				        && peffect->is_chainable(priority) && peffect->is_activateable(priority, clit->evt, TRUE)) {
 					for(auto cait = core.current_chain.begin(); cait != core.current_chain.end(); ++cait) {
 						if(cait->triggering_player == priority) {
-							effect* pchaineff = cait->triggering_effect;
-							if(!pchaineff->is_flag(EFFECT_FLAG_FIELD_ONLY) && (pchaineff->type & EFFECT_TYPE_TRIGGER_O)
-							        && cait->triggering_location == LOCATION_HAND && (pchaineff->range & LOCATION_HAND)) {
+							if(std::any_of(core.new_ochain_h.begin(), core.new_ochain_h.end(), [=](chain ch) { return ch.chain_id == cait->chain_id; })) {
 								act = false;
 								break;
 							}
