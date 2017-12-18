@@ -1670,7 +1670,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 					|| (clit->triggering_location & 0x43) && (clit->triggering_position & POS_FACEDOWN)
 					|| !(phandler->current.location & 0x43) || phandler->is_position(POS_FACEUP))) {
 				if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) {
-					for(auto tpit = core.new_chains.begin(); tpit != core.new_chains.end(); ++tpit) {
+					for(auto tpit = core.current_chain.begin(); tpit != core.current_chain.end(); ++tpit) {
 						if(tpit->triggering_effect->get_handler()->data.code == phandler->data.code && tpit->triggering_player == tp) {
 							act = false;
 							break;
@@ -1746,7 +1746,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 					act = false;
 				} else if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) || !(peffect->type & EFFECT_TYPE_FIELD) || peffect->in_range(*clit)) {
 					if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) {
-						for(auto tpit = core.new_chains.begin(); tpit != core.new_chains.end(); ++tpit) {
+						for(auto tpit = core.current_chain.begin(); tpit != core.current_chain.end(); ++tpit) {
 							if(tpit->triggering_effect->get_handler()->data.code == phandler->data.code && tpit->triggering_player == tp) {
 								act = false;
 								break;
