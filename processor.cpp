@@ -1929,8 +1929,10 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		return FALSE;
 	}
 	case 33: {
-		if(returns.ivalue[0] == -1)
+		if(returns.ivalue[0] == -1) {
+			core.units.begin()->step = -1;
 			return FALSE;
+		}
 		const chain& newchain = core.select_chains[returns.ivalue[0]];
 		effect* peffect = newchain.triggering_effect;
 		core.select_chains.clear();
