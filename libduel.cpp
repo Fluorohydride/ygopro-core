@@ -807,10 +807,10 @@ int32 scriptlib::duel_confirm_decktop(lua_State *L) {
 }
 int32 scriptlib::duel_confirm_extratop(lua_State *L) {
 	check_param_count(L, 2);
-	int32 playerid = lua_tonumberint(L, 1);
+	int32 playerid = lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	uint32 count = lua_tonumberint(L, 2);
+	uint32 count = lua_tointeger(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
 	if(count >= pduel->game_field->player[playerid].list_extra.size() - pduel->game_field->player[playerid].extra_p_count)
 		count = pduel->game_field->player[playerid].list_extra.size() - pduel->game_field->player[playerid].extra_p_count;
@@ -1311,7 +1311,7 @@ int32 scriptlib::duel_shuffle_deck(lua_State *L) {
 }
 int32 scriptlib::duel_shuffle_extra(lua_State *L) {
 	check_param_count(L, 1);
-	uint32 playerid = lua_tonumberint(L, 1);
+	uint32 playerid = lua_tointeger(L, 1);
 	if (playerid != 0 && playerid != 1)
 		return 0;
 	duel* pduel = interpreter::get_duel_info(L);
@@ -2071,8 +2071,8 @@ int32 scriptlib::duel_get_decktop_group(lua_State *L) {
  */
 int32 scriptlib::duel_get_extratop_group(lua_State *L) {
 	check_param_count(L, 2);
-	uint32 playerid = lua_tonumberint(L, 1);
-	uint32 count = lua_tonumberint(L, 2);
+	uint32 playerid = lua_tointeger(L, 1);
+	uint32 count = lua_tointeger(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = pduel->new_group();
 	auto cit = pduel->game_field->player[playerid].list_extra.rbegin() + pduel->game_field->player[playerid].extra_p_count;
