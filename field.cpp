@@ -215,9 +215,9 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 		break;
 	}
 	case LOCATION_EXTRA: {
-		if (player[playerid].extra_p_count == 0 || (pcard->data.type & TYPE_PENDULUM) && (pcard->sendto_param.position & POS_FACEUP)) {
+		if(player[playerid].extra_p_count == 0 || (pcard->data.type & TYPE_PENDULUM) && (pcard->sendto_param.position & POS_FACEUP))
 			player[playerid].list_extra.push_back(pcard);
-		} else
+		else
 			player[playerid].list_extra.insert(player[playerid].list_extra.end() - player[playerid].extra_p_count, pcard);
 		if((pcard->data.type & TYPE_PENDULUM) && (pcard->sendto_param.position & POS_FACEUP))
 			++player[playerid].extra_p_count;
@@ -843,20 +843,12 @@ void field::shuffle(uint8 playerid, uint8 location) {
 			return;
 		}
 	}
-	if(location == LOCATION_EXTRA) {
-		if(svector.size() - player[playerid].extra_p_count > 1 && !(core.duel_options & DUEL_PSEUDO_SHUFFLE)) {
-			uint32 i = 0, s = svector.size() - player[playerid].extra_p_count, r;
-			for(i = 0; i < s - 1; ++i) {
-				r = pduel->get_next_integer(i, s - 1);
-				card* t = svector[i];
-				svector[i] = svector[r];
-				svector[r] = t;
-			}
-			reset_sequence(playerid, location);
-		}
-	} else if(location == LOCATION_HAND || !(core.duel_options & DUEL_PSEUDO_SHUFFLE)) {
-		if(svector.size() > 1) {
-			uint32 i = 0, s = svector.size(), r;
+	if(location == LOCATION_HAND || !(core.duel_options & DUEL_PSEUDO_SHUFFLE)) {
+		uint32 s = svector.size();
+		if(location == LOCATION_EXTRA)
+			s = s - player[playerid].extra_p_count;
+		if(s > 1) {
+			uint32 i = 0, r;
 			for(i = 0; i < s - 1; ++i) {
 				r = pduel->get_next_integer(i, s - 1);
 				card* t = svector[i];
