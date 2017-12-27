@@ -4378,6 +4378,8 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 				if((opos & POS_FACEUP) && (npos & POS_FACEDOWN)) {
 					if(pcard->get_type() & TYPE_TRAPMONSTER)
 						trapmonster = true;
+					if(pcard->status & (STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED))
+						pcard->set_status(STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED, FALSE);
 					pcard->reset(RESET_TURN_SET, RESET_EVENT);
 					pcard->set_status(STATUS_SET_TURN, TRUE);
 					pcard->enable_field_effect(false);
