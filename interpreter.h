@@ -34,7 +34,7 @@ class interpreter {
 public:
 	typedef std::unordered_map<int32, lua_State*> coroutine_map;
 	typedef std::list<std::pair<void*, uint32> > param_list;
-	
+
 	duel* pduel;
 	char msgbuf[64];
 	lua_State* lua_state;
@@ -55,6 +55,7 @@ public:
 	void unregister_group(group* pgroup);
 
 	int32 load_script(char* buffer);
+	int32 load_expansion_script(char* buffer);
 	int32 load_card_script(uint32 code);
 	void add_param(void* param, int32 type, bool front = false);
 	void add_param(ptr param, int32 type, bool front = false);
