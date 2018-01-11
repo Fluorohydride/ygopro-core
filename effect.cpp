@@ -749,5 +749,5 @@ int32 effect::in_range(const chain& ch) {
 void effect::set_activate_location() {
 	card* phandler = get_handler();
 	active_location = phandler->current.location;
-	//active_sequence = phandler->current.sequence;
+	active_sequence = phandler->current.sequence;
 }

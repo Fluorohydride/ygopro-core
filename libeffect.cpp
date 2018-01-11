@@ -516,11 +516,17 @@ int32 scriptlib::effect_is_activated(lua_State * L) {
 	lua_pushboolean(L, (peffect->type & 0x7f0));
 	return 1;
 }
-
 int32 scriptlib::effect_get_activate_location(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	lua_pushinteger(L, peffect->active_location);
+	return 1;
+}
+int32 scriptlib::effect_get_activate_sequence(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	lua_pushinteger(L, peffect->active_sequence);
 	return 1;
 }

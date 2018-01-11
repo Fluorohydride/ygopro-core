@@ -51,7 +51,8 @@ public:
 	uint32 hint_timing[2];
 	uint32 card_type;
 	uint32 active_type;
-	uint32 active_location;
+	uint16 active_location;
+	uint16 active_sequence;
 	card* active_handler;
 	uint16 status;
 	uint32 label;
