@@ -315,6 +315,7 @@ public:
 	static int32 effect_is_activatable(lua_State *L);
 	static int32 effect_is_activated(lua_State *L);
 	static int32 effect_get_activate_location(lua_State *L);
+	static int32 effect_get_activate_sequence(lua_State *L);
 
 	//Group functions
 	static int32 group_new(lua_State *L);
