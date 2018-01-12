@@ -1828,8 +1828,11 @@ int32 scriptlib::card_is_special_summonable(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 sumtype = 0;
+	if(lua_gettop(L) >= 2)
+		sumtype = lua_tointeger(L, 2);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
-	lua_pushboolean(L, pcard->is_special_summonable(p, 0));
+	lua_pushboolean(L, pcard->is_special_summonable(p, sumtype));
 	return 1;
 }
 int32 scriptlib::card_is_synchro_summonable(lua_State *L) {
