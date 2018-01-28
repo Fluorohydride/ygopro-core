@@ -1639,9 +1639,30 @@ int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int3
 int32 field::get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum, group* mg, uint32 ex, uint32 releasable, uint32 pos) {
 	uint8 p = target->current.controler;
 	uint32 rcount = 0;
+	card_set cset;
+	effect_set eset;
+	target->filter_effect(EFFECT_ADD_EXTRA_TRIBUTE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		if(eset[i]->get_value() & pos)
+			filter_inrange_cards(eset[i], &cset);
+	}
+	card_set ex_tribute;
+	for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
+		card* pcard = *cit;
+		if(!pcard->is_releasable_by_summon(p, target))
+			continue;
+		if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
+			pcard->release_param = 2;
+		else
+			pcard->release_param = 1;
+		rcount += pcard->release_param;
+		ex_tribute.insert(pcard);
+	}
 	for(auto cit = player[p].list_mzone.begin(); cit != player[p].list_mzone.end(); ++cit) {
 		card* pcard = *cit;
 		if(pcard && ((releasable >> pcard->current.sequence) & 1) && pcard->is_releasable_by_summon(p, target)) {
+			if(ex_tribute.find(pcard) != ex_tribute.end())
+				continue;
 			if(mg && !mg->has_card(pcard))
 				continue;
 			if(release_list)
@@ -1657,6 +1678,8 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 	for(auto cit = player[1 - p].list_mzone.begin(); cit != player[1 - p].list_mzone.end(); ++cit) {
 		card* pcard = *cit;
 		if(!pcard || !((releasable >> (pcard->current.sequence + 16)) & 1) || !pcard->is_releasable_by_summon(p, target))
+			continue;
+		if(ex_tribute.find(pcard) != ex_tribute.end())
 			continue;
 		if(mg && !mg->has_card(pcard))
 			continue;
@@ -1682,22 +1705,8 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 				ex_sum_max = pcard->release_param;
 		}
 	}
-	card_set cset;
-	effect_set eset;
-	target->filter_effect(EFFECT_ADD_EXTRA_TRIBUTE, &eset);
-	for(int32 i = 0; i < eset.size(); ++i) {
-		if(eset[i]->get_value() & pos)
-			filter_inrange_cards(eset[i], &cset);
-	}
-	for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
-		card* pcard = *cit;
-		if(pcard->current.location == LOCATION_MZONE || !pcard->is_releasable_by_summon(p, target))
-			continue;
-		if(release_list)
-			release_list->insert(pcard);
-		pcard->release_param = 1;
-		rcount += pcard->release_param;
-	}
+	if(release_list)
+		release_list->insert(ex_tribute.begin(), ex_tribute.end());
 	return rcount + ex_sum_max;
 }
 int32 field::get_summon_count_limit(uint8 playerid) {
@@ -2740,7 +2749,8 @@ int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int
 }
 int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer, uint32 zone, uint32 releasable, uint32 pos) {
 	int32 ex = FALSE;
-	if(toplayer == 1 - pcard->current.controler)
+	uint32 sumplayer = pcard->current.controler;
+	if(toplayer == 1 - sumplayer)
 		ex = TRUE;
 	card_set release_list, ex_list;
 	int32 m = get_summon_release_list(pcard, &release_list, &ex_list, 0, mg, ex, releasable, pos);
@@ -2750,12 +2760,12 @@ int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 t
 		return FALSE;
 	zone &= 0x1f;
 	int32 s = 0;
-	if(toplayer == pcard->current.controler) {
-		int32 ct = get_tofield_count(toplayer, LOCATION_MZONE, pcard->current.controler, LOCATION_REASON_TOFIELD, zone);
+	if(toplayer == sumplayer) {
+		int32 ct = get_tofield_count(toplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD, zone);
 		if(ct <= 0 && max <= 0)
 			return FALSE;
 		for(auto it = release_list.begin(); it != release_list.end(); ++it) {
-			if((*it)->current.location == LOCATION_MZONE) {
+			if((*it)->current.location == LOCATION_MZONE && (*it)->current.controler == sumplayer) {
 				s++;
 				if((zone >> (*it)->current.sequence) & 1)
 					ct++;
@@ -2767,7 +2777,7 @@ int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 t
 	} else {
 		s = ex_list.size();
 	}
-	int32 fcount = get_mzone_limit(toplayer, pcard->current.controler, LOCATION_REASON_TOFIELD);
+	int32 fcount = get_mzone_limit(toplayer, sumplayer, LOCATION_REASON_TOFIELD);
 	if(s < -fcount + 1)
 		return FALSE;
 	if(max < 0)

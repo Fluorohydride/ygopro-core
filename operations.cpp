@@ -5590,7 +5590,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		int32 rmax = 0;
 		core.select_cards.clear();
 		for(auto cit = core.release_cards.begin(); cit != core.release_cards.end(); ++cit) {
-			if((*cit)->current.location == LOCATION_MZONE && ((zone >> (*cit)->current.sequence) & 1))
+			if((*cit)->current.location == LOCATION_MZONE && (*cit)->current.controler == playerid && ((zone >> (*cit)->current.sequence) & 1))
 				core.select_cards.push_back(*cit);
 			else
 				rmax += (*cit)->release_param;
@@ -5789,7 +5789,7 @@ int32 field::select_tribute_cards(int16 step, uint8 playerid, uint8 cancelable, 
 		int32 rmax = 0;
 		core.select_cards.clear();
 		for(auto cit = core.release_cards_ex.begin(); cit != core.release_cards_ex.end(); ++cit) {
-			if((*cit)->current.location == LOCATION_MZONE && ((zone >> (*cit)->current.sequence) & 1))
+			if((*cit)->current.location == LOCATION_MZONE && (*cit)->current.controler == playerid && ((zone >> (*cit)->current.sequence) & 1))
 				core.select_cards.push_back(*cit);
 			else
 				rmax += (*cit)->release_param;
