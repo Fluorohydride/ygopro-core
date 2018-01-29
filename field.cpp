@@ -1638,31 +1638,17 @@ int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int3
 // return: the max release count of mg or all monsters on field
 int32 field::get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum, group* mg, uint32 ex, uint32 releasable, uint32 pos) {
 	uint8 p = target->current.controler;
-	uint32 rcount = 0;
-	card_set cset;
+	card_set ex_tribute;
 	effect_set eset;
 	target->filter_effect(EFFECT_ADD_EXTRA_TRIBUTE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		if(eset[i]->get_value() & pos)
-			filter_inrange_cards(eset[i], &cset);
+			filter_inrange_cards(eset[i], &ex_tribute);
 	}
-	card_set ex_tribute;
-	for(auto cit = cset.begin(); cit != cset.end(); ++cit) {
-		card* pcard = *cit;
-		if(!pcard->is_releasable_by_summon(p, target))
-			continue;
-		if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
-			pcard->release_param = 2;
-		else
-			pcard->release_param = 1;
-		rcount += pcard->release_param;
-		ex_tribute.insert(pcard);
-	}
+	uint32 rcount = 0;
 	for(auto cit = player[p].list_mzone.begin(); cit != player[p].list_mzone.end(); ++cit) {
 		card* pcard = *cit;
 		if(pcard && ((releasable >> pcard->current.sequence) & 1) && pcard->is_releasable_by_summon(p, target)) {
-			if(ex_tribute.find(pcard) != ex_tribute.end())
-				continue;
 			if(mg && !mg->has_card(pcard))
 				continue;
 			if(release_list)
@@ -1679,17 +1665,19 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 		card* pcard = *cit;
 		if(!pcard || !((releasable >> (pcard->current.sequence + 16)) & 1) || !pcard->is_releasable_by_summon(p, target))
 			continue;
-		if(ex_tribute.find(pcard) != ex_tribute.end())
-			continue;
 		if(mg && !mg->has_card(pcard))
 			continue;
+		if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
+			pcard->release_param = 2;
+		else
+			pcard->release_param = 1;
 		if(ex || pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
 			if(ex_list)
 				ex_list->insert(pcard);
-			if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
-				pcard->release_param = 2;
-			else
-				pcard->release_param = 1;
+			rcount += pcard->release_param;
+		} else if(ex_tribute.find(pcard) != ex_tribute.end()) {
+			if(release_list)
+				release_list->insert(pcard);
 			rcount += pcard->release_param;
 		} else {
 			effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_SUM);
@@ -1697,16 +1685,22 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 				continue;
 			if(ex_list_sum)
 				ex_list_sum->insert(pcard);
-			if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
-				pcard->release_param = 2;
-			else
-				pcard->release_param = 1;
 			if(ex_sum_max < pcard->release_param)
 				ex_sum_max = pcard->release_param;
 		}
 	}
-	if(release_list)
-		release_list->insert(ex_tribute.begin(), ex_tribute.end());
+	for(auto cit = ex_tribute.begin(); cit != ex_tribute.end(); ++cit) {
+		card* pcard = *cit;
+		if(pcard->current.location == LOCATION_MZONE || !pcard->is_releasable_by_summon(p, target))
+			continue;
+		if(release_list)
+			release_list->insert(pcard);
+		if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
+			pcard->release_param = 2;
+		else
+			pcard->release_param = 1;
+		rcount += pcard->release_param;
+	}
 	return rcount + ex_sum_max;
 }
 int32 field::get_summon_count_limit(uint8 playerid) {
