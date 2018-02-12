@@ -1524,7 +1524,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 				eset[i]->get_value(target, 0, &retval);
 				int32 new_min_tribute = retval.size() > 0 ? retval[0] : 0;
 				int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
-				int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff - retval[2] : retval[2]) : 0xff00ff;
+				int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
 				new_zone &= zone;
 				bool unchanged = (new_zone == zone);
 				if(peffect) {
@@ -2074,7 +2074,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 				eset[i]->get_value(target, 0, &retval);
 				int32 new_min_tribute = retval.size() > 0 ? retval[0] : 0;
 				int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
-				int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff - retval[2] : retval[2]) : 0xff00ff;
+				int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
 				new_zone &= zone;
 				bool unchanged = (new_zone == zone);
 				if(peffect) {
