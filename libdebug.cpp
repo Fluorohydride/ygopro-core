@@ -41,7 +41,7 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		pcard->owner = owner;
 		pcard->sendto_param.position = position;
 		if(location == LOCATION_PZONE) {
-			int32 seq = pduel->game_field->core.duel_rule >= 4 ? sequence * 4 : sequence + 6;
+			int32 seq = (pduel->game_field->core.duel_options & DUEL_EMZONE) ? sequence * 4 : sequence + 6;
 			pduel->game_field->add_card(playerid, pcard, LOCATION_SZONE, seq, TRUE);
 		} else {
 			pduel->game_field->add_card(playerid, pcard, location, sequence);
@@ -150,14 +150,41 @@ int32 scriptlib::debug_reload_field_begin(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	uint32 flag = lua_tointeger(L, 1);
 	int32 rule = lua_tointeger(L, 2);
+	bool build = lua_toboolean(L, 3);
+	if (!rule)
+		rule = 3;
 	pduel->clear();
-	pduel->game_field->core.duel_options = flag;
-	if (rule)
-		pduel->game_field->core.duel_rule = rule;
-	else if (flag & DUEL_OBSOLETE_RULING)
+	if(rule && !build) {
+		switch (rule) {
+		case 1: {
+			flag |= MASTER_RULE_1;
+			break;
+		}
+		case 2: {
+			flag |= MASTER_RULE_2;
+			break;
+		}
+		case 3: {
+			flag |= MASTER_RULE_3;
+			break;
+		}
+		case 4: {
+			flag |= MASTER_RULE_4;
+			break;
+		}
+		}
+	} else if (flag & DUEL_OBSOLETE_RULING) {
+		flag |= MASTER_RULE_1;
 		pduel->game_field->core.duel_rule = 1;
-	else
+		pduel->game_field->core.duel_options = flag;
+		return 0;
+	}
+	pduel->game_field->core.duel_rule = 2;
+	if(flag & DUEL_EMZONE)
+		pduel->game_field->core.duel_rule = 4;
+	else if (flag & DUEL_PZONE)
 		pduel->game_field->core.duel_rule = 3;
+	pduel->game_field->core.duel_options = flag;
 	return 0;
 }
 int32 scriptlib::debug_reload_field_end(lua_State *L) {

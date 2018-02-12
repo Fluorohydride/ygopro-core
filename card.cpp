@@ -1457,7 +1457,7 @@ int32 card::is_all_column() {
 	card_set cset;
 	get_column_cards(&cset, 0, 0);
 	int32 full = 3;
-	if(pduel->game_field->core.duel_rule >= 4 && (current.sequence == 1 || current.sequence == 3))
+	if((pduel->game_field->core.duel_options & DUEL_EMZONE) && (current.sequence == 1 || current.sequence == 3))
 		full++;
 	if(cset.size() == full)
 		return TRUE;
