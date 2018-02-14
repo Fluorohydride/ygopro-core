@@ -1730,6 +1730,8 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 		scard = *(card**)lua_touserdata(L, 4);
 	}
 	uint32 zone = 0xff;
+	if(lua_gettop(L) >= 5)
+		zone = lua_tointeger(L, 5);
 	if(pduel->game_field->core.duel_rule >= 4)
 		lua_pushinteger(L, pduel->game_field->get_useable_count_fromex(scard, playerid, uplayer, zone));
 	else
