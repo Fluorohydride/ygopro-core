@@ -42,16 +42,20 @@ public:
 	uint16 range;
 	uint16 s_range;
 	uint16 o_range;
+	uint8 count_limit;
+	uint8 count_limit_max;
 	uint16 reset_count;
 	uint32 reset_flag;
 	uint32 count_code;
 	uint32 category;
-	uint32 label;
 	uint32 hint_timing[2];
 	uint32 card_type;
 	uint32 active_type;
-	uint16 field_ref;
+	uint16 active_location;
+	uint16 active_sequence;
+	card* active_handler;
 	uint16 status;
+	uint32 label;
 	void* label_object;
 	int32 condition;
 	int32 cost;
@@ -63,17 +67,19 @@ public:
 	~effect();
 
 	int32 is_disable_related();
+	int32 is_can_be_forbidden();
 	int32 is_available();
 	int32 check_count_limit(uint8 playerid);
-	int32 is_activateable(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
+	int32 is_activateable(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE, int32 neglect_loc = FALSE, int32 neglect_faceup = FALSE);
 	int32 is_action_check(uint8 playerid);
 	int32 is_activate_ready(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
 	int32 is_condition_check(uint8 playerid, const tevent& e);
 	int32 is_activate_check(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
 	int32 is_target(card* pcard);
+	int32 is_fit_target_function(card* pcard);
 	int32 is_target_player(uint8 playerid);
 	int32 is_player_effect_target(card* pcard);
-	int32 is_immuned(effect_set_v* effects);
+	int32 is_immuned(card* pcard);
 	int32 is_chainable(uint8 tp);
 	int32 reset(uint32 reset_level, uint32 reset_type);
 	void dec_count(uint32 playerid = 2);
@@ -81,11 +87,19 @@ public:
 	int32 get_value(uint32 extraargs = 0);
 	int32 get_value(card* pcard, uint32 extraargs = 0);
 	int32 get_value(effect* peffect, uint32 extraargs = 0);
+	void get_value(uint32 extraargs, std::vector<int32>* result);
+	void get_value(card* pcard, uint32 extraargs, std::vector<int32>* result);
+	void get_value(effect* peffect, uint32 extraargs, std::vector<int32>* result);
 	int32 check_value_condition(uint32 extraargs = 0);
 	int32 get_speed();
+	effect* clone();
+	card* get_owner() const;
 	uint8 get_owner_player();
+	card* get_handler() const;
 	uint8 get_handler_player();
-	int32 in_range(int32 loc, int32 seq);
+	int32 in_range(card* pcard);
+	int32 in_range(const chain& ch);
+	void set_activate_location();
 	bool is_flag(effect_flag flag) const {
 		return !!(this->flag[0] & flag);
 	}
@@ -96,7 +110,7 @@ public:
 
 //status
 #define EFFECT_STATUS_AVAILABLE	0x0001
-#define EFFECT_STATUS_ACTIVATED	0x0002
+//#define EFFECT_STATUS_ACTIVATED	0x0002
 
 #define EFFECT_COUNT_CODE_OATH 0x10000000
 #define EFFECT_COUNT_CODE_DUEL 0x20000000
@@ -137,6 +151,8 @@ public:
 #define EFFECT_TYPE_TRIGGER_F		0x0200	//
 #define EFFECT_TYPE_QUICK_F			0x0400	//
 #define EFFECT_TYPE_CONTINUOUS		0x0800	//
+#define EFFECT_TYPE_XMATERIAL		0x1000	//
+#define EFFECT_TYPE_GRANT			0x2000	//
 
 //========== Flags ==========
 enum effect_flag : uint32 {
@@ -149,7 +165,7 @@ enum effect_flag : uint32 {
 	EFFECT_FLAG_ABSOLUTE_TARGET		= 0x0040,
 	EFFECT_FLAG_IGNORE_IMMUNE		= 0x0080,
 	EFFECT_FLAG_SET_AVAILABLE		= 0x0100,
-	EFFECT_FLAG_CONTINUOUS			= 0x0200,
+	EFFECT_FLAG_CANNOT_NEGATE		= 0x0200,
 	EFFECT_FLAG_CANNOT_DISABLE		= 0x0400,
 	EFFECT_FLAG_PLAYER_TARGET		= 0x0800,
 	EFFECT_FLAG_BOTH_SIDE			= 0x1000,
@@ -235,7 +251,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CANNOT_DISCARD_DECK		56	//
 #define EFFECT_CANNOT_USE_AS_COST		57	//
 #define EFFECT_CANNOT_PLACE_COUNTER		58	//
-
+#define EFFECT_CANNOT_TO_GRAVE_AS_COST	59	//
 #define EFFECT_LEAVE_FIELD_REDIRECT		60	//
 #define EFFECT_TO_HAND_REDIRECT			61	//
 #define EFFECT_TO_DECK_REDIRECT			62	//
@@ -273,13 +289,15 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_SET_ATTACK				101	//
 #define EFFECT_SET_ATTACK_FINAL			102	//
 #define EFFECT_SET_BASE_ATTACK			103	//
-#define EFFECT_UPDATE_DEFENCE			104	//
-#define EFFECT_SET_DEFENCE				105	//
-#define EFFECT_SET_DEFENCE_FINAL		106	//
-#define EFFECT_SET_BASE_DEFENCE			107	//
+#define EFFECT_UPDATE_DEFENSE			104	//
+#define EFFECT_SET_DEFENSE				105	//
+#define EFFECT_SET_DEFENSE_FINAL		106	//
+#define EFFECT_SET_BASE_DEFENSE			107	//
 #define EFFECT_REVERSE_UPDATE			108	//
 #define EFFECT_SWAP_AD					109	//
 #define EFFECT_SWAP_BASE_AD				110	//
+#define EFFECT_SWAP_ATTACK_FINAL		111
+#define EFFECT_SWAP_DEFENSE_FINAL		112
 #define EFFECT_ADD_CODE					113	//
 #define EFFECT_CHANGE_CODE				114	//
 #define EFFECT_ADD_TYPE					115	//
@@ -308,6 +326,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_EXTRA_RELEASE			153
 #define EFFECT_TRIBUTE_LIMIT			154
 #define EFFECT_EXTRA_RELEASE_SUM		155
+//#define EFFECT_TRIPLE_TRIBUTE			156
+#define EFFECT_ADD_EXTRA_TRIBUTE		157
 #define EFFECT_PUBLIC					160
 #define EFFECT_COUNTER_PERMIT			0x10000
 #define EFFECT_COUNTER_LIMIT			0x20000
@@ -323,13 +343,13 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CANNOT_M2				186
 #define EFFECT_CANNOT_EP				187
 #define EFFECT_SKIP_TURN				188
-#define EFFECT_DEFENCE_ATTACK			190
+#define EFFECT_DEFENSE_ATTACK			190
 #define EFFECT_MUST_ATTACK				191
 #define EFFECT_FIRST_ATTACK				192
 #define EFFECT_ATTACK_ALL				193
 #define EFFECT_EXTRA_ATTACK				194
 #define EFFECT_MUST_BE_ATTACKED			195
-#define EFFECT_AUTO_BE_ATTACKED			196
+#define EFFECT_ONLY_BE_ATTACKED			196
 #define EFFECT_ATTACK_DISABLED			197
 #define EFFECT_NO_BATTLE_DAMAGE			200
 #define EFFECT_AVOID_BATTLE_DAMAGE		201
@@ -348,6 +368,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CANNOT_BE_SYNCHRO_MATERIAL	236
 #define EFFECT_SYNCHRO_MATERIAL_CUSTOM		237
 #define EFFECT_CANNOT_BE_XYZ_MATERIAL		238
+#define EFFECT_CANNOT_BE_LINK_MATERIAL		239
 #define EFFECT_SYNCHRO_LEVEL				240
 #define EFFECT_RITUAL_LEVEL					241
 #define EFFECT_XYZ_LEVEL					242
@@ -355,13 +376,15 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_NONTUNER						244
 #define EFFECT_OVERLAY_REMOVE_REPLACE		245
 #define EFFECT_SCRAP_CHIMERA				246
-#define EFFECT_SPSUM_EFFECT_ACTIVATED	250
+#define EFFECT_TUNE_MAGICIAN_X				247
+#define EFFECT_PRE_MONSTER				250
 #define EFFECT_MATERIAL_CHECK			251
 #define EFFECT_DISABLE_FIELD			260
 #define EFFECT_USE_EXTRA_MZONE			261
 #define EFFECT_USE_EXTRA_SZONE			262
 #define EFFECT_MAX_MZONE				263
 #define EFFECT_MAX_SZONE				264
+#define EFFECT_MUST_USE_MZONE			265
 #define EFFECT_HAND_LIMIT				270
 #define EFFECT_DRAW_COUNT				271
 #define EFFECT_SPIRIT_DONOT_RETURN		280
@@ -381,6 +404,9 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_TO_GRAVE_REDIRECT_CB		313
 #define EFFECT_CHANGE_LEVEL_FINAL		314
 #define EFFECT_CHANGE_RANK_FINAL		315
+#define EFFECT_MUST_BE_FMATERIAL		316
+#define EFFECT_MUST_BE_XMATERIAL		317
+#define EFFECT_MUST_BE_LMATERIAL		318
 #define EFFECT_SPSUMMON_PROC_G			320
 #define EFFECT_SPSUMMON_COUNT_LIMIT		330
 #define EFFECT_LEFT_SPSUMMON_COUNT		331
@@ -389,11 +415,27 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_ADD_SETCODE				334
 #define EFFECT_NO_EFFECT_DAMAGE			335
 #define EFFECT_UNSUMMONABLE_CARD		336
-#define EFFECT_DISABLE_CHAIN_FIELD		337
+//#define EFFECT_DISABLE_CHAIN_FIELD		337
 #define EFFECT_DISCARD_COST_CHANGE		338
 #define EFFECT_HAND_SYNCHRO				339
 #define EFFECT_ADD_FUSION_CODE			340
 #define EFFECT_ADD_FUSION_SETCODE		341
+#define EFFECT_RISE_TO_FULL_HEIGHT		342
+#define EFFECT_ONLY_ATTACK_MONSTER		343
+#define EFFECT_MUST_ATTACK_MONSTER		344
+#define EFFECT_PATRICIAN_OF_DARKNESS	345
+#define EFFECT_EXTRA_ATTACK_MONSTER		346
+#define EFFECT_UNION_STATUS				347
+#define EFFECT_OLDUNION_STATUS			348
+//#define EFFECT_ADD_FUSION_ATTRIBUTE		349
+//#define EFFECT_REMOVE_FUSION_ATTRIBUTE	350
+#define EFFECT_CHANGE_FUSION_ATTRIBUTE	351
+#define EFFECT_EXTRA_FUSION_MATERIAL	352
+#define EFFECT_TUNER_MATERIAL_LIMIT		353
+#define EFFECT_ADD_LINK_CODE				354
+//#define EFFECT_ADD_LINK_SETCODE			355
+#define EFFECT_ADD_LINK_ATTRIBUTE		356
+#define EFFECT_ADD_LINK_RACE				357
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
@@ -411,7 +453,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_CHAIN_SOLVING		1020
 #define EVENT_CHAIN_ACTIVATING	1021
 #define EVENT_CHAIN_SOLVED		1022
-#define EVENT_CHAIN_ACTIVATED	1023
+//#define EVENT_CHAIN_ACTIVATED	1023
 #define EVENT_CHAIN_NEGATED		1024
 #define EVENT_CHAIN_DISABLED	1025
 #define EVENT_CHAIN_END			1026
@@ -442,7 +484,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_PRE_DAMAGE_CALCULATE	1134
 #define EVENT_DAMAGE_CALCULATING	1135
 #define EVENT_PRE_BATTLE_DAMAGE		1136
-#define EVENT_BATTLE_END			1137
+//#define EVENT_BATTLE_END			1137
 #define EVENT_BATTLED				1138
 #define EVENT_BATTLE_DESTROYING		1139
 #define EVENT_BATTLE_DESTROYED		1140

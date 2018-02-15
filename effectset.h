@@ -84,6 +84,9 @@ struct effect_set_v {
 		container.clear();
 		count = 0;
 	}
+	int size() const {
+		return count;
+	}
 	void sort() {
 		if(count < 2)
 			return;

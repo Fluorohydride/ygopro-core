@@ -18,7 +18,7 @@ int32 scriptlib::debug_message(lua_State *L) {
 	lua_getglobal(L, "tostring");
 	lua_pushvalue(L, -2);
 	lua_pcall(L, 1, 1, 0);
-	sprintf(pduel->strbuffer, "%s", lua_tostring(L, -1));
+	interpreter::strcpy(pduel->strbuffer, lua_tostring(L, -1));
 	handle_message(pduel, 2);
 	return 0;
 }
@@ -39,11 +39,16 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 	if(pduel->game_field->is_location_useable(playerid, location, sequence)) {
 		card* pcard = pduel->new_card(code);
 		pcard->owner = owner;
-		pcard->operation_param = position << 24;
-		pduel->game_field->add_card(playerid, pcard, location, sequence);
+		pcard->sendto_param.position = position;
+		if(location == LOCATION_PZONE) {
+			int32 seq = pduel->game_field->core.duel_rule >= 4 ? sequence * 4 : sequence + 6;
+			pduel->game_field->add_card(playerid, pcard, LOCATION_SZONE, seq, TRUE);
+		} else {
+			pduel->game_field->add_card(playerid, pcard, location, sequence);
+		}
 		pcard->current.position = position;
-		if(!(location & LOCATION_ONFIELD) || (position & POS_FACEUP)) {
-			pcard->enable_field_effect(TRUE);
+		if(!(location & (LOCATION_ONFIELD + LOCATION_PZONE)) || (position & POS_FACEUP)) {
+			pcard->enable_field_effect(true);
 			pduel->game_field->adjust_instant();
 		}
 		if(proc)
@@ -59,6 +64,11 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		pcard->current.controler = PLAYER_NONE;
 		pcard->current.location = LOCATION_OVERLAY;
 		pcard->current.sequence = fcard->xyz_materials.size() - 1;
+		for(auto eit = pcard->xmaterial_effect.begin(); eit != pcard->xmaterial_effect.end(); ++eit) {
+			effect* peffect = eit->second;
+			if(peffect->type & EFFECT_TYPE_FIELD)
+				pduel->game_field->add_effect(peffect);
+		}
 		interpreter::card2value(L, pcard);
 		return 1;
 	}
@@ -122,16 +132,14 @@ int32 scriptlib::debug_pre_add_counter(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 countertype = lua_tointeger(L, 2);
 	uint32 count = lua_tointeger(L, 3);
-	uint16 cttype = countertype;
-	if((countertype & COUNTER_NEED_ENABLE) && !(countertype & COUNTER_NEED_PERMIT))
-		cttype &= 0xfff;
+	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
 	auto pr = pcard->counters.insert(std::make_pair(cttype, card::counter_map::mapped_type()));
 	auto cmit = pr.first;
 	if(pr.second) {
 		cmit->second[0] = 0;
 		cmit->second[1] = 0;
 	}
-	if(!(countertype & COUNTER_NEED_ENABLE))
+	if((countertype & COUNTER_WITHOUT_PERMIT) && !(countertype & COUNTER_NEED_ENABLE))
 		cmit->second[0] += count;
 	else
 		cmit->second[1] += count;
@@ -141,8 +149,15 @@ int32 scriptlib::debug_reload_field_begin(lua_State *L) {
 	check_param_count(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
 	uint32 flag = lua_tointeger(L, 1);
+	int32 rule = lua_tointeger(L, 2);
 	pduel->clear();
 	pduel->game_field->core.duel_options = flag;
+	if (rule)
+		pduel->game_field->core.duel_rule = rule;
+	else if (flag & DUEL_OBSOLETE_RULING)
+		pduel->game_field->core.duel_rule = 1;
+	else
+		pduel->game_field->core.duel_rule = 3;
 	return 0;
 }
 int32 scriptlib::debug_reload_field_end(lua_State *L) {
