@@ -1011,7 +1011,7 @@ int32 scriptlib::card_is_status(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint32 tstatus = lua_tounsigned(L, 2);
+	uint32 tstatus = lua_tointeger(L, 2);
 	if(pcard->status & tstatus)
 		lua_pushboolean(L, 1);
 	else
@@ -1035,7 +1035,7 @@ int32 scriptlib::card_set_status(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	if(pcard->status & STATUS_COPYING_EFFECT)
 		return 0;
-	uint32 tstatus = lua_tounsigned(L, 2);
+	uint32 tstatus = lua_tointeger(L, 2);
 	int32 enable = lua_toboolean(L, 3);
 	pcard->set_status(tstatus, enable);
 	return 0;
@@ -1563,7 +1563,7 @@ int32 scriptlib::card_set_flag_effect_label(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint32 code = (lua_tounsigned(L, 2) & 0xfffffff) | 0x10000000;
+	uint32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
 	int32 lab = lua_tointeger(L, 3);
 	auto eit = pcard->single_effect.find(code);
 	if(eit == pcard->single_effect.end())
@@ -1578,7 +1578,7 @@ int32 scriptlib::card_get_flag_effect_label(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint32 code = (lua_tounsigned(L, 2) & 0xfffffff) | 0x10000000;
+	uint32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
 	auto rg = pcard->single_effect.equal_range(code);
 	int32 count = 0;
 	for(; rg.first != rg.second; ++rg.first) {

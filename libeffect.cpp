@@ -61,7 +61,7 @@ int32 scriptlib::effect_set_description(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 v = lua_tounsigned(L, 2);
+	uint32 v = lua_tointeger(L, 2);
 	peffect->description = v;
 	return 0;
 }
@@ -69,7 +69,7 @@ int32 scriptlib::effect_set_code(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 v = lua_tounsigned(L, 2);
+	uint32 v = lua_tointeger(L, 2);
 	peffect->code = v;
 	return 0;
 }
@@ -77,7 +77,7 @@ int32 scriptlib::effect_set_range(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 v = lua_tounsigned(L, 2);
+	uint32 v = lua_tointeger(L, 2);
 	peffect->range = v;
 	return 0;
 }
@@ -85,8 +85,8 @@ int32 scriptlib::effect_set_target_range(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 s = lua_tounsigned(L, 2);
-	uint32 o = lua_tounsigned(L, 3);
+	uint32 s = lua_tointeger(L, 2);
+	uint32 o = lua_tointeger(L, 3);
 	peffect->s_range = s;
 	peffect->o_range = o;
 	peffect->flag[0] &= ~EFFECT_FLAG_ABSOLUTE_TARGET;
@@ -96,9 +96,9 @@ int32 scriptlib::effect_set_absolute_range(lua_State *L) {
 	check_param_count(L, 4);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 playerid = lua_tounsigned(L, 2);
-	uint32 s = lua_tounsigned(L, 3);
-	uint32 o = lua_tounsigned(L, 4);
+	uint32 playerid = lua_tointeger(L, 2);
+	uint32 s = lua_tointeger(L, 3);
+	uint32 o = lua_tointeger(L, 4);
 	if(playerid == 0) {
 		peffect->s_range = s;
 		peffect->o_range = o;
@@ -113,10 +113,10 @@ int32 scriptlib::effect_set_count_limit(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 v = lua_tounsigned(L, 2);
+	uint32 v = lua_tointeger(L, 2);
 	uint32 code = 0;
 	if(lua_gettop(L) >= 3)
-		code = lua_tounsigned(L, 3);
+		code = lua_tointeger(L, 3);
 	if(v == 0)
 		v = 1;
 	peffect->flag[0] |= EFFECT_FLAG_COUNT_LIMIT;
@@ -129,8 +129,8 @@ int32 scriptlib::effect_set_reset(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 v = lua_tounsigned(L, 2);
-	uint32 c = lua_tounsigned(L, 3);
+	uint32 v = lua_tointeger(L, 2);
+	uint32 c = lua_tointeger(L, 3);
 	if(c == 0)
 		c = 1;
 	if(v & (RESET_PHASE) && !(v & (RESET_SELF_TURN | RESET_OPPO_TURN)))
@@ -143,7 +143,7 @@ int32 scriptlib::effect_set_type(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 v = lua_tounsigned(L, 2);
+	uint32 v = lua_tointeger(L, 2);
 	if (v & 0x0ff0)
 		v |= EFFECT_TYPE_ACTIONS;
 	else
@@ -164,8 +164,8 @@ int32 scriptlib::effect_set_property(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 v1 = lua_tounsigned(L, 2);
-	uint32 v2 = lua_tounsigned(L, 3);
+	uint32 v1 = lua_tointeger(L, 2);
+	uint32 v2 = lua_tointeger(L, 3);
 	peffect->flag[0] = (peffect->flag[0] & 0x4f) | (v1 & ~0x4f);
 	peffect->flag[1] = v2;
 	return 0;
@@ -174,7 +174,7 @@ int32 scriptlib::effect_set_label(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 v = lua_tounsigned(L, 2);
+	uint32 v = lua_tointeger(L, 2);
 	peffect->label = v;
 	return 0;
 }
@@ -196,7 +196,7 @@ int32 scriptlib::effect_set_category(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 v = lua_tounsigned(L, 2);
+	uint32 v = lua_tointeger(L, 2);
 	peffect->category = v;
 	return 0;
 }
@@ -204,10 +204,10 @@ int32 scriptlib::effect_set_hint_timing(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 vs = lua_tounsigned(L, 2);
+	uint32 vs = lua_tointeger(L, 2);
 	uint32 vo = vs;
 	if(lua_gettop(L) >= 3)
-		vo = lua_tounsigned(L, 3);
+		vo = lua_tointeger(L, 3);
 	peffect->hint_timing[0] = vs;
 	peffect->hint_timing[1] = vo;
 	return 0;
@@ -256,7 +256,7 @@ int32 scriptlib::effect_set_value(lua_State *L) {
 		if(lua_isboolean(L, 2))
 			peffect->value = lua_toboolean(L, 2);
 		else
-			peffect->value = lua_tointeger(L, 2);
+			peffect->value = round(lua_tonumber(L, 2));
 	}
 	return 0;
 }
@@ -277,7 +277,7 @@ int32 scriptlib::effect_set_owner_player(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 p = lua_tounsigned(L, 2);
+	uint32 p = lua_tointeger(L, 2);
 	if(p != 0 && p != 1)
 		return 0;
 	peffect->effect_owner = p;
@@ -318,8 +318,8 @@ int32 scriptlib::effect_get_property(lua_State *L) {
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	if (peffect) {
-		lua_pushunsigned(L, peffect->flag[0]);
-		lua_pushunsigned(L, peffect->flag[1]);
+		lua_pushinteger(L, peffect->flag[0]);
+		lua_pushinteger(L, peffect->flag[1]);
 		return 2;
 	}
 	return 0;
@@ -468,8 +468,8 @@ int32 scriptlib::effect_is_has_property(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 tflag1 = lua_tounsigned(L, 2);
-	uint32 tflag2 = lua_tounsigned(L, 3);
+	uint32 tflag1 = lua_tointeger(L, 2);
+	uint32 tflag2 = lua_tointeger(L, 3);
 	if (peffect && (!tflag1 || (peffect->flag[0] & tflag1)) && (!tflag2 || (peffect->flag[1] & tflag2)))
 		lua_pushboolean(L, 1);
 	else
