@@ -25,6 +25,7 @@ effect::effect(duel* pd) {
 	card_type = 0;
 	active_type = 0;
 	active_location = 0;
+	active_sequence = 0;
 	active_handler = 0;
 	id = 0;
 	code = 0;
