@@ -2591,9 +2591,9 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 s
 	auto pr = field_effect.equal_range(EFFECT_SPSUMMON_PROC);
 	uint8 toplayer;
 	uint8 topos;
-	effect* peffect;
-	for(; pr.first != pr.second; ++pr.first) {
-		peffect = pr.first->second;
+	for(auto eit = pr.first; eit != pr.second;) {
+		effect* peffect = eit->second;
+		++eit;
 		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
 			topos = (uint8)peffect->s_range;
 			if(peffect->o_range == 0)
@@ -2618,8 +2618,9 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 s
 }
 void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset) {
 	auto pr = field_effect.equal_range(EFFECT_SPSUMMON_PROC_G);
-	for(; pr.first != pr.second; ++pr.first) {
-		effect* peffect = pr.first->second;
+	for(auto eit = pr.first; eit != pr.second;) {
+		effect* peffect = eit->second;
+		++eit;
 		if(!peffect->is_available() || !peffect->check_count_limit(playerid))
 			continue;
 		if(current.controler != playerid && !peffect->is_flag(EFFECT_FLAG_BOTH_SIDE))

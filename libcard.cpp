@@ -1360,8 +1360,9 @@ int32 scriptlib::card_check_activate_effect(lua_State *L) {
 	int32 copy_info = lua_toboolean(L, 4);
 	duel* pduel = pcard->pduel;
 	tevent pe;
-	for(auto eit = pcard->field_effect.begin(); eit != pcard->field_effect.end(); ++eit) {
+	for(auto eit = pcard->field_effect.begin(); eit != pcard->field_effect.end();) {
 		effect* peffect = eit->second;
+		++eit;
 		if((peffect->type & EFFECT_TYPE_ACTIVATE)
 		        && pduel->game_field->check_event_c(peffect, pduel->game_field->core.reason_player, neglect_con, neglect_cost, copy_info, &pe)) {
 			if(!copy_info || (peffect->code == EVENT_FREE_CHAIN)) {

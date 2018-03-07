@@ -2187,8 +2187,9 @@ uint32 field::get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype
 }
 int32 field::effect_replace_check(uint32 code, const tevent& e) {
 	auto pr = effects.continuous_effect.equal_range(code);
-	for (; pr.first != pr.second; ++pr.first) {
-		effect* peffect = pr.first->second;
+	for(auto eit = pr.first; eit != pr.second;) {
+		effect* peffect = eit->second;
+		++eit;
 		if(peffect->is_activateable(peffect->get_handler_player(), e))
 			return TRUE;
 	}
@@ -3160,7 +3161,6 @@ int32 field::is_player_can_remove_counter(uint8 playerid, card * pcard, uint8 s,
 	if((pcard && pcard->get_counter(countertype) >= count) || (!pcard && get_field_counter(playerid, s, o, countertype) >= count))
 		return TRUE;
 	auto pr = effects.continuous_effect.equal_range(EFFECT_RCOUNTER_REPLACE + countertype);
-	effect* peffect;
 	tevent e;
 	e.event_cards = 0;
 	e.event_player = playerid;
@@ -3168,8 +3168,9 @@ int32 field::is_player_can_remove_counter(uint8 playerid, card * pcard, uint8 s,
 	e.reason = reason;
 	e.reason_effect = core.reason_effect;
 	e.reason_player = playerid;
-	for (; pr.first != pr.second; ++pr.first) {
-		peffect = pr.first->second;
+	for(auto eit = pr.first; eit != pr.second;) {
+		effect* peffect = eit->second;
+		++eit;
 		if(peffect->is_activateable(peffect->get_handler_player(), e))
 			return TRUE;
 	}
@@ -3179,7 +3180,6 @@ int32 field::is_player_can_remove_overlay_card(uint8 playerid, card * pcard, uin
 	if((pcard && pcard->xyz_materials.size() >= min) || (!pcard && get_overlay_count(playerid, s, o) >= min))
 		return TRUE;
 	auto pr = effects.continuous_effect.equal_range(EFFECT_OVERLAY_REMOVE_REPLACE);
-	effect* peffect;
 	tevent e;
 	e.event_cards = 0;
 	e.event_player = playerid;
@@ -3187,8 +3187,9 @@ int32 field::is_player_can_remove_overlay_card(uint8 playerid, card * pcard, uin
 	e.reason = reason;
 	e.reason_effect = core.reason_effect;
 	e.reason_player = playerid;
-	for (; pr.first != pr.second; ++pr.first) {
-		peffect = pr.first->second;
+	for(auto eit = pr.first; eit != pr.second;) {
+		effect* peffect = eit->second;
+		++eit;
 		if(peffect->is_activateable(peffect->get_handler_player(), e))
 			return TRUE;
 	}
