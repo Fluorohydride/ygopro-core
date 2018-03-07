@@ -133,7 +133,7 @@ int32 scriptlib::debug_pre_add_counter(lua_State *L) {
 	uint32 countertype = lua_tointeger(L, 2);
 	uint32 count = lua_tointeger(L, 3);
 	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
-	auto pr = pcard->counters.insert(std::make_pair(cttype, card::counter_map::mapped_type()));
+	auto pr = pcard->counters.emplace(cttype, card::counter_map::mapped_type());
 	auto cmit = pr.first;
 	if(pr.second) {
 		cmit->second[0] = 0;

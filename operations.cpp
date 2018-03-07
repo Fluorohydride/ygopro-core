@@ -3139,7 +3139,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 						pduel->lua->add_param(pcard->current.reason_player, PARAM_TYPE_INT);
 						int32 ct;
 						if(ct = eset[i]->get_value(3)) {
-							auto it = pcard->indestructable_effects.insert(std::make_pair(eset[i]->id, 0));
+							auto it = pcard->indestructable_effects.emplace(eset[i]->id, 0);
 							if(++it.first->second <= ct) {
 								indestructable_effect_set.insert(eset[i]);
 								is_destructable = false;
@@ -3342,7 +3342,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 						pduel->lua->add_param(pcard->current.reason_player, PARAM_TYPE_INT);
 						int32 ct;
 						if(ct = eset[i]->get_value(3)) {
-							auto it = pcard->indestructable_effects.insert(std::make_pair(eset[i]->id, 0));
+							auto it = pcard->indestructable_effects.emplace(eset[i]->id, 0);
 							if(++it.first->second <= ct) {
 								pduel->write_buffer8(MSG_HINT);
 								pduel->write_buffer8(HINT_CARD);

@@ -1044,33 +1044,33 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 	peffect->card_type = peffect->owner->data.type;
 	effect_container::iterator it;
 	if (!(peffect->type & EFFECT_TYPE_ACTIONS)) {
-		it = effects.aura_effect.insert(std::make_pair(peffect->code, peffect));
+		it = effects.aura_effect.emplace(peffect->code, peffect);
 		if(peffect->code == EFFECT_SPSUMMON_COUNT_LIMIT)
 			effects.spsummon_count_eff.insert(peffect);
 		if(peffect->type & EFFECT_TYPE_GRANT)
-			effects.grant_effect.insert(std::make_pair(peffect, field_effect::gain_effects()));
+			effects.grant_effect.emplace(peffect, field_effect::gain_effects());
 	} else {
 		if (peffect->type & EFFECT_TYPE_IGNITION)
-			it = effects.ignition_effect.insert(std::make_pair(peffect->code, peffect));
+			it = effects.ignition_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_ACTIVATE)
-			it = effects.activate_effect.insert(std::make_pair(peffect->code, peffect));
+			it = effects.activate_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_TRIGGER_O && peffect->type & EFFECT_TYPE_FIELD)
-			it = effects.trigger_o_effect.insert(std::make_pair(peffect->code, peffect));
+			it = effects.trigger_o_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_TRIGGER_F && peffect->type & EFFECT_TYPE_FIELD)
-			it = effects.trigger_f_effect.insert(std::make_pair(peffect->code, peffect));
+			it = effects.trigger_f_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_QUICK_O)
-			it = effects.quick_o_effect.insert(std::make_pair(peffect->code, peffect));
+			it = effects.quick_o_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_QUICK_F)
-			it = effects.quick_f_effect.insert(std::make_pair(peffect->code, peffect));
+			it = effects.quick_f_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_CONTINUOUS)
-			it = effects.continuous_effect.insert(std::make_pair(peffect->code, peffect));
+			it = effects.continuous_effect.emplace(peffect->code, peffect);
 	}
-	effects.indexer.insert(std::make_pair(peffect, it));
+	effects.indexer.emplace(peffect, it);
 	if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) {
 		if(peffect->is_disable_related())
 			update_disable_check_list(peffect);
 		if(peffect->is_flag(EFFECT_FLAG_OATH))
-			effects.oath.insert(std::make_pair(peffect, core.reason_effect));
+			effects.oath.emplace(peffect, core.reason_effect);
 		if(peffect->reset_flag & RESET_PHASE)
 			effects.pheff.insert(peffect);
 		if(peffect->reset_flag & RESET_CHAIN)
@@ -1777,7 +1777,7 @@ void field::get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc, g
 		for (auto cit = mg->container.begin(); cit != mg->container.end(); ++cit) {
 			if((*cit)->is_can_be_xyz_material(scard) && (xyz_level = (*cit)->check_xyz_level(scard, lv))
 					&& (findex == 0 || pduel->lua->check_matching(*cit, findex, 0)))
-				core.xmaterial_lst.insert(std::make_pair((xyz_level >> 12) & 0xf, *cit));
+				core.xmaterial_lst.emplace((xyz_level >> 12) & 0xf, *cit);
 		}
 	} else {
 		int32 playerid = scard->current.controler;
@@ -1785,13 +1785,13 @@ void field::get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc, g
 			card* pcard = *cit;
 			if(pcard && pcard->is_position(POS_FACEUP) && pcard->is_can_be_xyz_material(scard) && (xyz_level = pcard->check_xyz_level(scard, lv))
 					&& (findex == 0 || pduel->lua->check_matching(pcard, findex, 0)))
-				core.xmaterial_lst.insert(std::make_pair((xyz_level >> 12) & 0xf, pcard));
+				core.xmaterial_lst.emplace((xyz_level >> 12) & 0xf, pcard);
 		}
 		for(auto cit = player[1 - playerid].list_mzone.begin(); cit != player[1 - playerid].list_mzone.end(); ++cit) {
 			card* pcard = *cit;
 			if(pcard && pcard->is_position(POS_FACEUP) && pcard->is_can_be_xyz_material(scard) && (xyz_level = pcard->check_xyz_level(scard, lv))
 			        && pcard->is_affected_by_effect(EFFECT_XYZ_MATERIAL) && (findex == 0 || pduel->lua->check_matching(pcard, findex, 0)))
-				core.xmaterial_lst.insert(std::make_pair((xyz_level >> 12) & 0xf, pcard));
+				core.xmaterial_lst.emplace((xyz_level >> 12) & 0xf, pcard);
 		}
 	}
 	if(core.global_flag & GLOBALFLAG_XMAT_COUNT_LIMIT) {
@@ -1974,7 +1974,7 @@ int32 field::adjust_grant_effect() {
 			effect* ceffect = geffect->clone();
 			ceffect->owner = pcard;
 			pcard->add_effect(ceffect);
-			eit->second.insert(std::make_pair(pcard, ceffect));
+			eit->second.emplace(pcard, ceffect);
 		}
 		for(auto cit = remove_set.begin(); cit != remove_set.end(); ++cit) {
 			card* pcard = *cit;

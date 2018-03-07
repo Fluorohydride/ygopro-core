@@ -2320,7 +2320,7 @@ int32 field::process_instant_event() {
 			effect* peffect = eit->second;
 			++eit;
 			if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_condition_check(peffect->get_handler()->current.controler, *elit))
-				core.delayed_quick_tmp.insert(std::make_pair(peffect, *elit));
+				core.delayed_quick_tmp.emplace(peffect, *elit);
 		}
 	}
 	for(eit = tp.begin(), evit = tev.begin(); eit != tp.end(); ++eit, ++evit) {
