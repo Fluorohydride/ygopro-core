@@ -705,7 +705,12 @@ int32 scriptlib::duel_move_sequence(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	int32 seq = lua_tointeger(L, 2);
 	duel* pduel = pcard->pduel;
-	pduel->game_field->move_card(pcard->current.controler, pcard, pcard->current.location, seq);
+	int32 playerid = pcard->current.controler;
+	pduel->game_field->move_card(playerid, pcard, pcard->current.location, seq);
+	pduel->game_field->raise_single_event(pcard, 0, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, playerid, 0);
+	pduel->game_field->raise_event(pcard, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, playerid, 0);
+	pduel->game_field->process_single_event();
+	pduel->game_field->process_instant_event();
 	return 0;
 }
 int32 scriptlib::duel_swap_sequence(lua_State *L) {
@@ -731,6 +736,14 @@ int32 scriptlib::duel_swap_sequence(lua_State *L) {
 		pduel->write_buffer32(pcard2->get_info_location());
 		pduel->write_buffer32(pcard2->data.code);
 		pduel->write_buffer32(pcard1->get_info_location());
+		field::card_set swapped;
+		swapped.insert(pcard1);
+		swapped.insert(pcard2);
+		pduel->game_field->raise_single_event(pcard1, 0, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, player, 0);
+		pduel->game_field->raise_single_event(pcard2, 0, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, player, 0);
+		pduel->game_field->raise_event(&swapped, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, player, 0);
+		pduel->game_field->process_single_event();
+		pduel->game_field->process_instant_event();
 	}
 	return 0;
 }
@@ -1357,10 +1370,15 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 	pduel->write_buffer8(MSG_SHUFFLE_SET_CARD);
 	pduel->write_buffer8(ct);
 	for(uint32 i = 0; i < ct; ++i) {
-		pduel->write_buffer32(ms[i]->get_info_location());
-		pduel->game_field->player[tp].list_mzone[seq[i]] = ms[i];
-		ms[i]->current.sequence = seq[i];
+		card* pcard = ms[i];
+		pduel->write_buffer32(pcard->get_info_location());
+		pduel->game_field->player[tp].list_mzone[seq[i]] = pcard;
+		pcard->current.sequence = seq[i];
+		pduel->game_field->raise_single_event(pcard, 0, EVENT_MOVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
 	}
+	pduel->game_field->raise_event(&pgroup->container, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, tp, 0);
+	pduel->game_field->process_single_event();
+	pduel->game_field->process_instant_event();
 	for(uint32 i = 0; i < ct; ++i) {
 		if(ms[i]->xyz_materials.size())
 			pduel->write_buffer32(ms[i]->get_info_location());
