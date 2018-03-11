@@ -490,10 +490,10 @@ int32 field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
-		uint8 m = core.select_cards.size(), v = 0, tt = 0;
+		uint8 m = core.select_cards.size(), tt = 0;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-			v = returns.bvalue[i + 1];
-			if(v < 0 || v >= m || v >= 6 || c[v]) {
+			int8 v = returns.bvalue[i + 1];
+			if(v < 0 || v >= m || c[v]) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
 			}
