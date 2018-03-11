@@ -5563,7 +5563,7 @@ int32 field::select_release_cards(int16 step, uint8 playerid, uint8 cancelable, 
 			if((int32)core.release_cards.size() < min)
 				returns.ivalue[0] = TRUE;
 			else
-				add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, playerid, 95);
+				add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, playerid, 98);
 		} else
 			returns.ivalue[0] = FALSE;
 		return FALSE;
