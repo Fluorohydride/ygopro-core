@@ -1634,13 +1634,25 @@ int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int3
 			}
 		}
 	}
+	bool ex_oneof = false;
 	for(auto cit = player[1 - playerid].list_mzone.begin(); cit != player[1 - playerid].list_mzone.end(); ++cit) {
 		card* pcard = *cit;
-		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (!use_con || pcard->is_position(POS_FACEUP)) && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
+		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (!use_con || pcard->is_position(POS_FACEUP))
 		        && pcard->is_releasable_by_nonsummon(playerid) && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
-			count--;
-			if(count == 0)
-				return TRUE;
+			pcard->release_param = 1;
+			if(pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
+				count--;
+				if(count == 0)
+					return TRUE;
+			} else if(!ex_oneof) {
+				effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_NONSUM);
+				if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && peffect->count_limit == 0))
+					continue;
+				ex_oneof = true;
+				count--;
+				if(count == 0)
+					return TRUE;
+			}
 		}
 	}
 	return FALSE;
