@@ -1567,7 +1567,7 @@ effect* field::is_player_affected_by_effect(uint8 playerid, uint32 code) {
 	}
 	return 0;
 }
-int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* ex_list, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg) {
+int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg) {
 	uint32 rcount = 0;
 	for(auto cit = player[playerid].list_mzone.begin(); cit != player[playerid].list_mzone.end(); ++cit) {
 		card* pcard = *cit;
@@ -1591,17 +1591,27 @@ int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* 
 			}
 		}
 	}
+	int32 ex_oneof_max = 0;
 	for(auto cit = player[1 - playerid].list_mzone.begin(); cit != player[1 - playerid].list_mzone.end(); ++cit) {
 		card* pcard = *cit;
-		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (pcard->is_position(POS_FACEUP) || !use_con) && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
+		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (pcard->is_position(POS_FACEUP) || !use_con)
 		        && pcard->is_releasable_by_nonsummon(playerid) && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
-			if(ex_list)
-				ex_list->insert(pcard);
 			pcard->release_param = 1;
-			rcount++;
+			if(pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
+				if(ex_list)
+					ex_list->insert(pcard);
+				rcount++;
+			} else {
+				effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_NONSUM);
+				if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && peffect->count_limit == 0))
+					continue;
+				if(ex_list_oneof)
+					ex_list_oneof->insert(pcard);
+				ex_oneof_max = 1;
+			}
 		}
 	}
-	return rcount;
+	return rcount + ex_oneof_max;
 }
 int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg) {
 	for(auto cit = player[playerid].list_mzone.begin(); cit != player[playerid].list_mzone.end(); ++cit) {
@@ -1624,19 +1634,31 @@ int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int3
 			}
 		}
 	}
+	bool ex_oneof = false;
 	for(auto cit = player[1 - playerid].list_mzone.begin(); cit != player[1 - playerid].list_mzone.end(); ++cit) {
 		card* pcard = *cit;
-		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (!use_con || pcard->is_position(POS_FACEUP)) && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
+		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (!use_con || pcard->is_position(POS_FACEUP))
 		        && pcard->is_releasable_by_nonsummon(playerid) && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
-			count--;
-			if(count == 0)
-				return TRUE;
+			pcard->release_param = 1;
+			if(pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
+				count--;
+				if(count == 0)
+					return TRUE;
+			} else if(!ex_oneof) {
+				effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_NONSUM);
+				if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && peffect->count_limit == 0))
+					continue;
+				ex_oneof = true;
+				count--;
+				if(count == 0)
+					return TRUE;
+			}
 		}
 	}
 	return FALSE;
 }
 // return: the max release count of mg or all monsters on field
-int32 field::get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_sum, group* mg, uint32 ex, uint32 releasable, uint32 pos) {
+int32 field::get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, group* mg, uint32 ex, uint32 releasable, uint32 pos) {
 	uint8 p = target->current.controler;
 	card_set ex_tribute;
 	effect_set eset;
@@ -1660,7 +1682,7 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 			rcount += pcard->release_param;
 		}
 	}
-	uint32 ex_sum_max = 0;
+	uint32 ex_oneof_max = 0;
 	for(auto cit = player[1 - p].list_mzone.begin(); cit != player[1 - p].list_mzone.end(); ++cit) {
 		card* pcard = *cit;
 		if(!pcard || !((releasable >> (pcard->current.sequence + 16)) & 1) || !pcard->is_releasable_by_summon(p, target))
@@ -1683,10 +1705,10 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 			effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_SUM);
 			if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && peffect->count_limit == 0))
 				continue;
-			if(ex_list_sum)
-				ex_list_sum->insert(pcard);
-			if(ex_sum_max < pcard->release_param)
-				ex_sum_max = pcard->release_param;
+			if(ex_list_oneof)
+				ex_list_oneof->insert(pcard);
+			if(ex_oneof_max < pcard->release_param)
+				ex_oneof_max = pcard->release_param;
 		}
 	}
 	for(auto cit = ex_tribute.begin(); cit != ex_tribute.end(); ++cit) {
@@ -1701,7 +1723,7 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 			pcard->release_param = 1;
 		rcount += pcard->release_param;
 	}
-	return rcount + ex_sum_max;
+	return rcount + ex_oneof_max;
 }
 int32 field::get_summon_count_limit(uint8 playerid) {
 	effect_set eset;

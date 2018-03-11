@@ -188,7 +188,7 @@ int32 field::process() {
 		}
 	}
 	case PROCESSOR_SELECT_RELEASE: {
-		if (select_release_cards(it->step, it->arg1 & 0xff, (it->arg1 >> 16) & 0xff, (it->arg1 >> 24) & 0xff, (it->arg2) & 0xff, (it->arg2 >> 16) & 0xff))
+		if (select_release_cards(it->step, it->arg1 & 0xff, (it->arg1 >> 16) & 0xff, (it->arg2) & 0xff, (it->arg2 >> 16) & 0xff))
 			core.units.pop_front();
 		else
 			it->step++;
