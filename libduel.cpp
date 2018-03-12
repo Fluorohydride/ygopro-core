@@ -2253,7 +2253,7 @@ int32 scriptlib::duel_get_release_group(lua_State *L) {
 		hand = lua_toboolean(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = pduel->new_group();
-	pduel->game_field->get_release_list(playerid, &(pgroup->container), &(pgroup->container), 0, FALSE, hand, 0, 0, 0, 0);
+	pduel->game_field->get_release_list(playerid, &pgroup->container, &pgroup->container, &pgroup->container, FALSE, hand, 0, 0, 0, 0);
 	interpreter::group2value(L, pgroup);
 	return 1;
 }
@@ -2293,7 +2293,9 @@ int32 scriptlib::duel_check_release_group(lua_State *L) {
 	uint32 extraargs = lua_gettop(L) - 4;
 	duel* pduel = interpreter::get_duel_info(L);
 	uint32 fcount = lua_tointeger(L, 3);
-	lua_pushboolean(L, pduel->game_field->check_release_list(playerid, fcount, use_con, FALSE, 2, extraargs, pexception, pexgroup));
+	int32 result = pduel->game_field->check_release_list(playerid, fcount, use_con, FALSE, 2, extraargs, pexception, pexgroup);
+	pduel->game_field->core.must_select_cards.clear();
+	lua_pushboolean(L, result);
 	return 1;
 }
 int32 scriptlib::duel_select_release_group(lua_State *L) {
@@ -2343,7 +2345,9 @@ int32 scriptlib::duel_check_release_group_ex(lua_State *L) {
 	uint32 extraargs = lua_gettop(L) - 4;
 	duel* pduel = interpreter::get_duel_info(L);
 	uint32 fcount = lua_tointeger(L, 3);
-	lua_pushboolean(L, pduel->game_field->check_release_list(playerid, fcount, use_con, TRUE, 2, extraargs, pexception, pexgroup));
+	int32 result = pduel->game_field->check_release_list(playerid, fcount, use_con, TRUE, 2, extraargs, pexception, pexgroup);
+	pduel->game_field->core.must_select_cards.clear();
+	lua_pushboolean(L, result);
 	return 1;
 }
 int32 scriptlib::duel_select_release_group_ex(lua_State *L) {

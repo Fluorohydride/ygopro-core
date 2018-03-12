@@ -3495,6 +3495,9 @@ int32 field::release(uint16 step, group * targets, effect * reason_effect, uint3
 		return FALSE;
 	}
 	case 4: {
+		for(auto eit = core.dec_count_reserve.begin(); eit != core.dec_count_reserve.end(); ++eit)
+			(*eit)->dec_count();
+		core.dec_count_reserve.clear();
 		core.operated_set.clear();
 		core.operated_set = targets->container;
 		returns.ivalue[0] = targets->container.size();
@@ -5586,7 +5589,8 @@ int32 field::select_release_cards(int16 step, uint8 playerid, uint8 cancelable, 
 	case 4: {
 		card* pcard = core.select_cards[returns.bvalue[1]];
 		core.operated_set.insert(pcard);
-		core.units.begin()->peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_NONSUM);
+		effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_NONSUM);
+		core.dec_count_reserve.push_back(peffect);
 		max--;
 		if(max == 0 || core.release_cards.empty()) {
 			core.units.begin()->step = 6;
@@ -5622,9 +5626,6 @@ int32 field::select_release_cards(int16 step, uint8 playerid, uint8 cancelable, 
 			core.select_cards.push_back(*cit);
 			returns.bvalue[i + 1] = i;
 		}
-		effect* peffect = core.units.begin()->peffect;
-		if(peffect)
-			peffect->dec_count();
 		return TRUE;
 	}
 	}

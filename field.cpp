@@ -1614,48 +1614,24 @@ int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* 
 	return rcount + ex_oneof_max;
 }
 int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg) {
-	for(auto cit = player[playerid].list_mzone.begin(); cit != player[playerid].list_mzone.end(); ++cit) {
+	card_set relcard;
+	card_set relcard_oneof;
+	get_release_list(playerid, &relcard, &relcard, &relcard_oneof, use_con, use_hand, fun, exarg, exc, exg);
+	bool has_oneof = false;
+	for(auto cit = core.must_select_cards.begin(); cit != core.must_select_cards.end(); ++cit) {
 		card* pcard = *cit;
-		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && pcard->is_releasable_by_nonsummon(playerid)
-		        && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
-			count--;
-			if(count == 0)
-				return TRUE;
-		}
+		auto it = relcard.find(pcard);
+		if(it != relcard.end())
+			relcard.erase(it);
+		else if(!has_oneof && relcard_oneof.find(pcard) != relcard_oneof.end())
+			has_oneof = true;
+		else
+			return FALSE;
 	}
-	if(use_hand) {
-		for(auto cit = player[playerid].list_hand.begin(); cit != player[playerid].list_hand.end(); ++cit) {
-			card* pcard = *cit;
-			if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && pcard->is_releasable_by_nonsummon(playerid)
-			        && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
-				count--;
-				if(count == 0)
-					return TRUE;
-			}
-		}
-	}
-	bool ex_oneof = false;
-	for(auto cit = player[1 - playerid].list_mzone.begin(); cit != player[1 - playerid].list_mzone.end(); ++cit) {
-		card* pcard = *cit;
-		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (!use_con || pcard->is_position(POS_FACEUP))
-		        && pcard->is_releasable_by_nonsummon(playerid) && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
-			pcard->release_param = 1;
-			if(pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
-				count--;
-				if(count == 0)
-					return TRUE;
-			} else if(!ex_oneof) {
-				effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_NONSUM);
-				if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && peffect->count_limit == 0))
-					continue;
-				ex_oneof = true;
-				count--;
-				if(count == 0)
-					return TRUE;
-			}
-		}
-	}
-	return FALSE;
+	int32 rcount = (int32)relcard.size();
+	if(!has_oneof && !relcard_oneof.empty())
+		rcount++;
+	return (rcount >= count) ? TRUE : FALSE;
 }
 // return: the max release count of mg or all monsters on field
 int32 field::get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, group* mg, uint32 ex, uint32 releasable, uint32 pos) {

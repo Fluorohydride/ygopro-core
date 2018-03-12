@@ -317,6 +317,7 @@ struct processor {
 	std::unordered_map<uint32, std::pair<uint32, uint32> > attack_counter;
 	std::unordered_map<uint32, std::pair<uint32, uint32> > chain_counter;
 	processor_list recover_damage_reserve;
+	effect_vector dec_count_reserve;
 };
 class field {
 public:
