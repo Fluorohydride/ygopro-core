@@ -3497,6 +3497,7 @@ int32 field::release(uint16 step, group * targets, effect * reason_effect, uint3
 	case 4: {
 		for(auto eit = core.dec_count_reserve.begin(); eit != core.dec_count_reserve.end(); ++eit)
 			(*eit)->dec_count();
+		core.dec_count_reserve.clear();
 		core.operated_set.clear();
 		core.operated_set = targets->container;
 		returns.ivalue[0] = targets->container.size();
