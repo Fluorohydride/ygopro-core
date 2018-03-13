@@ -225,6 +225,8 @@ public:
 	uint32 get_mutual_linked_zone();
 	void get_mutual_linked_cards(card_set * cset);
 	int32 is_link_state();
+	int32 is_extra_link_state();
+	int32 check_extra_link(card* scard, card_set* cset, card_set* excset, card_set* linked_group1);
 	int32 is_position(int32 pos);
 	void set_status(uint32 status, int32 enabled);
 	int32 get_status(uint32 status);

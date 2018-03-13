@@ -54,6 +54,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetMutualLinkedGroupCount", scriptlib::card_get_mutual_linked_group_count },
 	{ "GetMutualLinkedZone", scriptlib::card_get_mutual_linked_zone },
 	{ "IsLinkState", scriptlib::card_is_link_state },
+	{ "IsExtraLinkState", scriptlib::card_is_extra_link_state },
 	{ "GetColumnGroup", scriptlib::card_get_column_group },
 	{ "GetColumnGroupCount", scriptlib::card_get_column_group_count },
 	{ "GetColumnZone", scriptlib::card_get_column_zone },
