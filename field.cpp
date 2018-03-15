@@ -565,7 +565,7 @@ int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequen
 // list: store local flag in list
 // return: usable count of LOCATION_MZONE or real LOCATION_SZONE of playerid requested by uplayer (may be negative)
 int32 field::get_useable_count(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone, uint32* list) {
-	if(location == LOCATION_MZONE && pcard->current.location == LOCATION_EXTRA)
+	if(location == LOCATION_MZONE && pcard && pcard->current.location == LOCATION_EXTRA)
 		return get_useable_count_fromex(pcard, playerid, uplayer, zone, list);
 	else
 		return get_useable_count_other(pcard, playerid, location, uplayer, reason, zone, list);
