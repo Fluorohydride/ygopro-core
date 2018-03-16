@@ -34,6 +34,8 @@ struct card_data {
 	uint32 lscale;
 	uint32 rscale;
 	uint32 link_marker;
+
+	void clear();
 };
 
 struct card_state {
