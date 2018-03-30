@@ -696,12 +696,12 @@ int32 field::process() {
 			add_process(PROCESSOR_SELECT_UNSELECT_CARD, 0, it->peffect, it->ptarget, it->arg1, it->arg2, it->arg3);
 			it->step++;
 		} else {
-			if (returns.bvalue[0] == -1)
+			if(returns.bvalue[0] == -1)
 				pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
 			else {
 				group* pgroup = pduel->new_group();
 				card* pcard;
-				if (returns.bvalue[1] < core.select_cards.size())
+				if(returns.bvalue[1] < core.select_cards.size())
 					pcard = core.select_cards[returns.bvalue[1]];
 				else
 					pcard = core.unselect_cards[returns.bvalue[1] - core.select_cards.size()];
