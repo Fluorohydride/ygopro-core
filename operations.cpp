@@ -1425,7 +1425,7 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 			cset.insert(equip_card);
 			raise_single_event(target, &cset, EVENT_EQUIP, core.reason_effect, 0, core.reason_player, PLAYER_NONE, 0);
 			raise_event(&cset, EVENT_EQUIP, core.reason_effect, 0, core.reason_player, PLAYER_NONE, 0);
-			core.hint_timing[target->current.controler] |= TIMING_EQUIP;
+			core.hint_timing[target->overlay_target ? target->overlay_target->current.controler : target->current.controler] |= TIMING_EQUIP;
 			process_single_event();
 			process_instant_event();
 			return FALSE;
@@ -3243,7 +3243,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				continue;
 			}
 			pcard->current.reason |= REASON_DESTROY;
-			core.hint_timing[pcard->current.controler] |= TIMING_DESTROY;
+			core.hint_timing[pcard->overlay_target ? pcard->overlay_target->current.controler : pcard->current.controler] |= TIMING_DESTROY;
 			raise_single_event(pcard, 0, EVENT_DESTROY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 		}
 		adjust_instant();
@@ -3777,15 +3777,15 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		uint8 dest = pcard->sendto_param.location;
 		uint8 seq = pcard->sendto_param.sequence;
 		if(dest == LOCATION_GRAVE) {
-			core.hint_timing[pcard->current.controler] |= TIMING_TOGRAVE;
+			core.hint_timing[pcard->overlay_target ? pcard->overlay_target->current.controler : pcard->current.controler] |= TIMING_TOGRAVE;
 		} else if(dest == LOCATION_HAND) {
 			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
-			core.hint_timing[pcard->current.controler] |= TIMING_TOHAND;
+			core.hint_timing[pcard->overlay_target ? pcard->overlay_target->current.controler : pcard->current.controler] |= TIMING_TOHAND;
 		} else if(dest == LOCATION_DECK) {
 			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
-			core.hint_timing[pcard->current.controler] |= TIMING_TODECK;
+			core.hint_timing[pcard->overlay_target ? pcard->overlay_target->current.controler : pcard->current.controler] |= TIMING_TODECK;
 		} else if(dest == LOCATION_REMOVED) {
-			core.hint_timing[pcard->current.controler] |= TIMING_REMOVE;
+			core.hint_timing[pcard->overlay_target ? pcard->overlay_target->current.controler : pcard->current.controler] |= TIMING_REMOVE;
 		}
 		//call move_card()
 		if(pcard->current.controler != playerid || pcard->current.location != dest) {
@@ -3802,7 +3802,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			pduel->write_buffer32(pcard->current.reason);
 		}
 		if((core.deck_reversed && pcard->current.location == LOCATION_DECK) || (pcard->current.position == POS_FACEUP_DEFENSE))
-			param->show_decktop[pcard->current.controler] = true;
+			param->show_decktop[pcard->overlay_target ? pcard->overlay_target->current.controler : pcard->current.controler] = true;
 		pcard->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
 		if(pcard->status & (STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED)) {
 			pcard->set_status(STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED, FALSE);
