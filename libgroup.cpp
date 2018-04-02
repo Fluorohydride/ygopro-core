@@ -258,6 +258,8 @@ int32 scriptlib::group_select_unselect(lua_State *L) {
 	uint32 playerid = lua_tointeger(L, 3);
 	if(playerid != 0 && playerid != 1)
 		return 0;
+	if(pgroup1->container.size() + pgroup2->container.size() == 0)
+		return 0;
 	for(auto it = pgroup2->container.begin(); it != pgroup2->container.end(); ++it) {
 		card* pcard = *it;
 		for(auto it2 = pgroup1->container.begin(); it2 != pgroup1->container.end(); ++it2) {
@@ -266,11 +268,11 @@ int32 scriptlib::group_select_unselect(lua_State *L) {
 			}
 		}
 	}
-	bool buttonok = false;
+	uint32 buttonok = FALSE;
 	if(lua_gettop(L) > 3) {
 		buttonok = lua_toboolean(L, 4);
 	}
-	bool cancelable = false;
+	uint32 cancelable = FALSE;
 	if(lua_gettop(L) > 4) {
 		cancelable = lua_toboolean(L, 5);
 	}
