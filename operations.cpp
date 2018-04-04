@@ -2156,7 +2156,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 		if(min < min_tribute) {
 			min = min_tribute;
 		}
-		uint32 adv = is_player_can_mset(SUMMON_TYPE_ADVANCE, setplayer, target);
+		uint32 adv = is_player_can_mset(SUMMON_TYPE_ADVANCE, setplayer, target, setplayer);
 		if(max == 0 || !adv) {
 			returns.bvalue[0] = 0;
 			core.units.begin()->step = 3;
