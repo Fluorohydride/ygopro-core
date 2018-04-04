@@ -3425,7 +3425,7 @@ int32 scriptlib::duel_is_player_can_summon(lua_State * L) {
 		int32 sumtype = lua_tointeger(L, 2);
 		card* pcard = *(card**) lua_touserdata(L, 3);
 		int32 toplayer = playerid;
-		lua_pushboolean(L, pduel->game_field->is_player_can_summon(sumtype, playerid, pcard, playerid));
+		lua_pushboolean(L, pduel->game_field->is_player_can_summon(sumtype, playerid, pcard, toplayer));
 	}
 	return 1;
 }
