@@ -171,6 +171,7 @@ struct processor {
 	processor_list subunits;
 	processor_unit reserved;
 	card_vector select_cards;
+	card_vector unselect_cards;
 	card_vector summonable_cards;
 	card_vector spsummonable_cards;
 	card_vector repositionable_cards;
@@ -581,6 +582,7 @@ public:
 	int32 select_yes_no(uint16 step, uint8 playerid, uint32 description);
 	int32 select_option(uint16 step, uint8 playerid);
 	int32 select_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max);
+	int32 select_unselect_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max, uint8 ok);
 	int32 select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 forced);
 	int32 select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count);
 	int32 select_position(uint16 step, uint8 playerid, uint32 code, uint8 positions);
@@ -675,6 +677,7 @@ public:
 #define PROCESSOR_SELECT_OPTION		14
 #define PROCESSOR_SELECT_CARD		15
 #define PROCESSOR_SELECT_CHAIN		16
+#define PROCESSOR_SELECT_UNSELECT_CARD	17
 #define PROCESSOR_SELECT_PLACE		18
 #define PROCESSOR_SELECT_POSITION	19
 #define PROCESSOR_SELECT_TRIBUTE_P	20
@@ -745,6 +748,7 @@ public:
 #define PROCESSOR_SELECT_OPTION_S	121
 #define PROCESSOR_SELECT_CARD_S		122
 #define PROCESSOR_SELECT_EFFECTYN_S	123
+#define PROCESSOR_SELECT_UNSELECT_CARD_S	124
 //#define PROCESSOR_SELECT_PLACE_S	125
 #define PROCESSOR_SELECT_POSITION_S	126
 #define PROCESSOR_SELECT_TRIBUTE_S	127
@@ -835,6 +839,7 @@ public:
 #define MSG_SELECT_SUM			23
 #define MSG_SELECT_DISFIELD		24
 #define MSG_SORT_CARD			25
+#define MSG_SELECT_UNSELECT_CARD	26
 #define MSG_CONFIRM_DECKTOP		30
 #define MSG_CONFIRM_CARDS		31
 #define MSG_SHUFFLE_DECK		32
@@ -906,4 +911,5 @@ public:
 #define MSG_PLAYER_HINT			165
 #define MSG_MATCH_KILL			170
 #define MSG_CUSTOM_MSG			180
+
 #endif /* FIELD_H_ */
