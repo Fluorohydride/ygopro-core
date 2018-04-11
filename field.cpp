@@ -1661,6 +1661,11 @@ int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* 
 				effect* peffect = pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE_NONSUM);
 				if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && peffect->count_limit == 0))
 					continue;
+				pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
+				pduel->lua->add_param(REASON_COST, PARAM_TYPE_INT);
+				pduel->lua->add_param(core.reason_player, PARAM_TYPE_INT);
+				if(!peffect->check_value_condition(3))
+					continue;
 				if(ex_list_oneof)
 					ex_list_oneof->insert(pcard);
 				ex_oneof_max = 1;
