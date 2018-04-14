@@ -320,8 +320,12 @@ int32 field::select_unselect_card(uint16 step, uint8 playerid, uint8 cancelable,
 		}
 		return FALSE;
 	} else {
-		if(returns.ivalue[0] == -1)
-			return TRUE;
+		if(returns.ivalue[0] == -1) {
+			if(cancelable)
+				return TRUE;
+			pduel->write_buffer8(MSG_RETRY);
+			return FALSE;
+		}
 		byte c[64];
 		memset(c, 0, 64);
 		uint8 m = core.select_cards.size() + core.unselect_cards.size(), v = 0;
