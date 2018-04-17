@@ -268,9 +268,9 @@ int32 scriptlib::group_select_unselect(lua_State *L) {
 			}
 		}
 	}
-	uint32 buttonok = FALSE;
+	uint32 finishable = FALSE;
 	if(lua_gettop(L) > 3) {
-		buttonok = lua_toboolean(L, 4);
+		finishable = lua_toboolean(L, 4);
 	}
 	uint32 cancelable = FALSE;
 	if(lua_gettop(L) > 4) {
@@ -294,7 +294,7 @@ int32 scriptlib::group_select_unselect(lua_State *L) {
 	for(auto it = pgroup2->container.begin(); it != pgroup2->container.end(); ++it) {
 		pduel->game_field->core.unselect_cards.push_back(*it);
 	}
-	pduel->game_field->add_process(PROCESSOR_SELECT_UNSELECT_CARD_S, 0, 0, 0, playerid + (cancelable << 16), min + (max << 16), buttonok);
+	pduel->game_field->add_process(PROCESSOR_SELECT_UNSELECT_CARD_S, 0, 0, 0, playerid + (cancelable << 16), min + (max << 16), finishable);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::group_random_select(lua_State *L) {
