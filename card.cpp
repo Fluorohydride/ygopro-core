@@ -963,7 +963,7 @@ uint32 card::get_link() {
 		return 0;
 	uint32 link = 0;
 	uint32 link_marker = get_link_marker();
-	while(link_marker)  
+	while(link_marker > 0)
 	{
 		link_marker = link_marker & (link_marker - 1);
 		link++;
