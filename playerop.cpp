@@ -326,7 +326,7 @@ int32 field::select_unselect_card(uint16 step, uint8 playerid, uint8 cancelable,
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
-		if(returns.bvalue[0] > 1) {
+		if(returns.bvalue[0] == 0 || returns.bvalue[0] > 1) {
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
