@@ -590,7 +590,7 @@ int32 scriptlib::card_get_text_defense(lua_State *L) {
 		lua_pushinteger(L, pcard->data.defense);
 	return 1;
 }
-int32 scriptlib:: card_get_previous_code_onfield(lua_State *L) {
+int32 scriptlib::card_get_previous_code_onfield(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
