@@ -2226,8 +2226,81 @@ int32 scriptlib::duel_select_matching_cards(lua_State *L) {
 	uint32 location2 = lua_tointeger(L, 5);
 	uint32 min = lua_tointeger(L, 6);
 	uint32 max = lua_tointeger(L, 7);
+	
+	// see if we can search deck
+	int32 can_search_1;
+	int32 can_search_2;
+	if (playerid == self)
+	{
+		can_search_1 = (location1 & LOCATION_DECK) > 0;
+		can_search_2 = (location2 & LOCATION_DECK) > 0;
+	}
+	else
+	{
+		can_search_1 = (location2 & LOCATION_DECK) > 0;
+		can_search_2 = (location1 & LOCATION_DECK) > 0;
+	}
+	
+	// generate selectable group from deck
 	group* pgroup = pduel->new_group();
+	group* pgroup_sd = pduel->new_group();
+	group* pgroup_od = pduel->new_group();
+	if (can_search_1)
+		pduel->game_field->filter_matching_card(2, (uint8)playerid, LOCATION_DECK, 0, pgroup_sd, pexception, pexgroup, extraargs);
+	if (can_search_2)
+		pduel->game_field->filter_matching_card(2, (uint8)playerid, 0, LOCATION_DECK, pgroup_od, pexception, pexgroup, extraargs);
+	
+	// generate selectable group from other locations
+	location1 -= (location1 & LOCATION_DECK);
+	location2 -= (location2 & LOCATION_DECK);
 	pduel->game_field->filter_matching_card(2, (uint8)self, location1, location2, pgroup, pexception, pexgroup, extraargs);
+	
+	// deside if we should search from deck or not
+	int32 has_searched_1 = FALSE;
+	if (can_search_1)
+	{
+		if (pgroup->container.size() + pgroup_od->container.size() < min)
+		{
+			has_searched_1 = TRUE;
+		}
+		else
+		{
+			int32 desc = 600;
+			if (pgroup_sd->container.size()==0)
+				desc = 601;
+			pduel->game_field->add_process(PROCESSOR_SELECT_YESNO_S, 0, 0, 0, playerid, desc);
+			has_searched_1 = pduel->bufferlen;
+		}
+	}
+	if (has_searched_1)
+	{
+		pgroup->container.insert(pgroup_sd->container.begin(), pgroup_sd->container.end());
+		pduel->game_field->core.shuffle_deck_check[playerid] = TRUE;
+	}
+	
+	// deside if we should search from opponent's deck or not
+	int32 has_searched_2 = FALSE;
+	if (can_search_2)
+	{
+		if (pgroup->container.size() < min)
+		{
+			has_searched_2 = TRUE;
+		}
+		else
+		{
+			int32 desc = 602;
+			if (pgroup_od->container.size()==0)
+				desc = 603;
+			pduel->game_field->add_process(PROCESSOR_SELECT_YESNO_S, 0, 0, 0, playerid, desc);
+			has_searched_2 = pduel->bufferlen;
+		}
+	}
+	if (has_searched_2)
+	{
+		pgroup->container.insert(pgroup_od->container.begin(), pgroup_od->container.end());
+		pduel->game_field->core.shuffle_deck_check[1-playerid] = TRUE;
+	}
+	
 	pduel->game_field->core.select_cards.assign(pgroup->container.begin(), pgroup->container.end());
 	pduel->game_field->add_process(PROCESSOR_SELECT_CARD_S, 0, 0, 0, playerid, min + (max << 16));
 	return lua_yield(L, 0);
