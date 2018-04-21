@@ -1753,7 +1753,7 @@ int32 card::add_effect(effect* peffect) {
 		pduel->write_buffer8(MSG_CARD_HINT);
 		pduel->write_buffer32(get_info_location());
 		pduel->write_buffer8(CHINT_DESC_ADD);
-		pduel->write_buffer32(peffect->description);
+		pduel->write_buffer64(peffect->description);
 	}
 	if(peffect->type & EFFECT_TYPE_SINGLE && peffect->code == EFFECT_UPDATE_LEVEL && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 		int32 val = peffect->get_value(this);
@@ -1833,7 +1833,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		pduel->write_buffer8(MSG_CARD_HINT);
 		pduel->write_buffer32(get_info_location());
 		pduel->write_buffer8(CHINT_DESC_REMOVE);
-		pduel->write_buffer32(peffect->description);
+		pduel->write_buffer64(peffect->description);
 	}
 	if(peffect->code == EFFECT_UNIQUE_CHECK) {
 		pduel->game_field->remove_unique_card(this);

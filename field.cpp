@@ -152,7 +152,7 @@ void field::reload_field_info() {
 		pduel->write_buffer8(chit->triggering_controler);
 		pduel->write_buffer8((uint8)chit->triggering_location);
 		pduel->write_buffer8(chit->triggering_sequence);
-		pduel->write_buffer32(peffect->description);
+		pduel->write_buffer64(peffect->description);
 	}
 }
 // The core of moving cards, and Debug.AddCard() will call this function directly.
@@ -1143,13 +1143,13 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 				pduel->write_buffer8(MSG_PLAYER_HINT);
 				pduel->write_buffer8(0);
 				pduel->write_buffer8(PHINT_DESC_ADD);
-				pduel->write_buffer32(peffect->description);
+				pduel->write_buffer64(peffect->description);
 			}
 			if(target_player[1]) {
 				pduel->write_buffer8(MSG_PLAYER_HINT);
 				pduel->write_buffer8(1);
 				pduel->write_buffer8(PHINT_DESC_ADD);
-				pduel->write_buffer32(peffect->description);
+				pduel->write_buffer64(peffect->description);
 			}
 		}
 	}
@@ -1204,13 +1204,13 @@ void field::remove_effect(effect* peffect) {
 				pduel->write_buffer8(MSG_PLAYER_HINT);
 				pduel->write_buffer8(0);
 				pduel->write_buffer8(PHINT_DESC_REMOVE);
-				pduel->write_buffer32(peffect->description);
+				pduel->write_buffer64(peffect->description);
 			}
 			if(target_player[1]) {
 				pduel->write_buffer8(MSG_PLAYER_HINT);
 				pduel->write_buffer8(1);
 				pduel->write_buffer8(PHINT_DESC_REMOVE);
-				pduel->write_buffer32(peffect->description);
+				pduel->write_buffer64(peffect->description);
 			}
 		}
 	}

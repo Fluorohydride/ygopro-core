@@ -115,6 +115,11 @@ void duel::restore_assumes() {
 		(*sit)->assume_type = 0;
 	assumes.clear();
 }
+void duel::write_buffer64(uint64 value) {
+	*((uint64*)bufferp) = value;
+	bufferp += 8;
+	bufferlen += 8;
+}
 void duel::write_buffer32(uint32 value) {
 	*((uint32*)bufferp) = value;
 	bufferp += 4;

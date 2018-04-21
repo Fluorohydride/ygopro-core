@@ -332,7 +332,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
 		*buf++ = (uint8)chit->triggering_location;
 		*buf++ = chit->triggering_sequence;
 		*((int*)(buf)) = peffect->description;
-		buf += 4;
+		buf += 8;
 	}
 	return 0;
 }

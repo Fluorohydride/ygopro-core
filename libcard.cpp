@@ -1519,11 +1519,11 @@ int32 scriptlib::card_register_flag_effect(lua_State *L) {
 	int32 flag = lua_tointeger(L, 4);
 	int32 count = lua_tointeger(L, 5);
 	int32 lab = 0;
-	int32 desc = 0;
+	int64 desc = 0;
 	if(lua_gettop(L) >= 6)
 		lab = lua_tointeger(L, 6);
 	if(lua_gettop(L) >= 7)
-		desc = lua_tointeger(L, 7);
+		desc = lua_tonumber(L, 7);
 	if(count == 0)
 		count = 1;
 	if(reset & (RESET_PHASE) && !(reset & (RESET_SELF_TURN | RESET_OPPO_TURN)))

@@ -51,6 +51,7 @@ public:
 	void release_script_group();
 	void restore_assumes();
 	int32 read_buffer(byte* buf);
+	void write_buffer64(uint64 value);
 	void write_buffer32(uint32 value);
 	void write_buffer16(uint16 value);
 	void write_buffer8(uint8 value);

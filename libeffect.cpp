@@ -61,7 +61,7 @@ int32 scriptlib::effect_set_description(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 v = lua_tointeger(L, 2);
+	uint64 v = lua_tonumber(L, 2);
 	peffect->description = v;
 	return 0;
 }
@@ -288,7 +288,7 @@ int32 scriptlib::effect_get_description(lua_State *L) {
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	if (peffect) {
-		lua_pushinteger(L, peffect->description);
+		lua_pushnumber(L, peffect->description);
 		return 1;
 	}
 	return 0;
