@@ -2232,13 +2232,13 @@ int32 scriptlib::duel_select_matching_cards(lua_State *L) {
 	int32 can_search_2;
 	if (playerid == self)
 	{
-		int32 can_search_1 = location1 & LOCATION_DECK > 0;
-		int32 can_search_2 = location2 & LOCATION_DECK > 0;
+		can_search_1 = (location1 & LOCATION_DECK) > 0;
+		can_search_2 = (location2 & LOCATION_DECK) > 0;
 	}
 	else
 	{
-		int32 can_search_1 = location2 & LOCATION_DECK > 0;
-		int32 can_search_2 = location1 & LOCATION_DECK > 0;
+		can_search_1 = (location2 & LOCATION_DECK) > 0;
+		can_search_2 = (location1 & LOCATION_DECK) > 0;
 	}
 	
 	// generate selectable group from deck
@@ -2251,8 +2251,8 @@ int32 scriptlib::duel_select_matching_cards(lua_State *L) {
 		pduel->game_field->filter_matching_card(2, (uint8)playerid, 0, LOCATION_DECK, pgroup_od, pexception, pexgroup, extraargs);
 	
 	// generate selectable group from other locations
-	location1 -= location1 & LOCATION_DECK;
-	location2 -= location2 & LOCATION_DECK;
+	location1 -= (location1 & LOCATION_DECK);
+	location2 -= (location2 & LOCATION_DECK);
 	pduel->game_field->filter_matching_card(2, (uint8)self, location1, location2, pgroup, pexception, pexgroup, extraargs);
 	
 	// deside if we should search from deck or not
@@ -2268,12 +2268,7 @@ int32 scriptlib::duel_select_matching_cards(lua_State *L) {
 			int32 desc = 600;
 			if (pgroup_sd->container.size()==0)
 				desc = 601;
-			pduel->game_field->select_yes_no(0, playerid, desc);
-			int32 flag = FALSE;
-			while (!flag)
-			{
-				flag = pduel->game_field->select_yes_no(1, playerid, desc);
-			}
+			pduel->game_field->add_process(PROCESSOR_SELECT_YESNO_S, 0, 0, 0, playerid, desc);
 			has_searched_1 = pduel->bufferlen;
 		}
 	}
@@ -2296,12 +2291,7 @@ int32 scriptlib::duel_select_matching_cards(lua_State *L) {
 			int32 desc = 602;
 			if (pgroup_od->container.size()==0)
 				desc = 603;
-			pduel->game_field->select_yes_no(0, playerid, desc);
-			int32 flag = FALSE;
-			while (!flag)
-			{
-				flag = pduel->game_field->select_yes_no(1, playerid, desc);
-			}
+			pduel->game_field->add_process(PROCESSOR_SELECT_YESNO_S, 0, 0, 0, playerid, desc);
 			has_searched_2 = pduel->bufferlen;
 		}
 	}
