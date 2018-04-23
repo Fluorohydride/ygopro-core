@@ -549,7 +549,7 @@ int32 scriptlib::effect_use_count_limit(lua_State *L) {
 	if(lua_gettop(L) > 2) {
 		count = lua_tointeger(L, 3);
 		if (lua_gettop(L) > 3)
-			oath_only = lua_tointeger(L, 4);
+			oath_only = lua_toboolean(L, 4);
 	}
 	if (!oath_only || code & EFFECT_COUNT_CODE_OATH)
 		while(count)
