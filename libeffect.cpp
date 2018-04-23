@@ -536,7 +536,7 @@ int32 scriptlib::effect_check_count_limit(lua_State *L) {
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	uint32 p = lua_tointeger(L, 2);
 	lua_pushboolean(L, peffect->check_count_limit(p));
-	return 1;
+	return 0;
 }
 int32 scriptlib::effect_use_count_limit(lua_State *L) {
 	check_param_count(L, 2);
@@ -544,12 +544,18 @@ int32 scriptlib::effect_use_count_limit(lua_State *L) {
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	uint32 p = lua_tointeger(L, 2);
 	uint32 count = 1;
-	if(lua_gettop(L) == 3)
+	uint32 oath_only = 0;
+	uint32 code = peffect->count_code;
+	if(lua_gettop(L) > 2) {
 		count = lua_tointeger(L, 3);
-	while(count>0)
-	{
-		peffect->dec_count(p);
-		count--;
+		if (lua_gettop(L) > 3)
+			oath_only = lua_tointeger(L, 4);
 	}
-	return 1;
+	if (!oath_only || code & EFFECT_COUNT_CODE_OATH)
+		while(count)
+		{
+			peffect->dec_count(p);
+			count--;
+		}
+	return 0;
 }
