@@ -530,3 +530,26 @@ int32 scriptlib::effect_get_activate_sequence(lua_State *L) {
 	lua_pushinteger(L, peffect->active_sequence);
 	return 1;
 }
+int32 scriptlib::effect_check_count_limit(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	uint32 p = lua_tointeger(L, 2);
+	lua_pushboolean(L, peffect->check_count_limit(p));
+	return 1;
+}
+int32 scriptlib::effect_use_count_limit(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	uint32 p = lua_tointeger(L, 2);
+	uint32 count = 1;
+	if(lua_gettop(L) == 3)
+		count = lua_tointeger(L, 3);
+	while(count>0)
+	{
+		peffect->dec_count(p);
+		count--;
+	}
+	return 1;
+}
