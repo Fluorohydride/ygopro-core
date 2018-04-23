@@ -552,8 +552,7 @@ int32 scriptlib::effect_use_count_limit(lua_State *L) {
 			oath_only = lua_toboolean(L, 4);
 	}
 	if (!oath_only || code & EFFECT_COUNT_CODE_OATH)
-		while(count)
-		{
+		while(count) {
 			peffect->dec_count(p);
 			count--;
 		}
