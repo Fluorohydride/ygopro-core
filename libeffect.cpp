@@ -536,7 +536,7 @@ int32 scriptlib::effect_check_count_limit(lua_State *L) {
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	uint32 p = lua_tointeger(L, 2);
 	lua_pushboolean(L, peffect->check_count_limit(p));
-	return 0;
+	return 1;
 }
 int32 scriptlib::effect_use_count_limit(lua_State *L) {
 	check_param_count(L, 2);
