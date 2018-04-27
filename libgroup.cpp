@@ -632,7 +632,7 @@ int32 scriptlib::group_search_card(lua_State *L) {
 		}
 	return 0;
 }
-int32 scriptlib::group_get_class_count_bin(lua_State *L) {
+int32 scriptlib::group_get_bin_class_count(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	check_param(L, PARAM_TYPE_FUNCTION, 2);
