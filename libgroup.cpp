@@ -641,7 +641,7 @@ int32 scriptlib::group_get_class_count_bin(lua_State *L) {
 	int32 extraargs = lua_gettop(L) - 2;
 	int32 er = 0;
 	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
-		er &= pduel->lua->get_operation_value(*cit, 2, extraargs);
+		er |= pduel->lua->get_operation_value(*cit, 2, extraargs);
 	}
 	int32 ans = 0;
 	while(er) {
