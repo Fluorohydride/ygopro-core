@@ -357,6 +357,7 @@ static const struct luaL_Reg grouplib[] = {
 	{ "Equal", scriptlib::group_equal },
 	{ "IsContains", scriptlib::group_is_contains },
 	{ "SearchCard", scriptlib::group_search_card },
+	{ "GetBinClassCount", scriptlib::group_get_bin_class_count },
 	{ NULL, NULL }
 };
 

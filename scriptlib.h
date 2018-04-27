@@ -354,6 +354,7 @@ public:
 	static int32 group_equal(lua_State *L);
 	static int32 group_is_contains(lua_State *L);
 	static int32 group_search_card(lua_State *L);
+	static int32 group_get_bin_class_count(lua_State *L);
 
 	//Duel functions
 	static int32 duel_enable_global_flag(lua_State *L);

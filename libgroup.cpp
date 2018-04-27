@@ -632,3 +632,22 @@ int32 scriptlib::group_search_card(lua_State *L) {
 		}
 	return 0;
 }
+int32 scriptlib::group_get_bin_class_count(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_GROUP, 1);
+	check_param(L, PARAM_TYPE_FUNCTION, 2);
+	group* pgroup = *(group**) lua_touserdata(L, 1);
+	duel* pduel = pgroup->pduel;
+	int32 extraargs = lua_gettop(L) - 2;
+	int32 er = 0;
+	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
+		er |= pduel->lua->get_operation_value(*cit, 2, extraargs);
+	}
+	int32 ans = 0;
+	while(er) {
+		er &= er - 1;
+		ans++;
+	}
+	lua_pushinteger(L, ans);
+	return 1;
+}
