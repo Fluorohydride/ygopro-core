@@ -1391,22 +1391,24 @@ int32 card::is_extra_link_state() {
 	if(!linked_group1.size())
 		return FALSE;
 	cset.insert(pcard);
-	return check_extra_link(this, &cset, &excset, &linked_group1);
+	return check_extra_link(&cset, &excset, &linked_group1);
 }
-int32 card::check_extra_link(card* scard, card_set* cset, card_set* excset, card_set* linked_group1) {
+int32 card::check_extra_link(card_set* cset, card_set* excset, card_set* linked_group1) {
 	for(auto cit = linked_group1->begin(); cit != linked_group1->end(); ++cit) {
 		card* pcard = *cit;
-		if(excset->find(pcard) != cset->end())
-			if(cset->find(scard) != cset->end())
-				return TRUE;
 		if(cset->find(pcard) != cset->end())
 			continue;
+		if(excset->find(pcard) != cset->end())
+			if(cset->find(this) != cset->end())
+				return TRUE;
 		card_set linked_group2;
 		pcard->get_mutual_linked_cards(&linked_group2);
 		if(!linked_group2.size())
 			continue;
 		cset->insert(pcard);
-		if(check_extra_link(scard, cset, excset, &linked_group2))
+		int32 result = check_extra_link(cset, excset, &linked_group2);
+		cset->erase(pcard);		
+		if(result)
 			return TRUE;
 	}
 	return FALSE;
