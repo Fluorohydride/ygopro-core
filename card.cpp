@@ -1368,6 +1368,49 @@ int32 card::is_link_state() {
 		return TRUE;
 	return FALSE;
 }
+int32 card::is_extra_link_state() {
+	if(current.location != LOCATION_MZONE)
+		return FALSE;
+	card_set cset;
+	card_set excset;
+	for(int32 p = 0; p < 2; ++p) {
+		card* pcard1 = pduel->game_field->player[p].list_mzone[5];
+		if(pcard1)
+			excset.insert(pcard1);
+		card* pcard2 = pduel->game_field->player[p].list_mzone[6];
+		if(pcard2)
+			excset.insert(pcard2);
+	}
+	if(excset.size() < 2)
+		return FALSE;
+	auto cit = excset.begin();
+	card* pcard = *cit;
+	excset.erase(pcard);
+	card_set linked_group1;
+	pcard->get_mutual_linked_cards(&linked_group1);
+	if(!linked_group1.size())
+		return FALSE;
+	cset.insert(pcard);
+	return check_extra_link(this, &cset, &excset, &linked_group1);
+}
+int32 card::check_extra_link(card* scard, card_set* cset, card_set* excset, card_set* linked_group1) {
+	for(auto cit = linked_group1->begin(); cit != linked_group1->end(); ++cit) {
+		card* pcard = *cit;
+		if(excset->find(pcard) != cset->end())
+			if(cset->find(scard) != cset->end())
+				return TRUE;
+		if(cset->find(pcard) != cset->end())
+			continue;
+		card_set linked_group2;
+		pcard->get_mutual_linked_cards(&linked_group2);
+		if(!linked_group2.size())
+			continue;
+		cset->insert(pcard);
+		if(check_extra_link(scard, cset, excset, &linked_group2))
+			return TRUE;
+	}
+	return FALSE;
+}
 int32 card::is_position(int32 pos) {
 	return current.position & pos;
 }
