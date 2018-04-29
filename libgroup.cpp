@@ -651,3 +651,120 @@ int32 scriptlib::group_get_bin_class_count(lua_State *L) {
 	lua_pushinteger(L, ans);
 	return 1;
 }
+int32 scriptlib::group_meta_add(lua_State* L) {
+	check_param_count(L, 2);
+	if(!check_param(L, PARAM_TYPE_CARD, 1, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 1, TRUE))
+		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
+	if(!check_param(L, PARAM_TYPE_CARD, 2, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 2, TRUE))
+		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);		
+	duel* pduel = interpreter::get_duel_info(L);
+	group* pgroup = pduel->new_group();
+	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
+		card* ccard = *(card**) lua_touserdata(L, 1);
+		pgroup->container.insert(ccard);
+	} else if(check_param(L, PARAM_TYPE_GROUP, 1, TRUE)) {
+		group* cgroup = *(group**) lua_touserdata(L, 1);
+		for(auto cit = cgroup->container.begin(); cit != cgroup->container.end(); ++cit)
+			pgroup->container.insert(*cit);
+	}
+	if(check_param(L, PARAM_TYPE_CARD, 2, TRUE)) {
+		card* ccard = *(card**) lua_touserdata(L, 2);
+		pgroup->container.insert(ccard);
+	} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
+		group* cgroup = *(group**) lua_touserdata(L, 2);
+		for(auto cit = cgroup->container.begin(); cit != cgroup->container.end(); ++cit)
+			pgroup->container.insert(*cit);
+	}
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
+int32 scriptlib::group_meta_sub(lua_State* L) {
+	check_param_count(L, 2);
+	if(!check_param(L, PARAM_TYPE_CARD, 1, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 1, TRUE))
+		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
+	if(!check_param(L, PARAM_TYPE_CARD, 2, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 2, TRUE))
+		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);		
+	duel* pduel = interpreter::get_duel_info(L);
+	group* pgroup = pduel->new_group();
+	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
+		card* ccard = *(card**) lua_touserdata(L, 1);
+		pgroup->container.insert(ccard);
+	} else if(check_param(L, PARAM_TYPE_GROUP, 1, TRUE)) {
+		group* cgroup = *(group**) lua_touserdata(L, 1);
+		for(auto cit = cgroup->container.begin(); cit != cgroup->container.end(); ++cit)
+			pgroup->container.insert(*cit);
+	}
+	if(check_param(L, PARAM_TYPE_CARD, 2, TRUE)) {
+		card* ccard = *(card**) lua_touserdata(L, 2);
+		pgroup->container.erase(ccard);
+	} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
+		group* cgroup = *(group**) lua_touserdata(L, 2);
+		for(auto cit = cgroup->container.begin(); cit != cgroup->container.end(); ++cit)
+			pgroup->container.erase(*cit);
+	}
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
+int32 scriptlib::group_meta_band(lua_State* L) {
+	check_param_count(L, 2);
+	if(!check_param(L, PARAM_TYPE_CARD, 1, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 1, TRUE))
+		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
+	if(!check_param(L, PARAM_TYPE_CARD, 2, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 2, TRUE))
+		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);		
+	duel* pduel = interpreter::get_duel_info(L);
+	group* pgroup = pduel->new_group();
+	field::card_set check_set;
+	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
+		card* ccard = *(card**) lua_touserdata(L, 1);
+		check_set.insert(ccard);
+	} else if(check_param(L, PARAM_TYPE_GROUP, 1, TRUE)) {
+		group* cgroup = *(group**) lua_touserdata(L, 1);
+		check_set = cgroup->container;
+	}
+	if(check_param(L, PARAM_TYPE_CARD, 2, TRUE)) {
+		card* ccard = *(card**) lua_touserdata(L, 2);
+		if(check_set.find(ccard) != check_set.end())
+			pgroup->container.insert(ccard);
+	} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
+		group* cgroup = *(group**) lua_touserdata(L, 2);
+		for(auto cit = cgroup->container.begin(); cit != cgroup->container.end(); ++cit)
+			if(check_set.find(*cit) != check_set.end())
+				pgroup->container.insert(*cit);
+	}
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
+int32 scriptlib::group_meta_bxor(lua_State* L) {
+	check_param_count(L, 2);
+	if(!check_param(L, PARAM_TYPE_CARD, 1, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 1, TRUE))
+		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
+	if(!check_param(L, PARAM_TYPE_CARD, 2, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 2, TRUE))
+		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);		
+	duel* pduel = interpreter::get_duel_info(L);
+	group* pgroup = pduel->new_group();
+	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
+		card* ccard = *(card**) lua_touserdata(L, 1);
+		pgroup->container.insert(ccard);
+	} else if(check_param(L, PARAM_TYPE_GROUP, 1, TRUE)) {
+		group* cgroup = *(group**) lua_touserdata(L, 1);
+		for(auto cit = cgroup->container.begin(); cit != cgroup->container.end(); ++cit)
+			pgroup->container.insert(*cit);
+	}
+	if(check_param(L, PARAM_TYPE_CARD, 2, TRUE)) {
+		card* ccard = *(card**) lua_touserdata(L, 2);
+		if(pgroup->container.find(ccard) != pgroup->container.end())
+			pgroup->container.erase(ccard);
+		else
+			pgroup->container.insert(ccard);
+	} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
+		group* cgroup = *(group**) lua_touserdata(L, 2);
+		for(auto cit = cgroup->container.begin(); cit != cgroup->container.end(); ++cit) {
+			if(pgroup->container.find(*cit) != pgroup->container.end())
+				pgroup->container.erase(*cit);
+			else
+				pgroup->container.insert(*cit);
+		}
+	}
+	interpreter::group2value(L, pgroup);
+	return 1;
+}

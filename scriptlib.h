@@ -570,6 +570,13 @@ public:
 	static int32 duel_swap_deck_and_grave(lua_State *L);
 	static int32 duel_majestic_copy(lua_State *L);
 
+	//group metamethods
+	//__len is in the group lib, which is same as group_get_count
+	static int32 group_meta_add(lua_State *L);
+	static int32 group_meta_sub(lua_State *L);
+	static int32 group_meta_band(lua_State *L);
+	static int32 group_meta_bxor(lua_State *L);
+
 	//preload
 	static int32 debug_message(lua_State *L);
 	static int32 debug_add_card(lua_State *L);
