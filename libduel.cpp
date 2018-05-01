@@ -1648,8 +1648,10 @@ int32 scriptlib::duel_get_location_count(lua_State *L) {
 	uint32 zone = 0xff;
 	if(lua_gettop(L) >= 5)
 		zone = lua_tointeger(L, 5);
-	lua_pushinteger(L, pduel->game_field->get_useable_count(NULL, playerid, location, uplayer, reason, zone));
-	return 1;
+	uint32 list = 0;
+	lua_pushinteger(L, pduel->game_field->get_useable_count(NULL, playerid, location, uplayer, reason, zone, &list));
+	lua_pushinteger(L, list);	
+	return 2;
 }
 int32 scriptlib::duel_get_mzone_count(lua_State *L) {
 	check_param_count(L, 1);
@@ -1695,14 +1697,16 @@ int32 scriptlib::duel_get_mzone_count(lua_State *L) {
 		reason = lua_tointeger(L, 4);
 	if(lua_gettop(L) >= 5)
 		zone = lua_tointeger(L, 5);
-	lua_pushinteger(L, pduel->game_field->get_useable_count(NULL, playerid, LOCATION_MZONE, uplayer, reason, zone));
+	uint32 list = 0;
+	lua_pushinteger(L, pduel->game_field->get_useable_count(NULL, playerid, LOCATION_MZONE, uplayer, reason, zone, &list));
+	lua_pushinteger(L, list);
 	if(swapped) {
 		pduel->game_field->player[0].used_location = used_location[0];
 		pduel->game_field->player[1].used_location = used_location[1];
 		pduel->game_field->player[0].list_mzone.swap(list_mzone[0]);
 		pduel->game_field->player[1].list_mzone.swap(list_mzone[1]);
 	}
-	return 1;
+	return 2;
 }
 int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 	check_param_count(L, 1);
@@ -1750,14 +1754,16 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 	uint32 zone = 0xff;
 	if(lua_gettop(L) >= 5)
 		zone = lua_tointeger(L, 5);
-	lua_pushinteger(L, pduel->game_field->get_useable_count_fromex(scard, playerid, uplayer, zone));
+	uint32 list = 0;	
+	lua_pushinteger(L, pduel->game_field->get_useable_count_fromex(scard, playerid, uplayer, zone, &list));
+	lua_pushinteger(L, list);
 	if(swapped) {
 		pduel->game_field->player[0].used_location = used_location[0];
 		pduel->game_field->player[1].used_location = used_location[1];
 		pduel->game_field->player[0].list_mzone.swap(list_mzone[0]);
 		pduel->game_field->player[1].list_mzone.swap(list_mzone[1]);
 	}
-	return 1;
+	return 2;
 }
 int32 scriptlib::duel_get_usable_mzone_count(lua_State *L) {
 	check_param_count(L, 1);
