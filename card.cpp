@@ -3562,6 +3562,8 @@ int32 card::is_capable_turn_set(uint8 playerid) {
 		return FALSE;
 	if(is_position(POS_FACEDOWN))
 		return FALSE;
+	if(current.location != LOCATION_PZONE)
+		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_TURN_SET))
 		return FALSE;
 	if(pduel->game_field->is_player_affected_by_effect(playerid, EFFECT_CANNOT_TURN_SET))
