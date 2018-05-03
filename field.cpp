@@ -577,7 +577,7 @@ int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer
 		pcard = temp_card;
 		pcard->current.location = LOCATION_EXTRA;
 	}
-	int useable_count = 0;
+	int32 useable_count = 0;
 	if(core.duel_rule >= 4)
 		useable_count = get_useable_count_fromex_rule4(pcard, playerid, uplayer, zone, list);
 	else
@@ -599,7 +599,7 @@ int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 up
 		pcard = temp_card;
 		pcard->current.location = LOCATION_EXTRA;
 	}
-	int spsummonable_count = 0;
+	int32 spsummonable_count = 0;
 	if(core.duel_rule >= 4)
 		spsummonable_count = get_spsummonable_count_fromex_rule4(pcard, playerid, uplayer, zone, list);
 	else
@@ -2916,7 +2916,7 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_MUST_BE_XMATERIAL, &eset);
 	card_set mcset;
-	for(int i = 0; i < eset.size(); ++i)
+	for(int32 i = 0; i < eset.size(); ++i)
 		mcset.insert(eset[i]->handler);
 	int32 mct = mcset.size();
 	if(mct > 0) {
