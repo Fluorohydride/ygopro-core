@@ -19,6 +19,7 @@
 #include <functional>
 #include <unordered_map>
 #include <unordered_set>
+#include <cmath>
 
 class card;
 struct card_data;
