@@ -601,7 +601,8 @@ int32 field::process() {
 			pduel->lua->add_param(returns.ivalue[0], PARAM_TYPE_INT);
 			core.units.pop_front();
 		} else {
-			it->step++;
+			if(it->step == 0)
+				it->step++;
 		}
 		return PROCESSOR_WAITING + pduel->bufferlen;
 	}

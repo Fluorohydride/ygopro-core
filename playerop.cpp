@@ -1010,22 +1010,26 @@ int32 field::announce_card(int16 step, uint8 playerid, uint32 ttype) {
 		return FALSE;
 	} else {
 		int32 code = returns.ivalue[0];
+		bool retry = false;
 		card_data data;
 		read_card(code, &data);
 		if(!data.code) {
-			pduel->write_buffer8(MSG_RETRY);
-			return FALSE;
-		}
-		if(core.select_options.size() == 0) {
+			retry = true;
+		} else if(core.select_options.size() == 0) {
 			if(!(data.type & ttype)) {
-				pduel->write_buffer8(MSG_RETRY);
-				return FALSE;
+				retry = true;
 			}
 		} else {
 			if(!is_declarable(data, core.select_options)) {
-				pduel->write_buffer8(MSG_RETRY);
-				return FALSE;
+				retry = true;
 			}
+		}
+		if(retry) {
+			pduel->write_buffer8(MSG_HINT);
+			pduel->write_buffer8(HINT_MESSAGE);
+			pduel->write_buffer8(playerid);
+			pduel->write_buffer32(1421);
+			return announce_card(0, playerid, ttype);
 		}
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_CODE);
