@@ -1380,6 +1380,12 @@ int32 card::is_extra_link_state() {
 		card* pcard2 = pduel->game_field->player[p].list_mzone[6];
 		if(pcard2)
 			excset.insert(pcard2);
+		card* pcard3 = pduel->game_field->player[1 - p].list_mzone[5];
+		if(pcard3)
+			excset.insert(pcard3);
+		card* pcard4 = pduel->game_field->player[1 - p].list_mzone[6];
+		if(pcard4)
+			excset.insert(pcard4);
 	}
 	if(excset.size() < 2)
 		return FALSE;
