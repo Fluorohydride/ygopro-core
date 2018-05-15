@@ -2911,10 +2911,10 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 			}
 			if(target->current.location != LOCATION_EXTRA) {
 				if(ct2 == 0)
-					zone = flag2;
+					zone &= flag2;
 			} else {
 				if(ct1 == 0)
-					zone = flag1;
+					zone &= flag1;
 			}
 		}
 		move_to_field(target, move_player, playerid, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
