@@ -1398,7 +1398,7 @@ int32 card::check_extra_link(card_set* cset, card_set* excset, card_set* linked_
 		card* pcard = *cit;
 		if(cset->find(pcard) != cset->end())
 			continue;
-		if(excset->find(pcard) != cset->end())
+		if(excset->find(pcard) != excset->end())
 			if(cset->find(this) != cset->end())
 				return TRUE;
 		card_set linked_group2;
