@@ -1404,18 +1404,39 @@ int32 card::check_extra_link(card_set* cset, card_set* excset, card_set* linked_
 		card* pcard = *cit;
 		if(cset->find(pcard) != cset->end())
 			continue;
-		if(excset->find(pcard) != excset->end())
-			if(cset->find(this) != cset->end())
+		if(excset->find(pcard) != excset->end()) {
+			card_set omitted;
+			if(check_extra_link_finish(cset, &omitted))
 				return TRUE;
+		}
 		card_set linked_group2;
 		pcard->get_mutual_linked_cards(&linked_group2);
 		if(!linked_group2.size())
 			continue;
 		cset->insert(pcard);
 		int32 result = check_extra_link(cset, excset, &linked_group2);
-		cset->erase(pcard);		
+		cset->erase(pcard);
 		if(result)
 			return TRUE;
+	}
+	return FALSE;
+}
+int32 card::check_extra_link_finish(card_set* cset, card_set* omitted) {
+	if(cset->find(this) != cset->end())
+		return TRUE;
+	for(auto cit = cset->begin(); cit != cset->end(); ++cit) {
+		card* pcard = *cit;
+		if(omitted->find(pcard) != omitted->end())
+			continue;
+		card_set linked_group3;
+		pcard->get_mutual_linked_cards(&linked_group3);
+		if(!linked_group3.size())
+			continue;
+		omitted->insert(pcard);
+		int32 result = check_extra_link_finish(&linked_group3, omitted);
+		omitted->erase(pcard);
+		if(result)
+			return TRUE;		
 	}
 	return FALSE;
 }
