@@ -1371,72 +1371,39 @@ int32 card::is_link_state() {
 int32 card::is_extra_link_state() {
 	if(current.location != LOCATION_MZONE)
 		return FALSE;
-	card_set cset;
-	card_set excset;
-	for(int32 p = 0; p < 2; ++p) {
-		card* pcard1 = pduel->game_field->player[p].list_mzone[5];
-		if(pcard1)
-			excset.insert(pcard1);
-		card* pcard2 = pduel->game_field->player[p].list_mzone[6];
-		if(pcard2)
-			excset.insert(pcard2);
-		card* pcard3 = pduel->game_field->player[1 - p].list_mzone[5];
-		if(pcard3)
-			excset.insert(pcard3);
-		card* pcard4 = pduel->game_field->player[1 - p].list_mzone[6];
-		if(pcard4)
-			excset.insert(pcard4);
-	}
-	if(excset.size() < 2)
-		return FALSE;
-	auto cit = excset.begin();
-	card* pcard = *cit;
-	excset.erase(pcard);
-	card_set linked_group1;
-	pcard->get_mutual_linked_cards(&linked_group1);
-	if(!linked_group1.size())
-		return FALSE;
-	cset.insert(pcard);
-	return check_extra_link(&cset, &excset, &linked_group1);
-}
-int32 card::check_extra_link(card_set* cset, card_set* excset, card_set* linked_group1) {
-	for(auto cit = linked_group1->begin(); cit != linked_group1->end(); ++cit) {
-		card* pcard = *cit;
-		if(cset->find(pcard) != cset->end())
-			continue;
-		if(excset->find(pcard) != excset->end()) {
-			card_set omitted;
-			if(check_extra_link_finish(cset, &omitted))
-				return TRUE;
-		}
-		card_set linked_group2;
-		pcard->get_mutual_linked_cards(&linked_group2);
-		if(!linked_group2.size())
-			continue;
-		cset->insert(pcard);
-		int32 result = check_extra_link(cset, excset, &linked_group2);
-		cset->erase(pcard);
-		if(result)
+	uint32 checked = 1u << current.sequence;
+	uint32 linked_zone = get_mutual_linked_zone();
+	const auto& list_mzone0 = pduel->game_field->player[current.controler].list_mzone;
+	const auto& list_mzone1 = pduel->game_field->player[1 - current.controler].list_mzone;
+	while(true) {
+		if(((linked_zone >> 5) | (linked_zone >> (16 + 6))) & ((linked_zone >> 6) | (linked_zone >> (16 + 5))) & 1)
 			return TRUE;
-	}
-	return FALSE;
-}
-int32 card::check_extra_link_finish(card_set* cset, card_set* omitted) {
-	if(cset->find(this) != cset->end())
-		return TRUE;
-	for(auto cit = cset->begin(); cit != cset->end(); ++cit) {
-		card* pcard = *cit;
-		if(omitted->find(pcard) != omitted->end())
-			continue;
-		card_set linked_group3;
-		pcard->get_mutual_linked_cards(&linked_group3);
-		if(!linked_group3.size())
-			continue;
-		omitted->insert(pcard);
-		int32 result = check_extra_link_finish(&linked_group3, omitted);
-		omitted->erase(pcard);
-		if(result)
-			return TRUE;		
+		int32 checking = (int32)(linked_zone & ~checked);
+		if(!checking)
+			return FALSE;
+		int32 rightmost = checking & (-checking);
+		checked |= (uint32)rightmost;
+		if(rightmost < 0x10000) {
+			for(int32 i = 0; i < 7; ++i) {
+				if(rightmost & 1) {
+					card* pcard = list_mzone0[i];
+					linked_zone |= pcard->get_mutual_linked_zone();
+					break;
+				}
+				rightmost >>= 1;
+			}
+		} else {
+			rightmost >>= 16;
+			for(int32 i = 0; i < 7; ++i) {
+				if(rightmost & 1) {
+					card* pcard = list_mzone1[i];
+					uint32 zone = pcard->get_mutual_linked_zone();
+					linked_zone |= (zone << 16) | (zone >> 16);
+					break;
+				}
+				rightmost >>= 1;
+			}
+		}
 	}
 	return FALSE;
 }
