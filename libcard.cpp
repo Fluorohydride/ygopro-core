@@ -893,13 +893,14 @@ int32 scriptlib::card_is_level(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 level = pcard->get_level();
 	uint32 count = lua_gettop(L) - 1;
 	uint32 result = FALSE;
 	for(uint32 i = 0; i < count; ++i) {
 		if(lua_isnil(L, i + 2))
 			continue;
 		uint32 tlevel = lua_tointeger(L, i + 2);
-		if(pcard->get_level() == tlevel) {
+		if(level == tlevel) {
 			result = TRUE;
 			break;
 		}
@@ -911,13 +912,14 @@ int32 scriptlib::card_is_rank(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 rank = pcard->get_rank();
 	uint32 count = lua_gettop(L) - 1;
 	uint32 result = FALSE;
 	for(uint32 i = 0; i < count; ++i) {
 		if(lua_isnil(L, i + 2))
 			continue;
 		uint32 trank = lua_tointeger(L, i + 2);
-		if(pcard->get_rank() == trank) {
+		if(rank == trank) {
 			result = TRUE;
 			break;
 		}
@@ -929,13 +931,14 @@ int32 scriptlib::card_is_link(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 link = pcard->get_link();
 	uint32 count = lua_gettop(L) - 1;
 	uint32 result = FALSE;
 	for(uint32 i = 0; i < count; ++i) {
 		if(lua_isnil(L, i + 2))
 			continue;
 		uint32 tlink = lua_tointeger(L, i + 2);
-		if(pcard->get_link() == tlink) {
+		if(link == tlink) {
 			result = TRUE;
 			break;
 		}
