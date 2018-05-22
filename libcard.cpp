@@ -946,6 +946,52 @@ int32 scriptlib::card_is_link(lua_State *L) {
 	lua_pushboolean(L, result);
 	return 1;
 }
+int32 scriptlib::card_is_attack(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	if(!(pcard->data.type & TYPE_MONSTER) && !(pcard->get_type() & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE))
+		lua_pushboolean(L, 0);
+	else {
+		uint32 atk = pcard->get_attack();
+		uint32 count = lua_gettop(L) - 1;
+		uint32 result = FALSE;
+		for(uint32 i = 0; i < count; ++i) {
+			if(lua_isnil(L, i + 2))
+				continue;
+			uint32 tatk = lua_tointeger(L, i + 2);
+			if(atk == tatk) {
+				result = TRUE;
+				break;
+			}
+		}
+		lua_pushboolean(L, result);
+	}
+	return 1;
+}
+int32 scriptlib::card_is_defense(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	if((pcard->data.type & TYPE_LINK) || (!(pcard->data.type & TYPE_MONSTER) && !(pcard->get_type() & TYPE_MONSTER) && !(pcard->current.location & LOCATION_MZONE)))
+		lua_pushboolean(L, 0);
+	else {
+		uint32 def = pcard->get_defense();
+		uint32 count = lua_gettop(L) - 1;
+		uint32 result = FALSE;
+		for(uint32 i = 0; i < count; ++i) {
+			if(lua_isnil(L, i + 2))
+				continue;
+			uint32 tdef = lua_tointeger(L, i + 2);
+			if(def == tdef) {
+				result = TRUE;
+				break;
+			}
+		}
+		lua_pushboolean(L, result);
+	}
+	return 1;
+}
 int32 scriptlib::card_is_race(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);

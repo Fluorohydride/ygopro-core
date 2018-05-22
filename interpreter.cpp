@@ -111,6 +111,8 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsLevel", scriptlib::card_is_level },
 	{ "IsRank", scriptlib::card_is_rank },
 	{ "IsLink", scriptlib::card_is_link },
+	{ "IsAttack", scriptlib::card_is_attack },
+	{ "IsDefense", scriptlib::card_is_defense },
 	{ "IsRace", scriptlib::card_is_race },
 	{ "IsLinkRace", scriptlib::card_is_link_race },
 	{ "IsAttribute", scriptlib::card_is_attribute },
