@@ -3308,11 +3308,23 @@ int32 card::is_removeable(uint8 playerid) {
 	return TRUE;
 }
 int32 card::is_removeable_as_cost(uint8 playerid) {
+	uint32 redirect = 0;
+	uint32 dest = LOCATION_REMOVED;
 	if(current.location == LOCATION_REMOVED)
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_USE_AS_COST))
 		return FALSE;
 	if(!is_removeable(playerid))
+		return FALSE;
+	auto op_param = sendto_param;
+	sendto_param.location = dest;
+	if(current.location & LOCATION_ONFIELD)
+		redirect = leave_field_redirect(REASON_COST) & 0xffff;
+	if(redirect) dest = redirect;
+	redirect = destination_redirect(dest, REASON_COST) & 0xffff;
+	if(redirect) dest = redirect;
+	sendto_param = op_param;
+	if(dest != LOCATION_REMOVED)
 		return FALSE;
 	return TRUE;
 }
