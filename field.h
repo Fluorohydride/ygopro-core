@@ -278,6 +278,8 @@ struct processor {
 	uint32 copy_reset;
 	uint8 copy_reset_count;
 	uint32 last_control_changed_id;
+	uint32 set_group_used_zones;
+	uint8 set_group_seq[7];
 	uint8 dice_result[5];
 	uint8 coin_result[5];
 	uint8 to_bp;
@@ -554,7 +556,7 @@ public:
 	int32 flip_summon(uint16 step, uint8 sumplayer, card* target);
 	int32 mset(uint16 step, uint8 setplayer, card* ptarget, effect* proc, uint8 ignore_count, uint8 min_tribute, uint32 zone);
 	int32 sset(uint16 step, uint8 setplayer, uint8 toplayer, card* ptarget);
-	int32 sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget);
+	int32 sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget, uint8 confirm);
 	int32 special_summon_rule(uint16 step, uint8 sumplayer, card* target, uint32 summon_type);
 	int32 special_summon_step(uint16 step, group* targets, card* target, uint32 zone);
 	int32 special_summon(uint16 step, effect* reason_effect, uint8 reason_player, group* targets, uint32 zone);

@@ -377,6 +377,9 @@ int32 scriptlib::duel_sets(lua_State *L) {
 		toplayer = lua_tointeger(L, 3);
 	if(toplayer != 0 && toplayer != 1)
 		toplayer = playerid;
+	uint32 confirm = TRUE;
+	if(lua_gettop(L) > 3)
+		confirm = lua_toboolean(L, 4);
 	card* pcard = 0;
 	group* pgroup = 0;
 	duel* pduel = 0;
@@ -385,13 +388,20 @@ int32 scriptlib::duel_sets(lua_State *L) {
 		pduel = pcard->pduel;
 	} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
 		pgroup = *(group**) lua_touserdata(L, 2);
-		pduel = pgroup->pduel;
+		if(pgroup->container.empty()) {
+			return 0;
+		} else if(pgroup->container.size() == 1) {
+			pcard = *pgroup->container.begin();
+			pduel = pcard->pduel;
+		} else {
+			pduel = pgroup->pduel;
+		}
 	} else
 		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
 	if(pcard)
 		pduel->game_field->add_process(PROCESSOR_SSET, 0, 0, (group*)pcard, playerid, toplayer);
 	else
-		pduel->game_field->add_process(PROCESSOR_SSET_G, 0, 0, pgroup, playerid, toplayer);
+		pduel->game_field->add_process(PROCESSOR_SSET_G, 0, 0, pgroup, playerid, toplayer, confirm);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_create_token(lua_State *L) {
