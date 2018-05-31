@@ -1353,12 +1353,15 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 	card* ms[7];
 	uint8 seq[7];
 	uint8 tp = 2;
+	uint8 loc = 0;
 	uint8 ct = 0;
 	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 		card* pcard = *cit;
-		if(pcard->current.location != LOCATION_MZONE || (pcard->current.position & POS_FACEUP) || (tp != 2 && (pcard->current.controler != tp)))
+		if((loc != 0 && (pcard->current.location != loc)) || (pcard->current.location != LOCATION_MZONE && pcard->current.location != LOCATION_SZONE)
+			|| (pcard->current.position & POS_FACEUP) || (pcard->current.location == LOCATION_SZONE && pcard->current.sequence > 4) || (tp != 2 && (pcard->current.controler != tp)))
 			return 0;
 		tp = pcard->current.controler;
+		loc = pcard->current.location;
 		ms[ct] = pcard;
 		seq[ct] = pcard->current.sequence;
 		ct++;
@@ -1368,11 +1371,15 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 		std::swap(ms[i], ms[s]);
 	}
 	pduel->write_buffer8(MSG_SHUFFLE_SET_CARD);
+	pduel->write_buffer8(loc);
 	pduel->write_buffer8(ct);
 	for(uint32 i = 0; i < ct; ++i) {
 		card* pcard = ms[i];
 		pduel->write_buffer32(pcard->get_info_location());
-		pduel->game_field->player[tp].list_mzone[seq[i]] = pcard;
+		if(loc == LOCATION_MZONE)
+			pduel->game_field->player[tp].list_mzone[seq[i]] = pcard;
+		else
+			pduel->game_field->player[tp].list_szone[seq[i]] = pcard;
 		pcard->current.sequence = seq[i];
 		pduel->game_field->raise_single_event(pcard, 0, EVENT_MOVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, tp, 0);
 	}
