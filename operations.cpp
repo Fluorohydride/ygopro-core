@@ -3656,6 +3656,12 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				pcard->sendto_param.location = redirect;
 				pcard->sendto_param.sequence = redirect_seq;
 				dest = redirect;
+				if(dest == LOCATION_REMOVED) {
+					if(pcard->sendto_param.position & POS_FACEDOWN_ATTACK)
+						pcard->sendto_param.position = (pcard->sendto_param.position & ~POS_FACEDOWN_ATTACK) | POS_FACEUP_ATTACK;
+					if(pcard->sendto_param.position & POS_FACEDOWN_DEFENSE)
+						pcard->sendto_param.position = (pcard->sendto_param.position & ~POS_FACEDOWN_DEFENSE) | POS_FACEUP_DEFENSE;
+				}
 			}
 			redirect = pcard->destination_redirect(dest, pcard->current.reason);
 			if(redirect) {
