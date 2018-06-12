@@ -33,7 +33,7 @@ public:
 	card* owner;
 	card* handler;
 	uint8 effect_owner;
-	uint32 description;
+	uint64 description;
 	uint32 code;
 	uint32 flag[2];
 	uint32 id;

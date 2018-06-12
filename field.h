@@ -152,7 +152,7 @@ union return_value {
 struct processor {
 	typedef std::vector<effect*> effect_vector;
 	typedef std::vector<card*> card_vector;
-	typedef std::vector<uint32> option_vector;
+	typedef std::vector<uint64> option_vector;
 	typedef std::list<card*> card_list;
 	typedef std::list<tevent> event_list;
 	typedef std::list<chain> chain_list;
@@ -579,8 +579,8 @@ public:
 
 	int32 select_battle_command(uint16 step, uint8 playerid);
 	int32 select_idle_command(uint16 step, uint8 playerid);
-	int32 select_effect_yes_no(uint16 step, uint8 playerid, uint32 description, card* pcard);
-	int32 select_yes_no(uint16 step, uint8 playerid, uint32 description);
+	int32 select_effect_yes_no(uint16 step, uint8 playerid, uint64 description, card* pcard);
+	int32 select_yes_no(uint16 step, uint8 playerid, uint64 description);
 	int32 select_option(uint16 step, uint8 playerid);
 	int32 select_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max);
 	int32 select_unselect_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max, uint8 finishable);

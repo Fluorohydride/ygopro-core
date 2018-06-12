@@ -35,7 +35,7 @@ int32 field::select_battle_command(uint16 step, uint8 playerid) {
 			pduel->write_buffer8(pcard->current.controler);
 			pduel->write_buffer8(pcard->current.location);
 			pduel->write_buffer8(pcard->current.sequence);
-			pduel->write_buffer32(peffect->description);
+			pduel->write_buffer64(peffect->description);
 		}
 		//Attackable
 		pduel->write_buffer8(core.attackable_cards.size());
@@ -136,7 +136,7 @@ int32 field::select_idle_command(uint16 step, uint8 playerid) {
 			pduel->write_buffer8(pcard->current.controler);
 			pduel->write_buffer8(pcard->current.location);
 			pduel->write_buffer8(pcard->current.sequence);
-			pduel->write_buffer32(peffect->description);
+			pduel->write_buffer64(peffect->description);
 		}
 		//To BP
 		if(infos.phase == PHASE_MAIN1 && core.to_bp)
@@ -171,7 +171,7 @@ int32 field::select_idle_command(uint16 step, uint8 playerid) {
 		return TRUE;
 	}
 }
-int32 field::select_effect_yes_no(uint16 step, uint8 playerid, uint32 description, card* pcard) {
+int32 field::select_effect_yes_no(uint16 step, uint8 playerid, uint64 description, card* pcard) {
 	if(step == 0) {
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
 			returns.ivalue[0] = 1;
@@ -181,7 +181,7 @@ int32 field::select_effect_yes_no(uint16 step, uint8 playerid, uint32 descriptio
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(pcard->data.code);
 		pduel->write_buffer32(pcard->get_info_location());
-		pduel->write_buffer32(description);
+		pduel->write_buffer64(description);
 		returns.ivalue[0] = -1;
 		return FALSE;
 	} else {
@@ -192,7 +192,7 @@ int32 field::select_effect_yes_no(uint16 step, uint8 playerid, uint32 descriptio
 		return TRUE;
 	}
 }
-int32 field::select_yes_no(uint16 step, uint8 playerid, uint32 description) {
+int32 field::select_yes_no(uint16 step, uint8 playerid, uint64 description) {
 	if(step == 0) {
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
 			returns.ivalue[0] = 1;
@@ -200,7 +200,7 @@ int32 field::select_yes_no(uint16 step, uint8 playerid, uint32 description) {
 		}
 		pduel->write_buffer8(MSG_SELECT_YESNO);
 		pduel->write_buffer8(playerid);
-		pduel->write_buffer32(description);
+		pduel->write_buffer64(description);
 		returns.ivalue[0] = -1;
 		return FALSE;
 	} else {
@@ -224,7 +224,7 @@ int32 field::select_option(uint16 step, uint8 playerid) {
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer8(core.select_options.size());
 		for(uint32 i = 0; i < core.select_options.size(); ++i)
-			pduel->write_buffer32(core.select_options[i]);
+			pduel->write_buffer64(core.select_options[i]);
 		return FALSE;
 	} else {
 		if(returns.ivalue[0] < 0 || returns.ivalue[0] >= (int32)core.select_options.size()) {
@@ -376,7 +376,7 @@ int32 field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 fo
 				pduel->write_buffer8(0);
 			pduel->write_buffer32(pcard->data.code);
 			pduel->write_buffer32(pcard->get_info_location());
-			pduel->write_buffer32(peffect->description);
+			pduel->write_buffer64(peffect->description);
 		}
 		return FALSE;
 	} else {
@@ -808,7 +808,7 @@ int32 field::announce_race(int16 step, uint8 playerid, int32 count, int32 availa
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_RACE);
 		pduel->write_buffer8(playerid);
-		pduel->write_buffer32(returns.ivalue[0]);
+		pduel->write_buffer64(returns.ivalue[0]);
 		return TRUE;
 	}
 	return TRUE;
@@ -847,14 +847,14 @@ int32 field::announce_attribute(int16 step, uint8 playerid, int32 count, int32 a
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_ATTRIB);
 		pduel->write_buffer8(playerid);
-		pduel->write_buffer32(returns.ivalue[0]);
+		pduel->write_buffer64(returns.ivalue[0]);
 		return TRUE;
 	}
 	return TRUE;
 }
 #define CARD_MARINE_DOLPHIN	78734254
 #define CARD_TWINKLE_MOSS	13857930
-static int32 is_declarable(card_data const& cd, const std::vector<uint32>& opcode) {
+static int32 is_declarable(card_data const& cd, const std::vector<uint64>& opcode) {
 	std::stack<int32> stack;
 	for(auto it = opcode.begin(); it != opcode.end(); ++it) {
 		switch(*it) {
@@ -1034,7 +1034,7 @@ int32 field::announce_card(int16 step, uint8 playerid, uint32 ttype) {
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_CODE);
 		pduel->write_buffer8(playerid);
-		pduel->write_buffer32(code);
+		pduel->write_buffer64(code);
 		return TRUE;
 	}
 	return TRUE;
@@ -1045,7 +1045,7 @@ int32 field::announce_number(int16 step, uint8 playerid) {
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer8(core.select_options.size());
 		for(uint32 i = 0; i < core.select_options.size(); ++i)
-			pduel->write_buffer32(core.select_options[i]);
+			pduel->write_buffer64(core.select_options[i]);
 		return FALSE;
 	} else {
 		int32 ret = returns.ivalue[0];
@@ -1056,7 +1056,7 @@ int32 field::announce_number(int16 step, uint8 playerid) {
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_NUMBER);
 		pduel->write_buffer8(playerid);
-		pduel->write_buffer32(core.select_options[returns.ivalue[0]]);
+		pduel->write_buffer64(core.select_options[returns.ivalue[0]]);
 		return TRUE;
 	}
 }
