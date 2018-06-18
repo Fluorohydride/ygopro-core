@@ -1168,8 +1168,6 @@ void field::remove_effect(effect* peffect) {
 	} else {
 		if (peffect->type & EFFECT_TYPE_IGNITION)
 			effects.ignition_effect.erase(it);
-		else if (peffect->type & EFFECT_TYPE_ACTIVATE)
-			effects.activate_effect.erase(it);
 		else if (peffect->type & EFFECT_TYPE_TRIGGER_O)
 			effects.trigger_o_effect.erase(it);
 		else if (peffect->type & EFFECT_TYPE_TRIGGER_F)
@@ -1178,6 +1176,8 @@ void field::remove_effect(effect* peffect) {
 			effects.quick_o_effect.erase(it);
 		else if (peffect->type & EFFECT_TYPE_QUICK_F)
 			effects.quick_f_effect.erase(it);
+		else if (peffect->type & EFFECT_TYPE_ACTIVATE)
+			effects.activate_effect.erase(it);
 		else if (peffect->type & EFFECT_TYPE_CONTINUOUS)
 			effects.continuous_effect.erase(it);
 	}
