@@ -3112,6 +3112,8 @@ int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 	return eset.size();
 }
 int32 card::is_can_be_special_summoned(effect* reason_effect, uint32 sumtype, uint8 sumpos, uint8 sumplayer, uint8 toplayer, uint8 nocheck, uint8 nolimit, uint32 zone) {
+	if(reason_effect->get_handler() == this)
+		reason_effect->status |= EFFECT_STATUS_SPSELF;
 	if(current.location == LOCATION_MZONE)
 		return FALSE;
 	if(current.location == LOCATION_REMOVED && (current.position & POS_FACEDOWN))
