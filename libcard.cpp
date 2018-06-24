@@ -2147,7 +2147,10 @@ int32 scriptlib::card_is_releasable_by_effect(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
 	effect* re = pcard->pduel->game_field->core.reason_effect;
-	if(pcard->is_releasable_by_effect(p, re))
+	uint32 ignore = FALSE;
+	if(lua_gettop(L) > 1)
+	 	ignore = lua_toboolean(L, 2);
+	if(pcard->is_releasable_by_effect(p, re, ignore))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
