@@ -1108,8 +1108,6 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 	} else {
 		if (peffect->type & EFFECT_TYPE_IGNITION)
 			it = effects.ignition_effect.emplace(peffect->code, peffect);
-		else if (peffect->type & EFFECT_TYPE_ACTIVATE)
-			it = effects.activate_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_TRIGGER_O && peffect->type & EFFECT_TYPE_FIELD)
 			it = effects.trigger_o_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_TRIGGER_F && peffect->type & EFFECT_TYPE_FIELD)
@@ -1118,6 +1116,8 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 			it = effects.quick_o_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_QUICK_F)
 			it = effects.quick_f_effect.emplace(peffect->code, peffect);
+		else if (peffect->type & EFFECT_TYPE_ACTIVATE)
+			it = effects.activate_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_CONTINUOUS)
 			it = effects.continuous_effect.emplace(peffect->code, peffect);
 	}
