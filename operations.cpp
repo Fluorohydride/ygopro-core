@@ -4185,21 +4185,13 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			}
 			if(ct <= 0)
 				return TRUE;
-			bool zone_selected = false;
-			uint32 seq = 0;
-			for(uint32 i = 0; i < 8; i++) {
-				if(((1 << i) & zone) > 0) {
-					if(zone_selected) {
-						zone_selected = false;
-						break;
+			if((zone & zone - 1) == 0) {
+				for(uint8 seq = 0; seq < 8; seq++) {
+					if((1 << seq) & zone) {
+						returns.bvalue[2] = seq;
+						return FALSE;
 					}
-					zone_selected = true;
-					seq = i;
 				}
-			}
-			if(zone_selected) {
-				returns.bvalue[2] = seq;
-				return FALSE;
 			}
 			if(move_player == playerid) {
 				if(location == LOCATION_SZONE)
