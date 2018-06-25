@@ -3358,10 +3358,10 @@ int32 card::is_releasable_by_nonsummon(uint8 playerid) {
 		return FALSE;
 	return TRUE;
 }
-int32 card::is_releasable_by_effect(uint8 playerid, effect* peffect) {
+int32 card::is_releasable_by_effect(uint8 playerid, effect* peffect, uint8 ignore) {
 	if(!peffect)
 		return TRUE;
-	if(current.controler != playerid && !is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
+	if(!ignore && current.controler != playerid && !is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
 		effect_set eset;
 		filter_effect(EFFECT_EXTRA_RELEASE_NONSUM, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
