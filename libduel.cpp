@@ -3354,7 +3354,7 @@ int32 scriptlib::duel_set_dice_result(lua_State * L) {
 	int32 res;
 	for(int32 i = 0; i < 5; ++i) {
 		res = lua_tointeger(L, i + 1);
-		if(res < 1 || res > 6)
+		if(res < 1 || res > 255)
 			res = 1;
 		pduel->game_field->core.dice_result[i] = res;
 	}
