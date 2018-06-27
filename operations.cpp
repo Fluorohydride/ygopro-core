@@ -2394,6 +2394,10 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 			core.units.begin()->step = 2;
 			return FALSE;
 		}
+		if(target->data.type & TYPE_FIELD) {
+			returns.bvalue[2] = 5;
+			return FALSE;
+		}
 		flag |= core.set_group_used_zones;
 		if(setplayer == toplayer) {
 			flag = ((flag & 0xff) << 8) | 0xffff00ff;
@@ -2426,12 +2430,16 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		card_set* set_cards = &core.set_group_set;
 		card* target = *set_cards->begin();
 		target->enable_field_effect(false);
-		uint32 zone = 0;
-		for(uint32 i = 0; i < 7; i++) {
-			zone = 1 << i;
-			if(core.set_group_used_zones & zone) {
-				core.set_group_used_zones &= ~zone;
-				break;
+		uint32 zone;
+		if(target->data.type & TYPE_FIELD) {
+			zone = 1 << 5;
+		} else {
+			for(uint32 i = 0; i < 7; i++) {
+				zone = 1 << i;
+				if(core.set_group_used_zones & zone) {
+					core.set_group_used_zones &= ~zone;
+					break;
+				}
 			}
 		}
 		move_to_field(target, setplayer, toplayer, LOCATION_SZONE, POS_FACEDOWN, FALSE, 0, FALSE, zone);
@@ -2477,6 +2485,8 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 	}
 	case 6: {
 		uint8 ct = core.operated_set.size();
+		if(core.set_group_used_zones & (1 << 5))
+			ct--;
 		pduel->write_buffer8(MSG_SHUFFLE_SET_CARD);
 		pduel->write_buffer8(LOCATION_SZONE);
 		pduel->write_buffer8(ct);
@@ -2484,10 +2494,12 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		for(auto cit = core.operated_set.begin(); cit != core.operated_set.end(); ++cit) {
 			card* pcard = *cit;
 			uint8 seq = core.set_group_seq[i];
+			i++;
+			if(pcard->data.type & TYPE_FIELD)
+				continue;
 			pduel->write_buffer32(pcard->get_info_location());
 			pduel->game_field->player[toplayer].list_szone[seq] = pcard;
 			pcard->current.sequence = seq;
-			i++;
 		}
 		for(uint32 i = 0; i < ct; ++i) {
 			pduel->write_buffer32(0);
