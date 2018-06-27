@@ -3112,6 +3112,8 @@ int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 	return eset.size();
 }
 int32 card::is_can_be_special_summoned(effect* reason_effect, uint32 sumtype, uint8 sumpos, uint8 sumplayer, uint8 toplayer, uint8 nocheck, uint8 nolimit, uint32 zone) {
+	if(reason_effect->get_handler() == this)
+		reason_effect->status |= EFFECT_STATUS_SPSELF;
 	if(current.location == LOCATION_MZONE)
 		return FALSE;
 	if(current.location == LOCATION_REMOVED && (current.position & POS_FACEDOWN))
@@ -3361,17 +3363,6 @@ int32 card::is_releasable_by_nonsummon(uint8 playerid) {
 int32 card::is_releasable_by_effect(uint8 playerid, effect* peffect) {
 	if(!peffect)
 		return TRUE;
-	if(current.controler != playerid && !is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
-		effect_set eset;
-		filter_effect(EFFECT_EXTRA_RELEASE_NONSUM, &eset);
-		for(int32 i = 0; i < eset.size(); ++i) {
-			pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
-			pduel->lua->add_param(REASON_EFFECT, PARAM_TYPE_INT);
-			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-			if(!eset[i]->check_value_condition(3))
-				return FALSE;
-		}
-	}
 	effect_set eset;
 	filter_effect(EFFECT_UNRELEASABLE_EFFECT, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {

@@ -2106,7 +2106,8 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 				        && peffect->is_chainable(priority) && peffect->is_activateable(priority, clit->evt, TRUE)) {
 					for(auto cait = core.current_chain.begin(); cait != core.current_chain.end(); ++cait) {
 						if(cait->triggering_player == priority) {
-							if(std::any_of(core.new_ochain_h.begin(), core.new_ochain_h.end(), [=](chain ch) { return ch.chain_id == cait->chain_id; })) {
+							if((peffect->status & EFFECT_STATUS_SPSELF) && (cait->triggering_effect->status & EFFECT_STATUS_SPSELF)
+								&& std::any_of(core.new_ochain_h.begin(), core.new_ochain_h.end(), [=](chain ch) { return ch.chain_id == cait->chain_id; })) {
 								act = false;
 								break;
 							}
@@ -4687,9 +4688,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 	}
 	case 1: {
 		effect* peffect = cait->triggering_effect;
-		int32 activate = (peffect->type & EFFECT_TYPE_ACTIVATE);
-		if(activate && (cait->flag & CHAIN_ACTIVATING))
-			peffect->type &= ~EFFECT_TYPE_ACTIVATE;
 		if(cait->flag & CHAIN_DISABLE_ACTIVATE && is_chain_negatable(cait->chain_count)) {
 			remove_oath_effect(peffect);
 			if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && (peffect->count_code & EFFECT_COUNT_CODE_OATH)) {
@@ -4707,7 +4705,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		break_effect();
 		core.chain_solving = TRUE;
 		card* pcard = peffect->get_handler();
-		if(activate && pcard->is_has_relation(*cait)) {
+		if((peffect->type & EFFECT_TYPE_ACTIVATE) && pcard->is_has_relation(*cait)) {
 			pcard->set_status(STATUS_ACTIVATED, TRUE);
 			pcard->enable_field_effect(true);
 			if(core.duel_rule <= 2) {
@@ -4828,6 +4826,8 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 	case 10: {
 		effect* peffect = cait->triggering_effect;
 		card* pcard = peffect->get_handler();
+		if((peffect->type & EFFECT_TYPE_ACTIVATE) && (cait->flag & CHAIN_ACTIVATING))
+			peffect->type &= ~EFFECT_TYPE_ACTIVATE;
 		if((cait->flag & CHAIN_HAND_EFFECT) && !pcard->is_position(POS_FACEUP) && (pcard->current.location == LOCATION_HAND))
 			shuffle(pcard->current.controler, LOCATION_HAND);
 		if(cait->target_cards && cait->target_cards->container.size()) {
@@ -4989,7 +4989,7 @@ int32 field::refresh_location_info(uint16 step) {
 		filter_field_effect(EFFECT_DISABLE_FIELD, &eset);
 		for (int32 i = 0; i < eset.size(); ++i) {
 			value = eset[i]->get_value();
-			if(value) {
+			if(value && !eset[i]->is_flag(EFFECT_FLAG_REPEAT)) {
 				player[0].disabled_location |= value & 0x1f7f;
 				player[1].disabled_location |= (value >> 16) & 0x1f7f;
 			} else

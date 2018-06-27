@@ -1108,8 +1108,6 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 	} else {
 		if (peffect->type & EFFECT_TYPE_IGNITION)
 			it = effects.ignition_effect.emplace(peffect->code, peffect);
-		else if (peffect->type & EFFECT_TYPE_ACTIVATE)
-			it = effects.activate_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_TRIGGER_O && peffect->type & EFFECT_TYPE_FIELD)
 			it = effects.trigger_o_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_TRIGGER_F && peffect->type & EFFECT_TYPE_FIELD)
@@ -1118,6 +1116,8 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 			it = effects.quick_o_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_QUICK_F)
 			it = effects.quick_f_effect.emplace(peffect->code, peffect);
+		else if (peffect->type & EFFECT_TYPE_ACTIVATE)
+			it = effects.activate_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_CONTINUOUS)
 			it = effects.continuous_effect.emplace(peffect->code, peffect);
 	}
@@ -1168,8 +1168,6 @@ void field::remove_effect(effect* peffect) {
 	} else {
 		if (peffect->type & EFFECT_TYPE_IGNITION)
 			effects.ignition_effect.erase(it);
-		else if (peffect->type & EFFECT_TYPE_ACTIVATE)
-			effects.activate_effect.erase(it);
 		else if (peffect->type & EFFECT_TYPE_TRIGGER_O)
 			effects.trigger_o_effect.erase(it);
 		else if (peffect->type & EFFECT_TYPE_TRIGGER_F)
@@ -1178,6 +1176,8 @@ void field::remove_effect(effect* peffect) {
 			effects.quick_o_effect.erase(it);
 		else if (peffect->type & EFFECT_TYPE_QUICK_F)
 			effects.quick_f_effect.erase(it);
+		else if (peffect->type & EFFECT_TYPE_ACTIVATE)
+			effects.activate_effect.erase(it);
 		else if (peffect->type & EFFECT_TYPE_CONTINUOUS)
 			effects.continuous_effect.erase(it);
 	}
@@ -3132,7 +3132,7 @@ int32 field::is_player_can_spsummon(effect* peffect, uint32 sumtype, uint8 sumpo
 	}
 	restore_lp_cost();
 	if(sumpos & POS_FACEDOWN && is_player_affected_by_effect(playerid, EFFECT_DEVINE_LIGHT))
-		sumpos = (sumpos & POS_FACEUP) | (sumpos >> 1);
+		sumpos = (sumpos & POS_FACEUP) | ((sumpos & POS_FACEDOWN) >> 1);
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_CANNOT_SPECIAL_SUMMON, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {

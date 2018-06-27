@@ -445,9 +445,9 @@ int32 scriptlib::duel_special_summon(lua_State *L) {
 	if(lua_gettop(L) >= 8)
 		zone = lua_tointeger(L, 8);
 	if(pcard) {
-		pduel->game_field->core.temp_set.clear();
-		pduel->game_field->core.temp_set.insert(pcard);
-		pduel->game_field->special_summon(&pduel->game_field->core.temp_set, sumtype, sumplayer, playerid, nocheck, nolimit, positions, zone);
+		field::card_set cset;
+		cset.insert(pcard);
+		pduel->game_field->special_summon(&cset, sumtype, sumplayer, playerid, nocheck, nolimit, positions, zone);
 	} else
 		pduel->game_field->special_summon(&(pgroup->container), sumtype, sumplayer, playerid, nocheck, nolimit, positions, zone);
 	pduel->game_field->core.subunits.back().type = PROCESSOR_SPSUMMON_S;
@@ -639,9 +639,9 @@ int32 scriptlib::duel_change_form(lua_State *L) {
 	if(top > 5 && lua_toboolean(L, 6)) flag |= NO_FLIP_EFFECT;
 	if(top > 6 && lua_toboolean(L, 7)) flag |= FLIP_SET_AVAILABLE;
 	if(pcard) {
-		pduel->game_field->core.temp_set.clear();
-		pduel->game_field->core.temp_set.insert(pcard);
-		pduel->game_field->change_position(&pduel->game_field->core.temp_set, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, flag, TRUE);
+		field::card_set cset;
+		cset.insert(pcard);
+		pduel->game_field->change_position(&cset, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, flag, TRUE);
 	} else
 		pduel->game_field->change_position(&(pgroup->container), pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, flag, TRUE);
 	pduel->game_field->core.subunits.back().type = PROCESSOR_CHANGEPOS_S;
@@ -3364,7 +3364,7 @@ int32 scriptlib::duel_set_dice_result(lua_State * L) {
 	int32 res;
 	for(int32 i = 0; i < 5; ++i) {
 		res = lua_tointeger(L, i + 1);
-		if(res < 1 || res > 6)
+		if(res < 1 || res > 255)
 			res = 1;
 		pduel->game_field->core.dice_result[i] = res;
 	}
