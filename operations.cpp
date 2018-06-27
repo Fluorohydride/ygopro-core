@@ -3774,17 +3774,6 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		uint8 playerid = pcard->sendto_param.playerid & 0x7;
 		uint8 dest = pcard->sendto_param.location;
 		uint8 seq = pcard->sendto_param.sequence;
-		if(dest == LOCATION_GRAVE) {
-			core.hint_timing[pcard->current.controler] |= TIMING_TOGRAVE;
-		} else if(dest == LOCATION_HAND) {
-			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
-			core.hint_timing[pcard->current.controler] |= TIMING_TOHAND;
-		} else if(dest == LOCATION_DECK) {
-			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
-			core.hint_timing[pcard->current.controler] |= TIMING_TODECK;
-		} else if(dest == LOCATION_REMOVED) {
-			core.hint_timing[pcard->current.controler] |= TIMING_REMOVE;
-		}
 		//call move_card()
 		if(pcard->current.controler != playerid || pcard->current.location != dest) {
 			pduel->write_buffer8(MSG_MOVE);
@@ -3798,6 +3787,17 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			pcard->current.position = pcard->sendto_param.position;
 			pduel->write_buffer32(pcard->get_info_location());
 			pduel->write_buffer32(pcard->current.reason);
+		}
+		if(dest == LOCATION_GRAVE) {
+			core.hint_timing[pcard->current.controler] |= TIMING_TOGRAVE;
+		} else if(dest == LOCATION_HAND) {
+			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
+			core.hint_timing[pcard->current.controler] |= TIMING_TOHAND;
+		} else if(dest == LOCATION_DECK) {
+			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
+			core.hint_timing[pcard->current.controler] |= TIMING_TODECK;
+		} else if(dest == LOCATION_REMOVED) {
+			core.hint_timing[pcard->current.controler] |= TIMING_REMOVE;
 		}
 		if((core.deck_reversed && pcard->current.location == LOCATION_DECK) || (pcard->current.position == POS_FACEUP_DEFENSE))
 			param->show_decktop[pcard->current.controler] = true;
