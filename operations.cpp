@@ -2426,15 +2426,15 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		card_set* set_cards = &core.set_group_set;
 		card* target = *set_cards->begin();
 		target->enable_field_effect(false);
+		uint32 zone = 0;
 		for(uint32 i = 0; i < 7; i++) {
-			if(core.set_group_used_zones & (1 << i)) {
-				returns.bvalue[2] = i;
-				core.set_group_used_zones &= ~(1 << i);
+			zone = 1 << i;
+			if(core.set_group_used_zones & zone) {
+				core.set_group_used_zones &= ~zone;
 				break;
 			}
 		}
-		target->to_field_param = (setplayer << 24) + (toplayer << 16) + (LOCATION_SZONE << 8) + POS_FACEDOWN;
-		add_process(PROCESSOR_MOVETOFIELD, 1, 0, (group*)target, FALSE, 0, 0);
+		move_to_field(target, setplayer, toplayer, LOCATION_SZONE, POS_FACEDOWN, FALSE, 0, FALSE, zone);
 		return FALSE;
 	}
 	case 4: {
