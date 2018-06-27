@@ -2379,7 +2379,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 			returns.ivalue[0] = 0;
 			return TRUE;
 		}
-		core.temp_set.clear();
+		core.set_group_set.clear();
 		core.set_group_used_zones = 0;
 		core.phase_action = TRUE;
 		core.units.begin()->ptarget = (group*)set_cards;
@@ -2412,8 +2412,8 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		card_set* set_cards = (card_set*)ptarget;
 		card* target = *set_cards->begin();
 		uint32 seq = returns.bvalue[2];
-		core.set_group_seq[core.temp_set.size()] = seq;
-		core.temp_set.insert(target);
+		core.set_group_seq[core.set_group_set.size()] = seq;
+		core.set_group_set.insert(target);
 		core.set_group_used_zones |= (1 << seq);
 		set_cards->erase(target);
 		if(!set_cards->empty())
@@ -2423,7 +2423,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		return FALSE;
 	}
 	case 3: {
-		card_set* set_cards = &core.temp_set;
+		card_set* set_cards = &core.set_group_set;
 		card* target = *set_cards->begin();
 		target->enable_field_effect(false);
 		for(uint32 i = 0; i < 7; i++) {
@@ -2438,7 +2438,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		return FALSE;
 	}
 	case 4: {
-		card_set* set_cards = &core.temp_set;
+		card_set* set_cards = &core.set_group_set;
 		card* target = *set_cards->begin();
 		target->set_status(STATUS_SET_TURN, TRUE);
 		if(target->data.type & TYPE_MONSTER) {
