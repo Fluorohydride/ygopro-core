@@ -3987,6 +3987,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 					pduel->write_buffer32(ptop->data.code | 0x80000000);
 			}
 		}
+		for(auto iter = param->leave.begin(); iter != param->leave.end(); ++iter)
+			raise_single_event(*iter, 0, EVENT_LEAVE_FIELD, (*iter)->current.reason_effect, (*iter)->current.reason, (*iter)->current.reason_player, 0, 0);
 		for(auto iter = param->discard.begin(); iter != param->discard.end(); ++iter)
 			raise_single_event(*iter, 0, EVENT_DISCARD, (*iter)->current.reason_effect, (*iter)->current.reason, (*iter)->current.reason_player, 0, 0);
 		if((core.global_flag & GLOBALFLAG_DETACH_EVENT) && param->detach.size()) {
@@ -3996,6 +3998,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			}
 		}
 		process_single_event();
+		if(param->leave.size())
+			raise_event(&param->leave, EVENT_LEAVE_FIELD, reason_effect, reason, reason_player, 0, 0);
 		if(param->discard.size())
 			raise_event(&param->discard, EVENT_DISCARD, reason_effect, reason, reason_player, 0, 0);
 		if((core.global_flag & GLOBALFLAG_DETACH_EVENT) && param->detach.size())
@@ -4008,10 +4012,6 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		exargs* param = (exargs*)targets;
 		core.units.begin()->ptarget = param->targets;
 		targets = param->targets;
-		for(auto iter = param->leave.begin(); iter != param->leave.end(); ++iter)
-			raise_single_event(*iter, 0, EVENT_LEAVE_FIELD, (*iter)->current.reason_effect, (*iter)->current.reason, (*iter)->current.reason_player, 0, 0);
-		if(param->leave.size())
-			raise_event(&param->leave, EVENT_LEAVE_FIELD, reason_effect, reason, reason_player, 0, 0);
 		delete param;
 		uint8 nloc;
 		card_set tohand, todeck, tograve, remove, released, destroyed, retgrave;
