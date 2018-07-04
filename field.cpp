@@ -2182,17 +2182,15 @@ int32 field::check_spsummon_counter(uint8 playerid, uint8 ct) {
 int32 field::check_lp_cost(uint8 playerid, uint32 lp) {
 	effect_set eset;
 	int32 val = lp;
-	if(lp == 0)
-		return TRUE;
 	filter_player_effect(playerid, EFFECT_LPCOST_CHANGE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		pduel->lua->add_param(val, PARAM_TYPE_INT);
 		val = eset[i]->get_value(3);
-		if(val <= 0)
-			return TRUE;
 	}
+	if(val <= 0)
+		return TRUE;
 	tevent e;
 	e.event_cards = 0;
 	e.event_player = playerid;

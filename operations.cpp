@@ -600,20 +600,15 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost) {
 	case 0: {
 		effect_set eset;
 		int32 val = cost;
-		if(cost == 0) {
-			raise_event((card*)0, EVENT_PAY_LPCOST, core.reason_effect, 0, playerid, playerid, cost);
-			process_instant_event();
-			return TRUE;
-		}
 		filter_player_effect(playerid, EFFECT_LPCOST_CHANGE, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
 			pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 			pduel->lua->add_param(val, PARAM_TYPE_INT);
 			val = eset[i]->get_value(3);
-			if(val <= 0)
-				return TRUE;
 		}
+		if(val <= 0)
+			return TRUE;
 		core.units.begin()->arg2 = val;
 		tevent e;
 		e.event_cards = 0;
