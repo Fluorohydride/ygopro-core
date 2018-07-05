@@ -1667,7 +1667,7 @@ int32 scriptlib::duel_get_location_count(lua_State *L) {
 		zone = lua_tointeger(L, 5);
 	uint32 list = 0;
 	lua_pushinteger(L, pduel->game_field->get_useable_count(NULL, playerid, location, uplayer, reason, zone, &list));
-	lua_pushinteger(L, list);	
+	lua_pushinteger(L, list);
 	return 2;
 }
 int32 scriptlib::duel_get_mzone_count(lua_State *L) {
@@ -1771,7 +1771,7 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 	uint32 zone = 0xff;
 	if(lua_gettop(L) >= 5)
 		zone = lua_tointeger(L, 5);
-	uint32 list = 0;	
+	uint32 list = 0;
 	lua_pushinteger(L, pduel->game_field->get_useable_count_fromex(scard, playerid, uplayer, zone, &list));
 	lua_pushinteger(L, list);
 	if(swapped) {
