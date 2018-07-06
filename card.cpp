@@ -1961,9 +1961,7 @@ int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 	}
 	return pduel->game_field->infos.copy_id - 1;
 }
-// add EFFECT_SET_CONTROL
 void card::reset(uint32 id, uint32 reset_type) {
-	effect* peffect;
 	if (reset_type != RESET_EVENT && reset_type != RESET_PHASE && reset_type != RESET_CODE && reset_type != RESET_COPY && reset_type != RESET_CARD)
 		return;
 	if (reset_type == RESET_EVENT) {
@@ -1998,7 +1996,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 				pcard->effect_target_owner.erase(this);
 				for(auto it = pcard->single_effect.begin(); it != pcard->single_effect.end();) {
 					auto rm = it++;
-					peffect = rm->second;
+					effect* peffect = rm->second;
 					if((peffect->owner == this) && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE))
 						pcard->remove_effect(peffect, rm);
 				}
@@ -2048,7 +2046,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 	}
 	for (auto i = indexer.begin(); i != indexer.end();) {
 		auto rm = i++;
-		peffect = rm->first;
+		effect* peffect = rm->first;
 		auto it = rm->second;
 		if (peffect->reset(id, reset_type))
 			remove_effect(peffect, it);

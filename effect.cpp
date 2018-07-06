@@ -229,7 +229,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 					ecode = EFFECT_TRAP_ACT_IN_SET_TURN;
 			}
 			if(ecode) {
-				int32 available = false;
+				bool available = false;
 				effect_set eset;
 				handler->filter_effect(ecode, &eset);
 				for(int32 i = 0; i < eset.size(); ++i) {

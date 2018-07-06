@@ -183,7 +183,7 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 		if (sequence == 0) {		//deck top
 			player[playerid].list_main.push_back(pcard);
 			pcard->current.sequence = player[playerid].list_main.size() - 1;
-		} else if (sequence == 1) {		//deck button
+		} else if (sequence == 1) {		//deck bottom
 			player[playerid].list_main.insert(player[playerid].list_main.begin(), pcard);
 			reset_sequence(playerid, LOCATION_DECK);
 		} else {		//deck top & shuffle
@@ -319,7 +319,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 					} else {
 						player[playerid].list_main.push_back(pcard);
 						if(!core.shuffle_check_disabled)
-							core.shuffle_deck_check[playerid] = true;
+							core.shuffle_deck_check[playerid] = TRUE;
 					}
 					reset_sequence(playerid, LOCATION_DECK);
 					pcard->previous.controler = preplayer;
@@ -1268,10 +1268,9 @@ void field::dec_effect_code(uint32 code, uint32 playerid) {
 		iter->second--;
 }
 void field::filter_field_effect(uint32 code, effect_set* eset, uint8 sort) {
-	effect* peffect;
 	auto rg = effects.aura_effect.equal_range(code);
 	for (; rg.first != rg.second; ) {
-		peffect = rg.first->second;
+		effect* peffect = rg.first->second;
 		++rg.first;
 		if (peffect->is_available())
 			eset->add_item(peffect);
@@ -1361,13 +1360,12 @@ void field::filter_player_effect(uint8 playerid, uint32 code, effect_set* eset, 
 int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, uint32 location2, group* pgroup, card* pexception, group* pexgroup, uint32 extraargs, card** pret, int32 fcount, int32 is_target) {
 	if(self != 0 && self != 1)
 		return FALSE;
-	card* pcard;
 	int32 count = 0;
 	uint32 location = location1;
 	for(uint32 p = 0; p < 2; ++p) {
 		if(location & LOCATION_MZONE) {
 			for(auto cit = player[self].list_mzone.begin(); cit != player[self].list_mzone.end(); ++cit) {
-				pcard = *cit;
+				card* pcard = *cit;
 				if(pcard && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP)
 						&& pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
 						&& pduel->lua->check_matching(pcard, findex, extraargs)
@@ -1387,7 +1385,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		}
 		if(location & LOCATION_SZONE) {
 			for(auto cit = player[self].list_szone.begin(); cit != player[self].list_szone.end(); ++cit) {
-				pcard = *cit;
+				card* pcard = *cit;
 				if(pcard && !pcard->is_status(STATUS_ACTIVATE_DISABLED)
 				        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
 				        && pduel->lua->check_matching(pcard, findex, extraargs)
@@ -1406,7 +1404,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 			}
 		}
 		if(location & LOCATION_FZONE) {
-			pcard = player[self].list_szone[5];
+			card* pcard = player[self].list_szone[5];
 			if(pcard && !pcard->is_status(STATUS_ACTIVATE_DISABLED)
 			        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
 			        && pduel->lua->check_matching(pcard, findex, extraargs)
@@ -1425,7 +1423,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		}
 		if(location & LOCATION_PZONE) {
 			for(int32 i = 0; i < 2; ++i) {
-				pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
+				card* pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
 				if(pcard && pcard->current.pzone && !pcard->is_status(STATUS_ACTIVATE_DISABLED)
 				        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
 				        && pduel->lua->check_matching(pcard, findex, extraargs)
@@ -1544,11 +1542,10 @@ int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, g
 		return 0;
 	uint32 location = location1;
 	uint32 count = 0;
-	card* pcard;
 	for(uint32 p = 0; p < 2; ++p) {
 		if(location & LOCATION_MZONE) {
 			for(auto cit = player[self].list_mzone.begin(); cit != player[self].list_mzone.end(); ++cit) {
-				pcard = *cit;
+				card* pcard = *cit;
 				if(pcard && !pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)) {
 					if(pgroup)
 						pgroup->container.insert(pcard);
@@ -1558,7 +1555,7 @@ int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, g
 		}
 		if(location & LOCATION_SZONE) {
 			for(auto cit = player[self].list_szone.begin(); cit != player[self].list_szone.end(); ++cit) {
-				pcard = *cit;
+				card* pcard = *cit;
 				if(pcard) {
 					if(pgroup)
 						pgroup->container.insert(pcard);
@@ -1567,7 +1564,7 @@ int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, g
 			}
 		}
 		if(location & LOCATION_FZONE) {
-			pcard = player[self].list_szone[5];
+			card* pcard = player[self].list_szone[5];
 			if(pcard) {
 				if(pgroup)
 					pgroup->container.insert(pcard);
@@ -1576,7 +1573,7 @@ int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, g
 		}
 		if(location & LOCATION_PZONE) {
 			for(int32 i = 0; i < 2; ++i) {
-				pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
+				card* pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
 				if(pcard && pcard->current.pzone) {
 					if(pgroup)
 						pgroup->container.insert(pcard);
@@ -2547,7 +2544,6 @@ void field::attack_all_target_check() {
 		core.attacker->attack_all_target = FALSE;
 }
 int32 field::check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg) {
-	card* tuner;
 	if(core.global_flag & GLOBALFLAG_MUST_BE_SMATERIAL) {
 		effect_set eset;
 		filter_player_effect(pcard->current.controler, EFFECT_MUST_BE_SMATERIAL, &eset);
@@ -2556,14 +2552,14 @@ int32 field::check_synchro_material(card* pcard, int32 findex1, int32 findex2, i
 	}
 	if(mg) {
 		for(auto cit = mg->container.begin(); cit != mg->container.end(); ++cit) {
-			tuner = *cit;
+			card* tuner = *cit;
 			if(check_tuner_material(pcard, tuner, findex1, findex2, min, max, smat, mg))
 				return TRUE;
 		}
 	} else {
 		for(uint8 p = 0; p < 2; ++p) {
 			for(auto cit = player[p].list_mzone.begin(); cit != player[p].list_mzone.end(); ++cit) {
-				tuner = *cit;
+				card* tuner = *cit;
 				if(check_tuner_material(pcard, tuner, findex1, findex2, min, max, smat, mg))
 					return TRUE;
 			}

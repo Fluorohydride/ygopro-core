@@ -200,7 +200,6 @@ void field::special_summon_complete(effect* reason_effect, uint8 reason_player) 
 // destroy in script: here->PROCESSOR_DESTROY, step 0
 // set current.reason
 void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence) {
-	uint32 p;
 	for(auto cit = targets->begin(); cit != targets->end();) {
 		card* pcard = *cit;
 		if(pcard->is_status(STATUS_DESTROY_CONFIRMED)) {
@@ -216,7 +215,7 @@ void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uin
 				pcard->current.reason_effect = reason_effect;
 			pcard->current.reason_player = reason_player;
 		}
-		p = playerid;
+		uint32 p = playerid;
 		if(!(destination & (LOCATION_HAND + LOCATION_DECK + LOCATION_REMOVED)))
 			destination = LOCATION_GRAVE;
 		if(destination && p == PLAYER_NONE)
@@ -261,7 +260,6 @@ void field::release(card* target, effect* reason_effect, uint32 reason, uint32 r
 void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence, uint32 position) {
 	if(destination & LOCATION_ONFIELD)
 		return;
-	uint32 p, pos;
 	for(auto cit = targets->begin(); cit != targets->end(); ) {
 		card* pcard = *cit++;
 		if((destination & LOCATION_EXTRA) && !(pcard->data.type & TYPE_PENDULUM)) {
@@ -274,17 +272,17 @@ void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uin
 		pcard->current.reason = reason;
 		pcard->current.reason_effect = reason_effect;
 		pcard->current.reason_player = reason_player;
-		p = playerid;
+		uint32 p = playerid;
 		// send to hand from deck  & playerid not given => send to the hand of controler
 		if(p == PLAYER_NONE && (destination & LOCATION_HAND) && (pcard->current.location & LOCATION_DECK) && pcard->current.controler == reason_player)
 			p = reason_player;
 		if(destination & (LOCATION_GRAVE + LOCATION_REMOVED) || p == PLAYER_NONE)
 			p = pcard->owner;
+		uint32 pos = position;
 		if(destination != LOCATION_REMOVED)
 			pos = POS_FACEUP;
 		else if(position == 0)
 			pos = pcard->current.position;
-		else pos = position;
 		pcard->sendto_param.set(p, pos, destination, sequence);
 	}
 	group* ng = pduel->new_group(*targets);
@@ -349,7 +347,6 @@ void field::select_tribute_cards(card* target, uint8 playerid, uint8 cancelable,
 int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, uint32 count) {
 	switch(step) {
 	case 0: {
-		card* pcard;
 		card_vector cv;
 		uint32 drawed = 0;
 		uint32 public_count = 0;
@@ -364,7 +361,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 				break;
 			}
 			drawed++;
-			pcard = player[playerid].list_main.back();
+			card* pcard = player[playerid].list_main.back();
 			pcard->enable_field_effect(false);
 			pcard->cancel_field_effect();
 			player[playerid].list_main.pop_back();
@@ -839,8 +836,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 		card_set* destroy_set = new card_set;
 		core.units.begin()->ptr1 = destroy_set;
 		for(auto cit = targets->container.begin(); cit != targets->container.end();) {
-			auto rm = cit++;
-			card* pcard = *rm;
+			card* pcard = *cit++;
 			pcard->filter_disable_related_cards();
 			bool change = true;
 			if(pcard->overlay_target)
@@ -858,7 +854,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 			if((pcard->get_type() & TYPE_TRAPMONSTER) && get_useable_count(pcard, playerid, LOCATION_SZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
 				change = false;
 			if(!change)
-				targets->container.erase(rm);
+				targets->container.erase(pcard);
 		}
 		int32 fcount = get_useable_count(NULL, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_CONTROL, zone);
 		if(fcount <= 0) {
@@ -1915,7 +1911,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		}
 		process_single_event();
 		process_instant_event();
-		return false;
+		return FALSE;
 	}
 	case 17: {
 		raise_single_event(target, 0, EVENT_SUMMON_SUCCESS, proc, 0, sumplayer, sumplayer, 0);
@@ -4316,7 +4312,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				target->reset(resetflag, RESET_EVENT);
 			}
 			if(!(target->current.location & LOCATION_ONFIELD))
-				target->relate_effect.clear();
+				target->clear_relate_effect();
 		} else {
 			if(target->turnid != infos.turn_id) {
 				target->set_status(STATUS_SUMMON_TURN, FALSE);
