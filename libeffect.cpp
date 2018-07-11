@@ -42,7 +42,7 @@ int32 scriptlib::effect_reset(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	if(peffect->owner == 0)
+	if(peffect->owner == 0 || peffect->handler == 0)
 		return 0;
 	if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 		peffect->pduel->game_field->remove_effect(peffect);
