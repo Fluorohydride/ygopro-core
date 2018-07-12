@@ -558,6 +558,7 @@ public:
 	static int32 duel_is_player_can_send_to_hand(lua_State *L);
 	static int32 duel_is_player_can_send_to_grave(lua_State *L);
 	static int32 duel_is_player_can_send_to_deck(lua_State *L);
+	static int32 duel_is_player_extra_summoned(lua_State *L);
 	static int32 duel_is_chain_negatable(lua_State *L);
 	static int32 duel_is_chain_disablable(lua_State *L);
 	static int32 duel_check_chain_target(lua_State *L);

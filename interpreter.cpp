@@ -564,6 +564,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsPlayerCanSendtoHand", scriptlib::duel_is_player_can_send_to_hand },
 	{ "IsPlayerCanSendtoGrave", scriptlib::duel_is_player_can_send_to_grave },
 	{ "IsPlayerCanSendtoDeck", scriptlib::duel_is_player_can_send_to_deck },
+	{ "IsPlayerExtraSummoned", scriptlib::duel_is_player_extra_summoned },
 	{ "IsChainNegatable", scriptlib::duel_is_chain_negatable },
 	{ "IsChainDisablable", scriptlib::duel_is_chain_disablable },
 	{ "CheckChainTarget", scriptlib::duel_check_chain_target },
