@@ -3272,6 +3272,8 @@ int32 field::is_player_can_send_to_hand(uint8 playerid, card * pcard) {
 		if (pduel->lua->check_condition(eset[i]->target, 3))
 			return FALSE;
 	}
+	if((pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK))	&& !is_player_can_send_to_deck(playerid, pcard))
+		return FALSE;
 	return TRUE;
 }
 int32 field::is_player_can_send_to_deck(uint8 playerid, card * pcard) {
