@@ -3601,7 +3601,7 @@ int32 scriptlib::duel_is_player_can_send_to_deck(lua_State * L) {
 	lua_pushboolean(L, pduel->game_field->is_player_can_send_to_deck(playerid, pcard));
 	return 1;
 }
-int32 scriptlib::duel_is_player_extra_summoned(lua_State * L) {
+int32 scriptlib::duel_check_additional_summon(lua_State * L) {
 	check_param_count(L, 1);
 	int32 playerid = lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1) {
@@ -3609,7 +3609,10 @@ int32 scriptlib::duel_is_player_extra_summoned(lua_State * L) {
 		return 1;
 	}
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushboolean(L, pduel->game_field->core.extra_summon[playerid]);
+	if(pduel->game_field->core.extra_summon[playerid] == 0)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
 	return 1;
 }
 int32 scriptlib::duel_is_chain_negatable(lua_State * L) {
