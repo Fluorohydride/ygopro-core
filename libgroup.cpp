@@ -30,9 +30,9 @@ int32 scriptlib::group_from_cards(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = pduel->new_group();
 	for(int32 i = 0; i < lua_gettop(L); ++i) {
-		void* p = lua_touserdata(L, i + 1);
-		if(p) {
-			card* pcard = *(card**)p;
+		if(!lua_isnil(L, i + 1)) {
+			check_param(L, PARAM_TYPE_CARD, i + 1);
+			card* pcard = *(card**) lua_touserdata(L, i + 1);
 			pgroup->container.insert(pcard);
 		}
 	}
