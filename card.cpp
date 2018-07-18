@@ -2166,11 +2166,11 @@ int32 card::leave_field_redirect(uint32 reason) {
 	filter_effect(EFFECT_LEAVE_FIELD_REDIRECT, &es);
 	for(int32 i = 0; i < es.size(); ++i) {
 		redirect = es[i]->get_value(this, 0);
-		if((redirect & LOCATION_HAND) && !is_affected_by_effect(EFFECT_CANNOT_TO_HAND) && pduel->game_field->is_player_can_send_to_hand(current.controler, this))
+		if((redirect & LOCATION_HAND) && !is_affected_by_effect(EFFECT_CANNOT_TO_HAND) && pduel->game_field->is_player_can_send_to_hand(es[i]->get_handler_player(), this))
 			return redirect;
-		else if((redirect & LOCATION_DECK) && !is_affected_by_effect(EFFECT_CANNOT_TO_DECK) && pduel->game_field->is_player_can_send_to_deck(current.controler, this))
+		else if((redirect & LOCATION_DECK) && !is_affected_by_effect(EFFECT_CANNOT_TO_DECK) && pduel->game_field->is_player_can_send_to_deck(es[i]->get_handler_player(), this))
 			return redirect;
-		else if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(current.controler, this))
+		else if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(es[i]->get_handler_player(), this))
 			return redirect;
 	}
 	return 0;
@@ -2192,13 +2192,13 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 		return 0;
 	for(int32 i = 0; i < es.size(); ++i) {
 		redirect = es[i]->get_value(this, 0);
-		if((redirect & LOCATION_HAND) && !is_affected_by_effect(EFFECT_CANNOT_TO_HAND) && pduel->game_field->is_player_can_send_to_hand(current.controler, this))
+		if((redirect & LOCATION_HAND) && !is_affected_by_effect(EFFECT_CANNOT_TO_HAND) && pduel->game_field->is_player_can_send_to_hand(es[i]->get_handler_player(), this))
 			return redirect;
-		if((redirect & LOCATION_DECK) && !is_affected_by_effect(EFFECT_CANNOT_TO_DECK) && pduel->game_field->is_player_can_send_to_deck(current.controler, this))
+		if((redirect & LOCATION_DECK) && !is_affected_by_effect(EFFECT_CANNOT_TO_DECK) && pduel->game_field->is_player_can_send_to_deck(es[i]->get_handler_player(), this))
 			return redirect;
-		if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(current.controler, this))
+		if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(es[i]->get_handler_player(), this))
 			return redirect;
-		if((redirect & LOCATION_GRAVE) && !is_affected_by_effect(EFFECT_CANNOT_TO_GRAVE) && pduel->game_field->is_player_can_send_to_grave(current.controler, this))
+		if((redirect & LOCATION_GRAVE) && !is_affected_by_effect(EFFECT_CANNOT_TO_GRAVE) && pduel->game_field->is_player_can_send_to_grave(es[i]->get_handler_player(), this))
 			return redirect;
 	}
 	return 0;
