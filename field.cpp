@@ -3335,6 +3335,8 @@ int32 field::is_chain_disablable(uint8 chaincount) {
 	if(!peffect->get_handler()->get_status(STATUS_FORBIDDEN)) {
 		if(peffect->is_flag(EFFECT_FLAG_CANNOT_DISABLE))
 			return FALSE;
+		if (peffect->get_handler()->is_affected_by_effect(EFFECT_CANNOT_DISEFFECT))
+			return FALSE;
 		filter_field_effect(EFFECT_CANNOT_DISEFFECT, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
 			pduel->lua->add_param(chaincount, PARAM_TYPE_INT);
