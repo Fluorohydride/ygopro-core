@@ -2143,9 +2143,9 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 			// delayed quick
 			for(auto eit = core.delayed_quick.begin(); eit != core.delayed_quick.end();) {
 				effect* peffect = eit->first;
+				const tevent& evt = eit->second;
 				++eit;
 				peffect->set_activate_location();
-				const tevent& evt = eit->second;
 				if(peffect->is_chainable(priority) && peffect->is_activateable(priority, evt, TRUE, FALSE, FALSE)) {
 					card* phandler = peffect->get_handler();
 					newchain.flag = 0;
