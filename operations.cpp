@@ -3933,6 +3933,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			pcard->previous.location = 0;
 		} else if(oloc & LOCATION_ONFIELD) {
 			pcard->reset(RESET_LEAVE + RESET_MSCHANGE, RESET_EVENT);
+			pcard->clear_card_target();
 			param->leave.insert(pcard);
 		}
 		if(param->predirect->operation) {
@@ -3974,6 +3975,22 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 					pduel->write_buffer32(ptop->data.code | 0x80000000);
 			}
 		}
+		for(auto cit = param->targets->container.begin(); cit != param->targets->container.end(); ++cit) {
+			card* pcard = *cit;
+			uint8 nloc = pcard->current.location;
+			if(nloc == LOCATION_HAND)
+				pcard->reset(RESET_TOHAND, RESET_EVENT);
+			else if(nloc == LOCATION_DECK || nloc == LOCATION_EXTRA)
+				pcard->reset(RESET_TODECK, RESET_EVENT);
+			else if(nloc == LOCATION_GRAVE)
+				pcard->reset(RESET_TOGRAVE, RESET_EVENT);
+			if(nloc == LOCATION_REMOVED || ((pcard->data.type & TYPE_TOKEN) && pcard->sendto_param.location == LOCATION_REMOVED)) {
+				if(pcard->current.reason & REASON_TEMPORARY)
+					pcard->reset(RESET_TEMP_REMOVE, RESET_EVENT);
+				else
+					pcard->reset(RESET_REMOVE, RESET_EVENT);
+			}
+		}
 		for(auto iter = param->leave.begin(); iter != param->leave.end(); ++iter)
 			raise_single_event(*iter, 0, EVENT_LEAVE_FIELD, (*iter)->current.reason_effect, (*iter)->current.reason, (*iter)->current.reason_player, 0, 0);
 		if((core.global_flag & GLOBALFLAG_DETACH_EVENT) && param->detach.size()) {
@@ -4011,18 +4028,16 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 						equipings.insert(equipc);
 				}
 			}
+			pcard->clear_card_target();
 			if(!(pcard->data.type & TYPE_TOKEN)) {
 				pcard->enable_field_effect(true);
 				if(nloc == LOCATION_HAND) {
 					tohand.insert(pcard);
-					pcard->reset(RESET_TOHAND, RESET_EVENT);
 					raise_single_event(pcard, 0, EVENT_TO_HAND, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 				} else if(nloc == LOCATION_DECK || nloc == LOCATION_EXTRA) {
 					todeck.insert(pcard);
-					pcard->reset(RESET_TODECK, RESET_EVENT);
 					raise_single_event(pcard, 0, EVENT_TO_DECK, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 				} else if(nloc == LOCATION_GRAVE) {
-					pcard->reset(RESET_TOGRAVE, RESET_EVENT);
 					if(pcard->current.reason & REASON_RETURN) {
 						retgrave.insert(pcard);
 						raise_single_event(pcard, 0, EVENT_RETURN_TO_GRAVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
@@ -4034,10 +4049,6 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			}
 			if(nloc == LOCATION_REMOVED || ((pcard->data.type & TYPE_TOKEN) && pcard->sendto_param.location == LOCATION_REMOVED)) {
 				remove.insert(pcard);
-				if(pcard->current.reason & REASON_TEMPORARY)
-					pcard->reset(RESET_TEMP_REMOVE, RESET_EVENT);
-				else
-					pcard->reset(RESET_REMOVE, RESET_EVENT);
 				raise_single_event(pcard, 0, EVENT_REMOVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
 			if(pcard->current.reason & REASON_DISCARD) {
@@ -4386,6 +4397,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 		}
 		if((target->previous.location == LOCATION_SZONE) && target->equiping_target)
 			target->unequip();
+		target->clear_card_target();
 		if(target->current.location == LOCATION_MZONE) {
 			effect_set eset;
 			filter_player_effect(0, EFFECT_MUST_USE_MZONE, &eset, FALSE);
@@ -4499,6 +4511,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 					if(pcard->status & (STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED))
 						pcard->set_status(STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED, FALSE);
 					pcard->reset(RESET_TURN_SET, RESET_EVENT);
+					pcard->clear_card_target();
 					pcard->set_status(STATUS_SET_TURN, TRUE);
 					pcard->enable_field_effect(false);
 					pcard->summon_info &= 0xdf00ffff;

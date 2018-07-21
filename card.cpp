@@ -1560,6 +1560,7 @@ void card::xyz_overlay(card_set* materials) {
 			pduel->game_field->remove_unique_card(pcard);
 		if(pcard->equiping_target)
 			pcard->unequip();
+		pcard->clear_card_target();
 		xyz_add(pcard, &des);
 	} else {
 		field::card_vector cv;
@@ -1572,6 +1573,7 @@ void card::xyz_overlay(card_set* materials) {
 				pduel->game_field->remove_unique_card(*cvit);
 			if((*cvit)->equiping_target)
 				(*cvit)->unequip();
+			(*cvit)->clear_card_target();
 			xyz_add(*cvit, &des);
 		}
 	}
@@ -1989,20 +1991,6 @@ void card::reset(uint32 id, uint32 reset_type) {
 		}
 		if(id & 0xd7e0000) {
 			counters.clear();
-			for(auto cit = effect_target_owner.begin(); cit != effect_target_owner.end(); ++cit)
-				(*cit)->effect_target_cards.erase(this);
-			for(auto cit = effect_target_cards.begin(); cit != effect_target_cards.end(); ++cit) {
-				card* pcard = *cit;
-				pcard->effect_target_owner.erase(this);
-				for(auto it = pcard->single_effect.begin(); it != pcard->single_effect.end();) {
-					auto rm = it++;
-					effect* peffect = rm->second;
-					if((peffect->owner == this) && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE))
-						pcard->remove_effect(peffect, rm);
-				}
-			}
-			effect_target_owner.clear();
-			effect_target_cards.clear();
 		}
 		if(id & 0x3fe0000) {
 			auto pr = field_effect.equal_range(EFFECT_USE_EXTRA_MZONE);
@@ -2337,6 +2325,22 @@ void card::cancel_card_target(card* pcard) {
 		pduel->write_buffer32(get_info_location());
 		pduel->write_buffer32(pcard->get_info_location());
 	}
+}
+void card::clear_card_target() {
+	for(auto cit = effect_target_owner.begin(); cit != effect_target_owner.end(); ++cit)
+		(*cit)->effect_target_cards.erase(this);
+	for(auto cit = effect_target_cards.begin(); cit != effect_target_cards.end(); ++cit) {
+		card* pcard = *cit;
+		pcard->effect_target_owner.erase(this);
+		for(auto it = pcard->single_effect.begin(); it != pcard->single_effect.end();) {
+			auto rm = it++;
+			effect* peffect = rm->second;
+			if((peffect->owner == this) && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE))
+				pcard->remove_effect(peffect, rm);
+		}
+	}
+	effect_target_owner.clear();
+	effect_target_cards.clear();
 }
 void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {
 	effect* peffect;
