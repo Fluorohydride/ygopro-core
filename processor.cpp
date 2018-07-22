@@ -4711,18 +4711,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		core.spsummon_state_count_tmp[1] = core.spsummon_state_count[1];
 		effect* peffect = cait->triggering_effect;
 		card* pcard = peffect->get_handler();
-		if(is_chain_disablable(cait->chain_count)) {
-			if(is_chain_disabled(cait->chain_count) || (pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && pcard->is_has_relation(*cait))) {
-				if(!(cait->flag & CHAIN_DISABLE_EFFECT)) {
-					pduel->write_buffer8(MSG_CHAIN_DISABLED);
-					pduel->write_buffer8(cait->chain_count);
-				}
-				raise_event((card*)0, EVENT_CHAIN_DISABLED, peffect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
-				process_instant_event();
-				core.units.begin()->step = 3;
-				return FALSE;
-			}
-		}
 		if((peffect->type & EFFECT_TYPE_ACTIVATE) && pcard->is_has_relation(*cait)) {
 			pcard->set_status(STATUS_ACTIVATED, TRUE);
 			pcard->enable_field_effect(true);
@@ -4734,6 +4722,18 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 				}
 			}
 			adjust_instant();
+		}
+		if(is_chain_disablable(cait->chain_count)) {
+			if(is_chain_disabled(cait->chain_count) || (pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && pcard->is_has_relation(*cait))) {
+				if(!(cait->flag & CHAIN_DISABLE_EFFECT)) {
+					pduel->write_buffer8(MSG_CHAIN_DISABLED);
+					pduel->write_buffer8(cait->chain_count);
+				}
+				raise_event((card*)0, EVENT_CHAIN_DISABLED, peffect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
+				process_instant_event();
+				core.units.begin()->step = 3;
+				return FALSE;
+			}
 		}
 		if(cait->replace_op) {
 			core.units.begin()->arg4 = cait->triggering_effect->operation;
