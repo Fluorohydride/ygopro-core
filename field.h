@@ -227,6 +227,7 @@ struct processor {
 	card_set discarded_set;
 	card_set destroy_canceled;
 	card_set delayed_enable_set;
+	card_set set_group_pre_set;
 	card_set set_group_set;
 	effect_set_v disfield_effects;
 	effect_set_v extram_effects;
