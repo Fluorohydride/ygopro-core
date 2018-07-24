@@ -3984,12 +3984,14 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		}
 		for(auto cit = param->targets->container.begin(); cit != param->targets->container.end(); ++cit) {
 			card* pcard = *cit;
+			if(!(pcard->data.type & TYPE_TOKEN))
+				pcard->enable_field_effect(true);
 			uint8 nloc = pcard->current.location;
 			if(nloc == LOCATION_HAND)
 				pcard->reset(RESET_TOHAND, RESET_EVENT);
-			else if(nloc == LOCATION_DECK || nloc == LOCATION_EXTRA)
+			if(nloc == LOCATION_DECK || nloc == LOCATION_EXTRA)
 				pcard->reset(RESET_TODECK, RESET_EVENT);
-			else if(nloc == LOCATION_GRAVE)
+			if(nloc == LOCATION_GRAVE)
 				pcard->reset(RESET_TOGRAVE, RESET_EVENT);
 			if(nloc == LOCATION_REMOVED || ((pcard->data.type & TYPE_TOKEN) && pcard->sendto_param.location == LOCATION_REMOVED)) {
 				if(pcard->current.reason & REASON_TEMPORARY)
@@ -4036,22 +4038,21 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				}
 			}
 			pcard->clear_card_target();
-			if(!(pcard->data.type & TYPE_TOKEN)) {
-				pcard->enable_field_effect(true);
-				if(nloc == LOCATION_HAND) {
-					tohand.insert(pcard);
-					raise_single_event(pcard, 0, EVENT_TO_HAND, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
-				} else if(nloc == LOCATION_DECK || nloc == LOCATION_EXTRA) {
-					todeck.insert(pcard);
-					raise_single_event(pcard, 0, EVENT_TO_DECK, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
-				} else if(nloc == LOCATION_GRAVE) {
-					if(pcard->current.reason & REASON_RETURN) {
-						retgrave.insert(pcard);
-						raise_single_event(pcard, 0, EVENT_RETURN_TO_GRAVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
-					} else {
-						tograve.insert(pcard);
-						raise_single_event(pcard, 0, EVENT_TO_GRAVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
-					}
+			if(nloc == LOCATION_HAND) {
+				tohand.insert(pcard);
+				raise_single_event(pcard, 0, EVENT_TO_HAND, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
+			}
+			if(nloc == LOCATION_DECK || nloc == LOCATION_EXTRA) {
+				todeck.insert(pcard);
+				raise_single_event(pcard, 0, EVENT_TO_DECK, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
+			}
+			if(nloc == LOCATION_GRAVE) {
+				if(pcard->current.reason & REASON_RETURN) {
+					retgrave.insert(pcard);
+					raise_single_event(pcard, 0, EVENT_RETURN_TO_GRAVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
+				} else {
+					tograve.insert(pcard);
+					raise_single_event(pcard, 0, EVENT_TO_GRAVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 				}
 			}
 			if(nloc == LOCATION_REMOVED || ((pcard->data.type & TYPE_TOKEN) && pcard->sendto_param.location == LOCATION_REMOVED)) {
