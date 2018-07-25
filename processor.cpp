@@ -1773,7 +1773,8 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 					|| (peffect->range & LOCATION_HAND))) {
 				clit->flag |= CHAIN_HAND_TRIGGER;
 				core.new_ochain_h.push_back(*clit);
-				if(phandler->is_position(POS_FACEDOWN))
+				if(clit->triggering_location == LOCATION_HAND && phandler->is_position(POS_FACEDOWN)
+					|| peffect->range && !peffect->in_range(*clit))
 					act = false;
 			}
 			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
