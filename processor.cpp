@@ -1697,6 +1697,14 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			}
 			uint8 tp = clit->triggering_player;
 			bool act = true;
+			if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)
+				&& clit->triggering_location == LOCATION_DECK && (phandler->current.location & LOCATION_DECK)) {
+				if((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)
+					&& peffect->code == EVENT_TO_DECK || (peffect->range & LOCATION_DECK))
+					clit->flag |= CHAIN_DECK_EFFECT;
+				else
+					act = false;
+			}
 			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 				&& (!(peffect->type & EFFECT_TYPE_FIELD) || phandler->is_has_relation(*clit))
 				&& (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE
@@ -1775,6 +1783,14 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				core.new_ochain_h.push_back(*clit);
 				if(clit->triggering_location == LOCATION_HAND && phandler->is_position(POS_FACEDOWN)
 					|| peffect->range && !peffect->in_range(*clit))
+					act = false;
+			}
+			if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)
+				&& clit->triggering_location == LOCATION_DECK && (phandler->current.location & LOCATION_DECK)) {
+				if((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)
+					&& peffect->code == EVENT_TO_DECK || (peffect->range & LOCATION_DECK))
+					clit->flag |= CHAIN_DECK_EFFECT;
+				else
 					act = false;
 			}
 			if(peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)

@@ -29,7 +29,7 @@ int32 field::negate_chain(uint8 chaincount) {
 		}
 		pduel->write_buffer8(MSG_CHAIN_NEGATED);
 		pduel->write_buffer8(chaincount);
-		if(pchain.triggering_effect->is_flag(EFFECT_FLAG2_NAGA))
+		if(pchain.flag & CHAIN_DECK_EFFECT)
 			return FALSE;
 		return TRUE;
 	}
@@ -48,7 +48,7 @@ int32 field::disable_chain(uint8 chaincount) {
 		core.current_chain[chaincount - 1].disable_player = core.reason_player;
 		pduel->write_buffer8(MSG_CHAIN_DISABLED);
 		pduel->write_buffer8(chaincount);
-		if(pchain.triggering_effect->is_flag(EFFECT_FLAG2_NAGA))
+		if(pchain.flag & CHAIN_DECK_EFFECT)
 			return FALSE;
 		return TRUE;
 	}
