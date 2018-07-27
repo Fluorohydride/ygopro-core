@@ -1706,14 +1706,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				&& (peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE
 					|| (clit->triggering_location & 0x43) && (clit->triggering_position & POS_FACEDOWN)
 					|| !(phandler->current.location & 0x43) || phandler->is_position(POS_FACEUP))) {
-				if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) {
-					for(auto tpit = core.current_chain.begin(); tpit != core.current_chain.end(); ++tpit) {
-						if(tpit->triggering_effect->get_handler()->data.code == phandler->data.code && tpit->triggering_player == tp) {
-							act = false;
-							break;
-						}
-					}
-				}
+				
 			} else
 				act = false;
 			if(act) {
@@ -1798,14 +1791,6 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 						 for(auto tpit = core.current_chain.begin(); tpit != core.current_chain.end(); ++tpit) {
 							 if(tpit->triggering_player == tp
 								 && (tpit->triggering_effect->status & EFFECT_STATUS_SPSELF) && (tpit->flag & CHAIN_HAND_TRIGGER)) {
-								 act = false;
-								 break;
-							 }
-						 }
-					 }
-					 if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) {
-						 for(auto tpit = core.current_chain.begin(); tpit != core.current_chain.end(); ++tpit) {
-							 if(tpit->triggering_player == tp && tpit->triggering_effect->get_handler()->data.code == phandler->data.code) {
 								 act = false;
 								 break;
 							 }
@@ -2020,49 +2005,13 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 			if(peffect->is_chainable(ifit->second.triggering_player) && peffect->check_count_limit(ifit->second.triggering_player)
 					&& phandler->is_has_relation(ifit->second)) {
 				if(ifit->second.triggering_player == infos.turn_player) {
-					act = true;
-					if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) {
-						for (auto cait = core.tpchain.begin(); cait != core.tpchain.end(); ++cait) {
-							if (cait->triggering_effect->get_handler()->data.code == phandler->data.code) {
-								act = false;
-								break;
-							}
-						}
-						for (auto cait = core.current_chain.begin(); cait != core.current_chain.end(); ++cait) {
-							if ((cait->triggering_effect->get_handler()->data.code == phandler->data.code)
-							        && (cait->triggering_player == infos.turn_player)) {
-								act = false;
-								break;
-							}
-						}
-					}
-					if(act) {
-						core.tpchain.push_back(ifit->second);
-						phandler->set_status(STATUS_CHAINING, TRUE);
-						peffect->dec_count(infos.turn_player);
-					}
+					core.tpchain.push_back(ifit->second);
+					phandler->set_status(STATUS_CHAINING, TRUE);
+					peffect->dec_count(infos.turn_player);
 				} else {
-					act = true;
-					if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) {
-						for (auto cait = core.ntpchain.begin(); cait != core.ntpchain.end(); ++cait) {
-							if (cait->triggering_effect->get_handler()->data.code == phandler->data.code) {
-								act = false;
-								break;
-							}
-						}
-						for (auto cait = core.current_chain.begin(); cait != core.current_chain.end(); ++cait) {
-							if ((cait->triggering_effect->get_handler()->data.code == phandler->data.code)
-							        && (cait->triggering_player != infos.turn_player)) {
-								act = false;
-								break;
-							}
-						}
-					}
-					if(act) {
-						core.ntpchain.push_back(ifit->second);
-						phandler->set_status(STATUS_CHAINING, TRUE);
-						peffect->dec_count(1 - infos.turn_player);
-					}
+					core.ntpchain.push_back(ifit->second);
+					phandler->set_status(STATUS_CHAINING, TRUE);
+					peffect->dec_count(1 - infos.turn_player);
 				}
 			}
 		}
@@ -2141,14 +2090,6 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 						for(auto cait = core.current_chain.begin(); cait != core.current_chain.end(); ++cait) {
 							if(cait->triggering_player == priority
 								&& (cait->triggering_effect->status & EFFECT_STATUS_SPSELF) && (cait->flag & CHAIN_HAND_TRIGGER)) {
-								act = false;
-								break;
-							}
-						}
-					}
-					if(peffect->is_flag(EFFECT_FLAG_CHAIN_UNIQUE)) {
-						for(auto cait = core.current_chain.begin(); cait != core.current_chain.end(); ++cait) {
-							if(cait->triggering_player == priority && cait->triggering_effect->get_handler()->data.code == phandler->data.code) {
 								act = false;
 								break;
 							}
