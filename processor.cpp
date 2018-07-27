@@ -1998,7 +1998,6 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 		core.ntpchain.clear();
 		if(!core.quick_f_chain.size())
 			return FALSE;
-		bool act = true;
 		for(auto ifit = core.quick_f_chain.begin(); ifit != core.quick_f_chain.end(); ++ifit) {
 			effect* peffect = ifit->first;
 			card* phandler = peffect->get_handler();
