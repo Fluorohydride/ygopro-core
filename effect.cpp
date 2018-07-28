@@ -268,7 +268,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			}
 			if(phandler->current.location == LOCATION_OVERLAY)
 				return FALSE;
-			if((type & EFFECT_TYPE_FIELD) && (phandler->current.controler != playerid) && !is_flag(EFFECT_FLAG_BOTH_SIDE))
+			if((type & EFFECT_TYPE_FIELD) && (phandler->current.controler != playerid) && !is_flag(EFFECT_FLAG_BOTH_SIDE | EFFECT_FLAG_EVENT_PLAYER))
 				return FALSE;
 			if(phandler->is_status(STATUS_FORBIDDEN))
 				return FALSE;
