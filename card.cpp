@@ -1486,7 +1486,7 @@ void card::get_column_cards(card_set* cset, int32 left, int32 right) {
 	int32 p = current.controler;
 	uint32 column_mzone = get_column_zone(LOCATION_MZONE, left, right);
 	uint32 column_szone = get_column_zone(LOCATION_SZONE, left, right);
-	pduel->game_field->get_cards_in_zone(cset, column_mzone, p, LOCATION_MZONE);
+	pduel->game_field->get_cards_in_zone(cset, column_mzone, p);
 }
 int32 card::is_all_column() {
 	if(!(current.location & LOCATION_ONFIELD))
