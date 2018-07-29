@@ -1214,6 +1214,7 @@ void card::get_linked_cards(card_set* cset) {
 	int32 p = current.controler;
 	uint32 linked_zone = get_linked_zone();
 	pduel->game_field->get_cards_in_zone(cset, linked_zone, p, LOCATION_MZONE);
+	pduel->game_field->get_cards_in_zone(cset, linked_zone >> 16, 1 - p, LOCATION_MZONE);
 }
 uint32 card::get_mutual_linked_zone() {
 	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE)
@@ -1352,6 +1353,7 @@ void card::get_mutual_linked_cards(card_set* cset) {
 	int32 p = current.controler;
 	uint32 mutual_linked_zone = get_mutual_linked_zone();
 	pduel->game_field->get_cards_in_zone(cset, mutual_linked_zone, p, LOCATION_MZONE);
+	pduel->game_field->get_cards_in_zone(cset, mutual_linked_zone >> 16, 1 - p, LOCATION_MZONE);
 }
 int32 card::is_link_state() {
 	if(current.location != LOCATION_MZONE)
@@ -1487,7 +1489,9 @@ void card::get_column_cards(card_set* cset, int32 left, int32 right) {
 	uint32 column_mzone = get_column_zone(LOCATION_MZONE, left, right);
 	uint32 column_szone = get_column_zone(LOCATION_SZONE, left, right);
 	pduel->game_field->get_cards_in_zone(cset, column_mzone, p, LOCATION_MZONE);
+	pduel->game_field->get_cards_in_zone(cset, column_mzone >> 16, 1 - p, LOCATION_MZONE);
 	pduel->game_field->get_cards_in_zone(cset, column_szone, p, LOCATION_SZONE);
+	pduel->game_field->get_cards_in_zone(cset, column_szone >> 16, 1 - p, LOCATION_SZONE);
 }
 int32 card::is_all_column() {
 	if(!(current.location & LOCATION_ONFIELD))

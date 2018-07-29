@@ -5067,7 +5067,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		}
 		card_set linked_cards;
 		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
-		get_cards_in_zone(&linked_cards, linked_zone & 0xffff, playerid, LOCATION_MZONE);
+		get_cards_in_zone(&linked_cards, linked_zone, playerid, LOCATION_MZONE);
 		if(linked_cards.find(tuner) != linked_cards.end())
 			ct++;
 		if(smat && linked_cards.find(smat) != linked_cards.end())
@@ -5296,7 +5296,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		card_set linked_cards;
 		if(ct <= 0) {
 			uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
-			get_cards_in_zone(&linked_cards, linked_zone & 0xffff, playerid, LOCATION_MZONE);
+			get_cards_in_zone(&linked_cards, linked_zone, playerid, LOCATION_MZONE);
 		}
 		for(auto mit = core.operated_set.begin(); mit != core.operated_set.end(); ++mit) {
 			card* pcard = *mit;
@@ -5382,7 +5382,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		}
 		card_set linked_cards;
 		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
-		get_cards_in_zone(&linked_cards, linked_zone & 0xffff, playerid, LOCATION_MZONE);
+		get_cards_in_zone(&linked_cards, linked_zone, playerid, LOCATION_MZONE);
 		int32 ft = ct + std::count_if(core.operated_set.begin(), core.operated_set.end(),
 			[=](card* pcard) { return linked_cards.find(pcard) != linked_cards.end(); });
 		if(ft > 0) {
@@ -5565,7 +5565,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 			return FALSE;
 		card_set linked_cards;
 		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
-		get_cards_in_zone(&linked_cards, linked_zone & 0xffff, playerid, LOCATION_MZONE);
+		get_cards_in_zone(&linked_cards, linked_zone, playerid, LOCATION_MZONE);
 		int32 ft = ct + std::count_if(core.operated_set.begin(), core.operated_set.end(),
 			[=](card* pcard) { return linked_cards.find(pcard) != linked_cards.end(); });
 		if(ft > 0)
