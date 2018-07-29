@@ -424,14 +424,8 @@ int32 scriptlib::card_get_column_group(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	int32 left = 0;
-	int32 right = 0;
-	if(lua_gettop(L) >= 2)
-		left = lua_tointeger(L, 2);
-	if(lua_gettop(L) >= 3)
-		right = lua_tointeger(L, 3);
 	card::card_set cset;
-	pcard->get_column_cards(&cset, left, right);
+	pcard->get_column_cards(&cset);
 	group* pgroup = pcard->pduel->new_group(cset);
 	interpreter::group2value(L, pgroup);
 	return 1;
@@ -440,14 +434,8 @@ int32 scriptlib::card_get_column_group_count(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	int32 left = 0;
-	int32 right = 0;
-	if(lua_gettop(L) >= 2)
-		left = lua_tointeger(L, 2);
-	if(lua_gettop(L) >= 3)
-		right = lua_tointeger(L, 3);
 	card::card_set cset;
-	pcard->get_column_cards(&cset, left, right);
+	pcard->get_column_cards(&cset);
 	lua_pushinteger(L, cset.size());
 	return 1;
 }
@@ -456,16 +444,10 @@ int32 scriptlib::card_get_column_zone(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	int32 loc = lua_tointeger(L, 2);
-	int32 left = 0;
-	int32 right = 0;
 	int32 cp = pcard->current.controler;
-	if(lua_gettop(L) >= 3)
-		left = lua_tointeger(L, 3);
-	if(lua_gettop(L) >= 4)
-		right = lua_tointeger(L, 4);
-	if(lua_gettop(L) >= 5 && !lua_isnil(L, 5))
-		cp = lua_tointeger(L, 5);
-	uint32 zone = pcard->get_column_zone(loc, left, right);
+	if(lua_gettop(L) >= 3 && !lua_isnil(L, 3))
+		cp = lua_tointeger(L, 3);
+	uint32 zone = pcard->get_column_zone(loc);
 	if(cp == 1 - pcard->current.controler)
 		lua_pushinteger(L, (((zone & 0xffff) << 16) | (zone >> 16)));
 	else
