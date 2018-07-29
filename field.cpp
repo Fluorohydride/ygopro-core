@@ -813,8 +813,8 @@ void field::get_linked_cards(uint8 self, uint8 s, uint8 o, card_set* cset) {
 	uint8 c = s;
 	for(int32 p = 0; p < 2; ++p) {
 		if(c) {
-			uint32 linked_zone = get_linked_zone(self);
-			get_cards_in_zone(cset, linked_zone, self, LOCATION_MZONE, false);
+			uint32 linked_zone = get_linked_zone(self) & 0xffff;
+			get_cards_in_zone(cset, linked_zone, self, LOCATION_MZONE);
 		}
 		self = 1 - self;
 		c = o;
@@ -877,7 +877,7 @@ int32 field::check_extra_link(int32 playerid, card* pcard, int32 sequence) {
 	pcard->current.sequence = cur_sequence;
 	return ret;
 }
-void field::get_cards_in_zone(card_set* cset, uint32 zone, int32 playerid, int32 location, bool oppo) {
+void field::get_cards_in_zone(card_set* cset, uint32 zone, int32 playerid, int32 location) {
 	if(!(location & LOCATION_ONFIELD))
 		return;
 	uint32 icheck;
@@ -892,17 +892,15 @@ void field::get_cards_in_zone(card_set* cset, uint32 zone, int32 playerid, int32
 			}
 			icheck <<= 1;
 		}
-		if(oppo) {
-			card_vector& svector_o = player[1 - playerid].list_mzone;
-			icheck = 0x10000;
-			for(auto it = svector_o.begin(); it != svector_o.end(); ++it) {
-				if(zone & icheck) {
-					card* pcard = *it;
-					if(pcard)
-						cset->insert(pcard);
-				}
-				icheck <<= 1;
+		card_vector& svector_o = player[1 - playerid].list_mzone;
+		icheck = 0x10000;
+		for(auto it = svector_o.begin(); it != svector_o.end(); ++it) {
+			if(zone & icheck) {
+				card* pcard = *it;
+				if(pcard)
+					cset->insert(pcard);
 			}
+			icheck <<= 1;
 		}
 	}
 	if(location & LOCATION_SZONE) {
@@ -916,17 +914,15 @@ void field::get_cards_in_zone(card_set* cset, uint32 zone, int32 playerid, int32
 			}
 			icheck <<= 1;
 		}
-		if(oppo) {
-			card_vector& svector_o = player[1 - playerid].list_szone;
-			icheck = 0x1000000;
-			for(auto it = svector_o.begin(); it != svector_o.end(); ++it) {
-				if(zone & icheck) {
-					card* pcard = *it;
-					if(pcard)
-						cset->insert(pcard);
-				}
-				icheck <<= 1;
+		card_vector& svector_o = player[1 - playerid].list_szone;
+		icheck = 0x1000000;
+		for(auto it = svector_o.begin(); it != svector_o.end(); ++it) {
+			if(zone & icheck) {
+				card* pcard = *it;
+				if(pcard)
+					cset->insert(pcard);
 			}
+			icheck <<= 1;
 		}
 	}
 }
@@ -2639,7 +2635,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	card_set linked_cards;
 	if(ct <= 0) {
 		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
-		get_cards_in_zone(&linked_cards, linked_zone, playerid, LOCATION_MZONE, false);
+		get_cards_in_zone(&linked_cards, linked_zone & 0xffff, playerid, LOCATION_MZONE);
 		if(linked_cards.find(tuner) != linked_cards.end())
 			ct++;
 	}
@@ -2937,7 +2933,7 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 	if(ct <= 0) {
 		int32 ft = ct;
 		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
-		get_cards_in_zone(&linked_cards, linked_zone, playerid, LOCATION_MZONE, false);
+		get_cards_in_zone(&linked_cards, linked_zone & 0xffff, playerid, LOCATION_MZONE);
 		for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
 			card* pcard = cit->second;
 			if(linked_cards.find(pcard) != linked_cards.end())
