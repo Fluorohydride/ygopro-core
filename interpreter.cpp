@@ -729,6 +729,27 @@ int32 interpreter::load_script(char* script_name) {
 	no_action--;
 	return OPERATION_SUCCESS;
 }
+int32 interpreter::load_expansion_script(char* script_name) {
+	char script[1000];
+	sprintf(script, "./expansions/%s", script_name);
+	if(!load_script(script)) {
+#ifdef _WIN32
+		WIN32_FIND_DATAA fdataa;
+		HANDLE fh = FindFirstFileA("expansions/*", &fdataa);
+		if(fh != INVALID_HANDLE_VALUE) {
+			do {
+				if(strcmp(".",fdataa.cFileName) != 0 && strcmp("..",fdataa.cFileName) != 0) {
+					sprintf(script, "./expansions/%s/%s", fdataa.cFileName, script_name);
+					if (load_script(script))
+						break;
+				}
+			} while(FindNextFileA(fh, &fdataa));
+			FindClose(fh);
+		}
+#endif
+	}
+	return OPERATION_SUCCESS;
+}
 int32 interpreter::load_card_script(uint32 code) {
 	char class_name[20];
 	char script_name[64];
@@ -747,8 +768,8 @@ int32 interpreter::load_card_script(uint32 code) {
 		lua_pushvalue(current_state, -2);
 		lua_rawset(current_state, -3);
 		//load extra scripts
-		sprintf(script_name, "./expansions/script/c%d.lua", code);
-		if (!load_script(script_name)) {
+		sprintf(script_name, "script/c%d.lua", code);
+		if (!load_expansion_script(script_name)) {
 			sprintf(script_name, "./script/c%d.lua", code);
 	 		if (!load_script(script_name)) {
 	 			return OPERATION_FAIL;
