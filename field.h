@@ -192,8 +192,6 @@ struct processor {
 	event_list sub_solving_event;
 	chain_array select_chains;
 	chain_array current_chain;
-	chain_list tpchain;
-	chain_list ntpchain;
 	chain_list continuous_chain;
 	chain_list desrep_chain;
 	chain_list new_fchain;
@@ -498,7 +496,6 @@ public:
 	int32 process_turn(uint16 step, uint8 turn_player);
 
 	int32 add_chain(uint16 step);
-	int32 sort_chain(uint16 step, uint8 tp);
 	int32 solve_continuous(uint16 step, effect* peffect, uint8 triggering_player);
 	int32 solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2);
 	int32 break_effect();
@@ -687,7 +684,7 @@ public:
 #define PROCESSOR_SELECT_PLACE		18
 #define PROCESSOR_SELECT_POSITION	19
 #define PROCESSOR_SELECT_TRIBUTE_P	20
-#define PROCESSOR_SORT_CHAIN		21
+//#define PROCESSOR_SORT_CHAIN		21
 #define PROCESSOR_SELECT_COUNTER	22
 #define PROCESSOR_SELECT_SUM		23
 #define PROCESSOR_SELECT_DISFIELD	24

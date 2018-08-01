@@ -161,14 +161,6 @@ int32 field::process() {
 			return PROCESSOR_WAITING + pduel->bufferlen;
 		}
 	}
-	case PROCESSOR_SORT_CHAIN: {
-		if (sort_chain(it->step, it->arg1)) {
-			core.units.pop_front();
-		} else {
-			it->step++;
-		}
-		return pduel->bufferlen;
-	}
 	case PROCESSOR_SELECT_COUNTER: {
 		if (select_counter(it->step, it->arg1, it->arg2, it->arg3, it->arg4 >> 8, it->arg4 & 0xff)) {
 			core.units.pop_front();
@@ -1674,8 +1666,6 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		}
 		core.new_fchain_s.splice(core.new_fchain_s.begin(), core.new_fchain);
 		core.new_ochain_s.splice(core.new_ochain_s.begin(), core.new_ochain);
-		core.tpchain.clear();
-		core.ntpchain.clear();
 		core.delayed_quick.clear();
 		core.delayed_quick_break.swap(core.delayed_quick);
 		core.current_player = infos.turn_player;
@@ -4511,46 +4501,6 @@ int32 field::add_chain(uint16 step) {
 		if(core.new_chains.size())
 			add_process(PROCESSOR_ADD_CHAIN, 0, 0, 0, 0, 0);
 		adjust_all();
-		return TRUE;
-	}
-	}
-	return TRUE;
-}
-int32 field::sort_chain(uint16 step, uint8 tp) {
-	switch(step) {
-	case 0: {
-		core.select_cards.clear();
-		if(tp)
-			for(auto clit = core.tpchain.begin(); clit != core.tpchain.end(); ++clit)
-				core.select_cards.push_back(clit->triggering_effect->get_handler());
-		else
-			for(auto clit = core.ntpchain.begin(); clit != core.ntpchain.end(); ++clit)
-				core.select_cards.push_back(clit->triggering_effect->get_handler());
-		add_process(PROCESSOR_SORT_CARD, 0, 0, 0, tp ? infos.turn_player : (1 - infos.turn_player), 1);
-		return FALSE;
-	}
-	case 1: {
-		if(returns.bvalue[0] == -1)
-			return TRUE;
-		chain_list::iterator clit;
-		int32 i = 0, count;
-		if(tp) {
-			count = core.tpchain.size();
-			chain_array ch(count);
-			for(i = 0, clit = core.tpchain.begin(); i < count; ++clit, ++i)
-				ch[returns.bvalue[i]] = *clit;
-			core.tpchain.clear();
-			for(i = 0; i < count; ++i)
-				core.tpchain.push_back(ch[i]);
-		} else {
-			count = core.ntpchain.size();
-			chain_array ch(count);
-			for(i = 0, clit = core.ntpchain.begin(); i < count; ++clit, ++i)
-				ch[returns.bvalue[i]] = *clit;
-			core.ntpchain.clear();
-			for(i = 0; i < count; ++i)
-				core.ntpchain.push_back(ch[i]);
-		}
 		return TRUE;
 	}
 	}
