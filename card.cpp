@@ -3314,28 +3314,6 @@ int32 card::is_removeable_as_cost(uint8 playerid) {
 		return FALSE;
 	return TRUE;
 }
-int32 card::is_attack_decreasable_as_cost(uint8 playerid, int32 val) {
-	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER))
-		return FALSE;
-	if(!(current.location & LOCATION_MZONE) || is_position(POS_FACEDOWN))
-		return FALSE;
-	if(is_affected_by_effect(EFFECT_SET_ATTACK_FINAL) || is_affected_by_effect(EFFECT_REVERSE_UPDATE))
-		return FALSE;
-	if(val && get_attack() < val)
-		return FALSE;
-	return TRUE;
-}
-int32 card::is_defense_decreasable_as_cost(uint8 playerid, int32 val) {
-	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER))
-		return FALSE;
-	if(!(current.location & LOCATION_MZONE) || is_position(POS_FACEDOWN) || (data.type & TYPE_LINK))
-		return FALSE;
-	if(is_affected_by_effect(EFFECT_SET_DEFENSE_FINAL) || is_affected_by_effect(EFFECT_REVERSE_UPDATE))
-		return FALSE;
-	if(val && get_defense() < val)
-		return FALSE;
-	return TRUE;
-}
 int32 card::is_releasable_by_summon(uint8 playerid, card *pcard) {
 	if(is_status(STATUS_SUMMONING))
 		return FALSE;

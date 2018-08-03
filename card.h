@@ -320,8 +320,6 @@ public:
 	int32 is_destructable_by_effect(effect* peffect, uint8 playerid);
 	int32 is_removeable(uint8 playerid);
 	int32 is_removeable_as_cost(uint8 playerid);
-	int32 is_attack_decreasable_as_cost(uint8 playerid, int32 val);
-	int32 is_defense_decreasable_as_cost(uint8 playerid, int32 val);
 	int32 is_releasable_by_summon(uint8 playerid, card* pcard);
 	int32 is_releasable_by_nonsummon(uint8 playerid);
 	int32 is_releasable_by_effect(uint8 playerid, effect* peffect);
