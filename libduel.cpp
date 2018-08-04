@@ -1986,6 +1986,8 @@ int32 scriptlib::duel_skip_phase(lua_State *L) {
 		code = EFFECT_SKIP_BP;
 	else if(phase == PHASE_MAIN2)
 		code = EFFECT_SKIP_M2;
+	else if(phase == PHASE_END)
+		code = EFFECT_SKIP_EP;
 	else
 		return 0;
 	effect* peffect = pduel->new_effect();

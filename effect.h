@@ -345,6 +345,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CANNOT_M2				186
 #define EFFECT_CANNOT_EP				187
 #define EFFECT_SKIP_TURN				188
+#define EFFECT_SKIP_EP					189
 #define EFFECT_DEFENSE_ATTACK			190
 #define EFFECT_MUST_ATTACK				191
 #define EFFECT_FIRST_ATTACK				192
