@@ -1409,18 +1409,18 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			effect* peffect = *eit++;
 			if(peffect->code != EFFECT_SET_CONTROL)
 				continue;
-			if(peffect->get_owner_player() != check_player)
-				continue;
 			if(!(peffect->reset_flag & phase))
 				continue;
 			uint8 pid = peffect->get_handler_player();
+			if(pid != check_player)
+				continue;
 			uint8 tp = infos.turn_player;
 			if(!(((peffect->reset_flag & RESET_SELF_TURN) && pid == tp) || ((peffect->reset_flag & RESET_OPPO_TURN) && pid != tp)))
 				continue;
 			if(peffect->reset_count != 1)
 				continue;
 			card* phandler = peffect->get_handler();
-			if(peffect->get_owner_player() != phandler->current.controler) {
+			if(pid != phandler->current.controler) {
 				if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 					remove_effect(peffect);
 				else
