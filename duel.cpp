@@ -116,17 +116,17 @@ void duel::restore_assumes() {
 	assumes.clear();
 }
 void duel::write_buffer32(uint32 value) {
-	*((uint32*)bufferp) = value;
+	std::memcpy(bufferp, &value, sizeof(value));
 	bufferp += 4;
 	bufferlen += 4;
 }
 void duel::write_buffer16(uint16 value) {
-	*((uint16*)bufferp) = value;
+	std::memcpy(bufferp, &value, sizeof(value));
 	bufferp += 2;
 	bufferlen += 2;
 }
 void duel::write_buffer8(uint8 value) {
-	*((uint8*)bufferp) = value;
+	std::memcpy(bufferp, &value, sizeof(value));
 	bufferp += 1;
 	bufferlen += 1;
 }
