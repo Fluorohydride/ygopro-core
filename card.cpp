@@ -64,6 +64,7 @@ void card_data::clear() {
 	std::memset(this, 0, sizeof(card_data));
 }
 card::card(duel* pd) {
+	scrtype = 1;
 	ref_handle = 0;
 	pduel = pd;
 	owner = PLAYER_NONE;

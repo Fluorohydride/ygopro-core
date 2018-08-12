@@ -27,6 +27,7 @@ enum effect_flag2 : uint32;
 
 class effect {
 public:
+	int32 scrtype;
 	int32 ref_handle;
 	duel* pduel;
 	card* owner;
