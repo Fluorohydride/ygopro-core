@@ -3423,6 +3423,8 @@ int32 field::get_cteffect(effect* peffect, int32 playerid, int32 store) {
 			continue;
 		if(!feffect->in_range(phandler))
 			continue;
+		if(feffect->is_flag(EFFECT_FLAG_NO_CTEFFECT))
+			continue;
 		uint32 code = efit->first;
 		if(code == EVENT_FREE_CHAIN || code == EVENT_PHASE + infos.phase) {
 			nil_event.event_code = code;
