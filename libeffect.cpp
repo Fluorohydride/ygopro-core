@@ -343,11 +343,11 @@ int32 scriptlib::effect_get_label_object(lua_State *L) {
 		return 1;
 	}
 	int32 type = *(int32*)peffect->label_object;
-	if(type == 1)
+	if(check_data_type(L, -1, "Card"))
 		interpreter::card2value(L, (card*)peffect->label_object);
-	else if(type == 2)
+	else if(check_data_type(L, -1, "Group"))
 		interpreter::group2value(L, (group*)peffect->label_object);
-	else if(type == 3)
+	else if(check_data_type(L, -1, "Effect"))
 		interpreter::effect2value(L, (effect*)peffect->label_object);
 	else lua_pushnil(L);
 	return 1;
