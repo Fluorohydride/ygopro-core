@@ -1175,6 +1175,14 @@ int32 interpreter::clone_function_ref(int32 func_ref) {
 	int32 ref = luaL_ref(current_state, LUA_REGISTRYINDEX);
 	return ref;
 }
+void* interpreter::get_ref_object(int32 ref_handler) {
+	if(ref_handler == 0)
+		return nullptr;
+	lua_rawgeti(current_state, LUA_REGISTRYINDEX, ref_handler);
+	void* p = *(void**)lua_touserdata(current_state, -1);
+	lua_pop(current_state, 1);
+	return p;
+}
 //Convert a pointer to a lua value, +1 -0
 void interpreter::card2value(lua_State* L, card* pcard) {
 	if (!pcard || pcard->ref_handle == 0)

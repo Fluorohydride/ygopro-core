@@ -2028,7 +2028,7 @@ int32 field::adjust_grant_effect() {
 		}
 		for(auto cit = add_set.begin(); cit != add_set.end(); ++cit) {
 			card* pcard = *cit;
-			effect* geffect = (effect*)peffect->label_object;
+			effect* geffect = (effect*)peffect->get_label_object();
 			effect* ceffect = geffect->clone();
 			ceffect->owner = pcard;
 			pcard->add_effect(ceffect);

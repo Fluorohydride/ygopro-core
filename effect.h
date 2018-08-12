@@ -55,7 +55,7 @@ public:
 	card* active_handler;
 	uint16 status;
 	uint32 label;
-	void* label_object;
+	int32 label_object;
 	int32 condition;
 	int32 cost;
 	int32 target;
@@ -90,6 +90,7 @@ public:
 	void get_value(card* pcard, uint32 extraargs, std::vector<int32>* result);
 	void get_value(effect* peffect, uint32 extraargs, std::vector<int32>* result);
 	int32 check_value_condition(uint32 extraargs = 0);
+	void* get_label_object();
 	int32 get_speed();
 	effect* clone();
 	card* get_owner() const;

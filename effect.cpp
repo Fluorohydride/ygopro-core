@@ -672,6 +672,9 @@ int32 effect::check_value_condition(uint32 extraargs) {
 		return (int32)value;
 	}
 }
+void* effect::get_label_object() {
+	return pduel->lua->get_ref_object(label_object);
+}
 int32 effect::get_speed() {
 	if(!(type & EFFECT_TYPE_ACTIONS))
 		return 0;

@@ -10,6 +10,7 @@
 #include "field.h"
 #include "card.h"
 #include "effect.h"
+#include "group.h"
 
 int32 scriptlib::effect_new(lua_State *L) {
 	check_param_count(L, 1);
@@ -186,10 +187,17 @@ int32 scriptlib::effect_set_label_object(lua_State *L) {
 		peffect->label_object = 0;
 		return 0;
 	}
-	if(!lua_isuserdata(L, 2))
+	if(check_param(L, PARAM_TYPE_CARD, 2, TRUE)) {
+		card* p = *(card**)lua_touserdata(L, 2);
+		peffect->label_object = p->ref_handle;
+	} else if(check_param(L, PARAM_TYPE_EFFECT, 2, TRUE)) {
+		effect* p = *(effect**)lua_touserdata(L, 2);
+		peffect->label_object = p->ref_handle;
+	} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
+		group* p = *(group**)lua_touserdata(L, 2);
+		peffect->label_object = p->ref_handle;
+	} else
 		luaL_error(L, "Parameter 2 should be \"Card\" or \"Effect\" or \"Group\".");
-	void* p = *(void**)lua_touserdata(L, 2);
-	peffect->label_object = p;
 	return 0;
 }
 int32 scriptlib::effect_set_category(lua_State *L) {
@@ -342,15 +350,14 @@ int32 scriptlib::effect_get_label_object(lua_State *L) {
 		lua_pushnil(L);
 		return 1;
 	}
-	int32 type = *(int32*)peffect->label_object;
-	if(type == 1)
-		interpreter::card2value(L, (card*)peffect->label_object);
-	else if(type == 2)
-		interpreter::group2value(L, (group*)peffect->label_object);
-	else if(type == 3)
-		interpreter::effect2value(L, (effect*)peffect->label_object);
-	else lua_pushnil(L);
-	return 1;
+	lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->label_object);
+	if(lua_isuserdata(L, -1))
+		return 1;
+	else {
+		lua_pop(L, 1);
+		lua_pushnil(L);
+		return 1;
+	}
 }
 int32 scriptlib::effect_get_category(lua_State *L) {
 	check_param_count(L, 1);
