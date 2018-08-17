@@ -2256,40 +2256,38 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack) 
 	effect* peffect;
 	card_vector* pv = NULL;
 	int32 atype = 0;
-	card_vector must_be_attack;
+	card_vector must_attack;
 	card_vector only_be_attack;
-	effect_set eset;
+	card_vector only_attack;
 	// find the universal set pv
 	pcard->direct_attackable = 0;
 	for(auto cit = player[1 - p].list_mzone.begin(); cit != player[1 - p].list_mzone.end(); ++cit) {
 		card* atarget = *cit;
 		if(atarget) {
-			if(atarget->is_affected_by_effect(EFFECT_MUST_BE_ATTACKED, pcard))
-				must_be_attack.push_back(atarget);
 			if(atarget->is_affected_by_effect(EFFECT_ONLY_BE_ATTACKED))
 				only_be_attack.push_back(atarget);
+			if(pcard->is_affected_by_effect(EFFECT_MUST_ATTACK_MONSTER, atarget))
+				must_attack.push_back(atarget);
+			if(pcard->is_affected_by_effect(EFFECT_ONLY_ATTACK_MONSTER, atarget))
+				only_attack.push_back(atarget);
 		}
 	}
-	pcard->filter_effect(EFFECT_RISE_TO_FULL_HEIGHT, &eset);
-	if(eset.size()) {
+	if(only_be_attack.size()) {
 		atype = 1;
-		std::set<uint32> idset;
-		for(int32 i = 0; i < eset.size(); ++i)
-			idset.insert(eset[i]->label);
-		if(idset.size() == 1 && only_be_attack.size() == 1 && only_be_attack.front()->fieldid_r == *idset.begin())
+		if(only_be_attack.size() == 1)
 			pv = &only_be_attack;
 		else
 			return atype;
 	} else if(pcard->is_affected_by_effect(EFFECT_ONLY_ATTACK_MONSTER)) {
 		atype = 2;
-		if(only_be_attack.size() == 1)
-			pv = &only_be_attack;
+		if(only_attack.size() == 1)
+			pv = &only_attack;
 		else
 			return atype;
 	} else if(pcard->is_affected_by_effect(EFFECT_MUST_ATTACK_MONSTER)) {
 		atype = 3;
-		if(must_be_attack.size())
-			pv = &must_be_attack;
+		if(must_attack.size())
+			pv = &must_attack;
 		else
 			return atype;
 	} else {
@@ -2429,40 +2427,39 @@ bool field::confirm_attack_target() {
 	effect* peffect;
 	card_vector* pv = NULL;
 	int32 atype = 0;
-	card_vector must_be_attack;
+	card_vector must_attack;
 	card_vector only_be_attack;
+	card_vector only_attack;
 	effect_set eset;
 
 	// find the universal set
 	for(auto cit = player[1 - p].list_mzone.begin(); cit != player[1 - p].list_mzone.end(); ++cit) {
 		card* atarget = *cit;
 		if(atarget) {
-			if(atarget->is_affected_by_effect(EFFECT_MUST_BE_ATTACKED, pcard))
-				must_be_attack.push_back(atarget);
 			if(atarget->is_affected_by_effect(EFFECT_ONLY_BE_ATTACKED))
 				only_be_attack.push_back(atarget);
+			if(pcard->is_affected_by_effect(EFFECT_MUST_ATTACK_MONSTER, atarget))
+				must_attack.push_back(atarget);
+			if(pcard->is_affected_by_effect(EFFECT_ONLY_ATTACK_MONSTER, atarget))
+				only_attack.push_back(atarget);
 		}
 	}
-	pcard->filter_effect(EFFECT_RISE_TO_FULL_HEIGHT, &eset);
-	if(eset.size()) {
+	if(only_be_attack.size()) {
 		atype = 1;
-		std::set<uint32> idset;
-		for(int32 i = 0; i < eset.size(); ++i)
-			idset.insert(eset[i]->label);
-		if(idset.size()==1 && only_be_attack.size() == 1 && only_be_attack.front()->fieldid_r == *idset.begin())
+		if(only_be_attack.size() == 1)
 			pv = &only_be_attack;
 		else
 			return false;
 	} else if(pcard->is_affected_by_effect(EFFECT_ONLY_ATTACK_MONSTER)) {
 		atype = 2;
-		if(only_be_attack.size() == 1)
-			pv = &only_be_attack;
+		if(only_attack.size() == 1)
+			pv = &only_attack;
 		else
 			return false;
 	} else if(pcard->is_affected_by_effect(EFFECT_MUST_ATTACK_MONSTER)) {
 		atype = 3;
-		if(must_be_attack.size())
-			pv = &must_be_attack;
+		if(must_attack.size())
+			pv = &must_attack;
 		else
 			return false;
 	} else {
