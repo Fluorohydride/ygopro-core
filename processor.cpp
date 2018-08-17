@@ -2336,12 +2336,12 @@ int32 field::process_instant_event() {
 				core.delayed_quick_tmp.emplace(peffect, *elit);
 		}
 	}
-	for(auto clit = tp.begin(); clit != tp.end(); ++clit) {
-		core.sub_solving_continuous.push_back(*clit);
+	while(tp.size()) {
+		core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), tp, tp.begin());
 		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
 	}
-	for(auto clit = ntp.begin(); clit != ntp.end(); ++clit) {
-		core.sub_solving_continuous.push_back(*clit);
+	while(ntp.size()) {
+		core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), ntp, ntp.begin());
 		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
 	}
 	core.instant_event.splice(core.instant_event.end(), core.queue_event);
@@ -2372,12 +2372,12 @@ int32 field::process_single_event() {
 			}
 		}
 	}
-	for(auto clit = tp.begin(); clit != tp.end(); ++clit) {
-		core.sub_solving_continuous.push_back(*clit);
+	while(tp.size()) {
+		core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), tp, tp.begin());
 		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
 	}
-	for(auto clit = ntp.begin(); clit != ntp.end(); ++clit) {
-		core.sub_solving_continuous.push_back(*clit);
+	while(ntp.size()) {
+		core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), ntp, ntp.begin());
 		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
 	}
 	core.single_event.clear();
