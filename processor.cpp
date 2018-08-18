@@ -2807,6 +2807,8 @@ int32 field::process_battle_command(uint16 step) {
 				core.units.begin()->arg2 = 1;
 			else core.units.begin()->arg2 = 0;
 			if(!peffect->value) {
+				reset_phase(PHASE_BATTLE_STEP);
+				adjust_all();
 				infos.phase = PHASE_BATTLE;
 				add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
 			} else {
@@ -3157,6 +3159,8 @@ int32 field::process_battle_command(uint16 step) {
 				core.attacker->attacked_cards.addcard(core.attack_target);
 			}
 			if(!peffect->value) {
+				reset_phase(PHASE_BATTLE_STEP);
+				adjust_all();
 				infos.phase = PHASE_BATTLE;
 				add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
 			} else {
@@ -3342,6 +3346,7 @@ int32 field::process_battle_command(uint16 step) {
 		                                || core.attack_target->current.controler != core.attack_target->attack_controler
 		                                || core.attack_target->fieldid_r != core.pre_field[1]))) {
 			reset_phase(PHASE_DAMAGE_CAL);
+			adjust_all();
 			infos.phase = PHASE_DAMAGE;
 			core.units.begin()->step = 32;
 			return FALSE;
