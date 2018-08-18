@@ -193,6 +193,10 @@ struct processor {
 	chain_array select_chains;
 	chain_array current_chain;
 	chain_list continuous_chain;
+	chain_list solving_continuous;
+	chain_list sub_solving_continuous;
+	chain_list delayed_continuous_tp;
+	chain_list delayed_continuous_ntp;
 	chain_list desrep_chain;
 	chain_list new_fchain;
 	chain_list new_fchain_s;
@@ -231,10 +235,6 @@ struct processor {
 	effect_set_v extram_effects;
 	effect_set_v extras_effects;
 	std::set<effect*> reseted_effects;
-	std::list<effect*> delayed_tp;
-	std::list<effect*> delayed_ntp;
-	event_list delayed_tev;
-	event_list delayed_ntev;
 	std::unordered_map<card*, uint32> readjust_map;
 	std::unordered_set<card*> unique_cards[2];
 	std::unordered_map<uint32, uint32> effect_count_code;
@@ -488,7 +488,7 @@ public:
 	int32 process_quick_effect(int16 step, int32 skip_freechain, uint8 priority);
 	int32 process_instant_event();
 	int32 process_single_event();
-	int32 process_single_event(effect* peffect, const tevent& e, effect_vector& tp, effect_vector& ntp, event_list& tev, event_list& ntev);
+	int32 process_single_event(effect* peffect, const tevent& e, chain_list& tp, chain_list& ntp);
 	int32 process_idle_command(uint16 step);
 	int32 process_battle_command(uint16 step);
 	int32 process_damage_step(uint16 step, uint32 new_attack);
@@ -496,7 +496,8 @@ public:
 	int32 process_turn(uint16 step, uint8 turn_player);
 
 	int32 add_chain(uint16 step);
-	int32 solve_continuous(uint16 step, effect* peffect, uint8 triggering_player);
+	void solve_continuous(uint8 playerid, effect* peffect, const tevent& e);
+	int32 solve_continuous(uint16 step);
 	int32 solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2);
 	int32 break_effect();
 	void adjust_instant();

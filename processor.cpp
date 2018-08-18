@@ -259,7 +259,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_SOLVE_CONTINUOUS: {
-		if (solve_continuous(it->step, it->peffect, it->arg1))
+		if (solve_continuous(it->step))
 			core.units.pop_front();
 		else
 			it->step++;
@@ -1578,8 +1578,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			infos.priorities[1] = 0;
 		} else {
 			core.select_chains.clear();
-			core.sub_solving_event.push_back(nil_event);
-			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, peffect->get_handler_player(), 0);
+			solve_continuous(peffect->get_handler_player(), peffect, nil_event);
 			core.units.begin()->step = 3;
 		}
 		return FALSE;
@@ -1944,8 +1943,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		const chain& newchain = core.select_chains[returns.ivalue[0]];
 		effect* peffect = newchain.triggering_effect;
 		core.select_chains.clear();
-		core.sub_solving_event.push_back(nil_event);
-		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, peffect->get_handler_player(), 0);
+		solve_continuous(peffect->get_handler_player(), peffect, nil_event);
 		core.units.begin()->step = 29;
 		return FALSE;
 	}
@@ -1979,8 +1977,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		const chain& newchain = core.select_chains[returns.ivalue[0]];
 		effect* peffect = newchain.triggering_effect;
 		core.select_chains.clear();
-		core.sub_solving_event.push_back(nil_event);
-		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, peffect->get_handler_player(), 0);
+		solve_continuous(peffect->get_handler_player(), peffect, nil_event);
 		core.units.begin()->step = 31;
 		return FALSE;
 	}
@@ -2230,10 +2227,8 @@ int32 field::process_instant_event() {
 	if (core.queue_event.size() == 0)
 		return TRUE;
 	chain newchain;
-	effect_vector tp;
-	effect_vector ntp;
-	event_list tev;
-	event_list ntev;
+	chain_list tp;
+	chain_list ntp;
 	for(auto elit = core.queue_event.begin(); elit != core.queue_event.end(); ++elit) {
 		//continuous events
 		auto pr = effects.continuous_effect.equal_range(elit->event_code);
@@ -2242,22 +2237,27 @@ int32 field::process_instant_event() {
 			++eit;
 			uint8 owner_player = peffect->get_handler_player();
 			if(peffect->is_activateable(owner_player, *elit)) {
+				newchain.chain_id = 0;
+				newchain.chain_count = 0;
+				newchain.triggering_effect = peffect;
+				newchain.triggering_player = owner_player;
+				newchain.evt = *elit;
+				newchain.target_cards = 0;
+				newchain.target_player = PLAYER_NONE;
+				newchain.target_param = 0;
+				newchain.disable_player = PLAYER_NONE;
+				newchain.disable_reason = 0;
+				newchain.flag = 0;
 				if(peffect->is_flag(EFFECT_FLAG_DELAY) && (core.chain_solving || core.conti_solving)) {
-					if(owner_player == infos.turn_player) {
-						core.delayed_tp.push_back(peffect);
-						core.delayed_tev.push_back(*elit);
-					} else {
-						core.delayed_ntp.push_back(peffect);
-						core.delayed_ntev.push_back(*elit);
-					}
+					if(owner_player == infos.turn_player)
+						core.delayed_continuous_tp.push_back(newchain);
+					else
+						core.delayed_continuous_ntp.push_back(newchain);
 				} else {
-					if(owner_player == infos.turn_player) {
-						tp.push_back(peffect);
-						tev.push_back(*elit);
-					} else {
-						ntp.push_back(peffect);
-						ntev.push_back(*elit);
-					}
+					if(owner_player == infos.turn_player)
+						tp.push_back(newchain);
+					else
+						ntp.push_back(newchain);
 				}
 			}
 		}
@@ -2336,15 +2336,13 @@ int32 field::process_instant_event() {
 				core.delayed_quick_tmp.emplace(peffect, *elit);
 		}
 	}
-	effect_vector::iterator eit;
-	event_list::iterator evit;
-	for(eit = tp.begin(), evit = tev.begin(); eit != tp.end(); ++eit, ++evit) {
-		core.sub_solving_event.push_back(*evit);
-		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, (*eit), 0, (*eit)->get_handler_player(), 0);
+	while(tp.size()) {
+		core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), tp, tp.begin());
+		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
 	}
-	for(eit = ntp.begin(), evit = ntev.begin(); eit != ntp.end(); ++eit, ++evit) {
-		core.sub_solving_event.push_back(*evit);
-		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, (*eit), 0, (*eit)->get_handler_player(), 0);
+	while(ntp.size()) {
+		core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), ntp, ntp.begin());
+		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
 	}
 	core.instant_event.splice(core.instant_event.end(), core.queue_event);
 	return TRUE;
@@ -2352,10 +2350,8 @@ int32 field::process_instant_event() {
 int32 field::process_single_event() {
 	if(core.single_event.size() == 0)
 		return TRUE;
-	effect_vector tp;
-	effect_vector ntp;
-	event_list tev;
-	event_list ntev;
+	chain_list tp;
+	chain_list ntp;
 	for(auto elit = core.single_event.begin(); elit != core.single_event.end(); ++elit) {
 		card* starget = elit->trigger_card;
 		uint32 ev = elit->event_code;
@@ -2363,7 +2359,7 @@ int32 field::process_single_event() {
 		for(auto eit = pr.first; eit != pr.second;) {
 			effect* peffect = eit->second;
 			++eit;
-			process_single_event(peffect, *elit, tp, ntp, tev, ntev);
+			process_single_event(peffect, *elit, tp, ntp);
 		}
 		for(auto ovit = starget->xyz_materials.begin(); ovit != starget->xyz_materials.end(); ++ovit) {
 			pr = (*ovit)->xmaterial_effect.equal_range(ev);
@@ -2372,24 +2368,22 @@ int32 field::process_single_event() {
 				++eit;
 				if(peffect->type & EFFECT_TYPE_FIELD)
 					continue;
-				process_single_event(peffect, *elit, tp, ntp, tev, ntev);
+				process_single_event(peffect, *elit, tp, ntp);
 			}
 		}
 	}
-	effect_vector::iterator eit;
-	event_list::iterator evit;
-	for(eit = tp.begin(), evit = tev.begin(); eit != tp.end(); ++eit, ++evit) {
-		core.sub_solving_event.push_back(*evit);
-		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, (*eit), 0, (*eit)->get_handler_player(), 0);
+	while(tp.size()) {
+		core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), tp, tp.begin());
+		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
 	}
-	for(eit = ntp.begin(), evit = ntev.begin(); eit != ntp.end(); ++eit, ++evit) {
-		core.sub_solving_event.push_back(*evit);
-		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, (*eit), 0, (*eit)->get_handler_player(), 0);
+	while(ntp.size()) {
+		core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), ntp, ntp.begin());
+		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
 	}
 	core.single_event.clear();
 	return TRUE;
 }
-int32 field::process_single_event(effect* peffect, const tevent& e, effect_vector& tp, effect_vector& ntp, event_list& tev, event_list& ntev) {
+int32 field::process_single_event(effect* peffect, const tevent& e, chain_list& tp, chain_list& ntp) {
 	if(!(peffect->type & EFFECT_TYPE_ACTIONS))
 		return FALSE;
 	if((peffect->type & EFFECT_TYPE_FLIP) && (e.event_value & (NO_FLIP_EFFECT >> 16)))
@@ -2398,22 +2392,28 @@ int32 field::process_single_event(effect* peffect, const tevent& e, effect_vecto
 	if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
 		uint8 owner_player = peffect->get_handler_player();
 		if(peffect->is_activateable(owner_player, e)) {
+			chain newchain;
+			newchain.chain_id = 0;
+			newchain.chain_count = 0;
+			newchain.triggering_effect = peffect;
+			newchain.triggering_player = owner_player;
+			newchain.evt = e;
+			newchain.target_cards = 0;
+			newchain.target_player = PLAYER_NONE;
+			newchain.target_param = 0;
+			newchain.disable_player = PLAYER_NONE;
+			newchain.disable_reason = 0;
+			newchain.flag = 0;
 			if(peffect->is_flag(EFFECT_FLAG_DELAY) && (core.chain_solving || core.conti_solving)) {
-				if(owner_player == infos.turn_player) {
-					core.delayed_tp.push_back(peffect);
-					core.delayed_tev.push_back(e);
-				} else {
-					core.delayed_ntp.push_back(peffect);
-					core.delayed_ntev.push_back(e);
-				}
+				if(owner_player == infos.turn_player)
+					core.delayed_continuous_tp.push_back(newchain);
+				else
+					core.delayed_continuous_ntp.push_back(newchain);
 			} else {
-				if(owner_player == infos.turn_player) {
-					tp.push_back(peffect);
-					tev.push_back(e);
-				} else {
-					ntp.push_back(peffect);
-					ntev.push_back(e);
-				}
+				if(owner_player == infos.turn_player)
+					tp.push_back(newchain);
+				else
+					ntp.push_back(newchain);
 			}
 		}
 	} else {
@@ -2609,8 +2609,7 @@ int32 field::process_idle_command(uint16 step) {
 			effect* peffect = newchain.triggering_effect;
 			if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
 				core.select_chains.clear();
-				core.sub_solving_event.push_back(nil_event);
-				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, peffect->get_handler_player(), 0);
+				solve_continuous(peffect->get_handler_player(), peffect, nil_event);
 				core.units.begin()->step = -1;
 				return FALSE;
 			}
@@ -2888,8 +2887,7 @@ int32 field::process_battle_command(uint16 step) {
 			effect* peffect = newchain.triggering_effect;
 			if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
 				core.select_chains.clear();
-				core.sub_solving_event.push_back(nil_event);
-				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, peffect->get_handler_player(), 0);
+				solve_continuous(peffect->get_handler_player(), peffect, nil_event);
 				core.units.begin()->step = -1;
 				return FALSE;
 			}
@@ -4521,34 +4519,41 @@ int32 field::add_chain(uint16 step) {
 	}
 	return TRUE;
 }
-int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_player) {
+void field::solve_continuous(uint8 playerid, effect* peffect, const tevent& e) {
+	chain newchain;
+	newchain.chain_id = 0;
+	newchain.chain_count = 0;
+	newchain.triggering_effect = peffect;
+	newchain.triggering_player = playerid;
+	newchain.evt = e;
+	newchain.target_cards = 0;
+	newchain.target_player = PLAYER_NONE;
+	newchain.target_param = 0;
+	newchain.disable_player = PLAYER_NONE;
+	newchain.disable_reason = 0;
+	newchain.flag = 0;
+	core.sub_solving_continuous.push_back(newchain);
+	add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
+}
+int32 field::solve_continuous(uint16 step) {
 	switch(step) {
 	case 0: {
-		core.solving_event.splice(core.solving_event.begin(), core.sub_solving_event);
+		core.solving_continuous.splice(core.solving_continuous.begin(), core.sub_solving_continuous);
+		auto& clit = core.solving_continuous.front();
+		effect* peffect = clit.triggering_effect;
+		uint8 triggering_player = clit.triggering_player;
 		if(!peffect->check_count_limit(triggering_player)) {
-			core.solving_event.pop_front();
+			core.solving_continuous.pop_front();
 			return TRUE;
 		}
-		chain newchain;
-		newchain.chain_id = 0;
-		newchain.chain_count = 0;
-		newchain.triggering_effect = peffect;
-		newchain.triggering_player = triggering_player;
-		newchain.evt = core.solving_event.front();
-		newchain.target_cards = 0;
-		newchain.target_player = PLAYER_NONE;
-		newchain.target_param = 0;
-		newchain.disable_player = PLAYER_NONE;
-		newchain.disable_reason = 0;
-		newchain.flag = 0;
-		core.continuous_chain.push_back(newchain);
+		core.continuous_chain.push_back(clit);
 		if(peffect->is_flag(EFFECT_FLAG_DELAY) || !(peffect->code & 0x10030000) && (peffect->code & (EVENT_PHASE | EVENT_PHASE_START)))
 			core.conti_solving = TRUE;
 		core.units.begin()->ptarget = (group*)core.reason_effect;
 		core.units.begin()->arg2 = core.reason_player;
 		if(!peffect->target)
 			return FALSE;
-		core.sub_solving_event.push_back(core.solving_event.front());
+		core.sub_solving_event.push_back(clit.evt);
 		add_process(PROCESSOR_EXECUTE_TARGET, 0, peffect, 0, triggering_player, 0);
 		return FALSE;
 	}
@@ -4556,14 +4561,20 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		return FALSE;
 	}
 	case 2: {
+		auto& clit = core.solving_continuous.front();
+		effect* peffect = clit.triggering_effect;
+		uint8 triggering_player = clit.triggering_player;
 		if(!peffect->operation)
 			return FALSE;
 		peffect->dec_count(triggering_player);
-		core.sub_solving_event.push_back(core.solving_event.front());
+		core.sub_solving_event.push_back(clit.evt);
 		add_process(PROCESSOR_EXECUTE_OPERATION, 0, peffect, 0, triggering_player, 0);
 		return FALSE;
 	}
 	case 3: {
+		auto& clit = core.solving_continuous.front();
+		effect* peffect = clit.triggering_effect;
+		uint8 triggering_player = clit.triggering_player;
 		core.reason_effect = (effect*)core.units.begin()->ptarget;
 		core.reason_player = core.units.begin()->arg2;
 		if(core.continuous_chain.back().target_cards)
@@ -4573,7 +4584,7 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 				pduel->delete_group(oit->second.op_cards);
 		}
 		core.continuous_chain.pop_back();
-		core.solving_event.pop_front();
+		core.solving_continuous.pop_front();
 		if(peffect->is_flag(EFFECT_FLAG_DELAY) || !(peffect->code & 0x10030000) && (peffect->code & (EVENT_PHASE | EVENT_PHASE_START))) {
 			core.conti_solving = FALSE;
 			adjust_all();
@@ -4585,26 +4596,20 @@ int32 field::solve_continuous(uint16 step, effect * peffect, uint8 triggering_pl
 		if(core.conti_player == PLAYER_NONE)
 			core.conti_player = infos.turn_player;
 		if(core.conti_player == infos.turn_player) {
-			if(core.delayed_tp.size()) {
-				core.sub_solving_event.push_back(core.delayed_tev.front());
-				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
-				core.delayed_tp.pop_front();
-				core.delayed_tev.pop_front();
+			if(core.delayed_continuous_tp.size()) {
+				core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), core.delayed_continuous_tp, core.delayed_continuous_tp.begin());
+				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
 			} else
 				core.conti_player = 1 - infos.turn_player;
 		}
 		if(core.conti_player == 1 - infos.turn_player) {
-			if(core.delayed_ntp.size()) {
-				core.sub_solving_event.push_back(core.delayed_ntev.front());
-				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_ntp.front(), 0, 1 - infos.turn_player, 0);
-				core.delayed_ntp.pop_front();
-				core.delayed_ntev.pop_front();
-			} else if(core.delayed_tp.size()) {
+			if(core.delayed_continuous_ntp.size()) {
+				core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), core.delayed_continuous_ntp, core.delayed_continuous_ntp.begin());
+				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
+			} else if(core.delayed_continuous_tp.size()) {
 				core.conti_player = infos.turn_player;
-				core.sub_solving_event.push_back(core.delayed_tev.front());
-				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
-				core.delayed_tp.pop_front();
-				core.delayed_tev.pop_front();
+				core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), core.delayed_continuous_tp, core.delayed_continuous_tp.begin());
+				add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
 			} else
 				core.conti_player = PLAYER_NONE;
 		}
@@ -4753,18 +4758,14 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		core.spsummon_state_count_tmp[0] = 0;
 		core.spsummon_state_count_tmp[1] = 0;
 		core.chain_solving = FALSE;
-		if(core.delayed_tp.size()) {
+		if(core.delayed_continuous_tp.size()) {
 			core.conti_player = infos.turn_player;
-			core.sub_solving_event.push_back(core.delayed_tev.front());
-			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_tp.front(), 0, infos.turn_player, 0);
-			core.delayed_tp.pop_front();
-			core.delayed_tev.pop_front();
-		} else if(core.delayed_ntp.size()) {
+			core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), core.delayed_continuous_tp, core.delayed_continuous_tp.begin());
+			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
+		} else if(core.delayed_continuous_ntp.size()) {
 			core.conti_player = 1 - infos.turn_player;
-			core.sub_solving_event.push_back(core.delayed_ntev.front());
-			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, core.delayed_ntp.front(), 0, 1 - infos.turn_player, 0);
-			core.delayed_ntp.pop_front();
-			core.delayed_ntev.pop_front();
+			core.sub_solving_continuous.splice(core.sub_solving_continuous.end(), core.delayed_continuous_ntp, core.delayed_continuous_ntp.begin());
+			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
 		} else
 			core.conti_player = PLAYER_NONE;
 		pduel->write_buffer8(MSG_CHAIN_SOLVED);

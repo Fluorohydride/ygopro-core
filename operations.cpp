@@ -657,8 +657,7 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost) {
 		e.reason = 0;
 		e.reason_effect = core.reason_effect;
 		e.reason_player = playerid;
-		core.sub_solving_event.push_back(e);
-		add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, playerid, 0);
+		solve_continuous(playerid, peffect, e);
 		return TRUE;
 	}
 	}
@@ -714,8 +713,7 @@ int32 field::remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplay
 			e.reason = reason;
 			e.reason_effect = core.reason_effect;
 			e.reason_player = rplayer;
-			core.sub_solving_event.push_back(e);
-			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, rplayer, 0);
+			solve_continuous(rplayer, peffect, e);
 			core.units.begin()->step = 3;
 			return FALSE;
 		}
@@ -791,8 +789,7 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 			e.reason = reason;
 			e.reason_effect = core.reason_effect;
 			e.reason_player = rplayer;
-			core.sub_solving_event.push_back(e);
-			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, rplayer, 0);
+			solve_continuous(rplayer, peffect, e);
 			core.units.begin()->step = 3;
 			return FALSE;
 		}
@@ -5952,8 +5949,7 @@ int32 field::toss_coin(uint16 step, effect * reason_effect, uint8 reason_player,
 			process_instant_event();
 			return FALSE;
 		} else {
-			core.sub_solving_event.push_back(e);
-			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, peffect->get_handler_player(), 0);
+			solve_continuous(peffect->get_handler_player(), peffect, e);
 			return TRUE;
 		}
 	}
@@ -6006,8 +6002,7 @@ int32 field::toss_dice(uint16 step, effect * reason_effect, uint8 reason_player,
 			process_instant_event();
 			return FALSE;
 		} else {
-			core.sub_solving_event.push_back(e);
-			add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, peffect, 0, peffect->get_handler_player(), 0);
+			solve_continuous(peffect->get_handler_player(), peffect, e);
 			return TRUE;
 		}
 	}
