@@ -1318,17 +1318,17 @@ int32 scriptlib::card_get_attack_announced_count(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	lua_pushinteger(L, pcard->announce_count);
+	lua_pushinteger(L, pcard->attack_announce_count);
 	return 1;
 }
 int32 scriptlib::card_is_direct_attacked(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	bool ret = false;
-	if(pcard->attacked_cards.find(0) != pcard->attacked_cards.end())
-		ret = true;
-	lua_pushboolean(L, ret);
+	if(pcard->attacked_cards.findcard(0))
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
 	return 1;
 }
 int32 scriptlib::card_set_card_target(lua_State *L) {

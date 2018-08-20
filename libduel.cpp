@@ -1414,13 +1414,15 @@ int32 scriptlib::duel_change_attacker(lua_State *L) {
 	duel* pduel = attacker->pduel;
 	if(pduel->game_field->core.attacker == attacker)
 		return 0;
+	card* attack_target = pduel->game_field->core.attack_target;
+	pduel->game_field->core.attacker->announce_count++;
+	pduel->game_field->core.attacker->announced_cards.addcard(attack_target);
+	pduel->game_field->attack_all_target_check();
 	pduel->game_field->core.attacker = attacker;
 	attacker->attack_controler = attacker->current.controler;
 	pduel->game_field->core.pre_field[0] = attacker->fieldid_r;
 	if(!ignore_count) {
-		card* attack_target = pduel->game_field->core.attack_target;
-		attacker->announce_count++;
-		attacker->announced_cards.addcard(attack_target);
+		attacker->attack_announce_count++;
 		if(pduel->game_field->infos.phase == PHASE_DAMAGE) {
 			attacker->attacked_count++;
 			attacker->attacked_cards.addcard(attack_target);
@@ -1447,25 +1449,28 @@ int32 scriptlib::duel_change_attack_target(lua_State *L) {
 	}
 	field::card_vector cv;
 	pduel->game_field->get_attack_target(attacker, &cv, pduel->game_field->core.chain_attack);
-	auto turnp = pduel->game_field->infos.turn_player;
 	if(target && std::find(cv.begin(), cv.end(), target) != cv.end()
-			|| !target && !attacker->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK)) {
+		|| !target && !attacker->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK)) {
 		pduel->game_field->core.attack_target = target;
 		pduel->game_field->core.attack_rollback = FALSE;
 		pduel->game_field->core.opp_mzone.clear();
-		for(uint32 i = 0; i < pduel->game_field->player[1 - turnp].list_mzone.size(); ++i) {
-			card* pcard = pduel->game_field->player[1 - turnp].list_mzone[i];
+		uint8 turnp = pduel->game_field->infos.turn_player;
+		for(auto& pcard : pduel->game_field->player[1 - turnp].list_mzone) {
 			if(pcard)
 				pduel->game_field->core.opp_mzone.insert(pcard->fieldid_r);
 		}
-		pduel->game_field->attack_all_target_check();
+		pduel->write_buffer8(MSG_ATTACK);
+		pduel->write_buffer32(attacker->get_info_location());
 		if(target) {
 			pduel->game_field->raise_single_event(target, 0, EVENT_BE_BATTLE_TARGET, 0, REASON_REPLACE, 0, 1 - turnp, 0);
 			pduel->game_field->raise_event(target, EVENT_BE_BATTLE_TARGET, 0, REASON_REPLACE, 0, 1 - turnp, 0);
 			pduel->game_field->process_single_event();
 			pduel->game_field->process_instant_event();
-		} else
+			pduel->write_buffer32(target->get_info_location());
+		} else {
 			pduel->game_field->core.attack_player = TRUE;
+			pduel->write_buffer32(0);
+		}
 		lua_pushboolean(L, 1);
 	} else
 		lua_pushboolean(L, 0);
@@ -1478,7 +1483,7 @@ int32 scriptlib::duel_calculate_damage(lua_State *L) {
 	card* attacker = *(card**)lua_touserdata(L, 1);
 	card* attack_target;
 	if(lua_isnil(L, 2))
-		attack_target = NULL;
+		attack_target = 0;
 	else {
 		check_param(L, PARAM_TYPE_CARD, 2);
 		attack_target = *(card**)lua_touserdata(L, 2);
