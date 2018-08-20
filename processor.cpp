@@ -2784,7 +2784,6 @@ int32 field::process_idle_command(uint16 step) {
 	}
 	return TRUE;
 }
-// core.attack_state_count: Duel.GetActivityCount()
 int32 field::process_battle_command(uint16 step) {
 	switch(step) {
 	case 0: {
@@ -2979,14 +2978,7 @@ int32 field::process_battle_command(uint16 step) {
 				core.units.begin()->step = 5;
 				return FALSE;
 			}
-			for(auto cit = player[1 - infos.turn_player].list_mzone.begin(); cit != player[1 - infos.turn_player].list_mzone.end(); ++cit) {
-				if(*cit) {
-					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, infos.turn_player, 31);
-					return FALSE;
-				}
-			}
-			returns.ivalue[0] = -2;
-			core.units.begin()->step = 5;
+			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, infos.turn_player, 31);
 			return FALSE;
 		}
 		// no target and not direct attackable
@@ -3039,8 +3031,10 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 6: {
 		if(returns.ivalue[0] == -1) {//cancel attack manually
-			if(core.units.begin()->arg1)
-				core.chain_attack = FALSE;
+			if(core.units.begin()->arg1) {
+				core.units.begin()->step = 12;
+				return FALSE;
+			}
 			core.units.begin()->step = -1;
 			return FALSE;
 		}
@@ -3063,23 +3057,20 @@ int32 field::process_battle_command(uint16 step) {
 			}
 			core.attack_state_count[infos.turn_player]++;
 			check_card_counter(core.attacker, 5, infos.turn_player);
-			core.attacker->announce_count++;
-			if(!core.units.begin()->arg3)
-				core.attacker->announced_cards.addcard(core.attack_target);
+			core.attacker->attack_announce_count++;
 		}
 		if(core.units.begin()->arg3) {
+			core.attacker->announce_count++;
 			core.chain_attack = FALSE;
 			core.units.begin()->step = -1;
 		}
 		return FALSE;
 	}
 	case 8: {
-		bool evt = false;
 		attack_all_target_check();
 		pduel->write_buffer8(MSG_ATTACK);
 		pduel->write_buffer32(core.attacker->get_info_location());
 		if(core.attack_target) {
-			evt = true;
 			raise_single_event(core.attack_target, 0, EVENT_BE_BATTLE_TARGET, 0, 0, 0, 1 - infos.turn_player, 0);
 			raise_event(core.attack_target, EVENT_BE_BATTLE_TARGET, 0, 0, 0, 1 - infos.turn_player, 0);
 			pduel->write_buffer32(core.attack_target->get_info_location());
@@ -3087,23 +3078,19 @@ int32 field::process_battle_command(uint16 step) {
 			pduel->write_buffer32(0);
 		core.attack_rollback = FALSE;
 		core.opp_mzone.clear();
-		for(uint32 i = 0; i < player[1 - infos.turn_player].list_mzone.size(); ++i) {
-			card* pcard = player[1 - infos.turn_player].list_mzone[i];
+		for(auto& pcard : player[1 - infos.turn_player].list_mzone) {
 			if(pcard)
 				core.opp_mzone.insert(pcard->fieldid_r);
 		}
 		//core.units.begin()->arg1 ---> is rollbacked
 		if(!core.units.begin()->arg1) {
-			evt = true;
 			raise_single_event(core.attacker, 0, EVENT_ATTACK_ANNOUNCE, 0, 0, 0, infos.turn_player, 0);
 			raise_event(core.attacker, EVENT_ATTACK_ANNOUNCE, 0, 0, 0, infos.turn_player, 0);
 		}
 		core.attacker->attack_controler = core.attacker->current.controler;
 		core.pre_field[0] = core.attacker->fieldid_r;
-		if(evt) {
-			process_single_event();
-			process_instant_event();
-		}
+		process_single_event();
+		process_instant_event();
 		core.hint_timing[infos.turn_player] = TIMING_ATTACK;
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
 		return FALSE;
@@ -3134,66 +3121,32 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 11: {
-		uint8 rollback = core.attack_rollback;
-		bool atk_disabled = false;
-		uint32 acon = core.attacker->attack_controler;
-		uint32 afid = core.pre_field[0];
 		if(core.attacker->is_affected_by_effect(EFFECT_ATTACK_DISABLED)) {
 			core.attacker->reset(EFFECT_ATTACK_DISABLED, RESET_CODE);
-			atk_disabled = true;
 			pduel->write_buffer8(MSG_ATTACK_DISABLED);
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
 		}
-		effect* peffect = is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP);
-		if(peffect) {
-			core.units.begin()->step = 41;
-			core.units.begin()->arg1 = 2;
-			if(is_player_affected_by_effect(infos.turn_player, EFFECT_BP_TWICE))
-				core.units.begin()->arg2 = 1;
-			else
-				core.units.begin()->arg2 = 0;
-			reset_phase(PHASE_DAMAGE);
-			if(core.attacker->fieldid_r == afid && !atk_disabled) {
-				core.attacker->attacked_cards.addcard(core.attack_target);
-			}
-			if(!peffect->value) {
-				reset_phase(PHASE_BATTLE_STEP);
-				adjust_all();
-				infos.phase = PHASE_BATTLE;
-				add_process(PROCESSOR_PHASE_EVENT, 0, 0, 0, PHASE_BATTLE, 0);
-			} else {
-				core.hint_timing[infos.turn_player] = 0;
-				reset_phase(PHASE_BATTLE);
-				adjust_all();
-			}
+		if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP)
+			|| !core.attacker->is_capable_attack() || core.attacker->is_status(STATUS_ATTACK_CANCELED)
+			|| core.attacker->current.controler != core.attacker->attack_controler
+			|| core.attacker->fieldid_r != core.pre_field[0]) {
+			core.units.begin()->step = 12;
 			return FALSE;
 		}
-		if(atk_disabled || !core.attacker->is_capable_attack() || core.attacker->is_status(STATUS_ATTACK_CANCELED)
-		        || core.attacker->current.controler != acon || core.attacker->fieldid_r != afid) {
-			core.chain_attack = FALSE;
-			if(core.attacker->fieldid_r == afid && !atk_disabled) {
-				core.attacker->attacked_cards.addcard(core.attack_target);
-			}
-			core.units.begin()->step = -1;
-			reset_phase(PHASE_DAMAGE);
-			adjust_all();
-			return FALSE;
-		}
+		uint8 rollback = core.attack_rollback;
 		if(!confirm_attack_target())
-			rollback = true;
+			rollback = TRUE;
 		// go to damage step
 		if(!rollback) {
+			core.attacker->announce_count++;
+			core.attacker->announced_cards.addcard(core.attack_target);
 			core.units.begin()->step = 18;
 			return FALSE;
 		}
-		// attack canceled
 		card_vector cv;
 		get_attack_target(core.attacker, &cv, core.chain_attack);
 		if(!cv.size() && !core.attacker->direct_attackable) {
-			core.chain_attack = FALSE;
-			core.units.begin()->step = -1;
-			reset_phase(PHASE_DAMAGE);
-			adjust_all();
+			core.units.begin()->step = 12;
 			return FALSE;
 		}
 		// replay
@@ -3211,8 +3164,12 @@ int32 field::process_battle_command(uint16 step) {
 			core.units.begin()->arg3 = FALSE;
 			core.attack_cancelable = TRUE;
 			core.units.begin()->step = 3;
-			return FALSE;
 		}
+		return FALSE;
+	}
+	case 13: {
+		core.attacker->announce_count++;
+		core.attacker->announced_cards.addcard(core.attack_target);
 		core.chain_attack = FALSE;
 		core.units.begin()->step = -1;
 		reset_phase(PHASE_DAMAGE);
@@ -3954,6 +3911,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 				pcard->set_status(STATUS_SET_TURN, FALSE);
 				pcard->set_status(STATUS_FORM_CHANGED, FALSE);
 				pcard->indestructable_effects.clear();
+				pcard->attack_announce_count = 0;
 				pcard->announce_count = 0;
 				pcard->attacked_count = 0;
 				pcard->announced_cards.clear();
@@ -4164,6 +4122,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 					card* pcard = *cit;
 					if(!pcard)
 						continue;
+					pcard->attack_announce_count = 0;
 					pcard->announce_count = 0;
 					pcard->attacked_count = 0;
 					pcard->announced_cards.clear();

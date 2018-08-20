@@ -60,6 +60,14 @@ void card::attacker_map::addcard(card* pcard) {
 	auto pr = emplace(fid, std::make_pair(pcard, 0));
 	pr.first->second.second++;
 }
+uint32 card::attacker_map::findcard(card* pcard) {
+	uint16 fid = pcard ? pcard->fieldid_r : 0;
+	auto it = find(fid);
+	if(it == end())
+		return 0;
+	else
+		return it->second.second;
+}
 void card_data::clear() {
 	std::memset(this, 0, sizeof(card_data));
 }
@@ -1957,6 +1965,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 			indestructable_effects.clear();
 			announced_cards.clear();
 			attacked_cards.clear();
+			attack_announce_count = 0;
 			announce_count = 0;
 			attacked_count = 0;
 			attack_all_target = TRUE;
