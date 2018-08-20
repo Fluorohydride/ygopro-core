@@ -1417,6 +1417,7 @@ int32 scriptlib::duel_change_attacker(lua_State *L) {
 	card* attack_target = pduel->game_field->core.attack_target;
 	pduel->game_field->core.attacker->announce_count++;
 	pduel->game_field->core.attacker->announced_cards.addcard(attack_target);
+	pduel->game_field->attack_all_target_check();
 	pduel->game_field->core.attacker = attacker;
 	attacker->attack_controler = attacker->current.controler;
 	pduel->game_field->core.pre_field[0] = attacker->fieldid_r;
@@ -1458,7 +1459,6 @@ int32 scriptlib::duel_change_attack_target(lua_State *L) {
 			if(pcard)
 				pduel->game_field->core.opp_mzone.insert(pcard->fieldid_r);
 		}
-		pduel->game_field->attack_all_target_check();
 		pduel->write_buffer8(MSG_ATTACK);
 		pduel->write_buffer32(attacker->get_info_location());
 		if(target) {

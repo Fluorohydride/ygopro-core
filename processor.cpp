@@ -3067,7 +3067,6 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 8: {
-		attack_all_target_check();
 		pduel->write_buffer8(MSG_ATTACK);
 		pduel->write_buffer32(core.attacker->get_info_location());
 		if(core.attack_target) {
@@ -3140,6 +3139,7 @@ int32 field::process_battle_command(uint16 step) {
 		if(!rollback) {
 			core.attacker->announce_count++;
 			core.attacker->announced_cards.addcard(core.attack_target);
+			attack_all_target_check();
 			core.units.begin()->step = 18;
 			return FALSE;
 		}
@@ -3170,6 +3170,8 @@ int32 field::process_battle_command(uint16 step) {
 	case 13: {
 		core.attacker->announce_count++;
 		core.attacker->announced_cards.addcard(core.attack_target);
+		if(core.attacker->fieldid_r == core.pre_field[0])
+			attack_all_target_check();
 		core.chain_attack = FALSE;
 		core.units.begin()->step = -1;
 		reset_phase(PHASE_DAMAGE);
@@ -3680,6 +3682,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 			core.battled_count[infos.turn_player]++;
 			check_card_counter(core.attacker, 5, infos.turn_player);
 		}
+		core.attacker->announced_cards.addcard(core.attack_target);
 		attack_all_target_check();
 		pduel->write_buffer8(MSG_ATTACK);
 		pduel->write_buffer32(core.attacker->get_info_location());
