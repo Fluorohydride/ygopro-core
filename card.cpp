@@ -1965,6 +1965,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 			indestructable_effects.clear();
 			announced_cards.clear();
 			attacked_cards.clear();
+			attack_announce_count = 0;
 			announce_count = 0;
 			attacked_count = 0;
 			attack_all_target = TRUE;

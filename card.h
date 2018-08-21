@@ -142,6 +142,7 @@ public:
 	uint32 position_param;
 	uint32 spsummon_param;
 	uint32 to_field_param;
+	uint8 attack_announce_count;
 	uint8 direct_attackable;
 	uint8 announce_count;
 	uint8 attacked_count;

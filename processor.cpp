@@ -3057,6 +3057,7 @@ int32 field::process_battle_command(uint16 step) {
 			}
 			core.attack_state_count[infos.turn_player]++;
 			check_card_counter(core.attacker, 5, infos.turn_player);
+			core.attacker->attack_announce_count++;
 		}
 		if(core.units.begin()->arg3) {
 			core.attacker->announce_count++;
@@ -3913,6 +3914,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 				pcard->set_status(STATUS_SET_TURN, FALSE);
 				pcard->set_status(STATUS_FORM_CHANGED, FALSE);
 				pcard->indestructable_effects.clear();
+				pcard->attack_announce_count = 0;
 				pcard->announce_count = 0;
 				pcard->attacked_count = 0;
 				pcard->announced_cards.clear();
@@ -4123,6 +4125,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 					card* pcard = *cit;
 					if(!pcard)
 						continue;
+					pcard->attack_announce_count = 0;
 					pcard->announce_count = 0;
 					pcard->attacked_count = 0;
 					pcard->announced_cards.clear();
