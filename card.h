@@ -105,6 +105,7 @@ public:
 	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32> > {
 	public:
 		void addcard(card* pcard);
+		uint32 findcard(card* pcard);
 	};
 	struct sendto_param_t {
 		void set(uint8 p, uint8 pos, uint8 loc, uint8 seq = 0) {
