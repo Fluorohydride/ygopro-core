@@ -1422,6 +1422,7 @@ int32 scriptlib::duel_change_attacker(lua_State *L) {
 	attacker->attack_controler = attacker->current.controler;
 	pduel->game_field->core.pre_field[0] = attacker->fieldid_r;
 	if(!ignore_count) {
+		attacker->attack_announce_count++;
 		if(pduel->game_field->infos.phase == PHASE_DAMAGE) {
 			attacker->attacked_count++;
 			attacker->attacked_cards.addcard(attack_target);
