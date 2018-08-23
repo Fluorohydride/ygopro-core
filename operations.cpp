@@ -1449,7 +1449,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 				return TRUE;
 			if(target->is_affected_by_effect(EFFECT_DUAL_STATUS))
 				return TRUE;
-			if(!is_player_can_summon(SUMMON_TYPE_DUAL, sumplayer, target))
+			if(!is_player_can_summon(SUMMON_TYPE_DUAL, sumplayer, target, sumplayer))
 				return TRUE;
 		} else {
 			effect_set eset;
@@ -1536,7 +1536,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 					int32 rcount = target->get_summon_tribute_count();
 					int32 min = rcount & 0xffff;
 					int32 max = (rcount >> 16) & 0xffff;
-					if(!is_player_can_summon(SUMMON_TYPE_ADVANCE, sumplayer, target))
+					if(!is_player_can_summon(SUMMON_TYPE_ADVANCE, sumplayer, target, sumplayer))
 						max = 0;
 					if(min < (int32)min_tribute)
 						min = min_tribute;
@@ -1583,7 +1583,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		if(min < min_tribute) {
 			min = min_tribute;
 		}
-		uint32 adv = is_player_can_summon(SUMMON_TYPE_ADVANCE, sumplayer, target);
+		uint32 adv = is_player_can_summon(SUMMON_TYPE_ADVANCE, sumplayer, target, sumplayer);
 		if(max == 0 || !adv) {
 			returns.bvalue[0] = 0;
 			core.units.begin()->step = 3;
@@ -2069,7 +2069,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 					int32 rcount = target->get_set_tribute_count();
 					int32 min = rcount & 0xffff;
 					int32 max = (rcount >> 16) & 0xffff;
-					if(!is_player_can_summon(SUMMON_TYPE_ADVANCE, setplayer, target))
+					if(!is_player_can_summon(SUMMON_TYPE_ADVANCE, setplayer, target, setplayer))
 						max = 0;
 					if(min < (int32)min_tribute)
 						min = min_tribute;
@@ -2116,7 +2116,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 		if(min < min_tribute) {
 			min = min_tribute;
 		}
-		uint32 adv = is_player_can_mset(SUMMON_TYPE_ADVANCE, setplayer, target);
+		uint32 adv = is_player_can_mset(SUMMON_TYPE_ADVANCE, setplayer, target, setplayer);
 		if(max == 0 || !adv) {
 			returns.bvalue[0] = 0;
 			core.units.begin()->step = 3;
