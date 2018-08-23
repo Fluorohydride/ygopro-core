@@ -1551,6 +1551,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 				min_tribute = new_min_tribute;
 			zone &= new_zone;
 			core.units.begin()->arg1 = sumplayer + (ignore_count << 8) + (min_tribute << 16) + (zone << 24);
+			core.units.begin()->arg3 = releasable;
 		}
 		if(proc) {
 			core.units.begin()->step = 3;
@@ -1704,9 +1705,14 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		target->summon_info = (proc->get_value(target) & 0xfffffff) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
 		target->current.reason_effect = proc;
 		target->current.reason_player = sumplayer;
+		int32 releasable = core.units.begin()->arg3;
 		if(proc->operation) {
 			pduel->lua->add_param(target, PARAM_TYPE_CARD);
 			pduel->lua->add_param(min_tribute, PARAM_TYPE_INT);
+			pduel->lua->add_param(zone, PARAM_TYPE_INT);
+			pduel->lua->add_param(releasable, PARAM_TYPE_INT);
+			pduel->game_field->core.limit_extra_summon_zone = zone;
+			pduel->game_field->core.limit_extra_summon_releasable = releasable;
 			core.sub_solving_event.push_back(nil_event);
 			add_process(PROCESSOR_EXECUTE_OPERATION, 0, proc, 0, sumplayer, 0);
 		}
@@ -1714,6 +1720,8 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		return FALSE;
 	}
 	case 7: {
+		pduel->game_field->core.limit_extra_summon_zone = 0;
+		pduel->game_field->core.limit_extra_summon_releasable = 0;
 		core.summon_depth--;
 		if(core.summon_depth)
 			return TRUE;

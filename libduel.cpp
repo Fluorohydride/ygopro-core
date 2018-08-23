@@ -2469,11 +2469,16 @@ int32 scriptlib::duel_check_tribute(lua_State *L) {
 	uint8 toplayer = target->current.controler;
 	if(lua_gettop(L) >= 5 && !lua_isnil(L, 5))
 		toplayer = lua_tointeger(L, 5);
+	duel* pduel = target->pduel;
 	uint32 zone = 0x1f;
+	if(pduel->game_field->core.limit_extra_summon_zone)
+		zone= pduel->game_field->core.limit_extra_summon_zone;
 	if(lua_gettop(L) >= 6 && !lua_isnil(L, 6))
 		zone = lua_tointeger(L, 6);
-	duel* pduel = target->pduel;
-	lua_pushboolean(L, pduel->game_field->check_tribute(target, min, max, mg, toplayer, zone));
+	uint32 releasable = 0xff00ff;
+	if(pduel->game_field->core.limit_extra_summon_releasable)
+		releasable = pduel->game_field->core.limit_extra_summon_releasable;
+	lua_pushboolean(L, pduel->game_field->check_tribute(target, min, max, mg, toplayer, zone, releasable));
 	return 1;
 }
 int32 scriptlib::duel_select_tribute(lua_State *L) {
@@ -2499,12 +2504,17 @@ int32 scriptlib::duel_select_tribute(lua_State *L) {
 	uint32 ex = FALSE;
 	if(toplayer != playerid)
 		ex = TRUE;
-	uint32 zone = 0x1f;
 	duel* pduel = interpreter::get_duel_info(L);
+	uint32 zone = 0x1f;
+	if(pduel->game_field->core.limit_extra_summon_zone)
+		zone = pduel->game_field->core.limit_extra_summon_zone;
+	uint32 releasable = 0xff00ff;
+	if(pduel->game_field->core.limit_extra_summon_releasable)
+		releasable = pduel->game_field->core.limit_extra_summon_releasable;
 	pduel->game_field->core.release_cards.clear();
 	pduel->game_field->core.release_cards_ex.clear();
 	pduel->game_field->core.release_cards_ex_oneof.clear();
-	pduel->game_field->get_summon_release_list(target, &pduel->game_field->core.release_cards, &pduel->game_field->core.release_cards_ex, &pduel->game_field->core.release_cards_ex_oneof, mg, ex);
+	pduel->game_field->get_summon_release_list(target, &pduel->game_field->core.release_cards, &pduel->game_field->core.release_cards_ex, &pduel->game_field->core.release_cards_ex_oneof, mg, ex, releasable);
 	pduel->game_field->select_tribute_cards(0, playerid, 0, min, max, toplayer, zone);
 	pduel->game_field->core.subunits.back().type = PROCESSOR_SELECT_TRIBUTE_S;
 	return lua_yield(L, 0);
