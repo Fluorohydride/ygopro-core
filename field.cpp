@@ -2901,8 +2901,9 @@ int32 field::is_player_can_summon(uint32 sumtype, uint8 playerid, card * pcard, 
 		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		pduel->lua->add_param(sumtype, PARAM_TYPE_INT);
+		pduel->lua->add_param(POS_FACEUP, PARAM_TYPE_INT);
 		pduel->lua->add_param(toplayer, PARAM_TYPE_INT);
-		if(pduel->lua->check_condition(eset[i]->target, 5))
+		if(pduel->lua->check_condition(eset[i]->target, 6))
 			return FALSE;
 	}
 	return TRUE;
@@ -2918,8 +2919,9 @@ int32 field::is_player_can_mset(uint32 sumtype, uint8 playerid, card * pcard, ui
 		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		pduel->lua->add_param(sumtype, PARAM_TYPE_INT);
+		pduel->lua->add_param(POS_FACEDOWN, PARAM_TYPE_INT);
 		pduel->lua->add_param(toplayer, PARAM_TYPE_INT);
-		if (pduel->lua->check_condition(eset[i]->target, 5))
+		if (pduel->lua->check_condition(eset[i]->target, 6))
 			return FALSE;
 	}
 	return TRUE;
