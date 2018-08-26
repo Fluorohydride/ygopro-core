@@ -832,7 +832,7 @@ int32 interpreter::call_function(int32 f, uint32 param_count, int32 ret_count) {
 		return OPERATION_FAIL;
 	}
 	if (param_count != params.size()) {
-		sprintf(pduel->strbuffer, "\"CallFunction\": incorrect parameter count (%d expected, %ud pushed)", param_count, params.size());
+		sprintf(pduel->strbuffer, "\"CallFunction\": incorrect parameter count (%d expected, %zu pushed)", param_count, params.size());
 		handle_message(pduel, 1);
 		params.clear();
 		return OPERATION_FAIL;
@@ -1029,7 +1029,7 @@ int32 interpreter::get_operation_value(card* pcard, int32 findex, int32 extraarg
 		}
 		return OPERATION_FAIL;
 	}
-	result = round(lua_tonumber(current_state, -1));
+	result = std::round(lua_tonumber(current_state, -1));
 	lua_pop(current_state, 1);
 	no_action--;
 	call_depth--;
@@ -1051,7 +1051,7 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count) {
 		if (lua_isboolean(current_state, -1))
 			result = lua_toboolean(current_state, -1);
 		else
-			result = round(lua_tonumber(current_state, -1));
+			result = std::round(lua_tonumber(current_state, -1));
 		lua_pop(current_state, 1);
 		no_action--;
 		call_depth--;
@@ -1085,7 +1085,7 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count, std::vector<i
 			if (lua_isboolean(current_state, index))
 				return_value = lua_toboolean(current_state, index);
 			else
-				return_value = round(lua_tonumber(current_state, index));
+				return_value = std::round(lua_tonumber(current_state, index));
 			result->push_back(return_value);
 		}
 		lua_settop(current_state, stack_top);
@@ -1146,7 +1146,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	if (result == 0) {
 		coroutines.erase(f);
 		if(yield_value)
-			*yield_value = lua_isboolean(rthread, -1) ? lua_toboolean(rthread, -1) : round(lua_tonumber(rthread, -1));
+			*yield_value = lua_isboolean(rthread, -1) ? lua_toboolean(rthread, -1) : lua_tointeger(rthread, -1);
 		current_state = lua_state;
 		call_depth--;
 		if(call_depth == 0) {

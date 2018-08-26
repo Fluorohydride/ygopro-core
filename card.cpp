@@ -12,7 +12,6 @@
 #include "group.h"
 #include "interpreter.h"
 #include "ocgapi.h"
-#include <memory.h>
 #include <iostream>
 #include <algorithm>
 
@@ -84,13 +83,13 @@ card::card(duel* pd) {
 	direct_attackable = 0;
 	summon_info = 0;
 	status = 0;
-	memset(&q_cache, 0xff, sizeof(query_cache));
+	std::memset(&q_cache, 0xff, sizeof(query_cache));
 	equiping_target = 0;
 	pre_equip_target = 0;
 	overlay_target = 0;
-	memset(&current, 0, sizeof(card_state));
-	memset(&previous, 0, sizeof(card_state));
-	memset(&temp, 0xff, sizeof(card_state));
+	std::memset(&current, 0, sizeof(card_state));
+	std::memset(&previous, 0, sizeof(card_state));
+	std::memset(&temp, 0xff, sizeof(card_state));
 	unique_pos[0] = unique_pos[1] = 0;
 	spsummon_counter[0] = spsummon_counter[1] = 0;
 	spsummon_counter_rst[0] = spsummon_counter_rst[1] = 0;

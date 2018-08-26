@@ -33,7 +33,7 @@ int32 scriptlib::duel_get_lp(lua_State *L) {
 int32 scriptlib::duel_set_lp(lua_State *L) {
 	check_param_count(L, 2);
 	int32 p = lua_tointeger(L, 1);
-	int32 lp = round(lua_tonumber(L, 2));
+	int32 lp = std::round(lua_tonumber(L, 2));
 	if(lp < 0) lp = 0;
 	if(p != 0 && p != 1)
 		return 0;

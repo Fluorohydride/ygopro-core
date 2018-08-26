@@ -11,7 +11,6 @@
 #include "card.h"
 #include "ocgapi.h"
 
-#include <memory.h>
 #include <algorithm>
 #include <stack>
 
@@ -263,15 +262,14 @@ int32 field::select_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 mi
 	} else {
 		if(cancelable && returns.ivalue[0] == -1)
 			return TRUE;
-		byte c[64];
-		memset(c, 0, 64);
 		if(returns.bvalue[0] < min || returns.bvalue[0] > max) {
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
-		uint8 m = core.select_cards.size(), v = 0;
+		byte c[64] = {};
+		uint8 m = core.select_cards.size();
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-			v = returns.bvalue[i + 1];
+			uint8 v = returns.bvalue[i + 1];
 			if(v < 0 || v >= m || v >= 63 || c[v]) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
@@ -442,11 +440,11 @@ int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count)
 		returns.bvalue[0] = 0;
 		return FALSE;
 	} else {
-		uint8 pt = 0, p, l, s;
+		uint8 pt = 0;
 		for(int8 i = 0; i < count; ++i) {
-			p = returns.bvalue[pt];
-			l = returns.bvalue[pt + 1];
-			s = returns.bvalue[pt + 2];
+			uint8 p = returns.bvalue[pt];
+			uint8 l = returns.bvalue[pt + 1];
+			uint8 s = returns.bvalue[pt + 2];
 			if((p != 0 && p != 1)
 					|| ((l != LOCATION_MZONE) && (l != LOCATION_SZONE))
 					|| ((0x1u << s) & (flag >> (((p == playerid) ? 0 : 16) + ((l == LOCATION_MZONE) ? 0 : 8))))) {
@@ -516,10 +514,9 @@ int32 field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8
 		pduel->write_buffer8(min);
 		pduel->write_buffer8(max);
 		pduel->write_buffer8(core.select_cards.size());
-		card* pcard;
 		std::sort(core.select_cards.begin(), core.select_cards.end(), card::card_operation_sort);
 		for(uint32 i = 0; i < core.select_cards.size(); ++i) {
-			pcard = core.select_cards[i];
+			card* pcard = core.select_cards[i];
 			pduel->write_buffer32(pcard->data.code);
 			pduel->write_buffer8(pcard->current.controler);
 			pduel->write_buffer8(pcard->current.location);
@@ -530,12 +527,11 @@ int32 field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8
 	} else {
 		if(cancelable && returns.ivalue[0] == -1)
 			return TRUE;
-		byte c[64];
-		memset(c, 0, 64);
 		if(returns.bvalue[0] > max) {
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
+		byte c[64] = {};
 		uint8 m = core.select_cards.size(), tt = 0;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 			int8 v = returns.bvalue[i + 1];
@@ -663,8 +659,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 		}
 		return FALSE;
 	} else {
-		byte c[64];
-		memset(c, 0, 64);
+		byte c[64] = {};
 		if(max) {
 			int32 oparam[16];
 			int32 mcount = core.must_select_cards.size();
@@ -752,16 +747,17 @@ int32 field::sort_card(int16 step, uint8 playerid, uint8 is_chain) {
 		}
 		return FALSE;
 	} else {
-		if(returns.bvalue[0] == -1)
+		if(returns.ivalue[0] == -1)
 			return TRUE;
-		uint8 seq[64];
-		memset(seq, 0, 64);
-		for(uint32 i = 0; i < core.select_cards.size(); ++i) {
-			if(returns.bvalue[i] < 0 || returns.bvalue[i] >= (int32)core.select_cards.size() || seq[(int32)returns.bvalue[i]]) {
+		byte c[64] = {};
+		uint8 m = core.select_cards.size();
+		for(uint8 i = 0; i < m; ++i) {
+			uint8 v = returns.bvalue[i];
+			if(v < 0 || v >= m || c[v]) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
 			}
-			seq[(int32)returns.bvalue[i]] = 1;
+			c[v] = 1;
 		}
 		return TRUE;
 	}

@@ -12,7 +12,6 @@
 #include "effect.h"
 #include "group.h"
 #include "ocgapi.h"
-#include <memory.h>
 
 duel::duel() {
 	lua = new interpreter(this);
@@ -96,7 +95,7 @@ void duel::delete_effect(effect* peffect) {
 	delete peffect;
 }
 int32 duel::read_buffer(byte* buf) {
-	memcpy(buf, buffer, bufferlen);
+	std::memcpy(buf, buffer, bufferlen);
 	return bufferlen;
 }
 void duel::release_script_group() {
@@ -138,7 +137,7 @@ void duel::set_responsei(uint32 resp) {
 	game_field->returns.ivalue[0] = resp;
 }
 void duel::set_responseb(byte* resp) {
-	memcpy(game_field->returns.bvalue, resp, 64);
+	std::memcpy(game_field->returns.bvalue, resp, 64);
 }
 int32 duel::get_next_integer(int32 l, int32 h) {
 	return (int32) (random.real() * (h - l + 1)) + l;

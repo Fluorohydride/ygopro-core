@@ -24,6 +24,7 @@ extern "C" {
 #include <list>
 #include <vector>
 #include <cstring>
+#include <cmath>
 
 class card;
 class effect;

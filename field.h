@@ -8,7 +8,6 @@
 #ifndef FIELD_H_
 #define FIELD_H_
 
-#include "memory.h"
 #include "common.h"
 #include "effectset.h"
 #include <vector>
@@ -19,7 +18,6 @@
 #include <functional>
 #include <unordered_map>
 #include <unordered_set>
-#include <cmath>
 
 class card;
 struct card_data;
@@ -206,7 +204,6 @@ struct processor {
 	chain_list new_ochain_b;
 	chain_list new_ochain_h;
 	chain_list new_chains;
-	chain_list tmp_chain;
 	delayed_effect_collection delayed_quick_tmp;
 	delayed_effect_collection delayed_quick_break;
 	delayed_effect_collection delayed_quick;
