@@ -967,7 +967,16 @@ uint32 card::get_rank() {
 uint32 card::get_link() {
 	if(!(data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL))
 		return 0;
-	return data.level;
+	uint32 link = 0;
+	uint32 link_marker = get_link_marker();
+	while(link_marker > 0)
+	{
+		link_marker = link_marker & (link_marker - 1);
+		link++;
+	}
+	// link is number of "1" in "link_marker" as binary
+	return link;
+	//return data.level;
 }
 uint32 card::get_synchro_level(card* pcard) {
 	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL))
