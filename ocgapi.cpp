@@ -287,52 +287,52 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(ptr pduel, uint8 playerid, uint
 extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
 	duel* ptduel = (duel*)pduel;
 	byte* p = buf;
-	*p++ = MSG_RELOAD_FIELD;
-	*p++ = ptduel->game_field->core.duel_rule;
+	*buf++ = MSG_RELOAD_FIELD;
+	*buf++ = ptduel->game_field->core.duel_rule;
 	for(int playerid = 0; playerid < 2; ++playerid) {
 		auto& player = ptduel->game_field->player[playerid];
-		*((int*)p) = player.lp;
-		p += 4;
+		*((int*)buf) = player.lp;
+		buf += 4;
 		for(auto cit = player.list_mzone.begin(); cit != player.list_mzone.end(); ++cit) {
 			card* pcard = *cit;
 			if(pcard) {
-				*p++ = 1;
-				*p++ = pcard->current.position;
-				*p++ = pcard->xyz_materials.size();
+				*buf++ = 1;
+				*buf++ = pcard->current.position;
+				*buf++ = pcard->xyz_materials.size();
 			} else {
-				*p++ = 0;
+				*buf++ = 0;
 			}
 		}
 		for(auto cit = player.list_szone.begin(); cit != player.list_szone.end(); ++cit) {
 			card* pcard = *cit;
 			if(pcard) {
-				*p++ = 1;
-				*p++ = pcard->current.position;
+				*buf++ = 1;
+				*buf++ = pcard->current.position;
 			} else {
-				*p++ = 0;
+				*buf++ = 0;
 			}
 		}
-		*p++ = player.list_main.size();
-		*p++ = player.list_hand.size();
-		*p++ = player.list_grave.size();
-		*p++ = player.list_remove.size();
-		*p++ = player.list_extra.size();
-		*p++ = player.extra_p_count;
+		*buf++ = player.list_main.size();
+		*buf++ = player.list_hand.size();
+		*buf++ = player.list_grave.size();
+		*buf++ = player.list_remove.size();
+		*buf++ = player.list_extra.size();
+		*buf++ = player.extra_p_count;
 	}
-	*p++ = ptduel->game_field->core.current_chain.size();
+	*buf++ = ptduel->game_field->core.current_chain.size();
 	for(auto chit = ptduel->game_field->core.current_chain.begin(); chit != ptduel->game_field->core.current_chain.end(); ++chit) {
 		effect* peffect = chit->triggering_effect;
-		*((int*)p) = peffect->get_handler()->data.code;
-		p += 4;
-		*((int*)p) = peffect->get_handler()->get_info_location();
-		p += 4;
-		*p++ = chit->triggering_controler;
-		*p++ = (uint8)chit->triggering_location;
-		*p++ = chit->triggering_sequence;
-		*((int*)p) = peffect->description;
-		p += 4;
+		*((int*)buf) = peffect->get_handler()->data.code;
+		buf += 4;
+		*((int*)buf) = peffect->get_handler()->get_info_location();
+		buf += 4;
+		*buf++ = chit->triggering_controler;
+		*buf++ = (uint8)chit->triggering_location;
+		*buf++ = chit->triggering_sequence;
+		*((int*)buf) = peffect->description;
+		buf += 4;
 	}
-	return (int32)(p - buf);
+	return (int32)(buf - p);
 }
 extern "C" DECL_DLLEXPORT void set_responsei(ptr pduel, int32 value) {
 	((duel*)pduel)->set_responsei(value);
