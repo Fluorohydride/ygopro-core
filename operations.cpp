@@ -260,12 +260,8 @@ void field::release(card* target, effect* reason_effect, uint32 reason, uint32 r
 void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence, uint32 position) {
 	if(destination & LOCATION_ONFIELD)
 		return;
-	for(auto cit = targets->begin(); cit != targets->end(); ) {
-		card* pcard = *cit++;
-		if((destination & LOCATION_EXTRA) && !(pcard->data.type & TYPE_PENDULUM)) {
-			targets->erase(pcard);
-			continue;
-		}
+	for(auto cit = targets->begin(); cit != targets->end(); ++cit) {
+		card* pcard = *cit;
 		pcard->temp.reason = pcard->current.reason;
 		pcard->temp.reason_effect = pcard->current.reason_effect;
 		pcard->temp.reason_player = pcard->current.reason_player;
@@ -273,7 +269,7 @@ void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uin
 		pcard->current.reason_effect = reason_effect;
 		pcard->current.reason_player = reason_player;
 		uint32 p = playerid;
-		// send to hand from deck  & playerid not given => send to the hand of controler
+		// send to hand from deck and playerid not given => send to the hand of controler
 		if(p == PLAYER_NONE && (destination & LOCATION_HAND) && (pcard->current.location & LOCATION_DECK) && pcard->current.controler == reason_player)
 			p = reason_player;
 		if(destination & (LOCATION_GRAVE + LOCATION_REMOVED) || p == PLAYER_NONE)

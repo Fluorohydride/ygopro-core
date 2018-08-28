@@ -6,7 +6,6 @@
  */
 
 #include <stdio.h>
-#include <iostream>
 #include "duel.h"
 #include "group.h"
 #include "card.h"

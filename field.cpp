@@ -11,9 +11,6 @@
 #include "group.h"
 #include "effect.h"
 #include "interpreter.h"
-#include <iostream>
-#include <cstring>
-#include <map>
 
 int32 field::field_used_count[32] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5};
 
@@ -32,7 +29,7 @@ void chain::set_triggering_place(card* pcard) {
 	triggering_position = pcard->current.position;
 }
 bool tevent::operator< (const tevent& v) const {
-	return memcmp(this, &v, sizeof(tevent)) < 0;
+	return std::memcmp(this, &v, sizeof(tevent)) < 0;
 }
 field::field(duel* pduel) {
 	this->pduel = pduel;
@@ -1280,7 +1277,6 @@ void field::filter_field_effect(uint32 code, effect_set* eset, uint8 sort) {
 	if(sort)
 		eset->sort();
 }
-// put all cards in the target of peffect into cset
 void field::filter_affected_cards(effect* peffect, card_set* cset) {
 	if((peffect->type & EFFECT_TYPE_ACTIONS) || !(peffect->type & EFFECT_TYPE_FIELD) || peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET))
 		return;

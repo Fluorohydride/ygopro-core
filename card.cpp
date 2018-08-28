@@ -12,7 +12,6 @@
 #include "group.h"
 #include "interpreter.h"
 #include "ocgapi.h"
-#include <iostream>
 #include <algorithm>
 
 bool card_sort::operator()(void* const & p1, void* const & p2) const {
@@ -240,7 +239,7 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 	}
 	*(uint32*)buf = (byte*)p - buf;
 	*(uint32*)(buf + 4) = query_flag;
-	return (byte*)p - buf;
+	return (uint32)((byte*)p - buf);
 }
 uint32 card::get_info_location() {
 	if(overlay_target) {
@@ -403,10 +402,10 @@ int32 card::is_fusion_set_card(uint32 set_code) {
 			setcode = setcode >> 16;
 		}
 	}
-	effect_set eset2;
-	filter_effect(EFFECT_ADD_FUSION_SETCODE, &eset2);
-	for(int32 i = 0; i < eset2.size(); ++i) {
-		uint32 setcode = eset2[i]->get_value(this);
+	eset.clear();
+	filter_effect(EFFECT_ADD_FUSION_SETCODE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		uint32 setcode = eset[i]->get_value(this);
 		if ((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
 			return TRUE;
 	}
@@ -1023,12 +1022,10 @@ uint32 card::get_attribute() {
 	if (temp.attribute != 0xffffffff)
 		return temp.attribute;
 	effect_set effects;
-	effect_set effects2;
 	int32 attribute = data.attribute;
 	temp.attribute = data.attribute;
 	filter_effect(EFFECT_ADD_ATTRIBUTE, &effects, FALSE);
 	filter_effect(EFFECT_REMOVE_ATTRIBUTE, &effects);
-	filter_effect(EFFECT_CHANGE_ATTRIBUTE, &effects2);
 	for (int32 i = 0; i < effects.size(); ++i) {
 		if (effects[i]->code == EFFECT_ADD_ATTRIBUTE)
 			attribute |= effects[i]->get_value(this);
@@ -1036,8 +1033,10 @@ uint32 card::get_attribute() {
 			attribute &= ~(effects[i]->get_value(this));
 		temp.attribute = attribute;
 	}
-	for (int32 i = 0; i < effects2.size(); ++i) {
-		attribute = effects2[i]->get_value(this);
+	effects.clear();
+	filter_effect(EFFECT_CHANGE_ATTRIBUTE, &effects);
+	for (int32 i = 0; i < effects.size(); ++i) {
+		attribute = effects[i]->get_value(this);
 		temp.attribute = attribute;
 	}
 	temp.attribute = 0xffffffff;
@@ -1074,12 +1073,10 @@ uint32 card::get_race() {
 	if (temp.race != 0xffffffff)
 		return temp.race;
 	effect_set effects;
-	effect_set effects2;
 	int32 race = data.race;
 	temp.race = data.race;
 	filter_effect(EFFECT_ADD_RACE, &effects, FALSE);
 	filter_effect(EFFECT_REMOVE_RACE, &effects);
-	filter_effect(EFFECT_CHANGE_RACE, &effects2);
 	for (int32 i = 0; i < effects.size(); ++i) {
 		if (effects[i]->code == EFFECT_ADD_RACE)
 			race |= effects[i]->get_value(this);
@@ -1087,8 +1084,10 @@ uint32 card::get_race() {
 			race &= ~(effects[i]->get_value(this));
 		temp.race = race;
 	}
-	for (int32 i = 0; i < effects2.size(); ++i) {
-		race = effects2[i]->get_value(this);
+	effects.clear();
+	filter_effect(EFFECT_CHANGE_RACE, &effects);
+	for (int32 i = 0; i < effects.size(); ++i) {
+		race = effects[i]->get_value(this);
 		temp.race = race;
 	}
 	temp.race = 0xffffffff;
