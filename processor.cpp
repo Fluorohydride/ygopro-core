@@ -3308,15 +3308,6 @@ int32 field::process_battle_command(uint16 step) {
 			core.units.begin()->step = 32;
 			return FALSE;
 		}
-		raise_single_event(core.attacker, 0, EVENT_DAMAGE_CALCULATING, 0, 0, 0, 0, 0);
-		if(core.attack_target)
-			raise_single_event(core.attack_target, 0, EVENT_DAMAGE_CALCULATING, 0, 0, 0, 0, 1);
-		raise_event((card*)0, EVENT_DAMAGE_CALCULATING, 0, 0, 0, 0, 0);
-		process_single_event();
-		process_instant_event();
-		//this timing does not exist in Master Rule 3
-		core.new_ochain.clear();
-		core.new_fchain.clear();
 		return FALSE;
 	}
 	case 26: {
@@ -3707,12 +3698,6 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 	}
 	case 1: {
 		infos.phase = PHASE_DAMAGE_CAL;
-		raise_single_event(core.attacker, 0, EVENT_DAMAGE_CALCULATING, 0, 0, 0, 0, 0);
-		if(core.attack_target)
-			raise_single_event(core.attack_target, 0, EVENT_DAMAGE_CALCULATING, 0, 0, 0, 0, 1);
-		raise_event((card*)0, EVENT_DAMAGE_CALCULATING, 0, 0, 0, 0, 0);
-		process_single_event();
-		process_instant_event();
 		add_process(PROCESSOR_BATTLE_COMMAND, 26, 0, 0, 0, 0);
 		core.units.begin()->step = 2;
 		core.reserved = core.units.front();
