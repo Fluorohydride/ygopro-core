@@ -3091,7 +3091,8 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 9: {
-		if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP) || core.attack_rollback) {
+		if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP)
+			|| core.attacker->is_status(STATUS_ATTACK_CANCELED) || core.attack_rollback) {
 			core.units.begin()->step = 10;
 			return FALSE;
 		}
@@ -3122,17 +3123,12 @@ int32 field::process_battle_command(uint16 step) {
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
 		}
 		if(is_player_affected_by_effect(infos.turn_player, EFFECT_SKIP_BP)
-			|| !core.attacker->is_capable_attack() || core.attacker->is_status(STATUS_ATTACK_CANCELED)
-			|| core.attacker->current.controler != core.attacker->attack_controler
-			|| core.attacker->fieldid_r != core.pre_field[0]) {
+			|| core.attacker->is_status(STATUS_ATTACK_CANCELED)) {
 			core.units.begin()->step = 12;
 			return FALSE;
 		}
-		uint8 rollback = core.attack_rollback;
-		if(!confirm_attack_target())
-			rollback = TRUE;
 		// go to damage step
-		if(!rollback) {
+		if(!core.attack_rollback) {
 			core.attacker->announce_count++;
 			core.attacker->announced_cards.addcard(core.attack_target);
 			attack_all_target_check();
@@ -5323,8 +5319,14 @@ int32 field::adjust_step(uint16 step) {
 		card* attacker = core.attacker;
 		if(!attacker)
 			return FALSE;
-		if(attacker->is_affected_by_effect(EFFECT_CANNOT_ATTACK))
+		if(attacker->is_status(STATUS_ATTACK_CANCELED))
+			return FALSE;
+		if(!core.attacker->is_capable_attack()
+			|| core.attacker->current.controler != core.attacker->attack_controler
+			|| core.attacker->fieldid_r != core.pre_field[0]) {
 			attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
+			return FALSE;
+		}
 		if(core.attack_rollback)
 			return FALSE;
 		std::set<uint16> fidset;
@@ -5332,7 +5334,7 @@ int32 field::adjust_step(uint16 step) {
 			if(pcard)
 				fidset.insert(pcard->fieldid_r);
 		}
-		if(fidset != core.opp_mzone)
+		if(fidset != core.opp_mzone || !confirm_attack_target())
 			core.attack_rollback = TRUE;
 		return FALSE;
 	}
