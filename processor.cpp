@@ -674,9 +674,8 @@ int32 field::process() {
 			it->step++;
 		} else {
 			group* pgroup = pduel->new_group();
-			card* pcard;
 			for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-				pcard = core.select_cards[returns.bvalue[i + 1]];
+				card* pcard = core.select_cards[returns.bvalue[i + 1]];
 				pgroup->container.insert(pcard);
 			}
 			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
@@ -719,9 +718,8 @@ int32 field::process() {
 			it->step++;
 		} else {
 			group* pgroup = pduel->new_group();
-			card* pcard;
 			for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-				pcard = core.select_cards[returns.bvalue[i + 1]];
+				card* pcard = core.select_cards[returns.bvalue[i + 1]];
 				pgroup->container.insert(pcard);
 			}
 			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
@@ -735,9 +733,8 @@ int32 field::process() {
 			it->step++;
 		} else {
 			group* pgroup = pduel->new_group();
-			card* pcard;
 			for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-				pcard = core.select_cards[returns.bvalue[i + 1]];
+				card* pcard = core.select_cards[returns.bvalue[i + 1]];
 				pgroup->container.insert(pcard);
 			}
 			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
@@ -852,11 +849,11 @@ int32 field::process() {
 			int32 playerid = it->arg1;
 			int32 count = it->arg3;
 			int32 dfflag = 0;
-			uint8 p, l, s, pa = 0;
+			uint8 pa = 0;
 			for(int32 i = 0; i < count; ++i) {
-				p = returns.bvalue[pa];
-				l = returns.bvalue[pa + 1];
-				s = returns.bvalue[pa + 2];
+				uint8 p = returns.bvalue[pa];
+				uint8 l = returns.bvalue[pa + 1];
+				uint8 s = returns.bvalue[pa + 2];
 				dfflag |= 0x1u << (s + (p == playerid ? 0 : 16) + (l == LOCATION_MZONE ? 0 : 8));
 				pa += 3;
 			}
@@ -1007,9 +1004,8 @@ int32 field::process() {
 			it->step++;
 		} else if(it->step == 1) {
 			card_set cset;
-			card* pcard;
 			for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-				pcard = core.select_cards[returns.bvalue[i + 1]];
+				card* pcard = core.select_cards[returns.bvalue[i + 1]];
 				cset.insert(pcard);
 			}
 			if(cset.size())
@@ -1050,7 +1046,7 @@ int32 field::process() {
 				for(i = 0; i < count; ++i)
 					player[target_player].list_main.pop_back();
 				for(i = 0; i < count; ++i)
-					tc[(int32)returns.bvalue[i]] = core.select_cards[i];
+					tc[(uint8)returns.bvalue[i]] = core.select_cards[i];
 				for(i = 0; i < count; ++i) {
 					player[target_player].list_main.push_back(tc[count - i - 1]);
 					tc[count - i - 1]->current.sequence = player[target_player].list_main.size() - 1;

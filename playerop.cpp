@@ -269,7 +269,7 @@ int32 field::select_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 mi
 		byte c[64] = {};
 		uint8 m = core.select_cards.size();
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-			uint8 v = returns.bvalue[i + 1];
+			int8 v = returns.bvalue[i + 1];
 			if(v < 0 || v >= m || v >= 63 || c[v]) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
@@ -747,12 +747,12 @@ int32 field::sort_card(int16 step, uint8 playerid, uint8 is_chain) {
 		}
 		return FALSE;
 	} else {
-		if(returns.ivalue[0] == -1)
+		if(returns.bvalue[0] == -1)
 			return TRUE;
 		byte c[64] = {};
 		uint8 m = core.select_cards.size();
 		for(uint8 i = 0; i < m; ++i) {
-			uint8 v = returns.bvalue[i];
+			int8 v = returns.bvalue[i];
 			if(v < 0 || v >= m || c[v]) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
