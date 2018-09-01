@@ -484,7 +484,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_BATTLE_START			1132
 #define EVENT_BATTLE_CONFIRM		1133
 #define EVENT_PRE_DAMAGE_CALCULATE	1134
-#define EVENT_DAMAGE_CALCULATING	1135
+//#define EVENT_DAMAGE_CALCULATING	1135
 #define EVENT_PRE_BATTLE_DAMAGE		1136
 //#define EVENT_BATTLE_END			1137
 #define EVENT_BATTLED				1138
