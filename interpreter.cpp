@@ -765,45 +765,45 @@ void interpreter::add_param(ptr param, int32 type, bool front) {
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	uint32 type;
 	int32 pushed = 0;
-	for (auto it = params.begin(); it != params.end(); ++it) {
-		type = it->second;
+	for (const auto& it : params) {
+		type = it.second;
 		switch(type) {
 		case PARAM_TYPE_INT:
-			lua_pushinteger(L, (ptr) it->first);
+			lua_pushinteger(L, (ptr) it.first);
 			break;
 		case PARAM_TYPE_STRING:
-			lua_pushstring(L, (const char *) it->first);
+			lua_pushstring(L, (const char *) it.first);
 			break;
 		case PARAM_TYPE_BOOLEAN:
-			lua_pushboolean(L, (ptr) it->first);
+			lua_pushboolean(L, (ptr) it.first);
 			break;
 		case PARAM_TYPE_CARD: {
-			if (it->first)
-				lua_rawgeti(L, LUA_REGISTRYINDEX, ((card*)it->first)->ref_handle);
+			if (it.first)
+				lua_rawgeti(L, LUA_REGISTRYINDEX, ((card*)it.first)->ref_handle);
 			else
 				lua_pushnil(L);
 			break;
 		}
 		case PARAM_TYPE_EFFECT: {
-			if (it->first)
-				lua_rawgeti(L, LUA_REGISTRYINDEX, ((effect*)it->first)->ref_handle);
+			if (it.first)
+				lua_rawgeti(L, LUA_REGISTRYINDEX, ((effect*)it.first)->ref_handle);
 			else
 				lua_pushnil(L);
 			break;
 		}
 		case PARAM_TYPE_GROUP: {
-			if (it->first)
-				lua_rawgeti(L, LUA_REGISTRYINDEX, ((group*)it->first)->ref_handle);
+			if (it.first)
+				lua_rawgeti(L, LUA_REGISTRYINDEX, ((group*)it.first)->ref_handle);
 			else
 				lua_pushnil(L);
 			break;
 		}
 		case PARAM_TYPE_FUNCTION: {
-			function2value(L, (ptr)it->first);
+			function2value(L, (ptr)it.first);
 			break;
 		}
 		case PARAM_TYPE_INDEX: {
-			int32 index = (int32)(ptr)it->first;
+			int32 index = (int32)(ptr)it.first;
 			if(index > 0)
 				lua_pushvalue(L, index);
 			else if(is_coroutine) {

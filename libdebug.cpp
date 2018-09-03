@@ -64,8 +64,8 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		pcard->current.controler = PLAYER_NONE;
 		pcard->current.location = LOCATION_OVERLAY;
 		pcard->current.sequence = fcard->xyz_materials.size() - 1;
-		for(auto eit = pcard->xmaterial_effect.begin(); eit != pcard->xmaterial_effect.end(); ++eit) {
-			effect* peffect = eit->second;
+		for(auto& eit : pcard->xmaterial_effect) {
+			effect* peffect = eit.second;
 			if(peffect->type & EFFECT_TYPE_FIELD)
 				pduel->game_field->add_effect(peffect);
 		}

@@ -100,9 +100,9 @@ public:
 	typedef std::unordered_map<effect*, effect_container::iterator> effect_indexer;
 	typedef std::unordered_set<std::pair<effect*, uint16>, effect_relation_hash> effect_relation;
 	typedef std::unordered_map<card*, uint32> relation_map;
-	typedef std::map<uint16, std::array<uint16, 2> > counter_map;
+	typedef std::map<uint16, std::array<uint16, 2>> counter_map;
 	typedef std::map<uint32, int32> effect_count;
-	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32> > {
+	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32>> {
 	public:
 		void addcard(card* pcard);
 		uint32 findcard(card* pcard);

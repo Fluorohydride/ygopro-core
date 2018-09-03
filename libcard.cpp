@@ -1273,9 +1273,9 @@ int32 scriptlib::card_get_attacked_group(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	group* pgroup = pcard->pduel->new_group();
-	for(auto cit = pcard->attacked_cards.begin(); cit != pcard->attacked_cards.end(); ++cit) {
-		if(cit->second.first)
-			pgroup->container.insert(cit->second.first);
+	for(auto& cit : pcard->attacked_cards) {
+		if(cit.second.first)
+			pgroup->container.insert(cit.second.first);
 	}
 	interpreter::group2value(L, pgroup);
 	return 1;
@@ -1299,9 +1299,9 @@ int32 scriptlib::card_get_battled_group(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	group* pgroup = pcard->pduel->new_group();
-	for(auto cit = pcard->battled_cards.begin(); cit != pcard->battled_cards.end(); ++cit) {
-		if(cit->second.first)
-			pgroup->container.insert(cit->second.first);
+	for(auto& cit : pcard->battled_cards) {
+		if(cit.second.first)
+			pgroup->container.insert(cit.second.first);
 	}
 	interpreter::group2value(L, pgroup);
 	return 1;
@@ -1401,9 +1401,9 @@ int32 scriptlib::card_get_activate_effect(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	int32 count = 0;
-	for(auto eit = pcard->field_effect.begin(); eit != pcard->field_effect.end(); ++eit) {
-		if(eit->second->type & EFFECT_TYPE_ACTIVATE) {
-			interpreter::effect2value(L, eit->second);
+	for(auto& eit : pcard->field_effect) {
+		if(eit.second->type & EFFECT_TYPE_ACTIVATE) {
+			interpreter::effect2value(L, eit.second);
 			count++;
 		}
 	}
@@ -2471,13 +2471,13 @@ int32 scriptlib::card_remove_counter(lua_State *L) {
 	uint32 reason = lua_tointeger(L, 5);
 	if(countertype == 0) {
 		// c38834303: remove all counters
-		for(auto cmit = pcard->counters.begin(); cmit != pcard->counters.end(); ++cmit) {
+		for(const auto& cmit : pcard->counters) {
 			pcard->pduel->write_buffer8(MSG_REMOVE_COUNTER);
-			pcard->pduel->write_buffer16(cmit->first);
+			pcard->pduel->write_buffer16(cmit.first);
 			pcard->pduel->write_buffer8(pcard->current.controler);
 			pcard->pduel->write_buffer8(pcard->current.location);
 			pcard->pduel->write_buffer8(pcard->current.sequence);
-			pcard->pduel->write_buffer16(cmit->second[0] + cmit->second[1]);
+			pcard->pduel->write_buffer16(cmit.second[0] + cmit.second[1]);
 		}
 		pcard->counters.clear();
 		return 0;

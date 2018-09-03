@@ -158,7 +158,7 @@ struct processor {
 	typedef std::vector<chain> chain_array;
 	typedef std::list<processor_unit> processor_list;
 	typedef std::set<card*, card_sort> card_set;
-	typedef std::set<std::pair<effect*, tevent> > delayed_effect_collection;
+	typedef std::set<std::pair<effect*, tevent>> delayed_effect_collection;
 	struct chain_limit_t {
 		chain_limit_t(int32 f, int32 p): function(f), player(p) {}
 		int32 function;
@@ -238,7 +238,7 @@ struct processor {
 	std::unordered_map<uint32, uint32> effect_count_code_duel;
 	std::unordered_map<uint32, uint32> spsummon_once_map[2];
 	std::unordered_map<uint32, uint32> spsummon_once_map_rst[2];
-	std::multimap<int32, card*, std::greater<int32> > xmaterial_lst;
+	std::multimap<int32, card*, std::greater<int32>> xmaterial_lst;
 	ptr temp_var[4];
 	uint32 global_flag;
 	uint16 pre_field[2];
@@ -311,12 +311,12 @@ struct processor {
 	uint32 hint_timing[2];
 	uint8 current_player;
 	uint8 conti_player;
-	std::unordered_map<uint32, std::pair<uint32, uint32> > summon_counter;
-	std::unordered_map<uint32, std::pair<uint32, uint32> > normalsummon_counter;
-	std::unordered_map<uint32, std::pair<uint32, uint32> > spsummon_counter;
-	std::unordered_map<uint32, std::pair<uint32, uint32> > flipsummon_counter;
-	std::unordered_map<uint32, std::pair<uint32, uint32> > attack_counter;
-	std::unordered_map<uint32, std::pair<uint32, uint32> > chain_counter;
+	std::unordered_map<uint32, std::pair<uint32, uint32>> summon_counter;
+	std::unordered_map<uint32, std::pair<uint32, uint32>> normalsummon_counter;
+	std::unordered_map<uint32, std::pair<uint32, uint32>> spsummon_counter;
+	std::unordered_map<uint32, std::pair<uint32, uint32>> flipsummon_counter;
+	std::unordered_map<uint32, std::pair<uint32, uint32>> attack_counter;
+	std::unordered_map<uint32, std::pair<uint32, uint32>> chain_counter;
 	processor_list recover_damage_reserve;
 	effect_vector dec_count_reserve;
 };
