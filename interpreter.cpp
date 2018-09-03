@@ -629,8 +629,8 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	luaL_newlib(lua_state, debuglib);
 	lua_setglobal(lua_state, "Debug");
 	//extra scripts
-	load_script((char*) "./script/constant.lua");
-	load_script((char*) "./script/utility.lua");
+	load_script("./script/constant.lua");
+	load_script("./script/utility.lua");
 }
 interpreter::~interpreter() {
 	lua_close(lua_state);
@@ -654,7 +654,7 @@ int32 interpreter::register_card(card *pcard) {
 	if(pcard->data.code && (!(pcard->data.type & TYPE_NORMAL) || (pcard->data.type & TYPE_PENDULUM))) {
 		pcard->set_status(STATUS_INITIALIZING, TRUE);
 		add_param(pcard, PARAM_TYPE_CARD);
-		call_card_function(pcard, (char*) "initial_effect", 1, 0);
+		call_card_function(pcard, "initial_effect", 1, 0);
 		pcard->set_status(STATUS_INITIALIZING, FALSE);
 	}
 	pcard->cardid = pduel->game_field->infos.card_id++;
@@ -708,14 +708,14 @@ void interpreter::unregister_group(group *pgroup) {
 	luaL_unref(lua_state, LUA_REGISTRYINDEX, pgroup->ref_handle);
 	pgroup->ref_handle = 0;
 }
-int32 interpreter::load_script(char* script_name) {
+int32 interpreter::load_script(const char* script_name) {
 	int32 error;
 	int32 len = 0;
 	byte* buffer = read_script(script_name, &len);
 	if (!buffer)
 		return OPERATION_FAIL;
 	no_action++;
-	error = luaL_loadbuffer(current_state, (const char*) buffer, len, (const char*) script_name) || lua_pcall(current_state, 0, 0, 0);
+	error = luaL_loadbuffer(current_state, (char*)buffer, len, script_name) || lua_pcall(current_state, 0, 0, 0);
 	if (error) {
 		interpreter::strcpy(pduel->strbuffer, lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
@@ -867,7 +867,7 @@ int32 interpreter::call_function(int32 f, uint32 param_count, int32 ret_count) {
 	}
 	return OPERATION_SUCCESS;
 }
-int32 interpreter::call_card_function(card* pcard, char* f, uint32 param_count, int32 ret_count) {
+int32 interpreter::call_card_function(card* pcard, const char* f, uint32 param_count, int32 ret_count) {
 	if (param_count != params.size()) {
 		sprintf(pduel->strbuffer, "\"CallCardFunction\"(c%d.%s): incorrect parameter count", pcard->data.code, f);
 		handle_message(pduel, 1);
@@ -907,7 +907,7 @@ int32 interpreter::call_card_function(card* pcard, char* f, uint32 param_count, 
 	}
 	return OPERATION_SUCCESS;
 }
-int32 interpreter::call_code_function(uint32 code, char* f, uint32 param_count, int32 ret_count) {
+int32 interpreter::call_code_function(uint32 code, const char* f, uint32 param_count, int32 ret_count) {
 	if (param_count != params.size()) {
 		sprintf(pduel->strbuffer, "\"CallCodeFunction\": incorrect parameter count");
 		handle_message(pduel, 1);

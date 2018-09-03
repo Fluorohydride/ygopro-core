@@ -2034,13 +2034,9 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 	}
 	case 2: {
 		chain newchain;
-		auto evit = core.point_event.begin();
-		bool pev = true;
-		if(evit == core.point_event.end()) {
-			evit = core.instant_event.begin();
-			pev = false;
-		}
-		while(pev || (evit != core.instant_event.end())) {
+		for(auto evit = core.point_event.begin(); evit != core.instant_event.begin(); ++evit) {
+			if(evit == core.point_event.end())
+				evit = core.instant_event.begin();
 			auto pr = effects.activate_effect.equal_range(evit->event_code);
 			for(auto eit = pr.first; eit != pr.second;) {
 				effect* peffect = eit->second;
@@ -2074,11 +2070,6 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 					core.delayed_quick_tmp.erase(std::make_pair(peffect, *evit));
 					core.delayed_quick_break.erase(std::make_pair(peffect, *evit));
 				}
-			}
-			++evit;
-			if(pev && evit == core.point_event.end()) {
-				evit = core.instant_event.begin();
-				pev = false;
 			}
 		}
 		for(auto& ch : core.new_ochain_h) {

@@ -10,7 +10,6 @@
 
 #include "common.h"
 #ifdef WIN32
-#include <windows.h>
 #define DECL_DLLEXPORT __declspec(dllexport)
 #else
 #define DECL_DLLEXPORT
