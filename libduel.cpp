@@ -1360,15 +1360,15 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 	if(pgroup->container.size() <= 1)
 		return 0;
 	duel* pduel = pgroup->pduel;
-	card* ms[7];
-	uint8 seq[7];
+	card* ms[5];
+	uint8 seq[5];
 	uint8 tp = 2;
 	uint8 loc = 0;
 	uint8 ct = 0;
 	for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ++cit) {
 		card* pcard = *cit;
 		if((loc != 0 && (pcard->current.location != loc)) || (pcard->current.location != LOCATION_MZONE && pcard->current.location != LOCATION_SZONE)
-			|| (pcard->current.position & POS_FACEUP) || (pcard->current.location == LOCATION_SZONE && pcard->current.sequence > 4) || (tp != 2 && (pcard->current.controler != tp)))
+			|| (pcard->current.position & POS_FACEUP) || (pcard->current.sequence > 4) || (tp != 2 && (pcard->current.controler != tp)))
 			return 0;
 		tp = pcard->current.controler;
 		loc = pcard->current.location;
