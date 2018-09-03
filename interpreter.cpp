@@ -708,15 +708,25 @@ void interpreter::unregister_group(group *pgroup) {
 	luaL_unref(lua_state, LUA_REGISTRYINDEX, pgroup->ref_handle);
 	pgroup->ref_handle = 0;
 }
-int32 interpreter::load_script(char* script_name) {
+/*
+If no script_name is given, then the api will use the buffer as reference
+for the script name to load. If a script_name is given, the api will use
+the buffer and the len passed as the script buffer, without calling the
+script reader.
+*/
+int32 interpreter::load_script(char* buffer, int len, char* script_name) {
 	int32 error;
-	int32 len = 0;
-	byte* buffer = read_script(script_name, &len);
-	if (!buffer)
+	byte* buffer2 = nullptr;
+	if(!script_name)
+		buffer2 = read_script(buffer, &len);
+	if(!buffer && !buffer2)
 		return OPERATION_FAIL;
 	no_action++;
-	error = luaL_loadbuffer(current_state, (const char*) buffer, len, (const char*) script_name) || lua_pcall(current_state, 0, 0, 0);
-	if (error) {
+	if(script_name)
+		error = luaL_loadbuffer(current_state, (const char*)buffer, len, (const char*)script_name) || lua_pcall(current_state, 0, 0, 0);
+	else
+		error = luaL_loadbuffer(current_state, (const char*)buffer2, len, (const char*)buffer) || lua_pcall(current_state, 0, 0, 0);
+	if(error) {
 		interpreter::strcpy(pduel->strbuffer, lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);

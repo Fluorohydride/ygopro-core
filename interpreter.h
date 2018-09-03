@@ -55,7 +55,7 @@ public:
 	void register_group(group* pgroup);
 	void unregister_group(group* pgroup);
 
-	int32 load_script(char* buffer);
+	int32 load_script(char* buffer, int len = 0, char* script_name = nullptr);
 	int32 load_card_script(uint32 code);
 	void add_param(void* param, int32 type, bool front = false);
 	void add_param(ptr param, int32 type, bool front = false);
