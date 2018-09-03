@@ -1830,7 +1830,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		if (!(data.type & TYPE_NORMAL) || (data.type & TYPE_PENDULUM)) {
 			set_status(STATUS_INITIALIZING, TRUE);
 			pduel->lua->add_param(this, PARAM_TYPE_CARD);
-			pduel->lua->call_card_function(this, (char*) "initial_effect", 1, 0);
+			pduel->lua->call_card_function(this, "initial_effect", 1, 0);
 			set_status(STATUS_INITIALIZING, FALSE);
 		}
 	}
@@ -1879,7 +1879,7 @@ int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
 	pduel->game_field->core.copy_reset = reset;
 	pduel->game_field->core.copy_reset_count = count;
 	pduel->lua->add_param(this, PARAM_TYPE_CARD);
-	pduel->lua->call_code_function(code, (char*) "initial_effect", 1, 0);
+	pduel->lua->call_code_function(code, "initial_effect", 1, 0);
 	pduel->game_field->infos.copy_id++;
 	set_status(STATUS_COPYING_EFFECT, FALSE);
 	pduel->game_field->core.copy_reset = cr;
@@ -1922,7 +1922,7 @@ int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 	pduel->game_field->core.copy_reset_count = count;
 	set_status(STATUS_INITIALIZING | STATUS_COPYING_EFFECT, TRUE);
 	pduel->lua->add_param(this, PARAM_TYPE_CARD);
-	pduel->lua->call_code_function(code, (char*) "initial_effect", 1, 0);
+	pduel->lua->call_code_function(code, "initial_effect", 1, 0);
 	set_status(STATUS_INITIALIZING | STATUS_COPYING_EFFECT, FALSE);
 	pduel->game_field->infos.copy_id++;
 	pduel->game_field->core.copy_reset = cr;
