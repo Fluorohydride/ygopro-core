@@ -61,7 +61,7 @@ These functions create the game itself and then manipulate it.
 - `int32 query_field_info(ptr pduel, byte* buf);`
 - `void set_responsei(ptr pduel, int32 value);`
 - `void set_responseb(ptr pduel, byte* buf);`
-- `int32 preload_script(ptr pduel, char* script, int32 len);`
+- `int32 preload_script(ptr pduel, char* script, int32 len, int32 scriptlen = 0, char* scriptbuff = nullptr);` : load a script through the lua api of the core, can accept both a the path of a file to load, or directly a buffer with teh script itself.
 
 # Lua functions
 `interpreter.cpp`
