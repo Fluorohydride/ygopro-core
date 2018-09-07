@@ -4279,14 +4279,13 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			}
 			if(!(target->current.location & LOCATION_ONFIELD))
 				target->clear_relate_effect();
-		} else {
-			if(target->turnid != infos.turn_id) {
-				target->set_status(STATUS_SUMMON_TURN, FALSE);
-				target->set_status(STATUS_FLIP_SUMMON_TURN, FALSE);
-				target->set_status(STATUS_SPSUMMON_TURN, FALSE);
-				target->set_status(STATUS_SET_TURN, FALSE);
-				target->set_status(STATUS_FORM_CHANGED, FALSE);
-			}
+		}
+		if(ret != 1 || target->turnid != infos.turn_id) {
+			target->set_status(STATUS_SUMMON_TURN, FALSE);
+			target->set_status(STATUS_FLIP_SUMMON_TURN, FALSE);
+			target->set_status(STATUS_SPSUMMON_TURN, FALSE);
+			target->set_status(STATUS_SET_TURN, FALSE);
+			target->set_status(STATUS_FORM_CHANGED, FALSE);
 		}
 		target->temp.sequence = seq;
 		if(location != LOCATION_MZONE) {
