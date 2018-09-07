@@ -4464,6 +4464,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 					pcard->clear_card_target();
 					pcard->set_status(STATUS_SET_TURN, TRUE);
 					pcard->enable_field_effect(false);
+					pcard->previous.location = 0;
 					pcard->summon_info &= 0xdf00ffff;
 					if((pcard->summon_info & SUMMON_TYPE_PENDULUM) == SUMMON_TYPE_PENDULUM)
 						pcard->summon_info &= 0xf000ffff;
