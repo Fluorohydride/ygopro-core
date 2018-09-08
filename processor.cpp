@@ -2897,9 +2897,9 @@ int32 field::process_battle_command(uint16 step) {
 		} else if(ctype == 1) {
 			core.units.begin()->step = 2;
 			core.units.begin()->arg3 = FALSE;
-			card* attacker = core.attackable_cards[sel];
-			core.attacker = attacker;
+			core.attacker = core.attackable_cards[sel];
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, FALSE);
+			core.attacker->attack_controler = core.attacker->current.controler;
 			core.pre_field[0] = core.attacker->fieldid_r;
 			effect_set eset;
 			filter_player_effect(infos.turn_player, EFFECT_ATTACK_COST, &eset, FALSE);
@@ -2941,7 +2941,7 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 3: {
 		core.units.begin()->arg1 = FALSE;
-		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->current.controler != infos.turn_player || core.attacker->fieldid_r != core.pre_field[0]) {
+		if(core.attacker->is_status(STATUS_ATTACK_CANCELED)) {
 			core.units.begin()->arg3 = TRUE;
 			core.units.begin()->step = 6;
 			return FALSE;
@@ -3041,7 +3041,7 @@ int32 field::process_battle_command(uint16 step) {
 			check_card_counter(core.attacker, 5, infos.turn_player);
 			core.attacker->attack_announce_count++;
 		}
-		if(core.units.begin()->arg3) {
+		if(core.units.begin()->arg3) {//attack announce failed
 			core.attacker->announce_count++;
 			core.chain_attack = FALSE;
 			core.units.begin()->step = -1;
