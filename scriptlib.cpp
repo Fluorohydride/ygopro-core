@@ -7,7 +7,7 @@
 #include "scriptlib.h"
 #include "duel.h"
 
-int32 scriptlib::check_data_type(lua_State* L, int32 index, const char* tname) {
+static int32 check_data_type(lua_State* L, int32 index, const char* tname) {
 	int32 result = FALSE;
 	if(lua_getmetatable(L, index)) {
 		lua_getglobal(L, tname);
