@@ -435,40 +435,22 @@ int32 scriptlib::effect_get_operation(lua_State *L) {
 	interpreter::function2value(L, peffect->operation);
 	return 1;
 }
-// active_type is set in add_chain()
 int32 scriptlib::effect_get_active_type(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 atype;
-	if(peffect->type & 0x7f0) {
-		if(peffect->active_type)
-			atype = peffect->active_type;
-		else if((peffect->type & EFFECT_TYPE_ACTIVATE) && (peffect->get_handler()->data.type & TYPE_PENDULUM))
-			atype = TYPE_PENDULUM + TYPE_SPELL;
-		else
-			atype = peffect->get_handler()->get_type();
-	} else
-		atype = peffect->owner->get_type();
-	lua_pushinteger(L, atype);
+	lua_pushinteger(L, peffect->get_active_type());
 	return 1;
 }
 int32 scriptlib::effect_is_active_type(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 tpe = lua_tointeger(L, 2);
-	uint32 atype;
-	if(peffect->type & 0x7f0) {
-		if(peffect->active_type)
-			atype = peffect->active_type;
-		else if((peffect->type & EFFECT_TYPE_ACTIVATE) && (peffect->get_handler()->data.type & TYPE_PENDULUM))
-			atype = TYPE_PENDULUM + TYPE_SPELL;
-		else
-			atype = peffect->get_handler()->get_type();
-	} else
-		atype = peffect->owner->get_type();
-	lua_pushboolean(L, atype & tpe);
+	uint32 type = lua_tointeger(L, 2);
+	if(peffect->get_active_type() & type)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
 	return 1;
 }
 int32 scriptlib::effect_is_has_property(lua_State *L) {

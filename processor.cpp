@@ -1702,6 +1702,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				if(tp == core.current_player)
 					core.select_chains.push_back(*clit);
 			} else {
+				peffect->active_type = 0;
 				core.new_fchain_s.erase(clit++);
 				continue;
 			}
@@ -1794,6 +1795,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				if(tp == core.current_player)
 					core.select_chains.push_back(*clit);
 			} else {
+				peffect->active_type = 0;
 				core.new_ochain_s.erase(clit++);
 				continue;
 			}
@@ -1819,8 +1821,10 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 	}
 	case 6: {
 		if(returns.ivalue[0] == -1) {
-			for(const auto& ch : core.select_chains)
+			for(const auto& ch : core.select_chains) {
+				ch.triggering_effect->active_type = 0;
 				core.new_ochain_s.remove_if([chain_id = ch.chain_id](chain ch) { return ch.chain_id == chain_id; });
+			}
 			if(core.new_ochain_s.size()) {
 				core.current_player = 1 - infos.turn_player;
 				core.units.begin()->step = 3;
@@ -2432,6 +2436,7 @@ int32 field::process_single_event(effect* peffect, const tevent& e, chain_list& 
 			else
 				core.new_fchain.push_back(newchain);
 		}
+		peffect->set_active_type();
 		phandler->create_relation(newchain);
 		effect* deffect;
 		if(deffect = phandler->is_affected_by_effect(EFFECT_DISABLE_EFFECT)) {
@@ -4258,7 +4263,7 @@ int32 field::add_chain(uint16 step) {
 		peffect->card_type = phandler->get_type();
 		if((peffect->card_type & 0x5) == 0x5)
 			peffect->card_type -= TYPE_TRAP;
-		peffect->active_type = peffect->card_type;
+		peffect->set_active_type();
 		peffect->active_handler = peffect->handler->overlay_target;
 		clit.chain_count = core.current_chain.size() + 1;
 		clit.target_cards = 0;

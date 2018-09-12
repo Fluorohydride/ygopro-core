@@ -100,6 +100,8 @@ public:
 	int32 in_range(card* pcard);
 	int32 in_range(const chain& ch);
 	void set_activate_location();
+	void set_active_type();
+	uint32 get_active_type();
 	bool is_flag(effect_flag flag) const {
 		return !!(this->flag[0] & flag);
 	}
