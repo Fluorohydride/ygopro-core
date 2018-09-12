@@ -4388,7 +4388,7 @@ int32 field::add_chain(uint16 step) {
 			        && !phandler->is_affected_by_effect(EFFECT_REMAIN_FIELD))
 				phandler->set_status(STATUS_LEAVE_CONFIRMED, TRUE);
 		}
-		if((phandler->data.type & (TYPE_SPELL + TYPE_TRAP))
+		if(phandler->get_type() & (TYPE_SPELL + TYPE_TRAP)
 				&& (phandler->data.type & (TYPE_CONTINUOUS + TYPE_FIELD + TYPE_EQUIP + TYPE_PENDULUM))
 				&& phandler->is_has_relation(clit) && phandler->current.location == LOCATION_SZONE
 				&& !peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
