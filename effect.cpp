@@ -755,7 +755,7 @@ void effect::set_active_type() {
 	card* phandler = get_handler();
 	active_type = phandler->get_type();
 	if(active_type & TYPE_TRAPMONSTER)
-		active_type -= TYPE_TRAP;
+		active_type &= ~TYPE_TRAP;
 }
 uint32 effect::get_active_type() {
 	if(type & 0x7f0) {
