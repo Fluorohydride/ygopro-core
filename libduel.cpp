@@ -1597,25 +1597,45 @@ int32 scriptlib::duel_disable_summon(lua_State *L) {
 	check_param_count(L, 1);
 	card* pcard = 0;
 	group* pgroup = 0;
-	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE))
-		pcard = *(card**) lua_touserdata(L, 1);
-	else if(check_param(L, PARAM_TYPE_GROUP, 1, TRUE))
-		pgroup = *(group**) lua_touserdata(L, 1);
-	else
+	duel* pduel = 0;
+	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
+		pcard = *(card**)lua_touserdata(L, 1);
+		pduel = pcard->pduel;
+	} else if(check_param(L, PARAM_TYPE_GROUP, 1, TRUE)) {
+		pgroup = *(group**)lua_touserdata(L, 1);
+		pduel = pgroup->pduel;
+	} else
 		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
+	uint8 sumplayer;
 	if(pcard) {
+		sumplayer = pcard->summon_player;
 		pcard->set_status(STATUS_SUMMONING, FALSE);
 		pcard->set_status(STATUS_SUMMON_DISABLED, TRUE);
 		if((pcard->summon_info & SUMMON_TYPE_PENDULUM) != SUMMON_TYPE_PENDULUM)
 			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
 	} else {
 		for(auto& pcard : pgroup->container) {
+			sumplayer = pcard->summon_player;
 			pcard->set_status(STATUS_SUMMONING, FALSE);
 			pcard->set_status(STATUS_SUMMON_DISABLED, TRUE);
 			if((pcard->summon_info & SUMMON_TYPE_PENDULUM) != SUMMON_TYPE_PENDULUM)
 				pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
 		}
 	}
+	uint32 event_code = 0;
+	if(pduel->game_field->check_event(EVENT_SUMMON))
+		event_code = EVENT_SUMMON_NEGATED;
+	else if(pduel->game_field->check_event(EVENT_FLIP_SUMMON))
+		event_code = EVENT_FLIP_SUMMON_NEGATED;
+	else if(pduel->game_field->check_event(EVENT_SPSUMMON))
+		event_code = EVENT_SPSUMMON_NEGATED;
+	effect* reason_effect = pduel->game_field->core.reason_effect;
+	uint8 reason_player = pduel->game_field->core.reason_player;
+	if(pcard)
+		pduel->game_field->raise_event(pcard, event_code, reason_effect, REASON_EFFECT, reason_player, sumplayer, 0);
+	else
+		pduel->game_field->raise_event(&pgroup->container, event_code, reason_effect, REASON_EFFECT, reason_player, sumplayer, 0);
+	pduel->game_field->process_instant_event();
 	return 0;
 }
 int32 scriptlib::duel_increase_summon_count(lua_State *L) {
