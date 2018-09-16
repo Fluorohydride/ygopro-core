@@ -4229,9 +4229,22 @@ int32 field::add_chain(uint16 step) {
 				}
 			}
 			if(phandler->current.location == LOCATION_HAND) {
+				uint32 zone = 0xff;
+				if(!(phandler->data.type & (TYPE_FIELD+TYPE_PENDULUM)) && peffect->is_flag(EFFECT_FLAG_LIMIT_ZONE)) {
+					pduel->lua->add_param(clit.triggering_player, PARAM_TYPE_INT);
+					pduel->lua->add_param(clit.evt.event_cards , PARAM_TYPE_GROUP);
+					pduel->lua->add_param(clit.evt.event_player, PARAM_TYPE_INT);
+					pduel->lua->add_param(clit.evt.event_value, PARAM_TYPE_INT);
+					pduel->lua->add_param(clit.evt.reason_effect , PARAM_TYPE_EFFECT);
+					pduel->lua->add_param(clit.evt.reason, PARAM_TYPE_INT);
+					pduel->lua->add_param(clit.evt.reason_player, PARAM_TYPE_INT);
+					zone = peffect->get_value(7);
+					if(!zone)
+						zone = 0xff;
+				}
 				phandler->enable_field_effect(false);
 				phandler->set_status(STATUS_ACT_FROM_HAND, TRUE);
-				move_to_field(phandler, phandler->current.controler, phandler->current.controler, LOCATION_SZONE, POS_FACEUP);
+				move_to_field(phandler, phandler->current.controler, phandler->current.controler, LOCATION_SZONE, POS_FACEUP, FALSE, 0, FALSE, zone);
 			} else {
 				phandler->set_status(STATUS_ACT_FROM_HAND, FALSE);
 				change_position(phandler, 0, phandler->current.controler, POS_FACEUP, 0);
