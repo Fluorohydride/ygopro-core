@@ -4230,7 +4230,7 @@ int32 field::add_chain(uint16 step) {
 			}
 			if(phandler->current.location == LOCATION_HAND) {
 				uint32 zone = 0xff;
-				if(!(phandler->data.type & (TYPE_FIELD+TYPE_PENDULUM)) && peffect->is_flag(EFFECT_FLAG_LIMIT_ZONE)) {
+				if(!(phandler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && peffect->is_flag(EFFECT_FLAG_LIMIT_ZONE)) {
 					pduel->lua->add_param(clit.triggering_player, PARAM_TYPE_INT);
 					pduel->lua->add_param(clit.evt.event_cards , PARAM_TYPE_GROUP);
 					pduel->lua->add_param(clit.evt.event_player, PARAM_TYPE_INT);
@@ -4402,12 +4402,12 @@ int32 field::add_chain(uint16 step) {
 		}
 		if(peffect->type & EFFECT_TYPE_ACTIVATE) {
 			core.leave_confirmed.insert(phandler);
-			if(!(phandler->data.type & (TYPE_CONTINUOUS + TYPE_FIELD + TYPE_EQUIP + TYPE_PENDULUM))
+			if(!(phandler->data.type & (TYPE_CONTINUOUS | TYPE_FIELD | TYPE_EQUIP | TYPE_PENDULUM))
 			        && !phandler->is_affected_by_effect(EFFECT_REMAIN_FIELD))
 				phandler->set_status(STATUS_LEAVE_CONFIRMED, TRUE);
 		}
-		if(phandler->get_type() & (TYPE_SPELL + TYPE_TRAP)
-				&& (phandler->data.type & (TYPE_CONTINUOUS + TYPE_FIELD + TYPE_EQUIP + TYPE_PENDULUM))
+		if((phandler->get_type() & (TYPE_SPELL | TYPE_TRAP))
+				&& (phandler->data.type & (TYPE_CONTINUOUS | TYPE_FIELD | TYPE_EQUIP | TYPE_PENDULUM))
 				&& phandler->is_has_relation(clit) && phandler->current.location == LOCATION_SZONE
 				&& !peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 			clit.flag |= CHAIN_CONTINUOUS_CARD;
