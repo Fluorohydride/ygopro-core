@@ -3151,10 +3151,11 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 13: {
-		core.attacker->announce_count++;
-		core.attacker->announced_cards.addcard(core.attack_target);
-		if(core.attacker->fieldid_r == core.pre_field[0])
+		if(core.attacker->fieldid_r == core.pre_field[0]) {
+			core.attacker->announce_count++;
+			core.attacker->announced_cards.addcard(core.attack_target);
 			attack_all_target_check();
+		}
 		core.chain_attack = FALSE;
 		core.units.begin()->step = -1;
 		reset_phase(PHASE_DAMAGE);
