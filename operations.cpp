@@ -4374,6 +4374,32 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 					peffect->dec_count();
 				}
 			}
+			effect* teffect;
+			if(teffect = target->is_affected_by_effect(EFFECT_PRE_MONSTER)) {
+				uint32 type = teffect->value;
+				if(type & TYPE_TRAP)
+					type |= TYPE_TRAPMONSTER | target->data.type;
+				target->reset(EFFECT_PRE_MONSTER, RESET_CODE);
+				effect* peffect = pduel->new_effect();
+				peffect->owner = target;
+				peffect->type = EFFECT_TYPE_SINGLE;
+				peffect->code = EFFECT_CHANGE_TYPE;
+				peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
+				peffect->reset_flag = RESET_EVENT + 0x1fc0000;
+				peffect->value = TYPE_MONSTER | type;
+				target->add_effect(peffect);
+				if(type & TYPE_TRAPMONSTER) {
+					peffect = pduel->new_effect();
+					peffect->owner = target;
+					peffect->type = EFFECT_TYPE_FIELD;
+					peffect->range = LOCATION_MZONE;
+					peffect->code = EFFECT_USE_EXTRA_SZONE;
+					peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
+					peffect->reset_flag = RESET_EVENT + 0x1fe0000;
+					peffect->value = 1 + (0x10000 << target->previous.sequence);
+					target->add_effect(peffect);
+				}
+			}
 		}
 		if(enable || ((ret == 1) && target->is_position(POS_FACEUP)))
 			target->enable_field_effect(true);

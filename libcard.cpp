@@ -2775,37 +2775,6 @@ int32 scriptlib::card_add_monster_attribute(lua_State *L) {
 	return 0;
 }
 int32 scriptlib::card_add_monster_attribute_complete(lua_State *L) {
-	check_param_count(L, 1);
-	check_param(L, PARAM_TYPE_CARD, 1);
-	card* pcard = *(card**) lua_touserdata(L, 1);
-	effect* teffect = pcard->is_affected_by_effect(EFFECT_PRE_MONSTER);
-	if(!teffect)
-		return 0;
-	int32 type = teffect->value;
-	if(type & TYPE_TRAP) type |= TYPE_TRAPMONSTER | pcard->data.type;
-	pcard->reset(EFFECT_PRE_MONSTER, RESET_CODE);
-	duel* pduel = pcard->pduel;
-	// add type
-	effect* peffect = pduel->new_effect();
-	peffect->owner = pcard;
-	peffect->type = EFFECT_TYPE_SINGLE;
-	peffect->code = EFFECT_CHANGE_TYPE;
-	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
-	peffect->reset_flag = RESET_EVENT + 0x1fc0000;
-	peffect->value = TYPE_MONSTER | type;
-	pcard->add_effect(peffect);
-	// extra block
-	if(type & TYPE_TRAPMONSTER) {
-		peffect = pduel->new_effect();
-		peffect->owner = pcard;
-		peffect->type = EFFECT_TYPE_FIELD;
-		peffect->range = LOCATION_MZONE;
-		peffect->code = EFFECT_USE_EXTRA_SZONE;
-		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
-		peffect->reset_flag = RESET_EVENT + 0x1fe0000;
-		peffect->value = 1 + (0x10000 << pcard->previous.sequence);
-		pcard->add_effect(peffect);
-	}
 	return 0;
 }
 int32 scriptlib::card_cancel_to_grave(lua_State *L) {
