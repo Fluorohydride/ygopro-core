@@ -826,7 +826,18 @@ int32 field::process() {
 	}
 	case PROCESSOR_SELECT_SUM_S: {
 		if(it->step == 0) {
-			add_process(PROCESSOR_SELECT_SUM, 0, it->peffect, it->ptarget, it->arg1, it->arg2);
+			card_vector cv(core.must_select_cards);
+			int32 mcount = cv.size();
+			cv.insert(cv.end(), core.select_cards.begin(), core.select_cards.end());
+			int32 acc = it->arg1;
+			int32 min = (it->arg2 >> 16) & 0xff;
+			int32 max = (it->arg2 >> 24) & 0xff;
+			if(max && !check_with_sum_limit_m(cv, acc, 0, min, max, mcount)
+				|| !check_with_sum_greater_limit_m(cv, acc, 0, 0xffff, mcount)) {
+				core.must_select_cards.clear();
+				returns.bvalue[0] = 0;
+			} else
+				add_process(PROCESSOR_SELECT_SUM, 0, it->peffect, it->ptarget, it->arg1, it->arg2);
 			it->step++;
 		} else {
 			group* pgroup = pduel->new_group();

@@ -242,6 +242,7 @@ public:
 	void unequip();
 	int32 get_union_count();
 	int32 get_old_union_count();
+	void xyz_overlay(card* pcard);
 	void xyz_overlay(card_set* materials);
 	void xyz_add(card* mat, card_set* des);
 	void xyz_remove(card* mat);

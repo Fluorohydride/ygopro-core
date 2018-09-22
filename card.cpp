@@ -1534,6 +1534,11 @@ int32 card::get_old_union_count() {
 	}
 	return count;
 }
+void card::xyz_overlay(card* pcard) {
+	card_set materials;
+	materials.insert(pcard);
+	xyz_overlay(&materials);
+}
 void card::xyz_overlay(card_set* materials) {
 	if(materials->size() == 0)
 		return;
