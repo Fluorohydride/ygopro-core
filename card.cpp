@@ -667,9 +667,9 @@ int32 card::get_attack() {
 			temp.attack = get_defense();
 		}
 		for(int32 i = 0; i < effects_atk_r.size(); ++i) {
-			temp.attack = effects_atk_r[i]->get_value(this);
 			if(effects_atk_r[i]->is_flag(EFFECT_FLAG_REPEAT))
-				temp.attack = effects_atk_r[i]->get_value(this);
+				temp.attack = -1;
+			temp.attack = effects_atk_r[i]->get_value(this);
 		}
 	}
 	atk = temp.attack;
@@ -864,9 +864,9 @@ int32 card::get_defense() {
 			temp.defense = get_attack();
 		}
 		for(int32 i = 0; i < effects_def_r.size(); ++i) {
-			temp.defense = effects_def_r[i]->get_value(this);
 			if(effects_def_r[i]->is_flag(EFFECT_FLAG_REPEAT))
-				temp.defense = effects_def_r[i]->get_value(this);
+				temp.defense = -1;
+			temp.defense = effects_def_r[i]->get_value(this);
 		}
 	}
 	def = temp.defense;
