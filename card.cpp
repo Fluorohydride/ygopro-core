@@ -1534,11 +1534,6 @@ int32 card::get_old_union_count() {
 	}
 	return count;
 }
-void card::xyz_overlay(card* pcard) {
-	card_set materials;
-	materials.insert(pcard);
-	xyz_overlay(&materials);
-}
 void card::xyz_overlay(card_set* materials) {
 	if(materials->size() == 0)
 		return;
@@ -1571,6 +1566,11 @@ void card::xyz_overlay(card_set* materials) {
 		pduel->game_field->destroy(&des, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
 	else
 		pduel->game_field->adjust_instant();
+}
+void card::xyz_overlay(card* pcard) {
+	card_set materials;
+	materials.insert(pcard);
+	xyz_overlay(&materials);
 }
 void card::xyz_add(card* mat, card_set* des) {
 	if(mat->overlay_target == this)
