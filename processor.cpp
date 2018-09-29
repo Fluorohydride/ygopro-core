@@ -4249,8 +4249,6 @@ int32 field::add_chain(uint16 step) {
 				change_position(phandler, 0, phandler->current.controler, POS_FACEUP, 0);
 			}
 		}
-		if(phandler->current.location & (LOCATION_GRAVE | LOCATION_REMOVED))
-			move_card(phandler->current.controler, phandler, phandler->current.location, 0);
 		return FALSE;
 	}
 	case 1: {
