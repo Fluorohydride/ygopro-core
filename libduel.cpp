@@ -2831,15 +2831,11 @@ int32 scriptlib::duel_set_target_card(lua_State *L) {
 		}
 		if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
 			if(pcard) {
-				if(pcard->current.location & 0x30)
-					pduel->game_field->move_card(pcard->current.controler, pcard, pcard->current.location, 0);
 				pduel->write_buffer8(MSG_BECOME_TARGET);
 				pduel->write_buffer8(1);
 				pduel->write_buffer32(pcard->get_info_location());
 			} else {
 				for(auto& pcard : pgroup->container) {
-					if(pcard->current.location & 0x30)
-						pduel->game_field->move_card(pcard->current.controler, pcard, pcard->current.location, 0);
 					pduel->write_buffer8(MSG_BECOME_TARGET);
 					pduel->write_buffer8(1);
 					pduel->write_buffer32(pcard->get_info_location());

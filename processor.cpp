@@ -771,8 +771,6 @@ int32 field::process() {
 					if((returns.bvalue[0] > 0) && peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
 						for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 							card* pcard = core.select_cards[returns.bvalue[i + 1]];
-							if(pcard->current.location & 0x30)
-								move_card(pcard->current.controler, pcard, pcard->current.location, 0);
 							pduel->write_buffer8(MSG_BECOME_TARGET);
 							pduel->write_buffer8(1);
 							pduel->write_buffer32(pcard->get_info_location());
