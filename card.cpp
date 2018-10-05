@@ -1431,6 +1431,16 @@ int32 card::is_status(uint32 status) {
 		return TRUE;
 	return FALSE;
 }
+int32 card::is_not_tuner(card* scard) {
+	if(!(get_synchro_type() & TYPE_TUNER))
+		return TRUE;
+	effect_set eset;
+	filter_effect(EFFECT_NONTUNER, &eset);
+	for(int32 i = 0; i < eset.size(); ++i)
+		if(eset[i]->get_value(scard))
+			return TRUE;
+	return FALSE;
+}
 uint32 card::get_column_zone(int32 location) {
 	int32 zones = 0;
 	uint8 seq = current.sequence;

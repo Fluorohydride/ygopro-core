@@ -234,6 +234,7 @@ public:
 	void set_status(uint32 status, int32 enabled);
 	int32 get_status(uint32 status);
 	int32 is_status(uint32 status);
+	int32 is_not_tuner(card* scard);
 	uint32 get_column_zone(int32 location);
 	void get_column_cards(card_set* cset);
 	int32 is_all_column();
