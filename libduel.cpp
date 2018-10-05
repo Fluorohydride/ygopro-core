@@ -444,11 +444,9 @@ int32 scriptlib::duel_special_summon(lua_State *L) {
 	uint32 zone = 0xff;
 	if(lua_gettop(L) >= 8)
 		zone = lua_tointeger(L, 8);
-	if(pcard) {
-		field::card_set cset;
-		cset.insert(pcard);
-		pduel->game_field->special_summon(&cset, sumtype, sumplayer, playerid, nocheck, nolimit, positions, zone);
-	} else
+	if(pcard)
+		pduel->game_field->special_summon(pcard, sumtype, sumplayer, playerid, nocheck, nolimit, positions, zone);
+	else
 		pduel->game_field->special_summon(&(pgroup->container), sumtype, sumplayer, playerid, nocheck, nolimit, positions, zone);
 	pduel->game_field->core.subunits.back().type = PROCESSOR_SPSUMMON_S;
 	return lua_yield(L, 0);
@@ -639,9 +637,16 @@ int32 scriptlib::duel_change_form(lua_State *L) {
 	if(top > 5 && lua_toboolean(L, 6)) flag |= NO_FLIP_EFFECT;
 	if(top > 6 && lua_toboolean(L, 7)) flag |= FLIP_SET_AVAILABLE;
 	if(pcard) {
-		field::card_set cset;
-		cset.insert(pcard);
-		pduel->game_field->change_position(&cset, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, flag, TRUE);
+		uint32 npos;
+		if(pcard->current.position == POS_FACEUP_ATTACK)
+			npos = au;
+		else if(pcard->current.position == POS_FACEDOWN_DEFENSE)
+			npos = dd;
+		else if(pcard->current.position == POS_FACEUP_DEFENSE)
+			npos = du;
+		else
+			npos = ad;
+		pduel->game_field->change_position(pcard, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, npos, flag, TRUE);
 	} else
 		pduel->game_field->change_position(&(pgroup->container), pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, flag, TRUE);
 	pduel->game_field->core.subunits.back().type = PROCESSOR_CHANGEPOS_S;
@@ -1173,14 +1178,12 @@ int32 scriptlib::duel_equip(lua_State *L) {
 }
 int32 scriptlib::duel_equip_complete(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
-	field::card_set etargets;
 	for(auto& equip_card : pduel->game_field->core.equiping_cards) {
 		if(equip_card->is_position(POS_FACEUP))
 			equip_card->enable_field_effect(true);
-		etargets.insert(equip_card->equiping_target);
 	}
 	pduel->game_field->adjust_instant();
-	for(auto& equip_target : etargets)
+	for(auto& equip_target : pduel->game_field->core.equiping_cards)
 		pduel->game_field->raise_single_event(equip_target, &pduel->game_field->core.equiping_cards, EVENT_EQUIP,
 		                                      pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, PLAYER_NONE, 0);
 	pduel->game_field->raise_event(&pduel->game_field->core.equiping_cards, EVENT_EQUIP,
@@ -3017,11 +3020,9 @@ int32 scriptlib::duel_overlay(lua_State *L) {
 		pgroup = *(group**) lua_touserdata(L, 2);
 	} else
 		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
-	if(pcard) {
-		card::card_set cset;
-		cset.insert(pcard);
-		target->xyz_overlay(&cset);
-	} else
+	if(pcard)
+		target->xyz_overlay(pcard);
+	else
 		target->xyz_overlay(&pgroup->container);
 	if(target->current.location == LOCATION_MZONE)
 		target->pduel->game_field->adjust_all();
