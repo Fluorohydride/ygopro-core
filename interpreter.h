@@ -15,6 +15,7 @@
 #include <unordered_map>
 #include <list>
 #include <vector>
+#include <cstdio>
 #include <cstring>
 #include <cmath>
 
@@ -72,9 +73,9 @@ public:
 	static void set_duel_info(lua_State* L, duel* pduel);
 	static duel* get_duel_info(lua_State* L);
 
-	template <size_t N>
-	static char* strcpy(char (&dst)[N], const char* src) {
-		return std::strncpy(reinterpret_cast<char*>(&dst), src, N);
+	template <size_t N, typename... TR>
+	static int sprintf(char (&buffer)[N], const char* format, TR... args) {
+		return std::snprintf(buffer, N, format, args...);
 	}
 };
 
