@@ -1077,15 +1077,12 @@ int32 scriptlib::card_is_status(lua_State *L) {
 	return 1;
 }
 int32 scriptlib::card_is_not_tuner(lua_State *L) {
-	check_param_count(L, 1);
+	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
+	check_param(L, PARAM_TYPE_CARD, 2);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint32 type = pcard->get_synchro_type();
-	if(!(type & TYPE_TUNER) || pcard->is_affected_by_effect(EFFECT_NONTUNER))
-		lua_pushboolean(L, 1);
-	else
-		lua_pushboolean(L, 0);
-	return 1;
+	card* scard = *(card**) lua_touserdata(L, 2);
+	lua_pushboolean(L, pcard->is_not_tuner(scard));
 }
 int32 scriptlib::card_set_status(lua_State *L) {
 	check_param_count(L, 3);
