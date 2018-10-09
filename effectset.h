@@ -101,6 +101,7 @@ struct effect_set_v {
 	effect*& at(int index) {
 		return container[index];
 	}
+private:
 	std::vector<effect*> container;
 	int count;
 };

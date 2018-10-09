@@ -4906,7 +4906,7 @@ int32 field::refresh_location_info(uint16 step) {
 		return FALSE;
 	}
 	case 1: {
-		if(core.disfield_effects.count == 0) {
+		if(core.disfield_effects.size() == 0) {
 			core.units.begin()->step = 2;
 			return FALSE;
 		}
@@ -4940,7 +4940,7 @@ int32 field::refresh_location_info(uint16 step) {
 	}
 	case 3: {
 		// If the blocking number is not reached, we should block more slots.
-		if(core.extram_effects.count == 0) {
+		if(core.extram_effects.size() == 0) {
 			core.units.begin()->step = 4;
 			return FALSE;
 		}
@@ -4980,7 +4980,7 @@ int32 field::refresh_location_info(uint16 step) {
 	}
 	case 5: {
 		// EFFECT_USE_EXTRA_SZONE version
-		if(core.extras_effects.count == 0) {
+		if(core.extras_effects.size() == 0) {
 			core.units.begin()->step = 6;
 			return FALSE;
 		}
