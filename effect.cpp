@@ -52,9 +52,6 @@ effect::effect(duel* pd) {
 	value = 0;
 	operation = 0;
 }
-effect::~effect() {
-
-}
 int32 effect::is_disable_related() {
 	if (code == EFFECT_IMMUNE_EFFECT || code == EFFECT_DISABLE || code == EFFECT_CANNOT_DISABLE || code == EFFECT_FORBIDDEN)
 		return TRUE;

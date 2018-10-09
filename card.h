@@ -187,7 +187,7 @@ public:
 	effect_set_v immune_effect;
 
 	explicit card(duel* pd);
-	~card();
+	~card() = default;
 	static bool card_operation_sort(card* c1, card* c2);
 	const bool is_extra_deck_monster() { return !!(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK)); }
 

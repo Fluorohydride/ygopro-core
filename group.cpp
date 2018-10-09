@@ -25,6 +25,3 @@ group::group(duel* pd, const card_set& cset): container(cset) {
 	pduel = pd;
 	is_readonly = FALSE;
 }
-group::~group() {
-
-}

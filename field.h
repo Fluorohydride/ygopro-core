@@ -345,7 +345,7 @@ public:
 
 	static int32 field_used_count[32];
 	explicit field(duel* pduel);
-	~field();
+	~field() = default;
 	void reload_field_info();
 
 	void add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence, uint8 pzone = FALSE);

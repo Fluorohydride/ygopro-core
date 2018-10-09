@@ -31,7 +31,7 @@ public:
 	explicit group(duel* pd);
 	group(duel* pd, card* pcard);
 	group(duel* pd, const card_set& cset);
-	~group();
+	~group() = default;
 };
 
 #endif /* GROUP_H_ */

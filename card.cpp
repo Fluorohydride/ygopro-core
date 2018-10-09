@@ -99,18 +99,6 @@ card::card(duel* pd) {
 	spsummon_code = 0;
 	current.controler = PLAYER_NONE;
 }
-card::~card() {
-	indexer.clear();
-	relations.clear();
-	counters.clear();
-	equiping_cards.clear();
-	material_cards.clear();
-	single_effect.clear();
-	field_effect.clear();
-	equip_effect.clear();
-	xmaterial_effect.clear();
-	relate_effect.clear();
-}
 uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 	int32* p = (int32*)buf;
 	int32 tdata = 0;
