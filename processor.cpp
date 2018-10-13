@@ -1879,7 +1879,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 					newchain.triggering_effect = peffect;
 					newchain.set_triggering_place(phandler);
 					newchain.triggering_player = infos.turn_player;
-					core.select_chains.push_back(newchain);
+					core.tmp_chains.push_back(newchain);
 				}
 			}
 		}
@@ -2038,6 +2038,8 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 	}
 	case 2: {
 		chain newchain;
+		if(core.tmp_chains.size())
+			core.select_chains.swap(core.tmp_chains);
 		for(auto evit = core.point_event.begin(); evit != core.instant_event.end(); ++evit) {
 			if(evit == core.point_event.end())
 				evit = core.instant_event.begin();
