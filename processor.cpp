@@ -310,22 +310,22 @@ int32 field::process() {
 			it->step++;
 		return pduel->bufferlen;
 	}
-	case PROCESSOR_DESTROY_STEP: {
-		if(destroy(it->step, it->ptarget, (card*)it->ptr1, it->arg2))
+	case PROCESSOR_DESTROY_REPLACE: {
+		if(destroy_replace(it->step, it->ptarget, (card*)it->ptr1, it->arg2))
 			core.units.pop_front();
 		else
 			it->step++;
 		return pduel->bufferlen;
 	}
-	case PROCESSOR_RELEASE_STEP: {
-		if (release(it->step, it->ptarget, (card*)it->ptr1))
+	case PROCESSOR_RELEASE_REPLACE: {
+		if (release_replace(it->step, it->ptarget, (card*)it->ptr1))
 			core.units.pop_front();
 		else
 			it->step++;
 		return pduel->bufferlen;
 	}
-	case PROCESSOR_SENDTO_STEP: {
-		if (send_to(it->step, it->ptarget, (card*)it->ptr1))
+	case PROCESSOR_SENDTO_REPLACE: {
+		if (send_replace(it->step, it->ptarget, (card*)it->ptr1))
 			core.units.pop_front();
 		else
 			it->step++;

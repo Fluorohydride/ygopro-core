@@ -557,11 +557,11 @@ public:
 	int32 special_summon_rule(uint16 step, uint8 sumplayer, card* target, uint32 summon_type);
 	int32 special_summon_step(uint16 step, group* targets, card* target, uint32 zone);
 	int32 special_summon(uint16 step, effect* reason_effect, uint8 reason_player, group* targets, uint32 zone);
-	int32 destroy(uint16 step, group* targets, card* target, uint8 battle);
+	int32 destroy_replace(uint16 step, group* targets, card* target, uint8 battle);
 	int32 destroy(uint16 step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player);
-	int32 release(uint16 step, group* targets, card* target);
+	int32 release_replace(uint16 step, group* targets, card* target);
 	int32 release(uint16 step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player);
-	int32 send_to(uint16 step, group* targets, card* target);
+	int32 send_replace(uint16 step, group* targets, card* target);
 	int32 send_to(uint16 step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player);
 	int32 discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reason);
 	int32 move_to_field(uint16 step, card* target, uint32 enable, uint32 ret, uint32 is_equip, uint32 zone);
@@ -708,9 +708,9 @@ public:
 #define PROCESSOR_MOVETOFIELD		53
 #define PROCESSOR_CHANGEPOS			54
 #define PROCESSOR_OPERATION_REPLACE	55
-#define PROCESSOR_DESTROY_STEP		56
-#define PROCESSOR_RELEASE_STEP		57
-#define PROCESSOR_SENDTO_STEP		58
+#define PROCESSOR_DESTROY_REPLACE	56
+#define PROCESSOR_RELEASE_REPLACE	57
+#define PROCESSOR_SENDTO_REPLACE	58
 #define PROCESSOR_SUMMON_RULE		60
 #define PROCESSOR_SPSUMMON_RULE		61
 #define PROCESSOR_SPSUMMON			62
