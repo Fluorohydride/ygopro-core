@@ -3634,6 +3634,8 @@ int32 field::process_battle_command(uint16 step) {
 int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 	switch(step) {
 	case 0: {
+		if(core.effect_damage_step && !new_attack)
+			return TRUE;
 		core.effect_damage_step = 1;
 		card* tmp = core.attacker;
 		core.attacker = (card*)core.units.begin()->peffect;
