@@ -195,9 +195,6 @@ void field::special_summon_complete(effect* reason_effect, uint8 reason_player) 
 	//core.special_summoning.clear();
 	add_process(PROCESSOR_SPSUMMON_COMP_S, 0, reason_effect, ng, reason_player, 0);
 }
-// destroy: 1st arg is card or card_set=>card version, otherwise=>step version
-// destroy in script: here->PROCESSOR_DESTROY, step 0
-// set current.reason
 void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence) {
 	for(auto cit = targets->begin(); cit != targets->end();) {
 		card* pcard = *cit;
@@ -253,8 +250,6 @@ void field::release(card* target, effect* reason_effect, uint32 reason, uint32 r
 	tset.insert(target);
 	release(&tset, reason_effect, reason, reason_player);
 }
-// set current.reason, sendto_param
-// send-to in scripts: here->PROCESSOR_SENDTO, step 0
 void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence, uint32 position) {
 	if(destination & LOCATION_ONFIELD)
 		return;

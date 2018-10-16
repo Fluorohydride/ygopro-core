@@ -230,8 +230,8 @@ struct processor {
 	card_set set_group_pre_set;
 	card_set set_group_set;
 	effect_set_v disfield_effects;
-	effect_set_v extram_effects;
-	effect_set_v extras_effects;
+	effect_set_v extra_mzone_effects;
+	effect_set_v extra_szone_effects;
 	std::set<effect*> reseted_effects;
 	std::unordered_map<card*, uint32> readjust_map;
 	std::unordered_set<card*> unique_cards[2];
