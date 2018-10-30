@@ -2538,12 +2538,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 	case 3: {
 		effect* peffect = core.units.begin()->peffect;
 		target->material_cards.clear();
-		std::vector<int32> retval;
-		peffect->get_value(target, 0, &retval);
-		uint32 summon_info = retval.size() > 0 ? retval[0] : 0;
-		uint32 zone = retval.size() > 1 ? retval[1] : 0xff;
-		core.units.begin()->arg3 = zone;
-		target->summon_info = (summon_info & 0xf00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)target->current.location << 16);
 		if(peffect->operation) {
 			pduel->lua->add_param(target, PARAM_TYPE_CARD);
 			if(core.limit_tuner || core.limit_syn) {
@@ -2581,7 +2575,11 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		}
 		if(positions == 0)
 			positions = POS_FACEUP_ATTACK;
-		uint32 zone = core.units.begin()->arg3;
+		std::vector<int32> retval;
+		peffect->get_value(target, 0, &retval);
+		uint32 summon_info = retval.size() > 0 ? retval[0] : 0;
+		uint32 zone = retval.size() > 1 ? retval[1] : 0xff;
+		target->summon_info = (summon_info & 0xf00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)target->current.location << 16);
 		target->enable_field_effect(false);
 		move_to_field(target, sumplayer, targetplayer, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
 		target->current.reason = REASON_SPSUMMON;
