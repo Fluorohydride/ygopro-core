@@ -1740,8 +1740,9 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				clit->set_triggering_place(phandler);
 			if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && (peffect->type & EFFECT_TYPE_FIELD)
 				&& (peffect->range & LOCATION_HAND) && phandler->current.location == LOCATION_HAND) {
-				if(!phandler->is_has_relation(*clit))
+				if(!phandler->is_has_relation(*clit) && peffect->is_condition_check(phandler->current.controler, clit->evt))
 					phandler->create_relation(*clit);
+				peffect->set_activate_location();
 				clit->triggering_player = phandler->current.controler;
 				clit->set_triggering_place(phandler);
 			}
@@ -2075,8 +2076,9 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 			card* phandler = peffect->get_handler();
 			if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && (peffect->type & EFFECT_TYPE_FIELD)
 				&& (peffect->range & LOCATION_HAND) && phandler->current.location == LOCATION_HAND) {
-				if(!phandler->is_has_relation(ch))
+				if(!phandler->is_has_relation(ch) && peffect->is_condition_check(phandler->current.controler, ch.evt))
 					phandler->create_relation(ch);
+				peffect->set_activate_location();
 				ch.triggering_player = phandler->current.controler;
 				ch.set_triggering_place(phandler);
 			}
@@ -2263,7 +2265,8 @@ int32 field::process_instant_event() {
 			newchain.set_triggering_place(phandler);
 			if(peffect->is_flag(EFFECT_FLAG_EVENT_PLAYER) && (ev.event_player == 0 || ev.event_player == 1))
 				newchain.triggering_player = ev.event_player;
-			else newchain.triggering_player = phandler->current.controler;
+			else
+				newchain.triggering_player = phandler->current.controler;
 			core.new_fchain.push_back(newchain);
 			phandler->create_relation(newchain);
 		}
@@ -2272,7 +2275,8 @@ int32 field::process_instant_event() {
 			effect* peffect = eit->second;
 			++eit;
 			card* phandler = peffect->get_handler();
-			if(!phandler->is_status(STATUS_EFFECT_ENABLED) || !peffect->is_condition_check(phandler->current.controler, ev))
+			bool act = phandler->is_status(STATUS_EFFECT_ENABLED) && peffect->is_condition_check(phandler->current.controler, ev);
+			if(!act && !(peffect->range & LOCATION_HAND))
 				continue;
 			peffect->set_activate_location();
 			newchain.flag = 0;
@@ -2282,11 +2286,12 @@ int32 field::process_instant_event() {
 			newchain.set_triggering_place(phandler);
 			if(peffect->is_flag(EFFECT_FLAG_EVENT_PLAYER) && (ev.event_player == 0 || ev.event_player == 1))
 				newchain.triggering_player = ev.event_player;
-			else newchain.triggering_player = phandler->current.controler;
+			else
+				newchain.triggering_player = phandler->current.controler;
 			core.new_ochain.push_back(newchain);
 			if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)
-			        || ((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))
-			        || !(peffect->range & LOCATION_HAND) || (peffect->range & phandler->current.location))
+				|| !(peffect->range & LOCATION_HAND)
+				|| (peffect->range & phandler->current.location) && act)
 				phandler->create_relation(newchain);
 		}
 		//instant_f
@@ -2304,7 +2309,8 @@ int32 field::process_instant_event() {
 				newchain.set_triggering_place(phandler);
 				if(peffect->is_flag(EFFECT_FLAG_EVENT_PLAYER) && (ev.event_player == 0 || ev.event_player == 1))
 					newchain.triggering_player = ev.event_player;
-				else newchain.triggering_player = phandler->current.controler;
+				else
+					newchain.triggering_player = phandler->current.controler;
 				core.quick_f_chain[peffect] = newchain;
 				phandler->create_relation(newchain);
 			}
