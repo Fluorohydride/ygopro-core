@@ -188,16 +188,14 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 	}
 	if(query_flag & QUERY_OWNER)
 		*p++ = owner;
-	if(query_flag & QUERY_IS_DISABLED) {
-		tdata = (status & (STATUS_DISABLED | STATUS_FORBIDDEN)) ? 1 : 0;
-		if(!use_cache || (tdata != q_cache.is_disabled)) {
-			q_cache.is_disabled = tdata;
+	if(query_flag & QUERY_STATUS) {
+		tdata = status & (STATUS_DISABLED | STATUS_FORBIDDEN | STATUS_PROC_COMPLETE);
+		if(!use_cache || (tdata != q_cache.status)) {
+			q_cache.status = tdata;
 			*p++ = tdata;
 		} else
-			query_flag &= ~QUERY_IS_DISABLED;
+			query_flag &= ~QUERY_STATUS;
 	}
-	if(query_flag & QUERY_IS_PUBLIC)
-		*p++ = is_position(POS_FACEUP) ? 1 : 0;
 	if(!use_cache) {
 		if(query_flag & QUERY_LSCALE) q_cache.lscale = *p++ = get_lscale();
 		if(query_flag & QUERY_RSCALE) q_cache.rscale = *p++ = get_rscale();
