@@ -237,6 +237,8 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			} else if(handler->current.location == LOCATION_SZONE) {
 				if((handler->data.type & TYPE_TRAP) && handler->get_status(STATUS_SET_TURN))
 					ecode = EFFECT_TRAP_ACT_IN_SET_TURN;
+				if((handler->data.type & TYPE_SPELL) && (handler->data.type & TYPE_QUICKPLAY) && handler->get_status(STATUS_SET_TURN))
+					ecode = EFFECT_QP_ACT_IN_SET_TURN;
 			}
 			if(ecode) {
 				bool available = false;
