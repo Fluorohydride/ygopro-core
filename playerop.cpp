@@ -326,6 +326,8 @@ int32 field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 fo
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
 			if(core.select_chains.size() == 0)
 				returns.ivalue[0] = -1;
+			else if(forced)
+				returns.ivalue[0] = 0;
 			else {
 				bool act = true;
 				for(const auto& ch : core.current_chain)
