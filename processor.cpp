@@ -4208,6 +4208,8 @@ int32 field::add_chain(uint16 step) {
 			} else if(phandler->current.location == LOCATION_SZONE) {
 				if((phandler->data.type & TYPE_TRAP) && phandler->get_status(STATUS_SET_TURN))
 					ecode = EFFECT_TRAP_ACT_IN_SET_TURN;
+				if((phandler->data.type & TYPE_SPELL) && (phandler->data.type & TYPE_QUICKPLAY) && phandler->get_status(STATUS_SET_TURN))
+					ecode = EFFECT_QP_ACT_IN_SET_TURN;
 			}
 			if(ecode) {
 				eset.clear();
