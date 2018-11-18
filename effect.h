@@ -218,7 +218,6 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_TRAP_ACT_IN_SET_TURN		16	//
 #define EFFECT_REMAIN_FIELD				17	//
 #define EFFECT_MONSTER_SSET				18	//
-#define EFFECT_QP_ACT_IN_SET_TURN		19	//
 #define EFFECT_CANNOT_SUMMON			20	//
 #define EFFECT_CANNOT_FLIP_SUMMON		21	//
 #define EFFECT_CANNOT_SPECIAL_SUMMON	22	//
@@ -440,6 +439,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 //#define EFFECT_ADD_LINK_SETCODE			355
 #define EFFECT_ADD_LINK_ATTRIBUTE		356
 #define EFFECT_ADD_LINK_RACE				357
+#define EFFECT_QP_ACT_IN_SET_TURN		358	//
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
