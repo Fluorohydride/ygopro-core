@@ -439,7 +439,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 //#define EFFECT_ADD_LINK_SETCODE			355
 #define EFFECT_ADD_LINK_ATTRIBUTE		356
 #define EFFECT_ADD_LINK_RACE				357
-#define EFFECT_QP_ACT_IN_SET_TURN		358	//
+#define EFFECT_EXTRA_LINK_MATERIAL		358
+#define EFFECT_QP_ACT_IN_SET_TURN		359
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
