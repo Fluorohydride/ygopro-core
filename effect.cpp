@@ -206,10 +206,6 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 					return FALSE;
 				if(handler->equiping_target)
 					return FALSE;
-				if(handler->get_status(STATUS_SET_TURN)) {
-					if((handler->data.type & TYPE_SPELL) && (handler->data.type & TYPE_QUICKPLAY))
-						return FALSE;
-				}
 				if(!(handler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && is_flag(EFFECT_FLAG_LIMIT_ZONE) && !(zone & (1u << handler->current.sequence)))
 					return FALSE;
 			} else {
