@@ -2925,7 +2925,6 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 			core.special_summoning.insert(target);
 		target->enable_field_effect(false);
 		check_card_counter(target, 3, target->summon_player);
-		uint32 move_player = (target->data.type & TYPE_TOKEN) ? target->owner : target->summon_player;
 		if(targets && core.duel_rule >= 4) {
 			uint32 flag1, flag2;
 			int32 ct1 = get_tofield_count(target, playerid, LOCATION_MZONE, target->summon_player, LOCATION_REASON_TOFIELD, zone, &flag1);
@@ -2944,7 +2943,7 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 					zone &= flag1;
 			}
 		}
-		move_to_field(target, move_player, playerid, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
+		move_to_field(target, target->summon_player, playerid, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
 		return FALSE;
 	}
 	case 2: {
