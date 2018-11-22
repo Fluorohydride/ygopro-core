@@ -3242,6 +3242,45 @@ int32 field::get_cteffect_evt(effect* feffect, int32 playerid, const tevent& e, 
 	}
 	return TRUE;
 }
+int32 field::check_cteffect_hint(effect* peffect, uint8 playerid) {
+	card* phandler = peffect->get_handler();
+	if(phandler->data.type != (TYPE_TRAP | TYPE_CONTINUOUS))
+		return FALSE;
+	if(!(peffect->type & EFFECT_TYPE_ACTIVATE))
+		return FALSE;
+	if(peffect->code != EVENT_FREE_CHAIN)
+		return FALSE;
+	if(peffect->cost || peffect->target || peffect->operation)
+		return FALSE;
+	for(auto& efit : phandler->field_effect) {
+		effect* feffect = efit.second;
+		if(!(feffect->type & (EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_QUICK_O)))
+			continue;
+		if(!feffect->in_range(phandler))
+			continue;
+		uint32 code = efit.first;
+		if(code == EVENT_FREE_CHAIN || code == EVENT_PHASE + infos.phase) {
+			nil_event.event_code = code;
+			if(get_cteffect_evt(feffect, playerid, nil_event, FALSE)
+				&& (code != EVENT_FREE_CHAIN || check_hint_timing(feffect)))
+				return TRUE;
+		} else {
+			for(const auto& ev : core.point_event) {
+				if(code != ev.event_code)
+					continue;
+				if(get_cteffect_evt(feffect, playerid, ev, FALSE))
+					return TRUE;
+			}
+			for(const auto& ev : core.instant_event) {
+				if(code != ev.event_code)
+					continue;
+				if(get_cteffect_evt(feffect, playerid, ev, FALSE))
+					return TRUE;
+			}
+		}
+	}
+	return FALSE;
+}
 int32 field::is_able_to_enter_bp() {
 	return ((core.duel_options & DUEL_ATTACK_FIRST_TURN) || infos.turn_id != 1)
 	        && infos.phase < PHASE_BATTLE_START

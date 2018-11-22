@@ -468,6 +468,7 @@ public:
 	chain* get_chain(uint32 chaincount);
 	int32 get_cteffect(effect* peffect, int32 playerid, int32 store);
 	int32 get_cteffect_evt(effect* feffect, int32 playerid, const tevent& e, int32 store);
+	int32 check_cteffect_hint(effect* peffect, uint8 playerid);
 	int32 is_able_to_enter_bp();
 
 	void add_process(uint16 type, uint16 step, effect* peffect, group* target, ptr arg1, ptr arg2, ptr arg3 = 0, ptr arg4 = 0, void* ptr1 = NULL, void* ptr2 = NULL);
