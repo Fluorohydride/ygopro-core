@@ -2798,6 +2798,15 @@ int32 scriptlib::duel_set_must_select_cards(lua_State *L) {
 		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	return 0;
 }
+int32 scriptlib::duel_grab_must_select_cards(lua_State *L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	group* pgroup = pduel->new_group();
+	if(pduel->game_field->core.must_select_cards.size())
+		pgroup->container.insert(pduel->game_field->core.must_select_cards.begin(), pduel->game_field->core.must_select_cards.end());
+	pduel->game_field->core.must_select_cards.clear();
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
 int32 scriptlib::duel_set_target_card(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 1);
@@ -3091,11 +3100,17 @@ int32 scriptlib::duel_hint(lua_State * L) {
 	if(htype == HINT_OPSELECTED)
 		playerid = 1 - playerid;
 	duel* pduel = interpreter::get_duel_info(L);
+	pduel->game_field->infos.last_desc = desc;
 	pduel->write_buffer8(MSG_HINT);
 	pduel->write_buffer8(htype);
 	pduel->write_buffer8(playerid);
 	pduel->write_buffer32(desc);
 	return 0;
+}
+int32 scriptlib::duel_get_last_hint(lua_State *L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	lua_pushinteger(L, pduel->game_field->infos.last_desc);
+	return 1;
 }
 int32 scriptlib::duel_hint_selection(lua_State *L) {
 	check_param_count(L, 1);

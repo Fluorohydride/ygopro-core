@@ -42,6 +42,7 @@ field::field(duel* pduel) {
 	infos.card_id = 1;
 	infos.phase = 0;
 	infos.turn_player = 0;
+	infos.last_desc = 0;
 	for (int32 i = 0; i < 2; ++i) {
 		//cost[i].count = 0;
 		//cost[i].amount = 0;
