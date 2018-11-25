@@ -594,6 +594,8 @@ void effect::dec_count(uint32 playerid) {
 		return;
 	if(count_limit == 0)
 		return;
+	if(count_code == 0 || is_flag(EFFECT_FLAG_NO_TURN_RESET))
+		count_limit -= 1;
 	if(count_code) {
 		uint32 code = count_code & 0xfffffff;
 		if(code == 1)
@@ -601,8 +603,6 @@ void effect::dec_count(uint32 playerid) {
 		else
 			pduel->game_field->add_effect_code(count_code, playerid);
 	}
-	else
-		count_limit -= 1;
 }
 void effect::recharge() {
 	if(is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
