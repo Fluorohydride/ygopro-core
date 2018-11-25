@@ -525,7 +525,6 @@ static const struct luaL_Reg duellib[] = {
 	{ "CheckRemoveOverlayCard", scriptlib::duel_check_remove_overlay_card },
 	{ "RemoveOverlayCard", scriptlib::duel_remove_overlay_card },
 	{ "Hint", scriptlib::duel_hint },
-	{ "GetLastHint", scriptlib::duel_get_last_hint },
 	{ "HintSelection", scriptlib::duel_hint_selection },
 	{ "SelectEffectYesNo", scriptlib::duel_select_effect_yesno },
 	{ "SelectYesNo", scriptlib::duel_select_yesno },

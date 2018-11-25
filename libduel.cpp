@@ -3100,17 +3100,11 @@ int32 scriptlib::duel_hint(lua_State * L) {
 	if(htype == HINT_OPSELECTED)
 		playerid = 1 - playerid;
 	duel* pduel = interpreter::get_duel_info(L);
-	pduel->game_field->infos.last_desc = desc;
 	pduel->write_buffer8(MSG_HINT);
 	pduel->write_buffer8(htype);
 	pduel->write_buffer8(playerid);
 	pduel->write_buffer32(desc);
 	return 0;
-}
-int32 scriptlib::duel_get_last_hint(lua_State *L) {
-	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushinteger(L, pduel->game_field->infos.last_desc);
-	return 1;
 }
 int32 scriptlib::duel_hint_selection(lua_State *L) {
 	check_param_count(L, 1);

@@ -520,7 +520,6 @@ public:
 	static int32 duel_remove_overlay_card(lua_State *L);
 
 	static int32 duel_hint(lua_State *L);
-	static int32 duel_get_last_hint(lua_State *L);
 	static int32 duel_hint_selection(lua_State *L);
 	static int32 duel_select_effect_yesno(lua_State *L);
 	static int32 duel_select_yesno(lua_State *L);

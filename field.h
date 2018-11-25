@@ -123,7 +123,6 @@ struct field_info {
 	uint8 turn_player;
 	uint8 priorities[2];
 	uint8 can_shuffle;
-	int32 last_desc;
 };
 struct lpcost {
 	int32 count;
