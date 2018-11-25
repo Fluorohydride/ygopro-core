@@ -3281,6 +3281,60 @@ int32 field::check_cteffect_hint(effect* peffect, uint8 playerid) {
 	}
 	return FALSE;
 }
+int32 field::check_deck_effect(chain& ch) const {
+	effect* peffect = ch.triggering_effect;
+	card* phandler = peffect->get_handler();
+	if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)
+		&& ch.triggering_location == LOCATION_DECK && (phandler->current.location & LOCATION_DECK)) {
+		if((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)
+			&& peffect->code == EVENT_TO_DECK || (peffect->range & LOCATION_DECK)) {
+			ch.flag |= CHAIN_DECK_EFFECT;
+		} else
+			return FALSE;
+	}
+	return TRUE;
+}
+int32 field::check_hand_trigger(chain& ch) {
+	effect* peffect = ch.triggering_effect;
+	card* phandler = peffect->get_handler();
+	if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)
+		&& ((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)
+			&& phandler->is_has_relation(ch) && ch.triggering_location == LOCATION_HAND
+			|| (peffect->range & LOCATION_HAND))) {
+		ch.flag |= CHAIN_HAND_TRIGGER;
+		core.new_ochain_h.push_back(ch);
+		if(ch.triggering_location == LOCATION_HAND && phandler->is_position(POS_FACEDOWN)
+			|| peffect->range && !peffect->in_range(ch))
+			return FALSE;
+	}
+	return TRUE;
+}
+int32 field::check_trigger_effect(const chain& ch) const {
+	effect* peffect = ch.triggering_effect;
+	card* phandler = peffect->get_handler();
+	if((peffect->type & EFFECT_TYPE_FIELD) && !phandler->is_has_relation(ch))
+		return FALSE;
+	if(peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE)
+		return TRUE;
+	if((ch.triggering_location & (LOCATION_DECK | LOCATION_HAND | LOCATION_EXTRA))
+		&& (ch.triggering_position & POS_FACEDOWN))
+		return TRUE;
+	if(!(phandler->current.location & (LOCATION_DECK | LOCATION_HAND | LOCATION_EXTRA))
+		|| phandler->is_position(POS_FACEUP))
+		return TRUE;
+	return FALSE;
+}
+int32 field::check_spself_from_hand_trigger(const chain& ch) const {
+	effect* peffect = ch.triggering_effect;
+	uint8 tp = ch.triggering_player;
+	if((peffect->status & EFFECT_STATUS_SPSELF) && (ch.flag & CHAIN_HAND_TRIGGER)) {
+		return std::none_of(core.current_chain.begin(), core.current_chain.end(), [tp](chain ch) {
+			return ch.triggering_player == tp
+				&& (ch.triggering_effect->status & EFFECT_STATUS_SPSELF) && (ch.flag & CHAIN_HAND_TRIGGER);
+		});
+	}
+	return TRUE;
+}
 int32 field::is_able_to_enter_bp() {
 	return ((core.duel_options & DUEL_ATTACK_FIRST_TURN) || infos.turn_id != 1)
 	        && infos.phase < PHASE_BATTLE_START
