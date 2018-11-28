@@ -2798,6 +2798,15 @@ int32 scriptlib::duel_set_must_select_cards(lua_State *L) {
 		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	return 0;
 }
+int32 scriptlib::duel_grab_must_select_cards(lua_State *L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	group* pgroup = pduel->new_group();
+	if(pduel->game_field->core.must_select_cards.size())
+		pgroup->container.insert(pduel->game_field->core.must_select_cards.begin(), pduel->game_field->core.must_select_cards.end());
+	pduel->game_field->core.must_select_cards.clear();
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
 int32 scriptlib::duel_set_target_card(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 1);
