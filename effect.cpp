@@ -594,7 +594,8 @@ void effect::dec_count(uint32 playerid) {
 		return;
 	if(count_limit == 0)
 		return;
-	count_limit -= 1;
+	if(count_code == 0 || is_flag(EFFECT_FLAG_NO_TURN_RESET))
+		count_limit -= 1;
 	if(count_code) {
 		uint32 code = count_code & 0xfffffff;
 		if(code == 1)
