@@ -97,6 +97,36 @@ int32 scriptlib::debug_pre_summon(lua_State *L) {
 	if(lua_gettop(L) > 2)
 		summon_location = lua_tointeger(L, 3);
 	pcard->summon_info = summon_type | (summon_location << 16);
+	effect* teffect;
+	if(teffect = pcard->is_affected_by_effect(EFFECT_PRE_MONSTER)) {
+		uint32 type = teffect->value;
+		if(type & TYPE_TRAP)
+			type |= TYPE_TRAPMONSTER | pcard->data.type;
+		uint8 summon_sequence = 0;
+		if(lua_gettop(L) > 3)
+			summon_sequence = lua_tointeger(L, 4);
+		pcard->reset(EFFECT_PRE_MONSTER, RESET_CODE);
+		duel* pduel = pcard->pduel;
+		effect* peffect = pduel->new_effect();
+		peffect->owner = pcard;
+		peffect->type = EFFECT_TYPE_SINGLE;
+		peffect->code = EFFECT_CHANGE_TYPE;
+		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
+		peffect->reset_flag = RESET_EVENT + 0x1fc0000;
+		peffect->value = TYPE_MONSTER | type;
+		pcard->add_effect(peffect);
+		if(type & TYPE_TRAPMONSTER) {
+			peffect = pduel->new_effect();
+			peffect->owner = pcard;
+			peffect->type = EFFECT_TYPE_FIELD;
+			peffect->range = LOCATION_MZONE;
+			peffect->code = EFFECT_USE_EXTRA_SZONE;
+			peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
+			peffect->reset_flag = RESET_EVENT + 0x1fe0000;
+			peffect->value = 1 + (0x10000 << summon_sequence);
+			pcard->add_effect(peffect);
+		}
+	}
 	return 0;
 }
 int32 scriptlib::debug_pre_equip(lua_State *L) {
