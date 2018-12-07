@@ -2069,6 +2069,32 @@ void field::check_card_counter(card* pcard, int32 counter_type, int32 playerid) 
 		}
 	}
 }
+void field::check_card_counter(group* pgroup, int32 counter_type, int32 playerid) {
+	auto& counter_map = (counter_type == 1) ? core.summon_counter :
+						(counter_type == 2) ? core.normalsummon_counter :
+						(counter_type == 3) ? core.spsummon_counter :
+						(counter_type == 4) ? core.flipsummon_counter : core.attack_counter;
+	for(auto& iter : counter_map) {
+		auto& info = iter.second;
+		if((playerid == 0) && (info.second & 0xffff) != 0)
+			continue;
+		if((playerid == 1) && (info.second & 0xffff0000) != 0)
+			continue;
+		if(info.first) {
+			for(auto& pcard : pgroup->container) {
+				pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+				if(!pduel->lua->check_condition(info.first, 1)) {
+					if(playerid == 0)
+						info.second += 0x1;
+					else
+						info.second += 0x10000;
+					break;
+				}
+			}
+		}
+	}
+}
+
 void field::check_chain_counter(effect* peffect, int32 playerid, int32 chainid, bool cancel) {
 	for(auto& iter : core.chain_counter) {
 		auto& info = iter.second;

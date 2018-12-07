@@ -416,6 +416,7 @@ public:
 	effect* check_unique_onfield(card* pcard, uint8 controler, uint8 location, card* icard = 0);
 	int32 check_spsummon_once(card* pcard, uint8 playerid);
 	void check_card_counter(card* pcard, int32 counter_type, int32 playerid);
+	void check_card_counter(group* pgroup, int32 counter_type, int32 playerid);
 	void check_chain_counter(effect* peffect, int32 playerid, int32 chainid, bool cancel = false);
 	void set_spsummon_counter(uint8 playerid, bool add = true, bool chain = false);
 	int32 check_spsummon_counter(uint8 playerid, uint8 ct = 1);
