@@ -4560,7 +4560,7 @@ int32 field::operation_replace(uint16 step, effect* replace_effect, group* targe
 			target->current.reason_player = target->temp.reason_player;
 			if(is_destroy)
 				core.destroy_canceled.insert(target);
-			replace_effect->dec_count();
+			replace_effect->dec_count(replace_effect->get_handler_player());
 		} else
 			core.units.begin()->step = 2;
 		return FALSE;
@@ -4627,7 +4627,7 @@ int32 field::operation_replace(uint16 step, effect* replace_effect, group* targe
 					targets->container.erase(rm);
 				}
 			}
-			replace_effect->dec_count();
+			replace_effect->dec_count(replace_effect->get_handler_player());
 		} else
 			core.units.begin()->step = 7;
 		return FALSE;
@@ -4689,7 +4689,7 @@ int32 field::operation_replace(uint16 step, effect* replace_effect, group* targe
 			target->current.reason_player = target->temp.reason_player;
 			if(is_destroy)
 				core.destroy_canceled.insert(target);
-			replace_effect->dec_count();
+			replace_effect->dec_count(replace_effect->get_handler_player());
 			core.desrep_chain.push_back(core.continuous_chain.front());
 		}
 		core.continuous_chain.pop_front();
@@ -4738,7 +4738,7 @@ int32 field::operation_replace(uint16 step, effect* replace_effect, group* targe
 					targets->container.erase(rm);
 				}
 			}
-			replace_effect->dec_count();
+			replace_effect->dec_count(replace_effect->get_handler_player());
 			core.desrep_chain.push_back(core.continuous_chain.front());
 		}
 		core.continuous_chain.pop_front();
