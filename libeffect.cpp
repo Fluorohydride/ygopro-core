@@ -188,13 +188,13 @@ int32 scriptlib::effect_set_label_object(lua_State *L) {
 		return 0;
 	}
 	if(check_param(L, PARAM_TYPE_CARD, 2, TRUE)) {
-		card* p = *(card**)lua_touserdata(L, 2);
+		card* p = *(card**) lua_touserdata(L, 2);
 		peffect->label_object = p->ref_handle;
 	} else if(check_param(L, PARAM_TYPE_EFFECT, 2, TRUE)) {
-		effect* p = *(effect**)lua_touserdata(L, 2);
+		effect* p = *(effect**) lua_touserdata(L, 2);
 		peffect->label_object = p->ref_handle;
 	} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
-		group* p = *(group**)lua_touserdata(L, 2);
+		group* p = *(group**) lua_touserdata(L, 2);
 		peffect->label_object = p->ref_handle;
 	} else
 		luaL_error(L, "Parameter 2 should be \"Card\" or \"Effect\" or \"Group\".");

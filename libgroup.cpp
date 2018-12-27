@@ -252,8 +252,8 @@ int32 scriptlib::group_select_unselect(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	check_param(L, PARAM_TYPE_GROUP, 2);
-	group* pgroup1 = *(group**)lua_touserdata(L, 1);
-	group* pgroup2 = *(group**)lua_touserdata(L, 2);
+	group* pgroup1 = *(group**) lua_touserdata(L, 1);
+	group* pgroup2 = *(group**) lua_touserdata(L, 2);
 	duel* pduel = pgroup1->pduel;
 	uint32 playerid = lua_tointeger(L, 3);
 	if(playerid != 0 && playerid != 1)
