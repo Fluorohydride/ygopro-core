@@ -654,7 +654,6 @@ int32 scriptlib::group_get_bin_class_count(lua_State *L) {
 int32 scriptlib::group_get_hash(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_GROUP, 1);
-	check_param(L, PARAM_TYPE_FUNCTION, 1);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	uint32 hash = pgroup->container.size();
 	for (auto &pcard : pgroup->container)
