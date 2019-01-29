@@ -660,7 +660,7 @@ int32 scriptlib::group_get_hash(lua_State *L) {
 	hash |= (hash << 8);
 	for (auto &pcard : pgroup->container)
 	{
-		hash ^= ((uint64)pcard ^ pcard->fieldid_r ^ (pcard->fieldid << 16) ^ (pcard->get_info_location() << 32));
+		hash ^= (pcard->fieldid_r ^ (pcard->fieldid << 16) ^ (pcard->get_info_location() << 32));
 	}
 	lua_pushinteger(L, hash);
 	return 1;
