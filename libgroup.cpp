@@ -655,12 +655,13 @@ int32 scriptlib::group_get_hash(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	uint8 len = (uint8)pgroup->container.size();
+	uint64 len = (uint64)pgroup->container.size();
 	uint64 hash = len | ((0xff - len) << 32) | (0xff ^ len << 16) | ((~len & 0xff) << 48);
 	hash |= (hash << 8);
 	for (auto &pcard : pgroup->container)
 	{
-		hash ^= (pcard->fieldid_r ^ (pcard->fieldid << 16) ^ (pcard->get_info_location() << 32));
+		uint64 loc = (uint64)pcard->get_info_location();
+		hash ^= (pcard->fieldid_r ^ (pcard->fieldid << 16) ^ (loc << 32));
 	}
 	lua_pushinteger(L, hash);
 	return 1;
