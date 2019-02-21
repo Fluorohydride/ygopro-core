@@ -1267,27 +1267,38 @@ int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 			ucard->unique_fieldid = (*cit)->fieldid;
 		} else {
 			core.select_cards.clear();
-			for(auto& pcard : cset)
-				core.select_cards.push_back(pcard);
-			pduel->write_buffer8(MSG_HINT);
-			pduel->write_buffer8(HINT_SELECTMSG);
-			pduel->write_buffer8(p);
-			pduel->write_buffer32(534);
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, p, 0x10001);
+			uint8 player = p;
+			for(auto& pcard : cset) {
+				if(pcard->current.controler == player)
+					core.select_cards.push_back(pcard);
+			}
+			if(core.select_cards.size() == 0) {
+				player = 1 - p;
+				for(auto& pcard : cset) {
+					if(pcard->current.controler == player)
+						core.select_cards.push_back(pcard);
+				}
+			}
+			if(core.select_cards.size() == 1) {
+				returns.bvalue[1] = 0;
+			}
+			else {
+				pduel->write_buffer8(MSG_HINT);
+				pduel->write_buffer8(HINT_SELECTMSG);
+				pduel->write_buffer8(player);
+				pduel->write_buffer32(534);
+				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, player, 0x10001);
+			}
 			return FALSE;
 		}
 		return TRUE;
 	}
 	case 1: {
 		card_set cset;
-		card* mcard = 0;
-		for(int32 i = 0; i < core.select_cards.size(); ++i) {
-			if(i != returns.bvalue[1])
-				cset.insert(core.select_cards[i]);
-			else
-				mcard = core.select_cards[i];
-		}
+		ucard->get_unique_target(&cset, p);
+		card* mcard = core.select_cards[returns.bvalue[1]];
 		ucard->unique_fieldid = mcard->fieldid;
+		cset.erase(mcard);
 		for(auto& pcard : cset) {
 			pcard->temp.reason_effect = pcard->current.reason_effect;
 			pcard->temp.reason_player = pcard->current.reason_player;
