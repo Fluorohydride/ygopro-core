@@ -1269,8 +1269,22 @@ int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 			core.select_cards.clear();
 			uint8 player = p;
 			for(auto& pcard : cset) {
-				if(pcard->current.controler == player)
+				if(pcard->current.controler == player && pcard->unique_fieldid != UINT_MAX)
 					core.select_cards.push_back(pcard);
+			}
+			if(core.select_cards.size() == 0) {
+				player = 1 - p;
+				for(auto& pcard : cset) {
+					if(pcard->current.controler == player && pcard->unique_fieldid != UINT_MAX)
+						core.select_cards.push_back(pcard);
+				}
+			}
+			if(core.select_cards.size() == 0) {
+				player = p;
+				for(auto& pcard : cset) {
+					if(pcard->current.controler == player)
+						core.select_cards.push_back(pcard);
+				}
 			}
 			if(core.select_cards.size() == 0) {
 				player = 1 - p;
@@ -4466,6 +4480,8 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 				core.hint_timing[pcard->current.controler] |= TIMING_POS_CHANGE;
 				if((opos & POS_FACEDOWN) && (npos & POS_FACEUP)) {
 					pcard->fieldid = infos.field_id++;
+					if(check_unique_onfield(pcard, pcard->current.controler, pcard->current.location))
+						pcard->unique_fieldid = UINT_MAX;
 					if(pcard->current.location == LOCATION_MZONE) {
 						raise_single_event(pcard, 0, EVENT_FLIP, reason_effect, 0, reason_player, 0, flag);
 						flips.insert(pcard);
