@@ -1395,6 +1395,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			core.select_chains.push_back(newchain);
 			cn_count++;
 		}
+		//all effects taking control non-permanently are only until End Phase, not until Turn end
 		for(auto eit = effects.pheff.begin(); eit != effects.pheff.end();) {
 			effect* peffect = *eit++;
 			if(peffect->code != EFFECT_SET_CONTROL)
@@ -1407,7 +1408,8 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			uint8 tp = infos.turn_player;
 			if(!(((peffect->reset_flag & RESET_SELF_TURN) && pid == tp) || ((peffect->reset_flag & RESET_OPPO_TURN) && pid != tp)))
 				continue;
-			if(peffect->reset_count != 1)
+			peffect->reset_count--;
+			if(peffect->reset_count != 0)
 				continue;
 			card* phandler = peffect->get_handler();
 			if(pid != phandler->current.controler) {
@@ -5047,7 +5049,7 @@ int32 field::adjust_step(uint16 step) {
 		return FALSE;
 	}
 	case 4: {
-		//1-5 control
+		//control
 		core.control_adjust_set[0].clear();
 		core.control_adjust_set[1].clear();
 		for(uint8 p = 0; p < 2; ++p) {
@@ -5077,7 +5079,6 @@ int32 field::adjust_step(uint16 step) {
 			if(res) {
 				for(uint8 p = 0; p < 2; ++p) {
 					for(auto& pcard : player[p].list_mzone) {
-						// remove EFFECT_SET_CONTROL
 						if(pcard && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING)) {
 							pcard->reset(EFFECT_SET_CONTROL, RESET_CODE);
 							if(p != pcard->owner && pcard->is_capable_change_control())
