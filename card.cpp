@@ -2730,6 +2730,7 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 	}
 	return 0;
 }
+// return the last control-changing continous effect
 effect* card::check_control_effect() {
 	effect* ret_effect = 0;
 	for (auto& pcard : equiping_cards) {
@@ -2753,7 +2754,7 @@ effect* card::check_control_effect() {
 	auto rg = single_effect.equal_range(EFFECT_SET_CONTROL);
 	for (; rg.first != rg.second; ++rg.first) {
 		effect* peffect = rg.first->second;
-		if(!peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+		if(!peffect->is_flag(EFFECT_FLAG_OWNER_RELATE))
 			continue;
 		if(!ret_effect || peffect->id > ret_effect->id)
 			ret_effect = peffect;
