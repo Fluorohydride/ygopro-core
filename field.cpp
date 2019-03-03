@@ -3129,7 +3129,7 @@ int32 field::is_chain_negatable(uint8 chaincount) {
 		peffect = core.current_chain.back().triggering_effect;
 	else
 		peffect = core.current_chain[chaincount - 1].triggering_effect;
-	if(peffect->is_flag(EFFECT_FLAG_CANNOT_DISABLE))
+	if(peffect->is_flag(EFFECT_FLAG_CANNOT_INACTIVATE))
 		return FALSE;
 	filter_field_effect(EFFECT_CANNOT_INACTIVATE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
