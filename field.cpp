@@ -1225,8 +1225,8 @@ void field::reset_phase(uint32 phase) {
 		// work around: skip turn still raise reset_phase(PHASE_END)
 		// without this taking control only for one turn will be returned when skipping turn
 		// RESET_TURN_END should be introduced
-		if((*rm)->code == EFFECT_SET_CONTROL)
-			continue;
+		//if((*rm)->code == EFFECT_SET_CONTROL)
+		//	continue;
 		if((*rm)->reset(phase, RESET_PHASE)) {
 			if((*rm)->is_flag(EFFECT_FLAG_FIELD_ONLY))
 				remove_effect((*rm));
