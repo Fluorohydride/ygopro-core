@@ -1543,8 +1543,22 @@ int32 scriptlib::card_is_has_effect(lua_State *L) {
 		lua_pushnil(L);
 		return 1;
 	}
-	for(int32 i = 0; i < size; ++i)
-		interpreter::effect2value(L, eset[i]);
+	int32 check_player = PLAYER_NONE;
+	if(lua_gettop(L) >= 3) {
+		check_player = lua_tointeger(L, 3);
+		if(check_player > PLAYER_NONE)
+			check_player = PLAYER_NONE;
+	}
+	for(int32 i = 0; i < eset.size(); ++i) {
+		if(check_player == PLAYER_NONE || eset[i]->check_count_limit(check_player))
+			interpreter::effect2value(L, eset[i]);
+		else
+			size--;
+	}
+	if(!size) {
+		lua_pushnil(L);
+		return 1;
+	}
 	return size;
 }
 int32 scriptlib::card_reset_effect(lua_State *L) {
