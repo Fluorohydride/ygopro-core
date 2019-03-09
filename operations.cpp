@@ -2964,6 +2964,8 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 			int32 ct1 = get_tofield_count(target, playerid, LOCATION_MZONE, target->summon_player, LOCATION_REASON_TOFIELD, zone, &flag1);
 			int32 ct2 = get_spsummonable_count_fromex(target, playerid, target->summon_player, zone, &flag2);
 			for(auto& pcard : targets->container) {
+				if(pcard->current.location == LOCATION_MZONE)
+					continue;
 				if(pcard->current.location != LOCATION_EXTRA)
 					ct1--;
 				else
