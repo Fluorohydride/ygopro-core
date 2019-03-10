@@ -110,7 +110,7 @@ void duel::release_script_group() {
 }
 void duel::restore_assumes() {
 	for(auto& pcard : assumes)
-		pcard->assume_type = 0;
+		pcard->assume.clear();
 	assumes.clear();
 }
 void duel::write_buffer32(uint32 value) {
