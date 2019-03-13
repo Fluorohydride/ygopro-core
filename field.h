@@ -9,6 +9,7 @@
 #define FIELD_H_
 
 #include "common.h"
+#include "card.h"
 #include "effectset.h"
 #include <vector>
 #include <set>
@@ -51,6 +52,7 @@ struct chain {
 	uint16 triggering_location;
 	uint8 triggering_sequence;
 	uint8 triggering_position;
+	card_state triggering_state;
 	effect* triggering_effect;
 	group* target_cards;
 	int32 replace_op;
@@ -62,7 +64,7 @@ struct chain {
 	opmap opinfos;
 	uint32 flag;
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
-	void set_triggering_place(card* pcard);
+	void set_triggering_state(card* pcard);
 };
 
 struct player_info {
@@ -628,6 +630,15 @@ public:
 #define CHAININFO_TYPE					0x1000
 #define CHAININFO_EXTTYPE				0x2000
 #define CHAININFO_TRIGGERING_POSITION	0x4000
+#define CHAININFO_TRIGGERING_CODE		0x8000
+#define CHAININFO_TRIGGERING_CODE2		0x10000
+//#define CHAININFO_TRIGGERING_TYPE		0x20000
+#define CHAININFO_TRIGGERING_LEVEL		0x40000
+#define CHAININFO_TRIGGERING_RANK		0x80000
+#define CHAININFO_TRIGGERING_ATTRIBUTE	0x100000
+#define CHAININFO_TRIGGERING_RACE		0x200000
+#define CHAININFO_TRIGGERING_ATTACK		0x400000
+#define CHAININFO_TRIGGERING_DEFENSE	0x800000
 //Timing
 #define TIMING_DRAW_PHASE			0x1
 #define TIMING_STANDBY_PHASE		0x2

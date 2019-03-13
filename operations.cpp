@@ -4828,7 +4828,7 @@ int32 field::activate_effect(uint16 step, effect* peffect) {
 		newchain.evt.reason_effect = 0;
 		newchain.evt.reason_player = PLAYER_NONE;
 		newchain.triggering_effect = peffect;
-		newchain.set_triggering_place(phandler);
+		newchain.set_triggering_state(phandler);
 		newchain.triggering_player = playerid;
 		core.new_chains.push_back(newchain);
 		phandler->set_status(STATUS_CHAINING, TRUE);

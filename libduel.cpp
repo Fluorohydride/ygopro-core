@@ -1921,6 +1921,30 @@ int32 scriptlib::duel_get_chain_info(lua_State *L) {
 		case CHAININFO_TRIGGERING_POSITION:
 			lua_pushinteger(L, ch->triggering_position);
 			break;
+		case CHAININFO_TRIGGERING_CODE:
+			lua_pushinteger(L, ch->triggering_state.code);
+			break;
+		case CHAININFO_TRIGGERING_CODE2:
+			lua_pushinteger(L, ch->triggering_state.code2);
+			break;
+		case CHAININFO_TRIGGERING_LEVEL:
+			lua_pushinteger(L, ch->triggering_state.level);
+			break;
+		case CHAININFO_TRIGGERING_RANK:
+			lua_pushinteger(L, ch->triggering_state.rank);
+			break;
+		case CHAININFO_TRIGGERING_ATTRIBUTE:
+			lua_pushinteger(L, ch->triggering_state.attribute);
+			break;
+		case CHAININFO_TRIGGERING_RACE:
+			lua_pushinteger(L, ch->triggering_state.race);
+			break;
+		case CHAININFO_TRIGGERING_ATTACK:
+			lua_pushinteger(L, ch->triggering_state.attack);
+			break;
+		case CHAININFO_TRIGGERING_DEFENSE:
+			lua_pushinteger(L, ch->triggering_state.defense);
+			break;
 		case CHAININFO_TARGET_CARDS:
 			interpreter::group2value(L, ch->target_cards);
 			break;
