@@ -232,6 +232,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsForbidden", scriptlib::card_is_forbidden },
 	{ "IsAbleToChangeControler", scriptlib::card_is_able_to_change_controler },
 	{ "IsControlerCanBeChanged", scriptlib::card_is_controler_can_be_changed },
+	{ "IsAbleToEquip", scriptlib::card_is_able_to_equip },
 	{ "AddCounter", scriptlib::card_add_counter },
 	{ "RemoveCounter", scriptlib::card_remove_counter },
 	{ "GetCounter", scriptlib::card_get_counter },
