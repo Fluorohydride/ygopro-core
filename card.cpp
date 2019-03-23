@@ -3571,10 +3571,10 @@ int32 card::is_control_can_be_changed(int32 ignore_mzone, uint32 zone) {
 		return FALSE;
 	return TRUE;
 }
-int32 card::is_capable_equip(int32 ignore_szone) {
+int32 card::is_capable_equip(uint8 playerid, int32 ignore_szone) {
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
-	if(!ignore_szone && pduel->game_field->get_useable_count(this, current.controler, LOCATION_SZONE, current.controler, LOCATION_REASON_TOFIELD) <= 0)
+	if(!ignore_szone && pduel->game_field->get_useable_count(this, playerid, LOCATION_SZONE, playerid, LOCATION_REASON_TOFIELD) <= 0)
 		return FALSE;
 	if(pduel->game_field->check_unique_onfield(this, current.controler, LOCATION_MZONE))
 		return FALSE;
