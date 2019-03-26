@@ -2228,12 +2228,14 @@ int32 card::remove_counter(uint16 countertype, uint16 count) {
 }
 int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 loc) {
 	effect_set eset;
-	if(!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
-		return FALSE;
-	if(!loc && (!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)))
-		return FALSE;
-	if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
-		return FALSE;
+	if(count > 0) {
+		if(!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
+			return FALSE;
+		if(!loc && (!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)))
+			return FALSE;
+		if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
+			return FALSE;
+	}
 	uint32 check = countertype & COUNTER_WITHOUT_PERMIT;
 	if(!check) {
 		filter_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff), &eset);
@@ -2241,8 +2243,16 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 			uint32 prange = eset[i]->get_value();
 			if(loc)
 				check = loc & prange;
-			else
-				check = current.is_location(prange) && is_position(POS_FACEUP);
+			else if(current.location & LOCATION_ONFIELD) {
+				uint32 filter = TRUE;
+				if(eset[i]->target) {
+					pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+					pduel->lua->add_param(this, PARAM_TYPE_CARD);
+					filter = pduel->lua->check_condition(eset[i]->target, 2);
+				}
+				check = current.is_location(prange) && is_position(POS_FACEUP) && filter;
+			} else
+				check = TRUE;
 			if(check)
 				break;
 		}
