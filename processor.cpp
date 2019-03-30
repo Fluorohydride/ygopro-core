@@ -692,7 +692,7 @@ int32 field::process() {
 				pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
 			else {
 				card* pcard;
-				if(returns.bvalue[1] < core.select_cards.size())
+				if((uint8)returns.bvalue[1] < core.select_cards.size())
 					pcard = core.select_cards[returns.bvalue[1]];
 				else
 					pcard = core.unselect_cards[returns.bvalue[1] - core.select_cards.size()];

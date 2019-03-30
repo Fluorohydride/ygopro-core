@@ -825,8 +825,6 @@ int32 field::announce_attribute(int16 step, uint8 playerid, int32 count, int32 a
 	}
 	return TRUE;
 }
-#define CARD_MARINE_DOLPHIN	78734254
-#define CARD_TWINKLE_MOSS	13857930
 static int32 is_declarable(card_data const& cd, const std::vector<uint32>& opcode) {
 	std::stack<int32> stack;
 	for(auto& it : opcode) {

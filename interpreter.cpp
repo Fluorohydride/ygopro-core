@@ -100,6 +100,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetTurnID", scriptlib::card_get_turnid },
 	{ "GetFieldID", scriptlib::card_get_fieldid },
 	{ "GetRealFieldID", scriptlib::card_get_fieldidr },
+	{ "IsOriginalCodeRule", scriptlib::card_is_origin_code_rule },
 	{ "IsCode", scriptlib::card_is_code },
 	{ "IsType", scriptlib::card_is_type },
 	{ "IsFusionType", scriptlib::card_is_fusion_type },

@@ -192,6 +192,7 @@ public:
 
 	uint32 get_infos(byte* buf, int32 query_flag, int32 use_cache = TRUE);
 	uint32 get_info_location();
+	uint32 second_code(uint32 code);
 	uint32 get_code();
 	uint32 get_another_code();
 	int32 is_set_card(uint32 set_code);
@@ -372,5 +373,9 @@ public:
 #define ASSUME_RACE			6
 #define ASSUME_ATTACK		7
 #define ASSUME_DEFENSE		8
+
+//double-name cards
+#define CARD_MARINE_DOLPHIN	78734254
+#define CARD_TWINKLE_MOSS	13857930
 
 #endif /* CARD_H_ */
