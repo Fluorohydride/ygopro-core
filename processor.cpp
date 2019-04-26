@@ -1351,6 +1351,7 @@ int32 field::check_hint_timing(effect* peffect) {
 	else
 		return (peffect->hint_timing[0] & core.hint_timing[1]) || (peffect->hint_timing[1] & core.hint_timing[0]);
 }
+// core.spe_effect[p]: # of optional trigger effects, activate/quick effect with hints
 int32 field::process_phase_event(int16 step, int32 phase) {
 	switch(step) {
 	case 0: {
@@ -1645,6 +1646,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 	}
 	return TRUE;
 }
+// core.tmp_chains: used in step 8 (obsolete ignition effect ruling)
 int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_freechain, int32 skip_new) {
 	switch(step) {
 	case 0: {
