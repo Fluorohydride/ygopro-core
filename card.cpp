@@ -3606,14 +3606,16 @@ int32 card::is_capable_be_effect_target(effect* peffect, uint8 playerid) {
 	}
 	return TRUE;
 }
-int32 card::is_can_be_fusion_material(card* fcard) {
+int32 card::is_can_be_fusion_material(card* fcard, uint32 summon_type) {
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
 	effect_set eset;
 	filter_effect(EFFECT_CANNOT_BE_FUSION_MATERIAL, &eset);
-	for(int32 i = 0; i < eset.size(); ++i)
-		if(eset[i]->get_value(fcard))
+	for(int32 i = 0; i < eset.size(); ++i) {
+		pduel->lua->add_param(summon_type, PARAM_TYPE_INT);
+		if(eset[i]->get_value(fcard, 1))
 			return FALSE;
+	}
 	eset.clear();
 	filter_effect(EFFECT_EXTRA_FUSION_MATERIAL, &eset);
 	if(eset.size()) {
