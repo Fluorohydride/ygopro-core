@@ -2864,9 +2864,9 @@ int32 field::is_player_can_discard_hand(uint8 playerid, card * pcard, effect * p
 	}
 	return TRUE;
 }
-int32 field::is_player_can_summon(uint8 playerid) {
+int32 field::is_player_can_action(uint8 playerid, uint32 actionlimit) {
 	effect_set eset;
-	filter_player_effect(playerid, EFFECT_CANNOT_SUMMON, &eset);
+	filter_player_effect(playerid, actionlimit, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		if(!eset[i]->target)
 			return FALSE;
