@@ -1870,7 +1870,7 @@ int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
 	for(auto& peffect : pduel->uncopy)
 		pduel->delete_effect(peffect);
 	pduel->uncopy.clear();
-	if(!(data.type & TYPE_EFFECT)) {
+	if((data.type & TYPE_MONSTER) && !(data.type & TYPE_EFFECT)) {
 		effect* peffect = pduel->new_effect();
 		if(pduel->game_field->core.reason_effect)
 			peffect->owner = pduel->game_field->core.reason_effect->get_handler();
@@ -1916,7 +1916,7 @@ int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 	for(auto& peffect : pduel->uncopy)
 		pduel->delete_effect(peffect);
 	pduel->uncopy.clear();
-	if(!(data.type & TYPE_EFFECT)) {
+	if((data.type & TYPE_MONSTER) && !(data.type & TYPE_EFFECT)) {
 		effect* peffect = pduel->new_effect();
 		if(pduel->game_field->core.reason_effect)
 			peffect->owner = pduel->game_field->core.reason_effect->get_handler();
