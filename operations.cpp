@@ -683,7 +683,7 @@ int32 field::remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplay
 		if(core.select_options.size() == 1)
 			returns.ivalue[0] = 0;
 		else if(core.select_effects[0] == 0 && core.select_effects.size() == 2)
-			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.select_effects[1]->handler, rplayer, 219);
+			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.select_effects[1]->handler, rplayer, 220);
 		else
 			add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, rplayer, 0);
 		return FALSE;
@@ -759,7 +759,7 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 		if(core.select_options.size() == 1)
 			returns.ivalue[0] = 0;
 		else if(core.select_effects[0] == 0 && core.select_effects.size() == 2)
-			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.select_effects[1]->handler, rplayer, 220);
+			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.select_effects[1]->handler, rplayer, 219);
 		else
 			add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, rplayer, 0);
 		return FALSE;
