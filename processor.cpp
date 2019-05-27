@@ -3142,11 +3142,7 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 21: {
-		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]
-		        || core.attacker->current.controler != core.attacker->attack_controler
-		        || (core.attack_target && (core.attack_target->current.location != LOCATION_MZONE
-		                                || core.attack_target->current.controler != core.attack_target->attack_controler
-		                                || core.attack_target->fieldid_r != core.pre_field[1]))) {
+		if(core.attacker->is_status(STATUS_ATTACK_CANCELED)) {
 			core.units.begin()->step = 32;
 			return FALSE;
 		}
@@ -3184,12 +3180,7 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 23: {
-		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]
-		        || ((core.attacker->current.position & POS_DEFENSE) && !(core.attacker->is_affected_by_effect(EFFECT_DEFENSE_ATTACK)))
-		        || core.attacker->current.controler != core.attacker->attack_controler
-		        || (core.attack_target && (core.attack_target->current.location != LOCATION_MZONE
-		                                || core.attack_target->current.controler != core.attack_target->attack_controler
-		                                || core.attack_target->fieldid_r != core.pre_field[1]))) {
+		if(core.attacker->is_status(STATUS_ATTACK_CANCELED)) {
 			core.units.begin()->step = 32;
 			return FALSE;
 		}
@@ -3219,11 +3210,7 @@ int32 field::process_battle_command(uint16 step) {
 		return FALSE;
 	}
 	case 25: {
-		if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]
-		        || core.attacker->current.controler != core.attacker->attack_controler
-		        || (core.attack_target && (core.attack_target->current.location != LOCATION_MZONE
-		                                || core.attack_target->current.controler != core.attack_target->attack_controler
-		                                || core.attack_target->fieldid_r != core.pre_field[1]))) {
+		if(core.attacker->is_status(STATUS_ATTACK_CANCELED)) {
 			reset_phase(PHASE_DAMAGE_CAL);
 			adjust_all();
 			infos.phase = PHASE_DAMAGE;
@@ -3472,7 +3459,6 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 33: {
 		core.units.begin()->ptarget = 0;
-		// for unexpected end of damage step
 		core.damage_calculated = TRUE;
 		core.selfdes_disabled = FALSE;
 		core.flip_delayed = FALSE;
@@ -4970,7 +4956,7 @@ int32 field::adjust_step(uint16 step) {
 		return FALSE;
 	}
 	case 1: {
-		//win check(deck=0 or lp=0)
+		//win check
 		uint32 winp = 5, rea = 1;
 		if(player[0].lp <= 0 && player[1].lp > 0) {
 			winp = 1;
@@ -5229,21 +5215,31 @@ int32 field::adjust_step(uint16 step) {
 			return FALSE;
 		if(attacker->is_status(STATUS_ATTACK_CANCELED))
 			return FALSE;
-		if(!core.attacker->is_capable_attack()
-			|| core.attacker->current.controler != core.attacker->attack_controler
-			|| core.attacker->fieldid_r != core.pre_field[0]) {
-			attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
-			return FALSE;
+		if(infos.phase != PHASE_DAMAGE && infos.phase != PHASE_DAMAGE_CAL) {
+			if(!core.attacker->is_capable_attack()
+				|| core.attacker->current.controler != core.attacker->attack_controler
+				|| core.attacker->fieldid_r != core.pre_field[0]) {
+				attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
+				return FALSE;
+			}
+			if(core.attack_rollback)
+				return FALSE;
+			std::set<uint16> fidset;
+			for(auto& pcard : player[1 - infos.turn_player].list_mzone) {
+				if(pcard)
+					fidset.insert(pcard->fieldid_r);
+			}
+			if(fidset != core.opp_mzone || !confirm_attack_target())
+				core.attack_rollback = TRUE;
+		} else {
+			if(core.attacker->current.location != LOCATION_MZONE || core.attacker->fieldid_r != core.pre_field[0]
+				|| ((core.attacker->current.position & POS_DEFENSE) && !(core.attacker->is_affected_by_effect(EFFECT_DEFENSE_ATTACK)))
+				|| core.attacker->current.controler != core.attacker->attack_controler
+				|| (core.attack_target && (core.attack_target->current.location != LOCATION_MZONE
+					|| core.attack_target->current.controler != core.attack_target->attack_controler
+					|| core.attack_target->fieldid_r != core.pre_field[1])))
+				core.attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
 		}
-		if(core.attack_rollback)
-			return FALSE;
-		std::set<uint16> fidset;
-		for(auto& pcard : player[1 - infos.turn_player].list_mzone) {
-			if(pcard)
-				fidset.insert(pcard->fieldid_r);
-		}
-		if(fidset != core.opp_mzone || !confirm_attack_target())
-			core.attack_rollback = TRUE;
 		return FALSE;
 	}
 	case 15: {
