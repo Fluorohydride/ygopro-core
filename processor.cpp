@@ -4342,7 +4342,7 @@ int32 field::add_chain(uint16 step) {
 			set_spsummon_counter(clit.triggering_player, true, true);
 			if(clit.opinfos[0x200].op_player == PLAYER_ALL)
 				set_spsummon_counter(1 - clit.triggering_player, true, true);
-			if((core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) && peffect->is_flag(EFFECT_FLAG_CARD_TARGET | EFFECT_FLAG_COUNT_SS_ONCE)) {
+			if((core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) && peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
 				auto& optarget = clit.opinfos[0x200];
 				if(optarget.op_cards) {
 					if(optarget.op_player == PLAYER_ALL) {
@@ -4588,7 +4588,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 				if(cait->opinfos[0x200].op_player == PLAYER_ALL && core.spsummon_state_count_tmp[1 - cait->triggering_player] == core.spsummon_state_count[1 - cait->triggering_player])
 					set_spsummon_counter(1 - cait->triggering_player);
 				//sometimes it may add twice, only works for once per turn
-				if(cait->triggering_effect->is_flag(EFFECT_FLAG_CARD_TARGET | EFFECT_FLAG_COUNT_SS_ONCE)) {
+				if(cait->triggering_effect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
 					auto& optarget = cait->opinfos[0x200];
 					if(optarget.op_cards) {
 						if(optarget.op_player == PLAYER_ALL) {
