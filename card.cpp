@@ -106,7 +106,7 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 	if(query_flag & QUERY_CODE) *p++ = data.code;
 	if(query_flag & QUERY_POSITION) *p++ = get_info_location();
 	if(!use_cache) {
-		if(query_flag & QUERY_ALIAS) q_cache.code = *p++ = get_code();
+		if(query_flag & QUERY_ALIAS) q_cache.alias = *p++ = get_code();
 		if(query_flag & QUERY_TYPE) q_cache.type = *p++ = get_type();
 		if(query_flag & QUERY_LEVEL) q_cache.level = *p++ = get_level();
 		if(query_flag & QUERY_RANK) q_cache.rank = *p++ = get_rank();
