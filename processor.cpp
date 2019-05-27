@@ -4342,7 +4342,7 @@ int32 field::add_chain(uint16 step) {
 			set_spsummon_counter(clit.triggering_player, true, true);
 			if(clit.opinfos[0x200].op_player == PLAYER_ALL)
 				set_spsummon_counter(1 - clit.triggering_player, true, true);
-			if((core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) && peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
+			if(core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) {
 				auto& optarget = clit.opinfos[0x200];
 				if(optarget.op_cards) {
 					if(optarget.op_player == PLAYER_ALL) {
@@ -4588,32 +4588,30 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 				if(cait->opinfos[0x200].op_player == PLAYER_ALL && core.spsummon_state_count_tmp[1 - cait->triggering_player] == core.spsummon_state_count[1 - cait->triggering_player])
 					set_spsummon_counter(1 - cait->triggering_player);
 				//sometimes it may add twice, only works for once per turn
-				if(cait->triggering_effect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
-					auto& optarget = cait->opinfos[0x200];
-					if(optarget.op_cards) {
-						if(optarget.op_player == PLAYER_ALL) {
-							uint32 sumplayer = optarget.op_param;
-							if(core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) {
-								auto opit = optarget.op_cards->container.begin();
-								if((*opit)->spsummon_code)
-									core.spsummon_once_map[sumplayer][(*opit)->spsummon_code]++;
-								++opit;
-								if((*opit)->spsummon_code)
-									core.spsummon_once_map[1 - sumplayer][(*opit)->spsummon_code]++;
-							}
+				auto& optarget = cait->opinfos[0x200];
+				if(optarget.op_cards) {
+					if(optarget.op_player == PLAYER_ALL) {
+						uint32 sumplayer = optarget.op_param;
+						if(core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) {
 							auto opit = optarget.op_cards->container.begin();
-							check_card_counter(*opit, 3, sumplayer);
+							if((*opit)->spsummon_code)
+								core.spsummon_once_map[sumplayer][(*opit)->spsummon_code]++;
 							++opit;
-							check_card_counter(*opit, 3, 1 - sumplayer);
-						} else {
-							uint32 sumplayer = cait->triggering_player;
-							if(optarget.op_player == 1)
-								sumplayer = 1 - sumplayer;
-							for(auto& ptarget : optarget.op_cards->container) {
-								if((core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) && ptarget->spsummon_code)
-									core.spsummon_once_map[sumplayer][ptarget->spsummon_code]++;
-								check_card_counter(ptarget, 3, sumplayer);
-							}
+							if((*opit)->spsummon_code)
+								core.spsummon_once_map[1 - sumplayer][(*opit)->spsummon_code]++;
+						}
+						auto opit = optarget.op_cards->container.begin();
+						check_card_counter(*opit, 3, sumplayer);
+						++opit;
+						check_card_counter(*opit, 3, 1 - sumplayer);
+					} else {
+						uint32 sumplayer = cait->triggering_player;
+						if(optarget.op_player == 1)
+							sumplayer = 1 - sumplayer;
+						for(auto& ptarget : optarget.op_cards->container) {
+							if((core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) && ptarget->spsummon_code)
+								core.spsummon_once_map[sumplayer][ptarget->spsummon_code]++;
+							check_card_counter(ptarget, 3, sumplayer);
 						}
 					}
 				}
