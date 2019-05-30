@@ -2878,9 +2878,11 @@ int32 card::check_cost_condition(int32 ecode, int32 playerid, int32 sumtype) {
 }
 // check if this is a normal summonable card
 int32 card::is_summonable_card() {
-	if(!(data.type & TYPE_MONSTER) || (data.type & TYPE_TOKEN))
+	if(!(data.type & TYPE_MONSTER))
 		return FALSE;
-	return !is_affected_by_effect(EFFECT_UNSUMMONABLE_CARD);
+	return !(data.type & (TYPE_RITUAL | TYPE_SPSUMMON
+		| TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK
+		| TYPE_TOKEN));
 }
 int32 card::is_fusion_summonable_card(uint32 summon_type) {
 	if(!(data.type & TYPE_FUSION))
