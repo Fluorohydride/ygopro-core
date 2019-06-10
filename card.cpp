@@ -2427,8 +2427,10 @@ void card::filter_immune_effect() {
 	immune_effect.sort();
 }
 // for all disable-related peffect of this,
-// 1. put all cards in the target of peffect into effects.disable_check_set, effects.disable_check_list
-// 2. add equiping_target of peffect into effects.disable_check_set, effects.disable_check_list
+// 1. Insert all cards in the target of peffect into effects.disable_check_set.
+// 2. Insert equiping_target of peffect into it.
+// 3. Insert overlay_target of peffect into it.
+// 4. Insert continuous target of this into it.
 void card::filter_disable_related_cards() {
 	for (auto& it : indexer) {
 		effect* peffect = it.first;
@@ -2439,6 +2441,15 @@ void card::filter_disable_related_cards() {
 				pduel->game_field->add_to_disable_check_list(equiping_target);
 			else if ((peffect->type & EFFECT_TYPE_XMATERIAL) && overlay_target)
 				pduel->game_field->add_to_disable_check_list(overlay_target);
+		}
+	}
+	for(auto pcard : effect_target_cards) {
+		for(auto it = pcard->single_effect.begin(); it != pcard->single_effect.end(); ++it) {
+			effect* peffect = it->second;
+			if(peffect->is_disable_related() && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE)){
+				pduel->game_field->add_to_disable_check_list(pcard);
+				break;
+			}
 		}
 	}
 }
