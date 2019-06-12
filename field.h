@@ -110,6 +110,7 @@ struct field_effect {
 	effect_collection rechargeable;
 	effect_collection spsummon_count_eff;
 
+	std::list<card*> disable_check_list;
 	std::unordered_set<card*> disable_check_set;
 
 	grant_effect_container grant_effect;

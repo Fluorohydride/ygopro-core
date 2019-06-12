@@ -1869,7 +1869,7 @@ int32 field::get_overlay_count(uint8 self, uint8 s, uint8 o) {
 	}
 	return count;
 }
-// put all cards in the target of peffect into effects.disable_check_set
+// put all cards in the target of peffect into effects.disable_check_list
 void field::update_disable_check_list(effect* peffect) {
 	card_set cset;
 	filter_affected_cards(peffect, &cset);
@@ -1877,18 +1877,22 @@ void field::update_disable_check_list(effect* peffect) {
 		add_to_disable_check_list(pcard);
 }
 void field::add_to_disable_check_list(card* pcard) {
-	effects.disable_check_set.insert(pcard);
+	auto result=effects.disable_check_set.insert(pcard);
+	if(!result.second)
+		return
+	effects.disable_check_list.push_back(pcard);
 }
 void field::adjust_disable_check_list() {
 	card* checking;
 	int32 pre_disable, new_disable;
-	if (!effects.disable_check_set.size())
+	if (!effects.disable_check_list.size())
 		return;
 	card_set checked;
 	do {
 		checked.clear();
-		while (effects.disable_check_set.size()) {
-			checking = *(effects.disable_check_set.begin());
+		while (effects.disable_check_list.size()) {
+			checking = effects.disable_check_list.front();
+			effects.disable_check_list.pop_front();
 			effects.disable_check_set.erase(checking);
 			checked.insert(checking);
 			if (checking->is_status(STATUS_TO_ENABLE | STATUS_TO_DISABLE))
@@ -1909,7 +1913,7 @@ void field::adjust_disable_check_list() {
 				pcard->reset(RESET_DISABLE, RESET_EVENT);
 			pcard->set_status(STATUS_TO_ENABLE | STATUS_TO_DISABLE, FALSE);
 		}
-	} while(effects.disable_check_set.size());
+	} while(effects.disable_check_list.size());
 }
 // adjust SetUniqueOnField(), EFFECT_SELF_DESTROY, EFFECT_SELF_TOGRAVE
 void field::adjust_self_destroy_set() {

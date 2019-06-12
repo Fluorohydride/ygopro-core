@@ -2427,7 +2427,7 @@ void card::filter_immune_effect() {
 	immune_effect.sort();
 }
 // for all disable-related peffect of this,
-// 1. Insert all cards in the target of peffect into effects.disable_check_set.
+// 1. Insert all cards in the target of peffect into effects.disable_check_list.
 // 2. Insert equiping_target of peffect into it.
 // 3. Insert overlay_target of peffect into it.
 // 4. Insert continuous target of this into it.
