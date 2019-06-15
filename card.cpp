@@ -2935,6 +2935,16 @@ int32 card::is_spsummonable(effect* peffect) {
 		}
 		if(pduel->lua->check_condition(peffect->condition, param_count))
 			result = TRUE;
+	} else if(pduel->game_field->core.limit_link) {
+		pduel->lua->add_param(pduel->game_field->core.limit_link, PARAM_TYPE_GROUP);
+		uint32 param_count = 3;
+		if(pduel->game_field->core.limit_link_minc) {
+			pduel->lua->add_param(pduel->game_field->core.limit_link_minc, PARAM_TYPE_INT);
+			pduel->lua->add_param(pduel->game_field->core.limit_link_maxc, PARAM_TYPE_INT);
+			param_count = 5;
+		}
+		if(pduel->lua->check_condition(peffect->condition, param_count))
+			result = TRUE;
 	} else {
 		if(pduel->lua->check_condition(peffect->condition, 2))
 			result = TRUE;
@@ -3112,6 +3122,9 @@ int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 	pduel->game_field->core.limit_xyz = 0;
 	pduel->game_field->core.limit_xyz_minc = 0;
 	pduel->game_field->core.limit_xyz_maxc = 0;
+	pduel->game_field->core.limit_link = 0;
+	pduel->game_field->core.limit_link_minc = 0;
+	pduel->game_field->core.limit_link_maxc = 0;
 	pduel->game_field->restore_lp_cost();
 	return eset.size();
 }

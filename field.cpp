@@ -96,6 +96,9 @@ field::field(duel* pduel) {
 	core.limit_xyz = 0;
 	core.limit_xyz_minc = 0;
 	core.limit_xyz_maxc = 0;
+	core.limit_link = 0;
+	core.limit_link_minc = 0;
+	core.limit_link_maxc = 0;
 	core.last_control_changed_id = 0;
 	core.duel_options = 0;
 	core.duel_rule = 0;
