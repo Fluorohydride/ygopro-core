@@ -341,6 +341,33 @@ int32 scriptlib::duel_xyz_summon(lua_State *L) {
 	pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_XYZ);
 	return lua_yield(L, 0);
 }
+int32 scriptlib::duel_link_summon(lua_State *L) {
+	check_action_permission(L);
+	check_param_count(L, 3);
+	check_param(L, PARAM_TYPE_CARD, 2);
+	uint32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	card* pcard = *(card**)lua_touserdata(L, 2);
+	group* materials = 0;
+	if(!lua_isnil(L, 3)) {
+		check_param(L, PARAM_TYPE_GROUP, 3);
+		materials = *(group**)lua_touserdata(L, 3);
+	}
+	int32 minc = 0;
+	if(lua_gettop(L) >= 4)
+		minc = lua_tointeger(L, 4);
+	int32 maxc = 0;
+	if(lua_gettop(L) >= 5)
+		maxc = lua_tointeger(L, 5);
+	duel* pduel = pcard->pduel;
+	pduel->game_field->core.limit_link = materials;
+	pduel->game_field->core.limit_link_minc = minc;
+	pduel->game_field->core.limit_link_maxc = maxc;
+	pduel->game_field->core.summon_cancelable = FALSE;
+	pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_LINK);
+	return lua_yield(L, 0);
+}
 int32 scriptlib::duel_setm(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 4);
