@@ -1882,7 +1882,7 @@ void field::update_disable_check_list(effect* peffect) {
 void field::add_to_disable_check_list(card* pcard) {
 	auto result=effects.disable_check_set.insert(pcard);
 	if(!result.second)
-		return
+		return;
 	effects.disable_check_list.push_back(pcard);
 }
 void field::adjust_disable_check_list() {
