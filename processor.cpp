@@ -4360,9 +4360,9 @@ int32 field::add_chain(uint16 step) {
 					} else {
 						uint32 sumplayer = clit.triggering_player;
 						// genarally setting op_player is unnecessary when the effect targets cards
-						// in the case of CATEGORY_SPECIAL_SUMMON(with EFFECT_FLAG_CARD_TARGET), op_player=1
+						// in the case of CATEGORY_SPECIAL_SUMMON(with EFFECT_FLAG_CARD_TARGET), op_player=0x10
 						// indecates that it is the opponent that special summons the target monsters
-						if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET) && optarget.op_player == 1)
+						if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET) && optarget.op_player == 0x10)
 							sumplayer = 1 - sumplayer;
 						for(auto& pcard : optarget.op_cards->container) {
 							if(pcard->spsummon_code) {
@@ -4612,9 +4612,9 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 					} else {
 						uint32 sumplayer = cait->triggering_player;
 						// genarally setting op_player is unnecessary when the effect targets cards
-						// in the case of CATEGORY_SPECIAL_SUMMON(with EFFECT_FLAG_CARD_TARGET), op_player=1
+						// in the case of CATEGORY_SPECIAL_SUMMON(with EFFECT_FLAG_CARD_TARGET), op_player=0x10
 						// indecates that it is the opponent that special summons the target monsters
-						if(cait->triggering_effect->is_flag(EFFECT_FLAG_CARD_TARGET) && optarget.op_player == 1)
+						if(cait->triggering_effect->is_flag(EFFECT_FLAG_CARD_TARGET) && optarget.op_player == 0x10)
 							sumplayer = 1 - sumplayer;
 						for(auto& ptarget : optarget.op_cards->container) {
 							if((core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) && ptarget->spsummon_code)
