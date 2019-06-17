@@ -262,6 +262,8 @@ struct processor {
 	card* attack_target;
 	card* limit_tuner;
 	group* limit_syn;
+	int32 limit_syn_minc;
+	int32 limit_syn_maxc;
 	group* limit_xyz;
 	int32 limit_xyz_minc;
 	int32 limit_xyz_maxc;

@@ -2005,9 +2005,17 @@ int32 scriptlib::card_is_synchro_summonable(lua_State *L) {
 			mg = *(group**) lua_touserdata(L, 3);
 		}
 	}
+	int32 minc = 0;
+	if(lua_gettop(L) >= 4)
+		minc = lua_tointeger(L, 4);
+	int32 maxc = 0;
+	if(lua_gettop(L) >= 5)
+		maxc = lua_tointeger(L, 5);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
 	pcard->pduel->game_field->core.limit_tuner = tuner;
 	pcard->pduel->game_field->core.limit_syn = mg;
+	pcard->pduel->game_field->core.limit_syn_minc = minc;
+	pcard->pduel->game_field->core.limit_syn_maxc = maxc;
 	lua_pushboolean(L, pcard->is_special_summonable(p, SUMMON_TYPE_SYNCHRO));
 	return 1;
 }

@@ -2508,6 +2508,8 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		effect_set eset;
 		card* tuner = core.limit_tuner;
 		group* syn = core.limit_syn;
+		int32 sminc = core.limit_syn_minc;
+		int32 smaxc = core.limit_syn_maxc;
 		group* xmaterials = core.limit_xyz;
 		int32 xminc = core.limit_xyz_minc;
 		int32 xmaxc = core.limit_xyz_maxc;
@@ -2518,6 +2520,8 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		target->filter_spsummon_procedure_g(sumplayer, &eset);
 		core.limit_tuner = tuner;
 		core.limit_syn = syn;
+		core.limit_syn_minc = sminc;
+		core.limit_syn_maxc = smaxc;
 		core.limit_xyz = xmaterials;
 		core.limit_xyz_minc = xminc;
 		core.limit_xyz_maxc = xmaxc;
@@ -2551,6 +2555,10 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			if(core.limit_tuner || core.limit_syn) {
 				pduel->lua->add_param(core.limit_tuner, PARAM_TYPE_CARD);
 				pduel->lua->add_param(core.limit_syn, PARAM_TYPE_GROUP);
+				if(core.limit_syn_minc) {
+					pduel->lua->add_param(core.limit_syn_minc, PARAM_TYPE_INT);
+					pduel->lua->add_param(core.limit_syn_maxc, PARAM_TYPE_INT);
+				}
 			} else if(core.limit_xyz) {
 				pduel->lua->add_param(core.limit_xyz, PARAM_TYPE_GROUP);
 				if(core.limit_xyz_minc) {
@@ -2592,6 +2600,12 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 				pduel->lua->add_param(core.limit_syn, PARAM_TYPE_GROUP);
 				core.limit_tuner = 0;
 				core.limit_syn = 0;
+				if(core.limit_syn_minc) {
+					pduel->lua->add_param(core.limit_syn_minc, PARAM_TYPE_INT);
+					pduel->lua->add_param(core.limit_syn_maxc, PARAM_TYPE_INT);
+					core.limit_syn_minc = 0;
+					core.limit_syn_maxc = 0;
+				}
 			}
 			if(core.limit_xyz) {
 				pduel->lua->add_param(core.limit_xyz, PARAM_TYPE_GROUP);

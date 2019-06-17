@@ -93,6 +93,8 @@ field::field(duel* pduel) {
 	core.check_level = 0;
 	core.limit_tuner = 0;
 	core.limit_syn = 0;
+	core.limit_syn_minc = 0;
+	core.limit_syn_maxc = 0;
 	core.limit_xyz = 0;
 	core.limit_xyz_minc = 0;
 	core.limit_xyz_maxc = 0;

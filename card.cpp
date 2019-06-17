@@ -2923,7 +2923,13 @@ int32 card::is_spsummonable(effect* peffect) {
 	if(pduel->game_field->core.limit_tuner || pduel->game_field->core.limit_syn) {
 		pduel->lua->add_param(pduel->game_field->core.limit_tuner, PARAM_TYPE_CARD);
 		pduel->lua->add_param(pduel->game_field->core.limit_syn, PARAM_TYPE_GROUP);
-		if(pduel->lua->check_condition(peffect->condition, 4))
+		uint32 param_count = 4;
+		if(pduel->game_field->core.limit_syn_minc) {
+			pduel->lua->add_param(pduel->game_field->core.limit_syn_minc, PARAM_TYPE_INT);
+			pduel->lua->add_param(pduel->game_field->core.limit_syn_maxc, PARAM_TYPE_INT);
+			param_count = 6;
+		}
+		if(pduel->lua->check_condition(peffect->condition, param_count))
 			result = TRUE;
 	} else if(pduel->game_field->core.limit_xyz) {
 		pduel->lua->add_param(pduel->game_field->core.limit_xyz, PARAM_TYPE_GROUP);
@@ -3119,6 +3125,8 @@ int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 	filter_spsummon_procedure(playerid, &eset, summon_type);
 	pduel->game_field->core.limit_tuner = 0;
 	pduel->game_field->core.limit_syn = 0;
+	pduel->game_field->core.limit_syn_minc = 0;
+	pduel->game_field->core.limit_syn_maxc = 0;
 	pduel->game_field->core.limit_xyz = 0;
 	pduel->game_field->core.limit_xyz_minc = 0;
 	pduel->game_field->core.limit_xyz_maxc = 0;

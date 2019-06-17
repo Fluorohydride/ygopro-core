@@ -307,9 +307,17 @@ int32 scriptlib::duel_synchro_summon(lua_State *L) {
 			mg = *(group**) lua_touserdata(L, 4);
 		}
 	}
+	int32 minc = 0;
+	if(lua_gettop(L) >= 5)
+		minc = lua_tointeger(L, 5);
+	int32 maxc = 0;
+	if(lua_gettop(L) >= 6)
+		maxc = lua_tointeger(L, 6);
 	duel* pduel = pcard->pduel;
 	pduel->game_field->core.limit_tuner = tuner;
 	pduel->game_field->core.limit_syn = mg;
+	pduel->game_field->core.limit_syn_minc = minc;
+	pduel->game_field->core.limit_syn_maxc = maxc;
 	pduel->game_field->core.summon_cancelable = FALSE;
 	pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_SYNCHRO);
 	return lua_yield(L, 0);
