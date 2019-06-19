@@ -179,7 +179,6 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsRelateToBattle", scriptlib::card_is_relate_to_battle },
 	{ "CopyEffect", scriptlib::card_copy_effect },
 	{ "ReplaceEffect", scriptlib::card_replace_effect },
-	{ "EnableUnsummonable", scriptlib::card_enable_unsummonable },
 	{ "EnableReviveLimit", scriptlib::card_enable_revive_limit },
 	{ "CompleteProcedure", scriptlib::card_complete_procedure },
 	{ "IsDisabled", scriptlib::card_is_disabled },
