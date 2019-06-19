@@ -260,6 +260,8 @@ struct processor {
 	uint8 summon_cancelable;
 	card* attacker;
 	card* attack_target;
+	uint32 limit_extra_summon_zone;
+	uint32 limit_extra_summon_releasable;
 	card* limit_tuner;
 	group* limit_syn;
 	int32 limit_syn_minc;
