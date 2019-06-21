@@ -410,7 +410,6 @@ int32 field::process() {
 	}
 	case PROCESSOR_SSET_G: {
 		if (sset_g(it->step, it->arg1, it->arg2, it->ptarget, it->arg3, it->peffect)) {
-			pduel->lua->add_param(returns.ivalue[0], PARAM_TYPE_INT);
 			core.units.pop_front();
 		} else
 			it->step++;
@@ -579,39 +578,6 @@ int32 field::process() {
 			core.units.pop_front();
 		} else
 			it->step++;
-		return pduel->bufferlen;
-	}
-	case PROCESSOR_SELECT_TARGET: {
-		if(it->step == 0) {
-			add_process(PROCESSOR_SELECT_CARD, 0, it->peffect, it->ptarget, it->arg1, it->arg2);
-			it->step++;
-		} else {
-			chain* ch = get_chain(0);
-			if(ch) {
-				if(!ch->target_cards) {
-					ch->target_cards = pduel->new_group();
-					ch->target_cards->is_readonly = TRUE;
-				}
-				group* tg = ch->target_cards;
-				effect* peffect = ch->triggering_effect;
-				if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
-					for(int32 i = 0; i < returns.bvalue[0]; ++i)
-						tg->container.insert(core.select_cards[returns.bvalue[i + 1]]);
-				} else {
-					for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-						card* pcard = core.select_cards[returns.bvalue[i + 1]];
-						tg->container.insert(pcard);
-						pcard->create_relation(*ch);
-						if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
-							pduel->write_buffer8(MSG_BECOME_TARGET);
-							pduel->write_buffer8(1);
-							pduel->write_buffer32(pcard->get_info_location());
-						}
-					}
-				}
-			}
-			core.units.pop_front();
-		}
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_SELECT_FUSION: {

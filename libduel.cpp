@@ -2774,15 +2774,37 @@ int32 scriptlib::duel_select_target(lua_State *L) {
 	group* pgroup = pduel->new_group();
 	pduel->game_field->filter_matching_card(2, (uint8)self, location1, location2, pgroup, pexception, pexgroup, extraargs, 0, 0, TRUE);
 	pduel->game_field->core.select_cards.assign(pgroup->container.begin(), pgroup->container.end());
-	pduel->game_field->add_process(PROCESSOR_SELECT_TARGET, 0, 0, 0, playerid, min + (max << 16));
+	pduel->game_field->add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, min + (max << 16));
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
-		group* pgroup = pduel->new_group();
-		for(int32 i = 0; i < pduel->game_field->returns.bvalue[0]; ++i) {
-			card* pcard = pduel->game_field->core.select_cards[pduel->game_field->returns.bvalue[i + 1]];
-			pgroup->container.insert(pcard);
+		chain* ch = pduel->game_field->get_chain(0);
+		if(ch) {
+			if(!ch->target_cards) {
+				ch->target_cards = pduel->new_group();
+				ch->target_cards->is_readonly = TRUE;
+			}
+			group* tg = ch->target_cards;
+			effect* peffect = ch->triggering_effect;
+			if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
+				for(int32 i = 0; i < pduel->game_field->returns.bvalue[0]; ++i)
+					tg->container.insert(pduel->game_field->core.select_cards[pduel->game_field->returns.bvalue[i + 1]]);
+				interpreter::group2value(L, tg);
+			} else {
+				group* pgroup = pduel->new_group();
+				for(int32 i = 0; i < pduel->game_field->returns.bvalue[0]; ++i) {
+					card* pcard = pduel->game_field->core.select_cards[pduel->game_field->returns.bvalue[i + 1]];
+					tg->container.insert(pcard);
+					pgroup->container.insert(pcard);
+					pcard->create_relation(*ch);
+					if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
+						pduel->write_buffer8(MSG_BECOME_TARGET);
+						pduel->write_buffer8(1);
+						pduel->write_buffer32(pcard->get_info_location());
+					}
+				}
+				interpreter::group2value(L, pgroup);
+			}
 		}
-		interpreter::group2value(L, pgroup);
 		return 1;
 	});
 }
