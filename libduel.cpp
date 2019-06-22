@@ -3642,8 +3642,8 @@ int32 scriptlib::duel_toss_coin(lua_State * L) {
 		duel* pduel = (duel*)ctx;
 		int32 count = lua_tointeger(L, 2);
 		for(int32 i = 0; i < count; ++i)
-			pduel->lua->add_param(pduel->game_field->core.coin_result[i], PARAM_TYPE_INT);
-		return 1;
+			lua_pushinteger(L, pduel->game_field->core.coin_result[i]);
+		return count;
 	});
 }
 int32 scriptlib::duel_toss_dice(lua_State * L) {
