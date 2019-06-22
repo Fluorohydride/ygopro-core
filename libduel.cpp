@@ -3546,7 +3546,7 @@ int32 scriptlib::duel_announce_level(lua_State * L) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->core.select_options[pduel->game_field->returns.ivalue[0]]);
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
-		return 1;
+		return 2;
 	});
 }
 int32 scriptlib::duel_announce_card(lua_State * L) {
@@ -3614,7 +3614,7 @@ int32 scriptlib::duel_announce_number(lua_State * L) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->core.select_options[pduel->game_field->returns.ivalue[0]]);
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
-		return 1;
+		return 2;
 	});
 }
 int32 scriptlib::duel_announce_coin(lua_State * L) {
