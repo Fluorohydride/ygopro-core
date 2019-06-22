@@ -3592,6 +3592,11 @@ int32 scriptlib::duel_announce_type(lua_State * L) {
 	pduel->game_field->add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, playerid, 0);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
+		int32 playerid = lua_tointeger(L, 1);
+		pduel->write_buffer8(MSG_HINT);
+		pduel->write_buffer8(HINT_OPSELECTED);
+		pduel->write_buffer8(playerid);
+		pduel->write_buffer32(pduel->game_field->core.select_options[pduel->game_field->returns.ivalue[0]]);
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
 		return 1;
 	});
@@ -3623,6 +3628,11 @@ int32 scriptlib::duel_announce_coin(lua_State * L) {
 	pduel->game_field->add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, playerid, 0);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
+		int32 playerid = lua_tointeger(L, 1);
+		pduel->write_buffer8(MSG_HINT);
+		pduel->write_buffer8(HINT_OPSELECTED);
+		pduel->write_buffer8(playerid);
+		pduel->write_buffer32(pduel->game_field->core.select_options[pduel->game_field->returns.ivalue[0]]);
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
 		return 1;
 	});
