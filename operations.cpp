@@ -101,7 +101,7 @@ void field::remove_counter(uint32 reason, card* pcard, uint32 rplayer, uint32 s,
 	add_process(PROCESSOR_REMOVE_COUNTER, 0, NULL, (group*)pcard, (rplayer << 16) + (s << 8) + o, countertype, count, reason);
 }
 void field::remove_overlay_card(uint32 reason, card* pcard, uint32 rplayer, uint32 s, uint32 o, uint16 min, uint16 max) {
-	add_process(PROCESSOR_REMOVEOL_S, 0, NULL, (group*)pcard, (rplayer << 16) + (s << 8) + o, (max << 16) + min, reason);
+	add_process(PROCESSOR_REMOVE_OVERLAY, 0, NULL, (group*)pcard, (rplayer << 16) + (s << 8) + o, (max << 16) + min, reason);
 }
 void field::get_control(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 playerid, uint32 reset_phase, uint32 reset_count, uint32 zone) {
 	group* ng = pduel->new_group(*targets);
@@ -191,7 +191,7 @@ void field::special_summon_complete(effect* reason_effect, uint8 reason_player) 
 	ng->container.swap(core.special_summoning);
 	ng->is_readonly = TRUE;
 	//core.special_summoning.clear();
-	add_process(PROCESSOR_SPSUMMON_COMP_S, 0, reason_effect, ng, reason_player, 0);
+	add_process(PROCESSOR_SPSUMMON, 1, reason_effect, ng, reason_player, 0);
 }
 void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence) {
 	for(auto cit = targets->begin(); cit != targets->end();) {

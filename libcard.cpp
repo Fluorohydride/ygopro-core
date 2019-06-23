@@ -1345,7 +1345,11 @@ int32 scriptlib::card_remove_overlay_card(lua_State *L) {
 	int32 reason = lua_tointeger(L, 5);
 	duel* pduel = pcard->pduel;
 	pduel->game_field->remove_overlay_card(reason, pcard, playerid, 0, 0, min, max);
-	return lua_yield(L, 0);
+	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
+		duel* pduel = (duel*)ctx;
+		lua_pushboolean(L, pduel->game_field->returns.ivalue[0]);
+		return 1;
+	});
 }
 int32 scriptlib::card_get_attacked_group(lua_State *L) {
 	check_param_count(L, 1);
@@ -2572,21 +2576,26 @@ int32 scriptlib::card_remove_counter(lua_State *L) {
 	uint32 countertype = lua_tointeger(L, 3);
 	uint32 count = lua_tointeger(L, 4);
 	uint32 reason = lua_tointeger(L, 5);
+	duel* pduel = pcard->pduel;
 	if(countertype == 0) {
 		// c38834303: remove all counters
 		for(const auto& cmit : pcard->counters) {
-			pcard->pduel->write_buffer8(MSG_REMOVE_COUNTER);
-			pcard->pduel->write_buffer16(cmit.first);
-			pcard->pduel->write_buffer8(pcard->current.controler);
-			pcard->pduel->write_buffer8(pcard->current.location);
-			pcard->pduel->write_buffer8(pcard->current.sequence);
-			pcard->pduel->write_buffer16(cmit.second[0] + cmit.second[1]);
+			pduel->write_buffer8(MSG_REMOVE_COUNTER);
+			pduel->write_buffer16(cmit.first);
+			pduel->write_buffer8(pcard->current.controler);
+			pduel->write_buffer8(pcard->current.location);
+			pduel->write_buffer8(pcard->current.sequence);
+			pduel->write_buffer16(cmit.second[0] + cmit.second[1]);
 		}
 		pcard->counters.clear();
 		return 0;
 	} else {
-		pcard->pduel->game_field->remove_counter(reason, pcard, rplayer, 0, 0, countertype, count);
-		return lua_yield(L, 0);
+		pduel->game_field->remove_counter(reason, pcard, rplayer, 0, 0, countertype, count);
+		return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
+			duel* pduel = (duel*)ctx;
+			lua_pushboolean(L, pduel->game_field->returns.ivalue[0]);
+			return 1;
+		});
 	}
 }
 int32 scriptlib::card_get_counter(lua_State *L) {
