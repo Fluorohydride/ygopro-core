@@ -2893,9 +2893,6 @@ int32 scriptlib::card_add_monster_attribute(lua_State *L) {
 	}
 	return 0;
 }
-int32 scriptlib::card_add_monster_attribute_complete(lua_State *L) {
-	return 0;
-}
 int32 scriptlib::card_cancel_to_grave(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);

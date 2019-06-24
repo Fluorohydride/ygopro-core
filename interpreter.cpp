@@ -253,7 +253,6 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsCanBeEffectTarget", scriptlib::card_is_can_be_effect_target },
 	{ "IsCanBeBattleTarget", scriptlib::card_is_can_be_battle_target },
 	{ "AddMonsterAttribute", scriptlib::card_add_monster_attribute },
-	{ "AddMonsterAttributeComplete", scriptlib::card_add_monster_attribute_complete },
 	{ "CancelToGrave", scriptlib::card_cancel_to_grave },
 	{ "GetTributeRequirement", scriptlib::card_get_tribute_requirement },
 	{ "GetBattleTarget", scriptlib::card_get_battle_target },

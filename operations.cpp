@@ -4440,8 +4440,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 					peffect->dec_count();
 				}
 			}
-			effect* teffect;
-			if(teffect = target->is_affected_by_effect(EFFECT_PRE_MONSTER)) {
+			if(effect* teffect = target->is_affected_by_effect(EFFECT_PRE_MONSTER)) {
 				uint32 type = teffect->value;
 				if(type & TYPE_TRAP)
 					type |= TYPE_TRAPMONSTER | target->data.type;
