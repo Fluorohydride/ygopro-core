@@ -780,7 +780,9 @@ int32 scriptlib::duel_move_to_field(lua_State *L) {
 	pduel->game_field->move_to_field(pcard, move_player, playerid, destination, positions, enable, 0, FALSE, zone);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
-		pduel->game_field->adjust_all();
+		uint32 enable = lua_toboolean(L, 6);
+		if(enable)
+			pduel->game_field->adjust_all();
 		lua_pushboolean(L, pduel->game_field->returns.ivalue[0]);
 		return 1;
 	});
@@ -1228,7 +1230,11 @@ int32 scriptlib::duel_damage(lua_State *L) {
 	pduel->game_field->damage(pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, 0, playerid, amount, is_step);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
-		pduel->game_field->adjust_all();
+		uint32 is_step = FALSE;
+		if(lua_gettop(L) >= 4)
+			is_step = lua_toboolean(L, 4);
+		if(!is_step)
+			pduel->game_field->adjust_all();
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
 		return 1;
 	});
@@ -1250,7 +1256,11 @@ int32 scriptlib::duel_recover(lua_State *L) {
 	pduel->game_field->recover(pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, playerid, amount, is_step);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
-		pduel->game_field->adjust_all();
+		uint32 is_step = FALSE;
+		if(lua_gettop(L) >= 4)
+			is_step = lua_toboolean(L, 4);
+		if(!is_step)
+			pduel->game_field->adjust_all();
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
 		return 1;
 	});
@@ -1258,6 +1268,7 @@ int32 scriptlib::duel_recover(lua_State *L) {
 int32 scriptlib::duel_rd_complete(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->game_field->core.subunits.splice(pduel->game_field->core.subunits.end(), pduel->game_field->core.recover_damage_reserve);
+	pduel->game_field->adjust_all();
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_equip(lua_State *L) {
