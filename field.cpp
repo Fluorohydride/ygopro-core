@@ -3358,6 +3358,8 @@ int32 field::check_trigger_effect(const chain& ch) const {
 		return FALSE;
 	if(peffect->code == EVENT_FLIP && infos.phase == PHASE_DAMAGE)
 		return TRUE;
+	if((phandler->current.location & LOCATION_DECK) && !(ch.flag & CHAIN_DECK_EFFECT))
+		return FALSE;
 	if((ch.triggering_location & (LOCATION_DECK | LOCATION_HAND | LOCATION_EXTRA))
 		&& (ch.triggering_position & POS_FACEDOWN))
 		return TRUE;
