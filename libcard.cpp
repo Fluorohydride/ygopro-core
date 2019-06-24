@@ -1347,6 +1347,7 @@ int32 scriptlib::card_remove_overlay_card(lua_State *L) {
 	pduel->game_field->remove_overlay_card(reason, pcard, playerid, 0, 0, min, max);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
+		pduel->game_field->adjust_all();
 		lua_pushboolean(L, pduel->game_field->returns.ivalue[0]);
 		return 1;
 	});
@@ -1420,6 +1421,7 @@ int32 scriptlib::card_set_card_target(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	card* ocard = *(card**) lua_touserdata(L, 2);
 	pcard->add_card_target(ocard);
+	pcard->pduel->game_field->adjust_all();
 	return 0;
 }
 int32 scriptlib::card_get_card_target(lua_State *L) {
@@ -2593,6 +2595,7 @@ int32 scriptlib::card_remove_counter(lua_State *L) {
 		pduel->game_field->remove_counter(reason, pcard, rplayer, 0, 0, countertype, count);
 		return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 			duel* pduel = (duel*)ctx;
+			pduel->game_field->adjust_all();
 			lua_pushboolean(L, pduel->game_field->returns.ivalue[0]);
 			return 1;
 		});

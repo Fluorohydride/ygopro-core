@@ -4261,7 +4261,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		pduel->write_buffer8(MSG_CHAIN_SOLVED);
 		pduel->write_buffer8(cait->chain_count);
 		raise_event((card*)0, EVENT_CHAIN_SOLVED, cait->triggering_effect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
-		adjust_disable_check_list();
+		adjust_instant();
 		process_instant_event();
 		core.units.begin()->step = 9;
 		return FALSE;
@@ -4373,7 +4373,6 @@ int32 field::break_effect() {
 }
 void field::adjust_instant() {
 	adjust_disable_check_list();
-	adjust_self_destroy_set();
 }
 void field::adjust_all() {
 	core.readjust_map.clear();

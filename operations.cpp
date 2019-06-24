@@ -1421,7 +1421,7 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 		if(!is_step) {
 			if(equip_card->is_position(POS_FACEUP))
 				equip_card->enable_field_effect(true);
-			adjust_disable_check_list();
+			adjust_instant();
 			card_set cset;
 			cset.insert(equip_card);
 			raise_single_event(target, &cset, EVENT_EQUIP, core.reason_effect, 0, core.reason_player, PLAYER_NONE, 0);
@@ -1876,6 +1876,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		core.summoning_card = 0;
 		raise_event(target, EVENT_SUMMON, proc, 0, sumplayer, sumplayer, 0);
 		process_instant_event();
+		adjust_all();
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x101, TRUE);
 		return FALSE;
 	}
@@ -2725,6 +2726,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		target->set_status(STATUS_SUMMON_DISABLED, FALSE);
 		raise_event(target, EVENT_SPSUMMON, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
 		process_instant_event();
+		adjust_all();
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x101, TRUE);
 		return FALSE;
 	}
@@ -3730,7 +3732,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		uint32 dest, redirect, redirect_seq, check_cb;
 		for(auto& pcard : targets->container)
 			pcard->enable_field_effect(false);
-		adjust_disable_check_list();
+		adjust_instant();
 		for(auto& pcard : targets->container) {
 			dest = pcard->sendto_param.location;
 			redirect = 0;
@@ -4477,7 +4479,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			process_single_event();
 			process_instant_event();
 		}
-		adjust_disable_check_list();
+		adjust_instant();
 		return FALSE;
 	}
 	case 3: {
