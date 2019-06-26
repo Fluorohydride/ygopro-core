@@ -1378,7 +1378,8 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 		if(equip_card == target || target->current.location != LOCATION_MZONE)
 			return TRUE;
 		if(equip_card->equiping_target) {
-			equip_card->cancel_card_target(equip_card->equiping_target);
+			equip_card->effect_target_cards.erase(equip_card->equiping_target);
+			equip_card->equiping_target->effect_target_owner.erase(equip_card);
 			equip_card->unequip();
 			equip_card->enable_field_effect(false);
 			return FALSE;
