@@ -156,6 +156,7 @@ public:
 #define EFFECT_TYPE_CONTINUOUS		0x0800	//
 #define EFFECT_TYPE_XMATERIAL		0x1000	//
 #define EFFECT_TYPE_GRANT			0x2000	//
+#define EFFECT_TYPE_TARGET			0x4000	//
 
 //========== Flags ==========
 enum effect_flag : uint32 {

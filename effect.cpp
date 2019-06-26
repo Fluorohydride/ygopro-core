@@ -91,7 +91,7 @@ int32 effect::is_available() {
 		if(powner == phandler && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && phandler->get_status(STATUS_DISABLED))
 			return FALSE;
 	}
-	if (type & EFFECT_TYPE_EQUIP) {
+	if(type & (EFFECT_TYPE_EQUIP | EFFECT_TYPE_TARGET)) {
 		if(handler->current.controler == PLAYER_NONE)
 			return FALSE;
 		if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && owner->is_status(STATUS_FORBIDDEN))
@@ -435,7 +435,7 @@ int32 effect::is_activate_check(uint8 playerid, const tevent& e, int32 neglect_c
 int32 effect::is_target(card* pcard) {
 	if(type & EFFECT_TYPE_ACTIONS)
 		return FALSE;
-	if(type & (EFFECT_TYPE_SINGLE | EFFECT_TYPE_EQUIP | EFFECT_TYPE_XMATERIAL) && !(type & EFFECT_TYPE_FIELD))
+	if(type & (EFFECT_TYPE_SINGLE | EFFECT_TYPE_EQUIP | EFFECT_TYPE_TARGET | EFFECT_TYPE_XMATERIAL) && !(type & EFFECT_TYPE_FIELD))
 		return TRUE;
 	if(pcard && !is_flag(EFFECT_FLAG_SET_AVAILABLE) && (pcard->current.location & LOCATION_ONFIELD)
 			&& !pcard->is_position(POS_FACEUP))
