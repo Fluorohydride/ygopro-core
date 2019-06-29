@@ -4346,6 +4346,8 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			if(!(target->current.location & LOCATION_ONFIELD))
 				target->clear_relate_effect();
 		}
+		if(ret == 1)
+			target->current.reason &= ~REASON_TEMPORARY;
 		if(ret == 0 && location != target->current.location
 			|| ret == 1 && target->turnid != infos.turn_id) {
 			target->set_status(STATUS_SUMMON_TURN, FALSE);
