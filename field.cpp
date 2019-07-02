@@ -2397,7 +2397,7 @@ int32 field::check_synchro_material(card* pcard, int32 findex1, int32 findex2, i
 	return FALSE;
 }
 int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg) {
-	if(!tuner || !tuner->is_position(POS_FACEUP) || !(tuner->get_synchro_type() & TYPE_TUNER) || !tuner->is_can_be_synchro_material(pcard))
+	if(!tuner || (tuner->current.location == LOCATION_MZONE && !tuner->is_position(POS_FACEUP)) || !(tuner->get_synchro_type() & TYPE_TUNER) || !tuner->is_can_be_synchro_material(pcard))
 		return FALSE;
 	effect* pcheck = tuner->is_affected_by_effect(EFFECT_SYNCHRO_CHECK);
 	if(pcheck)
