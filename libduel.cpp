@@ -3556,8 +3556,7 @@ int32 scriptlib::duel_announce_card(lua_State * L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->game_field->core.select_options.clear();
 	if(lua_gettop(L) == 1) {
-		pduel->game_field->core.select_options.push_back(TYPE_MONSTER | TYPE_SPELL | TYPE_TRAP);
-		pduel->game_field->core.select_options.push_back(OPCODE_ISTYPE);
+		pduel->game_field->core.select_options.push_back(TRUE);
 	} else {
 		for(int32 i = 2; i <= lua_gettop(L); ++i)
 			pduel->game_field->core.select_options.push_back(lua_tointeger(L, i));
