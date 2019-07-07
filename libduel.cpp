@@ -3557,6 +3557,9 @@ int32 scriptlib::duel_announce_card(lua_State * L) {
 	pduel->game_field->core.select_options.clear();
 	if(lua_gettop(L) == 1) {
 		pduel->game_field->core.select_options.push_back(TRUE);
+	} else if(lua_gettop(L) == 2) {
+		pduel->game_field->core.select_options.push_back(lua_tointeger(L, 2));
+		pduel->game_field->core.select_options.push_back(OPCODE_ISTYPE);
 	} else {
 		for(int32 i = 2; i <= lua_gettop(L); ++i)
 			pduel->game_field->core.select_options.push_back(lua_tointeger(L, i));
