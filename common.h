@@ -315,7 +315,6 @@ struct card_sort {
 #define MSG_ANNOUNCE_ATTRIB		141
 #define MSG_ANNOUNCE_CARD		142
 #define MSG_ANNOUNCE_NUMBER		143
-#define MSG_ANNOUNCE_CARD_FILTER	144
 #define MSG_CARD_HINT			160
 #define MSG_TAG_SWAP			161
 #define MSG_RELOAD_FIELD		162	// Debug.ReloadFieldEnd()

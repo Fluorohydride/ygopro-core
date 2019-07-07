@@ -965,19 +965,13 @@ static int32 is_declarable(card_data const& cd, const std::vector<uint32>& opcod
 	return cd.code == CARD_MARINE_DOLPHIN || cd.code == CARD_TWINKLE_MOSS
 		|| (!cd.alias && (cd.type & (TYPE_MONSTER + TYPE_TOKEN)) != (TYPE_MONSTER + TYPE_TOKEN));
 }
-int32 field::announce_card(int16 step, uint8 playerid, uint32 ttype) {
+int32 field::announce_card(int16 step, uint8 playerid) {
 	if(step == 0) {
-		if(core.select_options.size() == 0) {
-			pduel->write_buffer8(MSG_ANNOUNCE_CARD);
-			pduel->write_buffer8(playerid);
-			pduel->write_buffer32(ttype);
-		} else {
-			pduel->write_buffer8(MSG_ANNOUNCE_CARD_FILTER);
-			pduel->write_buffer8(playerid);
-			pduel->write_buffer8(core.select_options.size());
-			for(auto& option : core.select_options)
-				pduel->write_buffer32(option);
-		}
+		pduel->write_buffer8(MSG_ANNOUNCE_CARD);
+		pduel->write_buffer8(playerid);
+		pduel->write_buffer8(core.select_options.size());
+		for(auto& option : core.select_options)
+			pduel->write_buffer32(option);
 		return FALSE;
 	} else {
 		int32 code = returns.ivalue[0];
@@ -986,12 +980,6 @@ int32 field::announce_card(int16 step, uint8 playerid, uint32 ttype) {
 		if(!data.code) {
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
-		}
-		if(core.select_options.size() == 0) {
-			if(!(data.type & ttype)) {
-				pduel->write_buffer8(MSG_RETRY);
-				return FALSE;
-			}
 		} else {
 			if(!is_declarable(data, core.select_options)) {
 				pduel->write_buffer8(MSG_RETRY);
