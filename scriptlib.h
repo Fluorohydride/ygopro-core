@@ -183,7 +183,6 @@ public:
 	static int32 card_is_relate_to_battle(lua_State *L);
 	static int32 card_copy_effect(lua_State *L);
 	static int32 card_replace_effect(lua_State *L);
-	static int32 card_enable_unsummonable(lua_State *L);
 	static int32 card_enable_revive_limit(lua_State *L);
 	static int32 card_complete_procedure(lua_State *L);
 	static int32 card_is_disabled(lua_State *L);
@@ -195,6 +194,7 @@ public:
 	static int32 card_is_special_summonable(lua_State *L);
 	static int32 card_is_synchro_summonable(lua_State *L);
 	static int32 card_is_xyz_summonable(lua_State *L);
+	static int32 card_is_link_summonable(lua_State *L);
 	static int32 card_is_can_be_summoned(lua_State *L);
 	static int32 card_is_can_be_special_summoned(lua_State *L);
 	static int32 card_is_able_to_hand(lua_State *L);
@@ -257,7 +257,6 @@ public:
 	static int32 card_is_can_be_effect_target(lua_State *L);
 	static int32 card_is_can_be_battle_target(lua_State *L);
 	static int32 card_add_monster_attribute(lua_State *L);
-	static int32 card_add_monster_attribute_complete(lua_State *L);
 	static int32 card_cancel_to_grave(lua_State *L);
 	static int32 card_get_tribute_requirement(lua_State *L);
 	static int32 card_get_battle_target(lua_State *L);
@@ -379,6 +378,7 @@ public:
 	static int32 duel_special_summon_rule(lua_State *L);
 	static int32 duel_synchro_summon(lua_State *L);
 	static int32 duel_xyz_summon(lua_State *L);
+	static int32 duel_link_summon(lua_State *L);
 	static int32 duel_setm(lua_State *L);
 	static int32 duel_sets(lua_State *L);
 	static int32 duel_create_token(lua_State *L);

@@ -54,7 +54,7 @@ public:
 	uint16 active_sequence;
 	card* active_handler;
 	uint16 status;
-	uint32 label;
+	std::vector<uint32> label;
 	int32 label_object;
 	int32 condition;
 	int32 cost;
@@ -186,7 +186,7 @@ enum effect_flag : uint32 {
 	EFFECT_FLAG_OWNER_RELATE		= 0x1000000,
 	EFFECT_FLAG_CANNOT_INACTIVATE	= 0x2000000,
 	EFFECT_FLAG_CLIENT_HINT			= 0x4000000,
-//	EFFECT_FLAG_CHAIN_UNIQUE		= 0x8000000,
+	EFFECT_FLAG_CONTINUOUS_TARGET	= 0x8000000,
 	EFFECT_FLAG_LIMIT_ZONE			= 0x10000000,
 //	EFFECT_FLAG_COF					= 0x20000000,
 //	EFFECT_FLAG_CVAL_CHECK			= 0x40000000,
@@ -419,7 +419,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CANNOT_SELECT_EFFECT_TARGET	333
 #define EFFECT_ADD_SETCODE				334
 #define EFFECT_NO_EFFECT_DAMAGE			335
-#define EFFECT_UNSUMMONABLE_CARD		336
+//#define EFFECT_UNSUMMONABLE_CARD		336
 #define EFFECT_DISCARD_COST_CHANGE		338
 #define EFFECT_HAND_SYNCHRO				339
 #define EFFECT_ADD_FUSION_CODE			340

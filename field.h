@@ -260,11 +260,18 @@ struct processor {
 	uint8 summon_cancelable;
 	card* attacker;
 	card* attack_target;
+	uint32 limit_extra_summon_zone;
+	uint32 limit_extra_summon_releasable;
 	card* limit_tuner;
 	group* limit_syn;
+	int32 limit_syn_minc;
+	int32 limit_syn_maxc;
 	group* limit_xyz;
 	int32 limit_xyz_minc;
 	int32 limit_xyz_maxc;
+	group* limit_link;
+	int32 limit_link_minc;
+	int32 limit_link_maxc;
 	uint8 attack_cancelable;
 	uint8 attack_rollback;
 	uint8 effect_damage_step;
@@ -560,8 +567,8 @@ public:
 	int32 summon(uint16 step, uint8 sumplayer, card* target, effect* proc, uint8 ignore_count, uint8 min_tribute, uint32 zone);
 	int32 flip_summon(uint16 step, uint8 sumplayer, card* target);
 	int32 mset(uint16 step, uint8 setplayer, card* ptarget, effect* proc, uint8 ignore_count, uint8 min_tribute, uint32 zone);
-	int32 sset(uint16 step, uint8 setplayer, uint8 toplayer, card* ptarget);
-	int32 sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget, uint8 confirm);
+	int32 sset(uint16 step, uint8 setplayer, uint8 toplayer, card* ptarget, effect* reason_effect);
+	int32 sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget, uint8 confirm, effect* reason_effect);
 	int32 special_summon_rule(uint16 step, uint8 sumplayer, card* target, uint32 summon_type);
 	int32 special_summon_step(uint16 step, group* targets, card* target, uint32 zone);
 	int32 special_summon(uint16 step, effect* reason_effect, uint8 reason_player, group* targets, uint32 zone);
@@ -700,7 +707,6 @@ public:
 #define PROCESSOR_SELECT_PLACE		18
 #define PROCESSOR_SELECT_POSITION	19
 #define PROCESSOR_SELECT_TRIBUTE_P	20
-//#define PROCESSOR_SORT_CHAIN		21
 #define PROCESSOR_SELECT_COUNTER	22
 #define PROCESSOR_SELECT_SUM		23
 #define PROCESSOR_SELECT_DISFIELD	24
@@ -749,10 +755,6 @@ public:
 #define PROCESSOR_ATTACK_DISABLE	82
 #define PROCESSOR_ACTIVATE_EFFECT	83
 
-#define PROCESSOR_DESTROY_S			100
-#define PROCESSOR_RELEASE_S			101
-#define PROCESSOR_SENDTO_S			102
-#define PROCESSOR_CHANGEPOS_S		103
 #define PROCESSOR_ANNOUNCE_RACE		110
 #define PROCESSOR_ANNOUNCE_ATTRIB	111
 #define PROCESSOR_ANNOUNCE_LEVEL	112
@@ -763,36 +765,43 @@ public:
 #define PROCESSOR_TOSS_DICE			117
 #define PROCESSOR_TOSS_COIN			118
 #define PROCESSOR_ROCK_PAPER_SCISSORS	119
-#define PROCESSOR_SELECT_YESNO_S	120
-#define PROCESSOR_SELECT_OPTION_S	121
-#define PROCESSOR_SELECT_CARD_S		122
-#define PROCESSOR_SELECT_EFFECTYN_S	123
-#define PROCESSOR_SELECT_UNSELECT_CARD_S	124
-//#define PROCESSOR_SELECT_PLACE_S	125
-#define PROCESSOR_SELECT_POSITION_S	126
-#define PROCESSOR_SELECT_TRIBUTE_S	127
-#define PROCESSOR_SORT_CARDS_S		128
-#define PROCESSOR_SELECT_RELEASE_S	129
-#define PROCESSOR_SELECT_TARGET		130
+
 #define PROCESSOR_SELECT_FUSION		131
 #define PROCESSOR_SELECT_SYNCHRO	132
-#define PROCESSOR_SELECT_SUM_S		133
-#define PROCESSOR_SELECT_DISFIELD_S	134
-#define PROCESSOR_SPSUMMON_S		135
-#define PROCESSOR_SPSUMMON_STEP_S	136
-#define PROCESSOR_SPSUMMON_COMP_S	137
-#define PROCESSOR_RANDOM_SELECT_S	138
 #define PROCESSOR_SELECT_XMATERIAL	139
-#define PROCESSOR_DRAW_S			140
-#define PROCESSOR_DAMAGE_S			141
-#define PROCESSOR_RECOVER_S			142
-#define PROCESSOR_EQUIP_S			143
-#define PROCESSOR_GET_CONTROL_S		144
-#define PROCESSOR_SWAP_CONTROL_S	145
-#define PROCESSOR_DISCARD_HAND_S	150
-#define PROCESSOR_DISCARD_DECK_S	151
-#define PROCESSOR_SORT_DECK_S		152
-#define PROCESSOR_REMOVEOL_S		160
-#define PROCESSOR_MOVETOFIELD_S		161
+#define PROCESSOR_DISCARD_HAND	150
+#define PROCESSOR_DISCARD_DECK	151
+#define PROCESSOR_SORT_DECK		152
+#define PROCESSOR_REMOVE_OVERLAY		160
+
+//#define PROCESSOR_SORT_CHAIN		21
+//#define PROCESSOR_DESTROY_S			100
+//#define PROCESSOR_RELEASE_S			101
+//#define PROCESSOR_SENDTO_S			102
+//#define PROCESSOR_CHANGEPOS_S		103
+//#define PROCESSOR_SELECT_YESNO_S	120
+//#define PROCESSOR_SELECT_OPTION_S	121
+//#define PROCESSOR_SELECT_CARD_S		122
+//#define PROCESSOR_SELECT_EFFECTYN_S	123
+//#define PROCESSOR_SELECT_UNSELECT_CARD_S	124
+//#define PROCESSOR_SELECT_PLACE_S	125
+//#define PROCESSOR_SELECT_POSITION_S	126
+//#define PROCESSOR_SELECT_TRIBUTE_S	127
+//#define PROCESSOR_SORT_CARDS_S		128
+//#define PROCESSOR_SELECT_RELEASE_S	129
+//#define PROCESSOR_SELECT_TARGET		130
+//#define PROCESSOR_SELECT_SUM_S		133
+//#define PROCESSOR_SELECT_DISFIELD_S	134
+//#define PROCESSOR_SPSUMMON_S		135
+//#define PROCESSOR_SPSUMMON_STEP_S	136
+//#define PROCESSOR_SPSUMMON_COMP_S	137
+//#define PROCESSOR_RANDOM_SELECT_S	138
+//#define PROCESSOR_DRAW_S			140
+//#define PROCESSOR_DAMAGE_S			141
+//#define PROCESSOR_RECOVER_S			142
+//#define PROCESSOR_EQUIP_S			143
+//#define PROCESSOR_GET_CONTROL_S		144
+//#define PROCESSOR_SWAP_CONTROL_S	145
+//#define PROCESSOR_MOVETOFIELD_S		161
 
 #endif /* FIELD_H_ */
