@@ -910,6 +910,17 @@ void field::shuffle(uint8 playerid, uint8 location) {
 			core.shuffle_hand_check[playerid] = FALSE;
 			return;
 		}
+		for(auto& pcard : svector) {
+			for(auto& i : pcard->indexer) {
+				effect* peffect = i.first;
+				if(peffect->is_flag(EFFECT_FLAG_CLIENT_HINT) && !peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
+					pduel->write_buffer8(MSG_CARD_HINT);
+					pduel->write_buffer32(pcard->get_info_location());
+					pduel->write_buffer8(CHINT_DESC_REMOVE);
+					pduel->write_buffer32(peffect->description);
+				}
+			}
+		}
 	}
 	if(location == LOCATION_HAND || !(core.duel_options & DUEL_PSEUDO_SHUFFLE)) {
 		uint32 s = svector.size();
@@ -932,8 +943,20 @@ void field::shuffle(uint8 playerid, uint8 location) {
 		pduel->write_buffer8(svector.size());
 		for(auto& pcard : svector)
 			pduel->write_buffer32(pcard->data.code);
-		if(location == LOCATION_HAND)
+		if(location == LOCATION_HAND) {
 			core.shuffle_hand_check[playerid] = FALSE;
+			for(auto& pcard : svector) {
+				for(auto& i : pcard->indexer) {
+					effect* peffect = i.first;
+					if(peffect->is_flag(EFFECT_FLAG_CLIENT_HINT) && !peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
+						pduel->write_buffer8(MSG_CARD_HINT);
+						pduel->write_buffer32(pcard->get_info_location());
+						pduel->write_buffer8(CHINT_DESC_ADD);
+						pduel->write_buffer32(peffect->description);
+					}
+				}
+			}
+		}
 	} else {
 		pduel->write_buffer8(MSG_SHUFFLE_DECK);
 		pduel->write_buffer8(playerid);
