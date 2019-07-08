@@ -338,6 +338,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_RCOUNTER_REPLACE			0x30000
 #define EFFECT_LPCOST_CHANGE			170
 #define EFFECT_LPCOST_REPLACE			171
+#define EFFECT_DISCARD_HAND_CHANGE		172
+#define EFFECT_DISCARD_HAND_REPLACE		173
 #define EFFECT_SKIP_DP					180
 #define EFFECT_SKIP_SP					181
 #define EFFECT_SKIP_M1					182
@@ -420,7 +422,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_ADD_SETCODE				334
 #define EFFECT_NO_EFFECT_DAMAGE			335
 //#define EFFECT_UNSUMMONABLE_CARD		336
-#define EFFECT_DISCARD_COST_CHANGE		338
+//#define EFFECT_DISCARD_COST_CHANGE		338
 #define EFFECT_HAND_SYNCHRO				339
 #define EFFECT_ADD_FUSION_CODE			340
 #define EFFECT_ADD_FUSION_SETCODE		341

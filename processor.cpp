@@ -566,7 +566,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_TOSS_COIN: {
-		if (toss_coin(it->step, it->peffect, (it->arg1 >> 16), it->arg1 & 0xff, it->arg2)) {
+		if(toss_coin(it->step, it->peffect, (it->arg1 >> 16), it->arg1 & 0xff, it->arg2)) {
 			core.units.pop_front();
 		} else
 			it->step++;
@@ -613,37 +613,17 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_SELECT_XMATERIAL: {
-		if (select_xyz_material(it->step, it->arg1 & 0xffff, it->arg1 >> 16, (card*)it->ptarget, it->arg2 & 0xffff, it->arg2 >> 16))
+		if(select_xyz_material(it->step, it->arg1 & 0xffff, it->arg1 >> 16, (card*)it->ptarget, it->arg2 & 0xffff, it->arg2 >> 16))
 			core.units.pop_front();
 		else
 			it->step++;
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_DISCARD_HAND: {
-		if(it->step == 0) {
-			pduel->write_buffer8(MSG_HINT);
-			pduel->write_buffer8(HINT_SELECTMSG);
-			pduel->write_buffer8(it->arg1);
-			if(it->arg3 & REASON_DISCARD)
-				pduel->write_buffer32(501);
-			else
-				pduel->write_buffer32(504);
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, it->arg1, it->arg2);
-			it->step++;
-		} else if(it->step == 1) {
-			card_set cset;
-			for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-				card* pcard = core.select_cards[returns.bvalue[i + 1]];
-				cset.insert(pcard);
-			}
-			if(cset.size())
-				send_to(&cset, core.reason_effect, it->arg3, core.reason_player, it->arg1, LOCATION_GRAVE, 0, POS_FACEUP);
-			else
-				returns.ivalue[0] = 0;
-			it->step++;
-		} else {
+		if(discard_hand(it->step, it->arg1, it->arg2 & 0xffff, (it->arg2 >> 16) & 0xffff, it->arg3))
 			core.units.pop_front();
-		}
+		else
+			it->step++;
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_DISCARD_DECK: {

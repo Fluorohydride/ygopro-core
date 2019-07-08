@@ -426,6 +426,9 @@ public:
 	static int32 duel_check_lp_cost(lua_State *L);
 	static int32 duel_pay_lp_cost(lua_State *L);
 	static int32 duel_discard_deck(lua_State *L);
+	static int32 duel_get_discard_hand(lua_State *L);
+	static int32 duel_get_discard_hand_count(lua_State *L);
+	static int32 duel_check_discard_hand(lua_State *L);
 	static int32 duel_discard_hand(lua_State *L);
 	static int32 duel_disable_shuffle_check(lua_State *L);
 	static int32 duel_shuffle_deck(lua_State *L);

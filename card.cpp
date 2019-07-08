@@ -3405,6 +3405,13 @@ int32 card::is_releasable_by_effect(uint8 playerid, effect* peffect) {
 	}
 	return TRUE;
 }
+int32 card::is_discardable(uint8 playerid, uint32 reason, effect* peffect) {
+	if(reason == REASON_COST && is_affected_by_effect(EFFECT_CANNOT_USE_AS_COST))
+		return FALSE;
+	if(!pduel->game_field->is_player_can_discard_hand(playerid, this, peffect, reason))
+		return FALSE;
+	return TRUE;
+}
 int32 card::is_capable_send_to_grave(uint8 playerid) {
 	if(is_affected_by_effect(EFFECT_CANNOT_TO_GRAVE))
 		return FALSE;

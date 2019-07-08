@@ -222,6 +222,7 @@ struct processor {
 	card_set release_cards;
 	card_set release_cards_ex;
 	card_set release_cards_ex_oneof;
+	card_set discard_hand_cards;
 	card_set battle_destroy_rep;
 	card_set fusion_materials;
 	card_set synchro_materials;
@@ -435,6 +436,8 @@ public:
 	void restore_lp_cost() {}
 	int32 pay_lp_cost(uint32 step, uint8 playerid, uint32 cost);
 
+	int32 get_discard_hand_list(uint8 playerid, uint32 discard_reason, card_set* discard_list, int32 fun, int32 exarg, card* exc, group* exg);
+	int32 check_discard_hand(uint8 playerid, int32 count, uint32 discard_reason, int32 fun, int32 exarg, card* exc, group* exg);
 	uint32 get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype);
 	int32 effect_replace_check(uint32 code, const tevent& e);
 	int32 get_attack_target(card* pcard, card_vector* v, uint8 chain_attack = FALSE, bool select_target = true);
@@ -578,6 +581,7 @@ public:
 	int32 release(uint16 step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player);
 	int32 send_replace(uint16 step, group* targets, card* target);
 	int32 send_to(uint16 step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player);
+	int32 discard_hand(uint16 step, uint8 playerid, uint16 min, uint16 max, uint32 discard_reason);
 	int32 discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reason);
 	int32 move_to_field(uint16 step, card* target, uint32 enable, uint32 ret, uint32 is_equip, uint32 zone);
 	int32 change_position(uint16 step, group* targets, effect* reason_effect, uint8 reason_player, uint32 enable);

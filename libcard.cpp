@@ -2250,8 +2250,7 @@ int32 scriptlib::card_is_discardable(lua_State *L) {
 	uint32 reason = REASON_COST;
 	if(lua_gettop(L) > 1)
 		reason = lua_tointeger(L, 2);
-	if((reason != REASON_COST || !pcard->is_affected_by_effect(EFFECT_CANNOT_USE_AS_COST))
-	        && pcard->pduel->game_field->is_player_can_discard_hand(p, pcard, pe, reason))
+	if(pcard->is_discardable(p, reason, pe))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);

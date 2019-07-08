@@ -2122,7 +2122,6 @@ void field::check_card_counter(group* pgroup, int32 counter_type, int32 playerid
 		}
 	}
 }
-
 void field::check_chain_counter(effect* peffect, int32 playerid, int32 chainid, bool cancel) {
 	for(auto& iter : core.chain_counter) {
 		auto& info = iter.second;
@@ -2231,6 +2230,78 @@ void field::restore_lp_cost() {
 	}
 }
 */
+int32 field::get_discard_hand_list(uint8 playerid, uint32 discard_reason, card_set* discard_list, int32 fun, int32 exarg, card* exc, group* exg) {
+	int32 count = 0;
+	uint32 reason = discard_reason;
+	int32 is_discard = FALSE;
+	if(reason & REASON_DISCARD) {
+		reason -= REASON_DISCARD;
+		is_discard = TRUE;
+	}
+	for(auto& pcard : player[playerid].list_hand) {
+		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (!is_discard || pcard->is_discardable(playerid, reason, core.reason_effect)) && pduel->lua->check_matching(pcard, fun, exarg)) {
+			if(discard_list)
+				discard_list->insert(pcard);
+			count++;
+		}
+	}
+	return count;
+}
+int32 field::check_discard_hand(uint8 playerid, int32 count, uint32 discard_reason, int32 fun, int32 exarg, card* exc, group* exg) {
+	card_set discard_list;
+	get_discard_hand_list(playerid, discard_reason, &discard_list, fun, exarg, exc, exg);
+	for(auto& pcard : core.must_select_cards) {
+		auto it = discard_list.find(pcard);
+		if(it != discard_list.end())
+			discard_list.erase(it);
+		else
+			return FALSE;
+	}
+	int32 cmin = count;
+	int32 cmax = count;
+	uint32 reason = discard_reason;
+	if(reason & REASON_DISCARD) {
+		reason -= REASON_DISCARD;
+		int32 ccheck = FALSE;
+		std::vector<int32> retval;
+		effect_set eset;
+		filter_player_effect(playerid, EFFECT_DISCARD_HAND_CHANGE, &eset);
+		for(int32 i = 0; i < eset.size(); ++i) {
+			pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(reason, PARAM_TYPE_INT);
+			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+			pduel->lua->add_param(cmin, PARAM_TYPE_INT);
+			pduel->lua->add_param(cmax, PARAM_TYPE_INT);
+			eset[i]->get_value(5, &retval);
+			if(retval.size() == 1) {
+				cmin = retval[0];
+				cmax = retval[0];
+				ccheck = TRUE;
+			} else if(retval.size() > 1) {
+				cmin = retval[0];
+				cmax = retval[1];
+				ccheck = TRUE;
+			}
+			retval.clear();
+		}
+		if(cmin > cmax)
+			cmax = cmin;
+		if(ccheck && core.must_select_cards.size() > cmax)
+			return FALSE;
+		if(cmin <= 0)
+			return TRUE;
+		tevent e;
+		e.event_cards = 0;
+		e.event_player = playerid;
+		e.event_value = cmin;
+		e.reason = reason;
+		e.reason_effect = core.reason_effect;
+		e.reason_player = playerid;
+		if(effect_replace_check(EFFECT_DISCARD_HAND_REPLACE, e))
+			return TRUE;
+	}
+	return ((int32)discard_list.size() >= cmin) ? TRUE : FALSE;
+}
 uint32 field::get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype) {
 	uint8 c = s;
 	uint32 count = 0;
