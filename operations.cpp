@@ -4122,7 +4122,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 	}
 	return TRUE;
 }
-int32 field::discard_hand(uint16 step, uint8 playerid, uint16 min, uint16 max, uint32 discard_reason) {
+int32 field::discard_hand(uint16 step, uint8 playerid, uint16 min, uint16 max, uint32 discard_reason, uint32 is_step) {
 	switch(step) {
 	case 0: {
 		uint32 reason = discard_reason;
@@ -4136,7 +4136,7 @@ int32 field::discard_hand(uint16 step, uint8 playerid, uint16 min, uint16 max, u
 			if(cmin > cmax)
 				cmax = cmin;
 			if(cmin <= 0 && cmax <= 0) {
-				core.units.begin()->step = 4;
+				core.units.begin()->step = 3;
 				return FALSE;
 			}
 			core.units.begin()->arg2 = cmin + (cmax << 16);
@@ -4192,7 +4192,7 @@ int32 field::discard_hand(uint16 step, uint8 playerid, uint16 min, uint16 max, u
 			e.reason_effect = core.reason_effect;
 			e.reason_player = playerid;
 			solve_continuous(playerid, peffect, e);
-			core.units.begin()->step = 4;
+			core.units.begin()->step = 3;
 		}
 		return FALSE;
 	}
@@ -4221,16 +4221,29 @@ int32 field::discard_hand(uint16 step, uint8 playerid, uint16 min, uint16 max, u
 			cset.insert(pcard);
 		}
 		if(cset.size())
-			send_to(&cset, core.reason_effect, discard_reason, core.reason_player, playerid, LOCATION_GRAVE, 0, POS_FACEUP);
+			if(!is_step) {
+				send_to(&cset, core.reason_effect, discard_reason, core.reason_player, playerid, LOCATION_GRAVE, 0, POS_FACEUP);
+			} else {
+				for(auto& pcard : cset)
+					core.discard_hand_selected_cards.insert(pcard);
+				returns.ivalue[0] = cset.size();
+			}
 		else
 			returns.ivalue[0] = 0;
-		return FALSE;
+		return TRUE;
 	}
 	case 4: {
+		returns.ivalue[0] = 0;
 		return TRUE;
 	}
 	case 5: {
-		returns.ivalue[0] = 1;
+		card_set cset;
+		for(auto& pcard : core.discard_hand_selected_cards)
+			cset.insert(pcard);
+		if(cset.size())
+			send_to(&cset, core.reason_effect, discard_reason, core.reason_player, playerid, LOCATION_GRAVE, 0, POS_FACEUP);
+		else
+			returns.ivalue[0] = 0;
 		return TRUE;
 	}
 	}

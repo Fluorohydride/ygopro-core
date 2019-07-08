@@ -2239,7 +2239,8 @@ int32 field::get_discard_hand_list(uint8 playerid, uint32 discard_reason, card_s
 		is_discard = TRUE;
 	}
 	for(auto& pcard : player[playerid].list_hand) {
-		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (!is_discard || pcard->is_discardable(playerid, reason, core.reason_effect)) && pduel->lua->check_matching(pcard, fun, exarg)) {
+		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && core.discard_hand_selected_cards.find(pcard) == core.discard_hand_selected_cards.end()
+			&& (!is_discard || pcard->is_discardable(playerid, reason, core.reason_effect)) && pduel->lua->check_matching(pcard, fun, exarg)) {
 			if(discard_list)
 				discard_list->insert(pcard);
 			count++;

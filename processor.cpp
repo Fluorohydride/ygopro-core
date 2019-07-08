@@ -620,7 +620,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_DISCARD_HAND: {
-		if(discard_hand(it->step, it->arg1, it->arg2 & 0xffff, (it->arg2 >> 16) & 0xffff, it->arg3))
+		if(discard_hand(it->step, it->arg1 & 0xffff, it->arg2 & 0xffff, (it->arg2 >> 16) & 0xffff, it->arg3, (it->arg1 >> 16) & 0xff))
 			core.units.pop_front();
 		else
 			it->step++;

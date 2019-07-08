@@ -438,6 +438,8 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetDiscardHandChangeCount", scriptlib::duel_get_discard_hand_change_count },
 	{ "CheckDiscardHand", scriptlib::duel_check_discard_hand },
 	{ "DiscardHand", scriptlib::duel_discard_hand },
+	{ "DiscardHandStep", scriptlib::duel_discard_hand_step },
+	{ "DiscardHandComplete", scriptlib::duel_discard_hand_complete },
 	{ "DisableShuffleCheck", scriptlib::duel_disable_shuffle_check },
 	{ "ShuffleDeck", scriptlib::duel_shuffle_deck },
 	{ "ShuffleExtra", scriptlib::duel_shuffle_extra },

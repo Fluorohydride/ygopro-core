@@ -1479,9 +1479,57 @@ int32 scriptlib::duel_discard_hand(lua_State *L) {
 	uint32 min = lua_tointeger(L, 3);
 	uint32 max = lua_tointeger(L, 4);
 	uint32 reason = lua_tointeger(L, 5);
+	uint32 is_step = FALSE;
 	pduel->game_field->core.discard_hand_cards.clear();
 	pduel->game_field->get_discard_hand_list(playerid, reason, &pduel->game_field->core.discard_hand_cards, 2, extraargs, pexception, pexgroup);
-	pduel->game_field->add_process(PROCESSOR_DISCARD_HAND, 0, NULL, NULL, playerid, min + (max << 16), reason);
+	pduel->game_field->add_process(PROCESSOR_DISCARD_HAND, 0, NULL, NULL, playerid + (is_step << 16) , min + (max << 16), reason);
+	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
+		duel* pduel = (duel*)ctx;
+		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
+		return 1;
+	});
+}
+int32 scriptlib::duel_discard_hand_step(lua_State *L) {
+	check_action_permission(L);
+	check_param_count(L, 5);
+	uint32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	if(!lua_isnil(L, 2))
+		check_param(L, PARAM_TYPE_FUNCTION, 2);
+	card* pexception = 0;
+	group* pexgroup = 0;
+	uint32 extraargs = 0;
+	if(lua_gettop(L) >= 6) {
+		if(check_param(L, PARAM_TYPE_CARD, 6, TRUE))
+			pexception = *(card**) lua_touserdata(L, 6);
+		else if(check_param(L, PARAM_TYPE_GROUP, 6, TRUE))
+			pexgroup = *(group**) lua_touserdata(L, 6);
+		extraargs = lua_gettop(L) - 6;
+	}
+	duel* pduel = interpreter::get_duel_info(L);
+	uint32 min = lua_tointeger(L, 3);
+	uint32 max = lua_tointeger(L, 4);
+	uint32 reason = lua_tointeger(L, 5);
+	uint32 is_step = TRUE;
+	pduel->game_field->core.discard_hand_cards.clear();
+	pduel->game_field->get_discard_hand_list(playerid, reason, &pduel->game_field->core.discard_hand_cards, 2, extraargs, pexception, pexgroup);
+	pduel->game_field->add_process(PROCESSOR_DISCARD_HAND, 0, NULL, NULL, playerid + (is_step << 16) , min + (max << 16), reason);
+	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
+		duel* pduel = (duel*)ctx;
+		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
+		return 1;
+	});
+}
+int32 scriptlib::duel_discard_hand_complete(lua_State *L) {
+	check_action_permission(L);
+	check_param_count(L, 2);
+	uint32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	uint32 reason = lua_tointeger(L, 2);
+	pduel->game_field->add_process(PROCESSOR_DISCARD_HAND, 5, NULL, NULL, playerid, 0, reason);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
