@@ -2247,6 +2247,30 @@ int32 field::get_discard_hand_list(uint8 playerid, uint32 discard_reason, card_s
 	}
 	return count;
 }
+int32 field::get_discard_hand_change_count(uint8 playerid, uint32 min, uint32 max, uint32 reason) {
+	int32 cmin = min;
+	int32 cmax = max;
+	std::vector<int32> retval;
+	effect_set eset;
+	filter_player_effect(playerid, EFFECT_DISCARD_HAND_CHANGE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(reason, PARAM_TYPE_INT);
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		pduel->lua->add_param(cmin, PARAM_TYPE_INT);
+		pduel->lua->add_param(cmax, PARAM_TYPE_INT);
+		eset[i]->get_value(5, &retval);
+		if(retval.size() == 1) {
+			cmin = retval[0];
+			cmax = retval[0];
+		} else if(retval.size() > 1) {
+			cmin = retval[0];
+			cmax = retval[1];
+		}
+		retval.clear();
+	}
+	return cmin + (cmax << 16);
+}
 int32 field::check_discard_hand(uint8 playerid, int32 count, uint32 discard_reason, int32 fun, int32 exarg, card* exc, group* exg) {
 	card_set discard_list;
 	get_discard_hand_list(playerid, discard_reason, &discard_list, fun, exarg, exc, exg);
@@ -2262,32 +2286,11 @@ int32 field::check_discard_hand(uint8 playerid, int32 count, uint32 discard_reas
 	uint32 reason = discard_reason;
 	if(reason & REASON_DISCARD) {
 		reason -= REASON_DISCARD;
-		int32 ccheck = FALSE;
-		std::vector<int32> retval;
-		effect_set eset;
-		filter_player_effect(playerid, EFFECT_DISCARD_HAND_CHANGE, &eset);
-		for(int32 i = 0; i < eset.size(); ++i) {
-			pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
-			pduel->lua->add_param(reason, PARAM_TYPE_INT);
-			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-			pduel->lua->add_param(cmin, PARAM_TYPE_INT);
-			pduel->lua->add_param(cmax, PARAM_TYPE_INT);
-			eset[i]->get_value(5, &retval);
-			if(retval.size() == 1) {
-				cmin = retval[0];
-				cmax = retval[0];
-				ccheck = TRUE;
-			} else if(retval.size() > 1) {
-				cmin = retval[0];
-				cmax = retval[1];
-				ccheck = TRUE;
-			}
-			retval.clear();
-		}
+		int32 rcount = get_discard_hand_change_count(playerid, cmin, cmax, reason);
+		cmin = rcount & 0xffff;
+		cmax = (rcount >> 16) & 0xffff;
 		if(cmin > cmax)
 			cmax = cmin;
-		if(ccheck && core.must_select_cards.size() > cmax)
-			return FALSE;
 		if(cmin <= 0)
 			return TRUE;
 		tevent e;

@@ -4130,25 +4130,9 @@ int32 field::discard_hand(uint16 step, uint8 playerid, uint16 min, uint16 max, u
 			reason -= REASON_DISCARD;
 			int32 cmin = min;
 			int32 cmax = max;
-			effect_set eset;
-			std::vector<int32> retval;
-			filter_player_effect(playerid, EFFECT_DISCARD_HAND_CHANGE, &eset);
-			for(int32 i = 0; i < eset.size(); ++i) {
-				pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
-				pduel->lua->add_param(reason, PARAM_TYPE_INT);
-				pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-				pduel->lua->add_param(cmin, PARAM_TYPE_INT);
-				pduel->lua->add_param(cmax, PARAM_TYPE_INT);
-				eset[i]->get_value(5, &retval);
-				if(retval.size() == 1) {
- 					cmin = retval[0];
- 					cmax = retval[0];
-				} else if(retval.size() > 1) {
- 					cmin = retval[0];
- 					cmax = retval[1];
-				}
-				retval.clear();
-			}
+			int32 rcount = get_discard_hand_change_count(playerid, cmin, cmax, reason);
+			cmin = rcount & 0xffff;
+			cmax = (rcount >> 16) & 0xffff;
 			if(cmin > cmax)
 				cmax = cmin;
 			if(cmin <= 0 && cmax <= 0) {

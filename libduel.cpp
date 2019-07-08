@@ -1415,6 +1415,23 @@ int32 scriptlib::duel_get_discard_hand_count(lua_State *L) {
 	lua_pushinteger(L, pduel->game_field->get_discard_hand_list(playerid, reason, 0, 0, 0, 0, 0));
 	return 1;
 }
+int32 scriptlib::duel_get_discard_hand_change_count(lua_State *L) {
+	check_param_count(L, 3);
+	uint32 playerid = lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	uint32 reason = lua_tointeger(L, 2);
+	uint32 min = lua_tointeger(L, 3);
+	uint32 max = min;
+	if(lua_gettop(L) >= 4) {
+		max = lua_tointeger(L, 4);
+	}
+	duel* pduel = interpreter::get_duel_info(L);
+	int32 rcount = pduel->game_field->get_discard_hand_change_count(playerid, min, max, reason);
+	lua_pushinteger(L, rcount & 0xffff);
+	lua_pushinteger(L, (rcount >> 16) & 0xffff);
+	return 2;
+}
 int32 scriptlib::duel_check_discard_hand(lua_State *L) {
 	check_param_count(L, 4);
 	int32 playerid = lua_tointeger(L, 1);

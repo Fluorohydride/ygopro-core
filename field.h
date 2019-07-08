@@ -437,6 +437,7 @@ public:
 	int32 pay_lp_cost(uint32 step, uint8 playerid, uint32 cost);
 
 	int32 get_discard_hand_list(uint8 playerid, uint32 discard_reason, card_set* discard_list, int32 fun, int32 exarg, card* exc, group* exg);
+	int32 get_discard_hand_change_count(uint8 playerid, uint32 min, uint32 max, uint32 reason);
 	int32 check_discard_hand(uint8 playerid, int32 count, uint32 discard_reason, int32 fun, int32 exarg, card* exc, group* exg);
 	uint32 get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype);
 	int32 effect_replace_check(uint32 code, const tevent& e);
