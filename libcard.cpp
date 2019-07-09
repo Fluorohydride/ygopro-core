@@ -1347,7 +1347,7 @@ int32 scriptlib::card_remove_overlay_card(lua_State *L) {
 	pduel->game_field->remove_overlay_card(reason, pcard, playerid, 0, 0, min, max);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
-		lua_pushboolean(L, pduel->game_field->returns.ivalue[0]);
+		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
 		return 1;
 	});
 }

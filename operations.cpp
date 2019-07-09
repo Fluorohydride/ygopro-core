@@ -765,8 +765,7 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 		return FALSE;
 	}
 	case 1: {
-		effect* peffect = core.select_effects[returns.ivalue[0]];
-		if(peffect) {
+		if(effect* peffect = core.select_effects[returns.ivalue[0]]) {
 			tevent e;
 			e.event_cards = 0;
 			e.event_player = rplayer;
@@ -775,8 +774,23 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 			e.reason_effect = core.reason_effect;
 			e.reason_player = rplayer;
 			solve_continuous(rplayer, peffect, e);
-			core.units.begin()->step = 3;
-			return FALSE;
+			core.units.begin()->peffect = peffect;
+		}
+		return FALSE;
+	}
+	case 2: {
+		uint16 cancelable = FALSE;
+		if(core.units.begin()->peffect) {
+			int32 replace_count = returns.ivalue[0];
+			if(replace_count >= max)
+				return TRUE;
+			min -= replace_count;
+			max -= replace_count;
+			if(min <= 0) {
+				cancelable = TRUE;
+				min = 0;
+			}
+			core.units.begin()->arg4 = replace_count;
 		}
 		core.select_cards.clear();
 		if(pcard) {
@@ -792,21 +806,18 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(rplayer);
 		pduel->write_buffer32(519);
-		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, rplayer, min + (max << 16));
+		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, rplayer + (cancelable << 16), min + (max << 16));
 		return FALSE;
 	}
-	case 2: {
+	case 3: {
 		card_set cset;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i)
 			cset.insert(core.select_cards[returns.bvalue[i + 1]]);
 		send_to(&cset, core.reason_effect, reason, rplayer, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		return FALSE;
 	}
-	case 3: {
-		return FALSE;
-	}
 	case 4: {
-		returns.ivalue[0] = 1;
+		returns.ivalue[0] += core.units.begin()->arg4;
 		return TRUE;
 	}
 	}
