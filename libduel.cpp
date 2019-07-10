@@ -368,18 +368,26 @@ int32 scriptlib::duel_link_summon(lua_State *L) {
 		return 0;
 	card* pcard = *(card**)lua_touserdata(L, 2);
 	group* materials = 0;
+	card* lcard = 0;
 	if(!lua_isnil(L, 3)) {
 		check_param(L, PARAM_TYPE_GROUP, 3);
 		materials = *(group**)lua_touserdata(L, 3);
 	}
+	if(lua_gettop(L) >= 4) {
+		if(!lua_isnil(L, 4)) {
+			check_param(L, PARAM_TYPE_CARD, 4);
+			lcard = *(card**)lua_touserdata(L, 4);
+		}
+	}
 	int32 minc = 0;
-	if(lua_gettop(L) >= 4)
-		minc = lua_tointeger(L, 4);
-	int32 maxc = 0;
 	if(lua_gettop(L) >= 5)
-		maxc = lua_tointeger(L, 5);
+		minc = lua_tointeger(L, 5);
+	int32 maxc = 0;
+	if(lua_gettop(L) >= 6)
+		maxc = lua_tointeger(L, 6);
 	duel* pduel = pcard->pduel;
 	pduel->game_field->core.limit_link = materials;
+	pduel->game_field->core.limit_link_card = lcard;
 	pduel->game_field->core.limit_link_minc = minc;
 	pduel->game_field->core.limit_link_maxc = maxc;
 	pduel->game_field->core.summon_cancelable = FALSE;

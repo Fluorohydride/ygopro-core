@@ -270,6 +270,7 @@ struct processor {
 	int32 limit_xyz_minc;
 	int32 limit_xyz_maxc;
 	group* limit_link;
+	card* limit_link_card;
 	int32 limit_link_minc;
 	int32 limit_link_maxc;
 	uint8 attack_cancelable;
