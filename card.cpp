@@ -2368,7 +2368,7 @@ void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {
 		rg = pcard->target_effect.equal_range(code);
 		for(; rg.first != rg.second; ++rg.first) {
 			peffect = rg.first->second;
-			if(peffect->is_available() && is_affect_by_effect(peffect))
+			if(peffect->is_available() && peffect->is_target(this) && is_affect_by_effect(peffect))
 				eset->add_item(peffect);
 		}
 	}
@@ -2414,8 +2414,11 @@ void card::filter_single_continuous_effect(int32 code, effect_set* eset, uint8 s
 	}
 	for(auto& pcard : effect_target_owner) {
 		rg = pcard->target_effect.equal_range(code);
-		for(; rg.first != rg.second; ++rg.first)
-			eset->add_item(rg.first->second);
+		for(; rg.first != rg.second; ++rg.first) {
+			effect* peffect = rg.first->second;
+			if(peffect->is_target(pcard))
+				eset->add_item(peffect);
+		}
 	}
 	for (auto& pcard : xyz_materials) {
 		rg = pcard->xmaterial_effect.equal_range(code);
@@ -2451,7 +2454,7 @@ void card::filter_immune_effect() {
 		rg = pcard->target_effect.equal_range(EFFECT_IMMUNE_EFFECT);
 		for (; rg.first != rg.second; ++rg.first) {
 			peffect = rg.first->second;
-			if(peffect->is_available())
+			if(peffect->is_target(this) && peffect->is_available())
 				immune_effect.add_item(peffect);
 		}
 	}
@@ -2738,7 +2741,7 @@ effect* card::is_affected_by_effect(int32 code) {
 		rg = pcard->target_effect.equal_range(code);
 		for (; rg.first != rg.second; ++rg.first) {
 			peffect = rg.first->second;
-			if (peffect->is_available() && is_affect_by_effect(peffect))
+			if (peffect->is_available() && peffect->is_target(this) && is_affect_by_effect(peffect))
 				return peffect;
 		}
 	}
@@ -2782,7 +2785,7 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 		rg = pcard->target_effect.equal_range(code);
 		for (; rg.first != rg.second; ++rg.first) {
 			peffect = rg.first->second;
-			if (peffect->is_available() && is_affect_by_effect(peffect) && peffect->get_value(target))
+			if (peffect->is_available() && peffect->is_target(this) && is_affect_by_effect(peffect) && peffect->get_value(target))
 				return peffect;
 		}
 	}
@@ -2819,7 +2822,7 @@ effect* card::check_control_effect() {
 		auto rg = pcard->target_effect.equal_range(EFFECT_SET_CONTROL);
 		for (; rg.first != rg.second; ++rg.first) {
 			effect* peffect = rg.first->second;
-			if(!ret_effect || peffect->id > ret_effect->id)
+			if(!ret_effect || peffect->is_target(pcard) && peffect->id > ret_effect->id)
 				ret_effect = peffect;
 		}
 	}
