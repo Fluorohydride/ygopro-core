@@ -2533,6 +2533,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		int32 xminc = core.limit_xyz_minc;
 		int32 xmaxc = core.limit_xyz_maxc;
 		group* lmaterials = core.limit_link;
+		card* lcard = core.limit_link_card;
 		int32 lminc = core.limit_link_minc;
 		int32 lmaxc = core.limit_link_maxc;
 		target->filter_spsummon_procedure(sumplayer, &eset, summon_type);
@@ -2545,6 +2546,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		core.limit_xyz_minc = xminc;
 		core.limit_xyz_maxc = xmaxc;
 		core.limit_link = lmaterials;
+		core.limit_link_card = lcard;
 		core.limit_link_minc = lminc;
 		core.limit_link_maxc = lmaxc;
 		if(!eset.size())
@@ -2584,8 +2586,9 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 					pduel->lua->add_param(core.limit_xyz_minc, PARAM_TYPE_INT);
 					pduel->lua->add_param(core.limit_xyz_maxc, PARAM_TYPE_INT);
 				}
-			} else if(core.limit_link) {
+			} else if(core.limit_link || core.limit_link_card) {
 				pduel->lua->add_param(core.limit_link, PARAM_TYPE_GROUP);
+				pduel->lua->add_param(core.limit_link_card, PARAM_TYPE_CARD);
 				if(core.limit_link_minc) {
 					pduel->lua->add_param(core.limit_link_minc, PARAM_TYPE_INT);
 					pduel->lua->add_param(core.limit_link_maxc, PARAM_TYPE_INT);
@@ -2636,9 +2639,11 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 					core.limit_xyz_maxc = 0;
 				}
 			}
-			if(core.limit_link) {
+			if(core.limit_link || core.limit_link_card) {
 				pduel->lua->add_param(core.limit_link, PARAM_TYPE_GROUP);
+				pduel->lua->add_param(core.limit_link_card, PARAM_TYPE_CARD);
 				core.limit_link = 0;
+				core.limit_link_card = 0;
 				if(core.limit_link_minc) {
 					pduel->lua->add_param(core.limit_link_minc, PARAM_TYPE_INT);
 					pduel->lua->add_param(core.limit_link_maxc, PARAM_TYPE_INT);
