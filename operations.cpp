@@ -6033,18 +6033,14 @@ int32 field::toss_coin(uint16 step, effect * reason_effect, uint8 reason_player,
 			process_instant_event();
 		} else {
 			solve_continuous(peffect->get_handler_player(), peffect, e);
-			core.units.begin()->step = 1;
+			//call Duel.SetCoinResult in operation if necessary
+			return TRUE;
 		}
 		return FALSE;
 	}
 	case 1: {
 		raise_event((card*)0, EVENT_TOSS_COIN, reason_effect, 0, reason_player, playerid, count);
 		process_instant_event();
-		return TRUE;
-	}
-	case 2: {
-		for(uint8 i = 0; i < 5; ++i)
-			core.coin_result[i] = (returns.ivalue[0] >> (i * 4)) & 0xf;
 		return TRUE;
 	}
 	}
@@ -6094,18 +6090,14 @@ int32 field::toss_dice(uint16 step, effect * reason_effect, uint8 reason_player,
 			process_instant_event();
 		} else {
 			solve_continuous(peffect->get_handler_player(), peffect, e);
-			core.units.begin()->step = 1;
+			//call Duel.SetDiceResult in operation if necessary
+			return TRUE;
 		}
 		return FALSE;
 	}
 	case 1: {
 		raise_event((card*)0, EVENT_TOSS_DICE, reason_effect, 0, reason_player, playerid, count1 + (count2 << 16));
 		process_instant_event();
-		return TRUE;
-	}
-	case 2: {
-		for(uint8 i = 0; i < 5; ++i)
-			core.dice_result[i] = (returns.ivalue[0] >> (i * 4)) & 0xf;
 		return TRUE;
 	}
 	}
