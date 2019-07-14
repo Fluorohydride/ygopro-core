@@ -408,6 +408,16 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 				shuffle(playerid, LOCATION_HAND);
 			}
 			for (auto& pcard : *drawed_set) {
+				if(pcard->owner != pcard->current.controler) {
+					effect* deffect = pduel->new_effect();
+					deffect->owner = pcard;
+					deffect->code = 0;
+					deffect->type = EFFECT_TYPE_SINGLE;
+					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_CLIENT_HINT;
+					deffect->description = 67;
+					deffect->reset_flag = RESET_EVENT + 0x1fe0000;
+					pcard->add_effect(deffect);
+				}
 				raise_single_event(pcard, 0, EVENT_DRAW, reason_effect, reason, reason_player, playerid, 0);
 				raise_single_event(pcard, 0, EVENT_TO_HAND, reason_effect, reason, reason_player, playerid, 0);
 				raise_single_event(pcard, 0, EVENT_MOVE, reason_effect, reason, reason_player, playerid, 0);
@@ -4063,6 +4073,16 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			}
 			pcard->clear_card_target();
 			if(nloc == LOCATION_HAND) {
+				if(pcard->owner != pcard->current.controler) {
+					effect* deffect = pduel->new_effect();
+					deffect->owner = pcard;
+					deffect->code = 0;
+					deffect->type = EFFECT_TYPE_SINGLE;
+					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_CLIENT_HINT;
+					deffect->description = 67;
+					deffect->reset_flag = RESET_EVENT + 0x1fe0000;
+					pcard->add_effect(deffect);
+				}
 				tohand.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_TO_HAND, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
@@ -4221,6 +4241,16 @@ int32 field::discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reaso
 			pduel->write_buffer8(pcard->current.position);
 			pduel->write_buffer32(pcard->current.reason);
 			if(dest == LOCATION_HAND) {
+				if(pcard->owner != pcard->current.controler) {
+					effect* deffect = pduel->new_effect();
+					deffect->owner = pcard;
+					deffect->code = 0;
+					deffect->type = EFFECT_TYPE_SINGLE;
+					deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_CLIENT_HINT;
+					deffect->description = 67;
+					deffect->reset_flag = RESET_EVENT + 0x1fe0000;
+					pcard->add_effect(deffect);
+				}
 				tohand.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_TO_HAND, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			} else if(dest == LOCATION_DECK || dest == LOCATION_EXTRA) {
