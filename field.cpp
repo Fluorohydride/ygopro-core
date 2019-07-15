@@ -442,7 +442,6 @@ void field::swap_card(card* pcard1, card* pcard2) {
 	pduel->write_buffer32(pcard2->data.code);
 	pduel->write_buffer32(pcard1->get_info_location());
 }
-// add EFFECT_SET_CONTROL
 void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 reset_count) {
 	if((core.remove_brainwashing && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING)) || pcard->refresh_control_status() == playerid)
 		return;
