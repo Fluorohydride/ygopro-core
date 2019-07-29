@@ -1654,8 +1654,8 @@ void card::enable_field_effect(bool enabled) {
 			for (auto& it : equip_effect)
 				it.second->id = pduel->game_field->infos.field_id++;
 		}
-		if(current.location & LOCATION_ONFIELD) {
-			for (auto& it : target_effect)
+		for (auto& it : target_effect) {
+			if (it.second->in_range(this))
 				it.second->id = pduel->game_field->infos.field_id++;
 		}
 		if (get_status(STATUS_DISABLED))
