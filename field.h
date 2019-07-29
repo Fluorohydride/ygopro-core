@@ -270,6 +270,7 @@ struct processor {
 	int32 limit_xyz_minc;
 	int32 limit_xyz_maxc;
 	group* limit_link;
+	card* limit_link_card;
 	int32 limit_link_minc;
 	int32 limit_link_maxc;
 	uint8 attack_cancelable;
@@ -607,7 +608,7 @@ public:
 	int32 sort_card(int16 step, uint8 playerid, uint8 is_chain);
 	int32 announce_race(int16 step, uint8 playerid, int32 count, int32 available);
 	int32 announce_attribute(int16 step, uint8 playerid, int32 count, int32 available);
-	int32 announce_card(int16 step, uint8 playerid, uint32 ttype);
+	int32 announce_card(int16 step, uint8 playerid);
 	int32 announce_number(int16 step, uint8 playerid);
 };
 

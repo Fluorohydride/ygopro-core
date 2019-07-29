@@ -1347,7 +1347,7 @@ int32 scriptlib::card_remove_overlay_card(lua_State *L) {
 	pduel->game_field->remove_overlay_card(reason, pcard, playerid, 0, 0, min, max);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
-		lua_pushboolean(L, pduel->game_field->returns.ivalue[0]);
+		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
 		return 1;
 	});
 }
@@ -2032,18 +2032,26 @@ int32 scriptlib::card_is_link_summonable(lua_State *L) {
 	if(!(pcard->data.type & TYPE_LINK))
 		return 0;
 	group* materials = 0;
+	card* lcard = 0;
 	if(!lua_isnil(L, 2)) {
 		check_param(L, PARAM_TYPE_GROUP, 2);
 		materials = *(group**)lua_touserdata(L, 2);
 	}
+	if(lua_gettop(L) >= 3) {
+		if(!lua_isnil(L, 3)) {
+			check_param(L, PARAM_TYPE_CARD, 3);
+			lcard = *(card**)lua_touserdata(L, 3);
+		}
+	}
 	int32 minc = 0;
-	if(lua_gettop(L) >= 3)
-		minc = lua_tointeger(L, 3);
-	int32 maxc = 0;
 	if(lua_gettop(L) >= 4)
-		maxc = lua_tointeger(L, 4);
+		minc = lua_tointeger(L, 4);
+	int32 maxc = 0;
+	if(lua_gettop(L) >= 5)
+		maxc = lua_tointeger(L, 5);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
 	pcard->pduel->game_field->core.limit_link = materials;
+	pcard->pduel->game_field->core.limit_link_card = lcard;
 	pcard->pduel->game_field->core.limit_link_minc = minc;
 	pcard->pduel->game_field->core.limit_link_maxc = maxc;
 	lua_pushboolean(L, pcard->is_special_summonable(p, SUMMON_TYPE_LINK));

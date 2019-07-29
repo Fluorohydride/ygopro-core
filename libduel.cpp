@@ -368,18 +368,26 @@ int32 scriptlib::duel_link_summon(lua_State *L) {
 		return 0;
 	card* pcard = *(card**)lua_touserdata(L, 2);
 	group* materials = 0;
+	card* lcard = 0;
 	if(!lua_isnil(L, 3)) {
 		check_param(L, PARAM_TYPE_GROUP, 3);
 		materials = *(group**)lua_touserdata(L, 3);
 	}
+	if(lua_gettop(L) >= 4) {
+		if(!lua_isnil(L, 4)) {
+			check_param(L, PARAM_TYPE_CARD, 4);
+			lcard = *(card**)lua_touserdata(L, 4);
+		}
+	}
 	int32 minc = 0;
-	if(lua_gettop(L) >= 4)
-		minc = lua_tointeger(L, 4);
-	int32 maxc = 0;
 	if(lua_gettop(L) >= 5)
-		maxc = lua_tointeger(L, 5);
+		minc = lua_tointeger(L, 5);
+	int32 maxc = 0;
+	if(lua_gettop(L) >= 6)
+		maxc = lua_tointeger(L, 6);
 	duel* pduel = pcard->pduel;
 	pduel->game_field->core.limit_link = materials;
+	pduel->game_field->core.limit_link_card = lcard;
 	pduel->game_field->core.limit_link_minc = minc;
 	pduel->game_field->core.limit_link_maxc = maxc;
 	pduel->game_field->core.summon_cancelable = FALSE;
@@ -3314,7 +3322,7 @@ int32 scriptlib::duel_remove_overlay_card(lua_State *L) {
 	pduel->game_field->remove_overlay_card(reason, 0, playerid, s, o, min, max);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
-		lua_pushboolean(L, pduel->game_field->returns.ivalue[0]);
+		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
 		return 1;
 	});
 }
@@ -3450,7 +3458,17 @@ int32 scriptlib::duel_select_disable_field(lua_State * L) {
 		ct4 = pduel->game_field->get_useable_count(NULL, 1 - playerid, LOCATION_SZONE, PLAYER_NONE, 0, 0xff, &plist);
 		flag = (flag & 0xffffff) | (plist << 24);
 	}
-	flag |= filter | 0xe0e0e0e0;
+	if((location1 & LOCATION_MZONE) && (location2 & LOCATION_MZONE) && pduel->game_field->core.duel_rule >= 4) {
+		if(pduel->game_field->is_location_useable(playerid, LOCATION_MZONE, 5)) {
+			flag &= ~(0x1 << 5);
+			ct1 += 1;
+		}
+		if(pduel->game_field->is_location_useable(playerid, LOCATION_MZONE, 6)) {
+			flag &= ~(0x1 << 6);
+			ct1 += 1;
+		}
+	}
+	flag |= filter | 0xe080e080;
 	if(count > ct1 + ct2 + ct3 + ct4)
 		count = ct1 + ct2 + ct3 + ct4;
 	if(count == 0)
@@ -3469,6 +3487,10 @@ int32 scriptlib::duel_select_disable_field(lua_State * L) {
 			dfflag |= 0x1u << (s + (p == playerid ? 0 : 16) + (l == LOCATION_MZONE ? 0 : 8));
 			pa += 3;
 		}
+		if(dfflag & (0x1 << 5))
+			dfflag |= 0x1 << (16 + 6);
+		if(dfflag & (0x1 << 6))
+			dfflag |= 0x1 << (16 + 5);
 		lua_pushinteger(L, dfflag);
 		return 1;
 	});
@@ -3555,24 +3577,15 @@ int32 scriptlib::duel_announce_card(lua_State * L) {
 	int32 playerid = lua_tointeger(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->game_field->core.select_options.clear();
-	uint32 ttype = TYPE_MONSTER | TYPE_SPELL | TYPE_TRAP;
-	if(lua_gettop(L) >= 2)
-		ttype = lua_tointeger(L, 2);
-	pduel->game_field->add_process(PROCESSOR_ANNOUNCE_CARD, 0, 0, 0, playerid, ttype);
-	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
-		duel* pduel = (duel*)ctx;
-		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
-		return 1;
-	});
-}
-int32 scriptlib::duel_announce_card_filter(lua_State * L) {
-	check_action_permission(L);
-	check_param_count(L, 2);
-	int32 playerid = lua_tointeger(L, 1);
-	duel* pduel = interpreter::get_duel_info(L);
-	pduel->game_field->core.select_options.clear();
-	for(int32 i = 2; i <= lua_gettop(L); ++i)
-		pduel->game_field->core.select_options.push_back(lua_tointeger(L, i));
+	if(lua_gettop(L) == 1) {
+		pduel->game_field->core.select_options.push_back(TRUE);
+	} else if(lua_gettop(L) == 2) {
+		pduel->game_field->core.select_options.push_back(lua_tointeger(L, 2));
+		pduel->game_field->core.select_options.push_back(OPCODE_ISTYPE);
+	} else {
+		for(int32 i = 2; i <= lua_gettop(L); ++i)
+			pduel->game_field->core.select_options.push_back(lua_tointeger(L, i));
+	}
 	pduel->game_field->add_process(PROCESSOR_ANNOUNCE_CARD, 0, 0, 0, playerid, 0);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;

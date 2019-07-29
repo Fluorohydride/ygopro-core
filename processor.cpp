@@ -543,11 +543,10 @@ int32 field::process() {
 		return PROCESSOR_WAITING + pduel->bufferlen;
 	}
 	case PROCESSOR_ANNOUNCE_CARD: {
-		if(announce_card(it->step, it->arg1, it->arg2)) {
+		if(announce_card(it->step, it->arg1)) {
 			core.units.pop_front();
 		} else {
-			if(it->step == 0)
-				it->step++;
+			it->step++;
 		}
 		return PROCESSOR_WAITING + pduel->bufferlen;
 	}
@@ -4692,7 +4691,14 @@ int32 field::adjust_step(uint16 step) {
 				for(uint8 p = 0; p < 2; ++p) {
 					for(auto& pcard : player[p].list_mzone) {
 						if(pcard && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING)) {
-							pcard->reset(EFFECT_SET_CONTROL, RESET_CODE);
+							//the opposite of pcard->check_control_effect()
+							auto pr = pcard->single_effect.equal_range(EFFECT_SET_CONTROL);
+							for(auto eit = pr.first; eit != pr.second;) {
+								effect* peffect = eit->second;
+								++eit;
+								if(!peffect->condition)
+									peffect->handler->remove_effect(peffect);
+							}
 							if(p != pcard->owner && pcard->is_capable_change_control())
 								core.control_adjust_set[p].insert(pcard);
 						}
