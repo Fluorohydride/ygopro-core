@@ -2449,15 +2449,6 @@ void card::filter_disable_related_cards() {
 				pduel->game_field->add_to_disable_check_list(overlay_target);
 		}
 	}
-	for(auto pcard : effect_target_cards) {
-		for(auto it = pcard->single_effect.begin(); it != pcard->single_effect.end(); ++it) {
-			effect* peffect = it->second;
-			if(peffect->is_disable_related() && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE)){
-				pduel->game_field->add_to_disable_check_list(pcard);
-				break;
-			}
-		}
-	}
 }
 // put all summon procedures except ordinay summon in peset (see is_can_be_summoned())
 // return value:
