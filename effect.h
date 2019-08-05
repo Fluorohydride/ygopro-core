@@ -66,6 +66,7 @@ public:
 	~effect() = default;
 
 	int32 is_disable_related();
+	int32 is_self_destroy_related();
 	int32 is_can_be_forbidden();
 	int32 is_available();
 	int32 check_count_limit(uint8 playerid);
