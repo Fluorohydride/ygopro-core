@@ -1198,7 +1198,8 @@ int32 scriptlib::card_enable_dual_state(lua_State *L) {
 	deffect->owner = pcard;
 	deffect->code = EFFECT_DUAL_STATUS;
 	deffect->type = EFFECT_TYPE_SINGLE;
-	deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
+	deffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE | EFFECT_FLAG_CLIENT_HINT;
+	deffect->description = 64;
 	deffect->reset_flag = RESET_EVENT + 0x1fe0000;
 	pcard->add_effect(deffect);
 	return 0;
