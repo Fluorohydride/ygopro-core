@@ -57,6 +57,11 @@ int32 effect::is_disable_related() {
 		return TRUE;
 	return FALSE;
 }
+int32 effect::is_self_destroy_related() {
+	if(code == EFFECT_UNIQUE_CHECK || code == EFFECT_SELF_DESTROY || code == EFFECT_SELF_TOGRAVE)
+		return TRUE;
+	return FALSE;
+}
 int32 effect::is_can_be_forbidden() {
 	uint32 ctr = code & 0xf0000;
 	if (is_flag(EFFECT_FLAG_CANNOT_DISABLE) && !is_flag(EFFECT_FLAG_CANNOT_NEGATE))
