@@ -96,7 +96,7 @@ int32 effect::is_available() {
 		if(powner == phandler && !is_flag(EFFECT_FLAG_CANNOT_DISABLE) && phandler->get_status(STATUS_DISABLED))
 			return FALSE;
 	}
-	if(type & EFFECT_TYPE_EQUIP) {
+	if (type & EFFECT_TYPE_EQUIP) {
 		if(handler->current.controler == PLAYER_NONE)
 			return FALSE;
 		if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && owner->is_status(STATUS_FORBIDDEN))

@@ -1808,7 +1808,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			check_target.clear();
 	} else if (peffect->type & EFFECT_TYPE_XMATERIAL) {
 		xmaterial_effect.erase(it);
-		if(overlay_target)
+		if (overlay_target)
 			check_target = { overlay_target };
 		else
 			check_target.clear();
