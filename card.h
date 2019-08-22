@@ -133,6 +133,7 @@ public:
 	query_cache q_cache;
 	uint8 owner;
 	uint8 summon_player;
+	uint8 summon_sequence;
 	uint32 summon_info;
 	uint32 status;
 	sendto_param_t sendto_param;

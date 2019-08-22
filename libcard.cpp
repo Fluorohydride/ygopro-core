@@ -810,6 +810,13 @@ int32 scriptlib::card_get_summon_player(lua_State *L) {
 	lua_pushinteger(L, pcard->summon_player);
 	return 1;
 }
+int32 scriptlib::card_get_summon_sequence(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_pushinteger(L, pcard->summon_sequence);
+	return 1;
+}
 int32 scriptlib::card_get_destination(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);

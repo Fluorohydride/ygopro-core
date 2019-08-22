@@ -1859,6 +1859,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		core.phase_action = TRUE;
 		target->current.reason = REASON_SUMMON;
 		target->summon_player = sumplayer;
+		target->summon_sequence = target->current.sequence;
 		pduel->write_buffer8(MSG_SUMMONING);
 		pduel->write_buffer32(target->data.code);
 		pduel->write_buffer32(target->get_info_location());
@@ -2234,6 +2235,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 		} else
 			target->summon_info = SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
 		target->summon_player = setplayer;
+		target->summon_sequence = target->current.sequence;
 		target->current.reason_effect = 0;
 		target->current.reason_player = setplayer;
 		core.units.begin()->step = 6;
@@ -2242,6 +2244,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 	case 6: {
 		target->summon_info = (proc->get_value(target) & 0xfffffff) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
 		target->summon_player = setplayer;
+		target->summon_sequence = target->current.sequence;
 		target->current.reason_effect = proc;
 		target->current.reason_player = setplayer;
 		pduel->lua->add_param(target, PARAM_TYPE_CARD);
@@ -2691,6 +2694,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		target->current.reason_effect = peffect;
 		target->current.reason_player = sumplayer;
 		target->summon_player = sumplayer;
+		target->summon_sequence = target->current.sequence;
 		set_spsummon_counter(sumplayer);
 		if(target->spsummon_code)
 			core.spsummon_once_map[sumplayer][target->spsummon_code]++;
@@ -2908,6 +2912,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			core.spsummon_once_map[sumplayer][cit]++;
 		card_set cset;
 		for(auto& pcard : pgroup->container) {
+			pcard->summon_sequence = pcard->current.sequence;
 			pcard->set_status(STATUS_SUMMONING, TRUE);
 			if(!pcard->is_affected_by_effect(EFFECT_CANNOT_DISABLE_SPSUMMON)) {
 				cset.insert(pcard);
@@ -3061,6 +3066,7 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 	case 3: {
 		returns.ivalue[0] = TRUE;
 		set_control(target, target->current.controler, 0, 0);
+		target->summon_sequence = target->current.sequence;
 		target->set_status(STATUS_SPSUMMON_STEP, TRUE);
 		return TRUE;
 	}
