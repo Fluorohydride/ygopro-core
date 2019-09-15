@@ -59,7 +59,11 @@ void field::change_chain_effect(uint8 chaincount, int32 rep_op) {
 		return;
 	if(chaincount > core.current_chain.size() || chaincount < 1)
 		chaincount = core.current_chain.size();
-	core.current_chain[chaincount - 1].replace_op = rep_op;
+	chain& pchain = core.current_chain[chaincount - 1];
+	pchain.replace_op = rep_op;
+	if((pchain.triggering_effect->type & EFFECT_TYPE_ACTIVATE) && (pchain.triggering_effect->handler->current.location == LOCATION_SZONE)) {
+		pchain.triggering_effect->handler->set_status(STATUS_LEAVE_CONFIRMED, TRUE);
+	}
 }
 void field::change_target(uint8 chaincount, group* targets) {
 	if(core.current_chain.size() == 0)
