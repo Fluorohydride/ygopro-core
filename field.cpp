@@ -765,49 +765,49 @@ uint32 field::get_linked_zone(int32 playerid) {
 	uint32 zones = 0;
 	for(uint32 i = 1; i < 5; ++i) {
 		card* pcard = player[playerid].list_mzone[i];
-		if(pcard && pcard->is_link_marker(LINK_MARKER_LEFT))
+		if(pcard && pcard->is_link_marker(LINK_MARKER_LEFT, true))
 			zones |= 1u << (i - 1);
 	}
 	for(uint32 i = 0; i < 4; ++i) {
 		card* pcard = player[playerid].list_mzone[i];
-		if(pcard && pcard->is_link_marker(LINK_MARKER_RIGHT))
+		if(pcard && pcard->is_link_marker(LINK_MARKER_RIGHT, true))
 			zones |= 1u << (i + 1);
 	}
-	if((player[playerid].list_mzone[0] && player[playerid].list_mzone[0]->is_link_marker(LINK_MARKER_TOP_RIGHT))
-		|| (player[playerid].list_mzone[1] && player[playerid].list_mzone[1]->is_link_marker(LINK_MARKER_TOP))
-		|| (player[playerid].list_mzone[2] && player[playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_LEFT)))
+	if((player[playerid].list_mzone[0] && player[playerid].list_mzone[0]->is_link_marker(LINK_MARKER_TOP_RIGHT, true))
+		|| (player[playerid].list_mzone[1] && player[playerid].list_mzone[1]->is_link_marker(LINK_MARKER_TOP, true))
+		|| (player[playerid].list_mzone[2] && player[playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_LEFT, true)))
 		zones |= 1u << 5;
-	if((player[playerid].list_mzone[2] && player[playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_RIGHT))
-		|| (player[playerid].list_mzone[3] && player[playerid].list_mzone[3]->is_link_marker(LINK_MARKER_TOP))
-		|| (player[playerid].list_mzone[4] && player[playerid].list_mzone[4]->is_link_marker(LINK_MARKER_TOP_LEFT)))
+	if((player[playerid].list_mzone[2] && player[playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_RIGHT, true))
+		|| (player[playerid].list_mzone[3] && player[playerid].list_mzone[3]->is_link_marker(LINK_MARKER_TOP, true))
+		|| (player[playerid].list_mzone[4] && player[playerid].list_mzone[4]->is_link_marker(LINK_MARKER_TOP_LEFT, true)))
 		zones |= 1u << 6;
 	for(uint32 i = 0; i < 2; ++i) {
 		card* pcard = player[playerid].list_mzone[i + 5];
 		if(pcard) {
-			if(pcard->is_link_marker(LINK_MARKER_BOTTOM_LEFT))
+			if(pcard->is_link_marker(LINK_MARKER_BOTTOM_LEFT, true))
 				zones |= 1u << (i * 2);
-			if(pcard->is_link_marker(LINK_MARKER_BOTTOM))
+			if(pcard->is_link_marker(LINK_MARKER_BOTTOM, true))
 				zones |= 1u << (i * 2 + 1);
-			if(pcard->is_link_marker(LINK_MARKER_BOTTOM_RIGHT))
+			if(pcard->is_link_marker(LINK_MARKER_BOTTOM_RIGHT, true))
 				zones |= 1u << (i * 2 + 2);
 		}
 	}
-	if((player[1 - playerid].list_mzone[2] && player[1 - playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_RIGHT))
-		|| (player[1 - playerid].list_mzone[3] && player[1 - playerid].list_mzone[3]->is_link_marker(LINK_MARKER_TOP))
-		|| (player[1 - playerid].list_mzone[4] && player[1 - playerid].list_mzone[4]->is_link_marker(LINK_MARKER_TOP_LEFT)))
+	if((player[1 - playerid].list_mzone[2] && player[1 - playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_RIGHT, true))
+		|| (player[1 - playerid].list_mzone[3] && player[1 - playerid].list_mzone[3]->is_link_marker(LINK_MARKER_TOP, true))
+		|| (player[1 - playerid].list_mzone[4] && player[1 - playerid].list_mzone[4]->is_link_marker(LINK_MARKER_TOP_LEFT, true)))
 		zones |= 1u << 5;
-	if((player[1 - playerid].list_mzone[0] && player[1 - playerid].list_mzone[0]->is_link_marker(LINK_MARKER_TOP_RIGHT))
-		|| (player[1 - playerid].list_mzone[1] && player[1 - playerid].list_mzone[1]->is_link_marker(LINK_MARKER_TOP))
-		|| (player[1 - playerid].list_mzone[2] && player[1 - playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_LEFT)))
+	if((player[1 - playerid].list_mzone[0] && player[1 - playerid].list_mzone[0]->is_link_marker(LINK_MARKER_TOP_RIGHT, true))
+		|| (player[1 - playerid].list_mzone[1] && player[1 - playerid].list_mzone[1]->is_link_marker(LINK_MARKER_TOP, true))
+		|| (player[1 - playerid].list_mzone[2] && player[1 - playerid].list_mzone[2]->is_link_marker(LINK_MARKER_TOP_LEFT, true)))
 		zones |= 1u << 6;
 	for(uint32 i = 0; i < 2; ++i) {
 		card* pcard = player[1 - playerid].list_mzone[i + 5];
 		if(pcard) {
-			if(pcard->is_link_marker(LINK_MARKER_TOP_LEFT))
+			if(pcard->is_link_marker(LINK_MARKER_TOP_LEFT, true))
 				zones |= 1u << (4 - i * 2);
-			if(pcard->is_link_marker(LINK_MARKER_TOP))
+			if(pcard->is_link_marker(LINK_MARKER_TOP, true))
 				zones |= 1u << (3 - i * 2);
-			if(pcard->is_link_marker(LINK_MARKER_TOP_RIGHT))
+			if(pcard->is_link_marker(LINK_MARKER_TOP_RIGHT, true))
 				zones |= 1u << (2 - i * 2);
 		}
 	}

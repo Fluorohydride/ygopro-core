@@ -1145,7 +1145,9 @@ uint32 card::get_link_marker() {
 		return 0;
 	return data.link_marker;
 }
-int32 card::is_link_marker(uint32 dir) {
+int32 card::is_link_marker(uint32 dir, bool must_be_available) {
+	if(must_be_available && get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
+		return FALSE;
 	return (int32)(get_link_marker() & dir);
 }
 uint32 card::get_linked_zone() {

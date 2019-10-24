@@ -223,7 +223,7 @@ public:
 	uint32 get_lscale();
 	uint32 get_rscale();
 	uint32 get_link_marker();
-	int32 is_link_marker(uint32 dir);
+	int32 is_link_marker(uint32 dir, bool must_be_available = false);
 	uint32 get_linked_zone();
 	void get_linked_cards(card_set* cset);
 	uint32 get_mutual_linked_zone();
