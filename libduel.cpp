@@ -2826,15 +2826,18 @@ int32 scriptlib::duel_select_fusion_material(lua_State *L) {
 	check_param(L, PARAM_TYPE_GROUP, 3);
 	card* cg = 0;
 	uint32 chkf = PLAYER_NONE;
+	uint8 not_material = FALSE;
 	if(lua_gettop(L) > 3 && !lua_isnil(L, 4)) {
 		check_param(L, PARAM_TYPE_CARD, 4);
 		cg = *(card**) lua_touserdata(L, 4);
 	}
 	if(lua_gettop(L) > 4)
 		chkf = lua_tointeger(L, 5);
+	if(lua_gettop(L) > 5)
+		not_material = lua_toboolean(L, 6);
 	card* pcard = *(card**) lua_touserdata(L, 2);
 	group* pgroup = *(group**) lua_touserdata(L, 3);
-	pcard->fusion_select(playerid, pgroup, cg, chkf);
+	pcard->fusion_select(playerid, pgroup, cg, chkf, not_material);
 	duel* pduel = pcard->pduel;
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
