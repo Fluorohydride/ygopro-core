@@ -388,6 +388,8 @@ int32 card::is_pre_set_card(uint32 set_code) {
 int32 card::is_fusion_set_card(uint32 set_code) {
 	if(is_set_card(set_code))
 		return TRUE;
+	if(pduel->game_field->core.not_material)
+		return FALSE;
 	uint32 settype = set_code & 0xfff;
 	uint32 setsubtype = set_code & 0xf000;
 	effect_set eset;
@@ -460,7 +462,7 @@ uint32 card::get_type() {
 	return type;
 }
 uint32 card::get_fusion_type() {
-	if(current.location == LOCATION_SZONE && (data.type & TYPE_MONSTER))
+	if(current.location == LOCATION_SZONE && (data.type & TYPE_MONSTER) && !pduel->game_field->core.not_material)
 		return data.type;
 	return get_type();
 }
@@ -1028,7 +1030,7 @@ uint32 card::get_attribute() {
 uint32 card::get_fusion_attribute(uint8 playerid) {
 	effect_set effects;
 	filter_effect(EFFECT_CHANGE_FUSION_ATTRIBUTE, &effects);
-	if(!effects.size())
+	if(!effects.size() || pduel->game_field->core.not_material)
 		return get_attribute();
 	uint32 attribute = 0;
 	for(int32 i = 0; i < effects.size(); ++i) {
@@ -2785,7 +2787,24 @@ effect* card::check_control_effect() {
 	*/
 	return ret_effect;
 }
-int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf) {
+int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_material) {
+	if(fusion_m && !not_material) {
+		uint32 summon_type = SUMMON_TYPE_FUSION;
+		if((chkf & 0x200) > 0)
+			summon_type = SUMMON_TYPE_SPECIAL;
+		effect_set eset;
+		filter_effect(EFFECT_MATERIAL_LIMIT, &eset);
+		for(auto cit = fusion_m->container.begin(); cit != fusion_m->container.end();) {
+			card* pcard = *cit++;
+			for(int32 i = 0; i < eset.size(); ++i) {
+				pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+				pduel->lua->add_param(this, PARAM_TYPE_CARD);
+				pduel->lua->add_param(summon_type, PARAM_TYPE_INT);
+				if(!eset[i]->check_value_condition(3))
+					fusion_m->container.erase(pcard);
+			}
+		}
+	}
 	auto ecit = single_effect.find(EFFECT_FUSION_MATERIAL);
 	if(ecit == single_effect.end())
 		return FALSE;
@@ -2800,17 +2819,36 @@ int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf) {
 	uint8 op = pduel->game_field->core.reason_player;
 	pduel->game_field->core.reason_effect = peffect;
 	pduel->game_field->core.reason_player = peffect->get_handler_player();
+	pduel->game_field->core.not_material = not_material;
 	int32 res = pduel->lua->check_condition(peffect->condition, 4);
 	pduel->game_field->core.reason_effect = oreason;
 	pduel->game_field->core.reason_player = op;
+	pduel->game_field->core.not_material = 0;
 	return res;
 }
-void card::fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf) {
+void card::fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf, uint8 not_material) {
+	if(fusion_m && !not_material) {
+		uint32 summon_type = SUMMON_TYPE_FUSION;
+		if((chkf & 0x200) > 0)
+			summon_type = SUMMON_TYPE_SPECIAL;
+		effect_set eset;
+		filter_effect(EFFECT_MATERIAL_LIMIT, &eset);
+		for(auto cit = fusion_m->container.begin(); cit != fusion_m->container.end();) {
+			card* pcard = *cit++;
+			for(int32 i = 0; i < eset.size(); ++i) {
+				pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+				pduel->lua->add_param(this, PARAM_TYPE_CARD);
+				pduel->lua->add_param(summon_type, PARAM_TYPE_INT);
+				if(!eset[i]->check_value_condition(3))
+					fusion_m->container.erase(pcard);
+			}
+		}
+	}
 	effect* peffect = 0;
 	auto ecit = single_effect.find(EFFECT_FUSION_MATERIAL);
 	if(ecit != single_effect.end())
 		peffect = ecit->second;
-	pduel->game_field->add_process(PROCESSOR_SELECT_FUSION, 0, peffect, fusion_m, playerid + (chkf << 16), 0, 0, 0, cg);
+	pduel->game_field->add_process(PROCESSOR_SELECT_FUSION, 0, peffect, fusion_m, playerid + (chkf << 16), not_material, 0, 0, cg);
 }
 int32 card::check_fusion_substitute(card* fcard) {
 	effect_set eset;
@@ -3648,6 +3686,8 @@ int32 card::is_capable_be_effect_target(effect* peffect, uint8 playerid) {
 int32 card::is_can_be_fusion_material(card* fcard, uint32 summon_type) {
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
+	if(pduel->game_field->core.not_material)
+		return TRUE;
 	effect_set eset;
 	filter_effect(EFFECT_CANNOT_BE_FUSION_MATERIAL, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {

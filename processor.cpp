@@ -590,12 +590,14 @@ int32 field::process() {
 				core.units.pop_front();
 				return pduel->bufferlen;
 			}
+			core.not_material = it->arg2;
 			core.sub_solving_event.push_back(e);
 			pduel->lua->add_param(it->ptr1, PARAM_TYPE_CARD);
 			pduel->lua->add_param(it->arg1 >> 16, PARAM_TYPE_INT);
 			add_process(PROCESSOR_EXECUTE_OPERATION, 0, it->peffect, 0, it->arg1 & 0xffff, 0);
 			it->step++;
 		} else {
+			core.not_material = 0;
 			core.units.pop_front();
 		}
 		return pduel->bufferlen;

@@ -71,6 +71,8 @@ int32 scriptlib::card_get_fusion_code(lua_State *L) {
 		lua_pushinteger(L, otcode);
 		count++;
 	}
+	if(pcard->pduel->game_field->core.not_material)
+		return count;
 	effect_set eset;
 	pcard->filter_effect(EFFECT_ADD_FUSION_CODE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i)
@@ -100,7 +102,7 @@ int32 scriptlib::card_is_fusion_code(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	effect_set eset;
 	pcard->filter_effect(EFFECT_ADD_FUSION_CODE, &eset);
-	if(!eset.size())
+	if(!eset.size() || pcard->pduel->game_field->core.not_material)
 		return card_is_code(L);
 	uint32 code1 = pcard->get_code();
 	uint32 code2 = pcard->get_another_code();
@@ -2799,7 +2801,10 @@ int32 scriptlib::card_check_fusion_material(lua_State *L) {
 	}
 	if(lua_gettop(L) > 3)
 		chkf = lua_tointeger(L, 4);
-	lua_pushboolean(L, pcard->fusion_check(pgroup, cg, chkf));
+	uint8 not_material = FALSE;
+	if(lua_gettop(L) > 4)
+		not_material = lua_toboolean(L, 5);
+	lua_pushboolean(L, pcard->fusion_check(pgroup, cg, chkf, not_material));
 	return 1;
 }
 int32 scriptlib::card_check_fusion_substitute(lua_State *L) {
