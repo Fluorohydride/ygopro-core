@@ -2788,22 +2788,26 @@ effect* card::check_control_effect() {
 	return ret_effect;
 }
 int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_material) {
+	group* matgroup = 0;
 	if(fusion_m && !not_material) {
+		matgroup = pduel->new_group(fusion_m->container);
 		uint32 summon_type = SUMMON_TYPE_FUSION;
 		if((chkf & 0x200) > 0)
 			summon_type = SUMMON_TYPE_SPECIAL;
 		effect_set eset;
 		filter_effect(EFFECT_MATERIAL_LIMIT, &eset);
-		for(auto cit = fusion_m->container.begin(); cit != fusion_m->container.end();) {
+		for(auto cit = matgroup->container.begin(); cit != matgroup->container.end();) {
 			card* pcard = *cit++;
 			for(int32 i = 0; i < eset.size(); ++i) {
 				pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 				pduel->lua->add_param(this, PARAM_TYPE_CARD);
 				pduel->lua->add_param(summon_type, PARAM_TYPE_INT);
 				if(!eset[i]->check_value_condition(3))
-					fusion_m->container.erase(pcard);
+					matgroup->container.erase(pcard);
 			}
 		}
+	} else if(fusion_m) {
+		matgroup = pduel->new_group(fusion_m->container);
 	}
 	auto ecit = single_effect.find(EFFECT_FUSION_MATERIAL);
 	if(ecit == single_effect.end())
@@ -2812,7 +2816,7 @@ int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_mater
 	if(!peffect->condition)
 		return FALSE;
 	pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
-	pduel->lua->add_param(fusion_m, PARAM_TYPE_GROUP);
+	pduel->lua->add_param(matgroup, PARAM_TYPE_GROUP);
 	pduel->lua->add_param(cg, PARAM_TYPE_CARD);
 	pduel->lua->add_param(chkf, PARAM_TYPE_INT);
 	effect* oreason = pduel->game_field->core.reason_effect;
@@ -2827,28 +2831,32 @@ int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_mater
 	return res;
 }
 void card::fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf, uint8 not_material) {
+	group* matgroup = 0;
 	if(fusion_m && !not_material) {
+		matgroup = pduel->new_group(fusion_m->container);
 		uint32 summon_type = SUMMON_TYPE_FUSION;
 		if((chkf & 0x200) > 0)
 			summon_type = SUMMON_TYPE_SPECIAL;
 		effect_set eset;
 		filter_effect(EFFECT_MATERIAL_LIMIT, &eset);
-		for(auto cit = fusion_m->container.begin(); cit != fusion_m->container.end();) {
+		for(auto cit = matgroup->container.begin(); cit != matgroup->container.end();) {
 			card* pcard = *cit++;
 			for(int32 i = 0; i < eset.size(); ++i) {
 				pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 				pduel->lua->add_param(this, PARAM_TYPE_CARD);
 				pduel->lua->add_param(summon_type, PARAM_TYPE_INT);
 				if(!eset[i]->check_value_condition(3))
-					fusion_m->container.erase(pcard);
+					matgroup->container.erase(pcard);
 			}
 		}
+	} else if(fusion_m) {
+		matgroup = pduel->new_group(fusion_m->container);
 	}
 	effect* peffect = 0;
 	auto ecit = single_effect.find(EFFECT_FUSION_MATERIAL);
 	if(ecit != single_effect.end())
 		peffect = ecit->second;
-	pduel->game_field->add_process(PROCESSOR_SELECT_FUSION, 0, peffect, fusion_m, playerid + (chkf << 16), not_material, 0, 0, cg);
+	pduel->game_field->add_process(PROCESSOR_SELECT_FUSION, 0, peffect, matgroup, playerid + (chkf << 16), not_material, 0, 0, cg);
 }
 int32 card::check_fusion_substitute(card* fcard) {
 	effect_set eset;
