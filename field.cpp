@@ -2955,6 +2955,8 @@ int32 field::is_player_can_spsummon(effect* peffect, uint32 sumtype, uint8 sumpo
 		return FALSE;
 	if(pcard->is_status(STATUS_FORBIDDEN))
 		return FALSE;
+	if((pcard->data.type & TYPE_TOKEN) && (pcard->current.location & LOCATION_ONFIELD))
+		return FALSE;
 	if(pcard->data.type & TYPE_LINK)
 		sumpos &= POS_FACEUP_ATTACK;
 	if(sumpos == 0)
