@@ -3396,7 +3396,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				dest = LOCATION_GRAVE;
 			if((dest == LOCATION_HAND && !pcard->is_capable_send_to_hand(reason_player))
 			        || (dest == LOCATION_DECK && !pcard->is_capable_send_to_deck(reason_player))
-			        || (dest == LOCATION_REMOVED && !pcard->is_removeable(reason_player)))
+			        || (dest == LOCATION_REMOVED && !pcard->is_removeable(reason_player, pcard->sendto_param.position, reason)))
 				dest = LOCATION_GRAVE;
 			pcard->sendto_param.location = dest;
 		}
@@ -3674,7 +3674,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			         || (!(pcard->current.reason & REASON_COST) && !pcard->is_affect_by_effect(pcard->current.reason_effect))
 			         || (dest == LOCATION_HAND && !pcard->is_capable_send_to_hand(core.reason_player))
 			         || (dest == LOCATION_DECK && !pcard->is_capable_send_to_deck(core.reason_player))
-			         || (dest == LOCATION_REMOVED && !pcard->is_removeable(core.reason_player))
+			         || (dest == LOCATION_REMOVED && !pcard->is_removeable(core.reason_player, pcard->sendto_param.position, reason))
 			         || (dest == LOCATION_GRAVE && !pcard->is_capable_send_to_grave(core.reason_player))
 			         || (dest == LOCATION_EXTRA && !pcard->is_capable_send_to_extra(core.reason_player)))) {
 				pcard->current.reason = pcard->temp.reason;
