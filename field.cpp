@@ -3145,7 +3145,7 @@ int32 field::is_player_can_remove(uint8 playerid, card * pcard, uint32 reason) {
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		pduel->lua->add_param(reason, PARAM_TYPE_INT);
 		pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
-		if (pduel->lua->check_condition(eset[i]->target, 5))
+		if(pduel->lua->check_condition(eset[i]->target, 5))
 			return FALSE;
 	}
 	return TRUE;
