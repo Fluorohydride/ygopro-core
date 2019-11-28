@@ -2174,7 +2174,13 @@ int32 scriptlib::card_is_able_to_remove(lua_State *L) {
 	uint32 p = pcard->pduel->game_field->core.reason_player;
 	if(lua_gettop(L) >= 2)
 		p = lua_tointeger(L, 2);
-	if(pcard->is_removeable(p))
+	uint8 pos = POS_FACEUP;
+	if(lua_gettop(L) >= 3)
+		pos = lua_tointeger(L, 3);
+	uint32 reason = REASON_EFFECT;
+	if(lua_gettop(L) >= 4)
+		reason = lua_tointeger(L, 4);
+	if(pcard->is_removeable(p, pos, reason))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
@@ -2241,7 +2247,10 @@ int32 scriptlib::card_is_able_to_remove_as_cost(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
-	if(pcard->is_removeable_as_cost(p))
+	uint8 pos = POS_FACEUP;
+	if(lua_gettop(L) >= 2)
+		pos = lua_tointeger(L, 2);
+	if(pcard->is_removeable_as_cost(p, pos))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);

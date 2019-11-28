@@ -2137,7 +2137,7 @@ int32 card::leave_field_redirect(uint32 reason) {
 			return redirect;
 		else if((redirect & LOCATION_DECK) && !is_affected_by_effect(EFFECT_CANNOT_TO_DECK) && pduel->game_field->is_player_can_send_to_deck(es[i]->get_handler_player(), this))
 			return redirect;
-		else if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(es[i]->get_handler_player(), this))
+		else if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(es[i]->get_handler_player(), this, REASON_EFFECT))
 			return redirect;
 	}
 	return 0;
@@ -2163,7 +2163,7 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 			return redirect;
 		if((redirect & LOCATION_DECK) && !is_affected_by_effect(EFFECT_CANNOT_TO_DECK) && pduel->game_field->is_player_can_send_to_deck(es[i]->get_handler_player(), this))
 			return redirect;
-		if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(es[i]->get_handler_player(), this))
+		if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(es[i]->get_handler_player(), this, REASON_EFFECT))
 			return redirect;
 		if((redirect & LOCATION_GRAVE) && !is_affected_by_effect(EFFECT_CANNOT_TO_GRAVE) && pduel->game_field->is_player_can_send_to_grave(es[i]->get_handler_player(), this))
 			return redirect;
@@ -3380,31 +3380,40 @@ int32 card::is_destructable_by_effect(effect* peffect, uint8 playerid) {
 	}
 	return TRUE;
 }
-int32 card::is_removeable(uint8 playerid) {
-	if(!pduel->game_field->is_player_can_remove(playerid, this))
+int32 card::is_removeable(uint8 playerid, uint8 pos, uint32 reason) {
+	if(!pduel->game_field->is_player_can_remove(playerid, this, reason))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_REMOVE))
 		return FALSE;
+	if((data.type & TYPE_TOKEN) && (pos & POS_FACEDOWN))
+		return FALSE;
 	return TRUE;
 }
-int32 card::is_removeable_as_cost(uint8 playerid) {
+int32 card::is_removeable_as_cost(uint8 playerid, uint8 pos) {
 	uint32 redirect = 0;
 	uint32 dest = LOCATION_REMOVED;
 	if(current.location == LOCATION_REMOVED)
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_USE_AS_COST))
 		return FALSE;
-	if(!is_removeable(playerid))
+	if(!is_removeable(playerid, pos, REASON_COST))
 		return FALSE;
+	int32 redirchk = FALSE;
 	auto op_param = sendto_param;
 	sendto_param.location = dest;
 	if(current.location & LOCATION_ONFIELD)
 		redirect = leave_field_redirect(REASON_COST) & 0xffff;
-	if(redirect) dest = redirect;
+	if(redirect) {
+		redirchk = TRUE;
+		dest = redirect;
+	}
 	redirect = destination_redirect(dest, REASON_COST) & 0xffff;
-	if(redirect) dest = redirect;
+	if(redirect) {
+		redirchk = TRUE;
+		dest = redirect;
+	}
 	sendto_param = op_param;
-	if(dest != LOCATION_REMOVED)
+	if(dest != LOCATION_REMOVED || (redirchk && (pos & POS_FACEDOWN)))
 		return FALSE;
 	return TRUE;
 }

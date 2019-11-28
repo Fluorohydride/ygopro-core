@@ -320,8 +320,8 @@ public:
 	int32 is_destructable_by_battle(card* pcard);
 	effect* check_indestructable_by_effect(effect* peffect, uint8 playerid);
 	int32 is_destructable_by_effect(effect* peffect, uint8 playerid);
-	int32 is_removeable(uint8 playerid);
-	int32 is_removeable_as_cost(uint8 playerid);
+	int32 is_removeable(uint8 playerid, uint8 pos, uint32 reason);
+	int32 is_removeable_as_cost(uint8 playerid, uint8 pos);
 	int32 is_releasable_by_summon(uint8 playerid, card* pcard);
 	int32 is_releasable_by_nonsummon(uint8 playerid);
 	int32 is_releasable_by_effect(uint8 playerid, effect* peffect);
