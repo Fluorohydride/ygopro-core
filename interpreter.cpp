@@ -242,6 +242,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsCanTurnSet", scriptlib::card_is_can_turn_set },
 	{ "IsCanAddCounter", scriptlib::card_is_can_add_counter },
 	{ "IsCanRemoveCounter", scriptlib::card_is_can_remove_counter },
+	{ "IsCanOverlay", scriptlib::card_is_can_overlay },
 	{ "IsCanBeFusionMaterial", scriptlib::card_is_can_be_fusion_material },
 	{ "IsCanBeSynchroMaterial", scriptlib::card_is_can_be_synchro_material },
 	{ "IsCanBeRitualMaterial", scriptlib::card_is_can_be_ritual_material },

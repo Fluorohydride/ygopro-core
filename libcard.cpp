@@ -2725,6 +2725,16 @@ int32 scriptlib::card_is_can_remove_counter(lua_State *L) {
 	lua_pushboolean(L, pcard->pduel->game_field->is_player_can_remove_counter(playerid, pcard, 0, 0, countertype, count, reason));
 	return 1;
 }
+int32 scriptlib::card_is_can_overlay(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint8 playerid = pcard->pduel->game_field->core.reason_player;
+	if(lua_gettop(L) > 1 && !lua_isnil(L, 2))
+		playerid = lua_tointeger(L, 2);
+	lua_pushboolean(L, pcard->is_capable_overlay(playerid));
+	return 1;
+}
 int32 scriptlib::card_is_can_be_fusion_material(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
