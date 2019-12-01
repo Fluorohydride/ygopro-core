@@ -3700,6 +3700,15 @@ int32 card::is_capable_be_effect_target(effect* peffect, uint8 playerid) {
 	}
 	return TRUE;
 }
+int32 card::is_capable_overlay(uint8 playerid) {
+	if(data.type & TYPE_TOKEN)
+		return FALSE;
+	if(!(current.location & LOCATION_ONFIELD) && is_status(STATUS_FORBIDDEN))
+		return FALSE;
+	if(current.controler != playerid && !is_capable_change_control())
+		return FALSE;
+	return TRUE;
+}
 int32 card::is_can_be_fusion_material(card* fcard, uint32 summon_type) {
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;

@@ -2729,13 +2729,10 @@ int32 scriptlib::card_is_can_overlay(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	int32 playerid = pcard->pduel->game_field->core.reason_player;
+	uint8 playerid = pcard->pduel->game_field->core.reason_player;
 	if(lua_gettop(L) > 1 && !lua_isnil(L, 2))
 		playerid = lua_tointeger(L, 2);
-	if((pcard->data.type & TYPE_TOKEN) || pcard->is_status(STATUS_FORBIDDEN) || (pcard->current.controler != playerid && !pcard->is_capable_change_control()))
-		lua_pushboolean(L, 0);
-	else
-		lua_pushboolean(L, 1);
+	lua_pushboolean(L, pcard->is_capable_overlay(playerid));
 	return 1;
 }
 int32 scriptlib::card_is_can_be_fusion_material(lua_State *L) {
