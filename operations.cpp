@@ -4692,7 +4692,7 @@ int32 field::operation_replace(uint16 step, effect* replace_effect, group* targe
 	}
 	case 1: {
 		if (returns.ivalue[0]) {
-			if(!target->current.reason_effect->is_self_destroy_related()) {
+			if(!(target->current.reason_effect && target->current.reason_effect->is_self_destroy_related())) {
 				targets->container.erase(target);
 				target->current.reason = target->temp.reason;
 				target->current.reason_effect = target->temp.reason_effect;
@@ -4758,7 +4758,7 @@ int32 field::operation_replace(uint16 step, effect* replace_effect, group* targe
 		if (returns.ivalue[0]) {
 			for (auto cit = targets->container.begin(); cit != targets->container.end();) {
 				auto rm = cit++;
-				if (replace_effect->get_value(*rm) && !(*rm)->current.reason_effect->is_self_destroy_related()) {
+				if(replace_effect->get_value(*rm) && !((*rm)->current.reason_effect && (*rm)->current.reason_effect->is_self_destroy_related())) {
 					(*rm)->current.reason = (*rm)->temp.reason;
 					(*rm)->current.reason_effect = (*rm)->temp.reason_effect;
 					(*rm)->current.reason_player = (*rm)->temp.reason_player;
