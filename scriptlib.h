@@ -549,6 +549,8 @@ public:
 	static int32 duel_is_player_can_discard_deck(lua_State *L);
 	static int32 duel_is_player_can_discard_deck_as_cost(lua_State *L);
 	static int32 duel_is_player_can_summon(lua_State *L);
+	static int32 duel_is_player_can_mset(lua_State *L);
+	static int32 duel_is_player_can_sset(lua_State *L);
 	static int32 duel_is_player_can_spsummon(lua_State *L);
 	static int32 duel_is_player_can_flipsummon(lua_State *L);
 	static int32 duel_is_player_can_spsummon_monster(lua_State *L);

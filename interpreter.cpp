@@ -553,6 +553,8 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsPlayerCanDiscardDeck", scriptlib::duel_is_player_can_discard_deck },
 	{ "IsPlayerCanDiscardDeckAsCost", scriptlib::duel_is_player_can_discard_deck_as_cost },
 	{ "IsPlayerCanSummon", scriptlib::duel_is_player_can_summon },
+	{ "IsPlayerCanMSet", scriptlib::duel_is_player_can_mset },
+	{ "IsPlayerCanSSet", scriptlib::duel_is_player_can_sset },
 	{ "IsPlayerCanSpecialSummon", scriptlib::duel_is_player_can_spsummon },
 	{ "IsPlayerCanFlipSummon", scriptlib::duel_is_player_can_flipsummon },
 	{ "IsPlayerCanSpecialSummonMonster", scriptlib::duel_is_player_can_spsummon_monster },
