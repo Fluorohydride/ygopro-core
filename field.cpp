@@ -3201,11 +3201,11 @@ int32 field::is_chain_disabled(uint8 chaincount) {
 	if(pchain->flag & CHAIN_DISABLE_EFFECT)
 		return TRUE;
 	card* pcard = pchain->triggering_effect->get_handler();
-	effect_set eset;
-	pcard->filter_effect(EFFECT_DISABLE_CHAIN, &eset);
-	for(int32 i = 0; i < eset.size(); ++i) {
-		if(eset[i]->get_value() == pchain->chain_id) {
-			eset[i]->reset_flag |= RESET_CHAIN;
+	auto rg = pcard->single_effect.equal_range(EFFECT_DISABLE_CHAIN);
+	for(; rg.first != rg.second; ++rg.first) {
+		effect* peffect = rg.first->second;
+		if(peffect->get_value() == pchain->chain_id) {
+			peffect->reset_flag |= RESET_CHAIN;
 			return TRUE;
 		}
 	}
