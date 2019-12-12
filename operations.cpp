@@ -2386,6 +2386,17 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 			returns.ivalue[0] = 0;
 			return TRUE;
 		}
+		effect_set eset;
+ 		for(auto& pcard : *set_cards) {
+			eset.clear();
+			pcard->filter_effect(EFFECT_SSET_COST, &eset);
+			for(int32 i = 0; i < eset.size(); ++i) {
+				if(eset[i]->operation) {
+					core.sub_solving_event.push_back(nil_event);
+					add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, setplayer, 0);
+				}
+			}
+		}
 		core.set_group_pre_set.clear();
 		core.set_group_set.clear();
 		core.set_group_used_zones = 0;
