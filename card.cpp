@@ -1151,7 +1151,8 @@ int32 card::is_link_marker(uint32 dir) {
 	return (int32)(get_link_marker() & dir);
 }
 uint32 card::get_linked_zone() {
-	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE)
+	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE
+		|| get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
 		return 0;
 	int32 zones = 0;
 	int32 s = current.sequence;
@@ -1207,7 +1208,8 @@ void card::get_linked_cards(card_set* cset) {
 	pduel->game_field->get_cards_in_zone(cset, linked_zone >> 16, 1 - p, LOCATION_MZONE);
 }
 uint32 card::get_mutual_linked_zone() {
-	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE)
+	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE
+		|| get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
 		return 0;
 	int32 zones = 0;
 	int32 p = current.controler;
