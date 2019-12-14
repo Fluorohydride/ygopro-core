@@ -2931,8 +2931,6 @@ int32 field::process_battle_command(uint16 step) {
 		process_instant_event();
 		//this timing does not exist in Master Rule 3
 		core.damage_calculated = TRUE;
-		if(core.effect_damage_step)
-			return TRUE;
 		return FALSE;
 	}
 	case 27: {
@@ -3042,6 +3040,8 @@ int32 field::process_battle_command(uint16 step) {
 		}
 		core.selfdes_disabled = FALSE;
 		adjust_all();
+		if(core.effect_damage_step)
+			return TRUE;
 		//EVENT_BATTLE_END was here, but this timing does not exist in Master Rule 3
 		return FALSE;
 	}
@@ -3235,7 +3235,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 	}
 	case 2: {
 		core.effect_damage_step = 2;
-		add_process(PROCESSOR_BATTLE_COMMAND, 27, 0, 0, 0, 0);
+		add_process(PROCESSOR_BATTLE_COMMAND, 31, 0, 0, 0, 0);
 		return FALSE;
 	}
 	case 3: {
