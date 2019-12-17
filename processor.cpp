@@ -4279,9 +4279,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			for(auto& ptarget : cait->target_cards->container)
 				ptarget->release_relation(*cait);
 		}
-		if((pcard->data.type & TYPE_EQUIP) && (peffect->type & EFFECT_TYPE_ACTIVATE)
-		        && !pcard->equiping_target && pcard->is_has_relation(*cait))
-			destroy(pcard, 0, REASON_RULE, PLAYER_NONE);
 		if(core.duel_rule <= 2) {
 			if((pcard->data.type & TYPE_FIELD) && (peffect->type & EFFECT_TYPE_ACTIVATE)
 					&& !pcard->is_status(STATUS_LEAVE_CONFIRMED) && pcard->is_has_relation(*cait)) {
