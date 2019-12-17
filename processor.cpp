@@ -3763,6 +3763,7 @@ int32 field::add_chain(uint16 step) {
 				eset.clear();
 				core.select_effects.clear();
 				core.select_options.clear();
+				bool actflag = false;
 				phandler->filter_effect(ecode, &eset);
 				for(int32 i = 0; i < eset.size(); ++i) {
 					if(eset[i]->check_count_limit(clit.triggering_player)) {
@@ -3774,11 +3775,17 @@ int32 field::add_chain(uint16 step) {
 								core.select_effects.push_back(eset[i]);
 								core.select_options.push_back(eset[i]->description);
 							}
-						} else {
+						} else if(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
 							core.select_effects.push_back(eset[i]);
 							core.select_options.push_back(eset[i]->description);
+						} else {
+							actflag = true;
 						}
 					}
+				}
+				if(actflag) {
+					core.select_effects.push_back(0);
+					core.select_options.push_back(13);
 				}
 				if(core.select_options.size() == 1) {
 					core.units.begin()->step = 0;
@@ -3793,12 +3800,13 @@ int32 field::add_chain(uint16 step) {
 	}
 	case 1: {
 		auto& clit = core.new_chains.front();
-		effect* peffect = core.select_effects[returns.ivalue[0]];
-		if(peffect->operation) {
-			core.sub_solving_event.push_back(clit.evt);
-			add_process(PROCESSOR_EXECUTE_OPERATION, 0, peffect, 0, clit.triggering_player, 0);
+		if(effect* peffect = core.select_effects[returns.ivalue[0]]) {
+			if(peffect->operation) {
+				core.sub_solving_event.push_back(clit.evt);
+				add_process(PROCESSOR_EXECUTE_OPERATION, 0, peffect, 0, clit.triggering_player, 0);
+			}
+			peffect->dec_count(clit.triggering_player);
 		}
-		peffect->dec_count(clit.triggering_player);
 		return FALSE;
 	}
 	case 2: {
