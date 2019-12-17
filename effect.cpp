@@ -246,8 +246,18 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				handler->filter_effect(ecode, &eset);
 				for(int32 i = 0; i < eset.size(); ++i) {
 					if(eset[i]->check_count_limit(playerid)) {
-						available = true;
-						break;
+						if(eset[i]->cost) {
+							pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+							pduel->lua->add_param(handler, PARAM_TYPE_CARD);
+							pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+							if(pduel->lua->check_condition(eset[i]->cost, 3)) {
+								available = true;
+								break;
+							}
+						} else {
+							available = true;
+							break;
+						}
 					}
 				}
 				if(!available)
@@ -270,7 +280,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				if(phandler->is_position(POS_FACEUP) && !phandler->is_status(STATUS_EFFECT_ENABLED))
 					return FALSE;
 			}
-			if(!(type & (EFFECT_TYPE_FLIP | EFFECT_TYPE_TRIGGER_F)) 
+			if(!(type & (EFFECT_TYPE_FLIP | EFFECT_TYPE_TRIGGER_F))
 					&& !((type & EFFECT_TYPE_SINGLE) && (code == EVENT_TO_GRAVE || code == EVENT_DESTROYED || code == EVENT_SPSUMMON_SUCCESS || code == EVENT_TO_HAND || code == EVENT_REMOVE || code == EVENT_FLIP))) {
 				if((code < 1132 || code > 1149) && pduel->game_field->infos.phase == PHASE_DAMAGE && !is_flag(EFFECT_FLAG_DAMAGE_STEP))
 					return FALSE;
@@ -572,7 +582,7 @@ int32 effect::reset(uint32 reset_level, uint32 reset_type) {
 			return FALSE;
 		uint8 pid = get_handler_player();
 		uint8 tp = handler->pduel->game_field->infos.turn_player;
-		if((((reset_flag & RESET_SELF_TURN) && pid == tp) || ((reset_flag & RESET_OPPO_TURN) && pid != tp)) 
+		if((((reset_flag & RESET_SELF_TURN) && pid == tp) || ((reset_flag & RESET_OPPO_TURN) && pid != tp))
 				&& (reset_level & 0x3ff & reset_flag))
 			reset_count--;
 		if(reset_count == 0)
