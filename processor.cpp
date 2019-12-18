@@ -3773,15 +3773,10 @@ int32 field::add_chain(uint16 step) {
 				for(int32 i = 0; i < eset.size(); ++i) {
 					if(eset[i]->check_count_limit(clit.triggering_player)) {
 						if(eset[i]->operation) {
-							if(eset[i]->cost) {
-								pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
-								pduel->lua->add_param(phandler, PARAM_TYPE_CARD);
-								pduel->lua->add_param(clit.triggering_player, PARAM_TYPE_INT);
-								if(pduel->lua->check_condition(eset[i]->cost, 3)) {
-									core.select_effects.push_back(eset[i]);
-									core.select_options.push_back(eset[i]->description);
-								}
-							} else {
+							pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+							pduel->lua->add_param(phandler, PARAM_TYPE_CARD);
+							pduel->lua->add_param(clit.triggering_player, PARAM_TYPE_INT);
+							if(pduel->lua->check_condition(eset[i]->cost, 3)) {
 								core.select_effects.push_back(eset[i]);
 								core.select_options.push_back(eset[i]->description);
 							}

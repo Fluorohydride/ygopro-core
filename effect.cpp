@@ -246,15 +246,10 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				handler->filter_effect(ecode, &eset);
 				for(int32 i = 0; i < eset.size(); ++i) {
 					if(eset[i]->check_count_limit(playerid)) {
-						if(eset[i]->cost) {
-							pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
-							pduel->lua->add_param(handler, PARAM_TYPE_CARD);
-							pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-							if(pduel->lua->check_condition(eset[i]->cost, 3)) {
-								available = true;
-								break;
-							}
-						} else {
+						pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+						pduel->lua->add_param(handler, PARAM_TYPE_CARD);
+						pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+						if(pduel->lua->check_condition(eset[i]->cost, 3)) {
 							available = true;
 							break;
 						}
