@@ -3743,7 +3743,13 @@ int32 field::add_chain(uint16 step) {
 				add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, clit.triggering_player, 0);
 			}
 		}
-		core.units.begin()->step = 1;
+		return FALSE;
+	}
+	case 1: {
+		auto& clit = core.new_chains.front();
+		effect* peffect = clit.triggering_effect;
+		card* phandler = peffect->get_handler();
+		effect_set eset;
 		if(peffect->type & EFFECT_TYPE_ACTIVATE) {
 			break_effect();
 			int32 ecode = 0;
@@ -3760,7 +3766,6 @@ int32 field::add_chain(uint16 step) {
 					ecode = EFFECT_QP_ACT_IN_SET_TURN;
 			}
 			if(ecode) {
-				eset.clear();
 				core.select_effects.clear();
 				core.select_options.clear();
 				bool actflag = false;
@@ -3783,9 +3788,8 @@ int32 field::add_chain(uint16 step) {
 						} else if(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
 							core.select_effects.push_back(eset[i]);
 							core.select_options.push_back(eset[i]->description);
-						} else {
+						} else
 							actflag = true;
-						}
 					}
 				}
 				if(actflag) {
@@ -3793,17 +3797,18 @@ int32 field::add_chain(uint16 step) {
 					core.select_options.push_back(13);
 				}
 				if(core.select_options.size() == 1) {
-					core.units.begin()->step = 0;
 					returns.ivalue[0] = 0;
-				} else {
-					core.units.begin()->step = 0;
+					return FALSE;
+				} else if(core.select_options.size() > 1) {
 					add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, clit.triggering_player, 0);
+					return FALSE;
 				}
 			}
 		}
+		core.units.begin()->step = 2;
 		return FALSE;
 	}
-	case 1: {
+	case 2: {
 		auto& clit = core.new_chains.front();
 		if(effect* peffect = core.select_effects[returns.ivalue[0]]) {
 			if(peffect->operation) {
@@ -3814,7 +3819,7 @@ int32 field::add_chain(uint16 step) {
 		}
 		return FALSE;
 	}
-	case 2: {
+	case 3: {
 		auto& clit = core.new_chains.front();
 		effect* peffect = clit.triggering_effect;
 		card* phandler = peffect->get_handler();
@@ -3843,7 +3848,7 @@ int32 field::add_chain(uint16 step) {
 		}
 		return FALSE;
 	}
-	case 3: {
+	case 4: {
 		auto& clit = core.new_chains.front();
 		effect* peffect = clit.triggering_effect;
 		card* phandler = peffect->get_handler();
@@ -3897,7 +3902,7 @@ int32 field::add_chain(uint16 step) {
 		core.new_chains.pop_front();
 		return FALSE;
 	}
-	case 4: {
+	case 5: {
 		auto& clit = core.current_chain.back();
 		int32 playerid = clit.triggering_player;
 		effect* peffect = clit.triggering_effect;
@@ -3913,11 +3918,11 @@ int32 field::add_chain(uint16 step) {
 			returns.ivalue[0] = FALSE;
 		return FALSE;
 	}
-	case 5: {
+	case 6: {
 		if(!returns.ivalue[0]) {
 			core.select_chains.clear();
 			core.select_options.clear();
-			core.units.begin()->step = 6;
+			core.units.begin()->step = 7;
 			return FALSE;
 		}
 		if(core.select_chains.size() > 1) {
@@ -3927,7 +3932,7 @@ int32 field::add_chain(uint16 step) {
 			returns.ivalue[0] = 0;
 		return FALSE;
 	}
-	case 6: {
+	case 7: {
 		auto& clit = core.current_chain.back();
 		chain& ch = core.select_chains[returns.ivalue[0]];
 		int32 playerid = clit.triggering_player;
@@ -3957,7 +3962,7 @@ int32 field::add_chain(uint16 step) {
 		phandler->add_effect(deffect);
 		return FALSE;
 	}
-	case 7: {
+	case 8: {
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
 		if(peffect->cost) {
@@ -3966,7 +3971,7 @@ int32 field::add_chain(uint16 step) {
 		}
 		return FALSE;
 	}
-	case 8: {
+	case 9: {
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
 		if(peffect->target) {
@@ -3975,7 +3980,7 @@ int32 field::add_chain(uint16 step) {
 		}
 		return FALSE;
 	}
-	case 9: {
+	case 10: {
 		break_effect();
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
