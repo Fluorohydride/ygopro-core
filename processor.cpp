@@ -3807,7 +3807,6 @@ int32 field::add_chain(uint16 step) {
 		auto& clit = core.new_chains.front();
 		if(effect* peffect = core.select_effects[returns.ivalue[0]]) {
 			if(peffect->operation) {
-				peffect->type = clit.triggering_effect->type;
 				core.sub_solving_event.push_back(clit.evt);
 				add_process(PROCESSOR_EXECUTE_OPERATION, 0, peffect, 0, clit.triggering_player, 0);
 			}
