@@ -3201,6 +3201,21 @@ int32 scriptlib::duel_get_operation_count(lua_State *L) {
 	lua_pushinteger(L, ch->opinfos.size());
 	return 1;
 }
+int32 scriptlib::duel_clear_operation_info(lua_State* L) {
+	check_action_permission(L);
+	check_param_count(L, 1);
+	uint32 ct = lua_tointeger(L, 1);
+	duel* pduel = interpreter::get_duel_info(L);
+	chain* ch = pduel->game_field->get_chain(ct);
+	if(!ch)
+		return 0;
+	for(auto& oit : ch->opinfos) {
+		if(oit.second.op_cards)
+			pduel->delete_group(oit.second.op_cards);
+	}
+	ch->opinfos.clear();
+	return 0;
+}
 int32 scriptlib::duel_check_xyz_material(lua_State *L) {
 	check_param_count(L, 6);
 	check_param(L, PARAM_TYPE_CARD, 1);
