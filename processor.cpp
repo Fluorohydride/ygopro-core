@@ -2765,7 +2765,7 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 21: {
 		if(core.attacker->is_status(STATUS_ATTACK_CANCELED)) {
-			core.units.begin()->step = 32;
+			core.units.begin()->step = 33;
 			return FALSE;
 		}
 		if(!core.attack_target) {
@@ -2803,7 +2803,7 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 23: {
 		if(core.attacker->is_status(STATUS_ATTACK_CANCELED)) {
-			core.units.begin()->step = 32;
+			core.units.begin()->step = 33;
 			return FALSE;
 		}
 		infos.phase = PHASE_DAMAGE_CAL;
@@ -2836,7 +2836,7 @@ int32 field::process_battle_command(uint16 step) {
 			reset_phase(PHASE_DAMAGE_CAL);
 			adjust_all();
 			infos.phase = PHASE_DAMAGE;
-			core.units.begin()->step = 32;
+			core.units.begin()->step = 33;
 			return FALSE;
 		}
 		return FALSE;
@@ -3040,8 +3040,6 @@ int32 field::process_battle_command(uint16 step) {
 		}
 		core.selfdes_disabled = FALSE;
 		adjust_all();
-		if(core.effect_damage_step)
-			return TRUE;
 		//EVENT_BATTLE_END was here, but this timing does not exist in Master Rule 3
 		return FALSE;
 	}
@@ -3055,6 +3053,12 @@ int32 field::process_battle_command(uint16 step) {
 		raise_event((card*)0, EVENT_BATTLED, 0, 0, PLAYER_NONE, 0, 0);
 		process_single_event();
 		process_instant_event();
+		if(core.effect_damage_step)
+			return TRUE;
+		core.units.begin()->step = 32;
+	}
+	// fall through
+	case 32: {
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(0);
@@ -3066,7 +3070,7 @@ int32 field::process_battle_command(uint16 step) {
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, TRUE);
 		return FALSE;
 	}
-	case 32: {
+	case 33: {
 		group* des = core.units.begin()->ptarget;
 		if(des) {
 			for(auto cit = des->container.begin(); cit != des->container.end();) {
@@ -3079,7 +3083,7 @@ int32 field::process_battle_command(uint16 step) {
 		adjust_all();
 		return FALSE;
 	}
-	case 33: {
+	case 34: {
 		core.units.begin()->ptarget = 0;
 		core.damage_calculated = TRUE;
 		core.selfdes_disabled = FALSE;
@@ -3235,7 +3239,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 	}
 	case 2: {
 		core.effect_damage_step = 2;
-		add_process(PROCESSOR_BATTLE_COMMAND, 31, 0, 0, 0, 0);
+		add_process(PROCESSOR_BATTLE_COMMAND, 32, 0, 0, 0, 0);
 		return FALSE;
 	}
 	case 3: {
