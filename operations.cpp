@@ -1402,9 +1402,14 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 			return TRUE;
 		if(equip_card == target)
 			return TRUE;
+		bool to_grave = false;
+		if(target->current.location != LOCATION_MZONE || (target->current.position & POS_FACEDOWN))
+			to_grave = true;
 		refresh_location_info_instant();
-		if(target->current.location != LOCATION_MZONE || (target->current.position & POS_FACEDOWN)
-			|| get_useable_count(equip_card, equip_player, LOCATION_SZONE, equip_player, LOCATION_REASON_TOFIELD) <= 0) {
+		if(get_useable_count(equip_card, equip_player, LOCATION_SZONE, equip_player, LOCATION_REASON_TOFIELD) <= 0
+			&& equip_card->current.location != LOCATION_SZONE)
+			to_grave = true;
+		if(to_grave) {
 			if(equip_card->current.location != LOCATION_GRAVE)
 				send_to(equip_card, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 			core.units.begin()->step = 2;
