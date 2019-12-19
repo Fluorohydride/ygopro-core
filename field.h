@@ -62,6 +62,7 @@ struct chain {
 	uint8 disable_player;
 	tevent evt;
 	opmap opinfos;
+	std::unordered_map<card*, uint32> target_type;
 	uint32 flag;
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
 	void set_triggering_state(card* pcard);

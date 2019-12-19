@@ -4162,6 +4162,30 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		card* pcard = peffect->get_handler();
 		if((peffect->type & EFFECT_TYPE_ACTIVATE) && pcard->is_has_relation(*cait)) {
 			pcard->enable_field_effect(true);
+			if((pcard->data.type & TYPE_EQUIP) && cait->target_cards) {
+				if(cait->target_cards->container.size() == 1) {
+					card* tcard = *cait->target_cards->container.begin();
+					if((tcard->current.location & LOCATION_MZONE) && tcard->is_has_relation(*cait))
+						equip(cait->triggering_player, pcard, tcard, TRUE, FALSE);
+				}
+			}
+			if((pcard->data.type & TYPE_CONTINUOUS) && cait->target_cards) {
+				if(cait->target_cards->container.size() == 1) {
+					card* tcard = *cait->target_cards->container.begin();
+					if((tcard->current.location & LOCATION_MZONE) && tcard->is_has_relation(*cait))
+						pcard->add_card_target(tcard);
+				}
+			}
+			if(!cait->target_type.empty()) {
+				for(auto& tcard : cait->target_cards->container) {
+					if(cait->target_type[tcard] == TYPE_CONTINUOUS
+						&& (tcard->current.location & LOCATION_MZONE) && tcard->is_has_relation(*cait))
+						pcard->add_card_target(tcard);
+					if(cait->target_type[tcard] == TYPE_EQUIP
+						&& (tcard->current.location & LOCATION_MZONE) && tcard->is_has_relation(*cait))
+						equip(cait->triggering_player, pcard, tcard, TRUE, FALSE);
+				}
+			}
 			if(core.duel_rule <= 2) {
 				if(pcard->data.type & TYPE_FIELD) {
 					card* fscard = player[1 - pcard->current.controler].list_szone[5];
@@ -4171,9 +4195,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			}
 			adjust_instant();
 		}
-		// creating continuous target: peffect->is_flag(EFFECT_FLAG_CONTINUOUS_TARGET) && !cait->replace_op
-		// operation function creating continuous target should be executed even when disabled
-		if(is_chain_disablable(cait->chain_count) && (!peffect->is_flag(EFFECT_FLAG_CONTINUOUS_TARGET) || cait->replace_op)) {
+		if(is_chain_disablable(cait->chain_count)) {
 			if(is_chain_disabled(cait->chain_count) || (pcard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && pcard->is_has_relation(*cait))) {
 				if(!(cait->flag & CHAIN_DISABLE_EFFECT)) {
 					pduel->write_buffer8(MSG_CHAIN_DISABLED);
@@ -4295,6 +4317,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		pcard->release_relation(*cait);
 		if(cait->target_cards)
 			pduel->delete_group(cait->target_cards);
+		cait->target_type.clear();
 		for(auto& oit : cait->opinfos) {
 			if(oit.second.op_cards)
 				pduel->delete_group(oit.second.op_cards);

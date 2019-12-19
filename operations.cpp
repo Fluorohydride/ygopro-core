@@ -86,6 +86,15 @@ void field::change_target(uint8 chaincount, group* targets) {
 			}
 		}
 	}
+	auto target_type = core.current_chain[chaincount - 1].target_type;
+	if(target_type.size() == 1 && targets->container.size() == 1) {
+		uint32 ttype = target_type.begin()->second;
+		target_type.clear();
+		card* pcard = *targets->container.begin();
+		target_type.emplace(pcard, ttype);
+	} else {
+		target_type.clear();
+	}
 }
 void field::change_target_player(uint8 chaincount, uint8 playerid) {
 	if(core.current_chain.size() == 0)

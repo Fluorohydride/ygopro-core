@@ -3060,6 +3060,8 @@ int32 scriptlib::duel_set_target_card(lua_State *L) {
 		ch->target_cards = pduel->new_group();
 		ch->target_cards->is_readonly = TRUE;
 	}
+	uint32 ttype = lua_tointeger(L, 2);
+	ttype &= TYPE_EQUIP | TYPE_CONTINUOUS;
 	group* targets = ch->target_cards;
 	effect* peffect = ch->triggering_effect;
 	if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
@@ -3071,10 +3073,15 @@ int32 scriptlib::duel_set_target_card(lua_State *L) {
 		if(pcard) {
 			targets->container.insert(pcard);
 			pcard->create_relation(*ch);
+			if(ttype)
+				ch->target_type.emplace(pcard, ttype);
 		} else {
 			targets->container.insert(pgroup->container.begin(), pgroup->container.end());
-			for(auto& pcard : pgroup->container)
+			for(auto& pcard : pgroup->container) {
 				pcard->create_relation(*ch);
+				if(ttype)
+					ch->target_type.emplace(pcard, ttype);
+			}
 		}
 		if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
 			if(pcard) {
@@ -3097,6 +3104,8 @@ int32 scriptlib::duel_clear_target_card(lua_State *L) {
 	chain* ch = pduel->game_field->get_chain(0);
 	if(ch && ch->target_cards)
 		ch->target_cards->container.clear();
+	if(ch)
+		ch->target_type.clear();
 	return 0;
 }
 int32 scriptlib::duel_set_target_player(lua_State *L) {
