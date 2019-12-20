@@ -4169,13 +4169,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 						equip(cait->triggering_player, pcard, tcard, TRUE, FALSE);
 				}
 			}
-			if((pcard->data.type & TYPE_CONTINUOUS) && cait->target_cards) {
-				if(cait->target_cards->container.size() == 1) {
-					card* tcard = *cait->target_cards->container.begin();
-					if((tcard->current.location & LOCATION_MZONE) && tcard->is_has_relation(*cait))
-						pcard->add_card_target(tcard);
-				}
-			}
 			if(!cait->target_type.empty()) {
 				for(auto& tcard : cait->target_cards->container) {
 					if(cait->target_type[tcard] == TYPE_CONTINUOUS
