@@ -451,6 +451,7 @@ public:
 	static int32 duel_check_summon_count(lua_State *L);
 	static int32 duel_get_location_count(lua_State *L);
 	static int32 duel_get_mzone_count(lua_State *L);
+	static int32 duel_get_szone_count(lua_State *L);
 	static int32 duel_get_location_count_fromex(lua_State *L);
 	static int32 duel_get_usable_mzone_count(lua_State *L);
 	static int32 duel_get_linked_group(lua_State *L);

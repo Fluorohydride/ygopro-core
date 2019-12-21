@@ -773,6 +773,46 @@ uint32 field::get_linked_zone(int32 playerid) {
 	}
 	return zones;
 }
+int32 field::get_zone_count(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, card* mcard, group* mgroup, uint32 zone, uint8 ex, uint32* list) {
+	uint32 ulocation[2] = { 0, 0 };
+	card_vector cvector[2];
+	for(int32 p = 0; p < 2; p++) {
+		uint32 icheck = 0x1;
+		card_vector& svector = (location == LOCATION_MZONE) ? player[p].list_mzone : player[p].list_szone;
+		for(auto& scard : svector) {
+			if(scard && scard != mcard && !(mgroup && mgroup->container.find(scard) != mgroup->container.end())) {
+				ulocation[p] |= icheck;
+				cvector[p].push_back(scard);
+			} else
+				cvector[p].push_back(0);
+			icheck <<= 0x1;
+		}
+		if(location == LOCATION_MZONE) {
+			ulocation[p] |= player[p].used_location & 0xff00;
+			player[p].list_mzone.swap(cvector[p]);
+		} else {
+			ulocation[p] <<= 0x8;
+			ulocation[p] |= player[p].used_location & 0xff;
+			player[p].list_szone.swap(cvector[p]);
+		}
+		std::swap(ulocation[p], player[p].used_location);
+	}
+	int32 count = 0;
+	if(ex)
+		count = get_useable_count_fromex(pcard, playerid, uplayer, zone, list);
+	else
+		count = get_useable_count_other(pcard, playerid, location, uplayer, reason, zone, list);
+	player[0].used_location = ulocation[0];
+	player[1].used_location = ulocation[1];
+	if(location == LOCATION_MZONE) {
+		player[0].list_mzone.swap(cvector[0]);
+		player[1].list_mzone.swap(cvector[1]);
+	} else {
+		player[0].list_szone.swap(cvector[0]);
+		player[1].list_szone.swap(cvector[1]);
+	}
+	return count;
+}
 void field::get_linked_cards(uint8 self, uint8 s, uint8 o, card_set* cset) {
 	cset->clear();
 	uint8 c = s;
