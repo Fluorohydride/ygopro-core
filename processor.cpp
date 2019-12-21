@@ -1939,8 +1939,9 @@ int32 field::process_single_event(effect* peffect, const tevent& e, chain_list& 
 	if((peffect->type & EFFECT_TYPE_FLIP) && (e.event_value & (NO_FLIP_EFFECT >> 16)))
 		return FALSE;
 	//continuous & trigger (single)
+	card* phandler = peffect->get_handler();
 	if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
-		uint8 owner_player = peffect->get_handler_player();
+		uint8 owner_player = phandler->overlay_target ? phandler->overlay_target->current.controler : peffect->get_handler_player();
 		if(peffect->is_activateable(owner_player, e)) {
 			chain newchain;
 			newchain.chain_id = 0;
@@ -1967,7 +1968,6 @@ int32 field::process_single_event(effect* peffect, const tevent& e, chain_list& 
 			}
 		}
 	} else {
-		card* phandler = peffect->get_handler();
 		if(!peffect->is_condition_check(phandler->current.controler, e))
 			return FALSE;
 		peffect->set_activate_location();
