@@ -3353,6 +3353,30 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 					if(dp[1 - pd] && !core.attacker->is_affected_by_effect(EFFECT_AVOID_BATTLE_DAMAGE, core.attack_target)
 					        && !is_player_affected_by_effect(1 - pd, EFFECT_AVOID_BATTLE_DAMAGE))
 						core.battle_damage[1 - pd] = a - d;
+					bool double_damage = false;
+					//bool half_damage = false;
+					for(int32 i = 0; i < eset.size(); ++i) {
+						if(eset[i]->get_value() == DOUBLE_DAMAGE)
+							double_damage = true;
+						//if(eset[i]->get_value() == HALF_DAMAGE)
+						//	half_damage = true;
+					}
+					//if(double_damage && half_damage) {
+					//	double_damage = false;
+					//	half_damage = false;
+					//}
+					if(double_damage) {
+						if(dp[0])
+							core.battle_damage[0] *= 2;
+						if(dp[1])
+							core.battle_damage[1] *= 2;
+					}
+					//if(half_damage) {
+					//	if(dp[0])
+					//		core.battle_damage[0] /= 2;
+					//	if(dp[1])
+					//		core.battle_damage[1] /= 2;
+					//}
 					reason_card = core.attacker;
 				}
 				bd[1] = TRUE;
