@@ -698,6 +698,9 @@ int32 field::get_spsummonable_count_fromex_rule4(card* pcard, uint8 playerid, ui
 	if(player[playerid].list_mzone[5] && is_location_useable(playerid, LOCATION_MZONE, 6)
 		&& check_extra_link(playerid, pcard, 6)) {
 		flag |= 1u << 5;
+		if(!((pcard->get_type() & TYPE_LINK) || ((pcard->get_type() & TYPE_PENDULUM) && (pcard->current.position & POS_FACEUP)))) {
+		linked_zone = 0x7f007f;
+	}
 	} else if(player[playerid].list_mzone[6] && is_location_useable(playerid, LOCATION_MZONE, 5)
 		&& check_extra_link(playerid, pcard, 5)) {
 		flag |= 1u << 6;
