@@ -694,7 +694,6 @@ int32 field::get_spsummonable_count_fromex_rule4(card* pcard, uint8 playerid, ui
 		else
 			flag |= ~(value >> 16) & 0x7f;
 	}
-	uint32 linked_zone = get_linked_zone(playerid) | (1u << 5) | (1u << 6);
 	if(player[playerid].list_mzone[5] && is_location_useable(playerid, LOCATION_MZONE, 6)
 		&& check_extra_link(playerid, pcard, 6)) {
 		flag |= 1u << 5;
@@ -709,6 +708,11 @@ int32 field::get_spsummonable_count_fromex_rule4(card* pcard, uint8 playerid, ui
 		if(!is_location_useable(playerid, LOCATION_MZONE, 6))
 			flag |= 1u << 6;
 	}
+	uint32 linked_zone = 0;
+	if(core.duel_rule >= 5 && pcard && (pcard->get_type() & TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ) && pcard->is_position(POS_FACEDOWN))
+		linked_zone = 0x7f007f;
+	else
+		linked_zone = get_linked_zone(playerid) | (1u << 5) | (1u << 6);
 	flag = flag | ~zone | ~linked_zone;
 	if(list)
 		*list = flag & 0x7f;
@@ -772,6 +776,15 @@ uint32 field::get_linked_zone(int32 playerid) {
 			zones |= pcard->get_linked_zone() >> 16;
 	}
 	return zones;
+}
+uint32 field::get_fsx_zone_fromex_rule5(int32 playerid) {
+	if(core.duel_rule <= 3) {
+		return 0x1f;
+	} else if(core.duel_rule == 4) {
+		return get_linked_zone(playerid) | (1u << 5) | (1u << 6);
+	} else {
+		return 0x7f;
+	}
 }
 void field::get_linked_cards(uint8 self, uint8 s, uint8 o, card_set* cset) {
 	cset->clear();
@@ -2395,7 +2408,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	int32 ct = get_spsummonable_count(pcard, playerid);
 	card_set linked_cards;
 	if(ct <= 0) {
-		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
+		uint32 linked_zone = get_fsx_zone_fromex_rule5(playerid);
 		get_cards_in_zone(&linked_cards, linked_zone, playerid, LOCATION_MZONE);
 		if(linked_cards.find(tuner) != linked_cards.end())
 			ct++;
@@ -2691,7 +2704,7 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 	card_set linked_cards;
 	if(ct <= 0) {
 		int32 ft = ct;
-		uint32 linked_zone = core.duel_rule >= 4 ? get_linked_zone(playerid) | (1u << 5) | (1u << 6) : 0x1f;
+		uint32 linked_zone = get_fsx_zone_fromex_rule5(playerid);
 		get_cards_in_zone(&linked_cards, linked_zone, playerid, LOCATION_MZONE);
 		for(auto cit = core.xmaterial_lst.begin(); cit != core.xmaterial_lst.end(); ++cit) {
 			card* pcard = cit->second;
