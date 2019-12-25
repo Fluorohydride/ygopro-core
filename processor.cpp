@@ -3471,10 +3471,10 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 				}
 			}
 			if(reason_card->is_affected_by_effect(EFFECT_NO_BATTLE_DAMAGE)
-				|| dam_card->is_affected_by_effect(EFFECT_AVOID_BATTLE_DAMAGE, reason_card)
+				|| dam_card && dam_card->is_affected_by_effect(EFFECT_AVOID_BATTLE_DAMAGE, reason_card)
 				|| is_player_affected_by_effect(damp, EFFECT_AVOID_BATTLE_DAMAGE))
 				core.battle_damage[damp] = 0;
-			if(dam_card->is_affected_by_effect(EFFECT_NO_BATTLE_DAMAGE)
+			if(dam_card && dam_card->is_affected_by_effect(EFFECT_NO_BATTLE_DAMAGE)
 				|| reason_card->is_affected_by_effect(EFFECT_AVOID_BATTLE_DAMAGE, dam_card)
 				|| is_player_affected_by_effect(1 - damp, EFFECT_AVOID_BATTLE_DAMAGE))
 				core.battle_damage[1 - damp] = 0;
