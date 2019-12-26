@@ -1869,7 +1869,7 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 		return 0;
 	duel* pduel = interpreter::get_duel_info(L);
 	uint32 uplayer = pduel->game_field->core.reason_player;
-	if(lua_gettop(L) >= 2)
+	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2))
 		uplayer = lua_tointeger(L, 2);
 	bool swapped = false;
 	card* mcard = 0;
