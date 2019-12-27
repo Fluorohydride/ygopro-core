@@ -733,7 +733,7 @@ uint32 field::get_linked_zone(int32 playerid) {
 }
 uint32 field::get_rule_zone_fromex(int32 playerid, card* pcard) {
 	if(core.duel_rule >= 4) {
-		if(core.duel_rule >= 5 && pcard && pcard->is_position(POS_FACEDOWN) && (pcard->data.type & TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ))
+		if(core.duel_rule >= 5 && pcard && pcard->is_position(POS_FACEDOWN) && (pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ)))
 			return 0x7f;
 		else
 			return get_linked_zone(playerid) | (1u << 5) | (1u << 6);
