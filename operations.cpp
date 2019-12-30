@@ -1410,10 +1410,6 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 			if(get_useable_count(equip_card, equip_player, LOCATION_SZONE, equip_player, LOCATION_REASON_TOFIELD) <= 0)
 				to_grave = true;
 		}
-		if(chain* ch = get_chain(0)) {
-			if(ch->target_cards && ch->target_cards->has_card(target) && !target->is_has_relation(*ch))
-				to_grave = true;
-		}
 		if(to_grave) {
 			if(equip_card->current.location != LOCATION_GRAVE)
 				send_to(equip_card, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
