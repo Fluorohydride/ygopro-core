@@ -1400,8 +1400,26 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 		returns.ivalue[0] = FALSE;
 		if(!equip_card->is_affect_by_effect(core.reason_effect))
 			return TRUE;
-		if(equip_card == target || target->current.location != LOCATION_MZONE)
+		if(equip_card == target)
 			return TRUE;
+		bool to_grave = false;
+		if(target->current.location != LOCATION_MZONE || (target->current.position & POS_FACEDOWN))
+			to_grave = true;
+		if(equip_card->current.location != LOCATION_SZONE) {
+			refresh_location_info_instant();
+			if(get_useable_count(equip_card, equip_player, LOCATION_SZONE, equip_player, LOCATION_REASON_TOFIELD) <= 0)
+				to_grave = true;
+		}
+		if(chain* ch = get_chain(0)) {
+			if(ch->target_cards && ch->target_cards->has_card(target) && !target->is_has_relation(*ch))
+				to_grave = true;
+		}
+		if(to_grave) {
+			if(equip_card->current.location != LOCATION_GRAVE)
+				send_to(equip_card, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+			core.units.begin()->step = 2;
+			return FALSE;
+		}
 		if(equip_card->equiping_target) {
 			equip_card->cancel_card_target(equip_card->equiping_target);
 			equip_card->unequip();
@@ -1413,9 +1431,6 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 				change_position(equip_card, 0, equip_player, POS_FACEUP, 0);
 			return FALSE;
 		}
-		refresh_location_info_instant();
-		if(get_useable_count(equip_card, equip_player, LOCATION_SZONE, equip_player, LOCATION_REASON_TOFIELD) <= 0)
-			return TRUE;
 		equip_card->enable_field_effect(false);
 		move_to_field(equip_card, equip_player, equip_player, LOCATION_SZONE, (up || equip_card->is_position(POS_FACEUP)) ? POS_FACEUP : POS_FACEDOWN, FALSE, 0, TRUE);
 		return FALSE;
@@ -1463,6 +1478,10 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 	}
 	case 2: {
 		returns.ivalue[0] = TRUE;
+		return TRUE;
+	}
+	case 3: {
+		returns.ivalue[0] = FALSE;
 		return TRUE;
 	}
 	}
