@@ -3053,8 +3053,10 @@ int32 field::process_battle_command(uint16 step) {
 		raise_event((card*)0, EVENT_BATTLED, 0, 0, PLAYER_NONE, 0, 0);
 		process_single_event();
 		process_instant_event();
-		if(core.effect_damage_step)
+		if(core.effect_damage_step) {
+			core.reserved.ptr1 = core.units.begin()->ptarget;
 			return TRUE;
+		}
 		core.units.begin()->step = 32;
 	}
 	// fall through
@@ -3239,7 +3241,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 	}
 	case 2: {
 		core.effect_damage_step = 2;
-		add_process(PROCESSOR_BATTLE_COMMAND, 32, 0, 0, 0, 0);
+		add_process(PROCESSOR_BATTLE_COMMAND, 32, 0, (group*)core.units.begin()->ptr1, 0, 0);
 		return FALSE;
 	}
 	case 3: {
