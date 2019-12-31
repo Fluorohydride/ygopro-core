@@ -1899,10 +1899,22 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 		}
 		swapped = true;
 	}
+	bool use_temp_card = false;
 	card* scard = 0;
-	if(lua_gettop(L) >= 4) {
-		check_param(L, PARAM_TYPE_CARD, 4);
-		scard = *(card**)lua_touserdata(L, 4);
+	if(lua_gettop(L) >= 4 && !lua_isnil(L, 4)) {
+		if(check_param(L, PARAM_TYPE_CARD, 4, TRUE)) {
+			scard = *(card**)lua_touserdata(L, 4);
+		} else {
+			use_temp_card = true;
+			uint32 type = lua_tointeger(L, 4);
+			scard = pduel->game_field->temp_card;
+			scard->current.location = LOCATION_EXTRA;
+			scard->data.type = TYPE_MONSTER | type;
+			if(type & TYPE_PENDULUM)
+				scard->current.position = POS_FACEUP_DEFENSE;
+			else
+				scard->current.position = POS_FACEDOWN_DEFENSE;
+		}
 	}
 	uint32 zone = 0xff;
 	if(lua_gettop(L) >= 5)
@@ -1915,6 +1927,11 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 		pduel->game_field->player[1].used_location = used_location[1];
 		pduel->game_field->player[0].list_mzone.swap(list_mzone[0]);
 		pduel->game_field->player[1].list_mzone.swap(list_mzone[1]);
+	}
+	if(use_temp_card) {
+		scard->current.location = 0;
+		scard->data.type = 0;
+		scard->current.position = 0;
 	}
 	return 2;
 }
