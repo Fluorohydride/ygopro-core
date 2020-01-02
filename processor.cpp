@@ -3405,7 +3405,7 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 							if(!eset[i]->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
 								pduel->lua->add_param(p, PARAM_TYPE_INT);
 								val = eset[i]->get_value(1);
-							} else
+							} else if(eset[i]->is_target_player(p))
 								val = eset[i]->get_value();
 							if(val == 0) {
 								dam_value = 0;
@@ -3525,7 +3525,7 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 				if(!eset[i]->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
 					pduel->lua->add_param(p, PARAM_TYPE_INT);
 					val = eset[i]->get_value(1);
-				} else
+				} else if(eset[i]->is_target_player(p))
 					val = eset[i]->get_value();
 				if(val == 0) {
 					dam_value = 0;
