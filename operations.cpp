@@ -4054,6 +4054,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		for(auto& pcard : param->targets->container) {
 			if(!(pcard->data.type & TYPE_TOKEN))
 				pcard->enable_field_effect(true);
+			int32 related = pcard->is_has_relation(reason_effect);
 			uint8 nloc = pcard->current.location;
 			if(nloc == LOCATION_HAND)
 				pcard->reset(RESET_TOHAND, RESET_EVENT);
@@ -4067,6 +4068,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				else
 					pcard->reset(RESET_REMOVE, RESET_EVENT);
 			}
+			if(related)
+				pcard->create_relation(reason_effect);
 		}
 		for(auto& pcard : param->leave)
 			raise_single_event(pcard, 0, EVENT_LEAVE_FIELD, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
@@ -4409,6 +4412,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 		if(!is_equip && location == LOCATION_SZONE && (target->data.type & TYPE_FIELD) && (target->data.type & TYPE_SPELL))
 			seq = 5;
 		if(ret != 1) {
+			int32 related = target->is_has_relation(core.reason_effect);
 			if(location != target->current.location) {
 				uint32 resetflag = 0;
 				if(location & LOCATION_ONFIELD)
@@ -4424,6 +4428,8 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			}
 			if(!(target->current.location & LOCATION_ONFIELD))
 				target->clear_relate_effect();
+			if(related)
+				target->create_relation(core.reason_effect);
 		}
 		if(ret == 1)
 			target->current.reason &= ~REASON_TEMPORARY;
