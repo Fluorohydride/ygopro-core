@@ -3390,6 +3390,44 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 							}
 						}
 					}
+					effect_set eset;
+					core.attacker->filter_effect(EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
+					core.attack_target->filter_effect(EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
+					filter_player_effect(pa, EFFECT_CHANGE_BATTLE_DAMAGE, &eset);
+					filter_player_effect(1 - pa, EFFECT_CHANGE_BATTLE_DAMAGE, &eset);
+					eset.sort();
+					for(uint8 p = 0; p < 2; ++p) {
+						bool double_dam = false;
+						bool half_dam = false;
+						int32 dam_value = -1;
+						for(uint32 i = 0; i < eset.size(); ++i) {
+							int32 val = -1;
+							if(!eset[i]->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
+								pduel->lua->add_param(p, PARAM_TYPE_INT);
+								val = eset[i]->get_value(1);
+							} else
+								val = eset[i]->get_value();
+							if(val == 0) {
+								dam_value = 0;
+								break;
+							} else if(val > 0)
+								dam_value = val;
+							else if(val == DOUBLE_DAMAGE)
+								double_dam = true;
+							else if(val == HALF_DAMAGE)
+								half_dam = true;
+						}
+						if(double_dam && half_dam) {
+							double_dam = false;
+							half_dam = false;
+						}
+						if(double_dam)
+							core.battle_damage[p] *= 2;
+						if(half_dam)
+							core.battle_damage[p] /= 2;
+						if(dam_value >= 0 && core.battle_damage[p] > 0)
+							core.battle_damage[p] = dam_value;
+					}
 					if(core.attacker->is_affected_by_effect(EFFECT_NO_BATTLE_DAMAGE)
 						|| core.attack_target->is_affected_by_effect(EFFECT_AVOID_BATTLE_DAMAGE, core.attacker)
 						|| is_player_affected_by_effect(pd, EFFECT_AVOID_BATTLE_DAMAGE))
@@ -3470,6 +3508,45 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 					core.battle_damage[1 - damp] = 0;
 				}
 			}
+		}
+		effect_set eset;
+		reason_card->filter_effect(EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
+		if(dam_card)
+			dam_card->filter_effect(EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
+		filter_player_effect(damp, EFFECT_CHANGE_BATTLE_DAMAGE, &eset);
+		filter_player_effect(1 - damp, EFFECT_CHANGE_BATTLE_DAMAGE, &eset);
+		eset.sort();
+		for(uint8 p = 0; p < 2; ++p) {
+			bool double_dam = false;
+			bool half_dam = false;
+			int32 dam_value = -1;
+			for(uint32 i = 0; i < eset.size(); ++i) {
+				int32 val = -1;
+				if(!eset[i]->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
+					pduel->lua->add_param(p, PARAM_TYPE_INT);
+					val = eset[i]->get_value(1);
+				} else
+					val = eset[i]->get_value();
+				if(val == 0) {
+					dam_value = 0;
+					break;
+				} else if(val > 0)
+					dam_value = val;
+				else if(val == DOUBLE_DAMAGE)
+					double_dam = true;
+				else if(val == HALF_DAMAGE)
+					half_dam = true;
+			}
+			if(double_dam && half_dam) {
+				double_dam = false;
+				half_dam = false;
+			}
+			if(double_dam)
+				core.battle_damage[p] *= 2;
+			if(half_dam)
+				core.battle_damage[p] /= 2;
+			if(dam_value >= 0 && core.battle_damage[p] > 0)
+				core.battle_damage[p] = dam_value;
 		}
 		if(reason_card->is_affected_by_effect(EFFECT_NO_BATTLE_DAMAGE)
 			|| dam_card && dam_card->is_affected_by_effect(EFFECT_AVOID_BATTLE_DAMAGE, reason_card)
