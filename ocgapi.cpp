@@ -153,7 +153,7 @@ extern "C" DECL_DLLEXPORT void new_card(ptr pduel, uint32 code, uint8 owner, uin
 }
 extern "C" DECL_DLLEXPORT void new_tag_card(ptr pduel, uint32 code, uint8 owner, uint8 location) {
 	duel* ptduel = (duel*)pduel;
-	if(owner > 1 || !(location & 0x41))
+	if(owner > 1 || !(location & (LOCATION_DECK | LOCATION_EXTRA)))
 		return;
 	card* pcard = ptduel->new_card(code);
 	switch(location) {

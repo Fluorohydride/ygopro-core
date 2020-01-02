@@ -2080,9 +2080,9 @@ int32 scriptlib::duel_get_chain_info(lua_State *L) {
 			lua_pushinteger(L, ch->chain_id);
 			break;
 		case CHAININFO_TYPE:
-			if((ch->triggering_effect->card_type & 0x7) == (TYPE_TRAP | TYPE_MONSTER))
+			if((ch->triggering_effect->card_type & (TYPE_MONSTER | TYPE_SPELL | TYPE_TRAP)) == (TYPE_TRAP | TYPE_MONSTER))
 				lua_pushinteger(L, TYPE_MONSTER);
-			else lua_pushinteger(L, (ch->triggering_effect->card_type & 0x7));
+			else lua_pushinteger(L, (ch->triggering_effect->card_type & (TYPE_MONSTER | TYPE_SPELL | TYPE_TRAP)));
 			break;
 		case CHAININFO_EXTTYPE:
 			lua_pushinteger(L, ch->triggering_effect->card_type);
