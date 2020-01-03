@@ -189,8 +189,6 @@ void field::special_summon_step(card* target, uint32 sumtype, uint32 sumplayer, 
 	add_process(PROCESSOR_SPSUMMON_STEP, 0, core.reason_effect, NULL, zone, 0, 0, 0, target);
 }
 void field::special_summon_complete(effect* reason_effect, uint8 reason_player) {
-	if(core.special_summoning.size() == 0)
-		return;
 	group* ng = pduel->new_group();
 	ng->container.swap(core.special_summoning);
 	ng->is_readonly = TRUE;
