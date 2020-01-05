@@ -1783,6 +1783,8 @@ int32 field::process_instant_event() {
 			effect* peffect = eit->second;
 			++eit;
 			uint8 owner_player = peffect->get_handler_player();
+			if(peffect->is_flag(EFFECT_FLAG_EVENT_PLAYER) && (ev.event_player == 0 || ev.event_player == 1))
+				owner_player = ev.event_player;
 			if(peffect->is_activateable(owner_player, ev)) {
 				newchain.chain_id = 0;
 				newchain.chain_count = 0;
@@ -1941,6 +1943,8 @@ int32 field::process_single_event(effect* peffect, const tevent& e, chain_list& 
 	//continuous & trigger (single)
 	if(peffect->type & EFFECT_TYPE_CONTINUOUS) {
 		uint8 owner_player = peffect->get_handler_player();
+		if(peffect->is_flag(EFFECT_FLAG_EVENT_PLAYER) && (e.event_player == 0 || e.event_player == 1))
+			owner_player = e.event_player;
 		if(peffect->is_activateable(owner_player, e)) {
 			chain newchain;
 			newchain.chain_id = 0;
