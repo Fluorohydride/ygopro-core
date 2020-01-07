@@ -4072,7 +4072,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				else
 					pcard->reset(RESET_REMOVE, RESET_EVENT);
 			}
-			if(related)
+			if(related && core.chain_solving)
 				pcard->create_relation(reason_effect);
 		}
 		for(auto& pcard : param->leave)
@@ -4432,7 +4432,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			}
 			if(!(target->current.location & LOCATION_ONFIELD))
 				target->clear_relate_effect();
-			if(related)
+			if(related && core.chain_solving)
 				target->create_relation(core.reason_effect);
 		}
 		if(ret == 1)
