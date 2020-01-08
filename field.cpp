@@ -428,19 +428,96 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 	}
 	add_card(playerid, pcard, location, sequence, pzone);
 }
-void field::swap_card(card* pcard1, card* pcard2) {
+void field::swap_card(card* pcard1, card* pcard2, uint8 new_sequence1, uint8 new_sequence2) {
 	uint8 p1 = pcard1->current.controler, p2 = pcard2->current.controler;
 	uint8 l1 = pcard1->current.location, l2 = pcard2->current.location;
 	uint8 s1 = pcard1->current.sequence, s2 = pcard2->current.sequence;
-	remove_card(pcard1);
-	remove_card(pcard2);
-	add_card(p2, pcard1, l2, s2);
-	add_card(p1, pcard2, l1, s1);
-	pduel->write_buffer8(MSG_SWAP);
-	pduel->write_buffer32(pcard1->data.code);
-	pduel->write_buffer32(pcard2->get_info_location());
-	pduel->write_buffer32(pcard2->data.code);
-	pduel->write_buffer32(pcard1->get_info_location());
+	uint32 info1 = pcard1->get_info_location(), info2 = pcard2->get_info_location();
+	if(!(l1 & LOCATION_ONFIELD) || !(l2 & LOCATION_ONFIELD))
+		return;
+	if(new_sequence1 != s1 && !is_location_useable(p1, l1, new_sequence1)
+		|| new_sequence2 != s2 && !is_location_useable(p2, l2, new_sequence2))
+		return;
+	if(p1 == p2 && l1 == l2 && (new_sequence1 == s2 || new_sequence2 == s1))
+		return;
+	if(l1 == l2) {
+		pcard1->previous.controler = p1;
+		pcard1->previous.location = l1;
+		pcard1->previous.sequence = s1;
+		pcard1->previous.position = pcard1->current.position;
+		pcard1->previous.pzone = pcard1->current.pzone;
+		pcard1->current.controler = p2;
+		pcard1->current.location = l2;
+		pcard1->current.sequence = new_sequence2;
+		pcard2->previous.controler = p2;
+		pcard2->previous.location = l2;
+		pcard2->previous.sequence = s2;
+		pcard2->previous.position = pcard2->current.position;
+		pcard2->previous.pzone = pcard2->current.pzone;
+		pcard2->current.controler = p1;
+		pcard2->current.location = l1;
+		pcard2->current.sequence = new_sequence1;
+		if(p1 != p2) {
+			pcard1->fieldid = infos.field_id++;
+			pcard2->fieldid = infos.field_id++;
+		}
+		if(l1 == LOCATION_MZONE) {
+			player[p1].list_mzone[s1] = 0;
+			player[p1].used_location &= ~(1 << s1);
+			player[p2].list_mzone[s2] = 0;
+			player[p2].used_location &= ~(1 << s2);
+			player[p2].list_mzone[new_sequence2] = pcard1;
+			player[p2].used_location |= 1 << new_sequence2;
+			player[p1].list_mzone[new_sequence1] = pcard2;
+			player[p1].used_location |= 1 << new_sequence1;
+		} else if(l1 == LOCATION_SZONE) {
+			player[p1].list_szone[s1] = 0;
+			player[p1].used_location &= ~(256 << s1);
+			player[p2].list_szone[s2] = 0;
+			player[p2].used_location &= ~(256 << s2);
+			player[p2].list_szone[new_sequence2] = pcard1;
+			player[p2].used_location |= 256 << new_sequence2;
+			player[p1].list_szone[new_sequence1] = pcard2;
+			player[p1].used_location |= 256 << new_sequence1;
+		}
+	} else {
+		remove_card(pcard1);
+		remove_card(pcard2);
+		add_card(p2, pcard1, l2, new_sequence2);
+		add_card(p1, pcard2, l1, new_sequence1);
+	}
+	if(s1 == new_sequence1 && s2 == new_sequence2) {
+		pduel->write_buffer8(MSG_SWAP);
+		pduel->write_buffer32(pcard1->data.code);
+		pduel->write_buffer32(info1);
+		pduel->write_buffer32(pcard2->data.code);
+		pduel->write_buffer32(info2);
+	} else if(s1 == new_sequence1) {
+		pduel->write_buffer8(MSG_MOVE);
+		pduel->write_buffer32(pcard1->data.code);
+		pduel->write_buffer32(info1);
+		pduel->write_buffer32(pcard1->get_info_location());
+		pduel->write_buffer32(0);
+		pduel->write_buffer8(MSG_MOVE);
+		pduel->write_buffer32(pcard2->data.code);
+		pduel->write_buffer32(info2);
+		pduel->write_buffer32(pcard2->get_info_location());
+		pduel->write_buffer32(0);
+	} else {
+		pduel->write_buffer8(MSG_MOVE);
+		pduel->write_buffer32(pcard2->data.code);
+		pduel->write_buffer32(info2);
+		pduel->write_buffer32(pcard2->get_info_location());
+		pduel->write_buffer32(0);
+		pduel->write_buffer8(MSG_MOVE);
+		pduel->write_buffer32(pcard1->data.code);
+		pduel->write_buffer32(info1);
+		pduel->write_buffer32(pcard1->get_info_location());
+		pduel->write_buffer32(0);
+	}
+}
+void field::swap_card(card* pcard1, card* pcard2) {
+	return swap_card(pcard1, pcard2, pcard1->current.sequence, pcard2->current.sequence);
 }
 void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 reset_count) {
 	if((core.remove_brainwashing && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING)) || pcard->refresh_control_status() == playerid)

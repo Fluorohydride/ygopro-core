@@ -829,16 +829,7 @@ int32 scriptlib::duel_swap_sequence(lua_State *L) {
 		&& location == LOCATION_MZONE && pcard2->current.location == location
 		&& pcard1->is_affect_by_effect(pduel->game_field->core.reason_effect)
 		&& pcard2->is_affect_by_effect(pduel->game_field->core.reason_effect)) {
-		uint8 s1 = pcard1->current.sequence, s2 = pcard2->current.sequence;
-		pduel->game_field->remove_card(pcard1);
-		pduel->game_field->remove_card(pcard2);
-		pduel->game_field->add_card(player, pcard1, location, s2);
-		pduel->game_field->add_card(player, pcard2, location, s1);
-		pduel->write_buffer8(MSG_SWAP);
-		pduel->write_buffer32(pcard1->data.code);
-		pduel->write_buffer32(pcard2->get_info_location());
-		pduel->write_buffer32(pcard2->data.code);
-		pduel->write_buffer32(pcard1->get_info_location());
+		pduel->game_field->swap_card(pcard1, pcard2);
 		field::card_set swapped;
 		swapped.insert(pcard1);
 		swapped.insert(pcard2);
