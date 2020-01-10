@@ -4298,59 +4298,6 @@ int32 scriptlib::duel_is_able_to_enter_bp(lua_State *L) {
 	lua_pushboolean(L, pduel->game_field->is_able_to_enter_bp());
 	return 1;
 }
-int32 scriptlib::duel_venom_swamp_check(lua_State *L) {
-	check_param_count(L, 2);
-	check_param(L, PARAM_TYPE_CARD, 2);
-	card* pcard = *(card**) lua_touserdata(L, 2);
-	if(pcard->get_counter(0x9) == 0 || pcard->is_affected_by_effect(EFFECT_SWAP_AD) || pcard->is_affected_by_effect(EFFECT_REVERSE_UPDATE)) {
-		lua_pushboolean(L, 0);
-		return 1;
-	}
-	uint32 base = pcard->get_base_attack();
-	pcard->temp.base_attack = base;
-	pcard->temp.attack = base;
-	int32 up = 0, upc = 0;
-	effect_set eset;
-	effect* peffect = 0;
-	pcard->filter_effect(EFFECT_UPDATE_ATTACK, &eset, FALSE);
-	pcard->filter_effect(EFFECT_SET_ATTACK, &eset, FALSE);
-	pcard->filter_effect(EFFECT_SET_ATTACK_FINAL, &eset);
-	for (int32 i = 0; i < eset.size(); ++i) {
-		switch (eset[i]->code) {
-		case EFFECT_UPDATE_ATTACK: {
-			if (eset[i]->type & EFFECT_TYPE_SINGLE && !eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))
-				up += eset[i]->get_value(pcard);
-			else
-				upc += eset[i]->get_value(pcard);
-			if(pcard->temp.attack > 0)
-				peffect = eset[i];
-			break;
-		}
-		case EFFECT_SET_ATTACK:
-			base = eset[i]->get_value(pcard);
-			if (eset[i]->type & EFFECT_TYPE_SINGLE && !eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))
-				up = 0;
-			break;
-		case EFFECT_SET_ATTACK_FINAL:
-			if (eset[i]->type & EFFECT_TYPE_SINGLE && !eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
-				base = eset[i]->get_value(pcard);
-				up = 0;
-				upc = 0;
-				peffect = 0;
-			}
-			break;
-		}
-		pcard->temp.attack = base + up + upc;
-	}
-	int32 atk = pcard->temp.attack;
-	pcard->temp.base_attack = 0xffffffff;
-	pcard->temp.attack = 0xffffffff;
-	if((atk <= 0) && peffect && (peffect->handler->get_code() == 54306223))
-		lua_pushboolean(L, 1);
-	else
-		lua_pushboolean(L, 0);
-	return 1;
-}
 int32 scriptlib::duel_swap_deck_and_grave(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 1);
