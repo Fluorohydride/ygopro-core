@@ -335,6 +335,7 @@ struct card_sort {
 #define HINT_CODE				8
 #define HINT_NUMBER				9
 #define HINT_CARD				10
+#define HINT_ZONE               11
 //
 #define CHINT_TURN				1
 #define CHINT_CARD				2
