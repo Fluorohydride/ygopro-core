@@ -2244,10 +2244,19 @@ void card::cancel_card_target(card* pcard) {
 	}
 }
 void card::clear_card_target() {
-	for(auto& pcard : effect_target_owner)
+	for(auto& pcard : effect_target_owner) {
 		pcard->effect_target_cards.erase(this);
+		for(auto& it : pcard->target_effect) {
+			if(it.second->is_disable_related())
+				pduel->game_field->add_to_disable_check_list(this);
+		}
+	}
 	for(auto& pcard : effect_target_cards) {
 		pcard->effect_target_owner.erase(this);
+		for(auto& it : target_effect) {
+			if(it.second->is_disable_related())
+				pduel->game_field->add_to_disable_check_list(pcard);
+		}
 		for(auto it = pcard->single_effect.begin(); it != pcard->single_effect.end();) {
 			auto rm = it++;
 			effect* peffect = rm->second;
