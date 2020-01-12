@@ -340,6 +340,7 @@ public:
 	int32 is_capable_turn_set(uint8 playerid);
 	int32 is_capable_change_control();
 	int32 is_control_can_be_changed(int32 ignore_mzone, uint32 zone);
+	int32 is_capable_equip(uint8 playerid, int32 ignore_szone);
 	int32 is_capable_be_battle_target(card* pcard);
 	int32 is_capable_be_effect_target(effect* peffect, uint8 playerid);
 	int32 is_capable_overlay(uint8 playerid);

@@ -1295,7 +1295,13 @@ int32 scriptlib::card_check_equip_target(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 2);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	card* target = *(card**) lua_touserdata(L, 2);
-	if(pcard->is_affected_by_effect(EFFECT_EQUIP_LIMIT, target)
+	uint32 playerid = pcard->current.controler;
+	if(lua_gettop(L) >= 3)
+		playerid = lua_tointeger(L, 3);
+	int32 ign = FALSE;
+	if(lua_gettop(L) >= 4)
+		ign = lua_toboolean(L, 4);
+	if(pcard->is_capable_equip(playerid, ign) && pcard->is_affected_by_effect(EFFECT_EQUIP_LIMIT, target)
 		&& ((!pcard->is_affected_by_effect(EFFECT_OLDUNION_STATUS) || target->get_union_count() == 0)
 			&& (!pcard->is_affected_by_effect(EFFECT_UNION_STATUS) || target->get_old_union_count() == 0)))
 		lua_pushboolean(L, 1);
@@ -2586,6 +2592,22 @@ int32 scriptlib::card_is_controler_can_be_changed(lua_State *L) {
 	if(lua_gettop(L) >= 3)
 		zone = lua_tointeger(L, 3);
 	if(pcard->is_control_can_be_changed(ign, zone))
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::card_is_able_to_equip(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 playerid = pcard->current.controler;
+	if(lua_gettop(L) >= 2)
+		playerid = lua_tointeger(L, 2);
+	int32 ign = FALSE;
+	if(lua_gettop(L) >= 3)
+		ign = lua_toboolean(L, 3);
+	if(pcard->is_capable_equip(playerid, ign))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
