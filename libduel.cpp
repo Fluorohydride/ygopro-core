@@ -4279,8 +4279,12 @@ int32 scriptlib::duel_get_custom_activity_count(lua_State *L) {
 	}
 	if(playerid == 0)
 		lua_pushinteger(L, val & 0xffff);
-	else
+	else if(playerid == 1)
 		lua_pushinteger(L, (val >> 16) & 0xffff);
+	else if(playerid == PLAYER_ALL)
+		lua_pushinteger(L, (val & 0xffff) + ((val >> 16) & 0xffff));
+	else
+		lua_pushinteger(L, 0);
 	return 1;
 }
 
