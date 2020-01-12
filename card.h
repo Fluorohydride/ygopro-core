@@ -180,6 +180,7 @@ public:
 	effect_container single_effect;
 	effect_container field_effect;
 	effect_container equip_effect;
+	effect_container target_effect;
 	effect_container xmaterial_effect;
 	effect_indexer indexer;
 	effect_relation relate_effect;

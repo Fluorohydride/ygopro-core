@@ -114,7 +114,7 @@ int32 effect::is_available() {
 				return FALSE;
 		}
 	}
-	if (type & EFFECT_TYPE_FIELD) {
+	if (type & (EFFECT_TYPE_FIELD | EFFECT_TYPE_TARGET)) {
 		card* phandler = get_handler();
 		card* powner = get_owner();
 		if (!is_flag(EFFECT_FLAG_FIELD_ONLY)) {
@@ -442,6 +442,11 @@ int32 effect::is_target(card* pcard) {
 		return FALSE;
 	if(type & (EFFECT_TYPE_SINGLE | EFFECT_TYPE_EQUIP | EFFECT_TYPE_XMATERIAL) && !(type & EFFECT_TYPE_FIELD))
 		return TRUE;
+	if((type & EFFECT_TYPE_TARGET) && !(type & EFFECT_TYPE_FIELD)) {
+		if(pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED | STATUS_SPSUMMON_STEP))
+			return FALSE;
+		return is_fit_target_function(pcard);
+	}
 	if(pcard && !is_flag(EFFECT_FLAG_SET_AVAILABLE) && (pcard->current.location & LOCATION_ONFIELD)
 			&& !pcard->is_position(POS_FACEUP))
 		return FALSE;
