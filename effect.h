@@ -66,6 +66,7 @@ public:
 	~effect() = default;
 
 	int32 is_disable_related();
+	int32 is_self_destroy_related();
 	int32 is_can_be_forbidden();
 	int32 is_available();
 	int32 check_count_limit(uint8 playerid);
@@ -156,6 +157,7 @@ public:
 #define EFFECT_TYPE_CONTINUOUS		0x0800	//
 #define EFFECT_TYPE_XMATERIAL		0x1000	//
 #define EFFECT_TYPE_GRANT			0x2000	//
+#define EFFECT_TYPE_TARGET			0x4000	//
 
 //========== Flags ==========
 enum effect_flag : uint32 {
@@ -362,6 +364,9 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_PIERCE					203
 #define EFFECT_BATTLE_DESTROY_REDIRECT	204
 #define EFFECT_BATTLE_DAMAGE_TO_EFFECT	205
+#define EFFECT_BOTH_BATTLE_DAMAGE		206
+#define EFFECT_ALSO_BATTLE_DAMAGE		207
+#define EFFECT_CHANGE_BATTLE_DAMAGE		208
 #define EFFECT_TOSS_COIN_REPLACE		220
 #define EFFECT_TOSS_DICE_REPLACE		221
 #define EFFECT_FUSION_MATERIAL			230
@@ -442,7 +447,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_EXTRA_LINK_MATERIAL		358
 #define EFFECT_QP_ACT_IN_SET_TURN		359
 #define EFFECT_EXTRA_PENDULUM_SUMMON	360
-#define EFFECT_IRON_WALL				361
+#define EFFECT_MATERIAL_LIMIT			361
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
@@ -517,4 +522,6 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_REMOVE_COUNTER		0x20000
 #define EVENT_CUSTOM				0x10000000
 
+#define DOUBLE_DAMAGE				0x80000000
+#define HALF_DAMAGE					0x80000001
 #endif /* EFFECT_H_ */

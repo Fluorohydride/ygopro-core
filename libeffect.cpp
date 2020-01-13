@@ -266,6 +266,8 @@ int32 scriptlib::effect_set_value(lua_State *L) {
 		peffect->flag[0] &= ~EFFECT_FLAG_FUNC_VALUE;
 		if(lua_isboolean(L, 2))
 			peffect->value = lua_toboolean(L, 2);
+		else if(lua_isinteger(L, 2))
+			peffect->value = lua_tointeger(L, 2);
 		else
 			peffect->value = std::round(lua_tonumber(L, 2));
 	}
