@@ -1606,41 +1606,41 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 		chain newchain;
 		if(core.ignition_priority_chains.size())
 			core.select_chains.swap(core.ignition_priority_chains);
-		for(auto evit = core.point_event.begin(); evit != core.instant_event.end(); ++evit) {
-			if(evit == core.point_event.end())
-				evit = core.instant_event.begin();
-			auto pr = effects.activate_effect.equal_range(evit->event_code);
-			for(auto eit = pr.first; eit != pr.second;) {
-				effect* peffect = eit->second;
-				++eit;
-				peffect->set_activate_location();
-				if(!peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_chainable(priority) && peffect->is_activateable(priority, *evit)) {
-					card* phandler = peffect->get_handler();
-					newchain.flag = 0;
-					newchain.chain_id = infos.field_id++;
-					newchain.evt = *evit;
-					newchain.triggering_effect = peffect;
-					newchain.set_triggering_state(phandler);
-					newchain.triggering_player = priority;
-					core.select_chains.push_back(newchain);
+		for(const auto* ev_list : { &core.point_event, &core.instant_event }) {
+			for(const auto& ev : *ev_list) {
+				auto pr = effects.activate_effect.equal_range(ev.event_code);
+				for(auto eit = pr.first; eit != pr.second;) {
+					effect* peffect = eit->second;
+					++eit;
+					peffect->set_activate_location();
+					if(!peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_chainable(priority) && peffect->is_activateable(priority, ev)) {
+						card* phandler = peffect->get_handler();
+						newchain.flag = 0;
+						newchain.chain_id = infos.field_id++;
+						newchain.evt = ev;
+						newchain.triggering_effect = peffect;
+						newchain.set_triggering_state(phandler);
+						newchain.triggering_player = priority;
+						core.select_chains.push_back(newchain);
+					}
 				}
-			}
-			pr = effects.quick_o_effect.equal_range(evit->event_code);
-			for(auto eit = pr.first; eit != pr.second;) {
-				effect* peffect = eit->second;
-				++eit;
-				peffect->set_activate_location();
-				if(peffect->is_chainable(priority) && peffect->is_activateable(priority, *evit)) {
-					card* phandler = peffect->get_handler();
-					newchain.flag = 0;
-					newchain.chain_id = infos.field_id++;
-					newchain.evt = *evit;
-					newchain.triggering_effect = peffect;
-					newchain.set_triggering_state(phandler);
-					newchain.triggering_player = priority;
-					core.select_chains.push_back(newchain);
-					core.delayed_quick_tmp.erase(std::make_pair(peffect, *evit));
-					core.delayed_quick_break.erase(std::make_pair(peffect, *evit));
+				pr = effects.quick_o_effect.equal_range(ev.event_code);
+				for(auto eit = pr.first; eit != pr.second;) {
+					effect* peffect = eit->second;
+					++eit;
+					peffect->set_activate_location();
+					if(peffect->is_chainable(priority) && peffect->is_activateable(priority, ev)) {
+						card* phandler = peffect->get_handler();
+						newchain.flag = 0;
+						newchain.chain_id = infos.field_id++;
+						newchain.evt = ev;
+						newchain.triggering_effect = peffect;
+						newchain.set_triggering_state(phandler);
+						newchain.triggering_player = priority;
+						core.select_chains.push_back(newchain);
+						core.delayed_quick_tmp.erase(std::make_pair(peffect, ev));
+						core.delayed_quick_break.erase(std::make_pair(peffect, ev));
+					}
 				}
 			}
 		}
