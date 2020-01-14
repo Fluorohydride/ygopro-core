@@ -3930,6 +3930,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			pcard->reset(RESET_LEAVE, RESET_EVENT);
 			param->leave.insert(pcard);
 		}
+		if(pcard->previous.location == LOCATION_OVERLAY)
+			pcard->previous.controler = control_player;
 		++param->cvit;
 		core.units.begin()->step = 4;
 		return FALSE;
