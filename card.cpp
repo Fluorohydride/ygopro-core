@@ -980,22 +980,23 @@ uint32 card::get_ritual_level(card* pcard) {
 uint32 card::check_xyz_level(card* pcard, uint32 lv) {
 	if(status & STATUS_NO_LEVEL)
 		return 0;
-	uint32 lev;
 	effect_set eset;
 	filter_effect(EFFECT_XYZ_LEVEL, &eset);
 	if(!eset.size()) {
-		lev = get_level();
+		uint32 lev = get_level();
 		if(lev == lv)
 			return lev;
 		return 0;
 	}
-	pduel->lua->add_param(this, PARAM_TYPE_CARD);
-	pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
-	lev = eset[0]->get_value(2);
-	if(((lev & 0xfff) == lv))
-		return lev & 0xffff;
-	if(((lev >> 16) & 0xfff) == lv)
-		return (lev >> 16) & 0xffff;
+	for(int32 i = 0; i < eset.size(); ++i) {
+		pduel->lua->add_param(this, PARAM_TYPE_CARD);
+		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+		uint32 lev = eset[i]->get_value(2);
+		if(((lev & 0xfff) == lv))
+			return lev & 0xffff;
+		if(((lev >> 16) & 0xfff) == lv)
+			return (lev >> 16) & 0xffff;
+	}
 	return 0;
 }
 // see get_level()
