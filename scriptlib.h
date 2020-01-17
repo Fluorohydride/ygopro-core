@@ -269,6 +269,7 @@ public:
 	static int32 card_reset_negate_effect(lua_State *L);
 	static int32 card_assume_prop(lua_State *L);
 	static int32 card_set_spsummon_once(lua_State *L);
+	static void open_cardlib(lua_State *L);
 
 	//Effect functions
 	static int32 effect_new(lua_State *L);
@@ -322,6 +323,7 @@ public:
 	static int32 effect_get_activate_sequence(lua_State *L);
 	static int32 effect_check_count_limit(lua_State *L);
 	static int32 effect_use_count_limit(lua_State *L);
+	static void open_effectlib(lua_State *L);
 
 	//Group functions
 	static int32 group_new(lua_State *L);
@@ -358,6 +360,7 @@ public:
 	static int32 group_is_contains(lua_State *L);
 	static int32 group_search_card(lua_State *L);
 	static int32 group_get_bin_class_count(lua_State *L);
+	static void open_grouplib(lua_State *L);
 
 	//Duel functions
 	static int32 duel_enable_global_flag(lua_State *L);
@@ -577,6 +580,8 @@ public:
 	static int32 duel_swap_deck_and_grave(lua_State *L);
 	static int32 duel_majestic_copy(lua_State *L);
 
+	static void open_duellib(lua_State *L);
+
 	//group metamethods
 	//__len is in the group lib, which is same as group_get_count
 	static int32 group_meta_add(lua_State *L);
@@ -596,6 +601,7 @@ public:
 	static int32 debug_reload_field_end(lua_State *L);
 	static int32 debug_set_ai_name(lua_State *L);
 	static int32 debug_show_hint(lua_State *L);
+	static void open_debuglib(lua_State *L);
 };
 
 #endif /* SCRIPTLIB_H_ */

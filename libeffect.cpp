@@ -561,3 +561,65 @@ int32 scriptlib::effect_use_count_limit(lua_State *L) {
 		}
 	return 0;
 }
+
+static const struct luaL_Reg effectlib[] = {
+	{ "CreateEffect", scriptlib::effect_new },
+	{ "GlobalEffect", scriptlib::effect_newex },
+	{ "Clone", scriptlib::effect_clone },
+	{ "Reset", scriptlib::effect_reset },
+	{ "GetFieldID", scriptlib::effect_get_field_id },
+	{ "SetDescription", scriptlib::effect_set_description },
+	{ "SetCode", scriptlib::effect_set_code },
+	{ "SetRange", scriptlib::effect_set_range },
+	{ "SetTargetRange", scriptlib::effect_set_target_range },
+	{ "SetAbsoluteRange", scriptlib::effect_set_absolute_range },
+	{ "SetCountLimit", scriptlib::effect_set_count_limit },
+	{ "SetReset", scriptlib::effect_set_reset },
+	{ "SetType", scriptlib::effect_set_type },
+	{ "SetProperty", scriptlib::effect_set_property },
+	{ "SetLabel", scriptlib::effect_set_label },
+	{ "SetLabelObject", scriptlib::effect_set_label_object },
+	{ "SetCategory", scriptlib::effect_set_category },
+	{ "SetHintTiming", scriptlib::effect_set_hint_timing },
+	{ "SetCondition", scriptlib::effect_set_condition },
+	{ "SetTarget", scriptlib::effect_set_target },
+	{ "SetCost", scriptlib::effect_set_cost },
+	{ "SetValue", scriptlib::effect_set_value },
+	{ "SetOperation", scriptlib::effect_set_operation },
+	{ "SetOwnerPlayer", scriptlib::effect_set_owner_player },
+	{ "GetDescription", scriptlib::effect_get_description },
+	{ "GetCode", scriptlib::effect_get_code },
+	{ "GetType", scriptlib::effect_get_type },
+	{ "GetProperty", scriptlib::effect_get_property },
+	{ "GetLabel", scriptlib::effect_get_label },
+	{ "GetLabelObject", scriptlib::effect_get_label_object },
+	{ "GetCategory", scriptlib::effect_get_category },
+	{ "GetOwner", scriptlib::effect_get_owner },
+	{ "GetHandler", scriptlib::effect_get_handler },
+	{ "GetCondition", scriptlib::effect_get_condition },
+	{ "GetTarget", scriptlib::effect_get_target },
+	{ "GetCost", scriptlib::effect_get_cost },
+	{ "GetValue", scriptlib::effect_get_value },
+	{ "GetOperation", scriptlib::effect_get_operation },
+	{ "GetActiveType", scriptlib::effect_get_active_type },
+	{ "IsActiveType", scriptlib::effect_is_active_type },
+	{ "GetOwnerPlayer", scriptlib::effect_get_owner_player },
+	{ "GetHandlerPlayer", scriptlib::effect_get_handler_player },
+	{ "IsHasProperty", scriptlib::effect_is_has_property },
+	{ "IsHasCategory", scriptlib::effect_is_has_category },
+	{ "IsHasType", scriptlib::effect_is_has_type },
+	{ "IsActivatable", scriptlib::effect_is_activatable },
+	{ "IsActivated", scriptlib::effect_is_activated },
+	{ "GetActivateLocation", scriptlib::effect_get_activate_location },
+	{ "GetActivateSequence", scriptlib::effect_get_activate_sequence },
+	{ "CheckCountLimit", scriptlib::effect_check_count_limit },
+	{ "UseCountLimit", scriptlib::effect_use_count_limit },
+	{ NULL, NULL }
+};
+void scriptlib::open_effectlib(lua_State *L) {
+	luaL_newlib(L, effectlib);
+	lua_pushstring(L, "__index");
+	lua_pushvalue(L, -2);
+	lua_rawset(L, -3);
+	lua_setglobal(L, "Effect");
+}

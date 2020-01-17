@@ -845,3 +845,54 @@ int32 scriptlib::group_meta_bxor(lua_State* L) {
 	interpreter::group2value(L, pgroup);
 	return 1;
 }
+
+static const struct luaL_Reg grouplib[] = {
+	{ "CreateGroup", scriptlib::group_new },
+	{ "KeepAlive", scriptlib::group_keep_alive },
+	{ "DeleteGroup", scriptlib::group_delete },
+	{ "Clone", scriptlib::group_clone },
+	{ "FromCards", scriptlib::group_from_cards },
+	{ "Clear", scriptlib::group_clear },
+	{ "AddCard", scriptlib::group_add_card },
+	{ "RemoveCard", scriptlib::group_remove_card },
+	{ "GetNext", scriptlib::group_get_next },
+	{ "GetFirst", scriptlib::group_get_first },
+	{ "GetCount", scriptlib::group_get_count },
+	{ "__len", scriptlib::group_get_count },
+	{ "ForEach", scriptlib::group_for_each },
+	{ "Filter", scriptlib::group_filter },
+	{ "FilterCount", scriptlib::group_filter_count },
+	{ "FilterSelect", scriptlib::group_filter_select },
+	{ "Select", scriptlib::group_select },
+	{ "SelectUnselect", scriptlib::group_select_unselect },
+	{ "RandomSelect", scriptlib::group_random_select },
+	{ "IsExists", scriptlib::group_is_exists },
+	{ "CheckWithSumEqual", scriptlib::group_check_with_sum_equal },
+	{ "SelectWithSumEqual", scriptlib::group_select_with_sum_equal },
+	{ "CheckWithSumGreater", scriptlib::group_check_with_sum_greater },
+	{ "SelectWithSumGreater", scriptlib::group_select_with_sum_greater },
+	{ "GetMinGroup", scriptlib::group_get_min_group },
+	{ "GetMaxGroup", scriptlib::group_get_max_group },
+	{ "GetSum", scriptlib::group_get_sum },
+	{ "GetClassCount", scriptlib::group_get_class_count },
+	{ "Remove", scriptlib::group_remove },
+	{ "Merge", scriptlib::group_merge },
+	{ "Sub", scriptlib::group_sub },
+	{ "Equal", scriptlib::group_equal },
+	{ "IsContains", scriptlib::group_is_contains },
+	{ "SearchCard", scriptlib::group_search_card },
+	{ "GetBinClassCount", scriptlib::group_get_bin_class_count },
+	{ "__add", scriptlib::group_meta_add },
+	{ "__bor", scriptlib::group_meta_add },
+	{ "__sub", scriptlib::group_meta_sub },
+	{ "__band", scriptlib::group_meta_band },
+	{ "__bxor", scriptlib::group_meta_bxor },
+	{ NULL, NULL }
+};
+void scriptlib::open_grouplib(lua_State *L) {
+	luaL_newlib(L, grouplib);
+	lua_pushstring(L, "__index");
+	lua_pushvalue(L, -2);
+	lua_rawset(L, -3);
+	lua_setglobal(L, "Group");
+}

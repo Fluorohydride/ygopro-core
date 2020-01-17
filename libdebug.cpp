@@ -203,3 +203,22 @@ int32 scriptlib::debug_show_hint(lua_State *L) {
 	pduel->write_buffer8(0);
 	return 0;
 }
+
+static const struct luaL_Reg debuglib[] = {
+	{ "Message", scriptlib::debug_message },
+	{ "AddCard", scriptlib::debug_add_card },
+	{ "SetPlayerInfo", scriptlib::debug_set_player_info },
+	{ "PreSummon", scriptlib::debug_pre_summon },
+	{ "PreEquip", scriptlib::debug_pre_equip },
+	{ "PreSetTarget", scriptlib::debug_pre_set_target },
+	{ "PreAddCounter", scriptlib::debug_pre_add_counter },
+	{ "ReloadFieldBegin", scriptlib::debug_reload_field_begin },
+	{ "ReloadFieldEnd", scriptlib::debug_reload_field_end },
+	{ "SetAIName", scriptlib::debug_set_ai_name },
+	{ "ShowHint", scriptlib::debug_show_hint },
+	{ NULL, NULL }
+};
+void scriptlib::open_debuglib(lua_State *L) {
+	luaL_newlib(L, debuglib);
+	lua_setglobal(L, "Debug");
+}
