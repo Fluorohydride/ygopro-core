@@ -2485,7 +2485,7 @@ int32 scriptlib::duel_check_release_group(lua_State *L) {
 	} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
 		group* pgroup = *(group**)lua_touserdata(L, 2);
 		pduel->game_field->core.must_select_cards.assign(pgroup->container.begin(), pgroup->container.end());
-	} else {
+	} else if(!lua_isnil(L, 2)) {
 		luaL_error(L, "Parameter %d should be \"Function\" or \"Group\".", 2);
 	}
 	card* pexception = 0;
