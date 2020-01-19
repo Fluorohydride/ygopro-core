@@ -3051,8 +3051,6 @@ int32 field::process_battle_command(uint16 step) {
 		core.flip_delayed = FALSE;
 		core.new_fchain.splice(core.new_fchain.begin(), core.new_fchain_b);
 		core.new_ochain.splice(core.new_ochain.begin(), core.new_ochain_b);
-		core.hint_timing[0] |= TIMING_BATTLED;
-		core.hint_timing[1] |= TIMING_BATTLED;
 		raise_single_event(core.attacker, 0, EVENT_BATTLED, 0, 0, PLAYER_NONE, 0, 0);
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_BATTLED, 0, 0, PLAYER_NONE, 0, 1);
@@ -3075,6 +3073,8 @@ int32 field::process_battle_command(uint16 step) {
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(1);
 		pduel->write_buffer32(43);
+		core.hint_timing[0] |= TIMING_BATTLED;
+		core.hint_timing[1] |= TIMING_BATTLED;
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, TRUE);
 		return FALSE;
 	}
