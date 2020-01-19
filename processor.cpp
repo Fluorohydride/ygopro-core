@@ -3073,6 +3073,8 @@ int32 field::process_battle_command(uint16 step) {
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(1);
 		pduel->write_buffer32(43);
+		core.hint_timing[0] |= TIMING_BATTLED;
+		core.hint_timing[1] |= TIMING_BATTLED;
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, TRUE);
 		return FALSE;
 	}
