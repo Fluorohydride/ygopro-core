@@ -4854,7 +4854,8 @@ int32 field::adjust_step(uint16 step) {
 		}
 		if(core.control_adjust_set[0].size() || core.control_adjust_set[1].size()) {
 			core.re_adjust = TRUE;
-			add_process(PROCESSOR_CONTROL_ADJUST, 0, 0, 0, 0, 0);
+			get_control(&core.control_adjust_set[1 - infos.turn_player], 0, PLAYER_NONE, infos.turn_player, 0, 0, 0xff);
+			get_control(&core.control_adjust_set[infos.turn_player], 0, PLAYER_NONE, 1 - infos.turn_player, 0, 0, 0xff);
 		}
 		core.last_control_changed_id = infos.field_id;
 		return FALSE;
@@ -4888,7 +4889,8 @@ int32 field::adjust_step(uint16 step) {
 			core.remove_brainwashing = res;
 			if(core.control_adjust_set[0].size() || core.control_adjust_set[1].size()) {
 				core.re_adjust = TRUE;
-				add_process(PROCESSOR_CONTROL_ADJUST, 0, 0, 0, 0, 0);
+				get_control(&core.control_adjust_set[1 - infos.turn_player], 0, PLAYER_NONE, infos.turn_player, 0, 0, 0xff);
+				get_control(&core.control_adjust_set[infos.turn_player], 0, PLAYER_NONE, 1 - infos.turn_player, 0, 0, 0xff);
 			}
 		}
 		core.units.begin()->step = 7;
