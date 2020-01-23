@@ -247,7 +247,7 @@ struct card_sort {
 #define MSG_SELECT_PLACE		18
 #define MSG_SELECT_POSITION		19
 #define MSG_SELECT_TRIBUTE		20
-#define MSG_SORT_CHAIN			21
+//#define MSG_SORT_CHAIN			21
 #define MSG_SELECT_COUNTER		22
 #define MSG_SELECT_SUM			23
 #define MSG_SELECT_DISFIELD		24

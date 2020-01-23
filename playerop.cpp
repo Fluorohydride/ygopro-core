@@ -708,7 +708,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 	}
 	return TRUE;
 }
-int32 field::sort_card(int16 step, uint8 playerid, uint8 is_chain) {
+int32 field::sort_card(int16 step, uint8 playerid) {
 	if(step == 0) {
 		returns.bvalue[0] = 0;
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
@@ -717,10 +717,7 @@ int32 field::sort_card(int16 step, uint8 playerid, uint8 is_chain) {
 		}
 		if(core.select_cards.empty())
 			return TRUE;
-		if(is_chain)
-			pduel->write_buffer8(MSG_SORT_CHAIN);
-		else
-			pduel->write_buffer8(MSG_SORT_CARD);
+		pduel->write_buffer8(MSG_SORT_CARD);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer8(core.select_cards.size());
 		for(auto& pcard : core.select_cards) {

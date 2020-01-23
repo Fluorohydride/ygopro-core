@@ -180,7 +180,7 @@ int32 field::process() {
 		}
 	}
 	case PROCESSOR_SORT_CARD: {
-		if (sort_card(it->step, it->arg1, it->arg2)) {
+		if (sort_card(it->step, it->arg1)) {
 			core.units.pop_front();
 			return pduel->bufferlen;
 		} else {

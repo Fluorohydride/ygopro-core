@@ -610,7 +610,7 @@ public:
 	int32 select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max);
 	int32 select_counter(uint16 step, uint8 playerid, uint16 countertype, uint16 count, uint8 s, uint8 o);
 	int32 select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 min, int32 max);
-	int32 sort_card(int16 step, uint8 playerid, uint8 is_chain);
+	int32 sort_card(int16 step, uint8 playerid);
 	int32 announce_race(int16 step, uint8 playerid, int32 count, int32 available);
 	int32 announce_attribute(int16 step, uint8 playerid, int32 count, int32 available);
 	int32 announce_card(int16 step, uint8 playerid);
