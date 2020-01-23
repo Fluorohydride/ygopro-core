@@ -1911,7 +1911,8 @@ void card::reset(uint32 id, uint32 reset_type) {
 			}
 		}
 		if(id & RESET_TURN_SET) {
-			if(effect* peffect = check_control_effect()) {
+			effect* peffect = std::get<effect*>(refresh_control_status());
+			if(peffect && (!(peffect->type & EFFECT_TYPE_SINGLE) || peffect->condition)) {
 				effect* new_effect = pduel->new_effect();
 				new_effect->id = peffect->id;
 				new_effect->owner = this;
@@ -2723,54 +2724,6 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 			return peffect;
 	}
 	return 0;
-}
-effect* card::check_control_effect() {
-	effect* ret_effect = 0;
-	for (auto& pcard : equiping_cards) {
-		auto rg = pcard->equip_effect.equal_range(EFFECT_SET_CONTROL);
-		for (; rg.first != rg.second; ++rg.first) {
-			effect* peffect = rg.first->second;
-			if(!ret_effect || peffect->id > ret_effect->id)
-				ret_effect = peffect;
-		}
-	}
-	for (auto& pcard : effect_target_owner) {
-		auto rg = pcard->target_effect.equal_range(EFFECT_SET_CONTROL);
-		for (; rg.first != rg.second; ++rg.first) {
-			effect* peffect = rg.first->second;
-			if(!ret_effect || peffect->is_target(pcard) && peffect->id > ret_effect->id)
-				ret_effect = peffect;
-		}
-	}
-	for (auto& pcard : xyz_materials) {
-		auto rg = pcard->xmaterial_effect.equal_range(EFFECT_SET_CONTROL);
-		for (; rg.first != rg.second; ++rg.first) {
-			effect* peffect = rg.first->second;
-			if (peffect->type & EFFECT_TYPE_FIELD)
-				continue;
-			if(!ret_effect || peffect->id > ret_effect->id)
-				ret_effect = peffect;
-		}
-	}
-	auto rg = single_effect.equal_range(EFFECT_SET_CONTROL);
-	for (; rg.first != rg.second; ++rg.first) {
-		effect* peffect = rg.first->second;
-		if(!peffect->condition)
-			continue;
-		if(!ret_effect || peffect->id > ret_effect->id)
-			ret_effect = peffect;
-	}
-	/*
-	rg = pduel->game_field->effects.aura_effect.equal_range(EFFECT_SET_CONTROL);
-	for(; rg.first != rg.second; ++rg.first) {
-		effect* peffect = rg.first->second;
-		if(peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET) || !peffect->is_target(this))
-			continue;
-		if(!ret_effect || peffect->id > ret_effect->id)
-			ret_effect = peffect;
-	}
-	*/
-	return ret_effect;
 }
 int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_material) {
 	group* matgroup = 0;
