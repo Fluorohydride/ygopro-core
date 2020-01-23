@@ -4843,19 +4843,30 @@ int32 field::adjust_step(uint16 step) {
 		//control
 		core.control_adjust_set[0].clear();
 		core.control_adjust_set[1].clear();
+		card_set reason_cards;
 		for(uint8 p = 0; p < 2; ++p) {
 			for(auto& pcard : player[p].list_mzone) {
 				if(!pcard) continue;
 				uint8 cur = pcard->current.controler;
-				uint8 ref = pcard->refresh_control_status();
-				if(cur != ref && pcard->is_capable_change_control())
+				auto res = pcard->refresh_control_status();
+				uint8 ref = std::get<uint8>(res);
+				effect* peffect = std::get<effect*>(res);
+				if(cur != ref && pcard->is_capable_change_control()) {
 					core.control_adjust_set[p].insert(pcard);
+					if(peffect && (!(peffect->type & EFFECT_TYPE_SINGLE) || peffect->condition))
+						reason_cards.insert(peffect->get_handler());
+				}
 			}
 		}
 		if(core.control_adjust_set[0].size() || core.control_adjust_set[1].size()) {
 			core.re_adjust = TRUE;
 			get_control(&core.control_adjust_set[1 - infos.turn_player], 0, PLAYER_NONE, infos.turn_player, 0, 0, 0xff);
 			get_control(&core.control_adjust_set[infos.turn_player], 0, PLAYER_NONE, 1 - infos.turn_player, 0, 0, 0xff);
+			for(auto& rcard : reason_cards) {
+				core.readjust_map[rcard]++;
+				if(core.readjust_map[rcard] > 3)
+					destroy(rcard, 0, REASON_RULE, PLAYER_NONE);
+			}
 		}
 		core.last_control_changed_id = infos.field_id;
 		return FALSE;

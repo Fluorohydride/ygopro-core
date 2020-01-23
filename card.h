@@ -14,6 +14,7 @@
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
+#include <tuple>
 
 class card;
 class duel;
@@ -257,7 +258,7 @@ public:
 	void reset(uint32 id, uint32 reset_type);
 	void reset_effect_count();
 	void refresh_disable_status();
-	uint8 refresh_control_status();
+	std::tuple<uint8, effect*> refresh_control_status();
 
 	void count_turn(uint16 ct);
 	void create_relation(card* target, uint32 reset);

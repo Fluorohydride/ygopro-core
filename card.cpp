@@ -1964,8 +1964,9 @@ void card::refresh_disable_status() {
 	if(pre_dis != cur_dis)
 		filter_immune_effect();
 }
-uint8 card::refresh_control_status() {
+std::tuple<uint8, effect*> card::refresh_control_status() {
 	uint8 final = owner;
+	effect* ceffect = nullptr;
 	uint32 last_id = 0;
 	if(pduel->game_field->core.remove_brainwashing && is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING))
 		last_id = pduel->game_field->core.last_control_changed_id;
@@ -1974,18 +1975,11 @@ uint8 card::refresh_control_status() {
 	if(eset.size()) {
 		effect* peffect = eset.get_last();
 		if(peffect->id >= last_id) {
-			card* pcard = peffect->get_handler();
-			uint8 val = (uint8)peffect->get_value(this);
-			if(val != current.controler)
-				pduel->game_field->core.readjust_map[pcard]++;
-			if(pduel->game_field->core.readjust_map[pcard] > 5) {
-				pduel->game_field->send_to(pcard, 0, REASON_RULE, peffect->get_handler_player(), PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
-				return final;
-			}
-			final = val;
+			final = (uint8)peffect->get_value(this);
+			ceffect = peffect;
 		}
 	}
-	return final;
+	return { final, ceffect };
 }
 void card::count_turn(uint16 ct) {
 	turn_counter = ct;

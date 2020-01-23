@@ -520,7 +520,7 @@ void field::swap_card(card* pcard1, card* pcard2) {
 	return swap_card(pcard1, pcard2, pcard1->current.sequence, pcard2->current.sequence);
 }
 void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 reset_count) {
-	if((core.remove_brainwashing && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING)) || pcard->refresh_control_status() == playerid)
+	if((core.remove_brainwashing && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING)) || std::get<uint8>(pcard->refresh_control_status()) == playerid)
 		return;
 	effect* peffect = pduel->new_effect();
 	if(core.reason_effect)
