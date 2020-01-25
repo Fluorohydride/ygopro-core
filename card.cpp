@@ -573,7 +573,6 @@ int32 card::get_attack() {
 	filter_effect(EFFECT_UPDATE_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SET_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SET_ATTACK_FINAL, &eset, FALSE);
-	filter_effect(EFFECT_SWAP_ATTACK_FINAL, &eset, FALSE);
 	filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
 	if(!(data.type & TYPE_LINK)) {
 		filter_effect(EFFECT_SWAP_AD, &eset, FALSE);
@@ -636,11 +635,6 @@ int32 card::get_attack() {
 			if(batk < 0)
 				batk = 0;
 			atk = -1;
-			break;
-		case EFFECT_SWAP_ATTACK_FINAL:
-			atk = eset[i]->get_value(this);
-			up_atk = 0;
-			upc_atk = 0;
 			break;
 		case EFFECT_SET_BASE_DEFENSE:
 			bdef = eset[i]->get_value(this);
@@ -773,7 +767,6 @@ int32 card::get_defense() {
 	filter_effect(EFFECT_UPDATE_DEFENSE, &eset, FALSE);
 	filter_effect(EFFECT_SET_DEFENSE, &eset, FALSE);
 	filter_effect(EFFECT_SET_DEFENSE_FINAL, &eset, FALSE);
-	filter_effect(EFFECT_SWAP_DEFENSE_FINAL, &eset, FALSE);
 	filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
 	filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
@@ -833,11 +826,6 @@ int32 card::get_defense() {
 			if(bdef < 0)
 				bdef = 0;
 			def = -1;
-			break;
-		case EFFECT_SWAP_DEFENSE_FINAL:
-			def = eset[i]->get_value(this);
-			up_def = 0;
-			upc_def = 0;
 			break;
 		case EFFECT_SET_BASE_ATTACK:
 			batk = eset[i]->get_value(this);
