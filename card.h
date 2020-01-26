@@ -94,14 +94,14 @@ public:
 			return std::hash<uint16>()(v.second);
 		}
 	};
-	typedef std::vector<card*> card_vector;
-	typedef std::multimap<uint32, effect*> effect_container;
-	typedef std::set<card*, card_sort> card_set;
-	typedef std::unordered_map<effect*, effect_container::iterator> effect_indexer;
-	typedef std::unordered_set<std::pair<effect*, uint16>, effect_relation_hash> effect_relation;
-	typedef std::unordered_map<card*, uint32> relation_map;
-	typedef std::map<uint16, std::array<uint16, 2>> counter_map;
-	typedef std::map<uint32, int32> effect_count;
+	using card_vector = std::vector<card*>;
+	using effect_container = std::multimap<uint32, effect*>;
+	using card_set = std::set<card*, card_sort>;
+	using effect_indexer = std::unordered_map<effect*, effect_container::iterator>;
+	using effect_relation = std::unordered_set<std::pair<effect*, uint16>, effect_relation_hash>;
+	using relation_map = std::unordered_map<card*, uint32>;
+	using counter_map = std::map<uint16, std::array<uint16, 2>>;
+	using effect_count = std::map<uint32, int32>;
 	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32>> {
 	public:
 		void addcard(card* pcard);

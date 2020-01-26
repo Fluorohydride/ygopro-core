@@ -17,7 +17,7 @@ class duel;
 
 class group {
 public:
-	typedef std::set<card*, card_sort> card_set;
+	using card_set = std::set<card*, card_sort>;
 	int32 ref_handle;
 	duel* pduel;
 	card_set container;

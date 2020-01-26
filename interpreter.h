@@ -26,8 +26,8 @@ class duel;
 
 class interpreter {
 public:
-	typedef std::unordered_map<int32, lua_State*> coroutine_map;
-	typedef std::list<std::pair<void*, uint32>> param_list;
+	using coroutine_map = std::unordered_map<int32, lua_State*>;
+	using param_list = std::list<std::pair<void*, uint32>>;
 	
 	duel* pduel;
 	char msgbuf[64];
