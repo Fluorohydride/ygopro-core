@@ -1274,13 +1274,13 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 	case 0: {
 		core.select_chains.clear();
 		core.point_event.splice(core.point_event.end(), core.instant_event);
-		core.full_event.splice(core.full_event.end(), core.delayed_activate_event);
 		if(skip_trigger) {
 			core.units.begin()->step = 7;
 			return FALSE;
 		}
 		core.new_fchain_s.splice(core.new_fchain_s.begin(), core.new_fchain);
 		core.new_ochain_s.splice(core.new_ochain_s.begin(), core.new_ochain);
+		core.full_event.splice(core.full_event.end(), core.delayed_activate_event);
 		core.delayed_quick.clear();
 		core.delayed_quick_break.swap(core.delayed_quick);
 		core.current_player = infos.turn_player;
