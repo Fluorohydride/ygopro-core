@@ -1640,9 +1640,9 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 						newchain.set_triggering_state(phandler);
 						newchain.triggering_player = priority;
 						core.select_chains.push_back(newchain);
-						core.delayed_quick_tmp.erase(std::make_pair(peffect, ev));
-						core.delayed_quick_break.erase(std::make_pair(peffect, ev));
 					}
+					core.delayed_quick_tmp.erase(std::make_pair(peffect, ev));
+					core.delayed_quick_break.erase(std::make_pair(peffect, ev));
 				}
 			}
 		}
