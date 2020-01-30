@@ -94,8 +94,6 @@ card::card(duel* pd) {
 	spsummon_counter_rst[0] = spsummon_counter_rst[1] = 0;
 	unique_code = 0;
 	unique_fieldid = 0;
-	assume_type = 0;
-	assume_value = 0;
 	spsummon_code = 0;
 	current.controler = PLAYER_NONE;
 }
@@ -256,8 +254,8 @@ uint32 card::second_code(uint32 code){
 // return: the current card name
 // for double-name card, it returns printed name
 uint32 card::get_code() {
-	if(assume_type == ASSUME_CODE)
-		return assume_value;
+	if (assume.find(ASSUME_CODE) != assume.end())
+		return assume[ASSUME_CODE];
 	if (temp.code != 0xffffffff)
 		return temp.code;
 	effect_set effects;
@@ -435,8 +433,8 @@ int32 card::is_link_set_card(uint32 set_code) {
 	return FALSE;
 }
 uint32 card::get_type() {
-	if(assume_type == ASSUME_TYPE)
-		return assume_value;
+	if (assume.find(ASSUME_TYPE) != assume.end())
+		return assume[ASSUME_TYPE];
 	if(!(current.location & (LOCATION_ONFIELD | LOCATION_HAND | LOCATION_GRAVE)))
 		return data.type;
 	if(current.is_location(LOCATION_PZONE))
@@ -550,8 +548,8 @@ int32 card::get_base_attack() {
 	return batk;
 }
 int32 card::get_attack() {
-	if(assume_type == ASSUME_ATTACK)
-		return assume_value;
+	if (assume.find(ASSUME_ATTACK) != assume.end())
+		return assume[ASSUME_ATTACK];
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
@@ -743,8 +741,8 @@ int32 card::get_base_defense() {
 int32 card::get_defense() {
 	if(data.type & TYPE_LINK)
 		return 0;
-	if(assume_type == ASSUME_DEFENSE)
-		return assume_value;
+	if (assume.find(ASSUME_DEFENSE) != assume.end())
+		return assume[ASSUME_DEFENSE];
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
@@ -875,8 +873,8 @@ uint32 card::get_level() {
 	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL)
 	        || (!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)))
 		return 0;
-	if(assume_type == ASSUME_LEVEL)
-		return assume_value;
+	if (assume.find(ASSUME_LEVEL) != assume.end())
+		return assume[ASSUME_LEVEL];
 	if (temp.level != 0xffffffff)
 		return temp.level;
 	effect_set effects;
@@ -906,8 +904,8 @@ uint32 card::get_level() {
 uint32 card::get_rank() {
 	if(!(data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL))
 		return 0;
-	if(assume_type == ASSUME_RANK)
-		return assume_value;
+	if (assume.find(ASSUME_RANK) != assume.end())
+		return assume[ASSUME_RANK];
 	if(!(current.location & LOCATION_MZONE))
 		return data.level;
 	if (temp.level != 0xffffffff)
@@ -989,8 +987,8 @@ uint32 card::check_xyz_level(card* pcard, uint32 lv) {
 }
 // see get_level()
 uint32 card::get_attribute() {
-	if(assume_type == ASSUME_ATTRIBUTE)
-		return assume_value;
+	if (assume.find(ASSUME_ATTRIBUTE) != assume.end())
+		return assume[ASSUME_ATTRIBUTE];
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	if (temp.attribute != 0xffffffff)
@@ -1040,8 +1038,8 @@ uint32 card::get_link_attribute(uint8 playerid) {
 }
 // see get_level()
 uint32 card::get_race() {
-	if(assume_type == ASSUME_RACE)
-		return assume_value;
+	if (assume.find(ASSUME_RACE) != assume.end())
+		return assume[ASSUME_RACE];
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
 	if (temp.race != 0xffffffff)

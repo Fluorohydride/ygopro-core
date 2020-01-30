@@ -3082,8 +3082,9 @@ int32 scriptlib::card_assume_prop(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	pcard->assume_type = lua_tointeger(L, 2);
-	pcard->assume_value = lua_tointeger(L, 3);
+	if ((lua_tointeger(L, 2) < ASSUME_CODE) || (lua_tointeger(L, 2) > ASSUME_DEFENSE))
+		return 0;
+	pcard->assume[lua_tointeger(L, 2)] = lua_tointeger(L, 3);
 	pcard->pduel->assumes.insert(pcard);
 	return 0;
 }
