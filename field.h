@@ -209,7 +209,6 @@ struct processor {
 	chain_list new_ochain_h;
 	chain_list new_chains;
 	delayed_effect_collection delayed_quick_tmp;
-	delayed_effect_collection delayed_quick_break;
 	delayed_effect_collection delayed_quick;
 	instant_f_list quick_f_chain;
 	card_set leave_confirmed;
