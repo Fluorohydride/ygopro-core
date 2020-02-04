@@ -662,7 +662,7 @@ int32 field::process() {
 		uint8 target_player = it->arg1 >> 16;
 		uint8 count = it->arg2, i = 0;
 		if(count > player[target_player].list_main.size())
-			count = player[target_player].list_main.size();
+			count = (uint8)player[target_player].list_main.size();
 		if(it->step == 0) {
 			core.select_cards.clear();
 			for(auto clit = player[target_player].list_main.rbegin(); i < count; ++i, ++clit)
@@ -678,7 +678,7 @@ int32 field::process() {
 					tc[(uint8)returns.bvalue[i]] = core.select_cards[i];
 				for(i = 0; i < count; ++i) {
 					player[target_player].list_main.push_back(tc[count - i - 1]);
-					tc[count - i - 1]->current.sequence = player[target_player].list_main.size() - 1;
+					tc[count - i - 1]->current.sequence = (uint8)player[target_player].list_main.size() - 1;
 				}
 			}
 			if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
@@ -740,7 +740,7 @@ int32 field::execute_cost(uint16 step, effect * triggering_effect, uint8 trigger
 	}
 	core.reason_effect = triggering_effect;
 	core.reason_player = triggering_player;
-	uint32 count = pduel->lua->params.size();
+	uint32 count = (uint32)pduel->lua->params.size();
 	uint32 yield_value = 0;
 	int32 result = pduel->lua->call_coroutine(triggering_effect->cost, count, &yield_value, step);
 	returns.ivalue[0] = yield_value;
@@ -791,7 +791,7 @@ int32 field::execute_operation(uint16 step, effect * triggering_effect, uint8 tr
 	}
 	core.reason_effect = triggering_effect;
 	core.reason_player = triggering_player;
-	uint32 count = pduel->lua->params.size();
+	uint32 count = (uint32)pduel->lua->params.size();
 	uint32 yield_value = 0;
 	int32 result = pduel->lua->call_coroutine(triggering_effect->operation, count, &yield_value, step);
 	returns.ivalue[0] = yield_value;
@@ -847,7 +847,7 @@ int32 field::execute_target(uint16 step, effect * triggering_effect, uint8 trigg
 	}
 	core.reason_effect = triggering_effect;
 	core.reason_player = triggering_player;
-	uint32 count = pduel->lua->params.size();
+	uint32 count = (uint32)pduel->lua->params.size();
 	uint32 yield_value = 0;
 	int32 result = pduel->lua->call_coroutine(triggering_effect->target, count, &yield_value, step);
 	returns.ivalue[0] = yield_value;
@@ -1223,7 +1223,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 		filter_player_effect(infos.turn_player, EFFECT_HAND_LIMIT, &eset);
 		if(eset.size())
 			limit = eset.get_last()->get_value();
-		int32 hd = player[infos.turn_player].list_hand.size();
+		int32 hd = (int32)player[infos.turn_player].list_hand.size();
 		if(hd <= limit) {
 			core.units.begin()->step = 24;
 			return FALSE;
@@ -1698,7 +1698,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 				core.select_chains.push_back(newchain);
 			}
 		}
-		core.spe_effect[priority] = core.select_chains.size();
+		core.spe_effect[priority] = (int32)core.select_chains.size();
 		if(!skip_freechain) {
 			nil_event.event_code = EVENT_FREE_CHAIN;
 			auto pr = effects.activate_effect.equal_range(EVENT_FREE_CHAIN);
@@ -1739,7 +1739,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 			}
 		}
 		if(core.current_chain.size() || (core.hint_timing[0] & TIMING_ATTACK) || (core.hint_timing[1] & TIMING_ATTACK))
-			core.spe_effect[priority] = core.select_chains.size();
+			core.spe_effect[priority] = (int32)core.select_chains.size();
 		add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, priority, core.spe_effect[priority]);
 		return FALSE;
 	}
@@ -3988,7 +3988,7 @@ int32 field::add_chain(uint16 step) {
 		pduel->write_buffer8((uint8)clit.triggering_location);
 		pduel->write_buffer8(clit.triggering_sequence);
 		pduel->write_buffer32(peffect->description);
-		pduel->write_buffer8(core.current_chain.size() + 1);
+		pduel->write_buffer8((uint8)core.current_chain.size() + 1);
 		break_effect();
 		for(auto& ch_lim : core.chain_limit)
 			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim.function);
@@ -3998,7 +3998,7 @@ int32 field::add_chain(uint16 step) {
 			peffect->card_type -= TYPE_TRAP;
 		peffect->set_active_type();
 		peffect->active_handler = peffect->handler->overlay_target;
-		clit.chain_count = core.current_chain.size() + 1;
+		clit.chain_count = (uint8)core.current_chain.size() + 1;
 		clit.target_cards = 0;
 		clit.target_player = PLAYER_NONE;
 		clit.target_param = 0;

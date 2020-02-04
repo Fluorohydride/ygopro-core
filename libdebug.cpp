@@ -65,7 +65,7 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		pcard->overlay_target = fcard;
 		pcard->current.controler = PLAYER_NONE;
 		pcard->current.location = LOCATION_OVERLAY;
-		pcard->current.sequence = fcard->xyz_materials.size() - 1;
+		pcard->current.sequence = (uint8)fcard->xyz_materials.size() - 1;
 		for(auto& eit : pcard->xmaterial_effect) {
 			effect* peffect = eit.second;
 			if(peffect->type & EFFECT_TYPE_FIELD)
@@ -177,7 +177,7 @@ int32 scriptlib::debug_set_ai_name(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->write_buffer8(MSG_AI_NAME);
 	const char* pstr = lua_tostring(L, 1);
-	int len = strlen(pstr);
+	int len = (int)strlen(pstr);
 	if(len > 100)
 		len = 100;
 	pduel->write_buffer16(len);
@@ -193,7 +193,7 @@ int32 scriptlib::debug_show_hint(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->write_buffer8(MSG_SHOW_HINT);
 	const char* pstr = lua_tostring(L, 1);
-	int len = strlen(pstr);
+	int len = (int)strlen(pstr);
 	if(len > 1024)
 		len = 1024;
 	pduel->write_buffer16(len);

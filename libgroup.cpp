@@ -337,7 +337,7 @@ int32 scriptlib::group_random_select(lua_State *L) {
 	duel* pduel = pgroup->pduel;
 	group* newgroup = pduel->new_group();
 	if(count > pgroup->container.size())
-		count = pgroup->container.size();
+		count = (uint32)pgroup->container.size();
 	if(count == 0) {
 		interpreter::group2value(L, newgroup);
 		return 1;
@@ -346,7 +346,7 @@ int32 scriptlib::group_random_select(lua_State *L) {
 		newgroup->container = pgroup->container;
 	else {
 		while(newgroup->container.size() < count) {
-			int32 i = pduel->get_next_integer(0, pgroup->container.size() - 1);
+			int32 i = pduel->get_next_integer(0, (int32)pgroup->container.size() - 1);
 			auto cit = pgroup->container.begin();
 			std::advance(cit, i);
 			newgroup->container.insert(*cit);
@@ -407,7 +407,7 @@ int32 scriptlib::group_check_with_sum_equal(lua_State *L) {
 		max = min;
 	int32 extraargs = lua_gettop(L) - 5;
 	field::card_vector cv(pduel->game_field->core.must_select_cards);
-	int32 mcount = cv.size();
+	int32 mcount = (int32)cv.size();
 	for(auto& pcard : pgroup->container) {
 		auto it = std::find(pduel->game_field->core.must_select_cards.begin(), pduel->game_field->core.must_select_cards.end(), pcard);
 		if(it == pduel->game_field->core.must_select_cards.end())
@@ -443,7 +443,7 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 		pduel->game_field->core.select_cards.erase(it, pduel->game_field->core.select_cards.end());
 	}
 	field::card_vector cv(pduel->game_field->core.must_select_cards);
-	int32 mcount = cv.size();
+	int32 mcount = (int32)cv.size();
 	cv.insert(cv.end(), pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end());
 	for(auto& pcard : cv)
 		pcard->sum_param = pduel->lua->get_operation_value(pcard, 3, extraargs);
@@ -457,7 +457,7 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		group* pgroup = pduel->new_group();
-		int32 mcount = pduel->game_field->core.must_select_cards.size();
+		int32 mcount = (int32)pduel->game_field->core.must_select_cards.size();
 		for(int32 i = mcount; i < pduel->game_field->returns.bvalue[0]; ++i) {
 			card* pcard = pduel->game_field->core.select_cards[pduel->game_field->returns.bvalue[i + 1]];
 			pgroup->container.insert(pcard);
@@ -476,7 +476,7 @@ int32 scriptlib::group_check_with_sum_greater(lua_State *L) {
 	int32 acc = lua_tointeger(L, 3);
 	int32 extraargs = lua_gettop(L) - 3;
 	field::card_vector cv(pduel->game_field->core.must_select_cards);
-	int32 mcount = cv.size();
+	int32 mcount = (int32)cv.size();
 	for(auto& pcard : pgroup->container) {
 		auto it = std::find(pduel->game_field->core.must_select_cards.begin(), pduel->game_field->core.must_select_cards.end(), pcard);
 		if(it == pduel->game_field->core.must_select_cards.end())
@@ -506,7 +506,7 @@ int32 scriptlib::group_select_with_sum_greater(lua_State *L) {
 		pduel->game_field->core.select_cards.erase(it, pduel->game_field->core.select_cards.end());
 	}
 	field::card_vector cv(pduel->game_field->core.must_select_cards);
-	int32 mcount = cv.size();
+	int32 mcount = (int32)cv.size();
 	cv.insert(cv.end(), pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end());
 	for(auto& pcard : cv)
 		pcard->sum_param = pduel->lua->get_operation_value(pcard, 3, extraargs);
@@ -520,7 +520,7 @@ int32 scriptlib::group_select_with_sum_greater(lua_State *L) {
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		group* pgroup = pduel->new_group();
-		int32 mcount = pduel->game_field->core.must_select_cards.size();
+		int32 mcount = (int32)pduel->game_field->core.must_select_cards.size();
 		for(int32 i = mcount; i < pduel->game_field->returns.bvalue[0]; ++i) {
 			card* pcard = pduel->game_field->core.select_cards[pduel->game_field->returns.bvalue[i + 1]];
 			pgroup->container.insert(pcard);

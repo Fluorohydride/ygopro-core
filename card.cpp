@@ -172,17 +172,17 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 			query_flag &= ~QUERY_EQUIP_CARD;
 	}
 	if(query_flag & QUERY_TARGET_CARD) {
-		*p++ = effect_target_cards.size();
+		*p++ = (int32)effect_target_cards.size();
 		for(auto& pcard : effect_target_cards)
 			*p++ = pcard->get_info_location();
 	}
 	if(query_flag & QUERY_OVERLAY_CARD) {
-		*p++ = xyz_materials.size();
+		*p++ = (int32)xyz_materials.size();
 		for(auto& xcard : xyz_materials)
 			*p++ = xcard->data.code;
 	}
 	if(query_flag & QUERY_COUNTERS) {
-		*p++ = counters.size();
+		*p++ = (int32)counters.size();
 		for(const auto& cmit : counters)
 			*p++ = cmit.first + ((cmit.second[0] + cmit.second[1]) << 16);
 	}
@@ -1465,7 +1465,7 @@ void card::xyz_add(card* mat, card_set* des) {
 	mat->overlay_target = this;
 	mat->current.controler = PLAYER_NONE;
 	mat->current.location = LOCATION_OVERLAY;
-	mat->current.sequence = xyz_materials.size() - 1;
+	mat->current.sequence = (uint8)xyz_materials.size() - 1;
 	mat->current.reason = REASON_XYZ + REASON_MATERIAL;
 	for(auto& eit : mat->xmaterial_effect) {
 		effect* peffect = eit.second;

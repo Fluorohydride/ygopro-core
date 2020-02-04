@@ -348,7 +348,7 @@ int32 scriptlib::effect_get_label(lua_State *L) {
 		}
 		for(const auto& lab : peffect->label)
 			lua_pushinteger(L, lab);
-		return peffect->label.size();
+		return (int32)peffect->label.size();
 	}
 	return 0;
 }

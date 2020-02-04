@@ -887,7 +887,7 @@ int32 scriptlib::duel_confirm_decktop(lua_State *L) {
 	uint32 count = lua_tointeger(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
 	if(count >= pduel->game_field->player[playerid].list_main.size())
-		count = pduel->game_field->player[playerid].list_main.size();
+		count = (uint32)pduel->game_field->player[playerid].list_main.size();
 	else if(pduel->game_field->player[playerid].list_main.size() > count) {
 		if(pduel->game_field->core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
 			card* pcard = *(pduel->game_field->player[playerid].list_main.rbegin() + count);
@@ -923,7 +923,7 @@ int32 scriptlib::duel_confirm_extratop(lua_State *L) {
 	uint32 count = lua_tointeger(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
 	if(count >= pduel->game_field->player[playerid].list_extra.size() - pduel->game_field->player[playerid].extra_p_count)
-		count = pduel->game_field->player[playerid].list_extra.size() - pduel->game_field->player[playerid].extra_p_count;
+		count = (uint32)pduel->game_field->player[playerid].list_extra.size() - pduel->game_field->player[playerid].extra_p_count;
 	auto cit = pduel->game_field->player[playerid].list_extra.rbegin() + pduel->game_field->player[playerid].extra_p_count;
 	pduel->write_buffer8(MSG_CONFIRM_EXTRATOP);
 	pduel->write_buffer8(playerid);
@@ -964,7 +964,7 @@ int32 scriptlib::duel_confirm_cards(lua_State *L) {
 		pduel->write_buffer8(pcard->current.location);
 		pduel->write_buffer8(pcard->current.sequence);
 	} else {
-		pduel->write_buffer8(pgroup->container.size());
+		pduel->write_buffer8((uint8)pgroup->container.size());
 		for(auto& pcard : pgroup->container) {
 			pduel->write_buffer32(pcard->data.code);
 			pduel->write_buffer8(pcard->current.controler);
@@ -2124,7 +2124,7 @@ int32 scriptlib::duel_get_first_target(lua_State *L) {
 		return 0;
 	for(auto& pcard : ch->target_cards->container)
 		interpreter::card2value(L, pcard);
-	return ch->target_cards->container.size();
+	return (int32)ch->target_cards->container.size();
 }
 int32 scriptlib::duel_get_current_phase(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
@@ -2341,7 +2341,7 @@ int32 scriptlib::duel_get_matching_count(lua_State *L) {
 	uint32 location2 = lua_tointeger(L, 4);
 	group* pgroup = pduel->new_group();
 	pduel->game_field->filter_matching_card(1, (uint8)self, location1, location2, pgroup, pexception, pexgroup, extraargs);
-	uint32 count = pgroup->container.size();
+	uint32 count = (uint32)pgroup->container.size();
 	lua_pushinteger(L, count);
 	return 1;
 }
@@ -2728,7 +2728,7 @@ int32 scriptlib::duel_get_target_count(lua_State *L) {
 	group* pgroup = pduel->new_group();
 	uint32 count = 0;
 	pduel->game_field->filter_matching_card(1, (uint8)self, location1, location2, pgroup, pexception, pexgroup, extraargs, 0, 0, TRUE);
-	count = pgroup->container.size();
+	count = (uint32)pgroup->container.size();
 	lua_pushinteger(L, count);
 	return 1;
 }

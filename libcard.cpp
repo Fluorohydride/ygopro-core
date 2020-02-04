@@ -1467,7 +1467,7 @@ int32 scriptlib::card_is_has_card_target(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 2);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	card* rcard = *(card**) lua_touserdata(L, 2);
-	lua_pushboolean(L, pcard->effect_target_cards.count(rcard));
+	lua_pushboolean(L, (int32)pcard->effect_target_cards.count(rcard));
 	return 1;
 }
 int32 scriptlib::card_cancel_card_target(lua_State *L) {
@@ -1823,7 +1823,7 @@ int32 scriptlib::card_is_relate_to_chain(lua_State *L) {
 	uint32 chain_count = lua_tointeger(L, 2);
 	duel* pduel = pcard->pduel;
 	if(chain_count > pduel->game_field->core.current_chain.size() || chain_count < 1)
-		chain_count = pduel->game_field->core.current_chain.size();
+		chain_count = (uint32)pduel->game_field->core.current_chain.size();
 	if(pcard && pcard->is_has_relation(pduel->game_field->core.current_chain[chain_count - 1]))
 		lua_pushboolean(L, 1);
 	else
