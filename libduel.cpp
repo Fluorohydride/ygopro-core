@@ -33,7 +33,7 @@ int32 scriptlib::duel_get_lp(lua_State *L) {
 int32 scriptlib::duel_set_lp(lua_State *L) {
 	check_param_count(L, 2);
 	int32 p = lua_tointeger(L, 1);
-	int32 lp = std::round(lua_tonumber(L, 2));
+	int32 lp = lua_tonumber(L, 2);
 	if(lp < 0) lp = 0;
 	if(p != 0 && p != 1)
 		return 0;
@@ -1199,7 +1199,7 @@ int32 scriptlib::duel_damage(lua_State *L) {
 	uint32 playerid = lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	int32 amount = std::round(lua_tonumber(L, 2));
+	int32 amount = lua_tonumber(L, 2);
 	if(amount < 0)
 		amount = 0;
 	uint32 reason = lua_tointeger(L, 3);
@@ -1220,7 +1220,7 @@ int32 scriptlib::duel_recover(lua_State *L) {
 	uint32 playerid = lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	int32 amount = std::round(lua_tonumber(L, 2));
+	int32 amount = lua_tonumber(L, 2);
 	if(amount < 0)
 		amount = 0;
 	uint32 reason = lua_tointeger(L, 3);

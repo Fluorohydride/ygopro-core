@@ -269,7 +269,7 @@ int32 scriptlib::effect_set_value(lua_State *L) {
 		else if(lua_isinteger(L, 2))
 			peffect->value = lua_tointeger(L, 2);
 		else
-			peffect->value = std::round(lua_tonumber(L, 2));
+			peffect->value = lua_tonumber(L, 2);
 	}
 	return 0;
 }
