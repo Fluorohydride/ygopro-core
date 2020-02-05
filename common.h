@@ -8,10 +8,6 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-#ifdef _MSC_VER
-#pragma warning(disable: 4244)
-#endif
-
 typedef unsigned long uptr;
 typedef unsigned long long uint64;
 typedef unsigned int uint32;

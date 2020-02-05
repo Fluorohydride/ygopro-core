@@ -183,7 +183,7 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 			lua_pushstring(L, (const char *) it.first);
 			break;
 		case PARAM_TYPE_BOOLEAN:
-			lua_pushboolean(L, (ptr) it.first);
+			lua_pushboolean(L, (int32)(ptr)it.first);
 			break;
 		case PARAM_TYPE_CARD: {
 			if (it.first)
@@ -207,7 +207,7 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 			break;
 		}
 		case PARAM_TYPE_FUNCTION: {
-			function2value(L, (ptr)it.first);
+			function2value(L, (int32)(ptr)it.first);
 			break;
 		}
 		case PARAM_TYPE_INDEX: {
@@ -433,7 +433,7 @@ int32 interpreter::get_operation_value(card* pcard, int32 findex, int32 extraarg
 		}
 		return OPERATION_FAIL;
 	}
-	int32 result = lua_isinteger(current_state, -1) ? lua_tointeger(current_state, -1) : lua_tonumber(current_state, -1);
+	int32 result = lua_isinteger(current_state, -1) ? (int32)lua_tointeger(current_state, -1) : (int32)lua_tonumber(current_state, -1);
 	lua_pop(current_state, 1);
 	no_action--;
 	call_depth--;
@@ -455,9 +455,9 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count) {
 		if(lua_isboolean(current_state, -1))
 			result = lua_toboolean(current_state, -1);
 		else if(lua_isinteger(current_state, -1))
-			result = lua_tointeger(current_state, -1);
+			result = (int32)lua_tointeger(current_state, -1);
 		else
-			result = lua_tonumber(current_state, -1);
+			result = (int32)lua_tonumber(current_state, -1);
 		lua_pop(current_state, 1);
 		no_action--;
 		call_depth--;
@@ -491,9 +491,9 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count, std::vector<i
 			if(lua_isboolean(current_state, index))
 				return_value = lua_toboolean(current_state, index);
 			else if(lua_isinteger(current_state, index))
-				return_value = lua_tointeger(current_state, index);
+				return_value = (int32)lua_tointeger(current_state, index);
 			else
-				return_value = lua_tonumber(current_state, index);
+				return_value = (int32)lua_tonumber(current_state, index);
 			result->push_back(return_value);
 		}
 		lua_settop(current_state, stack_top);
@@ -554,7 +554,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	if (result == 0) {
 		coroutines.erase(f);
 		if(yield_value)
-			*yield_value = lua_isboolean(rthread, -1) ? lua_toboolean(rthread, -1) : lua_tointeger(rthread, -1);
+			*yield_value = lua_isboolean(rthread, -1) ? lua_toboolean(rthread, -1) : (uint32)lua_tointeger(rthread, -1);
 		current_state = lua_state;
 		call_depth--;
 		if(call_depth == 0) {

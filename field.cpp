@@ -2836,7 +2836,7 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 			pcard->sum_param |= 1;
 		++cit;
 	}
-	ct += std::count_if(mcset.begin(), mcset.end(),
+	ct += (int32)std::count_if(mcset.begin(), mcset.end(),
 		[=](card* pcard) { return handover_zone_cards.find(pcard) != handover_zone_cards.end(); });
 	std::multimap<int32, card*, std::greater<int32>> mat;
 	for(int32 icheck = 1; icheck <= digit; icheck <<= 1) {

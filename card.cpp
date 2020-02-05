@@ -223,7 +223,7 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 			} else query_flag &= ~QUERY_LINK;
 		}
 	}
-	*(uint32*)buf = (byte*)p - buf;
+	*(uint32*)buf = (uint32)((byte*)p - buf);
 	*(uint32*)(buf + 4) = query_flag;
 	return (uint32)((byte*)p - buf);
 }
@@ -1486,7 +1486,7 @@ void card::xyz_remove(card* mat) {
 	mat->current.sequence = 0;
 	mat->overlay_target = 0;
 	for(auto clit = xyz_materials.begin(); clit != xyz_materials.end(); ++clit)
-		(*clit)->current.sequence = clit - xyz_materials.begin();
+		(*clit)->current.sequence = (uint8)(clit - xyz_materials.begin());
 	for(auto& eit : mat->xmaterial_effect) {
 		effect* peffect = eit.second;
 		if(peffect->type & EFFECT_TYPE_FIELD)
