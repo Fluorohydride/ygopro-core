@@ -270,8 +270,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				if(phandler->is_position(POS_FACEUP) && !phandler->is_status(STATUS_EFFECT_ENABLED))
 					return FALSE;
 			}
-			if(!(type & (EFFECT_TYPE_FLIP | EFFECT_TYPE_TRIGGER_F)) 
-					&& !((type & EFFECT_TYPE_SINGLE) && (code == EVENT_TO_GRAVE || code == EVENT_DESTROYED || code == EVENT_SPSUMMON_SUCCESS || code == EVENT_TO_HAND || code == EVENT_REMOVE || code == EVENT_FLIP))) {
+			if(!(type & (EFFECT_TYPE_FLIP | EFFECT_TYPE_TRIGGER_F)) && !((type & EFFECT_TYPE_TRIGGER_O) && (type & EFFECT_TYPE_SINGLE))) {
 				if((code < 1132 || code > 1149) && pduel->game_field->infos.phase == PHASE_DAMAGE && !is_flag(EFFECT_FLAG_DAMAGE_STEP))
 					return FALSE;
 				if((code < 1134 || code > 1136) && pduel->game_field->infos.phase == PHASE_DAMAGE_CAL && !is_flag(EFFECT_FLAG_DAMAGE_CAL))
