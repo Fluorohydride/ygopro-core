@@ -509,7 +509,7 @@ int32 card::get_base_attack() {
 	eset.sort();
 	// calculate continuous effects of this first
 	for(int32 i = 0; i < eset.size();) {
-		if((eset[i]->type & EFFECT_TYPE_SINGLE) && eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+		if(!(eset[i]->type & EFFECT_TYPE_SINGLE) || eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			switch(eset[i]->code) {
 			case EFFECT_SET_BASE_ATTACK:
 				batk = eset[i]->get_value(this);
@@ -585,7 +585,7 @@ int32 card::get_attack() {
 		rev = TRUE;
 	effect_set effects_atk, effects_atk_r;
 	for(int32 i = 0; i < eset.size();) {
-		if((eset[i]->type & EFFECT_TYPE_SINGLE) && eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+		if(!(eset[i]->type & EFFECT_TYPE_SINGLE) || eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			switch(eset[i]->code) {
 			case EFFECT_SET_BASE_ATTACK:
 				batk = eset[i]->get_value(this);
@@ -700,7 +700,7 @@ int32 card::get_base_defense() {
 		filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
 	eset.sort();
 	for(int32 i = 0; i < eset.size();) {
-		if((eset[i]->type & EFFECT_TYPE_SINGLE) && eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+		if(!(eset[i]->type & EFFECT_TYPE_SINGLE) || eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			switch(eset[i]->code) {
 			case EFFECT_SET_BASE_ATTACK:
 				batk = eset[i]->get_value(this);
@@ -776,7 +776,7 @@ int32 card::get_defense() {
 		rev = TRUE;
 	effect_set effects_def, effects_def_r;
 	for(int32 i = 0; i < eset.size();) {
-		if((eset[i]->type & EFFECT_TYPE_SINGLE) && eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+		if(!(eset[i]->type & EFFECT_TYPE_SINGLE) || eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			switch(eset[i]->code) {
 			case EFFECT_SET_BASE_ATTACK:
 				batk = eset[i]->get_value(this);
