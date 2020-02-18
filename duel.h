@@ -21,7 +21,7 @@ class interpreter;
 
 class duel {
 public:
-	typedef std::set<card*, card_sort> card_set;
+	using card_set = std::set<card*, card_sort>;
 	char strbuffer[256];
 	byte buffer[0x1000];
 	uint32 bufferlen;

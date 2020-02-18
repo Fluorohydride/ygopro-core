@@ -44,7 +44,7 @@ byte* default_script_reader(const char* script_name, int* slen) {
 	fp = fopen(script_name, "rb");
 	if (!fp)
 		return 0;
-	int len = fread(buffer, 1, sizeof(buffer), fp);
+	int len = (int)fread(buffer, 1, sizeof(buffer), fp);
 	fclose(fp);
 	if(len >= sizeof(buffer))
 		return 0;
@@ -88,7 +88,7 @@ extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int32 options) {
 			pd->game_field->player[0].tag_list_hand.push_back(pcard);
 			pcard->current.controler = 0;
 			pcard->current.location = LOCATION_HAND;
-			pcard->current.sequence = pd->game_field->player[0].tag_list_hand.size() - 1;
+			pcard->current.sequence = (uint8)pd->game_field->player[0].tag_list_hand.size() - 1;
 			pcard->current.position = POS_FACEDOWN;
 		}
 		for(int i = 0; i < pd->game_field->player[1].start_count && pd->game_field->player[1].tag_list_main.size(); ++i) {
@@ -97,7 +97,7 @@ extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int32 options) {
 			pd->game_field->player[1].tag_list_hand.push_back(pcard);
 			pcard->current.controler = 1;
 			pcard->current.location = LOCATION_HAND;
-			pcard->current.sequence = pd->game_field->player[1].tag_list_hand.size() - 1;
+			pcard->current.sequence = (uint8)pd->game_field->player[1].tag_list_hand.size() - 1;
 			pcard->current.position = POS_FACEDOWN;
 		}
 	}
@@ -162,7 +162,7 @@ extern "C" DECL_DLLEXPORT void new_tag_card(ptr pduel, uint32 code, uint8 owner,
 		pcard->owner = owner;
 		pcard->current.controler = owner;
 		pcard->current.location = LOCATION_DECK;
-		pcard->current.sequence = ptduel->game_field->player[owner].tag_list_main.size() - 1;
+		pcard->current.sequence = (uint8)ptduel->game_field->player[owner].tag_list_main.size() - 1;
 		pcard->current.position = POS_FACEDOWN_DEFENSE;
 		break;
 	case LOCATION_EXTRA:
@@ -170,7 +170,7 @@ extern "C" DECL_DLLEXPORT void new_tag_card(ptr pduel, uint32 code, uint8 owner,
 		pcard->owner = owner;
 		pcard->current.controler = owner;
 		pcard->current.location = LOCATION_EXTRA;
-		pcard->current.sequence = ptduel->game_field->player[owner].tag_list_extra.size() - 1;
+		pcard->current.sequence = (uint8)ptduel->game_field->player[owner].tag_list_extra.size() - 1;
 		pcard->current.position = POS_FACEDOWN_DEFENSE;
 		break;
 	}
@@ -214,15 +214,15 @@ extern "C" DECL_DLLEXPORT int32 query_field_count(ptr pduel, uint8 playerid, uin
 		return 0;
 	auto& player = ptduel->game_field->player[playerid];
 	if(location == LOCATION_HAND)
-		return player.list_hand.size();
+		return (int32)player.list_hand.size();
 	if(location == LOCATION_GRAVE)
-		return player.list_grave.size();
+		return (int32)player.list_grave.size();
 	if(location == LOCATION_REMOVED)
-		return player.list_remove.size();
+		return (int32)player.list_remove.size();
 	if(location == LOCATION_EXTRA)
-		return player.list_extra.size();
+		return (int32)player.list_extra.size();
 	if(location == LOCATION_DECK)
-		return player.list_main.size();
+		return (int32)player.list_main.size();
 	if(location == LOCATION_MZONE) {
 		uint32 count = 0;
 		for(auto& pcard : player.list_mzone)
@@ -295,7 +295,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
 			if(pcard) {
 				*p++ = 1;
 				*p++ = pcard->current.position;
-				*p++ = pcard->xyz_materials.size();
+				*p++ = (uint8)pcard->xyz_materials.size();
 			} else {
 				*p++ = 0;
 			}
@@ -308,14 +308,14 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(ptr pduel, byte* buf) {
 				*p++ = 0;
 			}
 		}
-		*p++ = player.list_main.size();
-		*p++ = player.list_hand.size();
-		*p++ = player.list_grave.size();
-		*p++ = player.list_remove.size();
-		*p++ = player.list_extra.size();
-		*p++ = player.extra_p_count;
+		*p++ = (uint8)player.list_main.size();
+		*p++ = (uint8)player.list_hand.size();
+		*p++ = (uint8)player.list_grave.size();
+		*p++ = (uint8)player.list_remove.size();
+		*p++ = (uint8)player.list_extra.size();
+		*p++ = (uint8)player.extra_p_count;
 	}
-	*p++ = ptduel->game_field->core.current_chain.size();
+	*p++ = (uint8)ptduel->game_field->core.current_chain.size();
 	for(const auto& ch : ptduel->game_field->core.current_chain) {
 		effect* peffect = ch.triggering_effect;
 		*((int*)p) = peffect->get_handler()->data.code;

@@ -14,6 +14,7 @@
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
+#include <tuple>
 
 class card;
 class duel;
@@ -93,14 +94,14 @@ public:
 			return std::hash<uint16>()(v.second);
 		}
 	};
-	typedef std::vector<card*> card_vector;
-	typedef std::multimap<uint32, effect*> effect_container;
-	typedef std::set<card*, card_sort> card_set;
-	typedef std::unordered_map<effect*, effect_container::iterator> effect_indexer;
-	typedef std::unordered_set<std::pair<effect*, uint16>, effect_relation_hash> effect_relation;
-	typedef std::unordered_map<card*, uint32> relation_map;
-	typedef std::map<uint16, std::array<uint16, 2>> counter_map;
-	typedef std::map<uint32, int32> effect_count;
+	using card_vector = std::vector<card*>;
+	using effect_container = std::multimap<uint32, effect*>;
+	using card_set = std::set<card*, card_sort>;
+	using effect_indexer = std::unordered_map<effect*, effect_container::iterator>;
+	using effect_relation = std::unordered_set<std::pair<effect*, uint16>, effect_relation_hash>;
+	using relation_map = std::unordered_map<card*, uint32>;
+	using counter_map = std::map<uint16, std::array<uint16, 2>>;
+	using effect_count = std::map<uint32, int32>;
 	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32>> {
 	public:
 		void addcard(card* pcard);
@@ -257,7 +258,7 @@ public:
 	void reset(uint32 id, uint32 reset_type);
 	void reset_effect_count();
 	void refresh_disable_status();
-	uint8 refresh_control_status();
+	std::tuple<uint8, effect*> refresh_control_status();
 
 	void count_turn(uint16 ct);
 	void create_relation(card* target, uint32 reset);
@@ -294,7 +295,6 @@ public:
 	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset);
 	effect* is_affected_by_effect(int32 code);
 	effect* is_affected_by_effect(int32 code, card* target);
-	effect* check_control_effect();
 	int32 fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_material);
 	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf, uint8 not_material);
 	int32 check_fusion_substitute(card* fcard);

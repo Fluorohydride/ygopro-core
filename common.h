@@ -8,10 +8,6 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-#ifdef _MSC_VER
-#pragma warning(disable: 4244)
-#endif
-
 typedef unsigned long uptr;
 typedef unsigned long long uint64;
 typedef unsigned int uint32;
@@ -247,7 +243,7 @@ struct card_sort {
 #define MSG_SELECT_PLACE		18
 #define MSG_SELECT_POSITION		19
 #define MSG_SELECT_TRIBUTE		20
-#define MSG_SORT_CHAIN			21
+//#define MSG_SORT_CHAIN			21
 #define MSG_SELECT_COUNTER		22
 #define MSG_SELECT_SUM			23
 #define MSG_SELECT_DISFIELD		24
