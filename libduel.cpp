@@ -2479,11 +2479,17 @@ int32 scriptlib::duel_check_release_group(lua_State *L) {
 	int32 playerid = (int32)lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
+	uint32 fcount = (uint32)lua_tointeger(L, 3);
 	int32 use_con = FALSE;
 	if(check_param(L, PARAM_TYPE_FUNCTION, 2, TRUE)) {
 		use_con = TRUE;
 	} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
 		group* pgroup = *(group**)lua_touserdata(L, 2);
+		if(fcount > pgroup->container.size()) {
+			lua_pushboolean(L, 0);
+			return 1;
+		}
+		fcount -= pgroup->container.size();
 		pduel->game_field->core.must_select_cards.assign(pgroup->container.begin(), pgroup->container.end());
 	} else if(!lua_isnil(L, 2)) {
 		luaL_error(L, "Parameter %d should be \"Function\" or \"Group\".", 2);
@@ -2495,7 +2501,6 @@ int32 scriptlib::duel_check_release_group(lua_State *L) {
 	else if(check_param(L, PARAM_TYPE_GROUP, 4, TRUE))
 		pexgroup = *(group**) lua_touserdata(L, 4);
 	uint32 extraargs = lua_gettop(L) - 4;
-	uint32 fcount = (uint32)lua_tointeger(L, 3);
 	int32 result = pduel->game_field->check_release_list(playerid, fcount, use_con, FALSE, 2, extraargs, pexception, pexgroup);
 	pduel->game_field->core.must_select_cards.clear();
 	lua_pushboolean(L, result);
