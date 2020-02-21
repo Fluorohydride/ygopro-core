@@ -2191,21 +2191,21 @@ int32 scriptlib::duel_get_attack_target(lua_State *L) {
 }
 int32 scriptlib::duel_get_battle_monster(lua_State* L) {
 	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_INT, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	card* a = pduel->game_field->core.attacker;
-	card* d = pduel->game_field->core.attack_target;
-	int32 count = lua_gettop(L);
-	for(int32 i = 1; i <= count; i++) {
-		check_param(L, PARAM_TYPE_INT, i);
-		uint32 playerid = (uint32)lua_tointeger(L, i);
-		if(a && a->current.controler == playerid)
-			interpreter::card2value(L, a);
-		else if(d && d->current.controler == playerid)
-			interpreter::card2value(L, d);
+	uint32 playerid = (uint32)lua_tointeger(L, 1);
+	card* attacker = pduel->game_field->core.attacker;
+	card* defender = pduel->game_field->core.attack_target;
+	for(int32 i = 0; i < 2; i++) {
+		if(attacker && attacker->current.controler == playerid)
+			interpreter::card2value(L, attacker);
+		else if(defender && defender->current.controler == playerid)
+			interpreter::card2value(L, defender);
 		else
 			lua_pushnil(L);
+		playerid = 1 - playerid;
 	}
-	return count;
+	return 2;
 }
 int32 scriptlib::duel_disable_attack(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
