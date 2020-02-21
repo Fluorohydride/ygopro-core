@@ -2189,7 +2189,7 @@ int32 scriptlib::duel_get_attack_target(lua_State *L) {
 	interpreter::card2value(L, pcard);
 	return 1;
 }
-int32 scriptlib::duel_get_battle_monster(lua_State* L) {
+int32 scriptlib::duel_get_battle_monster(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_INT, 1);
 	duel* pduel = interpreter::get_duel_info(L);
