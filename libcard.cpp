@@ -1569,6 +1569,8 @@ int32 scriptlib::card_get_hand_synchro(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**)lua_touserdata(L, 1);
+	if(!(pcard->current.location & LOCATION_MZONE))
+		return 0;
 	effect* peffect = pcard->is_affected_by_effect(EFFECT_HAND_SYNCHRO);
 	if(peffect) {
 		interpreter::effect2value(L, peffect);
