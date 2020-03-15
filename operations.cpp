@@ -900,6 +900,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 	}
 	case 3: {
 		if(targets->it == targets->container.end()) {
+			adjust_instant();
 			core.units.begin()->step = 4;
 			return FALSE;
 		}
@@ -918,7 +919,6 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 		return FALSE;
 	}
 	case 5: {
-		adjust_instant();
 		for(auto cit = targets->container.begin(); cit != targets->container.end(); ) {
 			card* pcard = *cit++;
 			if(!(pcard->current.location & LOCATION_ONFIELD)) {
