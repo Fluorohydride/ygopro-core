@@ -3928,7 +3928,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			pcard->previous.location = 0;
 		} else if(oloc & LOCATION_ONFIELD) {
 			pcard->reset(RESET_LEAVE, RESET_EVENT);
-			if(core.duel_rule < 5 || !(dest & (LOCATION_HAND | LOCATION_DECK | LOCATION_EXTRA)))
+			if(core.duel_rule < 5 || !(dest & (LOCATION_HAND | LOCATION_DECK | LOCATION_EXTRA)) || (!pcard->is_extra_deck_monster() && (dest & LOCATION_HAND)))
 				param->leave.insert(pcard);
 		}
 		if(pcard->previous.location == LOCATION_OVERLAY)
@@ -3975,7 +3975,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		} else if(oloc & LOCATION_ONFIELD) {
 			pcard->reset(RESET_LEAVE + RESET_MSCHANGE, RESET_EVENT);
 			pcard->clear_card_target();
-			if(core.duel_rule < 5 || !(dest & (LOCATION_HAND | LOCATION_DECK | LOCATION_EXTRA)))
+			if(core.duel_rule < 5 || !(dest & (LOCATION_HAND | LOCATION_DECK | LOCATION_EXTRA)) || (!pcard->is_extra_deck_monster() && (dest & LOCATION_HAND)))
 				param->leave.insert(pcard);
 		}
 		if(param->predirect->operation) {
