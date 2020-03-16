@@ -483,7 +483,6 @@ public:
 	int32 get_cteffect(effect* peffect, int32 playerid, int32 store);
 	int32 get_cteffect_evt(effect* feffect, int32 playerid, const tevent& e, int32 store);
 	int32 check_cteffect_hint(effect* peffect, uint8 playerid);
-	int32 check_deck_effect(chain& ch) const;
 	int32 check_hand_trigger(chain& ch);
 	int32 check_spself_from_hand_trigger(const chain& ch) const;
 	int32 is_able_to_enter_bp();
@@ -624,7 +623,7 @@ public:
 #define CHAIN_CONTINUOUS_CARD	0x08
 #define CHAIN_ACTIVATING		0x10
 #define CHAIN_HAND_TRIGGER		0x20
-#define CHAIN_DECK_EFFECT		0x40
+//#define CHAIN_DECK_EFFECT		0x40
 #define CHAININFO_CHAIN_COUNT			0x01
 #define CHAININFO_TRIGGERING_EFFECT		0x02
 #define CHAININFO_TRIGGERING_PLAYER		0x04

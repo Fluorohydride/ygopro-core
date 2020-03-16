@@ -3368,19 +3368,6 @@ int32 field::check_cteffect_hint(effect* peffect, uint8 playerid) {
 	}
 	return FALSE;
 }
-int32 field::check_deck_effect(chain& ch) const {
-	effect* peffect = ch.triggering_effect;
-	card* phandler = peffect->get_handler();
-	if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)
-		&& ch.triggering_location == LOCATION_DECK && (phandler->current.location & LOCATION_DECK)) {
-		if((peffect->type & EFFECT_TYPE_SINGLE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)
-			&& peffect->code == EVENT_TO_DECK || (peffect->range & LOCATION_DECK)) {
-			ch.flag |= CHAIN_DECK_EFFECT;
-		} else
-			return FALSE;
-	}
-	return TRUE;
-}
 int32 field::check_hand_trigger(chain& ch) {
 	effect* peffect = ch.triggering_effect;
 	card* phandler = peffect->get_handler();
