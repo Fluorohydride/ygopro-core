@@ -3928,7 +3928,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			pcard->previous.location = 0;
 		} else if(oloc & LOCATION_ONFIELD) {
 			pcard->reset(RESET_LEAVE, RESET_EVENT);
-			param->leave.insert(pcard);
+			if(core.duel_rule < 5 || !(dest & (LOCATION_HAND | LOCATION_DECK | LOCATION_EXTRA)))
+				param->leave.insert(pcard);
 		}
 		if(pcard->previous.location == LOCATION_OVERLAY)
 			pcard->previous.controler = control_player;
@@ -3955,6 +3956,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		card* pcard = *param->cvit;
 		uint8 oloc = pcard->current.location;
 		uint8 seq = returns.bvalue[2];
+		uint8 dest = pcard->sendto_param.location;
 		pduel->write_buffer8(MSG_MOVE);
 		pduel->write_buffer32(pcard->data.code);
 		pduel->write_buffer32(pcard->get_info_location());
@@ -3973,7 +3975,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		} else if(oloc & LOCATION_ONFIELD) {
 			pcard->reset(RESET_LEAVE + RESET_MSCHANGE, RESET_EVENT);
 			pcard->clear_card_target();
-			param->leave.insert(pcard);
+			if(core.duel_rule < 5 || !(dest & (LOCATION_HAND | LOCATION_DECK | LOCATION_EXTRA)))
+				param->leave.insert(pcard);
 		}
 		if(param->predirect->operation) {
 			tevent e;
