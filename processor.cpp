@@ -4369,27 +4369,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 					set_spsummon_counter(cait->triggering_player);
 				if(cait->opinfos[0x200].op_player == PLAYER_ALL && core.spsummon_state_count_tmp[1 - cait->triggering_player] == core.spsummon_state_count[1 - cait->triggering_player])
 					set_spsummon_counter(1 - cait->triggering_player);
-				//sometimes it may add twice, only works for once per turn
-				auto& optarget = cait->opinfos[0x200];
-				if(optarget.op_cards) {
-					if(optarget.op_player == PLAYER_ALL) {
-						uint32 sumplayer = optarget.op_param;
-						auto opit = optarget.op_cards->container.begin();
-						check_card_counter(*opit, 3, sumplayer);
-						++opit;
-						check_card_counter(*opit, 3, 1 - sumplayer);
-					} else {
-						uint32 sumplayer = cait->triggering_player;
-						// genarally setting op_player is unnecessary when the effect targets cards
-						// in the case of CATEGORY_SPECIAL_SUMMON(with EFFECT_FLAG_CARD_TARGET), op_player=0x10
-						// indecates that it is the opponent that special summons the target monsters
-						if(cait->triggering_effect->is_flag(EFFECT_FLAG_CARD_TARGET) && optarget.op_player == 0x10)
-							sumplayer = 1 - sumplayer;
-						for(auto& ptarget : optarget.op_cards->container) {
-							check_card_counter(ptarget, 3, sumplayer);
-						}
-					}
-				}
 			}
 		}
 		core.spsummon_state_count_tmp[0] = 0;
