@@ -2686,8 +2686,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		target->current.reason_player = sumplayer;
 		target->summon_player = sumplayer;
 		set_spsummon_counter(sumplayer);
-		if(target->spsummon_code)
-			core.spsummon_once_map[sumplayer][target->spsummon_code]++;
 		break_effect();
 		return FALSE;
 	}
@@ -2793,6 +2791,8 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 	}
 	case 17: {
 		check_card_counter(target, 3, sumplayer);
+		if(target->spsummon_code)
+			core.spsummon_once_map[sumplayer][target->spsummon_code]++;
 		raise_single_event(target, 0, EVENT_SPSUMMON_SUCCESS, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
 		process_single_event();
 		raise_event(target, EVENT_SPSUMMON_SUCCESS, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
@@ -2893,13 +2893,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 	case 25: {
 		group* pgroup = core.units.begin()->ptarget;
 		set_spsummon_counter(sumplayer);
-		std::set<uint32> spsummon_once_set;
-		for(auto& pcard : pgroup->container) {
-			if(pcard->spsummon_code)
-				spsummon_once_set.insert(pcard->spsummon_code);
-		}
-		for(auto& cit : spsummon_once_set)
-			core.spsummon_once_map[sumplayer][cit]++;
 		card_set cset;
 		for(auto& pcard : pgroup->container) {
 			pcard->set_status(STATUS_SUMMONING, TRUE);
@@ -2953,6 +2946,13 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		group* pgroup = core.units.begin()->ptarget;
 		pduel->write_buffer8(MSG_SPSUMMONED);
 		check_card_counter(pgroup, 3, sumplayer);
+		std::set<uint32> spsummon_once_set;
+		for(auto& pcard : pgroup->container) {
+			if(pcard->spsummon_code)
+				spsummon_once_set.insert(pcard->spsummon_code);
+		}
+		for(auto& cit : spsummon_once_set)
+			core.spsummon_once_map[sumplayer][cit]++;
 		for(auto& pcard : pgroup->container)
 			raise_single_event(pcard, 0, EVENT_SPSUMMON_SUCCESS, pcard->current.reason_effect, 0, pcard->current.reason_player, pcard->summon_player, 0);
 		process_single_event();

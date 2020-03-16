@@ -240,7 +240,6 @@ struct processor {
 	std::unordered_map<uint32, uint32> effect_count_code;
 	std::unordered_map<uint32, uint32> effect_count_code_duel;
 	std::unordered_map<uint32, uint32> spsummon_once_map[2];
-	std::unordered_map<uint32, uint32> spsummon_once_map_rst[2];
 	std::multimap<int32, card*, std::greater<int32>> xmaterial_lst;
 	ptr temp_var[4];
 	uint32 global_flag;
