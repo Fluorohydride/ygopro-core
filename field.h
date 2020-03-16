@@ -485,7 +485,6 @@ public:
 	int32 check_cteffect_hint(effect* peffect, uint8 playerid);
 	int32 check_deck_effect(chain& ch) const;
 	int32 check_hand_trigger(chain& ch);
-	int32 check_trigger_effect(const chain& ch) const;
 	int32 check_spself_from_hand_trigger(const chain& ch) const;
 	int32 is_able_to_enter_bp();
 
