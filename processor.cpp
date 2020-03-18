@@ -3642,6 +3642,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 			core.summon_count[p] = 0;
 			core.extra_summon[p] = 0;
 			core.spsummon_once_map[p].clear();
+			core.spsummon_once_map_rst[p].clear();
 		}
 		core.spsummon_rst = false;
 		for(auto& peffect : effects.rechargeable)
@@ -4154,7 +4155,38 @@ int32 field::add_chain(uint16 step) {
 			set_spsummon_counter(clit.triggering_player, true, true);
 			if(clit.opinfos[0x200].op_player == PLAYER_ALL)
 				set_spsummon_counter(1 - clit.triggering_player, true, true);
+			if(core.duel_rule < 5 && core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) {
+				auto& optarget = clit.opinfos[0x200];
+				if(optarget.op_cards) {
+					if(optarget.op_player == PLAYER_ALL) {
+						auto opit = optarget.op_cards->container.begin();
+						uint32 sumplayer = optarget.op_param;
+						if((*opit)->spsummon_code) {
+							core.spsummon_once_map[sumplayer][(*opit)->spsummon_code]++;
+							core.spsummon_once_map_rst[sumplayer][(*opit)->spsummon_code]++;
 						}
+						++opit;
+						if((*opit)->spsummon_code) {
+							core.spsummon_once_map[1 - sumplayer][(*opit)->spsummon_code]++;
+							core.spsummon_once_map_rst[1 - sumplayer][(*opit)->spsummon_code]++;
+						}
+					} else {
+						uint32 sumplayer = clit.triggering_player;
+						// genarally setting op_player is unnecessary when the effect targets cards
+						// in the case of CATEGORY_SPECIAL_SUMMON(with EFFECT_FLAG_CARD_TARGET), op_player=0x10
+						// indecates that it is the opponent that special summons the target monsters
+						if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET) && optarget.op_player == 0x10)
+							sumplayer = 1 - sumplayer;
+						for(auto& pcard : optarget.op_cards->container) {
+							if(pcard->spsummon_code) {
+								core.spsummon_once_map[sumplayer][pcard->spsummon_code]++;
+								core.spsummon_once_map_rst[sumplayer][pcard->spsummon_code]++;
+							}
+						}
+					}
+				}
+			}
+		}
 		pduel->write_buffer8(MSG_CHAINED);
 		pduel->write_buffer8(clit.chain_count);
 		raise_event(phandler, EVENT_CHAINING, peffect, 0, clit.triggering_player, clit.triggering_player, clit.chain_count);
@@ -4275,6 +4307,15 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		if(core.spsummon_rst) {
 			set_spsummon_counter(0, false, true);
 			set_spsummon_counter(1, false, true);
+			if(core.duel_rule < 5) {
+				for(int plr = 0; plr < 2; ++plr) {
+					for(auto& iter : core.spsummon_once_map[plr]) {
+						auto spcode = iter.first;
+						core.spsummon_once_map[plr][spcode] -= core.spsummon_once_map_rst[plr][spcode];
+						core.spsummon_once_map_rst[plr][spcode] = 0;
+					}
+				}
+			}
 			core.spsummon_rst = false;
 		}
 		pduel->write_buffer8(MSG_CHAIN_SOLVING);
@@ -4368,6 +4409,39 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 					set_spsummon_counter(cait->triggering_player);
 				if(cait->opinfos[0x200].op_player == PLAYER_ALL && core.spsummon_state_count_tmp[1 - cait->triggering_player] == core.spsummon_state_count[1 - cait->triggering_player])
 					set_spsummon_counter(1 - cait->triggering_player);
+				if(core.duel_rule < 5) {
+					//sometimes it may add twice, only works for once per turn
+					auto& optarget = cait->opinfos[0x200];
+					if(optarget.op_cards) {
+						if(optarget.op_player == PLAYER_ALL) {
+							uint32 sumplayer = optarget.op_param;
+							if(core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) {
+								auto opit = optarget.op_cards->container.begin();
+								if((*opit)->spsummon_code)
+									core.spsummon_once_map[sumplayer][(*opit)->spsummon_code]++;
+								++opit;
+								if((*opit)->spsummon_code)
+									core.spsummon_once_map[1 - sumplayer][(*opit)->spsummon_code]++;
+							}
+							auto opit = optarget.op_cards->container.begin();
+							check_card_counter(*opit, 3, sumplayer);
+							++opit;
+							check_card_counter(*opit, 3, 1 - sumplayer);
+						} else {
+							uint32 sumplayer = cait->triggering_player;
+							// genarally setting op_player is unnecessary when the effect targets cards
+							// in the case of CATEGORY_SPECIAL_SUMMON(with EFFECT_FLAG_CARD_TARGET), op_player=0x10
+							// indecates that it is the opponent that special summons the target monsters
+							if(cait->triggering_effect->is_flag(EFFECT_FLAG_CARD_TARGET) && optarget.op_player == 0x10)
+								sumplayer = 1 - sumplayer;
+							for(auto& ptarget : optarget.op_cards->container) {
+								if((core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) && ptarget->spsummon_code)
+									core.spsummon_once_map[sumplayer][ptarget->spsummon_code]++;
+								check_card_counter(ptarget, 3, sumplayer);
+							}
+						}
+					}
+				}
 			}
 		}
 		core.spsummon_state_count_tmp[0] = 0;
