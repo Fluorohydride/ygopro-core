@@ -2189,6 +2189,24 @@ int32 scriptlib::duel_get_attack_target(lua_State *L) {
 	interpreter::card2value(L, pcard);
 	return 1;
 }
+int32 scriptlib::duel_get_battle_monster(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_INT, 1);
+	duel* pduel = interpreter::get_duel_info(L);
+	uint32 playerid = (uint32)lua_tointeger(L, 1);
+	card* attacker = pduel->game_field->core.attacker;
+	card* defender = pduel->game_field->core.attack_target;
+	for(int32 i = 0; i < 2; i++) {
+		if(attacker && attacker->current.controler == playerid)
+			interpreter::card2value(L, attacker);
+		else if(defender && defender->current.controler == playerid)
+			interpreter::card2value(L, defender);
+		else
+			lua_pushnil(L);
+		playerid = 1 - playerid;
+	}
+	return 2;
+}
 int32 scriptlib::duel_disable_attack(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->game_field->add_process(PROCESSOR_ATTACK_DISABLE, 0, 0, 0, 0, 0);
@@ -4451,6 +4469,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsDamageCalculated", scriptlib::duel_is_damage_calculated },
 	{ "GetAttacker", scriptlib::duel_get_attacker },
 	{ "GetAttackTarget", scriptlib::duel_get_attack_target },
+	{ "GetBattleMonster", scriptlib::duel_get_battle_monster },
 	{ "NegateAttack", scriptlib::duel_disable_attack },
 	{ "ChainAttack", scriptlib::duel_chain_attack },
 	{ "Readjust", scriptlib::duel_readjust },
