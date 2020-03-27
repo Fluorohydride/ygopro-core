@@ -3579,8 +3579,6 @@ int32 card::is_capable_turn_set(uint8 playerid) {
 		return FALSE;
 	if(pduel->game_field->is_player_affected_by_effect(playerid, EFFECT_CANNOT_TURN_SET))
 		return FALSE;
-	if(pduel->game_field->core.duel_rule >= 5 && (get_type() & TYPE_TRAPMONSTER) && pduel->game_field->get_useable_count(this, playerid, LOCATION_SZONE, playerid, 0) <= 0)
-		return FALSE;
 	return TRUE;
 }
 int32 card::is_capable_change_control() {
