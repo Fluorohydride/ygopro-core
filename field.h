@@ -219,6 +219,7 @@ struct processor {
 	card_set unique_destroy_set;
 	card_set self_destroy_set;
 	card_set self_tograve_set;
+	card_set trap_monster_adjust_set[2];
 	card_set release_cards;
 	card_set release_cards_ex;
 	card_set release_cards_ex_oneof;
@@ -562,6 +563,7 @@ public:
 	int32 swap_control(uint16 step, effect* reason_effect, uint8 reason_player, group* targets1, group* targets2, uint16 reset_phase, uint8 reset_count);
 	int32 control_adjust(uint16 step);
 	int32 self_destroy(uint16 step, card* ucard, int32 p);
+	int32 trap_monster_adjust(uint16 step);
 	int32 equip(uint16 step, uint8 equip_player, card* equip_card, card* target, uint32 up, uint32 is_step);
 	int32 draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, uint32 count);
 	int32 damage(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, card* reason_card, uint8 playerid, uint32 amount, uint32 is_step);
@@ -753,6 +755,7 @@ public:
 #define PROCESSOR_SWAP_CONTROL		75
 #define PROCESSOR_CONTROL_ADJUST	76
 #define PROCESSOR_SELF_DESTROY		77
+#define PROCESSOR_TRAP_MONSTER_ADJUST	78
 #define PROCESSOR_PAY_LPCOST		80
 #define PROCESSOR_REMOVE_COUNTER	81
 #define PROCESSOR_ATTACK_DISABLE	82

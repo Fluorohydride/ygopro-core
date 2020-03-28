@@ -1358,6 +1358,76 @@ int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 	}
 	return TRUE;
 }
+int32 field::trap_monster_adjust(uint16 step) {
+	switch(step) {
+	case 0: {
+		card_set* to_grave_set = new card_set;
+		core.units.begin()->ptr1 = to_grave_set;
+		return FALSE;
+	}
+	case 1: {
+		card_set* to_grave_set = (card_set*)core.units.begin()->ptr1;
+		uint8 check_player = infos.turn_player;
+		if(core.units.begin()->arg1)
+			check_player = 1 - infos.turn_player;
+		refresh_location_info_instant();
+		int32 fcount = get_useable_count(NULL, check_player, LOCATION_SZONE, check_player, 0);
+		if(fcount <= 0) {
+			for(auto& pcard : core.trap_monster_adjust_set[check_player]) {
+				to_grave_set->insert(pcard);
+				core.units.begin()->step = 2;
+			}
+			core.trap_monster_adjust_set[check_player].clear();
+		} else if((int32)core.trap_monster_adjust_set[check_player].size() > fcount) {
+			uint32 ct = (uint32)core.trap_monster_adjust_set[check_player].size() - fcount;
+			core.select_cards.clear();
+			for(auto& pcard : core.trap_monster_adjust_set[check_player])
+				core.select_cards.push_back(pcard);
+			pduel->write_buffer8(MSG_HINT);
+			pduel->write_buffer8(HINT_SELECTMSG);
+			pduel->write_buffer8(check_player);
+			pduel->write_buffer32(502);
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, check_player, ct + (ct << 16));
+		} else
+			core.units.begin()->step = 2;
+		return FALSE;
+	}
+	case 2: {
+		card_set* to_grave_set = (card_set*)core.units.begin()->ptr1;
+		uint8 check_player = infos.turn_player;
+		if(core.units.begin()->arg1)
+			check_player = 1 - infos.turn_player;
+		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
+			card* pcard = core.select_cards[returns.bvalue[i + 1]];
+			to_grave_set->insert(pcard);
+			core.trap_monster_adjust_set[check_player].erase(pcard);
+		}
+	}
+	case 3: {
+		if(!core.units.begin()->arg1) {
+			core.units.begin()->arg1 = 1;
+			core.units.begin()->step = 0;
+		}
+		return FALSE;
+	}
+	case 4: {
+		uint8 tp = infos.turn_player;
+		for(uint8 p = 0; p < 2; ++p) {
+			for(auto& pcard : core.trap_monster_adjust_set[tp]) {
+				pcard->reset(RESET_TURN_SET, RESET_EVENT);
+				move_to_field(pcard, tp, tp, LOCATION_SZONE, pcard->current.position, FALSE, 2);
+			}
+			tp = 1 - tp;
+		}
+		card_set* to_grave_set = (card_set*)core.units.begin()->ptr1;
+		if(to_grave_set->size())
+			send_to(to_grave_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+		delete to_grave_set;
+		return TRUE;
+	}
+	}
+	return TRUE;
+}
 int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * target, uint32 up, uint32 is_step) {
 	switch(step) {
 	case 0: {
