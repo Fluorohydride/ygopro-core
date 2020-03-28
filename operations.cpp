@@ -4607,12 +4607,10 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 int32 field::change_position(uint16 step, group * targets, effect * reason_effect, uint8 reason_player, uint32 enable) {
 	switch(step) {
 	case 0: {
-		card_set ssets_s, ssets_o;
 		for(auto cit = targets->container.begin(); cit != targets->container.end();) {
 			card* pcard = *cit++;
 			uint8 npos = pcard->position_param & 0xff;
 			uint8 opos = pcard->current.position;
-			uint8 flag = pcard->position_param >> 16;
 			if((pcard->current.location != LOCATION_MZONE && pcard->current.location != LOCATION_SZONE)
 				|| (pcard->data.type & TYPE_LINK)
 				|| pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
@@ -4622,58 +4620,52 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 				targets->container.erase(pcard);
 				continue;
 			}
-			if((opos & POS_FACEUP) && (npos & POS_FACEDOWN)) {
-				if(pcard->get_type() & TYPE_TRAPMONSTER) {
-					if(pcard->current.controler == reason_player)
-						ssets_s.insert(pcard);
-					else
-						ssets_o.insert(pcard);
-				}
-			}
 		}
 		card_set* to_grave_set = new card_set;
 		core.units.begin()->ptr1 = to_grave_set;
-		core.select_cards.clear();
-		uint32 ct = 0;
-		if(ssets_s.size()) {
-			refresh_location_info_instant();
-			int32 fcount = get_useable_count(NULL, reason_player, LOCATION_SZONE, reason_player, 0);
-			if(fcount <= 0) {
-				for(auto& pcard : ssets_s) {
-					to_grave_set->insert(pcard);
-					targets->container.erase(pcard);
-				}
-			} else if((int32)ssets_s.size() > fcount) {
-				for(auto& pcard : ssets_s)
-					core.select_cards.push_back(pcard);
-				ct += (uint32)ssets_s.size() - fcount;
-			}
-		}
-		if(ssets_o.size()) {
-			refresh_location_info_instant();
-			int32 fcount = get_useable_count(NULL, 1 - reason_player, LOCATION_SZONE, reason_player, 0);
-			if(fcount <= 0) {
-				for(auto& pcard : ssets_o) {
-					to_grave_set->insert(pcard);
-					targets->container.erase(pcard);
-				}
-			} else if((int32)ssets_o.size() > fcount) {
-				for(auto& pcard : ssets_o)
-					core.select_cards.push_back(pcard);
-				ct += (uint32)ssets_o.size() - fcount;
-			}
-		}
-		if(core.select_cards.size()) {
-			pduel->write_buffer8(MSG_HINT);
-			pduel->write_buffer8(HINT_SELECTMSG);
-			pduel->write_buffer8(reason_player);
-			pduel->write_buffer32(502);
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, reason_player, ct + (ct << 16));
-		} else
-			core.units.begin()->step = 1;
 		return FALSE;
 	}
 	case 1: {
+		card_set* to_grave_set = (card_set*)core.units.begin()->ptr1;
+		uint8 playerid = reason_player;
+		if(core.units.begin()->arg3)
+			playerid = 1 - reason_player;
+		card_set ssets;
+		for(auto& pcard : targets->container) {
+			uint8 npos = pcard->position_param & 0xff;
+			uint8 opos = pcard->current.position;
+			if((opos & POS_FACEUP) && (npos & POS_FACEDOWN)) {
+				if(pcard->get_type() & TYPE_TRAPMONSTER) {
+					if(pcard->current.controler == playerid)
+						ssets.insert(pcard);
+				}
+			}
+		}
+		if(ssets.size()) {
+			refresh_location_info_instant();
+			int32 fcount = get_useable_count(NULL, playerid, LOCATION_SZONE, playerid, 0);
+			if(fcount <= 0) {
+				for(auto& pcard : ssets) {
+					to_grave_set->insert(pcard);
+					targets->container.erase(pcard);
+				}
+				core.units.begin()->step = 2;
+			} else if((int32)ssets.size() > fcount) {
+				core.select_cards.clear();
+				for(auto& pcard : ssets)
+					core.select_cards.push_back(pcard);
+				uint32 ct = (uint32)ssets.size() - fcount;
+				pduel->write_buffer8(MSG_HINT);
+				pduel->write_buffer8(HINT_SELECTMSG);
+				pduel->write_buffer8(reason_player);
+				pduel->write_buffer32(502);
+				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, reason_player, ct + (ct << 16));
+			}
+		} else
+			core.units.begin()->step = 2;
+		return FALSE;
+	}
+	case 2: {
 		card_set* to_grave_set = (card_set*)core.units.begin()->ptr1;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
@@ -4682,7 +4674,14 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 		}
 		return FALSE;
 	}
-	case 2: {
+	case 3: {
+		if(!core.units.begin()->arg3) {
+			core.units.begin()->arg3 = 1;
+			core.units.begin()->step = 0;
+		}
+		return FALSE;
+	}
+	case 4: {
 		card_set equipings;
 		card_set flips;
 		card_set ssets;
@@ -4775,24 +4774,12 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 			destroy(&equipings, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
 		card_set* to_grave_set = (card_set*)core.units.begin()->ptr1;
 		if(to_grave_set->size()) {
-			card_vector cv(to_grave_set->begin(), to_grave_set->end());
-			if(cv.size() > 1)
-				std::sort(cv.begin(), cv.end(), card::card_operation_sort);
-			for(auto& pcard : cv) {
-				pduel->write_buffer8(MSG_POS_CHANGE);
-				pduel->write_buffer32(pcard->data.code);
-				pduel->write_buffer8(pcard->current.controler);
-				pduel->write_buffer8(pcard->current.location);
-				pduel->write_buffer8(pcard->current.sequence);
-				pduel->write_buffer8(pcard->current.position);
-				pduel->write_buffer8(POS_FACEDOWN_DEFENSE);
-			}
 			send_to(to_grave_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		}
 		delete to_grave_set;
 		return FALSE;
 	}
-	case 3: {
+	case 5: {
 		core.operated_set.clear();
 		core.operated_set = targets->container;
 		returns.ivalue[0] = (int32)targets->container.size();
