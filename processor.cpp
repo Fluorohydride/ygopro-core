@@ -1313,7 +1313,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			if(phandler->is_has_relation(*clit)) //work around: position and control should be refreshed before raising event
 				clit->set_triggering_state(phandler);
 			uint8 tp = clit->triggering_player;
-			if(check_trigger_effect(*clit) && peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)) 
+			if(check_trigger_effect(*clit) && peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)) {
 				if(tp == core.current_player)
 					core.select_chains.push_back(*clit);
 			} else {
