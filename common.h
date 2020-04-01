@@ -62,7 +62,6 @@ struct card_sort {
 #define POS_DEFENSE				0xc
 //Flip effect flags
 #define NO_FLIP_EFFECT			0x10000
-#define FLIP_SET_AVAILABLE		0x20000
 
 //Types
 #define TYPE_MONSTER		0x1			//

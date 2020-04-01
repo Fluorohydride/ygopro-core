@@ -262,10 +262,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			if(!(phandler->get_type() & TYPE_MONSTER) && (get_active_type() & TYPE_MONSTER))
 				return FALSE;
 			if(!neglect_faceup && (phandler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED))) {
-				// effects which can be activated while face-down:
-				// 1. effects with EFFECT_FLAG_SET_AVAILABLE
-				// 2. events with FLIP_SET_AVAILABLE
-				if(!phandler->is_position(POS_FACEUP) && !is_flag(EFFECT_FLAG_SET_AVAILABLE) && (code != EVENT_FLIP || !(e.event_value & (FLIP_SET_AVAILABLE >> 16))))
+				if(!phandler->is_position(POS_FACEUP) && !is_flag(EFFECT_FLAG_SET_AVAILABLE))
 					return FALSE;
 				if(phandler->is_position(POS_FACEUP) && !phandler->is_status(STATUS_EFFECT_ENABLED))
 					return FALSE;

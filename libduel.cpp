@@ -715,7 +715,6 @@ int32 scriptlib::duel_change_form(lua_State *L) {
 	if(top > 3) du = (uint32)lua_tointeger(L, 4);
 	if(top > 4) dd = (uint32)lua_tointeger(L, 5);
 	if(top > 5 && lua_toboolean(L, 6)) flag |= NO_FLIP_EFFECT;
-	if(top > 6 && lua_toboolean(L, 7)) flag |= FLIP_SET_AVAILABLE;
 	if(pcard) {
 		field::card_set cset;
 		cset.insert(pcard);
