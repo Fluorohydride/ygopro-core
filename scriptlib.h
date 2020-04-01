@@ -469,7 +469,8 @@ public:
 	static int32 duel_skip_phase(lua_State *L);
 	static int32 duel_is_damage_calculated(lua_State *L);
 	static int32 duel_get_attacker(lua_State *L);
-	static int32 duel_get_attack_target(lua_State *L);
+	static int32 duel_get_attack_target(lua_State* L);
+	static int32 duel_get_battle_monster(lua_State* L);
 	static int32 duel_disable_attack(lua_State *L);
 	static int32 duel_chain_attack(lua_State *L);
 	static int32 duel_readjust(lua_State *L);
