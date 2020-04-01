@@ -490,6 +490,13 @@ int32 field::process() {
 			it->step++;
 		return pduel->bufferlen;
 	}
+	case PROCESSOR_TRAP_MONSTER_ADJUST: {
+		if (trap_monster_adjust(it->step))
+			core.units.pop_front();
+		else
+			it->step++;
+		return pduel->bufferlen;
+	}
 	case PROCESSOR_PAY_LPCOST: {
 		if (pay_lp_cost(it->step, it->arg1, it->arg2))
 			core.units.pop_front();
@@ -1306,8 +1313,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			if(phandler->is_has_relation(*clit)) //work around: position and control should be refreshed before raising event
 				clit->set_triggering_state(phandler);
 			uint8 tp = clit->triggering_player;
-			if(check_deck_effect(*clit) && check_trigger_effect(*clit)
-				&& peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)) {
+			if(phandler->is_has_relation(*clit) && peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)) {
 				if(tp == core.current_player)
 					core.select_chains.push_back(*clit);
 			} else {
@@ -1364,7 +1370,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				clit->set_triggering_state(phandler);
 			}
 			uint8 tp = clit->triggering_player;
-			if(check_hand_trigger(*clit) && check_deck_effect(*clit) && check_trigger_effect(*clit)
+			if(check_hand_trigger(*clit) && phandler->is_has_relation(*clit)
 				&& peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
 				&& check_spself_from_hand_trigger(*clit)) {
 				if(tp == core.current_player)
@@ -3643,7 +3649,6 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 			core.summon_count[p] = 0;
 			core.extra_summon[p] = 0;
 			core.spsummon_once_map[p].clear();
-			core.spsummon_once_map_rst[p].clear();
 		}
 		core.spsummon_rst = false;
 		for(auto& peffect : effects.rechargeable)
@@ -4156,38 +4161,7 @@ int32 field::add_chain(uint16 step) {
 			set_spsummon_counter(clit.triggering_player, true, true);
 			if(clit.opinfos[0x200].op_player == PLAYER_ALL)
 				set_spsummon_counter(1 - clit.triggering_player, true, true);
-			if(core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) {
-				auto& optarget = clit.opinfos[0x200];
-				if(optarget.op_cards) {
-					if(optarget.op_player == PLAYER_ALL) {
-						auto opit = optarget.op_cards->container.begin();
-						uint32 sumplayer = optarget.op_param;
-						if((*opit)->spsummon_code) {
-							core.spsummon_once_map[sumplayer][(*opit)->spsummon_code]++;
-							core.spsummon_once_map_rst[sumplayer][(*opit)->spsummon_code]++;
 						}
-						++opit;
-						if((*opit)->spsummon_code) {
-							core.spsummon_once_map[1 - sumplayer][(*opit)->spsummon_code]++;
-							core.spsummon_once_map_rst[1 - sumplayer][(*opit)->spsummon_code]++;
-						}
-					} else {
-						uint32 sumplayer = clit.triggering_player;
-						// genarally setting op_player is unnecessary when the effect targets cards
-						// in the case of CATEGORY_SPECIAL_SUMMON(with EFFECT_FLAG_CARD_TARGET), op_player=0x10
-						// indecates that it is the opponent that special summons the target monsters
-						if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET) && optarget.op_player == 0x10)
-							sumplayer = 1 - sumplayer;
-						for(auto& pcard : optarget.op_cards->container) {
-							if(pcard->spsummon_code) {
-								core.spsummon_once_map[sumplayer][pcard->spsummon_code]++;
-								core.spsummon_once_map_rst[sumplayer][pcard->spsummon_code]++;
-							}
-						}
-					}
-				}
-			}
-		}
 		pduel->write_buffer8(MSG_CHAINED);
 		pduel->write_buffer8(clit.chain_count);
 		raise_event(phandler, EVENT_CHAINING, peffect, 0, clit.triggering_player, clit.triggering_player, clit.chain_count);
@@ -4308,13 +4282,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		if(core.spsummon_rst) {
 			set_spsummon_counter(0, false, true);
 			set_spsummon_counter(1, false, true);
-			for(int plr = 0; plr < 2; ++plr) {
-				for(auto& iter : core.spsummon_once_map[plr]) {
-					auto spcode = iter.first;
-					core.spsummon_once_map[plr][spcode] -= core.spsummon_once_map_rst[plr][spcode];
-					core.spsummon_once_map_rst[plr][spcode] = 0;
-				}
-			}
 			core.spsummon_rst = false;
 		}
 		pduel->write_buffer8(MSG_CHAIN_SOLVING);
@@ -4408,37 +4375,6 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 					set_spsummon_counter(cait->triggering_player);
 				if(cait->opinfos[0x200].op_player == PLAYER_ALL && core.spsummon_state_count_tmp[1 - cait->triggering_player] == core.spsummon_state_count[1 - cait->triggering_player])
 					set_spsummon_counter(1 - cait->triggering_player);
-				//sometimes it may add twice, only works for once per turn
-				auto& optarget = cait->opinfos[0x200];
-				if(optarget.op_cards) {
-					if(optarget.op_player == PLAYER_ALL) {
-						uint32 sumplayer = optarget.op_param;
-						if(core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) {
-							auto opit = optarget.op_cards->container.begin();
-							if((*opit)->spsummon_code)
-								core.spsummon_once_map[sumplayer][(*opit)->spsummon_code]++;
-							++opit;
-							if((*opit)->spsummon_code)
-								core.spsummon_once_map[1 - sumplayer][(*opit)->spsummon_code]++;
-						}
-						auto opit = optarget.op_cards->container.begin();
-						check_card_counter(*opit, 3, sumplayer);
-						++opit;
-						check_card_counter(*opit, 3, 1 - sumplayer);
-					} else {
-						uint32 sumplayer = cait->triggering_player;
-						// genarally setting op_player is unnecessary when the effect targets cards
-						// in the case of CATEGORY_SPECIAL_SUMMON(with EFFECT_FLAG_CARD_TARGET), op_player=0x10
-						// indecates that it is the opponent that special summons the target monsters
-						if(cait->triggering_effect->is_flag(EFFECT_FLAG_CARD_TARGET) && optarget.op_player == 0x10)
-							sumplayer = 1 - sumplayer;
-						for(auto& ptarget : optarget.op_cards->container) {
-							if((core.global_flag & GLOBALFLAG_SPSUMMON_ONCE) && ptarget->spsummon_code)
-								core.spsummon_once_map[sumplayer][ptarget->spsummon_code]++;
-							check_card_counter(ptarget, 3, sumplayer);
-						}
-					}
-				}
 			}
 		}
 		core.spsummon_state_count_tmp[0] = 0;
@@ -4839,18 +4775,19 @@ int32 field::adjust_step(uint16 step) {
 	}
 	case 3: {
 		//trap monster
-		uint8 tp = infos.turn_player;
+		core.trap_monster_adjust_set[0].clear();
+		core.trap_monster_adjust_set[1].clear();
 		for(uint8 p = 0; p < 2; ++p) {
-			for(auto& pcard : player[tp].list_mzone) {
+			for(auto& pcard : player[p].list_mzone) {
 				if(!pcard) continue;
 				if((pcard->get_type() & TYPE_TRAPMONSTER) && pcard->is_affected_by_effect(EFFECT_DISABLE_TRAPMONSTER)) {
-					pcard->reset(RESET_TURN_SET, RESET_EVENT);
-					refresh_location_info_instant();
-					move_to_field(pcard, tp, tp, LOCATION_SZONE, pcard->current.position, FALSE, 2);
-					core.re_adjust = TRUE;
+					core.trap_monster_adjust_set[p].insert(pcard);
 				}
 			}
-			tp = 1 - tp;
+		}
+		if(core.trap_monster_adjust_set[0].size() || core.trap_monster_adjust_set[1].size()) {
+			core.re_adjust = TRUE;
+			add_process(PROCESSOR_TRAP_MONSTER_ADJUST, 0, 0, 0, 0, 0);
 		}
 		return FALSE;
 	}
