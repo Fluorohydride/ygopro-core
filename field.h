@@ -313,9 +313,6 @@ struct processor {
 	uint8 normalsummon_state_count[2];
 	uint8 flipsummon_state_count[2];
 	uint8 spsummon_state_count[2];
-	uint8 spsummon_state_count_rst[2];
-	uint8 spsummon_state_count_tmp[2];
-	bool spsummon_rst;
 	uint8 attack_state_count[2];
 	uint8 battle_phase_count[2];
 	uint8 battled_count[2];
@@ -432,7 +429,7 @@ public:
 	void check_card_counter(card* pcard, int32 counter_type, int32 playerid);
 	void check_card_counter(group* pgroup, int32 counter_type, int32 playerid);
 	void check_chain_counter(effect* peffect, int32 playerid, int32 chainid, bool cancel = false);
-	void set_spsummon_counter(uint8 playerid, bool add = true, bool chain = false);
+	void set_spsummon_counter(uint8 playerid);
 	int32 check_spsummon_counter(uint8 playerid, uint8 ct = 1);
 
 	int32 check_lp_cost(uint8 playerid, uint32 cost);

@@ -161,7 +161,6 @@ public:
 	effect* unique_effect;
 	uint32 spsummon_code;
 	uint16 spsummon_counter[2];
-	uint16 spsummon_counter_rst[2];
 	uint8 assume_type;
 	uint32 assume_value;
 	card* equiping_target;

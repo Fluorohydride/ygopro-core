@@ -91,7 +91,6 @@ card::card(duel* pd) {
 	std::memset(&temp, 0xff, sizeof(card_state));
 	unique_pos[0] = unique_pos[1] = 0;
 	spsummon_counter[0] = spsummon_counter[1] = 0;
-	spsummon_counter_rst[0] = spsummon_counter_rst[1] = 0;
 	unique_code = 0;
 	unique_fieldid = 0;
 	assume_type = 0;
@@ -1505,7 +1504,6 @@ void card::apply_field_effect() {
 	if(unique_code && (current.location & unique_location))
 		pduel->game_field->add_unique_card(this);
 	spsummon_counter[0] = spsummon_counter[1] = 0;
-	spsummon_counter_rst[0] = spsummon_counter_rst[1] = 0;
 }
 void card::cancel_field_effect() {
 	if (current.controler == PLAYER_NONE)

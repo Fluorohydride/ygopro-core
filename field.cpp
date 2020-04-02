@@ -2170,32 +2170,15 @@ void field::check_chain_counter(effect* peffect, int32 playerid, int32 chainid, 
 		}
 	}
 }
-void field::set_spsummon_counter(uint8 playerid, bool add, bool chain) {
-	if(add) {
-		core.spsummon_state_count[playerid]++;
-		if(chain)
-			core.spsummon_state_count_rst[playerid]++;
-	} else {
-		if(chain) {
-			core.spsummon_state_count[playerid] -= core.spsummon_state_count_rst[playerid];
-			core.spsummon_state_count_rst[playerid] = 0;
-		} else
-			core.spsummon_state_count[playerid]--;
-	}
+void field::set_spsummon_counter(uint8 playerid) {
+	core.spsummon_state_count[playerid]++;
 	if(core.global_flag & GLOBALFLAG_SPSUMMON_COUNT) {
 		for(auto& peffect : effects.spsummon_count_eff) {
 			card* pcard = peffect->get_handler();
-			if(add) {
-				if(peffect->is_available()) {
-					if(((playerid == pcard->current.controler) && peffect->s_range) || ((playerid != pcard->current.controler) && peffect->o_range)) {
-						pcard->spsummon_counter[playerid]++;
-						if(chain)
-							pcard->spsummon_counter_rst[playerid]++;
-					}
+			if(peffect->is_available()) {
+				if(((playerid == pcard->current.controler) && peffect->s_range) || ((playerid != pcard->current.controler) && peffect->o_range)) {
+					pcard->spsummon_counter[playerid]++;
 				}
-			} else {
-				pcard->spsummon_counter[playerid] -= pcard->spsummon_counter_rst[playerid];
-				pcard->spsummon_counter_rst[playerid] = 0;
 			}
 		}
 	}
