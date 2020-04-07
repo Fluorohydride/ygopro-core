@@ -1001,7 +1001,7 @@ int32 field::announce_number(int16 step, uint8 playerid) {
 		return FALSE;
 	} else {
 		int32 ret = returns.ivalue[0];
-		if(ret < 0 || ret >= (int32)core.select_options.size() || ret >= 63) {
+		if(ret < 0 || ret >= (int32)core.select_options.size()) {
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
