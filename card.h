@@ -246,6 +246,21 @@ public:
 	 * @returns card's current name
 	 */
 	uint32 get_code();
+
+	/**
+	 * Get the current card's second_name(code)
+	 * for double-name card, it returns the name in description
+	 * 
+	 * If the card's current name is different from its printed name, return 0.
+	 * 		Exception if current name is Marine Dolphin and Twinkle Moss:
+	 * 		In those case, it will return Aqua Dolphin or Glow Moss respectively
+	 * If the card is being effected by an name adding effect:
+	 * 		return the last of those new names if it is different from the current name
+	 * 
+	 * otherwise return 0
+	 * 
+	 * @returns card's second name, or 0
+	 */
 	uint32 get_another_code();
 	int32 is_set_card(uint32 set_code);
 	int32 is_origin_set_card(uint32 set_code);
