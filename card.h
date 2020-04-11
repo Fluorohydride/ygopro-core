@@ -191,6 +191,22 @@ public:
 	static bool card_operation_sort(card* c1, card* c2);
 	const bool is_extra_deck_monster() { return !!(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK)); }
 
+	/**
+	 *	Gets info about a card 
+	 *	
+	 *	This method takes a query flag, and for each type of query,
+	 *	it will retireives the data, and assign it to the q_cache param of the card
+     *
+	 *	If the `use_cache` param is `true`, then it will check if the data is different
+	 *	and reassign, otherwise will just leave it the same.
+     *
+	 *	@param buf Byte buffer which will hold 8 bytes. The first 4 will be the ammount,
+	 *		of new data assigned, and the later 4 will be a copy of the `query_flag`
+	 *	@param query_flag the set of queries you want to perform
+	 *	@param use_cache revalutate all the queried data or not
+	 *	
+	 *	@return number of byes read
+	 */
 	uint32 get_infos(byte* buf, int32 query_flag, int32 use_cache = TRUE);
 	uint32 get_info_location();
 	uint32 second_code(uint32 code);
