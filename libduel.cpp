@@ -767,10 +767,19 @@ int32 scriptlib::duel_move_to_field(lua_State *L) {
 	uint32 zone = 0xff;
 	if(lua_gettop(L) > 6)
 		zone = (uint32)lua_tointeger(L, 7);
+	if(destination == LOCATION_FZONE) {
+		destination = LOCATION_SZONE;
+		zone = 0x1 << 5;
+	}
+	uint32 pzone = FALSE;
+	if(destination == LOCATION_PZONE) {
+		destination = LOCATION_SZONE;
+		pzone = TRUE;
+	}
 	duel* pduel = pcard->pduel;
 	pcard->enable_field_effect(false);
 	pduel->game_field->adjust_instant();
-	pduel->game_field->move_to_field(pcard, move_player, playerid, destination, positions, enable, 0, FALSE, zone);
+	pduel->game_field->move_to_field(pcard, move_player, playerid, destination, positions, enable, 0, pzone, zone);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushboolean(L, pduel->game_field->returns.ivalue[0]);
@@ -794,7 +803,7 @@ int32 scriptlib::duel_return_to_field(lua_State *L) {
 	pcard->enable_field_effect(false);
 	pduel->game_field->adjust_instant();
 	pduel->game_field->refresh_location_info_instant();
-	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, pcard->previous.location, pos, TRUE, 1, 0, zone);
+	pduel->game_field->move_to_field(pcard, pcard->previous.controler, pcard->previous.controler, pcard->previous.location, pos, TRUE, 1, pcard->previous.pzone, zone);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushboolean(L, pduel->game_field->returns.ivalue[0]);
