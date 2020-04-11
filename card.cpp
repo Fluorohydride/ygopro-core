@@ -1554,7 +1554,6 @@ void card::enable_field_effect(bool enabled) {
 	filter_disable_related_cards();
 }
 int32 card::add_effect(effect* peffect) {
-	effect_container::iterator eit;
 	if (get_status(STATUS_COPYING_EFFECT) && peffect->is_flag(EFFECT_FLAG_UNCOPYABLE)) {
 		pduel->uncopy.insert(peffect);
 		return 0;
@@ -1562,6 +1561,7 @@ int32 card::add_effect(effect* peffect) {
 	if (indexer.find(peffect) != indexer.end())
 		return 0;
 	card_set check_target = { this };
+	effect_container::iterator eit;
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
 		if((peffect->code == EFFECT_SET_ATTACK || peffect->code == EFFECT_SET_BASE_ATTACK) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			for(auto it = single_effect.begin(); it != single_effect.end();) {
@@ -1636,8 +1636,11 @@ int32 card::add_effect(effect* peffect) {
 	}
 	indexer.emplace(peffect, eit);
 	peffect->handler = this;
-	if (peffect->in_range(this) && (peffect->type & EFFECT_TYPE_FIELD))
-		pduel->game_field->add_effect(peffect);
+	if((peffect->type & EFFECT_TYPE_FIELD)) {
+		if(peffect->in_range(this)
+			|| current.controler != PLAYER_NONE && ((peffect->range & LOCATION_HAND) && (peffect->type & EFFECT_TYPE_TRIGGER_O) && !(peffect->code & EVENT_PHASE)))
+			pduel->game_field->add_effect(peffect);
+	}
 	if (current.controler != PLAYER_NONE && !check_target.empty()) {
 		if(peffect->is_disable_related())
 			for(auto& target : check_target)
@@ -1704,7 +1707,8 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			pduel->game_field->update_disable_check_list(peffect);
 		}
 		field_effect.erase(it);
-		if (peffect->in_range(this))
+		if(peffect->in_range(this)
+			|| current.controler != PLAYER_NONE && ((peffect->range & LOCATION_HAND) && (peffect->type & EFFECT_TYPE_TRIGGER_O) && !(peffect->code & EVENT_PHASE)))
 			pduel->game_field->remove_effect(peffect);
 	}
 	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && !check_target.empty()) {
