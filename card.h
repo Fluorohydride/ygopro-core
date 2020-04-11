@@ -208,6 +208,18 @@ public:
 	 *	@return number of byes read
 	 */
 	uint32 get_infos(byte* buf, int32 query_flag, int32 use_cache = TRUE);
+
+	/**
+	 * Gets info of a cards current location
+	 * 
+	 * Retrives a card's:
+	 * 		controller, location, sequence, and position
+	 * or if it is an Xyz material, the Xyz's monster's:
+	 * 		controller, location, sequence, and the material's sequence
+	 * 
+	 * @returns a 4 byte interger reqresenting (a byte each)
+	 * 	[(own/xyz) controller, (own/xyz) location, (own/xyz) sequence, position/own sequence]
+	 */
 	uint32 get_info_location();
 	uint32 second_code(uint32 code);
 	uint32 get_code();
