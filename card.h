@@ -231,6 +231,20 @@ public:
 	 * 			0 if the card isn't treaded as two cards
 	 */
 	uint32 second_code(uint32 code);
+
+	/**
+	 * Get the current card's name(code)
+	 * for double-name card, it returns printed name
+	 * 
+	 * If the card is being assumed to have a name, return that name
+	 * If the card has a temporary name, return that name
+	 * If the card is affected by a name chageing effect, return the new name, or the new name's alias if applicable
+	 * If the card has an alias, but is not affected by a name adding effect, return that alias
+	 * 
+	 * otherwise return the card's printed name
+	 * 
+	 * @returns card's current name
+	 */
 	uint32 get_code();
 	uint32 get_another_code();
 	int32 is_set_card(uint32 set_code);
