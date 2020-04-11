@@ -221,6 +221,15 @@ public:
 	 * 	[(own/xyz) controller, (own/xyz) location, (own/xyz) sequence, position/own sequence]
 	 */
 	uint32 get_info_location();
+
+	/**
+	 * Mapping of double-name cards
+	 * 
+	 * Gets the second id for cards that are treated as 2 different cards
+	 * 
+	 * @returns the id representing the card's alternate code
+	 * 			0 if the card isn't treaded as two cards
+	 */
 	uint32 second_code(uint32 code);
 	uint32 get_code();
 	uint32 get_another_code();
