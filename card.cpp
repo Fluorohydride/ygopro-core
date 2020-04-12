@@ -1408,64 +1408,52 @@ void card::xyz_overlay(card_set* materials) {
 	if(materials->size() == 0)
 		return;
 	card_set des;
-	if(materials->size() == 1) {
-		card* pcard = *materials->begin();
+	field::card_vector cv;
+	for(auto& pcard : *materials)
+		cv.push_back(pcard);
+	std::sort(cv.begin(), cv.end(), card::card_operation_sort);
+	for(auto& pcard : cv) {
+		if(pcard->overlay_target == this)
+			continue;
+		pcard->current.reason = REASON_XYZ + REASON_MATERIAL;
 		pcard->reset(RESET_LEAVE + RESET_OVERLAY, RESET_EVENT);
 		if(pcard->unique_code)
 			pduel->game_field->remove_unique_card(pcard);
 		if(pcard->equiping_target)
 			pcard->unequip();
-		pcard->clear_card_target();
-		xyz_add(pcard, &des);
-	} else {
-		field::card_vector cv;
-		for(auto& pcard : *materials)
-			cv.push_back(pcard);
-		std::sort(cv.begin(), cv.end(), card::card_operation_sort);
-		for(auto& pcard : cv) {
-			pcard->reset(RESET_LEAVE + RESET_OVERLAY, RESET_EVENT);
-			if(pcard->unique_code)
-				pduel->game_field->remove_unique_card(pcard);
-			if(pcard->equiping_target)
-				pcard->unequip();
-			pcard->clear_card_target();
-			xyz_add(pcard, &des);
+		for(auto cit = pcard->equiping_cards.begin(); cit != pcard->equiping_cards.end();) {
+			card* equipc = *cit++;
+			des.insert(equipc);
+			equipc->unequip();
 		}
+		pcard->clear_card_target();
+		pduel->write_buffer8(MSG_MOVE);
+		pduel->write_buffer32(pcard->data.code);
+		pduel->write_buffer32(pcard->get_info_location());
+		if(pcard->overlay_target) {
+			pcard->overlay_target->xyz_remove(pcard);
+		} else {
+			pcard->enable_field_effect(false);
+			pduel->game_field->remove_card(pcard);
+			pduel->game_field->add_to_disable_check_list(pcard);
+		}
+		xyz_add(pcard);
+		pduel->write_buffer32(pcard->get_info_location());
+		pduel->write_buffer32(pcard->current.reason);
 	}
 	if(des.size())
 		pduel->game_field->destroy(&des, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
 	else
 		pduel->game_field->adjust_instant();
 }
-void card::xyz_add(card* mat, card_set* des) {
-	if(mat->overlay_target == this)
+void card::xyz_add(card* mat) {
+	if(mat->current.controler != PLAYER_NONE || mat->overlay_target)
 		return;
-	pduel->write_buffer8(MSG_MOVE);
-	pduel->write_buffer32(mat->data.code);
-	pduel->write_buffer32(mat->get_info_location());
-	if(mat->overlay_target) {
-		mat->overlay_target->xyz_remove(mat);
-	} else {
-		mat->enable_field_effect(false);
-		pduel->game_field->remove_card(mat);
-		pduel->game_field->add_to_disable_check_list(mat);
-	}
-	pduel->write_buffer8(current.controler);
-	pduel->write_buffer8(current.location | LOCATION_OVERLAY);
-	pduel->write_buffer8(current.sequence);
-	pduel->write_buffer8(current.position);
-	pduel->write_buffer32(REASON_XYZ + REASON_MATERIAL);
 	xyz_materials.push_back(mat);
-	for(auto cit = mat->equiping_cards.begin(); cit != mat->equiping_cards.end();) {
-		auto rm = cit++;
-		des->insert(*rm);
-		(*rm)->unequip();
-	}
 	mat->overlay_target = this;
 	mat->current.controler = PLAYER_NONE;
 	mat->current.location = LOCATION_OVERLAY;
 	mat->current.sequence = (uint8)xyz_materials.size() - 1;
-	mat->current.reason = REASON_XYZ + REASON_MATERIAL;
 	for(auto& eit : mat->xmaterial_effect) {
 		effect* peffect = eit.second;
 		if(peffect->type & EFFECT_TYPE_FIELD)
