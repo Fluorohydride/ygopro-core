@@ -1447,7 +1447,7 @@ void card::xyz_overlay(card_set* materials) {
 		pduel->game_field->adjust_instant();
 }
 void card::xyz_add(card* mat) {
-	if(mat->current.controler != PLAYER_NONE || mat->overlay_target)
+	if(mat->current.location != 0)
 		return;
 	xyz_materials.push_back(mat);
 	mat->overlay_target = this;
