@@ -161,8 +161,6 @@ void field::reload_field_info() {
 		pduel->write_buffer32(peffect->description);
 	}
 }
-// The core of moving cards, and Debug.AddCard() will call this function directly.
-// check Fusion/S/X monster redirection by the rule, set fieldid_r
 void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence, uint8 pzone) {
 	if (pcard->current.location != 0)
 		return;
@@ -294,13 +292,6 @@ void field::remove_card(card* pcard) {
 	pcard->current.location = 0;
 	pcard->current.sequence = 0;
 }
-// moving cards:
-// 1. draw()
-// 2. discard_deck()
-// 3. swap_control()
-// 4. control_adjust()
-// 5. move_card()
-// check Fusion/S/X monster redirection by the rule
 void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence, uint8 pzone) {
 	if (!is_location_useable(playerid, location, sequence))
 		return;
@@ -615,7 +606,6 @@ card* field::get_field_card(uint32 playerid, uint32 location, uint32 sequence) {
 	}
 	return 0;
 }
-// return: the given slot in LOCATION_MZONE or all LOCATION_SZONE is available or not
 int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequence) {
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
 	if (location == LOCATION_MZONE) {

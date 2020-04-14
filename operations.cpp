@@ -3980,7 +3980,6 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		} else if(dest == LOCATION_REMOVED) {
 			core.hint_timing[control_player] |= TIMING_REMOVE;
 		}
-		//call move_card()
 		if(pcard->current.controler != playerid || pcard->current.location != dest) {
 			pduel->write_buffer8(MSG_MOVE);
 			pduel->write_buffer32(pcard->data.code);
@@ -4508,7 +4507,6 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 		pduel->write_buffer32(target->get_info_location());
 		if(target->overlay_target)
 			target->overlay_target->xyz_remove(target);
-		// call move_card()
 		move_card(playerid, target, location, target->temp.sequence, pzone);
 		target->current.position = returns.ivalue[0];
 		target->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
