@@ -39,6 +39,7 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	scriptlib::open_duellib(lua_state);
 	scriptlib::open_debuglib(lua_state);
 	//extra scripts
+	load_script("./script/special.lua");
 	load_script("./script/constant.lua");
 	load_script("./script/utility.lua");
 }
@@ -322,9 +323,16 @@ int32 interpreter::call_code_function(uint32 code, const char* f, uint32 param_c
 		params.clear();
 		return OPERATION_FAIL;
 	}
-	load_card_script(code);
+	if (code)
+		load_card_script(code);
+	else
+		lua_getglobal(current_state, "Auxiliary");
 	lua_getfield(current_state, -1, f);
 	if (!lua_isfunction(current_state, -1)) {
+		if(!code) {
+			params.clear();
+			return OPERATION_FAIL;
+		}
 		sprintf(pduel->strbuffer, "\"CallCodeFunction\": attempt to call an error function");
 		handle_message(pduel, 1);
 		lua_pop(current_state, 2);

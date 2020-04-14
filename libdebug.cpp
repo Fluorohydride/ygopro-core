@@ -36,6 +36,10 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		return 0;
 	if(playerid != 0 && playerid != 1)
 		return 0;
+	if(!pduel->lua->preloaded) {
+		pduel->lua->preloaded = TRUE;
+		pduel->lua->call_code_function(0, (char*) "PreloadUds", 0, 0);
+	}
 	if(pduel->game_field->is_location_useable(playerid, location, sequence)) {
 		card* pcard = pduel->new_card(code);
 		pcard->owner = owner;

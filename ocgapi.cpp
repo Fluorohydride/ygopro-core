@@ -61,6 +61,7 @@ extern "C" DECL_DLLEXPORT ptr create_duel(uint32 seed) {
 	duel* pduel = new duel();
 	duel_set.insert(pduel);
 	pduel->random.reset(seed);
+	pduel->lua->preloaded = FALSE;
 	return (ptr)pduel;
 }
 extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int32 options) {
@@ -136,6 +137,10 @@ extern "C" DECL_DLLEXPORT int32 process(ptr pduel) {
 }
 extern "C" DECL_DLLEXPORT void new_card(ptr pduel, uint32 code, uint8 owner, uint8 playerid, uint8 location, uint8 sequence, uint8 position) {
 	duel* ptduel = (duel*)pduel;
+	if(!ptduel->lua->preloaded) {
+		ptduel->lua->preloaded = TRUE;
+		ptduel->lua->call_code_function(0, (char*) "PreloadUds", 0, 0);
+	}
 	if(ptduel->game_field->is_location_useable(playerid, location, sequence)) {
 		card* pcard = ptduel->new_card(code);
 		pcard->owner = owner;
