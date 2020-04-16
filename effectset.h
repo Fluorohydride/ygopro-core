@@ -63,6 +63,12 @@ struct effect_set {
 	effect*& at(int index) {
 		return container[index];
 	}
+	auto begin() {
+		return container.begin();
+	}
+	auto end() {
+		return container.end();
+	}
 private:
 	std::array<effect*, 64> container;
 	int count;
@@ -100,6 +106,12 @@ struct effect_set_v {
 	}
 	effect*& at(int index) {
 		return container[index];
+	}
+	auto begin() {
+		return container.begin();
+	}
+	auto end() {
+		return container.end();
 	}
 private:
 	std::vector<effect*> container;

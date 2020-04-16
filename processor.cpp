@@ -2118,29 +2118,29 @@ int32 field::process_idle_command(uint16 step) {
 		core.spsummonable_cards.clear();
 		effect_set eset;
 		filter_field_effect(EFFECT_SPSUMMON_PROC, &eset);
-		for(int32 i = 0; i < eset.size(); ++i) {
-			card* pcard = eset[i]->get_handler();
-			if(!eset[i]->check_count_limit(pcard->current.controler))
+		for(auto* peffect : eset) {
+			card* pcard = peffect->get_handler();
+			if(!peffect->check_count_limit(pcard->current.controler))
 				continue;
 			if(pcard->current.controler == infos.turn_player && pcard->is_special_summonable(infos.turn_player, 0))
 				core.spsummonable_cards.push_back(pcard);
 		}
 		eset.clear();
 		filter_field_effect(EFFECT_SPSUMMON_PROC_G, &eset);
-		for(int32 i = 0; i < eset.size(); ++i) {
-			card* pcard = eset[i]->get_handler();
-			if(!eset[i]->check_count_limit(infos.turn_player))
+		for(auto* peffect : eset) {
+			card* pcard = peffect->get_handler();
+			if(!peffect->check_count_limit(infos.turn_player))
 				continue;
-			if(pcard->current.controler != infos.turn_player && !eset[i]->is_flag(EFFECT_FLAG_BOTH_SIDE))
+			if(pcard->current.controler != infos.turn_player && !peffect->is_flag(EFFECT_FLAG_BOTH_SIDE))
 				continue;
 			effect* oreason = core.reason_effect;
 			uint8 op = core.reason_player;
-			core.reason_effect = eset[i];
+			core.reason_effect = peffect;
 			core.reason_player = pcard->current.controler;
 			save_lp_cost();
-			pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
-			if(pduel->lua->check_condition(eset[i]->condition, 2))
+			if(pduel->lua->check_condition(peffect->condition, 2))
 				core.spsummonable_cards.push_back(pcard);
 			restore_lp_cost();
 			core.reason_effect = oreason;
@@ -2493,11 +2493,11 @@ int32 field::process_battle_command(uint16 step) {
 			effect_set eset;
 			filter_player_effect(infos.turn_player, EFFECT_ATTACK_COST, &eset, FALSE);
 			core.attacker->filter_effect(EFFECT_ATTACK_COST, &eset);
-			for(int32 i = 0; i < eset.size(); ++i) {
-				if(eset[i]->operation) {
+			for(auto* peffect : eset) {
+				if(peffect->operation) {
 					core.attack_cancelable = FALSE;
 					core.sub_solving_event.push_back(nil_event);
-					add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, infos.turn_player, 0);
+					add_process(PROCESSOR_EXECUTE_OPERATION, 0, peffect, 0, infos.turn_player, 0);
 					adjust_all();
 				}
 			}
@@ -3332,18 +3332,18 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 				if(eset.size()) {
 					pierce = true;
 					uint8 dp[2] = {};
-					for(uint32 i = 0; i < eset.size(); ++i)
-						dp[1 - eset[i]->get_handler_player()] = 1;
+					for(auto* peffect : eset)
+						dp[1 - peffect->get_handler_player()] = 1;
 					if(dp[0])
 						core.battle_damage[0] = a - d;
 					if(dp[1])
 						core.battle_damage[1] = a - d;
 					bool double_damage = false;
 					//bool half_damage = false;
-					for(int32 i = 0; i < eset.size(); ++i) {
-						if(eset[i]->get_value() == DOUBLE_DAMAGE)
+					for(auto* peffect : eset) {
+						if(peffect->get_value() == DOUBLE_DAMAGE)
 							double_damage = true;
-						//if(eset[i]->get_value() == HALF_DAMAGE)
+						//if(peffect->get_value() == HALF_DAMAGE)
 						//	half_damage = true;
 					}
 					//if(double_damage && half_damage) {
@@ -3429,13 +3429,13 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 						bool double_dam = false;
 						bool half_dam = false;
 						int32 dam_value = -1;
-						for(uint32 i = 0; i < eset.size(); ++i) {
+						for(auto* peffect : eset) {
 							int32 val = -1;
-							if(!eset[i]->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
+							if(!peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
 								pduel->lua->add_param(p, PARAM_TYPE_INT);
-								val = eset[i]->get_value(1);
-							} else if(eset[i]->is_target_player(p))
-								val = eset[i]->get_value();
+								val = peffect->get_value(1);
+							} else if(peffect->is_target_player(p))
+								val = peffect->get_value();
 							if(val == 0) {
 								dam_value = 0;
 								break;
@@ -3549,13 +3549,13 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 			bool double_dam = false;
 			bool half_dam = false;
 			int32 dam_value = -1;
-			for(uint32 i = 0; i < eset.size(); ++i) {
+			for(auto* peffect : eset) {
 				int32 val = -1;
-				if(!eset[i]->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
+				if(!peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
 					pduel->lua->add_param(p, PARAM_TYPE_INT);
-					val = eset[i]->get_value(1);
-				} else if(eset[i]->is_target_player(p))
-					val = eset[i]->get_value();
+					val = peffect->get_value(1);
+				} else if(peffect->is_target_player(p))
+					val = peffect->get_value();
 				if(val == 0) {
 					dam_value = 0;
 					break;
@@ -3923,15 +3923,15 @@ int32 field::add_chain(uint16 step) {
 		card* phandler = peffect->get_handler();
 		effect_set eset;
 		filter_player_effect(clit.triggering_player, EFFECT_ACTIVATE_COST, &eset);
-		for(int32 i = 0; i < eset.size(); ++i) {
-			pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+		for(auto* teffect : eset) {
+			pduel->lua->add_param(teffect, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(clit.triggering_effect, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(clit.triggering_player, PARAM_TYPE_INT);
-			if(!pduel->lua->check_condition(eset[i]->target, 3))
+			if(!pduel->lua->check_condition(teffect->target, 3))
 				continue;
-			if(eset[i]->operation) {
+			if(teffect->operation) {
 				core.sub_solving_event.push_back(clit.evt);
-				add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, clit.triggering_player, 0);
+				add_process(PROCESSOR_EXECUTE_OPERATION, 0, teffect, 0, clit.triggering_player, 0);
 			}
 		}
 		if(peffect->type & EFFECT_TYPE_ACTIVATE) {
@@ -3952,16 +3952,16 @@ int32 field::add_chain(uint16 step) {
 				eset.clear();
 				phandler->filter_effect(ecode, &eset);
 				effect* pactin = 0;
-				for(int32 i = 0; i < eset.size(); ++i) {
-					if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
-						pactin = eset[i];
+				for(auto* teffect : eset) {
+					if(!teffect->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
+						pactin = teffect;
 						break;
 					}
 				}
 				if(!pactin) {
-					for(int32 i = 0; i < eset.size(); ++i) {
-						if(eset[i]->check_count_limit(phandler->current.controler)) {
-							eset[i]->dec_count(phandler->current.controler);
+					for(auto* teffect : eset) {
+						if(teffect->check_count_limit(phandler->current.controler)) {
+							teffect->dec_count(phandler->current.controler);
 							break;
 						}
 					}
@@ -4490,23 +4490,23 @@ void field::refresh_location_info_instant() {
 	player[0].disabled_location = 0;
 	player[1].disabled_location = 0;
 	filter_field_effect(EFFECT_DISABLE_FIELD, &eset);
-	for (int32 i = 0; i < eset.size(); ++i) {
-		uint32 value = eset[i]->get_value();
+	for (auto* peffect : eset) {
+		uint32 value = peffect->get_value();
 		player[0].disabled_location |= value & 0x1f7f;
 		player[1].disabled_location |= (value >> 16) & 0x1f7f;
 	}
 	eset.clear();
 	filter_field_effect(EFFECT_USE_EXTRA_MZONE, &eset);
-	for (int32 i = 0; i < eset.size(); ++i) {
-		uint8 p = eset[i]->get_handler_player();
-		uint32 value = eset[i]->get_value();
+	for (auto* peffect : eset) {
+		uint8 p = peffect->get_handler_player();
+		uint32 value = peffect->get_value();
 		player[p].disabled_location |= (value >> 16) & 0x1f;
 	}
 	eset.clear();
 	filter_field_effect(EFFECT_USE_EXTRA_SZONE, &eset);
-	for (int32 i = 0; i < eset.size(); ++i) {
-		uint8 p = eset[i]->get_handler_player();
-		uint32 value = eset[i]->get_value();
+	for (auto* peffect : eset) {
+		uint8 p = peffect->get_handler_player();
+		uint32 value = peffect->get_value();
 		player[p].disabled_location |= (value >> 8) & 0x1f00;
 	}
 	player[0].disabled_location |= (((player[1].disabled_location >> 5) & 1) << 6) | (((player[1].disabled_location >> 6) & 1) << 5);
@@ -4528,31 +4528,31 @@ int32 field::refresh_location_info(uint16 step) {
 		core.extra_mzone_effects.clear();
 		core.extra_szone_effects.clear();
 		filter_field_effect(EFFECT_DISABLE_FIELD, &eset);
-		for (int32 i = 0; i < eset.size(); ++i) {
-			uint32 value = eset[i]->get_value();
-			if(value && !eset[i]->is_flag(EFFECT_FLAG_REPEAT)) {
+		for (auto* peffect : eset) {
+			uint32 value = peffect->get_value();
+			if(value && !peffect->is_flag(EFFECT_FLAG_REPEAT)) {
 				player[0].disabled_location |= value & 0x1f7f;
 				player[1].disabled_location |= (value >> 16) & 0x1f7f;
 			} else
-				core.disfield_effects.add_item(eset[i]);
+				core.disfield_effects.add_item(peffect);
 		}
 		eset.clear();
 		filter_field_effect(EFFECT_USE_EXTRA_MZONE, &eset);
-		for (int32 i = 0; i < eset.size(); ++i) {
-			uint8 p = eset[i]->get_handler_player();
-			uint32 value = eset[i]->get_value();
+		for (auto* peffect : eset) {
+			uint8 p = peffect->get_handler_player();
+			uint32 value = peffect->get_value();
 			player[p].disabled_location |= (value >> 16) & 0x1f;
 			if((uint32)field_used_count[(value >> 16) & 0x1f] < (value & 0xffff))
-				core.extra_mzone_effects.add_item(eset[i]);
+				core.extra_mzone_effects.add_item(peffect);
 		}
 		eset.clear();
 		filter_field_effect(EFFECT_USE_EXTRA_SZONE, &eset);
-		for (int32 i = 0; i < eset.size(); ++i) {
-			uint8 p = eset[i]->get_handler_player();
-			uint32 value = eset[i]->get_value();
+		for (auto* peffect : eset) {
+			uint8 p = peffect->get_handler_player();
+			uint32 value = peffect->get_value();
 			player[p].disabled_location |= (value >> 8) & 0x1f00;
 			if((uint32)field_used_count[(value >> 16) & 0x1f] < (value & 0xffff))
-				core.extra_szone_effects.add_item(eset[i]);
+				core.extra_szone_effects.add_item(peffect);
 		}
 		return FALSE;
 	}

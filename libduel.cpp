@@ -173,8 +173,8 @@ int32 scriptlib::duel_get_flag_effect_label(lua_State *L) {
 		lua_pushnil(L);
 		return 1;
 	}
-	for(int32 i = 0; i < eset.size(); ++i)
-		lua_pushinteger(L, eset[i]->label.size() ? eset[i]->label[0] : 0);
+	for(auto* peffect : eset)
+		lua_pushinteger(L, peffect->label.size() ? peffect->label[0] : 0);
 	return eset.size();
 }
 int32 scriptlib::duel_destroy(lua_State *L) {
