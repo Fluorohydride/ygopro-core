@@ -1036,8 +1036,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			cn_count++;
 		}
 		//all effects taking control non-permanently are only until End Phase, not until Turn end
-		for(auto eit = effects.pheff.begin(); eit != effects.pheff.end();) {
-			effect* peffect = *eit++;
+		for(auto* peffect : effects.pheff) {
 			if(peffect->code != EFFECT_SET_CONTROL)
 				continue;
 			if(!(peffect->reset_flag & phase))
@@ -1051,13 +1050,8 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			if(peffect->reset_count != 1)
 				continue;
 			card* phandler = peffect->get_handler();
-			if(pid != phandler->current.controler) {
-				if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
-					remove_effect(peffect);
-				else
-					peffect->handler->remove_effect(peffect);
+			if(peffect->value != phandler->current.controler)
 				continue;
-			}
 			newchain.triggering_effect = peffect;
 			core.select_chains.push_back(newchain);
 			cn_count++;
