@@ -1412,6 +1412,42 @@ void card::xyz_overlay(card_set* materials) {
 	for(auto& pcard : *materials)
 		cv.push_back(pcard);
 	std::sort(cv.begin(), cv.end(), card::card_operation_sort);
+	if(pduel->game_field->core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
+		int32 d0 = (int32)pduel->game_field->player[0].list_main.size() - 1, s0 = d0;
+		int32 d1 = (int32)pduel->game_field->player[1].list_main.size() - 1, s1 = d1;
+		for(auto& pcard : cv) {
+			if(pcard->current.location != LOCATION_DECK)
+				continue;
+			if((pcard->current.controler == 0) && (pcard->current.sequence == s0))
+				s0--;
+			if((pcard->current.controler == 1) && (pcard->current.sequence == s1))
+				s1--;
+		}
+		if((s0 != d0) && (s0 > 0)) {
+			card* ptop = pduel->game_field->player[0].list_main[s0];
+			if(pduel->game_field->core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENSE)) {
+				pduel->write_buffer8(MSG_DECK_TOP);
+				pduel->write_buffer8(0);
+				pduel->write_buffer8(d0 - s0);
+				if(ptop->current.position != POS_FACEUP_DEFENSE)
+					pduel->write_buffer32(ptop->data.code);
+				else
+					pduel->write_buffer32(ptop->data.code | 0x80000000);
+			}
+		}
+		if((s1 != d1) && (s1 > 0)) {
+			card* ptop = pduel->game_field->player[1].list_main[s1];
+			if(pduel->game_field->core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENSE)) {
+				pduel->write_buffer8(MSG_DECK_TOP);
+				pduel->write_buffer8(1);
+				pduel->write_buffer8(d1 - s1);
+				if(ptop->current.position != POS_FACEUP_DEFENSE)
+					pduel->write_buffer32(ptop->data.code);
+				else
+					pduel->write_buffer32(ptop->data.code | 0x80000000);
+			}
+		}
+	}
 	for(auto& pcard : cv) {
 		if(pcard->overlay_target == this)
 			continue;
