@@ -1050,7 +1050,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			if(peffect->reset_count != 1)
 				continue;
 			card* phandler = peffect->get_handler();
-			if(peffect->value != phandler->current.controler)
+			if(peffect->get_value(phandler) != phandler->current.controler)
 				continue;
 			newchain.triggering_effect = peffect;
 			core.select_chains.push_back(newchain);
