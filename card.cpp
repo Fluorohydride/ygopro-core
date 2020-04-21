@@ -866,6 +866,22 @@ int32 card::get_defense() {
 	temp.defense = -1;
 	return def;
 }
+int32 card::get_battle_attack() {
+	effect_set eset;
+	filter_effect(EFFECT_SET_BATTLE_ATTACK, &eset);
+	if(eset.size())
+		return eset.get_last()->get_value(this);
+	else
+		return get_attack();
+}
+int32 card::get_battle_defense() {
+	effect_set eset;
+	filter_effect(EFFECT_SET_BATTLE_DEFENSE, &eset);
+	if(eset.size())
+		return eset.get_last()->get_value(this);
+	else
+		return get_defense();
+}
 // Level/Attribute/Race is available for:
 // 1. cards with original type TYPE_MONSTER or
 // 2. cards with current type TYPE_MONSTER or

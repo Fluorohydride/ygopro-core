@@ -210,6 +210,8 @@ public:
 	int32 get_attack();
 	int32 get_base_defense();
 	int32 get_defense();
+	int32 get_battle_attack();
+	int32 get_battle_defense();
 	uint32 get_level();
 	uint32 get_rank();
 	uint32 get_link();

@@ -3288,7 +3288,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 	return TRUE;
 }
 void field::calculate_battle_damage(effect** pdamchange, card** preason_card, uint8* battle_destroyed) {
-	uint32 aa = core.attacker->get_attack(), ad = core.attacker->get_defense();
+	uint32 aa = core.attacker->get_battle_attack(), ad = core.attacker->get_battle_defense();
 	uint32 da = 0, dd = 0, a = aa, d;
 	uint8 pa = core.attacker->current.controler, pd;
 	uint8 damp = 0;
@@ -3303,8 +3303,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 			a = ad;
 	}
 	if(core.attack_target) {
-		da = core.attack_target->get_attack();
-		dd = core.attack_target->get_defense();
+		da = core.attack_target->get_battle_attack();
+		dd = core.attack_target->get_battle_defense();
 		pd = core.attack_target->current.controler;
 		if(core.attack_target->is_position(POS_ATTACK)) {
 			d = da;

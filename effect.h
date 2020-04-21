@@ -448,6 +448,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_QP_ACT_IN_SET_TURN		359
 #define EFFECT_EXTRA_PENDULUM_SUMMON	360
 #define EFFECT_MATERIAL_LIMIT			361
+#define EFFECT_SET_BATTLE_ATTACK		362
+#define EFFECT_SET_BATTLE_DEFENSE		363
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
