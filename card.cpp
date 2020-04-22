@@ -480,8 +480,6 @@ uint32 card::get_link_type() {
 		return data.type;
 	return get_type();
 }
-// Atk and def are sepcial cases since text atk/def ? are involved.
-// Asuumption: we can only change the atk/def of cards in LOCATION_MZONE.
 int32 card::get_base_attack() {
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
@@ -882,10 +880,6 @@ int32 card::get_battle_defense() {
 	else
 		return get_defense();
 }
-// Level/Attribute/Race is available for:
-// 1. cards with original type TYPE_MONSTER or
-// 2. cards with current type TYPE_MONSTER or
-// 3. cards with EFFECT_PRE_MONSTER
 uint32 card::get_level() {
 	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL)
 	        || (!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER)))
@@ -1002,7 +996,6 @@ uint32 card::check_xyz_level(card* pcard, uint32 lv) {
 	}
 	return 0;
 }
-// see get_level()
 uint32 card::get_attribute() {
 	if(assume_type == ASSUME_ATTRIBUTE)
 		return assume_value;
@@ -1053,7 +1046,6 @@ uint32 card::get_link_attribute(uint8 playerid) {
 	}
 	return attribute;
 }
-// see get_level()
 uint32 card::get_race() {
 	if(assume_type == ASSUME_RACE)
 		return assume_value;
