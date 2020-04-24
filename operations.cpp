@@ -4162,9 +4162,9 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				raise_single_event(pcard, 0, EVENT_TO_DECK, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
 			if(nloc == LOCATION_GRAVE && !(pcard->current.reason & REASON_RETURN)) {
-					tograve.insert(pcard);
-					raise_single_event(pcard, 0, EVENT_TO_GRAVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
-				}
+				tograve.insert(pcard);
+				raise_single_event(pcard, 0, EVENT_TO_GRAVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
+			}
 			if(nloc == LOCATION_REMOVED || ((pcard->data.type & TYPE_TOKEN) && pcard->sendto_param.location == LOCATION_REMOVED)) {
 				remove.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_REMOVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
