@@ -1993,7 +1993,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		process_single_event();
 		raise_event(target, EVENT_SUMMON_SUCCESS, proc, 0, sumplayer, sumplayer, 0);
 		process_instant_event();
-		if(core.current_chain.size() == 0 && !core.summoning_card) {
+		if(core.current_chain.size() == 0) {
 			adjust_all();
 			core.hint_timing[sumplayer] |= TIMING_SUMMON;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
@@ -2344,7 +2344,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 		adjust_instant();
 		raise_event(target, EVENT_MSET, proc, 0, setplayer, setplayer, 0);
 		process_instant_event();
-		if(core.current_chain.size() == 0 && !core.summoning_card) {
+		if(core.current_chain.size() == 0) {
 			adjust_all();
 			core.hint_timing[setplayer] |= TIMING_MSET;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, FALSE);
@@ -2853,7 +2853,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		process_single_event();
 		raise_event(target, EVENT_SPSUMMON_SUCCESS, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
 		process_instant_event();
-		if(core.current_chain.size() == 0 && !core.summoning_card) {
+		if(core.current_chain.size() == 0) {
 			adjust_all();
 			core.hint_timing[sumplayer] |= TIMING_SPSUMMON;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
