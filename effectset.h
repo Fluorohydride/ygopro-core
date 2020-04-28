@@ -67,7 +67,7 @@ struct effect_set {
 		return container.begin();
 	}
 	auto end() {
-		return container.end();
+		return container.begin() + count;
 	}
 private:
 	std::array<effect*, 64> container;
@@ -111,7 +111,7 @@ struct effect_set_v {
 		return container.begin();
 	}
 	auto end() {
-		return container.end();
+		return container.begin() + count;
 	}
 private:
 	std::vector<effect*> container;
