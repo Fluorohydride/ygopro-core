@@ -3224,8 +3224,6 @@ int32 field::check_chain_target(uint8 chaincount, card * pcard) {
 	uint8 tp = pchain->triggering_player;
 	if(!peffect->is_flag(EFFECT_FLAG_CARD_TARGET) || !peffect->target)
 		return FALSE;
-	if(!pcard->is_capable_be_effect_target(peffect, tp))
-		return false;
 	pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 	pduel->lua->add_param(tp, PARAM_TYPE_INT);
 	pduel->lua->add_param(pchain->evt.event_cards , PARAM_TYPE_GROUP);
