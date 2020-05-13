@@ -3049,6 +3049,11 @@ int32 scriptlib::duel_get_fusion_material(lua_State *L) {
 	interpreter::group2value(L, pgroup);
 	return 1;
 }
+int32 scriptlib::duel_is_summon_cancelable(lua_State *L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	lua_pushboolean(L, pduel->game_field->core.summon_cancelable);
+	return 1;
+}
 int32 scriptlib::duel_set_must_select_cards(lua_State *L) {
 	check_param_count(L, 1);
 	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
@@ -4525,6 +4530,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetRitualMaterial", scriptlib::duel_get_ritual_material },
 	{ "ReleaseRitualMaterial", scriptlib::duel_release_ritual_material },
 	{ "GetFusionMaterial", scriptlib::duel_get_fusion_material },
+	{ "IsSummonCancelable", scriptlib::duel_is_summon_cancelable },
 	{ "SetSelectedCard", scriptlib::duel_set_must_select_cards },
 	{ "GrabSelectedCard", scriptlib::duel_grab_must_select_cards },
 	{ "SetTargetCard", scriptlib::duel_set_target_card },
