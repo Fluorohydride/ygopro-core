@@ -4413,6 +4413,9 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			core.chain_limit.clear();
 			return FALSE;
 		}
+		if(core.summoning_card)
+			core.subunits.push_back(core.reserved);
+		core.summoning_card = 0;
 		core.units.begin()->step = -1;
 		return FALSE;
 	}
@@ -4435,6 +4438,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		reset_chain();
 		if(core.summoning_card || core.effect_damage_step == 1)
 			core.subunits.push_back(core.reserved);
+		core.summoning_card = 0;
 		return FALSE;
 	}
 	case 13: {
