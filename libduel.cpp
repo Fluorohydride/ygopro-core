@@ -327,7 +327,9 @@ int32 scriptlib::duel_synchro_summon(lua_State *L) {
 	if(lua_gettop(L) >= 4) {
 		if(!lua_isnil(L, 4)) {
 			check_param(L, PARAM_TYPE_GROUP, 4);
-			mg = *(group**) lua_touserdata(L, 4);
+			group* pgroup = *(group**) lua_touserdata(L, 4);
+			mg = pduel->new_group(pgroup->container);
+			mg->is_readonly = TRUE;
 		}
 	}
 	int32 minc = 0;
@@ -361,7 +363,9 @@ int32 scriptlib::duel_xyz_summon(lua_State *L) {
 	group* materials = 0;
 	if(!lua_isnil(L, 3)) {
 		check_param(L, PARAM_TYPE_GROUP, 3);
-		materials = *(group**)lua_touserdata(L, 3);
+		group* pgroup = *(group**)lua_touserdata(L, 3);
+		materials = pduel->new_group(pgroup->container);
+		materials->is_readonly = TRUE;
 	}
 	int32 minc = 0;
 	if(lua_gettop(L) >= 4)
@@ -394,7 +398,9 @@ int32 scriptlib::duel_link_summon(lua_State *L) {
 	card* lcard = 0;
 	if(!lua_isnil(L, 3)) {
 		check_param(L, PARAM_TYPE_GROUP, 3);
-		materials = *(group**)lua_touserdata(L, 3);
+		group* pgroup = *(group**)lua_touserdata(L, 3);
+		materials = pduel->new_group(pgroup->container);
+		materials->is_readonly = TRUE;
 	}
 	if(lua_gettop(L) >= 4) {
 		if(!lua_isnil(L, 4)) {

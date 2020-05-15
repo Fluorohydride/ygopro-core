@@ -2694,7 +2694,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 				pduel->lua->add_param(core.limit_tuner, PARAM_TYPE_CARD);
 				pduel->lua->add_param(core.limit_syn, PARAM_TYPE_GROUP);
 				core.limit_tuner = 0;
-				core.limit_syn = 0;
 				if(core.limit_syn_minc) {
 					pduel->lua->add_param(core.limit_syn_minc, PARAM_TYPE_INT);
 					pduel->lua->add_param(core.limit_syn_maxc, PARAM_TYPE_INT);
@@ -2704,7 +2703,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			}
 			if(core.limit_xyz) {
 				pduel->lua->add_param(core.limit_xyz, PARAM_TYPE_GROUP);
-				core.limit_xyz = 0;
 				if(core.limit_xyz_minc) {
 					pduel->lua->add_param(core.limit_xyz_minc, PARAM_TYPE_INT);
 					pduel->lua->add_param(core.limit_xyz_maxc, PARAM_TYPE_INT);
@@ -2715,7 +2713,6 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			if(core.limit_link || core.limit_link_card) {
 				pduel->lua->add_param(core.limit_link, PARAM_TYPE_GROUP);
 				pduel->lua->add_param(core.limit_link_card, PARAM_TYPE_CARD);
-				core.limit_link = 0;
 				core.limit_link_card = 0;
 				if(core.limit_link_minc) {
 					pduel->lua->add_param(core.limit_link_minc, PARAM_TYPE_INT);
@@ -2731,6 +2728,18 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		return FALSE;
 	}
 	case 4: {
+		if(core.limit_syn) {
+			pduel->delete_group(core.limit_syn);
+			core.limit_syn = 0;
+		}
+		if(core.limit_xyz) {
+			pduel->delete_group(core.limit_xyz);
+			core.limit_xyz = 0;
+		}
+		if(core.limit_link) {
+			pduel->delete_group(core.limit_link);
+			core.limit_link = 0;
+		}
 		effect* peffect = core.units.begin()->peffect;
 		uint8 targetplayer = sumplayer;
 		uint8 positions = POS_FACEUP;
