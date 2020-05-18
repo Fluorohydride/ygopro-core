@@ -4290,9 +4290,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			core.units.begin()->step = 9;
 			return FALSE;
 		}
-		for(auto& oeit : effects.oath)
-			if(oeit.second == peffect)
-				oeit.second = 0;
+		release_oath_relation(peffect);
 		break_effect();
 		core.chain_solving = TRUE;
 		raise_event((card*)0, EVENT_CHAIN_SOLVING, peffect, 0, cait->triggering_player, cait->triggering_player, cait->chain_count);
