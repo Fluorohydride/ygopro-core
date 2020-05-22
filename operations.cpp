@@ -3151,15 +3151,26 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 		}
 		eset.clear();
 		target->filter_effect(EFFECT_SPSUMMON_COST, &eset);
-		for(int32 i = 0; i < eset.size(); ++i) {
-			if(eset[i]->operation) {
-				core.sub_solving_event.push_back(nil_event);
-				add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, target->summon_player, 0);
+		if(eset.size()) {
+			for(int32 i = 0; i < eset.size(); ++i) {
+				if(eset[i]->operation) {
+					core.sub_solving_event.push_back(nil_event);
+					add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, target->summon_player, 0);
+				}
 			}
+			effect_set* peset = new effect_set;
+			*peset = std::move(eset);
+			core.units.begin()->ptr2 = peset;
 		}
 		return FALSE;
 	}
 	case 1: {
+		if(effect_set* peset = (effect_set*)core.units.begin()->ptr2) {
+			for(int32 i = 0; i < peset->size(); ++i)
+				release_oath_relation(peset->at(i));
+			delete peset;
+			core.units.begin()->ptr2 = 0;
+		}
 		if(!targets)
 			core.special_summoning.insert(target);
 		target->enable_field_effect(false);
