@@ -484,6 +484,16 @@ int32 field::select_position(uint16 step, uint8 playerid, uint32 code, uint8 pos
 		return TRUE;
 	}
 }
+static int32 select_sum_check_between(const int32* oparam, int32 size, int32 min, int32 max, int32 index, int32 acc) {
+	if(acc > max || index == size)
+		return FALSE;
+	int32 o1 = oparam[index] & 0xffff;
+	int32 o2 = oparam[index] >> 16;
+	if(index == size - 1)
+		return (acc + o1) >= min && (acc + o1) <= max || (acc + o2) >= min && (acc + o2) <= max;
+	return ((acc + o1) <= max && select_sum_check_between(oparam, size, min, max, index + 1, acc + o1))
+		|| (o2 > 0 && (acc + o2) <= max && select_sum_check_between(oparam, size, min, max, index + 1, acc + o2));
+}
 int32 field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max) {
 	if(step == 0) {
 		returns.bvalue[0] = 0;
@@ -492,8 +502,8 @@ int32 field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8
 		uint8 tm = 0;
 		for(auto& pcard : core.select_cards)
 			tm += pcard->release_param;
-		if(max > 5)
-			max = 5;
+		if(max > 12)
+			max = 12;
 		if(max > tm)
 			max = tm;
 		if(min > max)
@@ -522,7 +532,8 @@ int32 field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8
 			return FALSE;
 		}
 		byte c[64] = {};
-		uint8 m = (uint8)core.select_cards.size(), tt = 0;
+		int32 oparam[12];
+		uint8 m = (uint8)core.select_cards.size();
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 			int8 v = returns.bvalue[i + 1];
 			if(v < 0 || v >= m || c[v]) {
@@ -530,9 +541,9 @@ int32 field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8
 				return FALSE;
 			}
 			c[v] = 1;
-			tt += core.select_cards[v]->release_param;
+			oparam[i] = core.select_cards[v]->release_param << 16 | 1;
 		}
-		if(tt < min) {
+		if(!select_sum_check_between(oparam, returns.bvalue[0], min, max, 0, 0)) {
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
@@ -599,15 +610,15 @@ int32 field::select_counter(uint16 step, uint8 playerid, uint16 countertype, uin
 	}
 	return TRUE;
 }
-static int32 select_sum_check1(const int32* oparam, int32 size, int32 index, int32 acc) {
+static int32 select_sum_check_equal(const int32* oparam, int32 size, int32 index, int32 acc) {
 	if(acc == 0 || index == size)
 		return FALSE;
 	int32 o1 = oparam[index] & 0xffff;
 	int32 o2 = oparam[index] >> 16;
 	if(index == size - 1)
 		return acc == o1 || acc == o2;
-	return (acc > o1 && select_sum_check1(oparam, size, index + 1, acc - o1))
-	       || (o2 > 0 && acc > o2 && select_sum_check1(oparam, size, index + 1, acc - o2));
+	return (acc > o1 && select_sum_check_equal(oparam, size, index + 1, acc - o1))
+	       || (o2 > 0 && acc > o2 && select_sum_check_equal(oparam, size, index + 1, acc - o2));
 }
 int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 min, int32 max) {
 	if(step == 0) {
@@ -664,7 +675,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 				c[v] = 1;
 				oparam[i] = core.select_cards[v]->sum_param;
 			}
-			if(!select_sum_check1(oparam, returns.bvalue[0], 0, acc)) {
+			if(!select_sum_check_equal(oparam, returns.bvalue[0], 0, acc)) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
 			}
