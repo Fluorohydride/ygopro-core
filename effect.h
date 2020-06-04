@@ -275,6 +275,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_DUAL_STATUS				75	//
 #define EFFECT_EQUIP_LIMIT				76	//
 #define EFFECT_DUAL_SUMMONABLE			77	//
+#define EFFECT_UNION_LIMIT				78	//
 #define EFFECT_REVERSE_DAMAGE			80	//
 #define EFFECT_REVERSE_RECOVER			81	//
 #define EFFECT_CHANGE_DAMAGE			82	//
