@@ -328,7 +328,6 @@ public:
 	//Group functions
 	static int32 group_new(lua_State *L);
 	static int32 group_clone(lua_State *L);
-	static int32 group_from_cards(lua_State *L);
 	static int32 group_delete(lua_State *L);
 	static int32 group_keep_alive(lua_State *L);
 	static int32 group_clear(lua_State *L);
@@ -354,8 +353,6 @@ public:
 	static int32 group_get_sum(lua_State *L);
 	static int32 group_get_class_count(lua_State *L);
 	static int32 group_remove(lua_State *L);
-	static int32 group_merge(lua_State *L);
-	static int32 group_sub(lua_State *L);
 	static int32 group_equal(lua_State *L);
 	static int32 group_is_contains(lua_State *L);
 	static int32 group_search_card(lua_State *L);
