@@ -2378,22 +2378,20 @@ void card::filter_immune_effect() {
 	auto rg = single_effect.equal_range(EFFECT_IMMUNE_EFFECT);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
-		if (peffect->is_available())
-			immune_effect.add_item(peffect);
+		immune_effect.add_item(peffect);
 	}
 	for (auto& pcard : equiping_cards) {
 		rg = pcard->equip_effect.equal_range(EFFECT_IMMUNE_EFFECT);
 		for (; rg.first != rg.second; ++rg.first) {
 			peffect = rg.first->second;
-			if (peffect->is_available())
-				immune_effect.add_item(peffect);
+			immune_effect.add_item(peffect);
 		}
 	}
 	for (auto& pcard : effect_target_owner) {
 		rg = pcard->target_effect.equal_range(EFFECT_IMMUNE_EFFECT);
 		for (; rg.first != rg.second; ++rg.first) {
 			peffect = rg.first->second;
-			if(peffect->is_target(this) && peffect->is_available())
+			if(peffect->is_target(this))
 				immune_effect.add_item(peffect);
 		}
 	}
@@ -2403,14 +2401,13 @@ void card::filter_immune_effect() {
 			peffect = rg.first->second;
 			if (peffect->type & EFFECT_TYPE_FIELD)
 				continue;
-			if (peffect->is_available())
-				immune_effect.add_item(peffect);
+			immune_effect.add_item(peffect);
 		}
 	}
 	rg = pduel->game_field->effects.aura_effect.equal_range(EFFECT_IMMUNE_EFFECT);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
-		if (peffect->is_target(this) && peffect->is_available())
+		if (peffect->is_target(this))
 			immune_effect.add_item(peffect);
 	}
 	immune_effect.sort();
