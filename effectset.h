@@ -92,10 +92,19 @@ struct effect_set_v {
 			return;
 		std::sort(container.begin(), container.begin() + count, effect_sort_id);
 	}
+	effect* const& get_last() const {
+		return container[count - 1];
+	}
 	effect*& get_last() {
 		return container[count - 1];
 	}
+	effect* const& operator[] (int index) const {
+		return container[index];
+	}
 	effect*& operator[] (int index) {
+		return container[index];
+	}
+	effect* const& at(int index) const {
 		return container[index];
 	}
 	effect*& at(int index) {
