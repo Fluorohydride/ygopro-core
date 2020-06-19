@@ -1429,7 +1429,7 @@ int32 field::trap_monster_adjust(uint16 step) {
 			}
 			tp = 1 - tp;
 		}
-		if(to_grave_set) {
+		if(card_set* to_grave_set = (card_set*)core.units.begin()->ptr1) {
 			if(to_grave_set->size())
 				send_to(to_grave_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 			delete to_grave_set;
