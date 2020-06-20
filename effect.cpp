@@ -511,10 +511,10 @@ int32 effect::is_player_effect_target(card* pcard) {
 	return TRUE;
 }
 int32 effect::is_immuned(card* pcard) {
-	effect_set_v effects = pcard->immune_effect;
+	const effect_set_v& effects = pcard->immune_effect;
 	for (int32 i = 0; i < effects.size(); ++i) {
-		effect* peffect = effects.at(i);
-		if(peffect->value) {
+		effect* peffect = effects[i];
+		if(peffect->is_available() && peffect->value) {
 			pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 			if(peffect->check_value_condition(2))
