@@ -550,7 +550,8 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	}
 	push_param(rthread, true);
 	current_state = rthread;
-	int32 result = lua_resume(rthread, 0, param_count);
+	int32 res;
+	int32 result = lua_resume(rthread, 0, param_count, &res);
 	if (result == 0) {
 		coroutines.erase(f);
 		if(yield_value)
@@ -621,12 +622,13 @@ int32 interpreter::get_function_handle(lua_State* L, int32 index) {
 	int32 ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	return ref;
 }
+static const char key = 'k';
 void interpreter::set_duel_info(lua_State* L, duel* pduel) {
 	lua_pushlightuserdata(L, pduel);
-	luaL_ref(L, LUA_REGISTRYINDEX);
+	lua_rawsetp(L, LUA_REGISTRYINDEX, &key);
 }
 duel* interpreter::get_duel_info(lua_State * L) {
-	lua_rawgeti(L, LUA_REGISTRYINDEX, 3);
+	lua_rawgetp(L, LUA_REGISTRYINDEX, &key);
 	duel* pduel = (duel*)lua_topointer(L, -1);
 	lua_pop(L, 1);
 	return pduel;
