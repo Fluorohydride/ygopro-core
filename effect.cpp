@@ -352,49 +352,52 @@ int32 effect::is_action_check(uint8 playerid) {
 	return TRUE;
 }
 // check functions: condition, cost(chk=0), target(chk=0)
-int32 effect::is_activate_ready(uint8 playerid, const tevent& e, int32 neglect_cond, int32 neglect_cost, int32 neglect_target) {
-	if (!neglect_cond && condition) {
-		pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
+int32 effect::is_activate_ready(effect* reason_effect, uint8 playerid, const tevent& e, int32 neglect_cond, int32 neglect_cost, int32 neglect_target) {
+	if(!neglect_cond && condition) {
+		pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-		pduel->lua->add_param(e.event_cards , PARAM_TYPE_GROUP);
+		pduel->lua->add_param(e.event_cards, PARAM_TYPE_GROUP);
 		pduel->lua->add_param(e.event_player, PARAM_TYPE_INT);
 		pduel->lua->add_param(e.event_value, PARAM_TYPE_INT);
-		pduel->lua->add_param(e.reason_effect , PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(e.reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
-		if (!pduel->lua->check_condition(condition, 8)) {
+		if(!pduel->lua->check_condition(condition, 8)) {
 			return FALSE;
 		}
 	}
 	if(!neglect_cost && cost && !(type & EFFECT_TYPE_CONTINUOUS)) {
-		pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-		pduel->lua->add_param(e.event_cards , PARAM_TYPE_GROUP);
+		pduel->lua->add_param(e.event_cards, PARAM_TYPE_GROUP);
 		pduel->lua->add_param(e.event_player, PARAM_TYPE_INT);
 		pduel->lua->add_param(e.event_value, PARAM_TYPE_INT);
-		pduel->lua->add_param(e.reason_effect , PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(e.reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
 		pduel->lua->add_param((ptr)0, PARAM_TYPE_INT);
-		if (!pduel->lua->check_condition(cost, 9)) {
+		if(!pduel->lua->check_condition(cost, 9)) {
 			return FALSE;
 		}
 	}
 	if(!neglect_target && target) {
-		pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-		pduel->lua->add_param(e.event_cards , PARAM_TYPE_GROUP);
+		pduel->lua->add_param(e.event_cards, PARAM_TYPE_GROUP);
 		pduel->lua->add_param(e.event_player, PARAM_TYPE_INT);
 		pduel->lua->add_param(e.event_value, PARAM_TYPE_INT);
-		pduel->lua->add_param(e.reason_effect , PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(e.reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
 		pduel->lua->add_param((ptr)0, PARAM_TYPE_INT);
-		if (!pduel->lua->check_condition(target, 9)) {
+		if(!pduel->lua->check_condition(target, 9)) {
 			return FALSE;
 		}
 	}
 	return TRUE;
+}
+int32 effect::is_activate_ready(uint8 playerid, const tevent& e, int32 neglect_cond, int32 neglect_cost, int32 neglect_target) {
+	return is_activate_ready(this, playerid, e, neglect_cond, neglect_cost, neglect_target);
 }
 // check functions: condition
 int32 effect::is_condition_check(uint8 playerid, const tevent& e) {
