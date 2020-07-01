@@ -1863,7 +1863,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		if(is_player_affected_by_effect(sumplayer, EFFECT_DEVINE_LIGHT))
 			positions = POS_FACEUP;
 		if(proc && proc->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
-			positions = (uint8)proc->s_range;
+			positions = (uint8)proc->s_range & POS_FACEUP;
 			if(proc->o_range)
 				targetplayer = 1 - sumplayer;
 		}
@@ -2342,7 +2342,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 		uint8 targetplayer = setplayer;
 		uint8 positions = POS_FACEDOWN_DEFENSE;
 		if(proc && proc->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
-			positions = (uint8)proc->s_range;
+			positions = (uint8)proc->s_range & POS_FACEDOWN;
 			if(proc->o_range)
 				targetplayer = 1 - setplayer;
 		}
