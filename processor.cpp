@@ -3433,10 +3433,10 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 							int32 val = -1;
 							if(!eset[i]->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
 								pduel->lua->add_param(p, PARAM_TYPE_INT);
-								pduel->lua->add_param(eset[i]->get_handler() == core.attacker, PARAM_TYPE_BOOLEAN);
+								pduel->lua->add_param(core.attacker, PARAM_TYPE_CARD);
 								val = eset[i]->get_value(2);
 							} else if(eset[i]->is_target_player(p)) {
-								pduel->lua->add_param(eset[i]->get_handler() == core.attacker, PARAM_TYPE_BOOLEAN);
+								pduel->lua->add_param(core.attacker, PARAM_TYPE_CARD);
 								val = eset[i]->get_value(1);
 							}
 							if(val == 0) {
@@ -3556,10 +3556,10 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 				int32 val = -1;
 				if(!eset[i]->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
 					pduel->lua->add_param(p, PARAM_TYPE_INT);
-					pduel->lua->add_param(eset[i]->get_handler() == reason_card, PARAM_TYPE_BOOLEAN);
+					pduel->lua->add_param(reason_card, PARAM_TYPE_CARD);
 					val = eset[i]->get_value(2);
 				} else if(eset[i]->is_target_player(p)) {
-					pduel->lua->add_param(eset[i]->get_handler() == reason_card, PARAM_TYPE_BOOLEAN);
+					pduel->lua->add_param(reason_card, PARAM_TYPE_CARD);
 					val = eset[i]->get_value(1);
 				}
 				if(val == 0) {
