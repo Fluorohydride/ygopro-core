@@ -1802,6 +1802,8 @@ int32 field::get_draw_count(uint8 playerid) {
 	int32 count = player[playerid].draw_count;
 	for(int32 i = 0; i < eset.size(); ++i) {
 		int32 c = eset[i]->get_value();
+		if(c == 0)
+			return 0;
 		if(c > count)
 			count = c;
 	}
