@@ -2754,6 +2754,14 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 		if(ft <= 0)
 			return FALSE;
 	}
+	int32 mzone_limit = get_mzone_limit(playerid, playerid, LOCATION_REASON_TOFIELD);
+	if(mzone_limit <= 0) {
+		int32 ft = -mzone_limit + 1;
+		if(ft > min)
+			min = ft;
+		if(min > max)
+			return FALSE;
+	}
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_MUST_BE_XMATERIAL, &eset);
 	card_set mcset;
