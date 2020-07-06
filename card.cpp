@@ -3106,30 +3106,34 @@ int32 card::is_can_be_flip_summoned(uint8 playerid) {
 // check if this can be sp_summoned by EFFECT_SPSUMMON_PROC
 // call filter_spsummon_procedure()
 int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
+	auto reset = [&core=pduel->game_field->core]()->int {
+		core.limit_tuner = 0;
+		core.limit_syn = 0;
+		core.limit_syn_minc = 0;
+		core.limit_syn_maxc = 0;
+		core.limit_xyz = 0;
+		core.limit_xyz_minc = 0;
+		core.limit_xyz_maxc = 0;
+		core.limit_link = 0;
+		core.limit_link_card = 0;
+		core.limit_link_minc = 0;
+		core.limit_link_maxc = 0;
+		return FALSE;
+	};
 	if(!(data.type & TYPE_MONSTER))
-		return FALSE;
+		return reset();
 	if(is_affected_by_effect(EFFECT_CANNOT_SPECIAL_SUMMON))
-		return FALSE;
+		return reset();
 	if(is_status(STATUS_FORBIDDEN))
-		return FALSE;
+		return reset();
 	pduel->game_field->save_lp_cost();
 	if(!check_cost_condition(EFFECT_SPSUMMON_COST, playerid, summon_type)) {
 		pduel->game_field->restore_lp_cost();
-		return FALSE;
+		return reset();
 	}
 	effect_set eset;
 	filter_spsummon_procedure(playerid, &eset, summon_type);
-	pduel->game_field->core.limit_tuner = 0;
-	pduel->game_field->core.limit_syn = 0;
-	pduel->game_field->core.limit_syn_minc = 0;
-	pduel->game_field->core.limit_syn_maxc = 0;
-	pduel->game_field->core.limit_xyz = 0;
-	pduel->game_field->core.limit_xyz_minc = 0;
-	pduel->game_field->core.limit_xyz_maxc = 0;
-	pduel->game_field->core.limit_link = 0;
-	pduel->game_field->core.limit_link_card = 0;
-	pduel->game_field->core.limit_link_minc = 0;
-	pduel->game_field->core.limit_link_maxc = 0;
+	reset();
 	pduel->game_field->restore_lp_cost();
 	return eset.size();
 }
