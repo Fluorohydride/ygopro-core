@@ -2899,8 +2899,8 @@ int32 card::is_fusion_summonable_card(uint32 summon_type) {
 	effect_set eset;
 	filter_effect(EFFECT_SPSUMMON_CONDITION, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
-		pduel->lua->add_param((void*)0, PARAM_TYPE_EFFECT);
-		pduel->lua->add_param((void*)0, PARAM_TYPE_INT);
+		pduel->lua->add_param(pduel->game_field->core.reason_effect, PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(pduel->game_field->core.reason_player, PARAM_TYPE_INT);
 		pduel->lua->add_param(summon_type, PARAM_TYPE_INT);
 		pduel->lua->add_param((void*)0, PARAM_TYPE_INT);
 		pduel->lua->add_param((void*)0, PARAM_TYPE_INT);
