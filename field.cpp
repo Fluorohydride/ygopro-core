@@ -2457,10 +2457,12 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	if(ptuner) {
 		if(ptuner->value)
 			location = ptuner->value;
-		if(ptuner->s_range && ptuner->s_range > min)
-			min = ptuner->s_range;
-		if(ptuner->o_range && ptuner->o_range < max)
-			max = ptuner->o_range;
+		if(ptuner->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
+			if(ptuner->s_range && ptuner->s_range > min)
+				min = ptuner->s_range;
+			if(ptuner->o_range && ptuner->o_range < max)
+				max = ptuner->o_range;
+		}
 		if(min > max) {
 			pduel->restore_assumes();
 			return FALSE;

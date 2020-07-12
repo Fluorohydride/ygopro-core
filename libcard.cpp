@@ -1569,10 +1569,12 @@ int32 scriptlib::card_get_tuner_limit(lua_State *L) {
 			lua_pushnil(L);
 		uint16 min = 0;
 		uint16 max = 99;
-		if(peffect->s_range && peffect->s_range > min)
-			min = peffect->s_range;
-		if(peffect->o_range && peffect->o_range < max)
-			max = peffect->o_range;
+		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
+			if(peffect->s_range && peffect->s_range > min)
+				min = peffect->s_range;
+			if(peffect->o_range && peffect->o_range < max)
+				max = peffect->o_range;
+		}
 		lua_pushinteger(L, min);
 		lua_pushinteger(L, max);
 		return 5;
@@ -1594,10 +1596,12 @@ int32 scriptlib::card_get_hand_synchro(lua_State *L) {
 			lua_pushnil(L);
 		uint16 min = 0;
 		uint16 max = 99;
-		if(peffect->s_range && peffect->s_range > min)
-			min = peffect->s_range;
-		if(peffect->o_range && peffect->o_range < max)
-			max = peffect->o_range;
+		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
+			if(peffect->s_range && peffect->s_range > min)
+				min = peffect->s_range;
+			if(peffect->o_range && peffect->o_range < max)
+				max = peffect->o_range;
+		}
 		lua_pushinteger(L, min);
 		lua_pushinteger(L, max);
 		return 4;
@@ -1611,10 +1615,12 @@ int32 scriptlib::card_get_hand_synchro(lua_State *L) {
 			lua_pushnil(L);
 		uint16 min = 0;
 		uint16 max = 99;
-		if(peffect->s_range && peffect->s_range > min)
-			min = peffect->s_range;
-		if(peffect->o_range && peffect->o_range < max)
-			max = peffect->o_range;
+		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
+			if(peffect->s_range && peffect->s_range > min)
+				min = peffect->s_range;
+			if(peffect->o_range && peffect->o_range < max)
+				max = peffect->o_range;
+		}
 		lua_pushinteger(L, min);
 		lua_pushinteger(L, max);
 		return 4;

@@ -5213,7 +5213,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 	case 3: {
 		card* tuner = core.limit_tuner;
 		effect* ptuner = tuner->is_affected_by_effect(EFFECT_TUNER_MATERIAL_LIMIT);
-		if(ptuner) {
+		if(ptuner && ptuner->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
 			if(ptuner->s_range && ptuner->s_range > min)
 				min = ptuner->s_range;
 			if(ptuner->o_range && ptuner->o_range < max)
