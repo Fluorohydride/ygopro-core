@@ -1722,7 +1722,7 @@ int32 field::check_release_list(uint8 playerid, int32 count, int32 use_con, int3
 	return (rcount >= count) ? TRUE : FALSE;
 }
 // return: the max release count of mg or all monsters on field
-int32 field::get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, group* mg, uint32 ex, uint32 releasable, uint32 pos) {
+int32 field::get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, group* mg, uint32 ex, uint32 releasable, int32 min, int32 max, uint32 pos) {
 	uint8 p = target->current.controler;
 	card_set ex_tribute;
 	effect_set eset;
@@ -1738,7 +1738,9 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 				continue;
 			if(release_list)
 				release_list->insert(pcard);
-			if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
+			if(max >= 3 && pcard->is_affected_by_effect(EFFECT_TRIPLE_TRIBUTE, target))
+				pcard->release_param = 3;
+			else if(max >= 2 && pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
 				pcard->release_param = 2;
 			else
 				pcard->release_param = 1;
@@ -1751,7 +1753,9 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 			continue;
 		if(mg && !mg->has_card(pcard))
 			continue;
-		if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
+		if(max >= 3 && pcard->is_affected_by_effect(EFFECT_TRIPLE_TRIBUTE, target))
+			pcard->release_param = 3;
+		else if(max >= 2 && pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
 			pcard->release_param = 2;
 		else
 			pcard->release_param = 1;
@@ -1778,7 +1782,9 @@ int32 field::get_summon_release_list(card* target, card_set* release_list, card_
 			continue;
 		if(release_list)
 			release_list->insert(pcard);
-		if(pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
+		if(max >= 3 && pcard->is_affected_by_effect(EFFECT_TRIPLE_TRIBUTE, target))
+			pcard->release_param = 3;
+		else if(max >= 2 && pcard->is_affected_by_effect(EFFECT_DOUBLE_TRIBUTE, target))
 			pcard->release_param = 2;
 		else
 			pcard->release_param = 1;
@@ -2647,7 +2653,7 @@ int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 t
 	if(toplayer == 1 - sumplayer)
 		ex = TRUE;
 	card_set release_list, ex_list;
-	int32 m = get_summon_release_list(pcard, &release_list, &ex_list, 0, mg, ex, releasable, pos);
+	int32 m = get_summon_release_list(pcard, &release_list, &ex_list, 0, mg, ex, releasable, min, max, pos);
 	if(max > m)
 		max = m;
 	if(min > max)
