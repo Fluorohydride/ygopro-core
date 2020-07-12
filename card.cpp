@@ -3118,17 +3118,6 @@ int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 	}
 	effect_set eset;
 	filter_spsummon_procedure(playerid, &eset, summon_type);
-	pduel->game_field->core.limit_tuner = 0;
-	pduel->game_field->core.limit_syn = 0;
-	pduel->game_field->core.limit_syn_minc = 0;
-	pduel->game_field->core.limit_syn_maxc = 0;
-	pduel->game_field->core.limit_xyz = 0;
-	pduel->game_field->core.limit_xyz_minc = 0;
-	pduel->game_field->core.limit_xyz_maxc = 0;
-	pduel->game_field->core.limit_link = 0;
-	pduel->game_field->core.limit_link_card = 0;
-	pduel->game_field->core.limit_link_minc = 0;
-	pduel->game_field->core.limit_link_maxc = 0;
 	pduel->game_field->restore_lp_cost();
 	return eset.size();
 }
