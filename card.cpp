@@ -2217,9 +2217,8 @@ int32 card::get_counter(uint16 countertype) {
 void card::set_material(card_set* materials) {
 	if(!materials) {
 		material_cards.clear();
-		return;
-	}
-	material_cards = *materials;
+	} else
+		material_cards = *materials;
 	for(auto& pcard : material_cards)
 		pcard->current.reason_card = this;
 	effect_set eset;
