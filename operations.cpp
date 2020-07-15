@@ -5242,7 +5242,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 			nsyn.push_back(smat);
 			tuner->sum_param = tuner->get_synchro_level(pcard);
 			smat->sum_param = smat->get_synchro_level(pcard);
-			if(check_with_sum_limit_m(nsyn, lv, 0, 0, 0, 2))
+			if(check_with_sum_limit_m(nsyn, lv, 0, 0, 0, 0xffff, 2))
 				core.units.begin()->step = 8;
 		}
 		return FALSE;
@@ -5416,8 +5416,8 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 						if(nsyn[i]->is_affected_by_effect(EFFECT_SCRAP_CHIMERA))
 							mremoved = false;
 					}
-					if(mfiltered && check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, mcount)) {
-						if(mremoved && check_with_sum_limit_m(nsyn_removed, lv, 0, min, max, mcount)) {
+					if(mfiltered && check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, 0xffff, mcount)) {
+						if(mremoved && check_with_sum_limit_m(nsyn_removed, lv, 0, min, max, 0xffff, mcount)) {
 							add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, playerid, peffect->description);
 							core.units.begin()->step = 9;
 							return FALSE;

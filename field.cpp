@@ -2512,7 +2512,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 				ct++;
 		}
 		if(min == 0) {
-			if(ct > 0 && check_with_sum_limit_m(nsyn, lv, 0, 0, 0, 2)) {
+			if(ct > 0 && check_with_sum_limit_m(nsyn, lv, 0, 0, 0, 0xffff, 2)) {
 				pduel->restore_assumes();
 				return TRUE;
 			}
@@ -2592,7 +2592,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 }
 int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int32 min, int32 max, int32 mcount) {
 	if(!(core.global_flag & GLOBALFLAG_SCRAP_CHIMERA)) {
-		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
+		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, 0xffff, mcount)) {
 			return TRUE;
 		}
 		return FALSE;
@@ -2604,7 +2604,7 @@ int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int
 			break;
 	}
 	if(!pscrap) {
-		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
+		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, 0xffff, mcount)) {
 			return TRUE;
 		}
 		return FALSE;
@@ -2615,7 +2615,7 @@ int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int
 			nsyn_filtered.push_back(pm);
 	}
 	if(nsyn_filtered.size() == nsyn.size()) {
-		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, mcount)) {
+		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, 0xffff, mcount)) {
 			return TRUE;
 		}
 	} else {
@@ -2624,7 +2624,7 @@ int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int
 			if(pscrap->get_value(nsyn[i]))
 				mfiltered = false;
 		}
-		if(mfiltered && check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, mcount)) {
+		if(mfiltered && check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, 0xffff, mcount)) {
 			return TRUE;
 		}
 		for(int32 i = 0; i < mcount; ++i) {
@@ -2637,7 +2637,7 @@ int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int
 			if(!pm->is_affected_by_effect(EFFECT_SCRAP_CHIMERA))
 				nsyn_removed.push_back(pm);
 		}
-		if(check_with_sum_limit_m(nsyn_removed, lv, 0, min, max, mcount)) {
+		if(check_with_sum_limit_m(nsyn_removed, lv, 0, min, max, 0xffff, mcount)) {
 			return TRUE;
 		}
 	}
@@ -2678,34 +2678,34 @@ int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 t
 		return FALSE;
 	return TRUE;
 }
-int32 field::check_with_sum_limit(const card_vector& mats, int32 acc, int32 index, int32 count, int32 min, int32 max) {
+int32 field::check_with_sum_limit(const card_vector& mats, int32 acc, int32 index, int32 count, int32 min, int32 max, int32 opmin) {
 	if(count > max)
 		return FALSE;
 	while(index < (int32)mats.size()) {
 		int32 op1 = mats[index]->sum_param & 0xffff;
 		int32 op2 = (mats[index]->sum_param >> 16) & 0xffff;
-		if((op1 == acc || op2 == acc) && count >= min)
+		if(((op1 == acc && acc + opmin > op1) || (op2 && op2 == acc && acc + opmin > op2)) && count >= min)
 			return TRUE;
 		index++;
-		if(acc > op1 && check_with_sum_limit(mats, acc - op1, index, count + 1, min, max))
+		if(acc > op1 && check_with_sum_limit(mats, acc - op1, index, count + 1, min, max, std::min(opmin, op1)))
 			return TRUE;
-		if(op2 && acc > op2 && check_with_sum_limit(mats, acc - op2, index, count + 1, min, max))
+		if(op2 && acc > op2 && check_with_sum_limit(mats, acc - op2, index, count + 1, min, max, std::min(opmin, op2)))
 			return TRUE;
 	}
 	return FALSE;
 }
-int32 field::check_with_sum_limit_m(const card_vector& mats, int32 acc, int32 index, int32 min, int32 max, int32 must_count) {
+int32 field::check_with_sum_limit_m(const card_vector& mats, int32 acc, int32 index, int32 min, int32 max, int32 opmin, int32 must_count) {
 	if(acc == 0)
 		return index == must_count && 0 >= min && 0 <= max;
 	if(index == must_count)
-		return check_with_sum_limit(mats, acc, index, 1, min, max);
+		return check_with_sum_limit(mats, acc, index, 1, min, max, opmin);
 	if(index >= (int32)mats.size())
 		return FALSE;
 	int32 op1 = mats[index]->sum_param & 0xffff;
 	int32 op2 = (mats[index]->sum_param >> 16) & 0xffff;
-	if(acc >= op1 && check_with_sum_limit_m(mats, acc - op1, index + 1, min, max, must_count))
+	if(acc >= op1 && check_with_sum_limit_m(mats, acc - op1, index + 1, min, max, std::min(opmin, op1), must_count))
 		return TRUE;
-	if(op2 && acc >= op2 && check_with_sum_limit_m(mats, acc - op2, index + 1, min, max, must_count))
+	if(op2 && acc >= op2 && check_with_sum_limit_m(mats, acc - op2, index + 1, min, max, std::min(opmin, op2), must_count))
 		return TRUE;
 	return FALSE;
 }

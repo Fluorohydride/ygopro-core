@@ -599,15 +599,15 @@ int32 field::select_counter(uint16 step, uint8 playerid, uint16 countertype, uin
 	}
 	return TRUE;
 }
-static int32 select_sum_check1(const int32* oparam, int32 size, int32 index, int32 acc) {
+static int32 select_sum_check1(const int32* oparam, int32 size, int32 index, int32 acc, int32 opmin) {
 	if(acc == 0 || index == size)
 		return FALSE;
 	int32 o1 = oparam[index] & 0xffff;
 	int32 o2 = oparam[index] >> 16;
 	if(index == size - 1)
-		return acc == o1 || acc == o2;
-	return (acc > o1 && select_sum_check1(oparam, size, index + 1, acc - o1))
-	       || (o2 > 0 && acc > o2 && select_sum_check1(oparam, size, index + 1, acc - o2));
+		return (acc == o1 && acc + opmin > o1) || (o2 && acc == o2 && acc + opmin > o2);
+	return (acc > o1 && select_sum_check1(oparam, size, index + 1, acc - o1, std::min(o1, opmin)))
+	       || (o2 > 0 && acc > o2 && select_sum_check1(oparam, size, index + 1, acc - o2, std::min(o2, opmin)));
 }
 int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 min, int32 max) {
 	if(step == 0) {
@@ -664,7 +664,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 				c[v] = 1;
 				oparam[i] = core.select_cards[v]->sum_param;
 			}
-			if(!select_sum_check1(oparam, returns.bvalue[0], 0, acc)) {
+			if(!select_sum_check1(oparam, returns.bvalue[0], 0, acc, 0xffff)) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
 			}

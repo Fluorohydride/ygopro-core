@@ -416,7 +416,7 @@ int32 scriptlib::group_check_with_sum_equal(lua_State *L) {
 	pduel->game_field->core.must_select_cards.clear();
 	for(auto& pcard : cv)
 		pcard->sum_param = pduel->lua->get_operation_value(pcard, 2, extraargs);
-	lua_pushboolean(L, field::check_with_sum_limit_m(cv, acc, 0, min, max, mcount));
+	lua_pushboolean(L, field::check_with_sum_limit_m(cv, acc, 0, min, max, 0xffff, mcount));
 	return 1;
 }
 int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
@@ -447,7 +447,7 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 	cv.insert(cv.end(), pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end());
 	for(auto& pcard : cv)
 		pcard->sum_param = pduel->lua->get_operation_value(pcard, 3, extraargs);
-	if(!field::check_with_sum_limit_m(cv, acc, 0, min, max, mcount)) {
+	if(!field::check_with_sum_limit_m(cv, acc, 0, min, max, 0xffff, mcount)) {
 		pduel->game_field->core.must_select_cards.clear();
 		group* empty_group = pduel->new_group();
 		interpreter::group2value(L, empty_group);
