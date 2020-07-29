@@ -633,9 +633,6 @@ int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequen
 	}
 	return TRUE;
 }
-// uplayer: request player, PLAYER_NONE means ignoring EFFECT_MAX_MZONE, EFFECT_MAX_SZONE
-// list: store local flag in list
-// return: usable count of LOCATION_MZONE or real LOCATION_SZONE of playerid requested by uplayer (may be negative)
 int32 field::get_useable_count(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone, uint32* list) {
 	if(location == LOCATION_MZONE && pcard && pcard->current.location == LOCATION_EXTRA)
 		return get_useable_count_fromex(pcard, playerid, uplayer, zone, list);
@@ -680,6 +677,7 @@ int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 up
 		pcard->current.location = 0;
 	return spsummonable_count;
 }
+// return: usable count of main mzone or szone(0~4) of playerid requested by uplayer (may be negative)
 int32 field::get_useable_count_other(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone, uint32* list) {
 	int32 count = get_tofield_count(pcard, playerid, location, uplayer, reason, zone, list);
 	int32 limit;
@@ -691,6 +689,10 @@ int32 field::get_useable_count_other(card* pcard, uint8 playerid, uint8 location
 		count = limit;
 	return count;
 }
+// uplayer: request player, PLAYER_NONE means ignoring EFFECT_MUST_USE_MZONE, EFFECT_MAX_MZONE, EFFECT_MAX_SZONE
+// list: store unavailable flag in list
+// for LOCATION_MZONE, return the available count of zone in main mzone (not used, not disabled, satisfying EFFECT_MUST_USE_MZONE)
+// for LOCATION_SZONE, return the available count of zone in szone(0~4) (not used, not disabled)
 int32 field::get_tofield_count(card* pcard, uint8 playerid, uint8 location, uint32 uplayer, uint32 reason, uint32 zone, uint32* list) {
 	if (location != LOCATION_MZONE && location != LOCATION_SZONE)
 		return 0;
