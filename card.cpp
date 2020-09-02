@@ -3611,7 +3611,7 @@ int32 card::is_capable_be_battle_target(card* pcard) {
 		return FALSE;
 	if(pcard->is_affected_by_effect(EFFECT_CANNOT_SELECT_BATTLE_TARGET, this))
 		return FALSE;
-	if(is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET))
+	if(is_affected_by_effect(EFFECT_IGNORE_BATTLE_TARGET, pcard))
 		return FALSE;
 	return TRUE;
 }
