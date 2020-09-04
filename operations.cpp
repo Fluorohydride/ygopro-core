@@ -356,6 +356,8 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			pcard->enable_field_effect(false);
 			pcard->cancel_field_effect();
 			player[playerid].list_main.pop_back();
+			if(core.current_chain.size() > 0)
+				core.just_sent_cards.insert(pcard);
 			pcard->previous.controler = pcard->current.controler;
 			pcard->previous.location = pcard->current.location;
 			pcard->previous.sequence = pcard->current.sequence;
@@ -3994,6 +3996,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			pduel->write_buffer8(0);
 			pduel->write_buffer8(0);
 			pduel->write_buffer32(pcard->current.reason);
+			if(core.current_chain.size() > 0)
+				core.just_sent_cards.insert(pcard);
 			pcard->previous.controler = pcard->current.controler;
 			pcard->previous.location = pcard->current.location;
 			pcard->previous.sequence = pcard->current.sequence;
@@ -4344,6 +4348,8 @@ int32 field::discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reaso
 			pcard->enable_field_effect(false);
 			pcard->cancel_field_effect();
 			player[playerid].list_main.pop_back();
+			if(core.current_chain.size() > 0)
+				core.just_sent_cards.insert(pcard);
 			pcard->previous.controler = pcard->current.controler;
 			pcard->previous.location = pcard->current.location;
 			pcard->previous.sequence = pcard->current.sequence;

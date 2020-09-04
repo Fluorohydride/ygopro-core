@@ -1508,6 +1508,8 @@ void card::xyz_remove(card* mat) {
 	if(mat->overlay_target != this)
 		return;
 	xyz_materials.erase(xyz_materials.begin() + mat->current.sequence);
+	if(pduel->game_field->core.current_chain.size() > 0)
+		pduel->game_field->core.just_sent_cards.insert(mat);
 	mat->previous.controler = mat->current.controler;
 	mat->previous.location = mat->current.location;
 	mat->previous.sequence = mat->current.sequence;

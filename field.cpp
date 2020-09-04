@@ -283,6 +283,8 @@ void field::remove_card(card* pcard) {
 		player[playerid].used_location &= ~(1 << pcard->current.sequence);
 	if (pcard->current.location == LOCATION_SZONE)
 		player[playerid].used_location &= ~(256 << pcard->current.sequence);
+	if(core.current_chain.size() > 0)
+		core.just_sent_cards.insert(pcard);
 	pcard->previous.controler = pcard->current.controler;
 	pcard->previous.location = pcard->current.location;
 	pcard->previous.sequence = pcard->current.sequence;
@@ -341,6 +343,8 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 					pduel->write_buffer32(pcard->data.code);
 					pduel->write_buffer32(pcard->get_info_location());
 				}
+				if(core.current_chain.size() > 0)
+					core.just_sent_cards.insert(pcard);
 				pcard->previous.controler = pcard->current.controler;
 				pcard->previous.location = pcard->current.location;
 				pcard->previous.sequence = pcard->current.sequence;
@@ -1014,12 +1018,16 @@ void field::reset_sequence(uint8 playerid, uint8 location) {
 }
 void field::swap_deck_and_grave(uint8 playerid) {
 	for(auto& pcard : player[playerid].list_grave) {
+		if(core.current_chain.size() > 0)
+			core.just_sent_cards.insert(pcard);
 		pcard->previous.location = LOCATION_GRAVE;
 		pcard->previous.sequence = pcard->current.sequence;
 		pcard->enable_field_effect(false);
 		pcard->cancel_field_effect();
 	}
 	for(auto& pcard : player[playerid].list_main) {
+		if(core.current_chain.size() > 0)
+			core.just_sent_cards.insert(pcard);
 		pcard->previous.location = LOCATION_DECK;
 		pcard->previous.sequence = pcard->current.sequence;
 		pcard->enable_field_effect(false);
