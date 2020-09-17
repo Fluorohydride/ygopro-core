@@ -2549,7 +2549,12 @@ int32 field::process_battle_command(uint16 step) {
 				core.units.begin()->step = 5;
 				return FALSE;
 			}
-			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, infos.turn_player, 31);
+			if(is_player_affected_by_effect(infos.turn_player, EFFECT_PATRICIAN_OF_DARKNESS)) {
+				add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.attacker, 1 - infos.turn_player, 31);
+			}
+			else {
+				add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, infos.turn_player, 31);
+			}
 			return FALSE;
 		}
 		// no target and not direct attackable
@@ -2588,11 +2593,12 @@ int32 field::process_battle_command(uint16 step) {
 			returns.ivalue[0] = -2;
 		} else {
 			if(core.select_cards.size()) {
+				auto opposel = is_player_affected_by_effect(infos.turn_player, EFFECT_PATRICIAN_OF_DARKNESS);
 				pduel->write_buffer8(MSG_HINT);
 				pduel->write_buffer8(HINT_SELECTMSG);
-				pduel->write_buffer8(infos.turn_player);
+				pduel->write_buffer8(opposel ? 1 - infos.turn_player : infos.turn_player);
 				pduel->write_buffer32(549);
-				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + (core.attack_cancelable ? 0x20000 : 0), 0x10001);
+				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, opposel ? 1 - infos.turn_player : infos.turn_player + (core.attack_cancelable ? 0x20000 : 0), 0x10001);
 			} else {
 				core.units.begin()->arg3 = TRUE;
 				core.units.begin()->step = 6;
