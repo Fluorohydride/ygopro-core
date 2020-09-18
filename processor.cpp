@@ -3927,6 +3927,58 @@ int32 field::add_chain(uint16 step) {
 		auto& clit = core.new_chains.front();
 		effect* peffect = clit.triggering_effect;
 		card* phandler = peffect->get_handler();
+		if((peffect->type & EFFECT_TYPE_ACTIVATE) && phandler->current.location == LOCATION_HAND) {
+			uint32 flag = 0;
+			if(phandler->data.type & TYPE_PENDULUM) {
+				if(is_location_useable(clit.triggering_player, LOCATION_PZONE, 0))
+					flag |= 0x1u << (core.duel_rule >= 4 ? 8 : 14);
+				if(is_location_useable(clit.triggering_player, LOCATION_PZONE, 1))
+					flag |= 0x1u << (core.duel_rule >= 4 ? 12 : 15);
+				flag = ~flag;
+			} else {
+				uint32 zone = 0xff;
+				if(!(phandler->data.type & TYPE_FIELD) && peffect->is_flag(EFFECT_FLAG_LIMIT_ZONE)) {
+					pduel->lua->add_param(clit.triggering_player, PARAM_TYPE_INT);
+					pduel->lua->add_param(clit.evt.event_cards, PARAM_TYPE_GROUP);
+					pduel->lua->add_param(clit.evt.event_player, PARAM_TYPE_INT);
+					pduel->lua->add_param(clit.evt.event_value, PARAM_TYPE_INT);
+					pduel->lua->add_param(clit.evt.reason_effect, PARAM_TYPE_EFFECT);
+					pduel->lua->add_param(clit.evt.reason, PARAM_TYPE_INT);
+					pduel->lua->add_param(clit.evt.reason_player, PARAM_TYPE_INT);
+					zone = peffect->get_value(7);
+					if(!zone)
+						zone = 0xff;
+				}
+				if(phandler->data.type & TYPE_FIELD) {
+					flag = ~(0x1 << 13);
+				}
+				else {
+					get_useable_count(phandler, clit.triggering_player, LOCATION_SZONE, clit.triggering_player, LOCATION_REASON_TOFIELD, zone, &flag);
+					flag = ((flag & 0xff) << 8) | 0xffff00ff;
+					flag |= 0xe080e080;
+				}
+			}
+			pduel->write_buffer8(MSG_HINT);
+			pduel->write_buffer8(HINT_SELECTMSG);
+			pduel->write_buffer8(clit.triggering_player);
+			pduel->write_buffer32(phandler->data.code);
+			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, clit.triggering_player, flag, 0);
+			return FALSE;
+		}
+		return FALSE;
+	}
+	case 1: {
+		auto& clit = core.new_chains.front();
+		effect* peffect = clit.triggering_effect;
+		card* phandler = peffect->get_handler();
+		if((peffect->type & EFFECT_TYPE_ACTIVATE) && phandler->current.location == LOCATION_HAND) {
+			if(returns.bvalue[1] == 0) {
+				core.new_chains.pop_front();
+				if(core.new_chains.size())
+					add_process(PROCESSOR_ADD_CHAIN, 0, 0, 0, 0, 0);
+				return TRUE;
+			}
+		}
 		effect_set eset;
 		filter_player_effect(clit.triggering_player, EFFECT_ACTIVATE_COST, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
@@ -3974,23 +4026,9 @@ int32 field::add_chain(uint16 step) {
 				}
 			}
 			if(phandler->current.location == LOCATION_HAND) {
-				uint32 zone = 0xff;
-				if(!(phandler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && peffect->is_flag(EFFECT_FLAG_LIMIT_ZONE)) {
-					pduel->lua->add_param(clit.triggering_player, PARAM_TYPE_INT);
-					pduel->lua->add_param(clit.evt.event_cards , PARAM_TYPE_GROUP);
-					pduel->lua->add_param(clit.evt.event_player, PARAM_TYPE_INT);
-					pduel->lua->add_param(clit.evt.event_value, PARAM_TYPE_INT);
-					pduel->lua->add_param(clit.evt.reason_effect , PARAM_TYPE_EFFECT);
-					pduel->lua->add_param(clit.evt.reason, PARAM_TYPE_INT);
-					pduel->lua->add_param(clit.evt.reason_player, PARAM_TYPE_INT);
-					zone = peffect->get_value(7);
-					if(!zone)
-						zone = 0xff;
-				}
+				uint32 zone = 1 << returns.bvalue[2];
 				phandler->enable_field_effect(false);
 				phandler->set_status(STATUS_ACT_FROM_HAND, TRUE);
-				if(phandler->data.type & TYPE_FIELD)
-					zone = 0x1 << 5;
 				move_to_field(phandler, phandler->current.controler, phandler->current.controler, LOCATION_SZONE, POS_FACEUP, FALSE, 0, (phandler->data.type & TYPE_PENDULUM) ? TRUE : FALSE, zone);
 			} else {
 				phandler->set_status(STATUS_ACT_FROM_HAND, FALSE);
@@ -3999,7 +4037,7 @@ int32 field::add_chain(uint16 step) {
 		}
 		return FALSE;
 	}
-	case 1: {
+	case 2: {
 		auto& clit = core.new_chains.front();
 		effect* peffect = clit.triggering_effect;
 		card* phandler = peffect->get_handler();
@@ -4052,7 +4090,7 @@ int32 field::add_chain(uint16 step) {
 		core.new_chains.pop_front();
 		return FALSE;
 	}
-	case 2: {
+	case 3: {
 		auto& clit = core.current_chain.back();
 		int32 playerid = clit.triggering_player;
 		effect* peffect = clit.triggering_effect;
@@ -4068,11 +4106,11 @@ int32 field::add_chain(uint16 step) {
 			returns.ivalue[0] = FALSE;
 		return FALSE;
 	}
-	case 3: {
+	case 4: {
 		if(!returns.ivalue[0]) {
 			core.select_chains.clear();
 			core.select_options.clear();
-			core.units.begin()->step = 4;
+			core.units.begin()->step = 5;
 			return FALSE;
 		}
 		if(core.select_chains.size() > 1) {
@@ -4082,7 +4120,7 @@ int32 field::add_chain(uint16 step) {
 			returns.ivalue[0] = 0;
 		return FALSE;
 	}
-	case 4: {
+	case 5: {
 		auto& clit = core.current_chain.back();
 		chain& ch = core.select_chains[returns.ivalue[0]];
 		int32 playerid = clit.triggering_player;
@@ -4112,7 +4150,7 @@ int32 field::add_chain(uint16 step) {
 		phandler->add_effect(deffect);
 		return FALSE;
 	}
-	case 5: {
+	case 6: {
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
 		if(peffect->cost) {
@@ -4121,7 +4159,7 @@ int32 field::add_chain(uint16 step) {
 		}
 		return FALSE;
 	}
-	case 6: {
+	case 7: {
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
 		if(peffect->target) {
@@ -4130,7 +4168,7 @@ int32 field::add_chain(uint16 step) {
 		}
 		return FALSE;
 	}
-	case 7: {
+	case 8: {
 		break_effect();
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
