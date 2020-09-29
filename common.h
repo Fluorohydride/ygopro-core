@@ -50,6 +50,9 @@ struct card_sort {
 #define LOCATION_ONFIELD	0x0c		//
 #define LOCATION_FZONE		0x100		//
 #define LOCATION_PZONE		0x200		//
+//For redirect
+#define LOCATION_DECKBOT	0x10001		//Return to deck bottom
+#define LOCATION_DECKSHF	0x20001		//Return to deck and shuffle
 
 //Positions
 #define POS_FACEUP_ATTACK		0x1

@@ -2058,18 +2058,31 @@ void card::release_relation(effect* peffect) {
 int32 card::leave_field_redirect(uint32 reason) {
 	effect_set es;
 	uint32 redirect;
+	uint32 redirects = 0;
 	if(data.type & TYPE_TOKEN)
 		return 0;
 	filter_effect(EFFECT_LEAVE_FIELD_REDIRECT, &es);
 	for(int32 i = 0; i < es.size(); ++i) {
 		redirect = es[i]->get_value(this, 0);
 		if((redirect & LOCATION_HAND) && !is_affected_by_effect(EFFECT_CANNOT_TO_HAND) && pduel->game_field->is_player_can_send_to_hand(es[i]->get_handler_player(), this))
-			return redirect;
+			redirects |= redirect;
 		else if((redirect & LOCATION_DECK) && !is_affected_by_effect(EFFECT_CANNOT_TO_DECK) && pduel->game_field->is_player_can_send_to_deck(es[i]->get_handler_player(), this))
-			return redirect;
+			redirects |= redirect;
 		else if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(es[i]->get_handler_player(), this, REASON_EFFECT))
-			return redirect;
+			redirects |= redirect;
 	}
+	if(redirects & LOCATION_REMOVED)
+		return LOCATION_REMOVED;
+	// the ruling for the priority of the following redirects can't be confirmed for now
+	if(redirects & LOCATION_DECK) {
+		if(redirects & LOCATION_DECKBOT)
+			return LOCATION_DECKBOT;
+		if(redirects & LOCATION_DECKSHF)
+			return LOCATION_DECKSHF;
+		return LOCATION_DECK;
+	}
+	if(redirects & LOCATION_HAND)
+		return LOCATION_HAND;
 	return 0;
 }
 int32 card::destination_redirect(uint8 destination, uint32 reason) {
