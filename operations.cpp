@@ -910,7 +910,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 			return FALSE;
 		}
 		card* pcard = *targets->it;
-		move_to_field(pcard, reason_player, playerid, LOCATION_MZONE, pcard->current.position, FALSE, 0, FALSE, zone);
+		move_to_field(pcard, (reason_player != PLAYER_NONE) ? reason_player : playerid, playerid, LOCATION_MZONE, pcard->current.position, FALSE, 0, FALSE, zone);
 		return FALSE;
 	}
 	case 4: {
