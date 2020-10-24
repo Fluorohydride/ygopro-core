@@ -2075,9 +2075,9 @@ int32 card::leave_field_redirect(uint32 reason) {
 		return LOCATION_REMOVED;
 	// the ruling for the priority of the following redirects can't be confirmed for now
 	if(redirects & LOCATION_DECK) {
-		if(redirects & LOCATION_DECKBOT)
+		if((redirects & LOCATION_DECKBOT) == LOCATION_DECKBOT)
 			return LOCATION_DECKBOT;
-		if(redirects & LOCATION_DECKSHF)
+		if((redirects & LOCATION_DECKSHF) == LOCATION_DECKSHF)
 			return LOCATION_DECKSHF;
 		return LOCATION_DECK;
 	}
