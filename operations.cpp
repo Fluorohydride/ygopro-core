@@ -861,12 +861,12 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 				change = false;
 			if(!pcard->is_affect_by_effect(reason_effect))
 				change = false;
-			if(core.duel_rule <= 4 && (pcard->get_type() & TYPE_TRAPMONSTER) && get_useable_count(pcard, playerid, LOCATION_SZONE, playerid, LOCATION_REASON_CONTROL) <= 0)
+			if(core.duel_rule <= 4 && (pcard->get_type() & TYPE_TRAPMONSTER) && get_useable_count(pcard, playerid, LOCATION_SZONE, reason_player, LOCATION_REASON_CONTROL) <= 0)
 				change = false;
 			if(!change)
 				targets->container.erase(pcard);
 		}
-		int32 fcount = get_useable_count(NULL, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_CONTROL, zone);
+		int32 fcount = get_useable_count(NULL, playerid, LOCATION_MZONE, reason_player, LOCATION_REASON_CONTROL, zone);
 		if(fcount <= 0) {
 			destroy_set->swap(targets->container);
 			core.units.begin()->step = 5;
@@ -910,7 +910,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 			return FALSE;
 		}
 		card* pcard = *targets->it;
-		move_to_field(pcard, playerid, playerid, LOCATION_MZONE, pcard->current.position, FALSE, 0, FALSE, zone);
+		move_to_field(pcard, (reason_player != PLAYER_NONE) ? reason_player : playerid, playerid, LOCATION_MZONE, pcard->current.position, FALSE, 0, FALSE, zone);
 		return FALSE;
 	}
 	case 4: {
