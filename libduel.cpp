@@ -3634,7 +3634,7 @@ int32 scriptlib::duel_select_field(lua_State* L) {
 		flag &= 0xffffff9f;
 	}
 	flag |= filter | 0x00800080;
-	pduel->game_field->add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, playerid, flag, count);
+	pduel->game_field->add_process(PROCESSOR_SELECT_DISFIELD, 0, 0, 0, playerid, flag, count);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State* L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		int32 playerid = (int32)lua_tointeger(L, 1);
