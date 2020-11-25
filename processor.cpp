@@ -3713,6 +3713,10 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		pduel->write_buffer16(infos.phase);
 		raise_event((card*)0, EVENT_PREDRAW, 0, 0, 0, turn_player, 0);
 		process_instant_event();
+		pduel->write_buffer8(MSG_HINT);
+		pduel->write_buffer8(HINT_EVENT);
+		pduel->write_buffer8(turn_player);
+		pduel->write_buffer32(20);
 		if(core.new_fchain.size() || core.new_ochain.size())
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
 		return FALSE;
