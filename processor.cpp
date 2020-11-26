@@ -3716,7 +3716,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(turn_player);
-		pduel->write_buffer32(20);
+		pduel->write_buffer32(27);
 		if(core.new_fchain.size() || core.new_ochain.size())
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
 		return FALSE;
