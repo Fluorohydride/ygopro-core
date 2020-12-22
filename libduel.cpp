@@ -1844,6 +1844,7 @@ int32 scriptlib::duel_check_summon_count(lua_State *L) {
 		lua_pushboolean(L, 0);
 	return 1;
 }
+// Return usable count in zone of playerid's Main MZONE or SZONE(0~4) when uplayer moves a card to playerid's field (can be negative).
 int32 scriptlib::duel_get_location_count(lua_State *L) {
 	check_param_count(L, 2);
 	uint32 playerid = (uint32)lua_tointeger(L, 1);
@@ -1865,6 +1866,7 @@ int32 scriptlib::duel_get_location_count(lua_State *L) {
 	lua_pushinteger(L, list);
 	return 2;
 }
+// Return usable count in zone of playerid's Main MZONE after mcard or mgroup leaves the field.
 int32 scriptlib::duel_get_mzone_count(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 playerid = (uint32)lua_tointeger(L, 1);
@@ -1919,6 +1921,8 @@ int32 scriptlib::duel_get_mzone_count(lua_State *L) {
 	}
 	return 2;
 }
+// Condition: uplayer moves scard or any card with type from Extra Deck to playerid's field
+// Return usable count in zone of playerid's MZONE after mcard or mgroup leaves the field
 int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 playerid = (uint32)lua_tointeger(L, 1);
@@ -1992,6 +1996,7 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 	}
 	return 2;
 }
+// Return the number of available grids in playerid's Main MZONE and Extra MZONE
 int32 scriptlib::duel_get_usable_mzone_count(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 playerid = (uint32)lua_tointeger(L, 1);
