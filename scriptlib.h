@@ -123,6 +123,8 @@ public:
 	static int32 card_is_link_attribute(lua_State *L);
 	static int32 card_is_reason(lua_State *L);
 	static int32 card_is_summon_type(lua_State *L);
+	static int32 card_is_summon_location(lua_State *L);
+	static int32 card_is_summon_player(lua_State *L);
 	static int32 card_is_status(lua_State *L);
 	static int32 card_is_not_tuner(lua_State *L);
 	static int32 card_set_status(lua_State *L);
@@ -221,6 +223,7 @@ public:
 	static int32 card_is_position(lua_State *L);
 	static int32 card_is_pre_position(lua_State *L);
 	static int32 card_is_controler(lua_State *L);
+	static int32 card_is_pre_controler(lua_State *L);
 	static int32 card_is_onfield(lua_State *L);
 	static int32 card_is_location(lua_State *L);
 	static int32 card_is_pre_location(lua_State *L);

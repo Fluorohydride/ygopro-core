@@ -1161,6 +1161,28 @@ int32 scriptlib::card_is_summon_type(lua_State *L) {
 		lua_pushboolean(L, 0);
 	return 1;
 }
+int32 scriptlib::card_is_summon_location(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	uint32 tloc = (uint32)lua_tointeger(L, 2);
+	if(((pcard->summon_info >> 16) & 0xff) & tloc)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::card_is_summon_player(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	uint32 con = (uint32)lua_tointeger(L, 2);
+	if(pcard->summon_player == con)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
 int32 scriptlib::card_is_status(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -2425,6 +2447,17 @@ int32 scriptlib::card_is_controler(lua_State *L) {
 		lua_pushboolean(L, 0);
 	return 1;
 }
+int32 scriptlib::card_is_pre_controler(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 con = (uint32)lua_tointeger(L, 2);
+	if(pcard->previous.controler == con)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
 int32 scriptlib::card_is_onfield(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -3245,6 +3278,8 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsLinkAttribute", scriptlib::card_is_link_attribute },
 	{ "IsReason", scriptlib::card_is_reason },
 	{ "IsSummonType", scriptlib::card_is_summon_type },
+	{ "IsSummonLocation", scriptlib::card_is_summon_location },
+	{ "IsSummonPlayer", scriptlib::card_is_summon_player },
 	{ "IsStatus", scriptlib::card_is_status },
 	{ "IsNotTuner", scriptlib::card_is_not_tuner },
 	{ "SetStatus", scriptlib::card_set_status },
@@ -3343,6 +3378,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsPosition", scriptlib::card_is_position },
 	{ "IsPreviousPosition", scriptlib::card_is_pre_position },
 	{ "IsControler", scriptlib::card_is_controler },
+	{ "IsPreviousControler", scriptlib::card_is_pre_controler },
 	{ "IsOnField", scriptlib::card_is_onfield },
 	{ "IsLocation", scriptlib::card_is_location },
 	{ "IsPreviousLocation", scriptlib::card_is_pre_location },
