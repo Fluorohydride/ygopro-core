@@ -1868,6 +1868,9 @@ void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* mater
 		if(pcard && pcard->is_affect_by_effect(peffect)
 		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect))
 			material->insert(pcard);
+		if(pcard && pcard->is_affected_by_effect(EFFECT_OVERLAY_RITUAL_MATERIAL))
+			for(auto& mcard : pcard->xyz_materials)
+				material->insert(mcard);
 	}
 	for(auto& pcard : player[1 - playerid].list_mzone) {
 		if(pcard && pcard->is_affect_by_effect(peffect)
@@ -1898,12 +1901,16 @@ void field::get_fusion_material(uint8 playerid, card_set* material) {
 void field::ritual_release(card_set* material) {
 	card_set rel;
 	card_set rem;
+	card_set xyz;
 	for(auto& pcard : *material) {
 		if(pcard->current.location == LOCATION_GRAVE)
 			rem.insert(pcard);
+		else if(pcard->current.location == LOCATION_OVERLAY)
+			xyz.insert(pcard);
 		else
 			rel.insert(pcard);
 	}
+	send_to(&xyz, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 	release(&rel, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player);
 	send_to(&rem, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, POS_FACEUP);
 }
