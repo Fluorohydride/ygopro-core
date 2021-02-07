@@ -1745,6 +1745,7 @@ int32 scriptlib::card_register_flag_effect(lua_State *L) {
 		reset |= (RESET_SELF_TURN | RESET_OPPO_TURN);
 	duel* pduel = pcard->pduel;
 	effect* peffect = pduel->new_effect();
+	peffect->effect_owner = pduel->game_field->core.reason_player;
 	peffect->owner = pcard;
 	peffect->handler = 0;
 	peffect->type = EFFECT_TYPE_SINGLE;
