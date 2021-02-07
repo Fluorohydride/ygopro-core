@@ -1697,8 +1697,10 @@ effect* field::is_player_affected_by_effect(uint8 playerid, uint32 code) {
 }
 int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg, uint32 reason) {
 	uint32 rcount = 0;
+	effect* re = core.reason_effect;
 	for(auto& pcard : player[playerid].list_mzone) {
 		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && pcard->is_releasable_by_nonsummon(playerid, reason)
+		        && (reason != REASON_EFFECT || pcard->is_releasable_by_effect(playerid, re))
 		        && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
 			if(release_list)
 				release_list->insert(pcard);
@@ -1709,6 +1711,7 @@ int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* 
 	if(use_hand) {
 		for(auto& pcard : player[playerid].list_hand) {
 			if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && pcard->is_releasable_by_nonsummon(playerid, reason)
+				    && (reason != REASON_EFFECT || pcard->is_releasable_by_effect(playerid, re))
 			        && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
 				if(release_list)
 					release_list->insert(pcard);
@@ -1720,7 +1723,9 @@ int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* 
 	int32 ex_oneof_max = 0;
 	for(auto& pcard : player[1 - playerid].list_mzone) {
 		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (pcard->is_position(POS_FACEUP) || !use_con)
-		        && pcard->is_releasable_by_nonsummon(playerid, reason) && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
+		        && pcard->is_releasable_by_nonsummon(playerid, reason)
+			    && (reason != REASON_EFFECT || pcard->is_releasable_by_effect(playerid, re))
+			    && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
 			pcard->release_param = 1;
 			if(pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
 				if(ex_list)
@@ -1731,7 +1736,7 @@ int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* 
 				if(!peffect || (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT) && peffect->count_limit == 0))
 					continue;
 				pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
-				pduel->lua->add_param(REASON_COST, PARAM_TYPE_INT);
+				pduel->lua->add_param(reason, PARAM_TYPE_INT);
 				pduel->lua->add_param(core.reason_player, PARAM_TYPE_INT);
 				if(!peffect->check_value_condition(3))
 					continue;
