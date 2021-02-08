@@ -261,6 +261,8 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			card* phandler = get_handler();
 			if(!(phandler->get_type() & TYPE_MONSTER) && (get_active_type() & TYPE_MONSTER))
 				return FALSE;
+			if((phandler->get_type() & TYPE_CONTINUOUS) && (phandler->get_type() & TYPE_EQUIP))
+				return FALSE;
 			if(!neglect_faceup && (phandler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED))) {
 				if(!phandler->is_position(POS_FACEUP) && !is_flag(EFFECT_FLAG_SET_AVAILABLE))
 					return FALSE;
