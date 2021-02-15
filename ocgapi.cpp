@@ -253,7 +253,8 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(ptr pduel, uint8 playerid, uint
 				p += 4;
 			}
 		}
-	} else if(location == LOCATION_SZONE) {
+	}
+	else if(location == LOCATION_SZONE) {
 		for(auto& pcard : player.list_szone) {
 			if(pcard) {
 				uint32 clen = pcard->get_infos(p, query_flag, use_cache);
@@ -263,7 +264,8 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(ptr pduel, uint8 playerid, uint
 				p += 4;
 			}
 		}
-	} else {
+	}
+	else {
 		field::card_vector* lst = 0;
 		if(location == LOCATION_HAND)
 			lst = &player.list_hand;

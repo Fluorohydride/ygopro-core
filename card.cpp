@@ -116,7 +116,8 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 		if(query_flag & QUERY_BASE_ATTACK) q_cache.base_attack = *p++ = get_base_attack();
 		if(query_flag & QUERY_BASE_DEFENSE) q_cache.base_defense = *p++ = get_base_defense();
 		if(query_flag & QUERY_REASON) q_cache.reason = *p++ = current.reason;
-	} else {
+	}
+	else {
 		if((query_flag & QUERY_ALIAS) && ((uint32)(tdata = get_code()) != q_cache.alias)) {
 			q_cache.alias = tdata;
 			*p++ = tdata;
@@ -202,7 +203,8 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 			q_cache.link = *p++ = get_link();
 			q_cache.link_marker = *p++ = get_link_marker();
 		}
-	} else {
+	}
+	else {
 		if((query_flag & QUERY_LSCALE) && ((uint32)(tdata = get_lscale()) != q_cache.lscale)) {
 			q_cache.lscale = tdata;
 			*p++ = tdata;
