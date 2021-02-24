@@ -206,7 +206,7 @@ void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uin
 		}
 		pcard->temp.reason = pcard->current.reason;
 		pcard->current.reason = reason;
-		if(reason_player != 5) {
+		if(reason_player != PLAYER_SELFDES) {
 			pcard->temp.reason_effect = pcard->current.reason_effect;
 			pcard->temp.reason_player = pcard->current.reason_player;
 			if(reason_effect)
@@ -1319,7 +1319,7 @@ int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 			pcard->current.reason_effect = ucard->unique_effect;
 			pcard->current.reason_player = ucard->current.controler;
 		}
-		destroy(&cset, 0, REASON_RULE, 5);
+		destroy(&cset, 0, REASON_RULE, PLAYER_SELFDES);
 		return TRUE;
 	}
 	case 10: {
@@ -1333,7 +1333,7 @@ int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 			pcard->temp.reason_player = pcard->current.reason_player;
 			pcard->current.reason_effect = peffect;
 			pcard->current.reason_player = peffect->get_handler_player();
-			destroy(pcard, 0, REASON_EFFECT, 5);
+			destroy(pcard, 0, REASON_EFFECT, PLAYER_SELFDES);
 		}
 		core.self_destroy_set.erase(it);
 		core.units.begin()->step = 9;
