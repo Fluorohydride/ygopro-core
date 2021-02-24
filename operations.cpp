@@ -1255,9 +1255,10 @@ int32 field::control_adjust(uint16 step) {
 int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 	switch(step) {
 	case 0: {
-		core.unique_destroy_set.erase(ucard);
-		if(core.unique_cards[p].find(ucard) == core.unique_cards[p].end())
+		if(core.unique_cards[p].find(ucard) == core.unique_cards[p].end()) {
+			core.unique_destroy_set.erase(ucard);
 			return TRUE;
+		}
 		card_set cset;
 		ucard->get_unique_target(&cset, p);
 		if(cset.size() == 0)
@@ -1305,6 +1306,7 @@ int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 			}
 			return FALSE;
 		}
+		core.unique_destroy_set.erase(ucard);
 		return TRUE;
 	}
 	case 1: {
@@ -1320,6 +1322,10 @@ int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 			pcard->current.reason_player = ucard->current.controler;
 		}
 		destroy(&cset, 0, REASON_RULE, PLAYER_SELFDES);
+		return FALSE;
+	}
+	case 2: {
+		core.unique_destroy_set.erase(ucard);
 		return TRUE;
 	}
 	case 10: {
@@ -3360,7 +3366,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				if (pcard->is_affect_by_effect(pcard->current.reason_effect)) {
 					effect* indestructable_effect = pcard->check_indestructable_by_effect(pcard->current.reason_effect, pcard->current.reason_player);
 					if (indestructable_effect) {
-						if(reason_player != 5)
+						if(reason_player != PLAYER_SELFDES)
 							indestructable_effect_set.insert(indestructable_effect);
 						is_destructable = false;
 					}
@@ -3380,7 +3386,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					pduel->lua->add_param(pcard->current.reason, PARAM_TYPE_INT);
 					pduel->lua->add_param(pcard->current.reason_player, PARAM_TYPE_INT);
 					if(eset[i]->check_value_condition(3)) {
-						if(reason_player != 5)
+						if(reason_player != PLAYER_SELFDES)
 							indestructable_effect_set.insert(eset[i]);
 						is_destructable = false;
 						break;
