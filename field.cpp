@@ -1903,6 +1903,10 @@ void field::get_fusion_material(uint8 playerid, card_set* material) {
 		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
 			material->insert(pcard);
 	}
+	for(auto& pcard : player[playerid].list_grave) {
+		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
+			material->insert(pcard);
+	}
 	for(auto& pcard : player[playerid].list_hand)
 		if(pcard->data.type & TYPE_MONSTER)
 			material->insert(pcard);
