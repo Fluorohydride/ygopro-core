@@ -1919,6 +1919,9 @@ void card::reset(uint32 id, uint32 reset_type) {
 			for(; pr.first != pr.second; ++pr.first)
 				pr.first->second->value = pr.first->second->value & 0xffff;
 		}
+		if(id & RESET_TOFIELD) {
+			pre_equip_target = 0;
+		}
 		if(id & RESET_DISABLE) {
 			for(auto cmit = counters.begin(); cmit != counters.end();) {
 				auto rm = cmit++;
