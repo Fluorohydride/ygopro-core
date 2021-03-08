@@ -3051,6 +3051,7 @@ int32 card::get_summon_tribute_count() {
 		min = max = 1;
 	else
 		min = max = 2;
+	std::vector<int32> duplicate;
 	effect_set eset;
 	filter_effect(EFFECT_DECREASE_TRIBUTE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
@@ -3083,6 +3084,7 @@ int32 card::get_set_tribute_count() {
 		min = max = 1;
 	else
 		min = max = 2;
+	std::vector<int32> duplicate;
 	effect_set eset;
 	filter_effect(EFFECT_DECREASE_TRIBUTE_SET, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
