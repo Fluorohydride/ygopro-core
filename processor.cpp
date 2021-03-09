@@ -4787,6 +4787,10 @@ int32 field::adjust_step(uint16 step) {
 				uint8 ref = std::get<uint8>(res);
 				effect* peffect = std::get<effect*>(res);
 				if(cur != ref && pcard->is_capable_change_control()) {
+					if(peffect) {
+						pcard->set_control_player = peffect->get_handler_player();
+						pcard->set_control_effect = peffect;
+					}
 					core.control_adjust_set[p].insert(pcard);
 					if(peffect && (!(peffect->type & EFFECT_TYPE_SINGLE) || peffect->condition))
 						reason_cards.insert(peffect->get_handler());
@@ -4815,6 +4819,19 @@ int32 field::adjust_step(uint16 step) {
 			filter_field_effect(EFFECT_REMOVE_BRAINWASHING, &eset, FALSE);
 			uint32 res = eset.size() ? TRUE : FALSE;
 			if(res) {
+				uint8 set_control_player = PLAYER_NONE;
+				effect* set_control_effect = 0;
+				for(int32 i = 0; i < eset.size(); ++i) {
+					if(eset[i]->get_handler_player() == infos.turn_player) {
+						set_control_player = infos.turn_player;
+						set_control_effect = eset[i];
+						break;
+					}
+					if(eset[i]->get_handler_player() == 1 - infos.turn_player) {
+						set_control_player = 1 - infos.turn_player;
+						set_control_effect = eset[i];
+					}
+				}
 				for(uint8 p = 0; p < 2; ++p) {
 					for(auto& pcard : player[p].list_mzone) {
 						if(pcard && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING)) {
@@ -4826,8 +4843,11 @@ int32 field::adjust_step(uint16 step) {
 								if(!peffect->condition)
 									peffect->handler->remove_effect(peffect);
 							}
-							if(p != pcard->owner && pcard->is_capable_change_control())
+							if(p != pcard->owner && pcard->is_capable_change_control()) {
+								pcard->set_control_player = set_control_player;
+								pcard->set_control_effect = set_control_effect;
 								core.control_adjust_set[p].insert(pcard);
+							}
 						}
 					}
 				}

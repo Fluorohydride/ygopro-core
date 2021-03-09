@@ -73,6 +73,7 @@ card::card(duel* pd) {
 	ref_handle = 0;
 	pduel = pd;
 	owner = PLAYER_NONE;
+	set_control_player = PLAYER_NONE;
 	sendto_param.clear();
 	release_param = 0;
 	sum_param = 0;
@@ -1988,8 +1989,10 @@ std::tuple<uint8, effect*> card::refresh_control_status() {
 	uint8 final = owner;
 	effect* ceffect = nullptr;
 	uint32 last_id = 0;
-	if(pduel->game_field->core.remove_brainwashing && is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING))
+	if(pduel->game_field->core.remove_brainwashing && is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING)) {
+		ceffect = is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING);
 		last_id = pduel->game_field->core.last_control_changed_id;
+	}
 	effect_set eset;
 	filter_effect(EFFECT_SET_CONTROL, &eset);
 	if(eset.size()) {
