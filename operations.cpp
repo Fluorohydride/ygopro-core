@@ -1766,47 +1766,70 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		if(tributes)
 			min -= (int32)tributes->size();
 		if(min > 0) {
+			std::vector<int32> duplicate;
 			effect_set eset;
 			target->filter_effect(EFFECT_DECREASE_TRIBUTE, &eset);
-			int32 minul = 0;
-			effect* pdec = 0;
 			for(int32 i = 0; i < eset.size(); ++i) {
-				if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
-					int32 dec = eset[i]->get_value(target);
-					if(minul < (dec & 0xffff)) {
-						minul = dec & 0xffff;
-						pdec = eset[i];
-					}
+				if(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT))
+					continue;
+				std::vector<int32> retval;
+				eset[i]->get_value(target, 0, &retval);
+				int32 dec = retval.size() > 0 ? retval[0] : 0;
+				int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+				if(effect_code > 0) {
+					auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
+					if(it == duplicate.end())
+						duplicate.push_back(effect_code);
+					else
+						continue;
 				}
-			}
-			if(pdec) {
-				min -= minul;
+				min -= dec & 0xffff;
 				pduel->write_buffer8(MSG_HINT);
 				pduel->write_buffer8(HINT_CARD);
 				pduel->write_buffer8(0);
-				pduel->write_buffer32(pdec->handler->data.code);
+				pduel->write_buffer32(eset[i]->handler->data.code);
 			}
 			for(int32 i = 0; i < eset.size() && min > 0; ++i) {
-				if(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT) && eset[i]->count_limit > 0 && eset[i]->target) {
-					int32 dec = eset[i]->get_value(target);
-					min -= dec & 0xffff;
-					eset[i]->dec_count();
-					pduel->write_buffer8(MSG_HINT);
-					pduel->write_buffer8(HINT_CARD);
-					pduel->write_buffer8(0);
-					pduel->write_buffer32(eset[i]->handler->data.code);
+				if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT) || eset[i]->count_limit == 0 || !eset[i]->target)
+					continue;
+				std::vector<int32> retval;
+				eset[i]->get_value(target, 0, &retval);
+				int32 dec = retval.size() > 0 ? retval[0] : 0;
+				int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+				if(effect_code > 0) {
+					auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
+					if(it == duplicate.end())
+						duplicate.push_back(effect_code);
+					else
+						continue;
 				}
+				min -= dec & 0xffff;
+				eset[i]->dec_count();
+				pduel->write_buffer8(MSG_HINT);
+				pduel->write_buffer8(HINT_CARD);
+				pduel->write_buffer8(0);
+				pduel->write_buffer32(eset[i]->handler->data.code);
 			}
 			for(int32 i = 0; i < eset.size() && min > 0; ++i) {
-				if(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT) && eset[i]->count_limit > 0 && !eset[i]->target) {
-					int32 dec = eset[i]->get_value(target);
-					min -= dec & 0xffff;
-					eset[i]->dec_count();
-					pduel->write_buffer8(MSG_HINT);
-					pduel->write_buffer8(HINT_CARD);
-					pduel->write_buffer8(0);
-					pduel->write_buffer32(eset[i]->handler->data.code);
+				if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT) || eset[i]->count_limit == 0 || eset[i]->target)
+					continue;
+				std::vector<int32> retval;
+				eset[i]->get_value(target, 0, &retval);
+				int32 dec = retval.size() > 0 ? retval[0] : 0;
+				int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+				if(effect_code > 0) {
+					auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
+					if(it == duplicate.end())
+						duplicate.push_back(effect_code);
+					else
+						continue;
 				}
+				min -= dec & 0xffff;
+				eset[i]->dec_count();
+				pduel->write_buffer8(MSG_HINT);
+				pduel->write_buffer8(HINT_CARD);
+				pduel->write_buffer8(0);
+				pduel->write_buffer32(eset[i]->handler->data.code);
 			}
 		}
 		if(tributes) {
@@ -2302,6 +2325,83 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 	}
 	case 5: {
 		card_set* tributes = (card_set*)proc;
+		int32 min = 0;
+		int32 level = target->get_level();
+		if(level < 5)
+			min = 0;
+		else if(level < 7)
+			min = 1;
+		else
+			min = 2;
+		if(tributes)
+			min -= (int32)tributes->size();
+		if(min > 0) {
+			std::vector<int32> duplicate;
+			effect_set eset;
+			target->filter_effect(EFFECT_DECREASE_TRIBUTE_SET, &eset);
+			for(int32 i = 0; i < eset.size(); ++i) {
+				if(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT))
+					continue;
+				std::vector<int32> retval;
+				eset[i]->get_value(target, 0, &retval);
+				int32 dec = retval.size() > 0 ? retval[0] : 0;
+				int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+				if(effect_code > 0) {
+					auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
+					if(it == duplicate.end())
+						duplicate.push_back(effect_code);
+					else
+						continue;
+				}
+				min -= dec & 0xffff;
+				pduel->write_buffer8(MSG_HINT);
+				pduel->write_buffer8(HINT_CARD);
+				pduel->write_buffer8(0);
+				pduel->write_buffer32(eset[i]->handler->data.code);
+			}
+			for(int32 i = 0; i < eset.size() && min > 0; ++i) {
+				if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT) || eset[i]->count_limit == 0 || !eset[i]->target)
+					continue;
+				std::vector<int32> retval;
+				eset[i]->get_value(target, 0, &retval);
+				int32 dec = retval.size() > 0 ? retval[0] : 0;
+				int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+				if(effect_code > 0) {
+					auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
+					if(it == duplicate.end())
+						duplicate.push_back(effect_code);
+					else
+						continue;
+				}
+				min -= dec & 0xffff;
+				eset[i]->dec_count();
+				pduel->write_buffer8(MSG_HINT);
+				pduel->write_buffer8(HINT_CARD);
+				pduel->write_buffer8(0);
+				pduel->write_buffer32(eset[i]->handler->data.code);
+			}
+			for(int32 i = 0; i < eset.size() && min > 0; ++i) {
+				if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT) || eset[i]->count_limit == 0 || eset[i]->target)
+					continue;
+				std::vector<int32> retval;
+				eset[i]->get_value(target, 0, &retval);
+				int32 dec = retval.size() > 0 ? retval[0] : 0;
+				int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+				if(effect_code > 0) {
+					auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
+					if(it == duplicate.end())
+						duplicate.push_back(effect_code);
+					else
+						continue;
+				}
+				min -= dec & 0xffff;
+				eset[i]->dec_count();
+				pduel->write_buffer8(MSG_HINT);
+				pduel->write_buffer8(HINT_CARD);
+				pduel->write_buffer8(0);
+				pduel->write_buffer32(eset[i]->handler->data.code);
+			}
+		}
 		if(tributes) {
 			for(auto& pcard : *tributes)
 				pcard->current.reason_card = target;
