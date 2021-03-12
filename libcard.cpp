@@ -383,6 +383,16 @@ int32 scriptlib::card_get_origin_rscale(lua_State *L) {
 	lua_pushinteger(L, pcard->data.rscale);
 	return 1;
 }
+int32 scriptlib::card_get_current_scale(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	if(pcard->current.pzone && pcard->current.sequence == (pcard->pduel->game_field->core.duel_rule >= 4 ? 0 : 6))
+		lua_pushinteger(L, pcard->get_lscale());
+	else
+		lua_pushinteger(L, pcard->get_rscale());
+	return 1;
+}
 int32 scriptlib::card_is_link_marker(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -3204,6 +3214,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetOriginalLeftScale", scriptlib::card_get_origin_lscale },
 	{ "GetRightScale", scriptlib::card_get_rscale },
 	{ "GetOriginalRightScale", scriptlib::card_get_origin_rscale },
+	{ "GetCurrentScale", scriptlib::card_get_current_scale },
 	{ "IsLinkMarker", scriptlib::card_is_link_marker },
 	{ "GetLinkedGroup", scriptlib::card_get_linked_group },
 	{ "GetLinkedGroupCount", scriptlib::card_get_linked_group_count },
