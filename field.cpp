@@ -328,8 +328,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 					return;
 				} else
 					remove_card(pcard);
-			}
-			else if(location & LOCATION_ONFIELD) {
+			} else if(location & LOCATION_ONFIELD) {
 				if (playerid == preplayer && sequence == presequence)
 					return;
 				if(location == LOCATION_MZONE) {
@@ -373,13 +372,11 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 						pcard->unique_fieldid = UINT_MAX;
 				}
 				return;
-			}
-			else if(location == LOCATION_HAND) {
+			} else if(location == LOCATION_HAND) {
 				if(preplayer == playerid)
 					return;
 				remove_card(pcard);
-			}
-			else {
+			} else {
 				if(location == LOCATION_GRAVE) {
 					if(pcard->current.sequence == player[pcard->current.controler].list_grave.size() - 1)
 						return;
@@ -414,8 +411,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 				}
 				return;
 			}
-		}
-		else {
+		} else {
 			if((pcard->data.type & TYPE_PENDULUM) && (location == LOCATION_GRAVE)
 			        && pcard->is_capable_send_to_extra(playerid)
 			        && (((pcard->current.location == LOCATION_MZONE) && !pcard->is_status(STATUS_SUMMON_DISABLED))
