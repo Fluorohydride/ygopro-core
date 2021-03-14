@@ -127,14 +127,14 @@ int32 scriptlib::debug_pre_add_counter(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 countertype = (uint32)lua_tointeger(L, 2);
 	uint32 count = (uint32)lua_tointeger(L, 3);
-	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
+	uint16 cttype = countertype;
 	auto pr = pcard->counters.emplace(cttype, card::counter_map::mapped_type());
 	auto cmit = pr.first;
 	if(pr.second) {
 		cmit->second[0] = 0;
 		cmit->second[1] = 0;
 	}
-	if((countertype & COUNTER_WITHOUT_PERMIT) && !(countertype & COUNTER_NEED_ENABLE))
+	if(countertype & COUNTER_WITHOUT_PERMIT)
 		cmit->second[0] += count;
 	else
 		cmit->second[1] += count;

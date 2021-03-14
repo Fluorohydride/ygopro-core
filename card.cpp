@@ -2125,7 +2125,7 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly) {
 	if(!is_can_add_counter(playerid, countertype, count, singly, 0))
 		return FALSE;
-	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
+	uint16 cttype = countertype;
 	auto pr = counters.emplace(cttype, counter_map::mapped_type());
 	auto cmit = pr.first;
 	if(pr.second) {
@@ -2145,7 +2145,7 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 
 				pcount = mcount;
 		}
 	}
-	if((countertype & COUNTER_WITHOUT_PERMIT) && !(countertype & COUNTER_NEED_ENABLE))
+	if(countertype & COUNTER_WITHOUT_PERMIT)
 		cmit->second[0] += pcount;
 	else
 		cmit->second[1] += pcount;
@@ -2188,8 +2188,6 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 			return FALSE;
 		if(!loc && (!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)))
 			return FALSE;
-		if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
-			return FALSE;
 	}
 	uint32 check = countertype & COUNTER_WITHOUT_PERMIT;
 	if(!check) {
@@ -2215,7 +2213,7 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 	}
 	if(!check)
 		return FALSE;
-	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
+	uint16 cttype = countertype;
 	int32 limit = -1;
 	int32 cur = 0;
 	auto cmit = counters.find(cttype);
