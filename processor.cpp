@@ -4007,6 +4007,7 @@ int32 field::add_chain(uint16 step) {
 		auto& clit = core.new_chains.front();
 		effect* peffect = clit.triggering_effect;
 		card* phandler = peffect->get_handler();
+		phandler->refresh_disable_status();
 		if(peffect->type & EFFECT_TYPE_ACTIVATE) {
 			clit.set_triggering_state(phandler);
 		}
