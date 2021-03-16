@@ -366,7 +366,7 @@ public:
 #define SUMMON_TYPE_LINK		0x4c000000
 //Counter
 #define COUNTER_WITHOUT_PERMIT	0x1000
-#define COUNTER_NEED_ENABLE		0x2000
+//#define COUNTER_NEED_ENABLE		0x2000
 
 #define ASSUME_CODE			1
 #define ASSUME_TYPE			2
