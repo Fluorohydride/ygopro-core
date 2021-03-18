@@ -277,6 +277,7 @@ public:
 	int32 add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly);
 	int32 remove_counter(uint16 countertype, uint16 count);
 	int32 is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 loc);
+	int32 is_can_have_counter(uint16 countertype);
 	int32 get_counter(uint16 countertype);
 	void set_material(card_set* materials);
 	void add_card_target(card* pcard);
@@ -286,6 +287,7 @@ public:
 	void filter_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_single_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_single_continuous_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
+	void filter_self_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_immune_effect();
 	void filter_disable_related_cards();
 	int32 filter_summon_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute, uint32 zone);

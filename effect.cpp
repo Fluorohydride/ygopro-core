@@ -63,10 +63,9 @@ int32 effect::is_self_destroy_related() {
 	return FALSE;
 }
 int32 effect::is_can_be_forbidden() {
-	uint32 ctr = code & 0xf0000;
 	if (is_flag(EFFECT_FLAG_CANNOT_DISABLE) && !is_flag(EFFECT_FLAG_CANNOT_NEGATE))
 		return FALSE;
-	if (code == EFFECT_CHANGE_CODE || ctr == EFFECT_COUNTER_PERMIT || ctr == EFFECT_COUNTER_LIMIT)
+	if (code == EFFECT_CHANGE_CODE)
 		return FALSE;
 	return TRUE;
 }
@@ -148,6 +147,30 @@ int32 effect::is_available() {
 		status |= EFFECT_STATUS_AVAILABLE;
 	} else
 		status &= ~EFFECT_STATUS_AVAILABLE;
+	return res;
+}
+// check if a single effect is ready
+int32 effect::is_ready() {
+	if(type & EFFECT_TYPE_ACTIONS)
+		return FALSE;
+	if((type & (EFFECT_TYPE_SINGLE | EFFECT_TYPE_XMATERIAL)) && !(type & EFFECT_TYPE_FIELD)) {
+		card* phandler = get_handler();
+		card* powner = get_owner();
+		if(phandler->current.controler == PLAYER_NONE)
+			return FALSE;
+		if(is_flag(EFFECT_FLAG_SINGLE_RANGE) && !in_range(phandler))
+			return FALSE;
+		if(is_flag(EFFECT_FLAG_SINGLE_RANGE) && !phandler->get_status(STATUS_EFFECT_ENABLED) && !is_flag(EFFECT_FLAG_IMMEDIATELY_APPLY))
+			return FALSE;
+		if(is_flag(EFFECT_FLAG_SINGLE_RANGE) && (phandler->current.location & LOCATION_ONFIELD) && !phandler->is_position(POS_FACEUP))
+			return FALSE;
+	}
+	else
+		return FALSE;
+	if(!condition)
+		return TRUE;
+	pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
+	int32 res = pduel->lua->check_condition(condition, 1);
 	return res;
 }
 // reset_count: count of effect reset

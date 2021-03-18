@@ -69,6 +69,7 @@ public:
 	int32 is_self_destroy_related();
 	int32 is_can_be_forbidden();
 	int32 is_available();
+	int32 is_ready();
 	int32 check_count_limit(uint8 playerid);
 	int32 is_activateable(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE, int32 neglect_loc = FALSE, int32 neglect_faceup = FALSE);
 	int32 is_action_check(uint8 playerid);

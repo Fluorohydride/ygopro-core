@@ -2747,9 +2747,10 @@ int32 scriptlib::card_enable_counter_permit(lua_State *L) {
 	peffect->owner = pcard;
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_COUNTER_PERMIT | countertype;
-	peffect->value = prange;
+	peffect->flag[0] = EFFECT_FLAG_SINGLE_RANGE;
+	peffect->range = prange;
 	if(lua_gettop(L) > 3 && lua_isfunction(L, 4))
-		peffect->target = interpreter::get_function_handle(L, 4);
+		peffect->condition = interpreter::get_function_handle(L, 4);
 	pcard->add_effect(peffect);
 	return 0;
 }
