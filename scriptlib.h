@@ -251,6 +251,7 @@ public:
 	static int32 card_is_can_turn_set(lua_State *L);
 	static int32 card_is_can_add_counter(lua_State *L);
 	static int32 card_is_can_remove_counter(lua_State *L);
+	static int32 card_is_can_have_counter(lua_State* L);
 	static int32 card_is_can_overlay(lua_State *L);
 	static int32 card_is_can_be_fusion_material(lua_State *L);
 	static int32 card_is_can_be_synchro_material(lua_State *L);
