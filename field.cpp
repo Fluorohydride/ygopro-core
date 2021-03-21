@@ -1931,6 +1931,12 @@ void field::get_fusion_material(uint8 playerid, card_set* material, uint32 locat
 				material->insert(pcard);
 		}
 	}
+	if(location & LOCATION_PZONE) {
+		for(auto& pcard : player[playerid].list_szone) {
+			if(pcard && pcard->current.pzone && pcard->data.type & TYPE_MONSTER)
+				material->insert(pcard);
+		}
+	}
 	for(auto& pcard : player[playerid].list_szone) {
 		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
 			material->insert(pcard);
