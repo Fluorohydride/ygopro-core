@@ -120,6 +120,8 @@ field::field(duel* pduel) {
 	nil_event.reason = 0;
 	nil_event.reason_effect = 0;
 	nil_event.reason_player = PLAYER_NONE;
+	returns = { 0 };
+	temp_card = NULL;
 }
 void field::reload_field_info() {
 	pduel->write_buffer8(MSG_RELOAD_FIELD);
