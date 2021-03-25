@@ -3898,6 +3898,9 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		card_vector cv;
 		card_vector::iterator cvit;
 		effect* predirect;
+
+		exargs()
+			: targets(nullptr), show_decktop{ FALSE }, predirect(nullptr) {}
 	} ;
 	switch(step) {
 	case 0: {
