@@ -171,6 +171,7 @@ struct processor {
 	processor_list units;
 	processor_list subunits;
 	processor_unit reserved;
+	card_set just_sent_cards;
 	card_vector select_cards;
 	card_vector unselect_cards;
 	card_vector summonable_cards;
