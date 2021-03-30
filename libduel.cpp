@@ -865,11 +865,13 @@ int32 scriptlib::duel_move_sequence(lua_State *L) {
 	int32 seq = (int32)lua_tointeger(L, 2);
 	duel* pduel = pcard->pduel;
 	int32 playerid = pcard->current.controler;
-	pduel->game_field->move_card(playerid, pcard, pcard->current.location, seq);
-	pduel->game_field->raise_single_event(pcard, 0, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, playerid, 0);
-	pduel->game_field->raise_event(pcard, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, playerid, 0);
-	pduel->game_field->process_single_event();
-	pduel->game_field->process_instant_event();
+	if(pcard->is_affect_by_effect(pduel->game_field->core.reason_effect)) {
+		pduel->game_field->move_card(playerid, pcard, pcard->current.location, seq);
+		pduel->game_field->raise_single_event(pcard, 0, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, playerid, 0);
+		pduel->game_field->raise_event(pcard, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, playerid, 0);
+		pduel->game_field->process_single_event();
+		pduel->game_field->process_instant_event();
+	}
 	return 0;
 }
 int32 scriptlib::duel_swap_sequence(lua_State *L) {
