@@ -150,7 +150,7 @@ int32 effect::is_available() {
 	return res;
 }
 // check if a single effect is ready
-int32 effect::is_ready() {
+int32 effect::is_single_ready() {
 	if(type & EFFECT_TYPE_ACTIONS)
 		return FALSE;
 	if((type & (EFFECT_TYPE_SINGLE | EFFECT_TYPE_XMATERIAL)) && !(type & EFFECT_TYPE_FIELD)) {

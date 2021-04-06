@@ -2226,7 +2226,7 @@ int32 card::is_can_have_counter(uint16 countertype) {
 		filter_self_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff), &eset);
 		if (current.is_location(LOCATION_ONFIELD)) {
 			for (int32 i = 0; i < eset.size(); ++i) {
-				if (eset[i]->is_ready())
+				if (eset[i]->is_single_ready())
 					return TRUE;
 			}
 			return FALSE;
