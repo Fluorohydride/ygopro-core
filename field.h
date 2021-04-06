@@ -72,7 +72,7 @@ struct chain {
 
 	chain()
 		: chain_id(0), chain_count(0), triggering_player(PLAYER_NONE), triggering_controler(PLAYER_NONE), triggering_location(0), triggering_sequence(0), triggering_position(0), 
-		triggering_state(),	triggering_effect(nullptr), target_cards(nullptr), replace_op(0), target_player(PLAYER_NONE), target_param(0), disable_reason(nullptr), disable_player(PLAYER_NONE), 
+		triggering_state(), triggering_effect(nullptr), target_cards(nullptr), replace_op(0), target_player(PLAYER_NONE), target_param(0), disable_reason(nullptr), disable_player(PLAYER_NONE),
 		evt(), flag(0) {}
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
 	void set_triggering_state(card* pcard);
@@ -141,7 +141,7 @@ struct field_info {
 	uint8 can_shuffle;
 
 	field_info()
-		: field_id(0), copy_id(0), turn_id(0), turn_id_by_player{0}, card_id(0), phase(0), turn_player(0), priorities{0}, can_shuffle(TRUE) {}
+		: field_id(0), copy_id(0), turn_id(0), turn_id_by_player{ 0 }, card_id(0), phase(0), turn_player(0), priorities{ 0 }, can_shuffle(TRUE) {}
 };
 struct lpcost {
 	int32 count;
@@ -149,7 +149,7 @@ struct lpcost {
 	int32 lpstack[8];
 
 	lpcost()
-		: count(0), amount(0), lpstack{0} {}
+		: count(0), amount(0), lpstack{ 0 } {}
 };
 struct processor_unit {
 	uint16 type;

@@ -18,7 +18,8 @@ class effect;
 bool effect_sort_id(const effect* e1, const effect* e2);
 
 struct effect_set {
-	effect_set() : count(0), container{ nullptr } {}
+	effect_set()
+		: count(0), container{ nullptr } {}
 	void add_item(effect* peffect) {
 		if(count >= 64) return;
 		container[count++] = peffect;
