@@ -36,7 +36,7 @@ struct tevent {
 	uint8 event_player;
 	uint8 reason_player;
 
-	tevent::tevent()
+	tevent()
 		: trigger_card(nullptr), event_cards(nullptr), reason_effect(nullptr), event_code(0), event_value(0), reason(0), event_player(PLAYER_NONE), reason_player(PLAYER_NONE) {}
 	bool operator< (const tevent& v) const;
 };
