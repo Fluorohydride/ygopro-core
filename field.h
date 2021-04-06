@@ -35,6 +35,9 @@ struct tevent {
 	uint32 reason;
 	uint8 event_player;
 	uint8 reason_player;
+
+	tevent()
+		: trigger_card(nullptr), event_cards(nullptr), reason_effect(nullptr), event_code(0), event_value(0), reason(0), event_player(PLAYER_NONE), reason_player(PLAYER_NONE) {}
 	bool operator< (const tevent& v) const;
 };
 struct optarget {
@@ -42,6 +45,9 @@ struct optarget {
 	uint8 op_count;
 	uint8 op_player;
 	int32 op_param;
+
+	optarget()
+		: op_cards(nullptr), op_count(0), op_player(PLAYER_NONE), op_param(0) {}
 };
 struct chain {
 	using opmap = std::unordered_map<uint32, optarget>;
@@ -63,6 +69,11 @@ struct chain {
 	tevent evt;
 	opmap opinfos;
 	uint32 flag;
+
+	chain()
+		: chain_id(0), chain_count(0), triggering_player(PLAYER_NONE), triggering_controler(PLAYER_NONE), triggering_location(0), triggering_sequence(0), triggering_position(0), 
+		triggering_state(), triggering_effect(nullptr), target_cards(nullptr), replace_op(0), target_player(PLAYER_NONE), target_param(0), disable_reason(nullptr), disable_player(PLAYER_NONE),
+		evt(), flag(0) {}
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
 	void set_triggering_state(card* pcard);
 };
@@ -86,6 +97,9 @@ struct player_info {
 	card_vector tag_list_main;
 	card_vector tag_list_hand;
 	card_vector tag_list_extra;
+
+	player_info()
+		: lp(0), start_count(0), draw_count(0), used_location(0), disabled_location(0), extra_p_count(0), tag_extra_p_count(0) {}
 };
 struct field_effect {
 	using effect_container = std::multimap<uint32, effect*>;
@@ -125,11 +139,17 @@ struct field_info {
 	uint8 turn_player;
 	uint8 priorities[2];
 	uint8 can_shuffle;
+
+	field_info()
+		: field_id(0), copy_id(0), turn_id(0), turn_id_by_player{ 0 }, card_id(0), phase(0), turn_player(0), priorities{ 0 }, can_shuffle(TRUE) {}
 };
 struct lpcost {
 	int32 count;
 	int32 amount;
 	int32 lpstack[8];
+
+	lpcost()
+		: count(0), amount(0), lpstack{ 0 } {}
 };
 struct processor_unit {
 	uint16 type;
@@ -142,6 +162,9 @@ struct processor_unit {
 	ptr arg4;
 	void* ptr1;
 	void* ptr2;
+
+	processor_unit()
+		: type(0), step(0), peffect(nullptr), ptarget(nullptr), arg1(0), arg2(0), arg3(0), arg4(0), ptr1(nullptr), ptr2(nullptr) {}
 };
 union return_value {
 	int8 bvalue[64];
@@ -242,6 +265,7 @@ struct processor {
 	std::unordered_map<uint32, uint32> effect_count_code_duel;
 	std::unordered_map<uint32, uint32> spsummon_once_map[2];
 	std::multimap<int32, card*, std::greater<int32>> xmaterial_lst;
+
 	ptr temp_var[4];
 	uint32 global_flag;
 	uint16 pre_field[2];
@@ -328,6 +352,17 @@ struct processor {
 	std::unordered_map<uint32, std::pair<uint32, uint32>> chain_counter;
 	processor_list recover_damage_reserve;
 	effect_vector dec_count_reserve;
+
+	processor()
+		: temp_var{ 0 }, global_flag(0), pre_field{ 0 }, chain_solving(FALSE), conti_solving(FALSE), win_player(5), win_reason(0), re_adjust(FALSE), reason_effect(nullptr), reason_player(PLAYER_NONE),
+		summoning_card(nullptr), summon_depth(0), summon_cancelable(FALSE), attacker(nullptr), attack_target(nullptr), limit_extra_summon_zone(0), limit_extra_summon_releasable(0),
+		limit_tuner(nullptr), limit_syn(nullptr), limit_syn_minc(0), limit_syn_maxc(0), limit_xyz(nullptr), limit_xyz_minc(0), limit_xyz_maxc(0), limit_link(nullptr), limit_link_card(nullptr),
+		limit_link_minc(0), limit_link_maxc(0), not_material(FALSE), attack_cancelable(FALSE), attack_rollback(FALSE), effect_damage_step(0), battle_damage{ 0 }, summon_count{ 0 }, extra_summon{ FALSE },
+		spe_effect{ 0 }, duel_options(0), duel_rule(0), copy_reset(0), copy_reset_count(0), last_control_changed_id(0), set_group_used_zones(0), set_group_seq{ 0 }, dice_result{ 0 }, coin_result{ 0 },
+		to_bp(FALSE), to_m2(FALSE), to_ep(FALSE), skip_m2(FALSE), chain_attack(FALSE), chain_attacker_id(0), chain_attack_target(nullptr), attack_player(PLAYER_NONE), selfdes_disabled(FALSE),
+		overdraw{ FALSE }, check_level(0), shuffle_check_disabled(FALSE), shuffle_hand_check{ FALSE }, shuffle_deck_check{ FALSE }, deck_reversed(FALSE), remove_brainwashing(FALSE), flip_delayed(FALSE),
+		damage_calculated(FALSE), hand_adjusted(FALSE), summon_state_count{ 0 }, normalsummon_state_count{ 0 }, flipsummon_state_count{ 0 }, spsummon_state_count{ 0 }, attack_state_count{ 0 },
+		battle_phase_count{ 0 }, battled_count{ 0 }, phase_action(FALSE), hint_timing{ 0 }, current_player(PLAYER_NONE), conti_player(PLAYER_NONE) {}
 };
 class field {
 public:
