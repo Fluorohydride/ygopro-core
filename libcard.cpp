@@ -2754,9 +2754,10 @@ int32 scriptlib::card_enable_counter_permit(lua_State *L) {
 	peffect->owner = pcard;
 	peffect->type = EFFECT_TYPE_SINGLE;
 	peffect->code = EFFECT_COUNTER_PERMIT | countertype;
-	peffect->value = prange;
+	peffect->flag[0] = EFFECT_FLAG_SINGLE_RANGE;
+	peffect->range = prange;
 	if(lua_gettop(L) > 3 && lua_isfunction(L, 4))
-		peffect->target = interpreter::get_function_handle(L, 4);
+		peffect->condition = interpreter::get_function_handle(L, 4);
 	pcard->add_effect(peffect);
 	return 0;
 }
@@ -2788,13 +2789,11 @@ int32 scriptlib::card_is_can_turn_set(lua_State *L) {
 	return 1;
 }
 int32 scriptlib::card_is_can_add_counter(lua_State *L) {
-	check_param_count(L, 2);
+	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 countertype = (uint32)lua_tointeger(L, 2);
-	uint32 count = 0;
-	if(lua_gettop(L) > 2)
-		count = (uint32)lua_tointeger(L, 3);
+	uint32 count = (uint32)lua_tointeger(L, 3);
 	uint8 singly = FALSE;
 	if(lua_gettop(L) > 3)
 		singly = lua_toboolean(L, 4);
@@ -2815,6 +2814,14 @@ int32 scriptlib::card_is_can_remove_counter(lua_State *L) {
 	uint32 count = (uint32)lua_tointeger(L, 4);
 	uint32 reason = (uint32)lua_tointeger(L, 5);
 	lua_pushboolean(L, pcard->pduel->game_field->is_player_can_remove_counter(playerid, pcard, 0, 0, countertype, count, reason));
+	return 1;
+}
+int32 scriptlib::card_is_can_have_counter(lua_State* L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	uint32 countertype = (uint32)lua_tointeger(L, 2);
+	lua_pushboolean(L, pcard->is_can_have_counter(countertype));
 	return 1;
 }
 int32 scriptlib::card_is_can_overlay(lua_State *L) {
@@ -3425,6 +3432,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsCanTurnSet", scriptlib::card_is_can_turn_set },
 	{ "IsCanAddCounter", scriptlib::card_is_can_add_counter },
 	{ "IsCanRemoveCounter", scriptlib::card_is_can_remove_counter },
+	{ "IsCanHaveCounter", scriptlib::card_is_can_have_counter },
 	{ "IsCanOverlay", scriptlib::card_is_can_overlay },
 	{ "IsCanBeFusionMaterial", scriptlib::card_is_can_be_fusion_material },
 	{ "IsCanBeSynchroMaterial", scriptlib::card_is_can_be_synchro_material },

@@ -2181,30 +2181,21 @@ int32 card::remove_counter(uint16 countertype, uint16 count) {
 	pduel->write_buffer16(count);
 	return TRUE;
 }
+// return: the player can put a counter on this or not
 int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 loc) {
 	effect_set eset;
-	if(count > 0) {
-		if(!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
-			return FALSE;
-		if(!loc && (!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)))
-			return FALSE;
-	}
+	if (!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
+		return FALSE;
+	if (!loc && (!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)))
+		return FALSE;
 	uint32 check = countertype & COUNTER_WITHOUT_PERMIT;
 	if(!check) {
 		filter_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff), &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
-			uint32 prange = eset[i]->get_value();
+			uint32 prange = eset[i]->range;
 			if(loc)
 				check = loc & prange;
-			else if(current.location & LOCATION_ONFIELD) {
-				uint32 filter = TRUE;
-				if(eset[i]->target) {
-					pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
-					pduel->lua->add_param(this, PARAM_TYPE_CARD);
-					filter = pduel->lua->check_condition(eset[i]->target, 2);
-				}
-				check = current.is_location(prange) && is_position(POS_FACEUP) && filter;
-			} else
+			else
 				check = TRUE;
 			if(check)
 				break;
@@ -2225,6 +2216,27 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 	if(limit > 0 && (cur + (singly ? 1 : count) > limit))
 		return FALSE;
 	return TRUE;
+}
+// return: this have a EFFECT_COUNTER_PERMIT of countertype or not
+int32 card::is_can_have_counter(uint16 countertype) {
+	effect_set eset;
+	if (countertype & COUNTER_WITHOUT_PERMIT)
+		return FALSE;
+	else {
+		filter_self_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff), &eset);
+		if (current.is_location(LOCATION_ONFIELD)) {
+			for (int32 i = 0; i < eset.size(); ++i) {
+				if (eset[i]->is_single_ready())
+					return TRUE;
+			}
+			return FALSE;
+		}
+		else if (eset.size())
+			return TRUE;
+		else
+			return FALSE;
+	}
+	return FALSE;
 }
 int32 card::get_counter(uint16 countertype) {
 	auto cmit = counters.find(countertype);
@@ -2376,6 +2388,25 @@ void card::filter_single_continuous_effect(int32 code, effect_set* eset, uint8 s
 		}
 	}
 	if(sort)
+		eset->sort();
+}
+void card::filter_self_effect(int32 code, effect_set* eset, uint8 sort) {
+	auto rg = single_effect.equal_range(code);
+	for (; rg.first != rg.second; ++rg.first) {
+		effect* peffect = rg.first->second;
+		if(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+			eset->add_item(rg.first->second);
+	}
+	for (auto& pcard : xyz_materials) {
+		rg = pcard->xmaterial_effect.equal_range(code);
+		for (; rg.first != rg.second; ++rg.first) {
+			effect* peffect = rg.first->second;
+			if (peffect->type & EFFECT_TYPE_FIELD)
+				continue;
+			eset->add_item(peffect);
+		}
+	}
+	if (sort)
 		eset->sort();
 }
 // refresh this->immune_effect
