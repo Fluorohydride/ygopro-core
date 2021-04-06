@@ -149,7 +149,8 @@ int32 effect::is_available() {
 		status &= ~EFFECT_STATUS_AVAILABLE;
 	return res;
 }
-// check if a single effect is ready
+// check if a effect is EFFECT_TYPE_SINGLE and is ready
+// check: range, enabled, condition
 int32 effect::is_single_ready() {
 	if(type & EFFECT_TYPE_ACTIONS)
 		return FALSE;
