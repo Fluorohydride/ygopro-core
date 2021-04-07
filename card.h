@@ -289,7 +289,6 @@ public:
 	void clear_card_target();
 
 	void filter_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
-	void filter_single_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_single_continuous_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_self_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_immune_effect();
