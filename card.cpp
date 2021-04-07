@@ -2350,17 +2350,6 @@ void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {
 	if(sort)
 		eset->sort();
 }
-void card::filter_single_effect(int32 code, effect_set* eset, uint8 sort) {
-	effect* peffect;
-	auto rg = single_effect.equal_range(code);
-	for (; rg.first != rg.second; ++rg.first) {
-		peffect = rg.first->second;
-		if (peffect->is_available() && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))
-			eset->add_item(peffect);
-	}
-	if(sort)
-		eset->sort();
-}
 void card::filter_single_continuous_effect(int32 code, effect_set* eset, uint8 sort) {
 	auto rg = single_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first)

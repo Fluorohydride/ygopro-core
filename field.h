@@ -595,7 +595,6 @@ public:
 	int32 remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 rplayer, uint8 s, uint8 o, uint16 min, uint16 max);
 	int32 get_control(uint16 step, effect* reason_effect, uint8 reason_player, group* targets, uint8 playerid, uint16 reset_phase, uint8 reset_count, uint32 zone);
 	int32 swap_control(uint16 step, effect* reason_effect, uint8 reason_player, group* targets1, group* targets2, uint16 reset_phase, uint8 reset_count);
-	int32 control_adjust(uint16 step);
 	int32 self_destroy(uint16 step, card* ucard, int32 p);
 	int32 trap_monster_adjust(uint16 step);
 	int32 equip(uint16 step, uint8 equip_player, card* equip_card, card* target, uint32 up, uint32 is_step);
@@ -787,7 +786,7 @@ public:
 #define PROCESSOR_EQUIP				73
 #define PROCESSOR_GET_CONTROL		74
 #define PROCESSOR_SWAP_CONTROL		75
-#define PROCESSOR_CONTROL_ADJUST	76
+//#define PROCESSOR_CONTROL_ADJUST	76
 #define PROCESSOR_SELF_DESTROY		77
 #define PROCESSOR_TRAP_MONSTER_ADJUST	78
 #define PROCESSOR_PAY_LPCOST		80
