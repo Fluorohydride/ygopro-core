@@ -1110,6 +1110,8 @@ uint32 card::get_lscale() {
 		temp.lscale = lscale;
 	}
 	lscale += up + upc;
+	if(lscale < 0 && current.pzone)
+		lscale = 0;
 	temp.lscale = 0xffffffff;
 	return lscale;
 }
@@ -1137,6 +1139,8 @@ uint32 card::get_rscale() {
 		temp.rscale = rscale;
 	}
 	rscale += up + upc;
+	if(rscale < 0 && current.pzone)
+		rscale = 0;
 	temp.rscale = 0xffffffff;
 	return rscale;
 }
