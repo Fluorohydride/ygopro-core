@@ -476,13 +476,6 @@ int32 field::process() {
 			it->step++;
 		return pduel->bufferlen;
 	}
-	case PROCESSOR_CONTROL_ADJUST: {
-		if (control_adjust(it->step)) {
-			core.units.pop_front();
-		} else
-			it->step++;
-		return pduel->bufferlen;
-	}
 	case PROCESSOR_SELF_DESTROY: {
 		if (self_destroy(it->step, (card*)it->ptr1, it->arg1)) {
 			core.units.pop_front();
@@ -4007,6 +4000,7 @@ int32 field::add_chain(uint16 step) {
 		auto& clit = core.new_chains.front();
 		effect* peffect = clit.triggering_effect;
 		card* phandler = peffect->get_handler();
+		phandler->refresh_disable_status();
 		if(peffect->type & EFFECT_TYPE_ACTIVATE) {
 			clit.set_triggering_state(phandler);
 		}
@@ -4310,7 +4304,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 	case 2: {
 		effect* peffect = cait->triggering_effect;
 		card* pcard = peffect->get_handler();
-		if((peffect->type & EFFECT_TYPE_ACTIVATE) && pcard->is_has_relation(*cait)) {
+		if((peffect->type & EFFECT_TYPE_ACTIVATE) && pcard->is_has_relation(*cait) && !cait->replace_op) {
 			pcard->enable_field_effect(true);
 			if(core.duel_rule <= 2) {
 				if(pcard->data.type & TYPE_FIELD) {

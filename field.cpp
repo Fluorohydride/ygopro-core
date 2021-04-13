@@ -15,7 +15,10 @@
 int32 field::field_used_count[32] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5};
 
 bool chain::chain_operation_sort(const chain& c1, const chain& c2) {
-	return c1.triggering_effect->id < c2.triggering_effect->id;
+	if (c1.triggering_effect && c2.triggering_effect && c1.triggering_effect->id != c2.triggering_effect->id)
+		return c1.triggering_effect->id < c2.triggering_effect->id;
+	else
+		return c1.chain_id < c2.chain_id;
 }
 void chain::set_triggering_state(card* pcard) {
 	triggering_controler = pcard->current.controler;
@@ -53,7 +56,6 @@ field::field(duel* pduel) {
 	for (int32 i = 0; i < 2; ++i) {
 		//cost[i].count = 0;
 		//cost[i].amount = 0;
-		core.hint_timing[i] = 0;
 		player[i].lp = 8000;
 		player[i].start_count = 5;
 		player[i].draw_count = 1;
@@ -68,58 +70,9 @@ field::field(duel* pduel) {
 		player[i].list_grave.reserve(30);
 		player[i].list_remove.reserve(30);
 		player[i].list_extra.reserve(15);
-		core.shuffle_deck_check[i] = FALSE;
-		core.shuffle_hand_check[i] = FALSE;
 	}
-	core.pre_field[0] = 0;
-	core.pre_field[1] = 0;
-	core.opp_mzone.clear();
-	core.summoning_card = 0;
-	core.summon_depth = 0;
-	core.summon_cancelable = FALSE;
-	core.chain_limit.clear();
-	core.chain_limit_p.clear();
-	core.chain_solving = FALSE;
-	core.conti_solving = FALSE;
-	core.conti_player = PLAYER_NONE;
-	core.win_player = 5;
-	core.win_reason = 0;
-	core.reason_effect = 0;
-	core.reason_player = PLAYER_NONE;
-	core.selfdes_disabled = FALSE;
-	core.flip_delayed = FALSE;
-	core.overdraw[0] = FALSE;
-	core.overdraw[1] = FALSE;
-	core.check_level = 0;
-	core.limit_tuner = 0;
-	core.limit_syn = 0;
-	core.limit_syn_minc = 0;
-	core.limit_syn_maxc = 0;
-	core.limit_xyz = 0;
-	core.limit_xyz_minc = 0;
-	core.limit_xyz_maxc = 0;
-	core.limit_link = 0;
-	core.limit_link_card = 0;
-	core.limit_link_minc = 0;
-	core.limit_link_maxc = 0;
-	core.last_control_changed_id = 0;
-	core.duel_options = 0;
-	core.duel_rule = 0;
-	core.attacker = 0;
-	core.attack_target = 0;
-	core.attack_rollback = FALSE;
-	core.deck_reversed = FALSE;
-	core.remove_brainwashing = FALSE;
-	core.effect_damage_step = FALSE;
-	core.shuffle_check_disabled = FALSE;
-	core.global_flag = 0;
-	nil_event.event_code = 0;
-	nil_event.event_cards = 0;
-	nil_event.event_player = PLAYER_NONE;
-	nil_event.event_value = 0;
-	nil_event.reason = 0;
-	nil_event.reason_effect = 0;
-	nil_event.reason_player = PLAYER_NONE;
+	returns = { 0 };
+	temp_card = nullptr;
 }
 void field::reload_field_info() {
 	pduel->write_buffer8(MSG_RELOAD_FIELD);

@@ -48,6 +48,7 @@ public:
 	static int32 card_get_origin_lscale(lua_State *L);
 	static int32 card_get_rscale(lua_State *L);
 	static int32 card_get_origin_rscale(lua_State *L);
+	static int32 card_get_current_scale(lua_State *L);
 	static int32 card_is_link_marker(lua_State *L);
 	static int32 card_get_linked_group(lua_State *L);
 	static int32 card_get_linked_group_count(lua_State *L);
@@ -121,6 +122,7 @@ public:
 	static int32 card_is_attribute(lua_State *L);
 	static int32 card_is_fusion_attribute(lua_State *L);
 	static int32 card_is_link_attribute(lua_State *L);
+	static int32 card_is_extra_deck_monster(lua_State *L);
 	static int32 card_is_reason(lua_State *L);
 	static int32 card_is_summon_type(lua_State *L);
 	static int32 card_is_summon_location(lua_State *L);
@@ -250,6 +252,7 @@ public:
 	static int32 card_is_can_turn_set(lua_State *L);
 	static int32 card_is_can_add_counter(lua_State *L);
 	static int32 card_is_can_remove_counter(lua_State *L);
+	static int32 card_is_can_have_counter(lua_State* L);
 	static int32 card_is_can_overlay(lua_State *L);
 	static int32 card_is_can_be_fusion_material(lua_State *L);
 	static int32 card_is_can_be_synchro_material(lua_State *L);
