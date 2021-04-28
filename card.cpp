@@ -2931,7 +2931,7 @@ int32 card::is_summonable_card() {
 		return FALSE;
 	return !(data.type & (TYPE_RITUAL | TYPE_SPSUMMON
 		| TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK
-		| TYPE_TOKEN));
+		| TYPE_TOKEN | TYPE_TRAPMONSTER));
 }
 int32 card::is_fusion_summonable_card(uint32 summon_type) {
 	if(!(data.type & TYPE_FUSION))
