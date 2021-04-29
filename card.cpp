@@ -1110,6 +1110,8 @@ uint32 card::get_lscale() {
 		temp.lscale = lscale;
 	}
 	lscale += up + upc;
+	if(lscale < 0 && current.pzone)
+		lscale = 0;
 	temp.lscale = 0xffffffff;
 	return lscale;
 }
@@ -1137,6 +1139,8 @@ uint32 card::get_rscale() {
 		temp.rscale = rscale;
 	}
 	rscale += up + upc;
+	if(rscale < 0 && current.pzone)
+		rscale = 0;
 	temp.rscale = 0xffffffff;
 	return rscale;
 }
@@ -2927,7 +2931,7 @@ int32 card::is_summonable_card() {
 		return FALSE;
 	return !(data.type & (TYPE_RITUAL | TYPE_SPSUMMON
 		| TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK
-		| TYPE_TOKEN));
+		| TYPE_TOKEN | TYPE_TRAPMONSTER));
 }
 int32 card::is_fusion_summonable_card(uint32 summon_type) {
 	if(!(data.type & TYPE_FUSION))
