@@ -1847,18 +1847,64 @@ void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* mater
 		if((pcard->data.type & TYPE_MONSTER) && pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL) && pcard->is_removeable(playerid, POS_FACEUP, REASON_EFFECT))
 			material->insert(pcard);
 }
-void field::get_fusion_material(uint8 playerid, card_set* material) {
-	for(auto& pcard : player[playerid].list_mzone) {
-		if(pcard)
-			material->insert(pcard);
+void field::get_fusion_material(uint8 playerid, card_set* material_all, card_set* material_base, uint32 location) {
+	if(location & LOCATION_MZONE) {
+		for(auto& pcard : player[playerid].list_mzone) {
+			if(pcard)
+				material_base->insert(pcard);
+		}
+	}
+	if(location & LOCATION_HAND) {
+		for(auto& pcard : player[playerid].list_hand) {
+			if(pcard->data.type & TYPE_MONSTER)
+				material_base->insert(pcard);
+		}
+	}
+	if(location & LOCATION_GRAVE) {
+		for(auto& pcard : player[playerid].list_grave) {
+			if(pcard->data.type & TYPE_MONSTER)
+				material_base->insert(pcard);
+		}
+	}
+	if(location & LOCATION_REMOVED) {
+		for(auto& pcard : player[playerid].list_remove) {
+			if(pcard->data.type & TYPE_MONSTER)
+				material_base->insert(pcard);
+		}
+	}
+	if(location & LOCATION_DECK) {
+		for(auto& pcard : player[playerid].list_main) {
+			if(pcard->data.type & TYPE_MONSTER)
+				material_base->insert(pcard);
+		}
+	}
+	if(location & LOCATION_EXTRA) {
+		for(auto& pcard : player[playerid].list_extra) {
+			if(pcard->data.type & TYPE_MONSTER)
+				material_base->insert(pcard);
+		}
+	}
+	if(location & LOCATION_SZONE) {
+		for(auto& pcard : player[playerid].list_szone) {
+			if(pcard && pcard->data.type & TYPE_MONSTER)
+				material_base->insert(pcard);
+		}
+	}
+	if(location & LOCATION_PZONE) {
+		for(auto& pcard : player[playerid].list_szone) {
+			if(pcard && pcard->current.pzone && pcard->data.type & TYPE_MONSTER)
+				material_base->insert(pcard);
+		}
 	}
 	for(auto& pcard : player[playerid].list_szone) {
 		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
-			material->insert(pcard);
+			material_all->insert(pcard);
 	}
-	for(auto& pcard : player[playerid].list_hand)
-		if(pcard->data.type & TYPE_MONSTER)
-			material->insert(pcard);
+	for(auto& pcard : player[playerid].list_grave) {
+		if(pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
+			material_all->insert(pcard);
+	}
+	material_all->insert(material_base->begin(), material_base->end());
 }
 void field::ritual_release(card_set* material) {
 	card_set rel;
