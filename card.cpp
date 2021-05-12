@@ -1048,6 +1048,22 @@ uint32 card::get_link_attribute(uint8 playerid) {
 	}
 	return attribute;
 }
+uint32 card::get_grave_attribute(uint8 playerid) {
+	uint32 attribute = data.attribute;
+	effect_set eset;
+	pduel->game_field->filter_player_effect(playerid, EFFECT_CHANGE_GRAVE_ATTRIBUTE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		if(!eset[i]->target)
+			attribute = eset[i]->get_value(this);
+		else {
+			pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(this, PARAM_TYPE_CARD);
+			if(pduel->lua->check_condition(eset[i]->target, 2))
+				attribute = eset[i]->get_value(this);
+		}
+	}
+	return attribute;
+}
 uint32 card::get_race() {
 	if(assume_type == ASSUME_RACE)
 		return assume_value;
@@ -1083,6 +1099,22 @@ uint32 card::get_link_race(uint8 playerid) {
 	for (int32 i = 0; i < effects.size(); ++i) {
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		race |= effects[i]->get_value(this, 1);
+	}
+	return race;
+}
+uint32 card::get_grave_race(uint8 playerid) {
+	uint32 race = data.race;
+	effect_set eset;
+	pduel->game_field->filter_player_effect(playerid, EFFECT_CHANGE_GRAVE_RACE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		if(!eset[i]->target)
+			race = eset[i]->get_value(this);
+		else {
+			pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(this, PARAM_TYPE_CARD);
+			if(pduel->lua->check_condition(eset[i]->target, 2))
+				race = eset[i]->get_value(this);
+		}
 	}
 	return race;
 }

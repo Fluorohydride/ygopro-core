@@ -225,8 +225,10 @@ public:
 	uint32 get_attribute();
 	uint32 get_fusion_attribute(uint8 playerid);
 	uint32 get_link_attribute(uint8 playerid);
+	uint32 get_grave_attribute(uint8 playerid);
 	uint32 get_race();
 	uint32 get_link_race(uint8 playerid);
+	uint32 get_grave_race(uint8 playerid);
 	uint32 get_lscale();
 	uint32 get_rscale();
 	uint32 get_link_marker();

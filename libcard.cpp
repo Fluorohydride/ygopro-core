@@ -563,6 +563,18 @@ int32 scriptlib::card_get_link_attribute(lua_State *L) {
 	lua_pushinteger(L, pcard->get_link_attribute(playerid));
 	return 1;
 }
+int32 scriptlib::card_get_attribute_in_grave(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	int32 playerid = PLAYER_NONE;
+	if(lua_gettop(L) > 1 && !lua_isnil(L, 2))
+		playerid = (int32)lua_tointeger(L, 2);
+	else
+		playerid = pcard->pduel->game_field->core.reason_player;
+	lua_pushinteger(L, pcard->get_grave_attribute(playerid));
+	return 1;
+}
 int32 scriptlib::card_get_race(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -590,6 +602,18 @@ int32 scriptlib::card_get_link_race(lua_State *L) {
 	else
 		playerid = pcard->pduel->game_field->core.reason_player;
 	lua_pushinteger(L, pcard->get_link_race(playerid));
+	return 1;
+}
+int32 scriptlib::card_get_race_in_grave(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	int32 playerid = PLAYER_NONE;
+	if(lua_gettop(L) > 1 && !lua_isnil(L, 2))
+		playerid = (int32)lua_tointeger(L, 2);
+	else
+		playerid = pcard->pduel->game_field->core.reason_player;
+	lua_pushinteger(L, pcard->get_grave_race(playerid));
 	return 1;
 }
 int32 scriptlib::card_get_attack(lua_State *L) {
@@ -3246,9 +3270,11 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetOriginalAttribute", scriptlib::card_get_origin_attribute },
 	{ "GetFusionAttribute", scriptlib::card_get_fusion_attribute },
 	{ "GetLinkAttribute", scriptlib::card_get_link_attribute },
+	{ "GetAttributeInGrave", scriptlib::card_get_attribute_in_grave },
 	{ "GetRace", scriptlib::card_get_race },
 	{ "GetOriginalRace", scriptlib::card_get_origin_race },
 	{ "GetLinkRace", scriptlib::card_get_link_race },
+	{ "GetRaceInGrave", scriptlib::card_get_race_in_grave },
 	{ "GetAttack", scriptlib::card_get_attack },
 	{ "GetBaseAttack", scriptlib::card_get_origin_attack },
 	{ "GetTextAttack", scriptlib::card_get_text_attack },
