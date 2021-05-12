@@ -1049,6 +1049,10 @@ uint32 card::get_link_attribute(uint8 playerid) {
 	return attribute;
 }
 uint32 card::get_grave_attribute(uint8 playerid) {
+	if(!(data.type & TYPE_MONSTER))
+		return 0;
+	if(current.is_location(LOCATION_GRAVE))
+		return get_attribute();
 	uint32 attribute = data.attribute;
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, EFFECT_CHANGE_GRAVE_ATTRIBUTE, &eset);
@@ -1103,6 +1107,10 @@ uint32 card::get_link_race(uint8 playerid) {
 	return race;
 }
 uint32 card::get_grave_race(uint8 playerid) {
+	if(!(data.type & TYPE_MONSTER))
+		return 0;
+	if(current.is_location(LOCATION_GRAVE))
+		return get_race();
 	uint32 race = data.race;
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, EFFECT_CHANGE_GRAVE_RACE, &eset);
