@@ -454,6 +454,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_SET_BATTLE_ATTACK		362
 #define EFFECT_SET_BATTLE_DEFENSE		363
 #define EFFECT_OVERLAY_RITUAL_MATERIAL	364
+#define EFFECT_CHANGE_GRAVE_ATTRIBUTE	365
+#define EFFECT_CHANGE_GRAVE_RACE		366
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

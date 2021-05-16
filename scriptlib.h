@@ -66,9 +66,11 @@ public:
 	static int32 card_get_origin_attribute(lua_State *L);
 	static int32 card_get_fusion_attribute(lua_State *L);
 	static int32 card_get_link_attribute(lua_State *L);
+	static int32 card_get_attribute_in_grave(lua_State *L);
 	static int32 card_get_race(lua_State *L);
 	static int32 card_get_origin_race(lua_State *L);
 	static int32 card_get_link_race(lua_State *L);
+	static int32 card_get_race_in_grave(lua_State *L);
 	static int32 card_get_attack(lua_State *L);
 	static int32 card_get_origin_attack(lua_State *L);
 	static int32 card_get_text_attack(lua_State *L);
