@@ -240,7 +240,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_EXTRA_SET_COUNT			35	//
 #define EFFECT_SET_PROC					36	//
 #define EFFECT_LIMIT_SET_PROC			37	//
-#define EFFECT_DEVINE_LIGHT				38	//
+#define EFFECT_DIVINE_LIGHT				38	//
 #define EFFECT_CANNOT_DISABLE_FLIP_SUMMON	39	//
 #define EFFECT_INDESTRUCTABLE			40	//
 #define EFFECT_INDESTRUCTABLE_EFFECT	41	//
