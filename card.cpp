@@ -2943,28 +2943,48 @@ int32 card::check_cost_condition(int32 ecode, int32 playerid) {
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, ecode, &eset, FALSE);
 	filter_effect(ecode, &eset);
+	int32 res = TRUE;
+	effect* oreason = pduel->game_field->core.reason_effect;
+	uint8 op = pduel->game_field->core.reason_player;
 	for(int32 i = 0; i < eset.size(); ++i) {
-		pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+		effect* peffect = eset[i];
+		pduel->game_field->core.reason_effect = peffect;
+		pduel->game_field->core.reason_player = playerid;
+		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-		if(!pduel->lua->check_condition(eset[i]->cost, 3))
-			return FALSE;
+		if(!pduel->lua->check_condition(peffect->cost, 3)) {
+			res = FALSE;
+			break;
+		}
 	}
-	return TRUE;
+	pduel->game_field->core.reason_effect = oreason;
+	pduel->game_field->core.reason_player = op;
+	return res;
 }
 int32 card::check_cost_condition(int32 ecode, int32 playerid, int32 sumtype) {
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, ecode, &eset, FALSE);
 	filter_effect(ecode, &eset);
+	int32 res = TRUE;
+	effect* oreason = pduel->game_field->core.reason_effect;
+	uint8 op = pduel->game_field->core.reason_player;
 	for(int32 i = 0; i < eset.size(); ++i) {
-		pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+		effect* peffect = eset[i];
+		pduel->game_field->core.reason_effect = peffect;
+		pduel->game_field->core.reason_player = playerid;
+		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		pduel->lua->add_param(sumtype, PARAM_TYPE_INT);
-		if(!pduel->lua->check_condition(eset[i]->cost, 4))
-			return FALSE;
+		if(!pduel->lua->check_condition(peffect->cost, 4)) {
+			res = FALSE;
+			break;
+		}
 	}
-	return TRUE;
+	pduel->game_field->core.reason_effect = oreason;
+	pduel->game_field->core.reason_player = op;
+	return res;
 }
 int32 card::is_summonable_card() {
 	if(!(data.type & TYPE_MONSTER))
