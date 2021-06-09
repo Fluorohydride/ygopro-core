@@ -432,16 +432,23 @@ int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count)
 		return FALSE;
 	} else {
 		uint8 pt = 0;
+		int32 selected = 0;
 		for(int8 i = 0; i < count; ++i) {
 			uint8 p = returns.bvalue[pt];
 			uint8 l = returns.bvalue[pt + 1];
 			uint8 s = returns.bvalue[pt + 2];
+			int32 sel = 0x1u << (s + (p == playerid ? 0 : 16) + (l == LOCATION_MZONE ? 0 : 8));
+			if(sel & (0x1 << 5))
+				sel |= 0x1 << (16 + 6);
+			if(sel & (0x1 << 6))
+				sel |= 0x1 << (16 + 5);
 			if((p != 0 && p != 1)
 					|| ((l != LOCATION_MZONE) && (l != LOCATION_SZONE))
-					|| ((0x1u << s) & (flag >> (((p == playerid) ? 0 : 16) + ((l == LOCATION_MZONE) ? 0 : 8))))) {
+					|| (sel & flag) || (sel & selected)) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
 			}
+			selected |= sel;
 			pt += 3;
 		}
 		return TRUE;
