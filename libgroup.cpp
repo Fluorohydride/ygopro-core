@@ -14,6 +14,19 @@
 int32 scriptlib::group_new(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = pduel->new_group();
+	for(int32 i = 1; i <= lua_gettop(L); ++i) {
+		if(!lua_isnil(L, i)) {
+			if(check_param(L, PARAM_TYPE_CARD, i, TRUE)) {
+				card* pcard = *(card**) lua_touserdata(L, i);
+				pgroup->container.insert(pcard);
+			} else if (check_param(L, PARAM_TYPE_GROUP, i, TRUE)) {
+				group* mgroup = *(group**) lua_touserdata(L, i);
+				pgroup->container.insert(mgroup->container.begin(), mgroup->container.end());
+			} else {
+				luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", i);
+			}
+		}
+	}
 	interpreter::group2value(L, pgroup);
 	return 1;
 }
@@ -24,19 +37,6 @@ int32 scriptlib::group_clone(lua_State *L) {
 	duel* pduel = pgroup->pduel;
 	group* newgroup = pduel->new_group(pgroup->container);
 	interpreter::group2value(L, newgroup);
-	return 1;
-}
-int32 scriptlib::group_from_cards(lua_State *L) {
-	duel* pduel = interpreter::get_duel_info(L);
-	group* pgroup = pduel->new_group();
-	for(int32 i = 0; i < lua_gettop(L); ++i) {
-		if(!lua_isnil(L, i + 1)) {
-			check_param(L, PARAM_TYPE_CARD, i + 1);
-			card* pcard = *(card**) lua_touserdata(L, i + 1);
-			pgroup->container.insert(pcard);
-		}
-	}
-	interpreter::group2value(L, pgroup);
 	return 1;
 }
 int32 scriptlib::group_delete(lua_State *L) {
@@ -71,24 +71,46 @@ int32 scriptlib::group_clear(lua_State *L) {
 	return 0;
 }
 int32 scriptlib::group_add_card(lua_State *L) {
-	check_param_count(L, 2);
+	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_GROUP, 1);
-	check_param(L, PARAM_TYPE_CARD, 2);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	card* pcard = *(card**) lua_touserdata(L, 2);
 	if (pgroup->is_readonly != 1) {
-		pgroup->container.insert(pcard);
+		for(int32 i = 2; i <= lua_gettop(L); ++i) {
+			if(!lua_isnil(L, i)) {
+				if(check_param(L, PARAM_TYPE_CARD, i, TRUE)) {
+					card* pcard = *(card**) lua_touserdata(L, i);
+					pgroup->container.insert(pcard);
+				} else if (check_param(L, PARAM_TYPE_GROUP, i, TRUE)) {
+					group* mgroup = *(group**) lua_touserdata(L, i);
+					pgroup->container.insert(mgroup->container.begin(), mgroup->container.end());
+				} else {
+					luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", i);
+				}
+			}
+		}
 	}
 	return 0;
 }
 int32 scriptlib::group_remove_card(lua_State *L) {
-	check_param_count(L, 2);
+	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_GROUP, 1);
-	check_param(L, PARAM_TYPE_CARD, 2);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	card* pcard = *(card**) lua_touserdata(L, 2);
 	if (pgroup->is_readonly != 1) {
-		pgroup->container.erase(pcard);
+		for(int32 i = 2; i <= lua_gettop(L); ++i) {
+			if(!lua_isnil(L, i)) {
+				if(check_param(L, PARAM_TYPE_CARD, i, TRUE)) {
+					card* pcard = *(card**) lua_touserdata(L, i);
+					pgroup->container.erase(pcard);
+				} else if (check_param(L, PARAM_TYPE_GROUP, i, TRUE)) {
+					group* sgroup = *(group**) lua_touserdata(L, i);
+					for (auto& pcard : sgroup->container) {
+						pgroup->container.erase(pcard);
+					}
+				} else {
+					luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", i);
+				}
+			}
+		}
 	}
 	return 0;
 }
@@ -638,30 +660,6 @@ int32 scriptlib::group_remove(lua_State *L) {
 	}
 	return 0;
 }
-int32 scriptlib::group_merge(lua_State *L) {
-	check_param_count(L, 2);
-	check_param(L, PARAM_TYPE_GROUP, 1);
-	check_param(L, PARAM_TYPE_GROUP, 2);
-	group* pgroup = *(group**) lua_touserdata(L, 1);
-	group* mgroup = *(group**) lua_touserdata(L, 2);
-	if(pgroup->is_readonly == 1)
-		return 0;
-	pgroup->container.insert(mgroup->container.begin(), mgroup->container.end());
-	return 0;
-}
-int32 scriptlib::group_sub(lua_State *L) {
-	check_param_count(L, 2);
-	check_param(L, PARAM_TYPE_GROUP, 1);
-	check_param(L, PARAM_TYPE_GROUP, 2);
-	group* pgroup = *(group**) lua_touserdata(L, 1);
-	group* sgroup = *(group**) lua_touserdata(L, 2);
-	if(pgroup->is_readonly == 1)
-		return 0;
-	for (auto& pcard : sgroup->container) {
-		pgroup->container.erase(pcard);
-	}
-	return 0;
-}
 int32 scriptlib::group_equal(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_GROUP, 1);
@@ -848,13 +846,15 @@ int32 scriptlib::group_meta_bxor(lua_State* L) {
 
 static const struct luaL_Reg grouplib[] = {
 	{ "CreateGroup", scriptlib::group_new },
+	{ "FromCards", scriptlib::group_new },
 	{ "KeepAlive", scriptlib::group_keep_alive },
 	{ "DeleteGroup", scriptlib::group_delete },
 	{ "Clone", scriptlib::group_clone },
-	{ "FromCards", scriptlib::group_from_cards },
 	{ "Clear", scriptlib::group_clear },
 	{ "AddCard", scriptlib::group_add_card },
+	{ "Merge", scriptlib::group_add_card },
 	{ "RemoveCard", scriptlib::group_remove_card },
+	{ "Sub", scriptlib::group_remove_card },
 	{ "GetNext", scriptlib::group_get_next },
 	{ "GetFirst", scriptlib::group_get_first },
 	{ "GetCount", scriptlib::group_get_count },
@@ -876,8 +876,6 @@ static const struct luaL_Reg grouplib[] = {
 	{ "GetSum", scriptlib::group_get_sum },
 	{ "GetClassCount", scriptlib::group_get_class_count },
 	{ "Remove", scriptlib::group_remove },
-	{ "Merge", scriptlib::group_merge },
-	{ "Sub", scriptlib::group_sub },
 	{ "Equal", scriptlib::group_equal },
 	{ "IsContains", scriptlib::group_is_contains },
 	{ "SearchCard", scriptlib::group_search_card },
