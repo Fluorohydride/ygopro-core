@@ -757,6 +757,14 @@ int32 scriptlib::card_get_previous_controler(lua_State *L) {
 	lua_pushinteger(L, pcard->previous.controler);
 	return 1;
 }
+int32 scriptlib::card_set_reason(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	uint32 reason = (uint32)lua_tointeger(L, 2);
+	pcard->current.reason = reason;
+	return 0;
+}
 int32 scriptlib::card_get_reason(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -3292,6 +3300,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetOwner", scriptlib::card_get_owner },
 	{ "GetControler", scriptlib::card_get_controler },
 	{ "GetPreviousControler", scriptlib::card_get_previous_controler },
+	{ "SetReason", scriptlib::card_set_reason },
 	{ "GetReason", scriptlib::card_get_reason },
 	{ "GetReasonCard", scriptlib::card_get_reason_card },
 	{ "GetReasonPlayer", scriptlib::card_get_reason_player },
