@@ -1724,22 +1724,18 @@ int32 scriptlib::card_is_has_effect(lua_State *L) {
 	}
 	effect_set eset;
 	pcard->filter_effect(code, &eset);
-	int32 size = eset.size();
-	if(!size) {
-		lua_pushnil(L);
-		return 1;
-	}
 	int32 check_player = PLAYER_NONE;
 	if(lua_gettop(L) >= 3) {
 		check_player = (int32)lua_tointeger(L, 3);
 		if(check_player > PLAYER_NONE)
 			check_player = PLAYER_NONE;
 	}
+	int32 size = 0;
 	for(int32 i = 0; i < eset.size(); ++i) {
-		if(check_player == PLAYER_NONE || eset[i]->check_count_limit(check_player))
+		if(check_player == PLAYER_NONE || eset[i]->check_count_limit(check_player)) {
 			interpreter::effect2value(L, eset[i]);
-		else
-			size--;
+			size++;
+		}
 	}
 	if(!size) {
 		lua_pushnil(L);
