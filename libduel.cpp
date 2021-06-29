@@ -3951,13 +3951,17 @@ int32 scriptlib::duel_is_player_affected_by_effect(lua_State *L) {
 	int32 code = (int32)lua_tointeger(L, 2);
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, code, &eset);
-	int32 size = eset.size();
+	int32 size = 0;
+	for(int32 i = 0; i < eset.size(); ++i) {
+		if(eset[i]->check_count_limit(playerid)) {
+			interpreter::effect2value(L, eset[i]);
+			size++;
+		}
+	}
 	if(!size) {
 		lua_pushnil(L);
 		return 1;
 	}
-	for(int32 i = 0; i < size; ++i)
-		interpreter::effect2value(L, eset[i]);
 	return size;
 }
 int32 scriptlib::duel_is_player_can_draw(lua_State * L) {
