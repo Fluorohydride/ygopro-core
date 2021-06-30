@@ -13,7 +13,6 @@
 #include "group.h"
 #include "ocgapi.h"
 
-//added by Lyris
 int32 scriptlib::duel_assume_reset(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->restore_assumes();
