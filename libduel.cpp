@@ -16,7 +16,7 @@
 int32 scriptlib::duel_assume_reset(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->restore_assumes();
-	return 1;
+	return 0;
 }
 
 int32 scriptlib::duel_enable_global_flag(lua_State *L) {
