@@ -373,6 +373,7 @@ public:
 	static void open_grouplib(lua_State *L);
 
 	//Duel functions
+	static int32 duel_assume_reset(lua_State *L); //added by Lyris
 	static int32 duel_enable_global_flag(lua_State *L);
 	static int32 duel_get_lp(lua_State *L);
 	static int32 duel_set_lp(lua_State *L);
