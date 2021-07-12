@@ -5009,8 +5009,10 @@ int32 field::adjust_step(uint16 step) {
 		return FALSE;
 	}
 	case 15: {
-		raise_event((card*)0, EVENT_ADJUST, 0, 0, PLAYER_NONE, PLAYER_NONE, 0);
-		process_instant_event();
+		if(!check_event(EVENT_ADJUST)) {
+			raise_event((card*)0, EVENT_ADJUST, 0, 0, PLAYER_NONE, PLAYER_NONE, 0);
+			process_instant_event();
+		}
 		return FALSE;
 	}
 	case 16: {
