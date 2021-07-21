@@ -419,6 +419,13 @@ int32 field::process() {
 			it->step++;
 		return pduel->bufferlen;
 	}
+	case PROCESSOR_PENDULUM_SUMMON: {
+		if (pendulum_summon(it->step, it->arg1, it->ptarget)) {
+			core.units.pop_front();
+		} else
+			it->step++;
+		return pduel->bufferlen;
+	}
 	case PROCESSOR_DRAW	: {
 		if (draw(it->step, it->peffect, it->arg1, (it->arg2 >> 28) & 0xf, (it->arg2 >> 24) & 0xf, it->arg2 & 0xffffff))
 			core.units.pop_front();

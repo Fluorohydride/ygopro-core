@@ -2703,7 +2703,7 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 s
 		}
 	}
 }
-void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset) {
+void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset, group* mg, uint8 is_effect) {
 	auto pr = field_effect.equal_range(EFFECT_SPSUMMON_PROC_G);
 	for(auto eit = pr.first; eit != pr.second;) {
 		effect* peffect = eit->second;
@@ -2719,7 +2719,9 @@ void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset) {
 		pduel->game_field->save_lp_cost();
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
-		if(pduel->lua->check_condition(peffect->condition, 2))
+		pduel->lua->add_param(is_effect, PARAM_TYPE_INT);
+		pduel->lua->add_param(mg, PARAM_TYPE_GROUP);
+		if(pduel->lua->check_condition(peffect->condition, 4))
 			peset->add_item(peffect);
 		pduel->game_field->restore_lp_cost();
 		pduel->game_field->core.reason_effect = oreason;
