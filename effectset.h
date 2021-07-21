@@ -70,50 +70,47 @@ private:
 };
 
 struct effect_set_v {
-	effect_set_v(): count(0) {}
+	effect_set_v() {}
 	void add_item(effect* peffect) {
 		container.push_back(peffect);
-		count++;
 	}
 	void remove_item(int index) {
-		if(index >= count)
+		if(index >= (int)container.size())
 			return;
 		container.erase(container.begin() + index);
-		count--;
 	}
 	void clear() {
 		container.clear();
-		count = 0;
 	}
 	int size() const {
-		return count;
+		return (int)container.size();
 	}
 	void sort() {
+		int count = (int)container.size();
 		if(count < 2)
 			return;
 		std::sort(container.begin(), container.begin() + count, effect_sort_id);
 	}
 	effect* const& get_last() const {
-		return container[count - 1];
+		return container.back();
 	}
 	effect*& get_last() {
-		return container[count - 1];
+		return container.back();
 	}
 	effect* const& operator[] (int index) const {
-		return container[index];
+		return container.at(index);
 	}
 	effect*& operator[] (int index) {
-		return container[index];
+		return container.at(index);
 	}
 	effect* const& at(int index) const {
-		return container[index];
+		return container.at(index);
 	}
 	effect*& at(int index) {
-		return container[index];
+		return container.at(index);
 	}
 private:
 	std::vector<effect*> container;
-	int count;
 };
 
 #endif //EFFECTSET_H_
