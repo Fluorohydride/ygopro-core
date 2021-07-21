@@ -300,7 +300,7 @@ public:
 	int32 filter_set_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute, uint32 zone);
 	int32 check_set_procedure(effect* proc, uint8 playerid, uint8 ignore_count, uint8 min_tribute, uint32 zone);
 	void filter_spsummon_procedure(uint8 playerid, effect_set* eset, uint32 summon_type);
-	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset);
+	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset, group* mg, uint8 is_effect);
 	effect* is_affected_by_effect(int32 code);
 	effect* is_affected_by_effect(int32 code, card* target);
 	int32 fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_material);
