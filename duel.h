@@ -12,6 +12,7 @@
 #include "mtrandom.h"
 #include <set>
 #include <unordered_set>
+#include <random>
 
 class card;
 class group;
@@ -28,7 +29,7 @@ public:
 	byte* bufferp;
 	interpreter* lua;
 	field* game_field;
-	mtrandom random;
+	std::mt19937 random;
 	std::unordered_set<card*> cards;
 	std::unordered_set<card*> assumes;
 	std::unordered_set<group*> groups;

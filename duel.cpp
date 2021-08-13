@@ -139,5 +139,19 @@ void duel::set_responseb(byte* resp) {
 	std::memcpy(game_field->returns.bvalue, resp, 64);
 }
 int32 duel::get_next_integer(int32 l, int32 h) {
-	return (int32) (random.real() * (h - l + 1)) + l;
+	if (game_field->core.duel_options & DUEL_OLD_REPLAY) {
+		int32 result = (int32)(((double)random() / random.max()) * (h - l + 1)) + l;
+		if (result > h)
+			result = h;
+		return result;
+	}
+	else {
+		uint32 range = (uint32)(h - l + 1);
+		uint32 secureMax = random.max() - random.max() % range;
+		uint32 x;
+		do {
+			x = random();
+		} while (x >= secureMax);
+		return (int32)(l + x % range);
+	}
 }
