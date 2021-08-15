@@ -60,7 +60,7 @@ uint32 default_message_handler(void* pduel, uint32 message_type) {
 extern "C" DECL_DLLEXPORT ptr create_duel(uint32 seed) {
 	duel* pduel = new duel();
 	duel_set.insert(pduel);
-	pduel->random.seed(seed);
+	pduel->random.reset(seed);
 	return (ptr)pduel;
 }
 extern "C" DECL_DLLEXPORT void start_duel(ptr pduel, int32 options) {

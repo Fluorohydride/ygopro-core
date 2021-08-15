@@ -140,18 +140,9 @@ void duel::set_responseb(byte* resp) {
 }
 int32 duel::get_next_integer(int32 l, int32 h) {
 	if (game_field->core.duel_options & DUEL_OLD_REPLAY) {
-		int32 result = (int32)(((double)random() / random.max()) * (h - l + 1)) + l;
-		if (result > h)
-			result = h;
-		return result;
+		return random.get_random_integer_old(l, h);
 	}
 	else {
-		uint32 range = (uint32)(h - l + 1);
-		uint32 secureMax = random.max() - random.max() % range;
-		uint32 x;
-		do {
-			x = random();
-		} while (x >= secureMax);
-		return (int32)(l + x % range);
+		return random.get_random_integer(l, h);
 	}
 }

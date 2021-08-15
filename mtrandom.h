@@ -8,6 +8,62 @@
 #ifndef MTRANDOM_H_
 #define MTRANDOM_H_
 
+#include <random>
+
+class mt19937 {
+public:
+	mt19937() {}
+	explicit mt19937(unsigned int seed) {
+		rng.seed(seed);
+	}
+
+	// mersenne_twister_engine
+	void reset(unsigned int seed) {
+		rng.seed(seed);
+	}
+	int rand() {
+		return rng();
+	}
+
+	// uniform_int_distribution
+	int get_random_integer(int l, int h) {
+		unsigned int range = (unsigned int)(h - l + 1);
+		unsigned int secureMax = rng.max() - rng.max() % range;
+		unsigned int x;
+		do {
+			x = rng();
+		} while (x >= secureMax);
+		return (int)(l + x % range);
+	}
+	int get_random_integer_old(int l, int h) {
+		int result = (int)((double)rng() / rng.max() * (h - l + 1)) + l;
+		if (result > h)
+			result = h;
+		return result;
+	}
+	
+	// Fisher¡VYates shuffle
+	template<typename T>
+	void shuffle_vector(std::vector<T>& v) {
+		int n = (int)v.size();
+		for (int i = 0; i < n - 1; ++i) {
+			int r = get_random_integer(i, n - 1);
+			std::swap(v[i], v[r]);
+		}
+	}
+	template<typename T>
+	void shuffle_vector_old(std::vector<T>& v) {
+		int n = (int)v.size();
+		for (int i = 0; i < n - 1; ++i) {
+			int r = get_random_integer_old(i, n - 1);
+			std::swap(v[i], v[r]);
+		}
+	}
+
+private:
+	std::mt19937 rng;
+};
+
 //Mersenne Twister
 class mtrandom {
 public:
