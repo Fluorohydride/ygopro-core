@@ -12,10 +12,10 @@
 
 class mt19937 {
 public:
-	mt19937() {}
-	explicit mt19937(unsigned int seed) {
-		rng.seed(seed);
-	}
+	mt19937() :
+		rng(), rand_max((rng.max)()) {}
+	explicit mt19937(unsigned int seed) :
+		rng(seed), rand_max((rng.max)()) {}
 
 	// mersenne_twister_engine
 	void reset(unsigned int seed) {
@@ -28,7 +28,7 @@ public:
 	// uniform_int_distribution
 	int get_random_integer(int l, int h) {
 		unsigned int range = (unsigned int)(h - l + 1);
-		unsigned int secureMax = rng.max() - rng.max() % range;
+		unsigned int secureMax = rand_max - rand_max % range;
 		unsigned int x;
 		do {
 			x = rng();
@@ -36,7 +36,7 @@ public:
 		return (int)(l + x % range);
 	}
 	int get_random_integer_old(int l, int h) {
-		int result = (int)((double)rng() / rng.max() * (h - l + 1)) + l;
+		int result = (int)((double)rng() / rand_max * (h - l + 1)) + l;
 		if (result > h)
 			result = h;
 		return result;
@@ -62,6 +62,7 @@ public:
 
 private:
 	std::mt19937 rng;
+	const unsigned int rand_max;
 };
 
 //Mersenne Twister
