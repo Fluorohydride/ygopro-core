@@ -42,7 +42,7 @@ public:
 		return result;
 	}
 	
-	// Fisher¡VYates shuffle
+	// Fisher-Yates shuffle
 	template<typename T>
 	void shuffle_vector(std::vector<T>& v) {
 		int n = (int)v.size();
