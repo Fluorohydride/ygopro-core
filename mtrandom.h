@@ -21,7 +21,7 @@ public:
 	void reset(unsigned int seed) {
 		rng.seed(seed);
 	}
-	int rand() {
+	unsigned int rand() {
 		return rng();
 	}
 
