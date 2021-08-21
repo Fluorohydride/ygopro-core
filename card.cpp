@@ -1637,6 +1637,9 @@ int32 card::add_effect(effect* peffect) {
 	}
 	if (indexer.find(peffect) != indexer.end())
 		return 0;
+	if (peffect->type & EFFECT_TYPE_SINGLE && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE) && peffect->owner == this 
+		&& get_status(STATUS_DISABLED) && (peffect->reset_flag & RESET_DISABLE))
+		return 0;
 	card_set check_target = { this };
 	effect_container::iterator eit;
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
