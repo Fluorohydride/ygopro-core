@@ -950,13 +950,10 @@ void field::shuffle(uint8 playerid, uint8 location) {
 		if(location == LOCATION_EXTRA)
 			s = s - player[playerid].extra_p_count;
 		if(s > 1) {
-			uint32 i = 0, r;
-			for(i = 0; i < s - 1; ++i) {
-				r = pduel->get_next_integer(i, s - 1);
-				card* t = svector[i];
-				svector[i] = svector[r];
-				svector[r] = t;
-			}
+			if (core.duel_options & DUEL_OLD_REPLAY)
+				pduel->random.shuffle_vector_old(svector);
+			else
+				pduel->random.shuffle_vector(svector);
 			reset_sequence(playerid, location);
 		}
 	}
