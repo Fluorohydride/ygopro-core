@@ -1168,7 +1168,7 @@ int32 scriptlib::duel_is_environment(lua_State *L) {
 		return 0;
 	duel* pduel = interpreter::get_duel_info(L);
 	int32 ret = 0, fc = 0;
-	if(loc & (LOCATION_FZONE + LOCATION_ONFIELD)) {
+	if(loc & (LOCATION_FZONE + LOCATION_SZONE)) {
 		card* pcard = pduel->game_field->player[0].list_szone[5];
 		if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED)) {
 			fc = 1;
