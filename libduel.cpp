@@ -1161,7 +1161,7 @@ int32 scriptlib::duel_is_environment(lua_State *L) {
 	uint32 playerid = PLAYER_ALL;
 	if(lua_gettop(L) >= 2)
 		playerid = (uint32)lua_tointeger(L, 2);
-	uint32 loc = LOCATION_FZONE + LOCATION_ONFIELD;
+	uint32 loc = LOCATION_ONFIELD;
 	if(lua_gettop(L) >= 3)
 		loc = (uint32)lua_tointeger(L, 3);
 	if(playerid != 0 && playerid != 1 && playerid != PLAYER_ALL)
