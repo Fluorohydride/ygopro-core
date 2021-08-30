@@ -1210,6 +1210,20 @@ int32 scriptlib::duel_is_environment(lua_State *L) {
 			}
 		}
 	}
+	if(!ret && (loc & LOCATION_GRAVE)) {
+		if(playerid == 0 || playerid == PLAYER_ALL) {
+			for(auto& pcard : pduel->game_field->player[0].list_grave) {
+				if(code == pcard->get_code())
+					ret = 1;
+			}
+		}
+		if(playerid == 1 || playerid == PLAYER_ALL) {
+			for(auto& pcard : pduel->game_field->player[1].list_grave) {
+				if(code == pcard->get_code())
+					ret = 1;
+			}
+		}
+	}
 	if(!fc) {
 		effect_set eset;
 		pduel->game_field->filter_field_effect(EFFECT_CHANGE_ENVIRONMENT, &eset);
