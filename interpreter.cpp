@@ -173,9 +173,9 @@ void interpreter::add_param(void *param, int32 type, bool front) {
 }
 void interpreter::add_param(int32 param, int32 type, bool front) {
 	if(front)
-		params.emplace_front((size_t)param, type);
+		params.emplace_front((void*)param, type);
 	else
-		params.emplace_back((size_t)param, type);
+		params.emplace_back((void*)param, type);
 }
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	int32 pushed = 0;
