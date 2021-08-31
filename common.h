@@ -8,13 +8,13 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-typedef unsigned long uptr;
+typedef void* uptr;
 typedef unsigned long long uint64;
 typedef unsigned int uint32;
 typedef unsigned short uint16;
 typedef unsigned char uint8;
 typedef unsigned char byte;
-typedef long ptr;
+typedef void* ptr;
 typedef long long int64;
 typedef int int32;
 typedef short int16;

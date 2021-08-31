@@ -156,10 +156,10 @@ struct processor_unit {
 	uint16 step;
 	effect* peffect;
 	group* ptarget;
-	ptr arg1;
-	ptr arg2;
-	ptr arg3;
-	ptr arg4;
+	int32 arg1;
+	int32 arg2;
+	int32 arg3;
+	int32 arg4;
 	void* ptr1;
 	void* ptr2;
 
@@ -266,7 +266,7 @@ struct processor {
 	std::unordered_map<uint32, uint32> spsummon_once_map[2];
 	std::multimap<int32, card*, std::greater<int32>> xmaterial_lst;
 
-	ptr temp_var[4];
+	int32 temp_var[4];
 	uint32 global_flag;
 	uint16 pre_field[2];
 	std::set<uint16> opp_mzone;
@@ -522,7 +522,7 @@ public:
 	int32 check_spself_from_hand_trigger(const chain& ch) const;
 	int32 is_able_to_enter_bp();
 
-	void add_process(uint16 type, uint16 step, effect* peffect, group* target, ptr arg1, ptr arg2, ptr arg3 = 0, ptr arg4 = 0, void* ptr1 = NULL, void* ptr2 = NULL);
+	void add_process(uint16 type, uint16 step, effect* peffect, group* target, int32 arg1, int32 arg2, int32 arg3 = 0, int32 arg4 = 0, void* ptr1 = NULL, void* ptr2 = NULL);
 	int32 process();
 	int32 execute_cost(uint16 step, effect* peffect, uint8 triggering_player);
 	int32 execute_operation(uint16 step, effect* peffect, uint8 triggering_player);
