@@ -481,6 +481,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_BECOME_TARGET		1028
 #define EVENT_DESTROYED			1029
 #define EVENT_MOVE				1030
+#define EVENT_LEAVE_GRAVE		1031
 #define EVENT_ADJUST			1040
 #define EVENT_BREAK_EFFECT		1050
 #define EVENT_SUMMON_SUCCESS		1100
