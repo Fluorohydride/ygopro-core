@@ -173,9 +173,9 @@ void interpreter::add_param(void *param, int32 type, bool front) {
 }
 void interpreter::add_param(int32 param, int32 type, bool front) {
 	if(front)
-		params.emplace_front((void*)param, type);
+		params.emplace_front((void*)(intptr_t)param, type);
 	else
-		params.emplace_back((void*)param, type);
+		params.emplace_back((void*)(intptr_t)param, type);
 }
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	int32 pushed = 0;
@@ -190,7 +190,7 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 			lua_pushstring(L, (const char *)it.first);
 			break;
 		case PARAM_TYPE_BOOLEAN:
-			lua_pushboolean(L, (int32)it.first);
+			lua_pushboolean(L, (int32)(intptr_t)it.first);
 			break;
 		case PARAM_TYPE_CARD: {
 			if (it.first)
@@ -214,11 +214,11 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 			break;
 		}
 		case PARAM_TYPE_FUNCTION: {
-			function2value(L, (int32)it.first);
+			function2value(L, (int32)(intptr_t)it.first);
 			break;
 		}
 		case PARAM_TYPE_INDEX: {
-			int32 index = (int32)it.first;
+			int32 index = (int32)(intptr_t)it.first;
 			if(index > 0)
 				lua_pushvalue(L, index);
 			else if(is_coroutine) {
