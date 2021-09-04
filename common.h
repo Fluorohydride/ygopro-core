@@ -8,7 +8,7 @@
 #ifndef COMMON_H_
 #define COMMON_H_
 
-#include <cstdint>
+#include <stdint.h>
 typedef unsigned long long uint64;
 typedef unsigned int uint32;
 typedef unsigned short uint16;
