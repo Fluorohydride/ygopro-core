@@ -184,13 +184,13 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 		uint32 type = it.second;
 		switch(type) {
 		case PARAM_TYPE_INT:
-			lua_pushinteger(L, (size_t) it.first);
+			lua_pushinteger(L, (lua_Integer)it.first);
 			break;
 		case PARAM_TYPE_STRING:
-			lua_pushstring(L, (const char *) it.first);
+			lua_pushstring(L, (const char *)it.first);
 			break;
 		case PARAM_TYPE_BOOLEAN:
-			lua_pushboolean(L, (size_t)it.first);
+			lua_pushboolean(L, (int32)it.first);
 			break;
 		case PARAM_TYPE_CARD: {
 			if (it.first)
@@ -214,11 +214,11 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 			break;
 		}
 		case PARAM_TYPE_FUNCTION: {
-			function2value(L, (size_t)it.first);
+			function2value(L, (int32)it.first);
 			break;
 		}
 		case PARAM_TYPE_INDEX: {
-			int32 index = (size_t)it.first;
+			int32 index = (int32)it.first;
 			if(index > 0)
 				lua_pushvalue(L, index);
 			else if(is_coroutine) {
