@@ -2616,8 +2616,20 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		core.limit_link_card = lcard;
 		core.limit_link_minc = lminc;
 		core.limit_link_maxc = lmaxc;
-		if(!eset.size())
+		if(!eset.size()) {
+			core.limit_tuner = 0;
+			core.limit_syn = 0;
+			core.limit_syn_minc = 0;
+			core.limit_syn_maxc = 0;
+			core.limit_xyz = 0;
+			core.limit_xyz_minc = 0;
+			core.limit_xyz_maxc = 0;
+			core.limit_link = 0;
+			core.limit_link_card = 0;
+			core.limit_link_minc = 0;
+			core.limit_link_maxc = 0;
 			return TRUE;
+		}
 		core.select_effects.clear();
 		core.select_options.clear();
 		for(int32 i = 0; i < eset.size(); ++i) {
