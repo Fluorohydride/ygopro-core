@@ -2686,7 +2686,7 @@ int32 card::check_set_procedure(effect* proc, uint8 playerid, uint8 ignore_count
 		return is_summonable(proc, min_tribute, zone);
 	return FALSE;
 }
-void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 summon_type) {
+void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 summon_type, material_info info) {
 	auto pr = field_effect.equal_range(EFFECT_SPSUMMON_PROC);
 	uint8 toplayer;
 	uint8 topos;
@@ -2703,7 +2703,7 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 s
 			topos = POS_FACEUP;
 			toplayer = playerid;
 		}
-		if(peffect->is_available() && peffect->check_count_limit(playerid) && is_spsummonable(peffect)
+		if(peffect->is_available() && peffect->check_count_limit(playerid) && is_spsummonable(peffect, info)
 				&& ((topos & POS_FACEDOWN) || !pduel->game_field->check_unique_onfield(this, toplayer, LOCATION_MZONE))) {
 			effect* sumeffect = pduel->game_field->core.reason_effect;
 			if(!sumeffect)
@@ -3022,7 +3022,8 @@ int32 card::is_fusion_summonable_card(uint32 summon_type) {
 	}
 	return TRUE;
 }
-int32 card::is_spsummonable(effect* proc) {
+// check the condition function of proc
+int32 card::is_spsummonable(effect* proc, material_info info) {
 	effect* oreason = pduel->game_field->core.reason_effect;
 	uint8 op = pduel->game_field->core.reason_player;
 	pduel->game_field->core.reason_effect = proc;
@@ -3031,34 +3032,34 @@ int32 card::is_spsummonable(effect* proc) {
 	pduel->lua->add_param(proc, PARAM_TYPE_EFFECT);
 	pduel->lua->add_param(this, PARAM_TYPE_CARD);
 	uint32 result = FALSE;
-	if(pduel->game_field->core.limit_tuner || pduel->game_field->core.limit_syn) {
-		pduel->lua->add_param(pduel->game_field->core.limit_tuner, PARAM_TYPE_CARD);
-		pduel->lua->add_param(pduel->game_field->core.limit_syn, PARAM_TYPE_GROUP);
+	if(info.limit_tuner || info.limit_syn) {
+		pduel->lua->add_param(info.limit_tuner, PARAM_TYPE_CARD);
+		pduel->lua->add_param(info.limit_syn, PARAM_TYPE_GROUP);
 		uint32 param_count = 4;
-		if(pduel->game_field->core.limit_syn_minc) {
-			pduel->lua->add_param(pduel->game_field->core.limit_syn_minc, PARAM_TYPE_INT);
-			pduel->lua->add_param(pduel->game_field->core.limit_syn_maxc, PARAM_TYPE_INT);
+		if(info.limit_syn_minc) {
+			pduel->lua->add_param(info.limit_syn_minc, PARAM_TYPE_INT);
+			pduel->lua->add_param(info.limit_syn_maxc, PARAM_TYPE_INT);
 			param_count = 6;
 		}
 		if(pduel->lua->check_condition(proc->condition, param_count))
 			result = TRUE;
-	} else if(pduel->game_field->core.limit_xyz) {
-		pduel->lua->add_param(pduel->game_field->core.limit_xyz, PARAM_TYPE_GROUP);
+	} else if(info.limit_xyz) {
+		pduel->lua->add_param(info.limit_xyz, PARAM_TYPE_GROUP);
 		uint32 param_count = 3;
-		if(pduel->game_field->core.limit_xyz_minc) {
-			pduel->lua->add_param(pduel->game_field->core.limit_xyz_minc, PARAM_TYPE_INT);
-			pduel->lua->add_param(pduel->game_field->core.limit_xyz_maxc, PARAM_TYPE_INT);
+		if(info.limit_xyz_minc) {
+			pduel->lua->add_param(info.limit_xyz_minc, PARAM_TYPE_INT);
+			pduel->lua->add_param(info.limit_xyz_maxc, PARAM_TYPE_INT);
 			param_count = 5;
 		}
 		if(pduel->lua->check_condition(proc->condition, param_count))
 			result = TRUE;
-	} else if(pduel->game_field->core.limit_link || pduel->game_field->core.limit_link_card) {
-		pduel->lua->add_param(pduel->game_field->core.limit_link, PARAM_TYPE_GROUP);
-		pduel->lua->add_param(pduel->game_field->core.limit_link_card, PARAM_TYPE_CARD);
+	} else if(info.limit_link || info.limit_link_card) {
+		pduel->lua->add_param(info.limit_link, PARAM_TYPE_GROUP);
+		pduel->lua->add_param(info.limit_link_card, PARAM_TYPE_CARD);
 		uint32 param_count = 4;
-		if(pduel->game_field->core.limit_link_minc) {
-			pduel->lua->add_param(pduel->game_field->core.limit_link_minc, PARAM_TYPE_INT);
-			pduel->lua->add_param(pduel->game_field->core.limit_link_maxc, PARAM_TYPE_INT);
+		if(info.limit_link_minc) {
+			pduel->lua->add_param(info.limit_link_minc, PARAM_TYPE_INT);
+			pduel->lua->add_param(info.limit_link_maxc, PARAM_TYPE_INT);
 			param_count = 6;
 		}
 		if(pduel->lua->check_condition(proc->condition, param_count))
@@ -3234,7 +3235,7 @@ int32 card::is_can_be_flip_summoned(uint8 playerid) {
 }
 // check if this can be sp_summoned by EFFECT_SPSUMMON_PROC
 // call filter_spsummon_procedure()
-int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
+int32 card::is_special_summonable(uint8 playerid, uint32 summon_type, material_info info) {
 	if(!(data.type & TYPE_MONSTER))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_SPECIAL_SUMMON))
@@ -3247,7 +3248,7 @@ int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 		return FALSE;
 	}
 	effect_set eset;
-	filter_spsummon_procedure(playerid, &eset, summon_type);
+	filter_spsummon_procedure(playerid, &eset, summon_type, info);
 	pduel->game_field->restore_lp_cost();
 	return eset.size();
 }

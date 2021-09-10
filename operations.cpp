@@ -2592,30 +2592,20 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 	switch(step) {
 	case 0: {
 		effect_set eset;
-		card* tuner = core.limit_tuner;
-		group* syn = core.limit_syn;
-		int32 sminc = core.limit_syn_minc;
-		int32 smaxc = core.limit_syn_maxc;
-		group* xmaterials = core.limit_xyz;
-		int32 xminc = core.limit_xyz_minc;
-		int32 xmaxc = core.limit_xyz_maxc;
-		group* lmaterials = core.limit_link;
-		card* lcard = core.limit_link_card;
-		int32 lminc = core.limit_link_minc;
-		int32 lmaxc = core.limit_link_maxc;
-		target->filter_spsummon_procedure(sumplayer, &eset, summon_type);
+		material_info info;
+		info.limit_tuner = core.limit_tuner;
+		info.limit_syn = core.limit_syn;
+		info.limit_syn_minc = core.limit_syn_minc;
+		info.limit_syn_maxc = core.limit_syn_maxc;
+		info.limit_xyz = core.limit_xyz;
+		info.limit_xyz_minc = core.limit_xyz_minc;
+		info.limit_xyz_maxc = core.limit_xyz_maxc;
+		info.limit_link = core.limit_link;
+		info.limit_link_card = core.limit_link_card;
+		info.limit_link_minc = core.limit_link_minc;
+		info.limit_link_maxc = core.limit_link_maxc;
+		target->filter_spsummon_procedure(sumplayer, &eset, summon_type, info);
 		target->filter_spsummon_procedure_g(sumplayer, &eset);
-		core.limit_tuner = tuner;
-		core.limit_syn = syn;
-		core.limit_syn_minc = sminc;
-		core.limit_syn_maxc = smaxc;
-		core.limit_xyz = xmaterials;
-		core.limit_xyz_minc = xminc;
-		core.limit_xyz_maxc = xmaxc;
-		core.limit_link = lmaterials;
-		core.limit_link_card = lcard;
-		core.limit_link_minc = lminc;
-		core.limit_link_maxc = lmaxc;
 		if(!eset.size())
 			return TRUE;
 		core.select_effects.clear();
