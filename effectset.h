@@ -98,16 +98,16 @@ struct effect_set_v {
 		return container.back();
 	}
 	effect* const& operator[] (int index) const {
-		return container.at(index);
+		return container[index];
 	}
 	effect*& operator[] (int index) {
-		return container.at(index);
+		return container[index];
 	}
 	effect* const& at(int index) const {
-		return container.at(index);
+		return container[index];
 	}
 	effect*& at(int index) {
-		return container.at(index);
+		return container[index];
 	}
 private:
 	std::vector<effect*> container;
