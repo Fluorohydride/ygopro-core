@@ -2622,7 +2622,7 @@ int32 field::process_battle_command(uint16 step) {
 		if(!core.units.begin()->arg1) {
 			core.phase_action = TRUE;
 			core.attack_state_count[infos.turn_player]++;
-			check_card_counter(core.attacker, 5, infos.turn_player);
+			check_card_counter(core.attacker, ACTIVITY_ATTACK, infos.turn_player);
 			core.attacker->attack_announce_count++;
 		}
 		if(core.units.begin()->arg3) {//attack announce failed
@@ -3236,7 +3236,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 		if(new_attack) {
 			core.attack_state_count[infos.turn_player]++;
 			core.battled_count[infos.turn_player]++;
-			check_card_counter(core.attacker, 5, infos.turn_player);
+			check_card_counter(core.attacker, ACTIVITY_ATTACK, infos.turn_player);
 		}
 		core.attacker->announced_cards.addcard(core.attack_target);
 		attack_all_target_check();

@@ -391,4 +391,13 @@ struct card_sort {
 #define DUEL_TAG_MODE			0x20
 #define DUEL_SIMPLE_AI			0x40
 
+//Activity
+#define ACTIVITY_SUMMON			1
+#define ACTIVITY_NORMALSUMMON	2
+#define ACTIVITY_SPSUMMON		3
+#define ACTIVITY_FLIPSUMMON		4
+#define ACTIVITY_ATTACK			5
+#define ACTIVITY_BATTLE_PHASE	6
+#define ACTIVITY_CHAIN			7
+
 #endif /* COMMON_H_ */

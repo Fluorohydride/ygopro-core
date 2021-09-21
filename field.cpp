@@ -2166,10 +2166,10 @@ int32 field::check_spsummon_once(card* pcard, uint8 playerid) {
 }
 // increase the binary custom counter 1~5
 void field::check_card_counter(card* pcard, int32 counter_type, int32 playerid) {
-	auto& counter_map = (counter_type == 1) ? core.summon_counter :
-						(counter_type == 2) ? core.normalsummon_counter :
-						(counter_type == 3) ? core.spsummon_counter :
-						(counter_type == 4) ? core.flipsummon_counter : core.attack_counter;
+	auto& counter_map = (counter_type == ACTIVITY_SUMMON) ? core.summon_counter :
+						(counter_type == ACTIVITY_NORMALSUMMON) ? core.normalsummon_counter :
+						(counter_type == ACTIVITY_SPSUMMON) ? core.spsummon_counter :
+						(counter_type == ACTIVITY_FLIPSUMMON) ? core.flipsummon_counter : core.attack_counter;
 	for(auto& iter : counter_map) {
 		auto& info = iter.second;
 		if((playerid == 0) && (info.second & 0xffff) != 0)
@@ -2188,10 +2188,10 @@ void field::check_card_counter(card* pcard, int32 counter_type, int32 playerid) 
 	}
 }
 void field::check_card_counter(group* pgroup, int32 counter_type, int32 playerid) {
-	auto& counter_map = (counter_type == 1) ? core.summon_counter :
-						(counter_type == 2) ? core.normalsummon_counter :
-						(counter_type == 3) ? core.spsummon_counter :
-						(counter_type == 4) ? core.flipsummon_counter : core.attack_counter;
+	auto& counter_map = (counter_type == ACTIVITY_SUMMON) ? core.summon_counter :
+						(counter_type == ACTIVITY_NORMALSUMMON) ? core.normalsummon_counter :
+						(counter_type == ACTIVITY_SPSUMMON) ? core.spsummon_counter :
+						(counter_type == ACTIVITY_FLIPSUMMON) ? core.flipsummon_counter : core.attack_counter;
 	for(auto& iter : counter_map) {
 		auto& info = iter.second;
 		if((playerid == 0) && (info.second & 0xffff) != 0)
