@@ -2102,15 +2102,12 @@ int32 scriptlib::card_is_synchro_summonable(lua_State *L) {
 	if(lua_gettop(L) >= 5)
 		maxc = (int32)lua_tointeger(L, 5);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
-	pcard->pduel->game_field->core.limit_tuner = tuner;
-	pcard->pduel->game_field->core.limit_syn = mg;
-	pcard->pduel->game_field->core.limit_syn_minc = minc;
-	pcard->pduel->game_field->core.limit_syn_maxc = maxc;
-	int32 res = pcard->is_special_summonable(p, SUMMON_TYPE_SYNCHRO);
-	pcard->pduel->game_field->core.limit_tuner = 0;
-	pcard->pduel->game_field->core.limit_syn = 0;
-	pcard->pduel->game_field->core.limit_syn_minc = 0;
-	pcard->pduel->game_field->core.limit_syn_maxc = 0;
+	material_info info;
+	info.limit_tuner = tuner;
+	info.limit_syn = mg;
+	info.limit_syn_minc = minc;
+	info.limit_syn_maxc = maxc;
+	int32 res = pcard->is_special_summonable(p, SUMMON_TYPE_SYNCHRO, info);
 	lua_pushboolean(L, res);
 	return 1;
 }
@@ -2134,13 +2131,11 @@ int32 scriptlib::card_is_xyz_summonable(lua_State *L) {
 	if(lua_gettop(L) >= 4)
 		maxc = (int32)lua_tointeger(L, 4);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
-	pcard->pduel->game_field->core.limit_xyz = materials;
-	pcard->pduel->game_field->core.limit_xyz_minc = minc;
-	pcard->pduel->game_field->core.limit_xyz_maxc = maxc;
-	int32 res = pcard->is_special_summonable(p, SUMMON_TYPE_XYZ);
-	pcard->pduel->game_field->core.limit_xyz = 0;
-	pcard->pduel->game_field->core.limit_xyz_minc = 0;
-	pcard->pduel->game_field->core.limit_xyz_maxc = 0;
+	material_info info;
+	info.limit_xyz = materials;
+	info.limit_xyz_minc = minc;
+	info.limit_xyz_maxc = maxc;
+	int32 res = pcard->is_special_summonable(p, SUMMON_TYPE_XYZ, info);
 	lua_pushboolean(L, res);
 	return 1;
 }
@@ -2171,15 +2166,12 @@ int32 scriptlib::card_is_link_summonable(lua_State *L) {
 	if(lua_gettop(L) >= 5)
 		maxc = (int32)lua_tointeger(L, 5);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
-	pcard->pduel->game_field->core.limit_link = materials;
-	pcard->pduel->game_field->core.limit_link_card = lcard;
-	pcard->pduel->game_field->core.limit_link_minc = minc;
-	pcard->pduel->game_field->core.limit_link_maxc = maxc;
-	int32 res = pcard->is_special_summonable(p, SUMMON_TYPE_LINK);
-	pcard->pduel->game_field->core.limit_link = 0;
-	pcard->pduel->game_field->core.limit_link_card = 0;
-	pcard->pduel->game_field->core.limit_link_minc = 0;
-	pcard->pduel->game_field->core.limit_link_maxc = 0;
+	material_info info;
+	info.limit_link = materials;
+	info.limit_link_card = lcard;
+	info.limit_link_minc = minc;
+	info.limit_link_maxc = maxc;
+	int32 res = pcard->is_special_summonable(p, SUMMON_TYPE_LINK, info);
 	lua_pushboolean(L, res);
 	return 1;
 }
