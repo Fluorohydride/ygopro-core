@@ -13,7 +13,19 @@
 
 bool effect_sort_id(const effect* e1, const effect* e2) {
 	return e1->id < e2->id;
-};
+}
+// return: code is an event reserved for EFFECT_TYPE_CONTINUOUS or not
+bool is_continuous_event(uint32 code) {
+	if (code & EVENT_CUSTOM)
+		return false;
+	else if (code & 0xf0000)
+		return false;
+	else if (code & 0xf000)
+		return !!(code & EVENT_PHASE_START);
+	else
+		return continuous_event.find(code) != continuous_event.end();
+}
+
 effect::effect(duel* pd) {
 	ref_handle = 0;
 	pduel = pd;
@@ -585,6 +597,9 @@ int32 effect::is_chainable(uint8 tp) {
 	}
 	return TRUE;
 }
+int32 effect::is_hand_trigger() {
+	return (range & LOCATION_HAND) && (type & EFFECT_TYPE_TRIGGER_O) && get_code_type() != CODE_PHASE;
+}
 //return: this can be reset by reset_level or not
 //RESET_DISABLE is valid only when owner == handler
 int32 effect::reset(uint32 reset_level, uint32 reset_type) {
@@ -816,4 +831,15 @@ uint32 effect::get_active_type() {
 			return get_handler()->get_type();
 	} else
 		return owner->get_type();
+}
+int32 effect::get_code_type() {
+	// start from the highest bit
+	if (code & EVENT_CUSTOM)
+		return CODE_CUSTOM;
+	else if (code & 0xf0000)
+		return CODE_COUNTER;
+	else if (code & 0xf000)
+		return CODE_PHASE;
+	else
+		return CODE_VALUE;
 }

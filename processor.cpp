@@ -1813,7 +1813,7 @@ int32 field::process_instant_event() {
 				}
 			}
 		}
-		if(ev.event_code == EVENT_ADJUST || ev.event_code == EVENT_BREAK_EFFECT || ((ev.event_code & 0xf000) == EVENT_PHASE_START) && ((ev.event_code & EVENT_CUSTOM) == 0))
+		if (is_continuous_event(ev.event_code))
 			continue;
 		//triggers
 		pr = effects.trigger_f_effect.equal_range(ev.event_code);
@@ -4031,8 +4031,9 @@ int32 field::add_chain(uint16 step) {
 			clit.flag |= CHAIN_HAND_EFFECT;
 		core.current_chain.push_back(clit);
 		check_chain_counter(peffect, clit.triggering_player, clit.chain_count);
-		// triggered events which are not caused by RaiseEvent create relation with the handler
-		if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && (!(peffect->type & 0x2a0) || (peffect->code & EVENT_PHASE) == EVENT_PHASE)) {
+		// triggered events which are not caused by event create relation with the handler
+		if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) 
+			&& (!(peffect->type & (EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O)) || peffect->get_code_type() == CODE_PHASE)) {
 			phandler->create_relation(clit);
 		}
 		peffect->effect_owner = clit.triggering_player;
@@ -4194,7 +4195,7 @@ int32 field::solve_continuous(uint16 step) {
 			return TRUE;
 		}
 		core.continuous_chain.push_back(clit);
-		if(peffect->is_flag(EFFECT_FLAG_DELAY) || !(peffect->code & 0x10030000) && (peffect->code & (EVENT_PHASE | EVENT_PHASE_START)))
+		if(peffect->is_flag(EFFECT_FLAG_DELAY) || peffect->get_code_type() == CODE_PHASE)
 			core.conti_solving = TRUE;
 		core.units.begin()->ptarget = (group*)core.reason_effect;
 		core.units.begin()->arg2 = core.reason_player;
@@ -4232,7 +4233,7 @@ int32 field::solve_continuous(uint16 step) {
 		}
 		core.continuous_chain.pop_back();
 		core.solving_continuous.pop_front();
-		if(peffect->is_flag(EFFECT_FLAG_DELAY) || !(peffect->code & 0x10030000) && (peffect->code & (EVENT_PHASE | EVENT_PHASE_START))) {
+		if(peffect->is_flag(EFFECT_FLAG_DELAY) || peffect->get_code_type() == CODE_PHASE) {
 			core.conti_solving = FALSE;
 			adjust_all();
 			return FALSE;

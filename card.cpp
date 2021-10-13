@@ -1583,8 +1583,7 @@ void card::apply_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto& it : field_effect) {
-		if (it.second->in_range(this)
-				|| ((it.second->range & LOCATION_HAND) && (it.second->type & EFFECT_TYPE_TRIGGER_O) && !(it.second->code & EVENT_PHASE))) {
+		if (it.second->in_range(this) || it.second->is_hand_trigger()) {
 			pduel->game_field->add_effect(it.second);
 		}
 	}
@@ -1596,8 +1595,7 @@ void card::cancel_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto& it : field_effect) {
-		if (it.second->in_range(this)
-				|| ((it.second->range & LOCATION_HAND) && (it.second->type & EFFECT_TYPE_TRIGGER_O) && !(it.second->code & EVENT_PHASE))) {
+		if (it.second->in_range(this) || it.second->is_hand_trigger()) {
 			pduel->game_field->remove_effect(it.second);
 		}
 	}
@@ -1726,14 +1724,14 @@ int32 card::add_effect(effect* peffect) {
 	indexer.emplace(peffect, eit);
 	peffect->handler = this;
 	if((peffect->type & EFFECT_TYPE_FIELD)) {
-		if(peffect->in_range(this)
-			|| current.controler != PLAYER_NONE && ((peffect->range & LOCATION_HAND) && (peffect->type & EFFECT_TYPE_TRIGGER_O) && !(peffect->code & EVENT_PHASE)))
+		if(peffect->in_range(this) || current.controler != PLAYER_NONE && peffect->is_hand_trigger())
 			pduel->game_field->add_effect(peffect);
 	}
 	if (current.controler != PLAYER_NONE && !check_target.empty()) {
-		if(peffect->is_disable_related())
-			for(auto& target : check_target)
+		if (peffect->is_disable_related()) {
+			for (auto& target : check_target)
 				pduel->game_field->add_to_disable_check_list(target);
+		}
 	}
 	if(peffect->is_flag(EFFECT_FLAG_OATH)) {
 		pduel->game_field->effects.oath.emplace(peffect, reason_effect);
@@ -1796,14 +1794,14 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			pduel->game_field->update_disable_check_list(peffect);
 		}
 		field_effect.erase(it);
-		if(peffect->in_range(this)
-			|| current.controler != PLAYER_NONE && ((peffect->range & LOCATION_HAND) && (peffect->type & EFFECT_TYPE_TRIGGER_O) && !(peffect->code & EVENT_PHASE)))
+		if(peffect->in_range(this) || current.controler != PLAYER_NONE && peffect->is_hand_trigger())
 			pduel->game_field->remove_effect(peffect);
 	}
 	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && !check_target.empty()) {
-		if (peffect->is_disable_related())
-			for(auto& target : check_target)
+		if (peffect->is_disable_related()) {
+			for (auto& target : check_target)
 				pduel->game_field->add_to_disable_check_list(target);
+		}
 	}
 	if (peffect->is_flag(EFFECT_FLAG_INITIAL) && peffect->copy_id && is_status(STATUS_EFFECT_REPLACED)) {
 		set_status(STATUS_EFFECT_REPLACED, FALSE);
