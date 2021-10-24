@@ -1647,6 +1647,15 @@ int32 card::add_effect(effect* peffect) {
 	if (peffect->type & EFFECT_TYPE_SINGLE && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE) && peffect->owner == this 
 		&& get_status(STATUS_DISABLED) && (peffect->reset_flag & RESET_DISABLE))
 		return 0;
+	if (!(peffect->type & EFFECT_TYPE_CONTINUOUS) && is_continuous_event(peffect->code))
+		return 0;
+	// the trigger effect in phase is "once per turn" by default
+	if (peffect->get_code_type() == CODE_PHASE && peffect->code & (PHASE_DRAW | PHASE_STANDBY | PHASE_END) && peffect->type & (EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F)
+		&& !peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
+		peffect->flag[0] |= EFFECT_FLAG_COUNT_LIMIT;
+		peffect->count_limit = 1;
+		peffect->count_limit_max = 1;
+	}
 	card_set check_target = { this };
 	effect_container::iterator eit;
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
