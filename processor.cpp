@@ -491,7 +491,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_PAY_LPCOST: {
-		if (pay_lp_cost(it->step, it->arg1, it->arg2))
+		if (pay_lp_cost(it->step, it->arg1, it->arg2, it->arg3))
 			core.units.pop_front();
 		else
 			it->step++;

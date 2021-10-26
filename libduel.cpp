@@ -1433,7 +1433,10 @@ int32 scriptlib::duel_check_lp_cost(lua_State *L) {
 		return 0;
 	uint32 cost = (uint32)lua_tointeger(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushboolean(L, pduel->game_field->check_lp_cost(playerid, cost));
+	uint32 must_pay = FALSE;
+	if(lua_gettop(L) > 2)
+		must_pay = lua_toboolean(L, 3);
+	lua_pushboolean(L, pduel->game_field->check_lp_cost(playerid, cost, must_pay));
 	return 1;
 }
 int32 scriptlib::duel_pay_lp_cost(lua_State *L) {
@@ -1444,7 +1447,10 @@ int32 scriptlib::duel_pay_lp_cost(lua_State *L) {
 		return 0;
 	uint32 cost = (uint32)lua_tointeger(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
-	pduel->game_field->add_process(PROCESSOR_PAY_LPCOST, 0, 0, 0, playerid, cost);
+	uint32 must_pay = FALSE;
+	if(lua_gettop(L) > 2)
+		must_pay = lua_toboolean(L, 3);
+	pduel->game_field->add_process(PROCESSOR_PAY_LPCOST, 0, 0, 0, playerid, cost, must_pay);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_discard_deck(lua_State *L) {
