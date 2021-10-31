@@ -137,15 +137,21 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 		break;
 	}
 	case LOCATION_DECK: {
-		if (sequence == 0) {		//deck top
+		if (sequence == SEQ_DECKTOP) {
 			player[playerid].list_main.push_back(pcard);
 			pcard->current.sequence = (uint8)player[playerid].list_main.size() - 1;
-		} else if (sequence == 1) {		//deck bottom
+		} else if (sequence == SEQ_DECKBOTTOM) {
 			player[playerid].list_main.insert(player[playerid].list_main.begin(), pcard);
 			reset_sequence(playerid, LOCATION_DECK);
-		} else {		//deck top & shuffle
-			player[playerid].list_main.push_back(pcard);
-			pcard->current.sequence = (uint8)player[playerid].list_main.size() - 1;
+		} else { // SEQ_DECKSHUFFLE
+			if(core.duel_options & DUEL_RETURN_DECK_TOP) {
+				player[playerid].list_main.push_back(pcard);
+				pcard->current.sequence = (uint8)player[playerid].list_main.size() - 1;
+			}
+			else {
+				player[playerid].list_main.insert(player[playerid].list_main.begin(), pcard);
+				reset_sequence(playerid, LOCATION_DECK);
+			}
 			if(!core.shuffle_check_disabled)
 				core.shuffle_deck_check[playerid] = TRUE;
 		}
@@ -264,12 +270,15 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 					pduel->write_buffer32(pcard->data.code);
 					pduel->write_buffer32(pcard->get_info_location());
 					player[preplayer].list_main.erase(player[preplayer].list_main.begin() + pcard->current.sequence);
-					if (sequence == 0) {		//deck top
+					if (sequence == SEQ_DECKTOP) {
 						player[playerid].list_main.push_back(pcard);
-					} else if (sequence == 1) {
+					} else if (sequence == SEQ_DECKBOTTOM) {
 						player[playerid].list_main.insert(player[playerid].list_main.begin(), pcard);
-					} else {
-						player[playerid].list_main.push_back(pcard);
+					} else { // SEQ_DECKSHUFFLE
+						if(core.duel_options & DUEL_RETURN_DECK_TOP)
+							player[playerid].list_main.push_back(pcard);
+						else
+							player[playerid].list_main.insert(player[playerid].list_main.begin(), pcard);
 						if(!core.shuffle_check_disabled)
 							core.shuffle_deck_check[playerid] = TRUE;
 					}

@@ -53,6 +53,10 @@ struct card_sort {
 //For redirect
 #define LOCATION_DECKBOT	0x10001		//Return to deck bottom
 #define LOCATION_DECKSHF	0x20001		//Return to deck and shuffle
+//For Duel.SendtoDeck
+#define SEQ_DECKTOP			0			//Return to deck top
+#define SEQ_DECKBOTTOM		1			//Return to deck bottom
+#define SEQ_DECKSHUFFLE		2			//Return to deck and shuffle
 
 //Positions
 #define POS_FACEUP_ATTACK		0x1
@@ -390,6 +394,7 @@ struct card_sort {
 #define DUEL_PSEUDO_SHUFFLE		0x10
 #define DUEL_TAG_MODE			0x20
 #define DUEL_SIMPLE_AI			0x40
+#define DUEL_RETURN_DECK_TOP	0x80
 
 //Activity
 #define ACTIVITY_SUMMON			1
