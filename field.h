@@ -468,10 +468,10 @@ public:
 	void set_spsummon_counter(uint8 playerid);
 	int32 check_spsummon_counter(uint8 playerid, uint8 ct = 1);
 
-	int32 check_lp_cost(uint8 playerid, uint32 cost);
+	int32 check_lp_cost(uint8 playerid, uint32 cost, uint32 must_pay);
 	void save_lp_cost() {}
 	void restore_lp_cost() {}
-	int32 pay_lp_cost(uint32 step, uint8 playerid, uint32 cost);
+	int32 pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_pay);
 
 	uint32 get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype);
 	int32 effect_replace_check(uint32 code, const tevent& e);

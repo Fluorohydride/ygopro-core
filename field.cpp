@@ -2271,7 +2271,7 @@ int32 field::check_spsummon_counter(uint8 playerid, uint8 ct) {
 	}
 	return TRUE;
 }
-int32 field::check_lp_cost(uint8 playerid, uint32 lp) {
+int32 field::check_lp_cost(uint8 playerid, uint32 lp, uint32 must_pay) {
 	effect_set eset;
 	int32 val = lp;
 	filter_player_effect(playerid, EFFECT_LPCOST_CHANGE, &eset);
@@ -2281,17 +2281,22 @@ int32 field::check_lp_cost(uint8 playerid, uint32 lp) {
 		pduel->lua->add_param(val, PARAM_TYPE_INT);
 		val = eset[i]->get_value(3);
 	}
-	if(val <= 0)
+	if(val <= 0) {
+		if(must_pay)
+			return FALSE;
 		return TRUE;
-	tevent e;
-	e.event_cards = 0;
-	e.event_player = playerid;
-	e.event_value = lp;
-	e.reason = 0;
-	e.reason_effect = core.reason_effect;
-	e.reason_player = playerid;
-	if(effect_replace_check(EFFECT_LPCOST_REPLACE, e))
-		return TRUE;
+	}
+	if(!must_pay) {
+		tevent e;
+		e.event_cards = 0;
+		e.event_player = playerid;
+		e.event_value = lp;
+		e.reason = 0;
+		e.reason_effect = core.reason_effect;
+		e.reason_player = playerid;
+		if(effect_replace_check(EFFECT_LPCOST_REPLACE, e))
+			return TRUE;
+	}
 	//cost[playerid].amount += val;
 	if(val <= player[playerid].lp)
 		return TRUE;

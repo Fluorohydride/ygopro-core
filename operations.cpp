@@ -594,7 +594,7 @@ int32 field::recover(uint16 step, effect* reason_effect, uint32 reason, uint8 re
 	}
 	return TRUE;
 }
-int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost) {
+int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_pay) {
 	switch(step) {
 	case 0: {
 		effect_set eset;
@@ -609,6 +609,18 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost) {
 		if(val <= 0)
 			return TRUE;
 		core.units.begin()->arg2 = val;
+		core.select_options.clear();
+		core.select_effects.clear();
+		if(val <= player[playerid].lp) {
+			core.select_options.push_back(11);
+			core.select_effects.push_back(0);
+		}
+		if(must_pay) {
+			if(core.select_options.size() == 0)
+				return TRUE;
+			returns.ivalue[0] = 0;
+			return FALSE;
+		}
 		tevent e;
 		e.event_cards = 0;
 		e.event_player = playerid;
@@ -616,12 +628,6 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost) {
 		e.reason = 0;
 		e.reason_effect = core.reason_effect;
 		e.reason_player = playerid;
-		core.select_options.clear();
-		core.select_effects.clear();
-		if(val <= player[playerid].lp) {
-			core.select_options.push_back(11);
-			core.select_effects.push_back(0);
-		}
 		auto pr = effects.continuous_effect.equal_range(EFFECT_LPCOST_REPLACE);
 		for(auto eit = pr.first; eit != pr.second;) {
 			effect* peffect = eit->second;
