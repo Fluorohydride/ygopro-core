@@ -2960,7 +2960,7 @@ int32 scriptlib::duel_check_must_material(lua_State *L) {
 		mgroup = *(group**)lua_touserdata(L, 2);
 		pduel = mgroup->pduel;
 	} else
-		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
+		pduel = interpreter::get_duel_info(L);
 	if(mgroup) {
 		pgroup = pduel->new_group(mgroup->container);
 		pgroup->is_readonly = TRUE;
@@ -2969,8 +2969,6 @@ int32 scriptlib::duel_check_must_material(lua_State *L) {
 		pgroup->is_readonly = TRUE;
 	} else
 		pgroup = 0;
-	if(!pgroup)
-		return 0;
 	uint32 limit = (uint32)lua_tointeger(L, 3);
 	lua_pushboolean(L, pduel->game_field->check_must_material(pgroup, playerid, limit));
 	return 1;

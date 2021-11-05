@@ -2485,6 +2485,8 @@ int32 field::check_must_material(group* mg, uint8 playerid, uint32 limit) {
 	int32 m = get_must_material_list(playerid, limit, &must_list);
 	if(m <= 0)
 		return TRUE;
+	if(!mg)
+		return FALSE;
 	for(auto& pcard : must_list)
 		if(!mg->has_card(pcard))
 			return FALSE;
