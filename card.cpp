@@ -2722,7 +2722,7 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 s
 		}
 	}
 }
-void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset, group* mg, uint8 is_effect) {
+void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset, group* mg) {
 	auto pr = field_effect.equal_range(EFFECT_SPSUMMON_PROC_G);
 	for(auto eit = pr.first; eit != pr.second;) {
 		effect* peffect = eit->second;
@@ -2738,14 +2738,46 @@ void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset, group*
 		pduel->game_field->save_lp_cost();
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
-		pduel->lua->add_param(is_effect, PARAM_TYPE_INT);
 		pduel->lua->add_param(mg, PARAM_TYPE_GROUP);
-		if(pduel->lua->check_condition(peffect->condition, 4))
+		if(pduel->lua->check_condition(peffect->condition, 3))
 			peset->add_item(peffect);
 		pduel->game_field->restore_lp_cost();
 		pduel->game_field->core.reason_effect = oreason;
 		pduel->game_field->core.reason_player = op;
 	}
+}
+int32 card::is_pendulum_summon(uint8 playerid, group* mg) {
+	int32 ependulum = pduel->game_field->core.effect_psummon;
+	pduel->game_field->core.effect_psummon = TRUE;
+	auto pr = field_effect.equal_range(EFFECT_SPSUMMON_PROC_G);
+	for(auto eit = pr.first; eit != pr.second;) {
+		effect* peffect = eit->second;
+		++eit;
+		if(!peffect->is_available() || !peffect->check_count_limit(playerid))
+			continue;
+		if(current.controler != playerid && !peffect->is_flag(EFFECT_FLAG_BOTH_SIDE))
+			continue;
+		effect* oreason = pduel->game_field->core.reason_effect;
+		uint8 op = pduel->game_field->core.reason_player;
+		pduel->game_field->core.reason_effect = peffect;
+		pduel->game_field->core.reason_player = this->current.controler;
+		pduel->game_field->save_lp_cost();
+		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(this, PARAM_TYPE_CARD);
+		pduel->lua->add_param(mg, PARAM_TYPE_GROUP);
+		if(pduel->lua->check_condition(peffect->condition, 3)) {
+			pduel->game_field->restore_lp_cost();
+			pduel->game_field->core.reason_effect = oreason;
+			pduel->game_field->core.reason_player = op;
+			pduel->game_field->core.effect_psummon = ependulum;
+			return TRUE;
+		}
+		pduel->game_field->restore_lp_cost();
+		pduel->game_field->core.reason_effect = oreason;
+		pduel->game_field->core.reason_player = op;
+	}
+	pduel->game_field->core.effect_psummon = ependulum;
+	return FALSE;
 }
 // return: an effect with code which affects this or 0
 effect* card::is_affected_by_effect(int32 code) {

@@ -92,7 +92,7 @@ struct query_cache {
 };
 
 struct material_info {
-	// Synchron
+	// Synchro
 	card* limit_tuner;
 	group* limit_syn;
 	int32 limit_syn_minc;
@@ -323,6 +323,7 @@ public:
 	int32 check_set_procedure(effect* proc, uint8 playerid, uint8 ignore_count, uint8 min_tribute, uint32 zone);
 	void filter_spsummon_procedure(uint8 playerid, effect_set* eset, uint32 summon_type, material_info info = null_info);
 	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset, group* mg);
+	int32 is_pendulum_summon(uint8 playerid, group* mg);
 	effect* is_affected_by_effect(int32 code);
 	effect* is_affected_by_effect(int32 code, card* target);
 	int32 fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_material);

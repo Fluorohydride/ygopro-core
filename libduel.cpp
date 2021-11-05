@@ -410,6 +410,67 @@ int32 scriptlib::duel_pendulum_summon(lua_State *L) {
 	pduel->game_field->add_process(PROCESSOR_PENDULUM_SUMMON, 0, NULL, pendulums, playerid, 0);
 	return lua_yield(L, 0);
 }
+int32 scriptlib::duel_get_additional_p_summon(lua_State *L) {
+	check_action_permission(L);
+	check_param_count(L, 1);
+	uint32 playerid = (uint32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	if(pduel->game_field->core.effect_psummon) {
+		interpreter::effect2value(L, nullptr);
+		return 1;
+	}
+	pduel->game_field->core.select_options.clear();
+	pduel->game_field->core.select_effects.clear();
+	if(pduel->game_field->core.extra_p_summon[playerid] == 0) {
+		pduel->game_field->core.select_options.push_back(1163);
+		pduel->game_field->core.select_effects.push_back(0);
+	}
+	effect_set eset;
+	pduel->game_field->filter_player_effect(playerid, EFFECT_EXTRA_PENDULUM_SUMMON, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		pduel->game_field->core.select_options.push_back(eset[i]->description);
+		pduel->game_field->core.select_effects.push_back(eset[i]);
+	}
+	if(pduel->game_field->core.select_options.size() == 0) {
+		interpreter::effect2value(L, 0);
+		return 1;
+	}
+	if(pduel->game_field->core.select_options.size() == 1) {
+		interpreter::effect2value(L, pduel->game_field->core.select_effects[0]);
+		return 1;
+	}
+	pduel->game_field->add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, playerid, 0);
+	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
+		duel* pduel = (duel*)ctx;
+		interpreter::effect2value(L, pduel->game_field->core.select_effects[0]);
+		return 1;
+	});
+}
+int32 scriptlib::duel_set_additional_p_summon(lua_State *L) {
+	check_action_permission(L);
+	check_param_count(L, 2);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	if(pduel->game_field->core.effect_psummon)
+		return 0;
+	effect* peffect = 0;
+	if(!lua_isnil(L, 2)) {
+		check_param(L, PARAM_TYPE_EFFECT, 2);
+		peffect = *(effect**)lua_touserdata(L, 2);
+		pduel->write_buffer8(MSG_HINT);
+		pduel->write_buffer8(HINT_CARD);
+		pduel->write_buffer8(0);
+		pduel->write_buffer32(peffect->handler->data.code);
+		peffect->dec_count();
+	} else {
+		pduel->game_field->core.extra_p_summon[playerid] = TRUE;
+	}
+	return lua_yield(L, 0);
+}
 int32 scriptlib::duel_link_summon(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 3);
@@ -4319,6 +4380,20 @@ int32 scriptlib::duel_is_player_can_additional_summon(lua_State * L) {
 		lua_pushboolean(L, 0);
 	return 1;
 }
+int32 scriptlib::duel_is_player_can_additional_p_summon(lua_State * L) {
+	check_param_count(L, 1);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1) {
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+	duel* pduel = interpreter::get_duel_info(L);
+	if(pduel->game_field->core.effect_psummon || pduel->game_field->core.extra_p_summon[playerid] == 0)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
 int32 scriptlib::duel_is_chain_negatable(lua_State * L) {
 	check_param_count(L, 1);
 	lua_pushboolean(L, 1);
@@ -4596,6 +4671,8 @@ static const struct luaL_Reg duellib[] = {
 	{ "SynchroSummon", scriptlib::duel_synchro_summon },
 	{ "XyzSummon", scriptlib::duel_xyz_summon },
 	{ "PendulumSummon", scriptlib::duel_pendulum_summon },
+	{ "GetAdditionalPSummon", scriptlib::duel_get_additional_p_summon },
+	{ "SetAdditionalPSummon", scriptlib::duel_set_additional_p_summon },
 	{ "LinkSummon", scriptlib::duel_link_summon },
 	{ "MSet", scriptlib::duel_setm },
 	{ "SSet", scriptlib::duel_sets },
@@ -4776,6 +4853,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsPlayerCanSendtoGrave", scriptlib::duel_is_player_can_send_to_grave },
 	{ "IsPlayerCanSendtoDeck", scriptlib::duel_is_player_can_send_to_deck },
 	{ "IsPlayerCanAdditionalSummon", scriptlib::duel_is_player_can_additional_summon },
+	{ "IsPlayerCanAdditionalPSummon", scriptlib::duel_is_player_can_additional_p_summon },
 	{ "IsChainNegatable", scriptlib::duel_is_chain_negatable },
 	{ "IsChainDisablable", scriptlib::duel_is_chain_disablable },
 	{ "CheckChainTarget", scriptlib::duel_check_chain_target },

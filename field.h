@@ -298,7 +298,7 @@ struct processor {
 	int32 limit_link_minc;
 	int32 limit_link_maxc;
 	group* limit_pendulum;
-	uint8 effect_pendulum;
+	uint8 effect_psummon;
 	uint8 not_material;
 	uint8 attack_cancelable;
 	uint8 attack_rollback;
@@ -306,6 +306,7 @@ struct processor {
 	int32 battle_damage[2];
 	int32 summon_count[2];
 	uint8 extra_summon[2];
+	uint8 extra_p_summon[2];
 	int32 spe_effect[2];
 	int32 duel_options;
 	int32 duel_rule;	//current rule: 5, Master Rule 2020
@@ -358,8 +359,9 @@ struct processor {
 	processor()
 		: temp_var{ 0 }, global_flag(0), pre_field{ 0 }, chain_solving(FALSE), conti_solving(FALSE), win_player(5), win_reason(0), re_adjust(FALSE), reason_effect(nullptr), reason_player(PLAYER_NONE),
 		summoning_card(nullptr), summon_depth(0), summon_cancelable(FALSE), attacker(nullptr), attack_target(nullptr), limit_extra_summon_zone(0), limit_extra_summon_releasable(0),
-		limit_tuner(nullptr), limit_syn(nullptr), limit_syn_minc(0), limit_syn_maxc(0), limit_xyz(nullptr), limit_xyz_minc(0), limit_xyz_maxc(0), limit_link(nullptr), limit_link_card(nullptr),
-		limit_link_minc(0), limit_link_maxc(0), limit_pendulum(nullptr), effect_pendulum(FALSE), not_material(FALSE), attack_cancelable(FALSE), attack_rollback(FALSE), effect_damage_step(0), battle_damage{ 0 }, summon_count{ 0 }, extra_summon{ FALSE },
+		limit_tuner(nullptr), limit_syn(nullptr), limit_syn_minc(0), limit_syn_maxc(0), limit_xyz(nullptr), limit_xyz_minc(0), limit_xyz_maxc(0),
+		limit_link(nullptr), limit_link_card(nullptr), limit_link_minc(0), limit_link_maxc(0), limit_pendulum(nullptr), effect_psummon(FALSE),
+		not_material(FALSE), attack_cancelable(FALSE), attack_rollback(FALSE), effect_damage_step(0), battle_damage{ 0 }, summon_count{ 0 }, extra_summon{ FALSE }, extra_p_summon{ FALSE },
 		spe_effect{ 0 }, duel_options(0), duel_rule(0), copy_reset(0), copy_reset_count(0), last_control_changed_id(0), set_group_used_zones(0), set_group_seq{ 0 }, dice_result{ 0 }, coin_result{ 0 },
 		to_bp(FALSE), to_m2(FALSE), to_ep(FALSE), skip_m2(FALSE), chain_attack(FALSE), chain_attacker_id(0), chain_attack_target(nullptr), attack_player(PLAYER_NONE), selfdes_disabled(FALSE),
 		overdraw{ FALSE }, check_level(0), shuffle_check_disabled(FALSE), shuffle_hand_check{ FALSE }, shuffle_deck_check{ FALSE }, deck_reversed(FALSE), remove_brainwashing(FALSE), flip_delayed(FALSE),

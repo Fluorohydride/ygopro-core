@@ -393,6 +393,8 @@ public:
 	static int32 duel_synchro_summon(lua_State *L);
 	static int32 duel_xyz_summon(lua_State *L);
 	static int32 duel_pendulum_summon(lua_State *L);
+	static int32 duel_get_additional_p_summon(lua_State *L);
+	static int32 duel_set_additional_p_summon(lua_State *L);
 	static int32 duel_link_summon(lua_State *L);
 	static int32 duel_setm(lua_State *L);
 	static int32 duel_sets(lua_State *L);
@@ -581,6 +583,7 @@ public:
 	static int32 duel_is_player_can_send_to_grave(lua_State *L);
 	static int32 duel_is_player_can_send_to_deck(lua_State *L);
 	static int32 duel_is_player_can_additional_summon(lua_State *L);
+	static int32 duel_is_player_can_additional_p_summon(lua_State *L);
 	static int32 duel_is_chain_negatable(lua_State *L);
 	static int32 duel_is_chain_disablable(lua_State *L);
 	static int32 duel_check_chain_target(lua_State *L);
