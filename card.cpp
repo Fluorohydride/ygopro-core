@@ -1461,7 +1461,7 @@ int32 card::get_old_union_count() {
 void card::xyz_overlay(card_set* materials) {
 	if(materials->size() == 0)
 		return;
-	card_set des;
+	card_set des, leave_grave;
 	field::card_vector cv;
 	for(auto& pcard : *materials)
 		cv.push_back(pcard);
@@ -1528,8 +1528,17 @@ void card::xyz_overlay(card_set* materials) {
 			pduel->game_field->add_to_disable_check_list(pcard);
 		}
 		xyz_add(pcard);
+		if(pcard->previous.location == LOCATION_GRAVE) {
+			leave_grave.insert(pcard);
+			pduel->game_field->raise_single_event(pcard, 0, EVENT_LEAVE_GRAVE, pduel->game_field->core.reason_effect, pcard->current.reason, pduel->game_field->core.reason_player, 0, 0);
+		}
 		pduel->write_buffer32(pcard->get_info_location());
 		pduel->write_buffer32(pcard->current.reason);
+	}
+	if(leave_grave.size()) {
+		pduel->game_field->raise_event(&leave_grave, EVENT_LEAVE_GRAVE, pduel->game_field->core.reason_effect, REASON_XYZ + REASON_MATERIAL, pduel->game_field->core.reason_player, 0, 0);
+		pduel->game_field->process_single_event();
+		pduel->game_field->process_instant_event();
 	}
 	if(des.size())
 		pduel->game_field->destroy(&des, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
@@ -1574,8 +1583,7 @@ void card::apply_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto& it : field_effect) {
-		if (it.second->in_range(this)
-				|| ((it.second->range & LOCATION_HAND) && (it.second->type & EFFECT_TYPE_TRIGGER_O) && !(it.second->code & EVENT_PHASE))) {
+		if (it.second->in_range(this) || it.second->is_hand_trigger()) {
 			pduel->game_field->add_effect(it.second);
 		}
 	}
@@ -1587,8 +1595,7 @@ void card::cancel_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto& it : field_effect) {
-		if (it.second->in_range(this)
-				|| ((it.second->range & LOCATION_HAND) && (it.second->type & EFFECT_TYPE_TRIGGER_O) && !(it.second->code & EVENT_PHASE))) {
+		if (it.second->in_range(this) || it.second->is_hand_trigger()) {
 			pduel->game_field->remove_effect(it.second);
 		}
 	}
@@ -1637,6 +1644,18 @@ int32 card::add_effect(effect* peffect) {
 	}
 	if (indexer.find(peffect) != indexer.end())
 		return 0;
+	if (peffect->type & EFFECT_TYPE_SINGLE && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE) && peffect->owner == this 
+		&& get_status(STATUS_DISABLED) && (peffect->reset_flag & RESET_DISABLE))
+		return 0;
+	if (!(peffect->type & EFFECT_TYPE_CONTINUOUS) && is_continuous_event(peffect->code))
+		return 0;
+	// the trigger effect in phase is "once per turn" by default
+	if (peffect->get_code_type() == CODE_PHASE && peffect->code & (PHASE_DRAW | PHASE_STANDBY | PHASE_END) && peffect->type & (EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F)
+		&& !peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
+		peffect->flag[0] |= EFFECT_FLAG_COUNT_LIMIT;
+		peffect->count_limit = 1;
+		peffect->count_limit_max = 1;
+	}
 	card_set check_target = { this };
 	effect_container::iterator eit;
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
@@ -1714,14 +1733,14 @@ int32 card::add_effect(effect* peffect) {
 	indexer.emplace(peffect, eit);
 	peffect->handler = this;
 	if((peffect->type & EFFECT_TYPE_FIELD)) {
-		if(peffect->in_range(this)
-			|| current.controler != PLAYER_NONE && ((peffect->range & LOCATION_HAND) && (peffect->type & EFFECT_TYPE_TRIGGER_O) && !(peffect->code & EVENT_PHASE)))
+		if(peffect->in_range(this) || current.controler != PLAYER_NONE && peffect->is_hand_trigger())
 			pduel->game_field->add_effect(peffect);
 	}
 	if (current.controler != PLAYER_NONE && !check_target.empty()) {
-		if(peffect->is_disable_related())
-			for(auto& target : check_target)
+		if (peffect->is_disable_related()) {
+			for (auto& target : check_target)
 				pduel->game_field->add_to_disable_check_list(target);
+		}
 	}
 	if(peffect->is_flag(EFFECT_FLAG_OATH)) {
 		pduel->game_field->effects.oath.emplace(peffect, reason_effect);
@@ -1784,14 +1803,14 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			pduel->game_field->update_disable_check_list(peffect);
 		}
 		field_effect.erase(it);
-		if(peffect->in_range(this)
-			|| current.controler != PLAYER_NONE && ((peffect->range & LOCATION_HAND) && (peffect->type & EFFECT_TYPE_TRIGGER_O) && !(peffect->code & EVENT_PHASE)))
+		if(peffect->in_range(this) || current.controler != PLAYER_NONE && peffect->is_hand_trigger())
 			pduel->game_field->remove_effect(peffect);
 	}
 	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && !check_target.empty()) {
-		if (peffect->is_disable_related())
-			for(auto& target : check_target)
+		if (peffect->is_disable_related()) {
+			for (auto& target : check_target)
 				pduel->game_field->add_to_disable_check_list(target);
+		}
 	}
 	if (peffect->is_flag(EFFECT_FLAG_INITIAL) && peffect->copy_id && is_status(STATUS_EFFECT_REPLACED)) {
 		set_status(STATUS_EFFECT_REPLACED, FALSE);
@@ -2674,7 +2693,7 @@ int32 card::check_set_procedure(effect* proc, uint8 playerid, uint8 ignore_count
 		return is_summonable(proc, min_tribute, zone);
 	return FALSE;
 }
-void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 summon_type) {
+void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 summon_type, material_info info) {
 	auto pr = field_effect.equal_range(EFFECT_SPSUMMON_PROC);
 	uint8 toplayer;
 	uint8 topos;
@@ -2691,7 +2710,7 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 s
 			topos = POS_FACEUP;
 			toplayer = playerid;
 		}
-		if(peffect->is_available() && peffect->check_count_limit(playerid) && is_spsummonable(peffect)
+		if(peffect->is_available() && peffect->check_count_limit(playerid) && is_spsummonable(peffect, info)
 				&& ((topos & POS_FACEDOWN) || !pduel->game_field->check_unique_onfield(this, toplayer, LOCATION_MZONE))) {
 			effect* sumeffect = pduel->game_field->core.reason_effect;
 			if(!sumeffect)
@@ -3012,7 +3031,8 @@ int32 card::is_fusion_summonable_card(uint32 summon_type) {
 	}
 	return TRUE;
 }
-int32 card::is_spsummonable(effect* proc) {
+// check the condition function of proc
+int32 card::is_spsummonable(effect* proc, material_info info) {
 	effect* oreason = pduel->game_field->core.reason_effect;
 	uint8 op = pduel->game_field->core.reason_player;
 	pduel->game_field->core.reason_effect = proc;
@@ -3021,34 +3041,34 @@ int32 card::is_spsummonable(effect* proc) {
 	pduel->lua->add_param(proc, PARAM_TYPE_EFFECT);
 	pduel->lua->add_param(this, PARAM_TYPE_CARD);
 	uint32 result = FALSE;
-	if(pduel->game_field->core.limit_tuner || pduel->game_field->core.limit_syn) {
-		pduel->lua->add_param(pduel->game_field->core.limit_tuner, PARAM_TYPE_CARD);
-		pduel->lua->add_param(pduel->game_field->core.limit_syn, PARAM_TYPE_GROUP);
+	if(info.limit_tuner || info.limit_syn) {
+		pduel->lua->add_param(info.limit_tuner, PARAM_TYPE_CARD);
+		pduel->lua->add_param(info.limit_syn, PARAM_TYPE_GROUP);
 		uint32 param_count = 4;
-		if(pduel->game_field->core.limit_syn_minc) {
-			pduel->lua->add_param(pduel->game_field->core.limit_syn_minc, PARAM_TYPE_INT);
-			pduel->lua->add_param(pduel->game_field->core.limit_syn_maxc, PARAM_TYPE_INT);
+		if(info.limit_syn_minc) {
+			pduel->lua->add_param(info.limit_syn_minc, PARAM_TYPE_INT);
+			pduel->lua->add_param(info.limit_syn_maxc, PARAM_TYPE_INT);
 			param_count = 6;
 		}
 		if(pduel->lua->check_condition(proc->condition, param_count))
 			result = TRUE;
-	} else if(pduel->game_field->core.limit_xyz) {
-		pduel->lua->add_param(pduel->game_field->core.limit_xyz, PARAM_TYPE_GROUP);
+	} else if(info.limit_xyz) {
+		pduel->lua->add_param(info.limit_xyz, PARAM_TYPE_GROUP);
 		uint32 param_count = 3;
-		if(pduel->game_field->core.limit_xyz_minc) {
-			pduel->lua->add_param(pduel->game_field->core.limit_xyz_minc, PARAM_TYPE_INT);
-			pduel->lua->add_param(pduel->game_field->core.limit_xyz_maxc, PARAM_TYPE_INT);
+		if(info.limit_xyz_minc) {
+			pduel->lua->add_param(info.limit_xyz_minc, PARAM_TYPE_INT);
+			pduel->lua->add_param(info.limit_xyz_maxc, PARAM_TYPE_INT);
 			param_count = 5;
 		}
 		if(pduel->lua->check_condition(proc->condition, param_count))
 			result = TRUE;
-	} else if(pduel->game_field->core.limit_link || pduel->game_field->core.limit_link_card) {
-		pduel->lua->add_param(pduel->game_field->core.limit_link, PARAM_TYPE_GROUP);
-		pduel->lua->add_param(pduel->game_field->core.limit_link_card, PARAM_TYPE_CARD);
+	} else if(info.limit_link || info.limit_link_card) {
+		pduel->lua->add_param(info.limit_link, PARAM_TYPE_GROUP);
+		pduel->lua->add_param(info.limit_link_card, PARAM_TYPE_CARD);
 		uint32 param_count = 4;
-		if(pduel->game_field->core.limit_link_minc) {
-			pduel->lua->add_param(pduel->game_field->core.limit_link_minc, PARAM_TYPE_INT);
-			pduel->lua->add_param(pduel->game_field->core.limit_link_maxc, PARAM_TYPE_INT);
+		if(info.limit_link_minc) {
+			pduel->lua->add_param(info.limit_link_minc, PARAM_TYPE_INT);
+			pduel->lua->add_param(info.limit_link_maxc, PARAM_TYPE_INT);
 			param_count = 6;
 		}
 		if(pduel->lua->check_condition(proc->condition, param_count))
@@ -3224,7 +3244,7 @@ int32 card::is_can_be_flip_summoned(uint8 playerid) {
 }
 // check if this can be sp_summoned by EFFECT_SPSUMMON_PROC
 // call filter_spsummon_procedure()
-int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
+int32 card::is_special_summonable(uint8 playerid, uint32 summon_type, material_info info) {
 	if(!(data.type & TYPE_MONSTER))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_SPECIAL_SUMMON))
@@ -3237,7 +3257,7 @@ int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 		return FALSE;
 	}
 	effect_set eset;
-	filter_spsummon_procedure(playerid, &eset, summon_type);
+	filter_spsummon_procedure(playerid, &eset, summon_type, info);
 	pduel->game_field->restore_lp_cost();
 	return eset.size();
 }
@@ -3528,7 +3548,7 @@ int32 card::is_capable_send_to_hand(uint8 playerid) {
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_TO_HAND))
 		return FALSE;
-	if(is_extra_deck_monster() && !is_capable_send_to_deck(playerid))
+	if(is_extra_deck_monster() && !is_capable_send_to_extra(playerid))
 		return FALSE;
 	if(!pduel->game_field->is_player_can_send_to_hand(playerid, this))
 		return FALSE;
@@ -3548,7 +3568,7 @@ int32 card::is_capable_send_to_deck(uint8 playerid) {
 int32 card::is_capable_send_to_extra(uint8 playerid) {
 	if(!is_extra_deck_monster() && !(data.type & TYPE_PENDULUM))
 		return FALSE;
-	if(is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
+	if(is_extra_deck_monster() && is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
 		return FALSE;
 	if(!pduel->game_field->is_player_can_send_to_deck(playerid, this))
 		return FALSE;
@@ -3559,7 +3579,7 @@ int32 card::is_capable_cost_to_grave(uint8 playerid) {
 	uint32 dest = LOCATION_GRAVE;
 	if(data.type & TYPE_TOKEN)
 		return FALSE;
-	if((data.type & TYPE_PENDULUM) && (current.location & LOCATION_ONFIELD) && !is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
+	if((data.type & TYPE_PENDULUM) && (current.location & LOCATION_ONFIELD))
 		return FALSE;
 	if(current.location == LOCATION_GRAVE)
 		return FALSE;

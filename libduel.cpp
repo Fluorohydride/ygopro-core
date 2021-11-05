@@ -1180,14 +1180,14 @@ int32 scriptlib::duel_is_environment(lua_State *L) {
 	uint32 playerid = PLAYER_ALL;
 	if(lua_gettop(L) >= 2)
 		playerid = (uint32)lua_tointeger(L, 2);
-	uint32 loc = LOCATION_FZONE + LOCATION_ONFIELD;
+	uint32 loc = LOCATION_ONFIELD;
 	if(lua_gettop(L) >= 3)
 		loc = (uint32)lua_tointeger(L, 3);
 	if(playerid != 0 && playerid != 1 && playerid != PLAYER_ALL)
 		return 0;
 	duel* pduel = interpreter::get_duel_info(L);
 	int32 ret = 0, fc = 0;
-	if(loc & LOCATION_FZONE) {
+	if(loc & (LOCATION_FZONE + LOCATION_SZONE)) {
 		card* pcard = pduel->game_field->player[0].list_szone[5];
 		if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED)) {
 			fc = 1;
@@ -1225,6 +1225,20 @@ int32 scriptlib::duel_is_environment(lua_State *L) {
 		if(playerid == 1 || playerid == PLAYER_ALL) {
 			for(auto& pcard : pduel->game_field->player[1].list_mzone) {
 				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
+					ret = 1;
+			}
+		}
+	}
+	if(!ret && (loc & LOCATION_GRAVE)) {
+		if(playerid == 0 || playerid == PLAYER_ALL) {
+			for(auto& pcard : pduel->game_field->player[0].list_grave) {
+				if(code == pcard->get_code())
+					ret = 1;
+			}
+		}
+		if(playerid == 1 || playerid == PLAYER_ALL) {
+			for(auto& pcard : pduel->game_field->player[1].list_grave) {
+				if(code == pcard->get_code())
 					ret = 1;
 			}
 		}
@@ -1438,7 +1452,10 @@ int32 scriptlib::duel_check_lp_cost(lua_State *L) {
 		return 0;
 	uint32 cost = (uint32)lua_tointeger(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushboolean(L, pduel->game_field->check_lp_cost(playerid, cost));
+	uint32 must_pay = FALSE;
+	if(lua_gettop(L) > 2)
+		must_pay = lua_toboolean(L, 3);
+	lua_pushboolean(L, pduel->game_field->check_lp_cost(playerid, cost, must_pay));
 	return 1;
 }
 int32 scriptlib::duel_pay_lp_cost(lua_State *L) {
@@ -1449,7 +1466,10 @@ int32 scriptlib::duel_pay_lp_cost(lua_State *L) {
 		return 0;
 	uint32 cost = (uint32)lua_tointeger(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
-	pduel->game_field->add_process(PROCESSOR_PAY_LPCOST, 0, 0, 0, playerid, cost);
+	uint32 must_pay = FALSE;
+	if(lua_gettop(L) > 2)
+		must_pay = lua_toboolean(L, 3);
+	pduel->game_field->add_process(PROCESSOR_PAY_LPCOST, 0, 0, 0, playerid, cost, must_pay);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_discard_deck(lua_State *L) {
@@ -3409,7 +3429,12 @@ int32 scriptlib::duel_overlay(lua_State *L) {
 		target->xyz_overlay(&cset);
 	} else
 		target->xyz_overlay(&pgroup->container);
-	target->pduel->game_field->adjust_all();
+	uint32 adjust = TRUE;
+	if(lua_gettop(L) > 2) {
+		adjust = lua_toboolean(L, 3);
+	}
+	if(adjust)
+		target->pduel->game_field->adjust_all();
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_get_overlay_group(lua_State *L) {
@@ -4381,43 +4406,44 @@ int32 scriptlib::duel_add_custom_activity_counter(lua_State *L) {
 	int32 counter_filter = interpreter::get_function_handle(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
 	switch(activity_type) {
-		case 1: {
+		case ACTIVITY_SUMMON: {
 			auto iter = pduel->game_field->core.summon_counter.find(counter_id);
 			if(iter != pduel->game_field->core.summon_counter.end())
 				break;
 			pduel->game_field->core.summon_counter[counter_id] = std::make_pair(counter_filter, 0);
 			break;
 		}
-		case 2: {
+		case ACTIVITY_NORMALSUMMON: {
 			auto iter = pduel->game_field->core.normalsummon_counter.find(counter_id);
 			if(iter != pduel->game_field->core.normalsummon_counter.end())
 				break;
 			pduel->game_field->core.normalsummon_counter[counter_id] = std::make_pair(counter_filter, 0);
 			break;
 		}
-		case 3: {
+		case ACTIVITY_SPSUMMON: {
 			auto iter = pduel->game_field->core.spsummon_counter.find(counter_id);
 			if(iter != pduel->game_field->core.spsummon_counter.end())
 				break;
 			pduel->game_field->core.spsummon_counter[counter_id] = std::make_pair(counter_filter, 0);
 			break;
 		}
-		case 4: {
+		case ACTIVITY_FLIPSUMMON: {
 			auto iter = pduel->game_field->core.flipsummon_counter.find(counter_id);
 			if(iter != pduel->game_field->core.flipsummon_counter.end())
 				break;
 			pduel->game_field->core.flipsummon_counter[counter_id] = std::make_pair(counter_filter, 0);
 			break;
 		}
-		case 5: {
+		case ACTIVITY_ATTACK: {
 			auto iter = pduel->game_field->core.attack_counter.find(counter_id);
 			if(iter != pduel->game_field->core.attack_counter.end())
 				break;
 			pduel->game_field->core.attack_counter[counter_id] = std::make_pair(counter_filter, 0);
 			break;
 		}
-		case 6: break;
-		case 7: {
+		case ACTIVITY_BATTLE_PHASE:
+			break;
+		case ACTIVITY_CHAIN: {
 			auto iter = pduel->game_field->core.chain_counter.find(counter_id);
 			if(iter != pduel->game_field->core.chain_counter.end())
 				break;
@@ -4437,39 +4463,39 @@ int32 scriptlib::duel_get_custom_activity_count(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	int32 val = 0;
 	switch(activity_type) {
-		case 1: {
+		case ACTIVITY_SUMMON: {
 			auto iter = pduel->game_field->core.summon_counter.find(counter_id);
 			if(iter != pduel->game_field->core.summon_counter.end())
 				val = iter->second.second;
 			break;
 		}
-		case 2: {
+		case ACTIVITY_NORMALSUMMON: {
 			auto iter = pduel->game_field->core.normalsummon_counter.find(counter_id);
 			if(iter != pduel->game_field->core.normalsummon_counter.end())
 				val = iter->second.second;
 			break;
 		}
-		case 3: {
+		case ACTIVITY_SPSUMMON: {
 			auto iter = pduel->game_field->core.spsummon_counter.find(counter_id);
 			if(iter != pduel->game_field->core.spsummon_counter.end())
 				val = iter->second.second;
 			break;
 		}
-		case 4: {
+		case ACTIVITY_FLIPSUMMON: {
 			auto iter = pduel->game_field->core.flipsummon_counter.find(counter_id);
 			if(iter != pduel->game_field->core.flipsummon_counter.end())
 				val = iter->second.second;
 			break;
 		}
-		case 5: {
+		case ACTIVITY_ATTACK: {
 			auto iter = pduel->game_field->core.attack_counter.find(counter_id);
 			if(iter != pduel->game_field->core.attack_counter.end())
 				val = iter->second.second;
 			break;
 		}
-		case 6:
+		case ACTIVITY_BATTLE_PHASE:
 			break;
-		case 7: {
+		case ACTIVITY_CHAIN: {
 			auto iter = pduel->game_field->core.chain_counter.find(counter_id);
 			if(iter != pduel->game_field->core.chain_counter.end())
 				val = iter->second.second;
