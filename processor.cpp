@@ -3420,6 +3420,7 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 					}
 					effect_set eset;
 					core.attacker->filter_effect(EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
+					core.attacker->filter_effect(EFFECT_CHANGE_INVOLVING_BATTLE_DAMAGE, &eset, FALSE);
 					core.attack_target->filter_effect(EFFECT_CHANGE_INVOLVING_BATTLE_DAMAGE, &eset, FALSE);
 					filter_player_effect(pa, EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
 					filter_player_effect(1 - pa, EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
@@ -3539,6 +3540,7 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 		}
 		effect_set eset;
 		reason_card->filter_effect(EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
+		reason_card->filter_effect(EFFECT_CHANGE_INVOLVING_BATTLE_DAMAGE, &eset, FALSE);
 		if(dam_card)
 			dam_card->filter_effect(EFFECT_CHANGE_INVOLVING_BATTLE_DAMAGE, &eset, FALSE);
 		filter_player_effect(damp, EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
