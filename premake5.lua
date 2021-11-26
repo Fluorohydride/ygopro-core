@@ -1,10 +1,10 @@
 project "ocgcore"
     kind "StaticLib"
 
-    files { "**.cc", "**.cpp", "**.c", "**.h" }
-    configuration "windows"
+    files { "*.cpp", "*.h" }
+    filter "system:windows"
         includedirs { "../lua" }
-    configuration "not vs*"
+    filter "not action:vs*"
         buildoptions { "-std=c++14" }
-    configuration "not windows"
+    filter "not system:windows"
         includedirs { "/usr/include/lua5.3" }
