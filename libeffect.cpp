@@ -383,7 +383,7 @@ int32 scriptlib::effect_get_owner(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	interpreter::card2value(L, peffect->owner);
+	interpreter::card2value(L, peffect->get_owner());
 	return 1;
 }
 int32 scriptlib::effect_get_handler(lua_State *L) {
