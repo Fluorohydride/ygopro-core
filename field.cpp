@@ -608,7 +608,7 @@ int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequen
 * Return usable count in zone of playerid's MZONE or SZONE(0~4) when uplayer moves pcard to playerid's field (can be negative).
 * for LOCATION_MZONE, "usable" means not used, not disabled, satisfying EFFECT_MUST_USE_MZONE, satisfying EFFECT_MAX_MZONE
 * for LOCATION_SZONE, "usable" means not used, not disabled, satisfying EFFECT_MAX_SZONE
-* 
+*
 * @param pcard		the card about to move
 * @param playerid	the target player
 * @param location	LOCATION_MZONE or LOCATION_SZONE
@@ -616,8 +616,8 @@ int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequen
 * @param reason		location reason
 * @param zone		specified zones, 0xff by default
 * @param list		storing unavailable or unspecified zones
-* 
-* @return usable count in zone of playerid's MZONE or SZONE(0~4) (can be negative) 
+*
+* @return usable count in zone of playerid's MZONE or SZONE(0~4) (can be negative)
 */
 int32 field::get_useable_count(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone, uint32* list) {
 	if(location == LOCATION_MZONE && pcard && pcard->current.location == LOCATION_EXTRA)
@@ -689,7 +689,7 @@ int32 field::get_useable_count_other(card* pcard, uint8 playerid, uint8 location
 		count = limit;
 	return count;
 }
-/** 
+/**
 * @return the number of available grids in zone of Main MZONE or SZONE(0~4)
 * for LOCATION_MZONE, "available" means not used, not disabled, satisfying EFFECT_MUST_USE_MZONE
 * for LOCATION_SZONE, "available" means not used, not disabled
@@ -2250,7 +2250,7 @@ void field::set_spsummon_counter(uint8 playerid) {
 	if(core.global_flag & GLOBALFLAG_SPSUMMON_COUNT) {
 		for(auto& peffect : effects.spsummon_count_eff) {
 			card* pcard = peffect->get_handler();
-			if(peffect->is_available()) {
+			if(peffect->limit_counter_is_available()) {
 				if(((playerid == pcard->current.controler) && peffect->s_range) || ((playerid != pcard->current.controler) && peffect->o_range)) {
 					pcard->spsummon_counter[playerid]++;
 				}
