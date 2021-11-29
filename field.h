@@ -71,7 +71,7 @@ struct chain {
 	uint32 flag;
 
 	chain()
-		: chain_id(0), chain_count(0), triggering_player(PLAYER_NONE), triggering_controler(PLAYER_NONE), triggering_location(0), triggering_sequence(0), triggering_position(0), 
+		: chain_id(0), chain_count(0), triggering_player(PLAYER_NONE), triggering_controler(PLAYER_NONE), triggering_location(0), triggering_sequence(0), triggering_position(0),
 		triggering_state(), triggering_effect(nullptr), target_cards(nullptr), replace_op(0), target_player(PLAYER_NONE), target_param(0), disable_reason(nullptr), disable_player(PLAYER_NONE),
 		evt(), flag(0) {}
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
@@ -724,6 +724,7 @@ public:
 #define GLOBALFLAG_SELF_TOGRAVE			0x100
 #define GLOBALFLAG_SPSUMMON_ONCE		0x200
 #define GLOBALFLAG_TUNE_MAGICIAN		0x400
+#define GLOBALFLAG_ACTIVATION_COUNT		0x800
 //
 #define PROCESSOR_NONE		0
 #define PROCESSOR_WAITING	0x10000
