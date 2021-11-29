@@ -1683,6 +1683,13 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 					core.select_chains.push_back(newchain);
 				}
 			}
+			pr = effects.quick_o_effect.equal_range(ev.event_code);
+			for(auto eit = pr.first; eit != pr.second;) {
+				effect* peffect = eit->second;
+				++eit;
+				if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_condition_check(peffect->get_handler()->current.controler, ev))
+					core.delayed_quick.emplace(peffect, ev);
+			}
 		}
 		// delayed quick
 		for(auto eit = core.delayed_quick.begin(); eit != core.delayed_quick.end();) {
