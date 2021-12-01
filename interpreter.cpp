@@ -28,6 +28,8 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_setglobal(lua_state, "os");
 	lua_pushnil(lua_state);
 	lua_setglobal(lua_state, "package");
+	lua_pushnil(lua_state);
+	lua_setglobal(lua_state, "debug");
 	luaL_getsubtable(lua_state, LUA_REGISTRYINDEX, "_LOADED");
 	lua_pushnil(lua_state);
 	lua_setfield(lua_state, -2, "io");
@@ -35,6 +37,8 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_setfield(lua_state, -2, "os");
 	lua_pushnil(lua_state);
 	lua_setfield(lua_state, -2, "package");
+	lua_pushnil(lua_state);
+	lua_setfield(lua_state, -2, "debug");
 	lua_pop(lua_state, 1);
 	//open all libs
 	scriptlib::open_cardlib(lua_state);
