@@ -91,6 +91,28 @@ struct query_cache {
 	uint32 link_marker;
 };
 
+struct material_info {
+	// Synchron
+	card* limit_tuner;
+	group* limit_syn;
+	int32 limit_syn_minc;
+	int32 limit_syn_maxc;
+	// Xyz
+	group* limit_xyz;
+	int32 limit_xyz_minc;
+	int32 limit_xyz_maxc;
+	// Link
+	group* limit_link;
+	card* limit_link_card;
+	int32 limit_link_minc;
+	int32 limit_link_maxc;
+
+	material_info()
+		: limit_tuner(nullptr), limit_syn(nullptr), limit_syn_minc(0), limit_syn_maxc(0), limit_xyz(nullptr), limit_xyz_minc(0), limit_xyz_maxc(0), 
+		limit_link(nullptr), limit_link_card(nullptr), limit_link_minc(0), limit_link_maxc(0) {}
+};
+const material_info null_info;
+
 class card {
 public:
 	struct effect_relation_hash {
@@ -299,7 +321,7 @@ public:
 	int32 check_summon_procedure(effect* proc, uint8 playerid, uint8 ignore_count, uint8 min_tribute, uint32 zone);
 	int32 filter_set_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute, uint32 zone);
 	int32 check_set_procedure(effect* proc, uint8 playerid, uint8 ignore_count, uint8 min_tribute, uint32 zone);
-	void filter_spsummon_procedure(uint8 playerid, effect_set* eset, uint32 summon_type);
+	void filter_spsummon_procedure(uint8 playerid, effect_set* eset, uint32 summon_type, material_info info = null_info);
 	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset);
 	effect* is_affected_by_effect(int32 code);
 	effect* is_affected_by_effect(int32 code, card* target);
@@ -314,13 +336,13 @@ public:
 	int32 check_cost_condition(int32 ecode, int32 playerid, int32 sumtype);
 	int32 is_summonable_card();
 	int32 is_fusion_summonable_card(uint32 summon_type);
-	int32 is_spsummonable(effect* proc);
+	int32 is_spsummonable(effect* proc, material_info info = null_info);
 	int32 is_summonable(effect* proc, uint8 min_tribute, uint32 zone = 0x1f, uint32 releasable = 0xff00ff);
 	int32 is_can_be_summoned(uint8 playerid, uint8 ingore_count, effect* peffect, uint8 min_tribute, uint32 zone = 0x1f);
 	int32 get_summon_tribute_count();
 	int32 get_set_tribute_count();
 	int32 is_can_be_flip_summoned(uint8 playerid);
-	int32 is_special_summonable(uint8 playerid, uint32 summon_type);
+	int32 is_special_summonable(uint8 playerid, uint32 summon_type, material_info info = null_info);
 	int32 is_can_be_special_summoned(effect* reason_effect, uint32 sumtype, uint8 sumpos, uint8 sumplayer, uint8 toplayer, uint8 nocheck, uint8 nolimit, uint32 zone);
 	int32 is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect, uint8 min_tribute, uint32 zone = 0x1f);
 	int32 is_setable_szone(uint8 playerid, uint8 ignore_fd = 0);

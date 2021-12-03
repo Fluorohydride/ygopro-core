@@ -144,8 +144,7 @@ extern "C" DECL_DLLEXPORT void new_card(intptr_t pduel, uint32 code, uint8 owner
 		if(!(location & LOCATION_ONFIELD) || (position & POS_FACEUP)) {
 			pcard->enable_field_effect(true);
 			ptduel->game_field->adjust_instant();
-		}
-		if(location & LOCATION_ONFIELD) {
+		} if(location & LOCATION_ONFIELD) {
 			if(location == LOCATION_MZONE)
 				pcard->set_status(STATUS_PROC_COMPLETE, TRUE);
 		}
@@ -197,12 +196,12 @@ extern "C" DECL_DLLEXPORT int32 query_card(intptr_t pduel, uint8 playerid, uint8
 			lst = &ptduel->game_field->player[playerid].list_main;
 		if(!lst || sequence >= lst->size())
 			pcard = 0;
-		else {
+		else
 			pcard = (*lst)[sequence];
-		}
 	}
-	if(pcard)
+	if (pcard) {
 		return pcard->get_infos(buf, query_flag, use_cache);
+	}
 	else {
 		*((int32*)buf) = 4;
 		return 4;

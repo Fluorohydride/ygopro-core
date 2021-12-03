@@ -491,7 +491,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_PAY_LPCOST: {
-		if (pay_lp_cost(it->step, it->arg1, it->arg2))
+		if (pay_lp_cost(it->step, it->arg1, it->arg2, it->arg3))
 			core.units.pop_front();
 		else
 			it->step++;
@@ -1683,6 +1683,13 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 					core.select_chains.push_back(newchain);
 				}
 			}
+			pr = effects.quick_o_effect.equal_range(ev.event_code);
+			for(auto eit = pr.first; eit != pr.second;) {
+				effect* peffect = eit->second;
+				++eit;
+				if(peffect->is_flag(EFFECT_FLAG_DELAY) && peffect->is_condition_check(peffect->get_handler()->current.controler, ev))
+					core.delayed_quick.emplace(peffect, ev);
+			}
 		}
 		// delayed quick
 		for(auto eit = core.delayed_quick.begin(); eit != core.delayed_quick.end();) {
@@ -1813,7 +1820,7 @@ int32 field::process_instant_event() {
 				}
 			}
 		}
-		if(ev.event_code == EVENT_ADJUST || ev.event_code == EVENT_BREAK_EFFECT || ((ev.event_code & 0xf000) == EVENT_PHASE_START) && ((ev.event_code & EVENT_CUSTOM) == 0))
+		if (is_continuous_event(ev.event_code))
 			continue;
 		//triggers
 		pr = effects.trigger_f_effect.equal_range(ev.event_code);
@@ -2622,7 +2629,7 @@ int32 field::process_battle_command(uint16 step) {
 		if(!core.units.begin()->arg1) {
 			core.phase_action = TRUE;
 			core.attack_state_count[infos.turn_player]++;
-			check_card_counter(core.attacker, 5, infos.turn_player);
+			check_card_counter(core.attacker, ACTIVITY_ATTACK, infos.turn_player);
 			core.attacker->attack_announce_count++;
 		}
 		if(core.units.begin()->arg3) {//attack announce failed
@@ -3146,11 +3153,11 @@ int32 field::process_battle_command(uint16 step) {
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 1);
 		raise_event((card*)0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 0);
+		process_single_event();
+		process_instant_event();
 		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 		if(core.attack_target)
 			core.attack_target->set_status(STATUS_BATTLE_DESTROYED, FALSE);
-		process_single_event();
-		process_instant_event();
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_EVENT);
 		pduel->write_buffer8(0);
@@ -3236,7 +3243,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 		if(new_attack) {
 			core.attack_state_count[infos.turn_player]++;
 			core.battled_count[infos.turn_player]++;
-			check_card_counter(core.attacker, 5, infos.turn_player);
+			check_card_counter(core.attacker, ACTIVITY_ATTACK, infos.turn_player);
 		}
 		core.attacker->announced_cards.addcard(core.attack_target);
 		attack_all_target_check();
@@ -3420,7 +3427,8 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 					}
 					effect_set eset;
 					core.attacker->filter_effect(EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
-					core.attack_target->filter_effect(EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
+					core.attacker->filter_effect(EFFECT_CHANGE_INVOLVING_BATTLE_DAMAGE, &eset, FALSE);
+					core.attack_target->filter_effect(EFFECT_CHANGE_INVOLVING_BATTLE_DAMAGE, &eset, FALSE);
 					filter_player_effect(pa, EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
 					filter_player_effect(1 - pa, EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
 					eset.sort();
@@ -3539,8 +3547,9 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 		}
 		effect_set eset;
 		reason_card->filter_effect(EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
+		reason_card->filter_effect(EFFECT_CHANGE_INVOLVING_BATTLE_DAMAGE, &eset, FALSE);
 		if(dam_card)
-			dam_card->filter_effect(EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
+			dam_card->filter_effect(EFFECT_CHANGE_INVOLVING_BATTLE_DAMAGE, &eset, FALSE);
 		filter_player_effect(damp, EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
 		filter_player_effect(1 - damp, EFFECT_CHANGE_BATTLE_DAMAGE, &eset, FALSE);
 		eset.sort();
@@ -4031,8 +4040,9 @@ int32 field::add_chain(uint16 step) {
 			clit.flag |= CHAIN_HAND_EFFECT;
 		core.current_chain.push_back(clit);
 		check_chain_counter(peffect, clit.triggering_player, clit.chain_count);
-		// triggered events which are not caused by RaiseEvent create relation with the handler
-		if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) && (!(peffect->type & 0x2a0) || (peffect->code & EVENT_PHASE) == EVENT_PHASE)) {
+		// triggered events which are not caused by event create relation with the handler
+		if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) 
+			&& (!(peffect->type & (EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_TRIGGER_O)) || peffect->get_code_type() == CODE_PHASE)) {
 			phandler->create_relation(clit);
 		}
 		peffect->effect_owner = clit.triggering_player;
@@ -4194,7 +4204,7 @@ int32 field::solve_continuous(uint16 step) {
 			return TRUE;
 		}
 		core.continuous_chain.push_back(clit);
-		if(peffect->is_flag(EFFECT_FLAG_DELAY) || !(peffect->code & 0x10030000) && (peffect->code & (EVENT_PHASE | EVENT_PHASE_START)))
+		if(peffect->is_flag(EFFECT_FLAG_DELAY) || peffect->get_code_type() == CODE_PHASE)
 			core.conti_solving = TRUE;
 		core.units.begin()->ptarget = (group*)core.reason_effect;
 		core.units.begin()->arg2 = core.reason_player;
@@ -4232,7 +4242,7 @@ int32 field::solve_continuous(uint16 step) {
 		}
 		core.continuous_chain.pop_back();
 		core.solving_continuous.pop_front();
-		if(peffect->is_flag(EFFECT_FLAG_DELAY) || !(peffect->code & 0x10030000) && (peffect->code & (EVENT_PHASE | EVENT_PHASE_START))) {
+		if(peffect->is_flag(EFFECT_FLAG_DELAY) || peffect->get_code_type() == CODE_PHASE) {
 			core.conti_solving = FALSE;
 			adjust_all();
 			return FALSE;
@@ -5009,8 +5019,10 @@ int32 field::adjust_step(uint16 step) {
 		return FALSE;
 	}
 	case 15: {
-		raise_event((card*)0, EVENT_ADJUST, 0, 0, PLAYER_NONE, PLAYER_NONE, 0);
-		process_instant_event();
+		if(!check_event(EVENT_ADJUST)) {
+			raise_event((card*)0, EVENT_ADJUST, 0, 0, PLAYER_NONE, PLAYER_NONE, 0);
+			process_instant_event();
+		}
 		return FALSE;
 	}
 	case 16: {

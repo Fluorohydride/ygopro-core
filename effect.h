@@ -68,7 +68,8 @@ public:
 	int32 is_disable_related();
 	int32 is_self_destroy_related();
 	int32 is_can_be_forbidden();
-	int32 is_available();
+	int32 is_available(int32 neglect_disabled = FALSE);
+	int32 limit_counter_is_available();
 	int32 is_single_ready();
 	int32 check_count_limit(uint8 playerid);
 	int32 is_activateable(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE, int32 neglect_loc = FALSE, int32 neglect_faceup = FALSE);
@@ -83,6 +84,7 @@ public:
 	int32 is_player_effect_target(card* pcard);
 	int32 is_immuned(card* pcard);
 	int32 is_chainable(uint8 tp);
+	int32 is_hand_trigger();
 	int32 reset(uint32 reset_level, uint32 reset_type);
 	void dec_count(uint32 playerid = 2);
 	void recharge();
@@ -105,6 +107,8 @@ public:
 	void set_activate_location();
 	void set_active_type();
 	uint32 get_active_type();
+	int32 get_code_type();
+
 	bool is_flag(effect_flag flag) const {
 		return !!(this->flag[0] & flag);
 	}
@@ -415,7 +419,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_QP_ACT_IN_NTPHAND		311
 #define EFFECT_MUST_BE_SMATERIAL		312
 #define EFFECT_TO_GRAVE_REDIRECT_CB		313
-//#define EFFECT_CHANGE_LEVEL_FINAL		314
+#define EFFECT_CHANGE_INVOLVING_BATTLE_DAMAGE	314
 //#define EFFECT_CHANGE_RANK_FINAL		315
 #define EFFECT_MUST_BE_FMATERIAL		316
 #define EFFECT_MUST_BE_XMATERIAL		317
@@ -456,6 +460,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_OVERLAY_RITUAL_MATERIAL	364
 #define EFFECT_CHANGE_GRAVE_ATTRIBUTE	365
 #define EFFECT_CHANGE_GRAVE_RACE		366
+#define EFFECT_ACTIVATION_COUNT_LIMIT	367
 
 #define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
@@ -533,4 +538,14 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 
 #define DOUBLE_DAMAGE				0x80000000
 #define HALF_DAMAGE					0x80000001
+
+// The type of bit field in code
+#define CODE_CUSTOM		1	// header + id (28 bits)
+#define CODE_COUNTER	2	// header + counter_id (16 bits)
+#define CODE_PHASE		3	// header + phase_id (12 bits)
+#define CODE_VALUE		4	// numeric value, max = 4095
+
+const std::unordered_set<uint32> continuous_event({ EVENT_ADJUST, EVENT_BREAK_EFFECT, EVENT_TURN_END });
+bool is_continuous_event(uint32 code);
+
 #endif /* EFFECT_H_ */

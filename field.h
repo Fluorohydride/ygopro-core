@@ -71,7 +71,7 @@ struct chain {
 	uint32 flag;
 
 	chain()
-		: chain_id(0), chain_count(0), triggering_player(PLAYER_NONE), triggering_controler(PLAYER_NONE), triggering_location(0), triggering_sequence(0), triggering_position(0), 
+		: chain_id(0), chain_count(0), triggering_player(PLAYER_NONE), triggering_controler(PLAYER_NONE), triggering_location(0), triggering_sequence(0), triggering_position(0),
 		triggering_state(), triggering_effect(nullptr), target_cards(nullptr), replace_op(0), target_player(PLAYER_NONE), target_param(0), disable_reason(nullptr), disable_player(PLAYER_NONE),
 		evt(), flag(0) {}
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
@@ -468,10 +468,10 @@ public:
 	void set_spsummon_counter(uint8 playerid);
 	int32 check_spsummon_counter(uint8 playerid, uint8 ct = 1);
 
-	int32 check_lp_cost(uint8 playerid, uint32 cost);
+	int32 check_lp_cost(uint8 playerid, uint32 cost, uint32 must_pay);
 	void save_lp_cost() {}
 	void restore_lp_cost() {}
-	int32 pay_lp_cost(uint32 step, uint8 playerid, uint32 cost);
+	int32 pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_pay);
 
 	uint32 get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype);
 	int32 effect_replace_check(uint32 code, const tevent& e);
@@ -724,6 +724,7 @@ public:
 #define GLOBALFLAG_SELF_TOGRAVE			0x100
 #define GLOBALFLAG_SPSUMMON_ONCE		0x200
 #define GLOBALFLAG_TUNE_MAGICIAN		0x400
+#define GLOBALFLAG_ACTIVATION_COUNT		0x800
 //
 #define PROCESSOR_NONE		0
 #define PROCESSOR_WAITING	0x10000

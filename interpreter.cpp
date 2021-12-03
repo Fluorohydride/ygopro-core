@@ -26,11 +26,19 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_setglobal(lua_state, "io");
 	lua_pushnil(lua_state);
 	lua_setglobal(lua_state, "os");
+	lua_pushnil(lua_state);
+	lua_setglobal(lua_state, "package");
+	lua_pushnil(lua_state);
+	lua_setglobal(lua_state, "debug");
 	luaL_getsubtable(lua_state, LUA_REGISTRYINDEX, "_LOADED");
 	lua_pushnil(lua_state);
 	lua_setfield(lua_state, -2, "io");
 	lua_pushnil(lua_state);
 	lua_setfield(lua_state, -2, "os");
+	lua_pushnil(lua_state);
+	lua_setfield(lua_state, -2, "package");
+	lua_pushnil(lua_state);
+	lua_setfield(lua_state, -2, "debug");
 	lua_pop(lua_state, 1);
 	//open all libs
 	scriptlib::open_cardlib(lua_state);
@@ -157,9 +165,18 @@ int32 interpreter::load_card_script(uint32 code) {
 		lua_pushstring(current_state, "__index");
 		lua_pushvalue(current_state, -2);
 		lua_rawset(current_state, -3);
+		lua_getglobal(current_state, class_name);
+		lua_setglobal(current_state, "self_table");
+		lua_pushinteger(current_state, code);
+		lua_setglobal(current_state, "self_code");
 		char script_name[64];
 		sprintf(script_name, "./script/c%d.lua", code);
-		if(!load_script(script_name)) {
+		int32 res = load_script(script_name);
+		lua_pushnil(current_state);
+		lua_setglobal(current_state, "self_table");
+		lua_pushnil(current_state);
+		lua_setglobal(current_state, "self_code");
+		if(!res) {
 			return OPERATION_FAIL;
 		}
 	}

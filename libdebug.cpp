@@ -146,7 +146,7 @@ int32 scriptlib::debug_reload_field_begin(lua_State *L) {
 	uint32 flag = (uint32)lua_tointeger(L, 1);
 	int32 rule = (int32)lua_tointeger(L, 2);
 	pduel->clear();
-	pduel->game_field->core.duel_options = flag;
+	pduel->game_field->core.duel_options |= flag;
 	if (rule)
 		pduel->game_field->core.duel_rule = rule;
 	else if (flag & DUEL_OBSOLETE_RULING)

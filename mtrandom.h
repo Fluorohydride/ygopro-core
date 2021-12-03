@@ -12,6 +12,8 @@
 
 class mt19937 {
 public:
+	const unsigned int rand_max;
+
 	mt19937() :
 		rng(), rand_max((rng.max)()) {}
 	explicit mt19937(unsigned int seed) :
@@ -62,7 +64,6 @@ public:
 
 private:
 	std::mt19937 rng;
-	const unsigned int rand_max;
 };
 
 
