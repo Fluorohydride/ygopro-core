@@ -377,6 +377,8 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 		}
 		core.hint_timing[playerid] |= TIMING_DRAW + TIMING_TOHAND;
 		adjust_instant();
+		if(core.overdraw[playerid] && (reason & REASON_RULE))
+			adjust_all();
 		core.units.begin()->arg2 = (core.units.begin()->arg2 & 0xff000000) + drawed;
 		card_set* drawed_set = new card_set;
 		core.units.begin()->ptarget = (group*)drawed_set;
