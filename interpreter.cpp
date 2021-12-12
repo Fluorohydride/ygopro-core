@@ -579,8 +579,13 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	push_param(rthread, true);
 	lua_State* prev_state = current_state;
 	current_state = rthread;
+#if (LUA_VERSION_NUM >= 504)
 	int32 nresults;
 	int32 result = lua_resume(rthread, prev_state, param_count, &nresults);
+#else
+	int32 result = lua_resume(rthread, 0, param_count);
+	int32 nresults = lua_gettop(rthread);
+#endif
 	if (result == 0) {
 		coroutines.erase(f);
 		if(yield_value)
