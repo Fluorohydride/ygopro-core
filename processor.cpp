@@ -684,6 +684,15 @@ int32 field::process() {
 					player[target_player].list_main.push_back(tc[count - i - 1]);
 					tc[count - i - 1]->current.sequence = (uint8)player[target_player].list_main.size() - 1;
 				}
+				auto clit = player[target_player].list_main.rbegin();
+				for(i = 0; i < count; ++i, ++clit) {
+					card* pcard = *clit;
+					pduel->write_buffer8(MSG_MOVE);
+					pduel->write_buffer32(0);
+					pduel->write_buffer32(pcard->get_info_location());
+					pduel->write_buffer32(pcard->get_info_location());
+					pduel->write_buffer32(REASON_EFFECT);
+				}
 			}
 			if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
 				if(count > 0) {
