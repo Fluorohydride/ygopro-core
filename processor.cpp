@@ -817,10 +817,10 @@ int32 field::execute_operation(uint16 step, effect * triggering_effect, uint8 tr
 				shuffle(0, LOCATION_DECK);
 			if(core.shuffle_deck_check[1])
 				shuffle(1, LOCATION_DECK);
-			//cost[0].count = 0;
-			//cost[1].count = 0;
-			//cost[0].amount = 0;
-			//cost[1].amount = 0;
+			cost[0].count = 0;
+			cost[1].count = 0;
+			cost[0].amount = 0;
+			cost[1].amount = 0;
 		}
 		core.shuffle_check_disabled = (uint8)core.units.begin()->arg2;
 		return TRUE;
