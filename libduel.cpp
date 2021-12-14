@@ -1170,13 +1170,13 @@ int32 scriptlib::duel_is_environment(lua_State *L) {
 	int32 ret = 0, fc = 0;
 	if(loc & (LOCATION_FZONE + LOCATION_SZONE)) {
 		card* pcard = pduel->game_field->player[0].list_szone[5];
-		if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED)) {
+		if(pcard && pcard->is_position(POS_FACEUP)) {
 			fc = 1;
 			if(code == pcard->get_code() && (playerid == 0 || playerid == PLAYER_ALL))
 				ret = 1;
 		}
 		pcard = pduel->game_field->player[1].list_szone[5];
-		if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED)) {
+		if(pcard && pcard->is_position(POS_FACEUP)) {
 			fc = 1;
 			if(code == pcard->get_code() && (playerid == 1 || playerid == PLAYER_ALL))
 				ret = 1;
@@ -1185,13 +1185,13 @@ int32 scriptlib::duel_is_environment(lua_State *L) {
 	if(!ret && (loc & LOCATION_SZONE)) {
 		if(playerid == 0 || playerid == PLAYER_ALL) {
 			for(auto& pcard : pduel->game_field->player[0].list_szone) {
-				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
+				if(pcard && pcard->is_position(POS_FACEUP) && code == pcard->get_code())
 					ret = 1;
 			}
 		}
 		if(playerid == 1 || playerid == PLAYER_ALL) {
 			for(auto& pcard : pduel->game_field->player[1].list_szone) {
-				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
+				if(pcard && pcard->is_position(POS_FACEUP) && code == pcard->get_code())
 					ret = 1;
 			}
 		}
@@ -1199,13 +1199,13 @@ int32 scriptlib::duel_is_environment(lua_State *L) {
 	if(!ret && (loc & LOCATION_MZONE)) {
 		if(playerid == 0 || playerid == PLAYER_ALL) {
 			for(auto& pcard : pduel->game_field->player[0].list_mzone) {
-				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
+				if(pcard && pcard->is_position(POS_FACEUP) && code == pcard->get_code())
 					ret = 1;
 			}
 		}
 		if(playerid == 1 || playerid == PLAYER_ALL) {
 			for(auto& pcard : pduel->game_field->player[1].list_mzone) {
-				if(pcard && pcard->is_position(POS_FACEUP) && pcard->get_status(STATUS_EFFECT_ENABLED) && code == pcard->get_code())
+				if(pcard && pcard->is_position(POS_FACEUP) && code == pcard->get_code())
 					ret = 1;
 			}
 		}
