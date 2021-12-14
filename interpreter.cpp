@@ -589,7 +589,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	if (result == 0) {
 		coroutines.erase(f);
 		if(yield_value) {
-			if(lua_gettop(rthread) == 0)
+			if(nresults == 0)
 				*yield_value = 0;
 			else if(lua_isboolean(rthread, -1))
 				*yield_value = lua_toboolean(rthread, -1);
