@@ -581,8 +581,14 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	int32 result = lua_resume(rthread, 0, param_count);
 	if (result == 0) {
 		coroutines.erase(f);
-		if(yield_value)
-			*yield_value = lua_isboolean(rthread, -1) ? lua_toboolean(rthread, -1) : (uint32)lua_tointeger(rthread, -1);
+		if(yield_value) {
+			if(lua_gettop(rthread) == 0)
+				*yield_value = 0;
+			else if(lua_isboolean(rthread, -1))
+				*yield_value = lua_toboolean(rthread, -1);
+			else
+				*yield_value = (uint32)lua_tointeger(rthread, -1);
+		}
 		current_state = lua_state;
 		call_depth--;
 		if(call_depth == 0) {
