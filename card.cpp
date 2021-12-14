@@ -2867,10 +2867,12 @@ int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_mater
 	pduel->lua->add_param(chkf, PARAM_TYPE_INT);
 	effect* oreason = pduel->game_field->core.reason_effect;
 	uint8 op = pduel->game_field->core.reason_player;
+	pduel->game_field->save_lp_cost();
 	pduel->game_field->core.reason_effect = peffect;
 	pduel->game_field->core.reason_player = peffect->get_handler_player();
 	pduel->game_field->core.not_material = not_material;
 	int32 res = pduel->lua->check_condition(peffect->condition, 4);
+	pduel->game_field->restore_lp_cost();
 	pduel->game_field->core.reason_effect = oreason;
 	pduel->game_field->core.reason_player = op;
 	pduel->game_field->core.not_material = 0;

@@ -2514,12 +2514,11 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		pduel->lua->add_param(findex2, PARAM_TYPE_INDEX);
 		pduel->lua->add_param(min, PARAM_TYPE_INT);
 		pduel->lua->add_param(max, PARAM_TYPE_INT);
-		if(pduel->lua->check_condition(pcustom->target, 5)) {
-			pduel->restore_assumes();
-			return TRUE;
-		}
+		pduel->game_field->save_lp_cost();
+		int32 res = pduel->lua->check_condition(pcustom->target, 5);
+		pduel->game_field->restore_lp_cost();
 		pduel->restore_assumes();
-		return FALSE;
+		return res;
 	}
 	int32 playerid = pcard->current.controler;
 	int32 ct = get_spsummonable_count(pcard, playerid);
