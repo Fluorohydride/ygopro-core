@@ -17,9 +17,9 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_state = luaL_newstate();
 	current_state = lua_state;
 	pduel = pd;
+	memcpy(lua_getextraspace(lua_state), &pd, LUA_EXTRASPACE); //set_duel_info
 	no_action = 0;
 	call_depth = 0;
-	set_duel_info(lua_state, pd);
 	//Initial
 	luaL_openlibs(lua_state);
 	lua_pushnil(lua_state);
@@ -577,12 +577,19 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 		}
 	}
 	push_param(rthread, true);
+	lua_State* prev_state = current_state;
 	current_state = rthread;
+#if (LUA_VERSION_NUM >= 504)
+	int32 nresults;
+	int32 result = lua_resume(rthread, prev_state, param_count, &nresults);
+#else
 	int32 result = lua_resume(rthread, 0, param_count);
+	int32 nresults = lua_gettop(rthread);
+#endif
 	if (result == 0) {
 		coroutines.erase(f);
 		if(yield_value) {
-			if(lua_gettop(rthread) == 0)
+			if(nresults == 0)
 				*yield_value = 0;
 			else if(lua_isboolean(rthread, -1))
 				*yield_value = lua_toboolean(rthread, -1);
@@ -662,14 +669,8 @@ int32 interpreter::get_function_handle(lua_State* L, int32 index) {
 	int32 ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	return ref;
 }
-void interpreter::set_duel_info(lua_State* L, duel* pduel) {
-	lua_pushlightuserdata(L, pduel);
-	luaL_ref(L, LUA_REGISTRYINDEX);
-}
 duel* interpreter::get_duel_info(lua_State * L) {
-	luaL_checkstack(L, 1, NULL);
-	lua_rawgeti(L, LUA_REGISTRYINDEX, 3);
-	duel* pduel = (duel*)lua_topointer(L, -1);
-	lua_pop(L, 1);
+	duel* pduel;
+	memcpy(&pduel, lua_getextraspace(L), LUA_EXTRASPACE);
 	return pduel;
 }
