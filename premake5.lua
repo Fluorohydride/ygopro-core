@@ -7,6 +7,7 @@ project "ocgcore"
     if BUILD_LUA then
         includedirs { "../lua/src" }
     end
+
     filter "not action:vs*"
         buildoptions { "-std=c++14" }
 
