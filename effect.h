@@ -188,7 +188,7 @@ enum effect_flag : uint32 {
 	EFFECT_FLAG_UNCOPYABLE			= 0x40000,
 	EFFECT_FLAG_OATH				= 0x80000,
 	EFFECT_FLAG_SPSUM_PARAM			= 0x100000,
-	EFFECT_FLAG_REPEAT				= 0x200000,
+//	EFFECT_FLAG_REPEAT				= 0x200000,
 	EFFECT_FLAG_NO_TURN_RESET		= 0x400000,
 	EFFECT_FLAG_EVENT_PLAYER		= 0x800000,
 	EFFECT_FLAG_OWNER_RELATE		= 0x1000000,
@@ -203,6 +203,8 @@ enum effect_flag : uint32 {
 enum effect_flag2 : uint32 {
 	EFFECT_FLAG2_MILLENNIUM_RESTRICT	= 0x0001,
 	EFFECT_FLAG2_COF					= 0x0002,
+	EFFECT_FLAG2_WICKED					= 0x0004,
+	EFFECT_FLAG2_OPTION					= 0x0008,
 };
 inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 {
@@ -308,8 +310,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_REVERSE_UPDATE			108	//
 #define EFFECT_SWAP_AD					109	//
 #define EFFECT_SWAP_BASE_AD				110	//
-//#define EFFECT_SWAP_ATTACK_FINAL		111
-//#define EFFECT_SWAP_DEFENSE_FINAL		112
+#define EFFECT_SET_BASE_ATTACK_FINAL	111	//
+#define EFFECT_SET_BASE_DEFENSE_FINAL	112	//
 #define EFFECT_ADD_CODE					113	//
 #define EFFECT_CHANGE_CODE				114	//
 #define EFFECT_ADD_TYPE					115	//
