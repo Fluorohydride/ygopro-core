@@ -2876,7 +2876,8 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 26: {
 		// Duel.CalculateDamage() goes here
-		uint32 aa = core.attacker->get_attack(), ad = core.attacker->get_defense();
+		std::pair<int32, int32> atk_def = core.attacker->get_atk_def();
+		uint32 aa = atk_def.first, ad = atk_def.second;
 		uint32 da = 0, dd = 0;
 		uint8 pa = core.attacker->current.controler, pd;
 		core.attacker->q_cache.attack = aa;
@@ -2884,8 +2885,9 @@ int32 field::process_battle_command(uint16 step) {
 		core.attacker->set_status(STATUS_BATTLE_RESULT, FALSE);
 		core.attacker->set_status(STATUS_BATTLE_DESTROYED, FALSE);
 		if(core.attack_target) {
-			da = core.attack_target->get_attack();
-			dd = core.attack_target->get_defense();
+			atk_def = core.attack_target->get_atk_def();
+			da = atk_def.first;
+			dd = atk_def.second;
 			core.attack_target->q_cache.attack = da;
 			core.attack_target->q_cache.defense = dd;
 			core.attack_target->set_status(STATUS_BATTLE_RESULT, FALSE);

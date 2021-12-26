@@ -36,8 +36,9 @@ void chain::set_triggering_state(card* pcard) {
 	triggering_state.rank = pcard->get_rank();
 	triggering_state.attribute = pcard->get_attribute();
 	triggering_state.race = pcard->get_race();
-	triggering_state.attack = pcard->get_attack();
-	triggering_state.defense = pcard->get_defense();
+	std::pair<int32, int32> atk_def = pcard->get_atk_def();
+	triggering_state.attack = atk_def.first;
+	triggering_state.defense = atk_def.second;
 }
 bool tevent::operator< (const tevent& v) const {
 	return std::memcmp(this, &v, sizeof(tevent)) < 0;
