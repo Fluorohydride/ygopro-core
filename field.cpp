@@ -221,6 +221,7 @@ void field::remove_card(card* pcard) {
 			core.shuffle_deck_check[playerid] = TRUE;
 		break;
 	case LOCATION_HAND:
+		pcard->set_status(STATUS_TO_HAND_WITHOUT_CONFIRM, FALSE);
 		player[playerid].list_hand.erase(player[playerid].list_hand.begin() + pcard->current.sequence);
 		reset_sequence(playerid, LOCATION_HAND);
 		break;
