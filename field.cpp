@@ -1835,26 +1835,31 @@ int32 field::get_draw_count(uint8 playerid) {
 	}
 	return count;
 }
-void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* material) {
+void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* material, uint8 no_level) {
 	for(auto& pcard : player[playerid].list_mzone) {
 		if(pcard && pcard->is_affect_by_effect(peffect)
-		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect))
+		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect)
+				&& (no_level || pcard->get_level() > 0))
 			material->insert(pcard);
 		if(pcard && pcard->is_affected_by_effect(EFFECT_OVERLAY_RITUAL_MATERIAL))
 			for(auto& mcard : pcard->xyz_materials)
-				material->insert(mcard);
+				if (no_level || mcard->get_level() > 0)
+					material->insert(mcard);
 	}
 	for(auto& pcard : player[1 - playerid].list_mzone) {
 		if(pcard && pcard->is_affect_by_effect(peffect)
 		        && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
-		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect))
+		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect)
+				&& (no_level || pcard->get_level() > 0))
 			material->insert(pcard);
 	}
 	for(auto& pcard : player[playerid].list_hand)
 		if((pcard->data.type & TYPE_MONSTER) && pcard->is_releasable_by_nonsummon(playerid))
 			material->insert(pcard);
 	for(auto& pcard : player[playerid].list_grave)
-		if((pcard->data.type & TYPE_MONSTER) && pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL) && pcard->is_removeable(playerid, POS_FACEUP, REASON_EFFECT))
+		if((pcard->data.type & TYPE_MONSTER)
+				&& pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL) && pcard->is_removeable(playerid, POS_FACEUP, REASON_EFFECT)
+				&& (no_level || pcard->get_level() > 0))
 			material->insert(pcard);
 }
 void field::get_fusion_material(uint8 playerid, card_set* material_all, card_set* material_base, uint32 location) {
