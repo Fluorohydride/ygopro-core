@@ -232,6 +232,8 @@ public:
 	uint32 get_synchro_type();
 	uint32 get_xyz_type();
 	uint32 get_link_type();
+	std::pair<int32, int32> get_base_atk_def();
+	std::pair<int32, int32> get_atk_def();
 	int32 get_base_attack();
 	int32 get_attack();
 	int32 get_base_defense();
