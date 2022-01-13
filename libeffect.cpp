@@ -200,7 +200,7 @@ int32 scriptlib::effect_set_label_object(lua_State *L) {
 		group* p = *(group**)lua_touserdata(L, 2);
 		peffect->label_object = p->ref_handle;
 	} else
-		luaL_error(L, "Parameter 2 should be \"Card\" or \"Effect\" or \"Group\".");
+		return luaL_error(L, "Parameter 2 should be \"Card\" or \"Effect\" or \"Group\".");
 	return 0;
 }
 int32 scriptlib::effect_set_category(lua_State *L) {

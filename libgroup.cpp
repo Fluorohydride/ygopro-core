@@ -731,9 +731,9 @@ int32 scriptlib::group_get_bin_class_count(lua_State *L) {
 int32 scriptlib::group_meta_add(lua_State* L) {
 	check_param_count(L, 2);
 	if(!check_param(L, PARAM_TYPE_CARD, 1, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 1, TRUE))
-		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
+		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	if(!check_param(L, PARAM_TYPE_CARD, 2, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 2, TRUE))
-		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
+		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = pduel->new_group();
 	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
@@ -758,9 +758,9 @@ int32 scriptlib::group_meta_add(lua_State* L) {
 int32 scriptlib::group_meta_sub(lua_State* L) {
 	check_param_count(L, 2);
 	if(!check_param(L, PARAM_TYPE_CARD, 1, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 1, TRUE))
-		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
+		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	if(!check_param(L, PARAM_TYPE_CARD, 2, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 2, TRUE))
-		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
+		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = pduel->new_group();
 	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
@@ -785,9 +785,9 @@ int32 scriptlib::group_meta_sub(lua_State* L) {
 int32 scriptlib::group_meta_band(lua_State* L) {
 	check_param_count(L, 2);
 	if(!check_param(L, PARAM_TYPE_CARD, 1, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 1, TRUE))
-		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
+		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	if(!check_param(L, PARAM_TYPE_CARD, 2, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 2, TRUE))
-		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
+		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = pduel->new_group();
 	field::card_set check_set;
@@ -814,9 +814,9 @@ int32 scriptlib::group_meta_band(lua_State* L) {
 int32 scriptlib::group_meta_bxor(lua_State* L) {
 	check_param_count(L, 2);
 	if(!check_param(L, PARAM_TYPE_CARD, 1, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 1, TRUE))
-		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
+		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	if(!check_param(L, PARAM_TYPE_CARD, 2, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 2, TRUE))
-		luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
+		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = pduel->new_group();
 	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
