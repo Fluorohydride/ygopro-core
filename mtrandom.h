@@ -38,7 +38,7 @@ public:
 		return (int)(l + x % range);
 	}
 	int get_random_integer_old(int l, int h) {
-		int result = (int)((double)rng() / rand_max * (h - l + 1)) + l;
+		int result = (int)((double)rng() / rand_max * ((double)h - l + 1)) + l;
 		if (result > h)
 			result = h;
 		return result;
