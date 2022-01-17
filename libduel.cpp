@@ -3115,6 +3115,17 @@ int32 scriptlib::duel_get_ritual_material(lua_State *L) {
 	interpreter::group2value(L, pgroup);
 	return 1;
 }
+int32 scriptlib::duel_get_ritual_material_ex(lua_State *L) {
+	check_param_count(L, 1);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	group* pgroup = pduel->new_group();
+	pduel->game_field->get_ritual_material(playerid, pduel->game_field->core.reason_effect, &pgroup->container, TRUE);
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
 int32 scriptlib::duel_release_ritual_material(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 1);
@@ -4679,6 +4690,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "SelectTunerMaterial", scriptlib::duel_select_tuner_material },
 	{ "CheckTunerMaterial", scriptlib::duel_check_tuner_material },
 	{ "GetRitualMaterial", scriptlib::duel_get_ritual_material },
+	{ "GetRitualMaterialEx", scriptlib::duel_get_ritual_material_ex },
 	{ "ReleaseRitualMaterial", scriptlib::duel_release_ritual_material },
 	{ "GetFusionMaterial", scriptlib::duel_get_fusion_material },
 	{ "IsSummonCancelable", scriptlib::duel_is_summon_cancelable },
