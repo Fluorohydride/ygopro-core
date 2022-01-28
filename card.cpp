@@ -487,8 +487,8 @@ uint32 card::get_xyz_type() {
 	return get_type();
 }
 uint32 card::get_link_type() {
-	if(current.location == LOCATION_SZONE && (data.type & TYPE_MONSTER))
-		return data.type;
+	if(current.location == LOCATION_SZONE)
+		return data.type | TYPE_MONSTER;
 	return get_type();
 }
 std::pair<int32, int32> card::get_base_atk_def() {
