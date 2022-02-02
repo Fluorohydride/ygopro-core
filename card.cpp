@@ -3275,6 +3275,36 @@ int32 card::is_can_be_special_summoned(effect* reason_effect, uint32 sumtype, ui
 	pduel->game_field->restore_lp_cost();
 	return TRUE;
 }
+uint8 card::get_spsummonable_position(effect* reason_effect, uint32 sumtype, uint8 sumpos, uint8 sumplayer, uint8 toplayer) {
+	uint8 position = 0;
+	uint8 positions[4] = { POS_FACEUP_ATTACK, POS_FACEDOWN_ATTACK, POS_FACEUP_DEFENSE, POS_FACEDOWN_DEFENSE };
+	effect_set eset;
+	for(int32 p = 0; p < 4; ++p) {
+		bool poscheck = true;
+		if(!(positions[p] & sumpos))
+			continue;
+		if((data.type & (TYPE_TOKEN | TYPE_LINK)) && (positions[p] & POS_FACEDOWN))
+			continue;
+		pduel->game_field->filter_player_effect(sumplayer, EFFECT_CANNOT_SPECIAL_SUMMON, &eset);
+		for(int32 i = 0; i < eset.size(); ++i) {
+			if(!eset[i]->target)
+				continue;
+			pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(this, PARAM_TYPE_CARD);
+			pduel->lua->add_param(sumplayer, PARAM_TYPE_INT);
+			pduel->lua->add_param(sumtype, PARAM_TYPE_INT);
+			pduel->lua->add_param(positions[p], PARAM_TYPE_INT);
+			pduel->lua->add_param(toplayer, PARAM_TYPE_INT);
+			pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
+			if(pduel->lua->check_condition(eset[i]->target, 7))
+				poscheck = false;
+		}
+		eset.clear();
+		if(poscheck)
+			position |= positions[p];
+	}
+	return position;
+}
 int32 card::is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect, uint8 min_tribute, uint32 zone) {
 	if(!is_summonable_card())
 		return FALSE;
