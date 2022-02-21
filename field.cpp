@@ -1824,6 +1824,9 @@ int32 field::get_summon_count_limit(uint8 playerid) {
 	return count;
 }
 int32 field::get_draw_count(uint8 playerid) {
+	if ((core.duel_rule >= 3) && (infos.turn_id == 1) && (infos.turn_player == playerid)) {
+		return 0;
+	}
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_DRAW_COUNT, &eset);
 	int32 count = player[playerid].draw_count;
