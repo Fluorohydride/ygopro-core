@@ -3381,8 +3381,9 @@ int32 field::get_cteffect(effect* peffect, int32 playerid, int32 store) {
 			continue;
 		uint32 code = efit.first;
 		if(code == EVENT_FREE_CHAIN || code == EVENT_PHASE + infos.phase) {
-			nil_event.event_code = code;
-			if(get_cteffect_evt(feffect, playerid, nil_event, store) && !store)
+			tevent test_event;
+			test_event.event_code = code;
+			if(get_cteffect_evt(feffect, playerid, test_event, store) && !store)
 				return TRUE;
 		} else {
 			for(const auto& ev : core.point_event) {
@@ -3431,8 +3432,9 @@ int32 field::check_cteffect_hint(effect* peffect, uint8 playerid) {
 			continue;
 		uint32 code = efit.first;
 		if(code == EVENT_FREE_CHAIN || code == EVENT_PHASE + infos.phase) {
-			nil_event.event_code = code;
-			if(get_cteffect_evt(feffect, playerid, nil_event, FALSE)
+			tevent test_event;
+			test_event.event_code = code;
+			if(get_cteffect_evt(feffect, playerid, test_event, FALSE)
 				&& (code != EVENT_FREE_CHAIN || check_hint_timing(feffect)))
 				return TRUE;
 		} else {

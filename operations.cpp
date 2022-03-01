@@ -5092,8 +5092,9 @@ int32 field::activate_effect(uint16 step, effect* peffect) {
 	case 0: {
 		card* phandler = peffect->get_handler();
 		int32 playerid = phandler->current.controler;
-		nil_event.event_code = EVENT_FREE_CHAIN;
-		if(!peffect->is_activateable(playerid, nil_event))
+		tevent test_event;
+		test_event.event_code = EVENT_FREE_CHAIN;
+		if(!peffect->is_activateable(playerid, test_event))
 			return TRUE;
 		chain newchain;
 		newchain.flag = 0;
