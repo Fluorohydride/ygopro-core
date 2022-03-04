@@ -1579,6 +1579,10 @@ int32 card::add_effect(effect* peffect) {
 		peffect->count_limit = 1;
 		peffect->count_limit_max = 1;
 	}
+	// add EFFECT_FLAG_IGNORE_IMMUNE to EFFECT_CANNOT_TRIGGER by default
+	if (peffect->code == EFFECT_CANNOT_TRIGGER) {
+		peffect->flag[0] |= EFFECT_FLAG_IGNORE_IMMUNE;
+	}
 	card_set check_target = { this };
 	effect_container::iterator eit;
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
