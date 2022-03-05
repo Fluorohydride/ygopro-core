@@ -44,20 +44,26 @@ public:
 		return result;
 	}
 	
-	// Fisher-Yates shuffle
+	// Fisher-Yates shuffle v[a]~v[b]
 	template<typename T>
-	void shuffle_vector(std::vector<T>& v) {
-		int n = (int)v.size();
-		for (int i = 0; i < n - 1; ++i) {
-			int r = get_random_integer(i, n - 1);
+	void shuffle_vector(std::vector<T>& v, int a = -1, int b = -1) {
+		if (a < 0)
+			a = 0;
+		if (b < 0)
+			b = (int)v.size() - 1;
+		for (int i = a; i < b; ++i) {
+			int r = get_random_integer(i, b);
 			std::swap(v[i], v[r]);
 		}
 	}
 	template<typename T>
-	void shuffle_vector_old(std::vector<T>& v) {
-		int n = (int)v.size();
-		for (int i = 0; i < n - 1; ++i) {
-			int r = get_random_integer_old(i, n - 1);
+	void shuffle_vector_old(std::vector<T>& v, int a = -1, int b = -1) {
+		if (a < 0)
+			a = 0;
+		if (b < 0)
+			b = (int)v.size() - 1;
+		for (int i = a; i < b; ++i) {
+			int r = get_random_integer_old(i, b);
 			std::swap(v[i], v[r]);
 		}
 	}

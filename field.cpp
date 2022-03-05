@@ -957,14 +957,14 @@ void field::shuffle(uint8 playerid, uint8 location) {
 		}
 	}
 	if(location == LOCATION_HAND || !(core.duel_options & DUEL_PSEUDO_SHUFFLE)) {
-		uint32 s = (uint32)svector.size();
+		int32 s = (int32)svector.size();
 		if(location == LOCATION_EXTRA)
-			s = s - player[playerid].extra_p_count;
+			s = s - (int32)player[playerid].extra_p_count;
 		if(s > 1) {
 			if (core.duel_options & DUEL_OLD_REPLAY)
-				pduel->random.shuffle_vector_old(svector);
+				pduel->random.shuffle_vector_old(svector, 0, s - 1);
 			else
-				pduel->random.shuffle_vector(svector);
+				pduel->random.shuffle_vector(svector, 0, s - 1);
 			reset_sequence(playerid, location);
 		}
 	}
