@@ -31,8 +31,7 @@ int32 scriptlib::card_get_origin_code(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	if(pcard->data.alias) {
-		int32 dif = pcard->data.code - pcard->data.alias;
-		if(dif > -10 && dif < 10)
+		if((pcard->data.alias < pcard->data.code + CARD_ARTWORK_VERSIONS_OFFSET) && (pcard->data.code < pcard->data.alias + CARD_ARTWORK_VERSIONS_OFFSET))
 			lua_pushinteger(L, pcard->data.alias);
 		else
 			lua_pushinteger(L, pcard->data.code);
