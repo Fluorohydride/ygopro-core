@@ -3285,7 +3285,7 @@ uint8 card::get_spsummonable_position(effect* reason_effect, uint32 sumtype, uin
 			continue;
 		if((data.type & (TYPE_TOKEN | TYPE_LINK)) && (positions[p] & POS_FACEDOWN))
 			continue;
-		pduel->game_field->filter_player_effect(sumplayer, EFFECT_CANNOT_SPECIAL_SUMMON, &eset);
+		pduel->game_field->filter_player_effect(sumplayer, EFFECT_LIMIT_SPECIAL_SUMMON_POSITION, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
 			if(!eset[i]->target)
 				continue;
