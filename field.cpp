@@ -265,7 +265,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 		pcard->sendto_param.position = POS_FACEDOWN_DEFENSE;
 	}
 	if (pcard->current.location) {
-		if (pcard->current.location == location) {
+		if (pcard->current.location == location && pcard->current.pzone == !!pzone) {
 			if (pcard->current.location == LOCATION_DECK) {
 				if(preplayer == playerid) {
 					pduel->write_buffer8(MSG_MOVE);
