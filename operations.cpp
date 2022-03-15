@@ -289,7 +289,7 @@ void field::send_to(card* target, effect* reason_effect, uint32 reason, uint32 r
 void field::move_to_field(card* target, uint32 move_player, uint32 playerid, uint32 destination, uint32 positions, uint32 enable, uint32 ret, uint32 pzone, uint32 zone) {
 	if(!(destination & LOCATION_ONFIELD) || !positions)
 		return;
-	if(destination == target->current.location && playerid == target->current.controler)
+	if(destination == target->current.location && playerid == target->current.controler && target->current.pzone == !!pzone)
 		return;
 	target->to_field_param = (move_player << 24) + (playerid << 16) + (destination << 8) + positions;
 	add_process(PROCESSOR_MOVETOFIELD, 0, 0, (group*)target, enable, ret + (pzone << 8), zone);
