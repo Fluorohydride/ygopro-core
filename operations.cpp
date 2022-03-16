@@ -2422,20 +2422,25 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 	case 0: {
 		card_set* set_cards = new card_set;
 		core.operated_set.clear();
+		core.set_group_set.clear();
 		for(auto& target : ptarget->container) {
-			if((!(target->data.type & TYPE_FIELD) && get_useable_count(target, toplayer, LOCATION_SZONE, setplayer, LOCATION_REASON_TOFIELD) <= 0)
-			        || (target->data.type & TYPE_MONSTER && !target->is_affected_by_effect(EFFECT_MONSTER_SSET))
+			if((target->data.type & TYPE_MONSTER && !target->is_affected_by_effect(EFFECT_MONSTER_SSET))
 			        || (target->current.location == LOCATION_SZONE)
 			        || (!is_player_can_sset(setplayer, target))
 			        || (target->is_affected_by_effect(EFFECT_CANNOT_SSET))) {
+				continue;
+			}
+			if(!(target->data.type & TYPE_FIELD) && get_useable_count(target, toplayer, LOCATION_SZONE, setplayer, LOCATION_REASON_TOFIELD) <= 0) {
+				if(target->current.location != LOCATION_GRAVE)
+					core.unable_tofield_set.insert(target);
 				continue;
 			}
 			set_cards->insert(target);
 		}
 		if(set_cards->empty()) {
 			delete set_cards;
-			returns.ivalue[0] = 0;
-			return TRUE;
+			core.units.begin()->step = 4;
+			return FALSE;
 		}
 		effect_set eset;
  		for(auto& pcard : *set_cards) {
@@ -2449,7 +2454,6 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 			}
 		}
 		core.set_group_pre_set.clear();
-		core.set_group_set.clear();
 		core.set_group_used_zones = 0;
 		core.phase_action = TRUE;
 		core.units.begin()->ptarget = (group*)set_cards;
@@ -2536,6 +2540,16 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		return FALSE;
 	}
 	case 5: {
+		if(core.unable_tofield_set.size())
+			send_to(&core.unable_tofield_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+		return FALSE;
+	}
+	case 6: {
+		core.unable_tofield_set.clear();
+		if(core.set_group_set.size() == 0) {
+			returns.ivalue[0] = 0;
+			return TRUE;
+		}
 		if(confirm) {
 			pduel->write_buffer8(MSG_CONFIRM_CARDS);
 			pduel->write_buffer8(toplayer);
@@ -2549,7 +2563,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		}
 		return FALSE;
 	}
-	case 6: {
+	case 7: {
 		core.operated_set.clear();
 		for(auto& pcard : core.set_group_set) {
 			core.operated_set.insert(pcard);
@@ -2578,7 +2592,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		}
 		return FALSE;
 	}
-	case 7: {
+	case 8: {
 		adjust_instant();
 		raise_event(&core.operated_set, EVENT_SSET, reason_effect, 0, setplayer, setplayer, 0);
 		process_instant_event();
@@ -2589,7 +2603,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		}
 		return FALSE;
 	}
-	case 8: {
+	case 9: {
 		returns.ivalue[0] = (int32)core.operated_set.size();
 		return TRUE;
 	}
@@ -3093,7 +3107,7 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 		}
 		if(get_useable_count(target, playerid, LOCATION_MZONE, target->summon_player, LOCATION_REASON_TOFIELD, zone) <= 0) {
 			if(target->current.location != LOCATION_GRAVE)
-				core.ss_tograve_set.insert(target);
+				core.unable_tofield_set.insert(target);
 			core.units.begin()->step = 4;
 			return FALSE;
 		}
@@ -3211,12 +3225,12 @@ int32 field::special_summon(uint16 step, effect* reason_effect, uint8 reason_pla
 		return FALSE;
 	}
 	case 1: {
-		if(core.ss_tograve_set.size())
-			send_to(&core.ss_tograve_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+		if(core.unable_tofield_set.size())
+			send_to(&core.unable_tofield_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		return FALSE;
 	}
 	case 2: {
-		core.ss_tograve_set.clear();
+		core.unable_tofield_set.clear();
 		if(targets->container.size() == 0) {
 			returns.ivalue[0] = 0;
 			core.operated_set.clear();
@@ -4429,8 +4443,11 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				flag |= 0x1u << (core.duel_rule >= 4 ? 8 : 14);
 			if(is_location_useable(playerid, LOCATION_PZONE, 1))
 				flag |= 0x1u << (core.duel_rule >= 4 ? 12 : 15);
-			if(!flag)
+			if(!flag) {
+				if(target->current.location != LOCATION_GRAVE)
+					send_to(target, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 				return TRUE;
+			}
 			if(move_player != playerid)
 				flag = flag << 16;
 			flag = ~flag;
@@ -4448,8 +4465,11 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				send_to(target, core.reason_effect, REASON_RULE, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
 				return FALSE;
 			}
-			if(ct <= 0)
+			if(ct <= 0) {
+				if(target->current.location != LOCATION_GRAVE)
+					send_to(target, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 				return TRUE;
+			}
 			if((zone & zone - 1) == 0) {
 				for(uint8 seq = 0; seq < 8; seq++) {
 					if((1 << seq) & zone) {
