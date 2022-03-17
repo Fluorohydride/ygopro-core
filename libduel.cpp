@@ -1804,7 +1804,7 @@ int32 scriptlib::duel_disable_summon(lua_State *L) {
 		pduel = pgroup->pduel;
 	} else
 		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
-	uint8 sumplayer;
+	uint8 sumplayer = PLAYER_NONE;
 	if(pcard) {
 		sumplayer = pcard->summon_player;
 		pcard->set_status(STATUS_SUMMONING, FALSE);
