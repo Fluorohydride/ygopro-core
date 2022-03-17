@@ -265,7 +265,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(ptr pduel, uint8 playerid, uint
 		}
 	}
 	else {
-		field::card_vector* lst = 0;
+		field::card_vector* lst = nullptr;
 		if(location == LOCATION_HAND)
 			lst = &player.list_hand;
 		else if(location == LOCATION_GRAVE)
@@ -276,6 +276,8 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(ptr pduel, uint8 playerid, uint
 			lst = &player.list_extra;
 		else if(location == LOCATION_DECK)
 			lst = &player.list_main;
+		else
+			return 0;
 		for(auto& pcard : *lst) {
 			uint32 clen = pcard->get_infos(p, query_flag, use_cache);
 			p += clen;

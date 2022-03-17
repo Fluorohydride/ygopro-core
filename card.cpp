@@ -43,9 +43,10 @@ bool card::card_operation_sort(card* c1, card* c2) {
 	if(c1->current.location != c2->current.location)
 		return c1->current.location < c2->current.location;
 	if(c1->current.location & LOCATION_OVERLAY) {
-		if(c1->overlay_target->current.sequence != c2->overlay_target->current.sequence)
+		if(c1->overlay_target && c2->overlay_target && c1->overlay_target->current.sequence != c2->overlay_target->current.sequence)
 			return c1->overlay_target->current.sequence < c2->overlay_target->current.sequence;
-		else return c1->current.sequence < c2->current.sequence;
+		else
+			return c1->current.sequence < c2->current.sequence;
 	} else {
 		if(c1->current.location & (LOCATION_DECK | LOCATION_EXTRA | LOCATION_GRAVE | LOCATION_REMOVED))
 			return c1->current.sequence > c2->current.sequence;
