@@ -596,7 +596,7 @@ int32 field::recover(uint16 step, effect* reason_effect, uint32 reason, uint8 re
 	}
 	return TRUE;
 }
-int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_pay) {
+int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_pay, uint32 reason) {
 	switch(step) {
 	case 0: {
 		effect_set eset;
@@ -606,7 +606,8 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_p
 			pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 			pduel->lua->add_param(val, PARAM_TYPE_INT);
-			val = eset[i]->get_value(3);
+			pduel->lua->add_param(reason, PARAM_TYPE_INT);
+			val = eset[i]->get_value(4);
 		}
 		if(val <= 0)
 			return TRUE;
@@ -627,7 +628,7 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_p
 		e.event_cards = 0;
 		e.event_player = playerid;
 		e.event_value = val;
-		e.reason = 0;
+		e.reason = reason;
 		e.reason_effect = core.reason_effect;
 		e.reason_player = playerid;
 		auto pr = effects.continuous_effect.equal_range(EFFECT_LPCOST_REPLACE);
@@ -656,7 +657,7 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_p
 			pduel->write_buffer8(MSG_PAY_LPCOST);
 			pduel->write_buffer8(playerid);
 			pduel->write_buffer32(cost);
-			raise_event((card*)0, EVENT_PAY_LPCOST, core.reason_effect, 0, playerid, playerid, cost);
+			raise_event((card*)0, EVENT_PAY_LPCOST, core.reason_effect, reason, playerid, playerid, cost);
 			process_instant_event();
 			return TRUE;
 		}
@@ -664,7 +665,7 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_p
 		e.event_cards = 0;
 		e.event_player = playerid;
 		e.event_value = cost;
-		e.reason = 0;
+		e.reason = reason;
 		e.reason_effect = core.reason_effect;
 		e.reason_player = playerid;
 		solve_continuous(playerid, peffect, e);

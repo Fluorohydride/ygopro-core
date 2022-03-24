@@ -1436,7 +1436,7 @@ int32 scriptlib::duel_check_lp_cost(lua_State *L) {
 	uint32 must_pay = FALSE;
 	if(lua_gettop(L) > 2)
 		must_pay = lua_toboolean(L, 3);
-	lua_pushboolean(L, pduel->game_field->check_lp_cost(playerid, cost, must_pay));
+	lua_pushboolean(L, pduel->game_field->check_lp_cost(playerid, cost, must_pay, REASON_COST));
 	return 1;
 }
 int32 scriptlib::duel_pay_lp_cost(lua_State *L) {
@@ -1450,7 +1450,34 @@ int32 scriptlib::duel_pay_lp_cost(lua_State *L) {
 	uint32 must_pay = FALSE;
 	if(lua_gettop(L) > 2)
 		must_pay = lua_toboolean(L, 3);
-	pduel->game_field->add_process(PROCESSOR_PAY_LPCOST, 0, 0, 0, playerid, cost, must_pay);
+	pduel->game_field->add_process(PROCESSOR_PAY_LPCOST, 0, 0, 0, playerid, cost, must_pay, REASON_COST);
+	return lua_yield(L, 0);
+}
+int32 scriptlib::duel_check_lp_effect(lua_State *L) {
+	check_param_count(L, 2);
+	uint32 playerid = (uint32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	uint32 cost = (uint32)lua_tointeger(L, 2);
+	duel* pduel = interpreter::get_duel_info(L);
+	uint32 must_pay = FALSE;
+	if(lua_gettop(L) > 2)
+		must_pay = lua_toboolean(L, 3);
+	lua_pushboolean(L, pduel->game_field->check_lp_cost(playerid, cost, must_pay, REASON_EFFECT));
+	return 1;
+}
+int32 scriptlib::duel_pay_lp_effect(lua_State *L) {
+	check_action_permission(L);
+	check_param_count(L, 2);
+	uint32 playerid = (uint32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	uint32 cost = (uint32)lua_tointeger(L, 2);
+	duel* pduel = interpreter::get_duel_info(L);
+	uint32 must_pay = FALSE;
+	if(lua_gettop(L) > 2)
+		must_pay = lua_toboolean(L, 3);
+	pduel->game_field->add_process(PROCESSOR_PAY_LPCOST, 0, 0, 0, playerid, cost, must_pay, REASON_EFFECT);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_discard_deck(lua_State *L) {
@@ -4613,6 +4640,8 @@ static const struct luaL_Reg duellib[] = {
 	{ "SwapControl", scriptlib::duel_swap_control },
 	{ "CheckLPCost", scriptlib::duel_check_lp_cost },
 	{ "PayLPCost", scriptlib::duel_pay_lp_cost },
+	{ "CheckLPEffect", scriptlib::duel_check_lp_effect },
+	{ "PayLPEffect", scriptlib::duel_pay_lp_effect },
 	{ "DiscardDeck", scriptlib::duel_discard_deck },
 	{ "DiscardHand", scriptlib::duel_discard_hand },
 	{ "DisableShuffleCheck", scriptlib::duel_disable_shuffle_check },
