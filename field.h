@@ -236,7 +236,7 @@ struct processor {
 	instant_f_list quick_f_chain;
 	card_set leave_confirmed;
 	card_set special_summoning;
-	card_set ss_tograve_set;
+	card_set unable_tofield_set;
 	card_set equiping_cards;
 	card_set control_adjust_set[2];
 	card_set unique_destroy_set;
