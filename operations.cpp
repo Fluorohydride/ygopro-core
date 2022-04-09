@@ -200,7 +200,7 @@ void field::special_summon_complete(effect* reason_effect, uint8 reason_player) 
 void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence) {
 	for(auto cit = targets->begin(); cit != targets->end();) {
 		card* pcard = *cit;
-		if(pcard->is_status(STATUS_DESTROY_CONFIRMED)) {
+		if(pcard->is_status(STATUS_DESTROY_CONFIRMED) && core.destroy_canceled.find(pcard) == core.destroy_canceled.end()) {
 			targets->erase(cit++);
 			continue;
 		}
