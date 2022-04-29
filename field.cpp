@@ -1865,6 +1865,10 @@ void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* mater
 				&& pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL) && pcard->is_removeable(playerid, POS_FACEUP, REASON_EFFECT)
 				&& (no_level || pcard->get_level() > 0))
 			material->insert(pcard);
+	for(auto& pcard : player[playerid].list_extra)
+		if(pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL)
+				&& (no_level || pcard->get_level() > 0))
+			material->insert(pcard);
 }
 void field::get_fusion_material(uint8 playerid, card_set* material_all, card_set* material_base, uint32 location) {
 	if(location & LOCATION_MZONE) {
@@ -1928,16 +1932,16 @@ void field::get_fusion_material(uint8 playerid, card_set* material_all, card_set
 void field::ritual_release(card_set* material) {
 	card_set rel;
 	card_set rem;
-	card_set xyz;
+	card_set tgy;
 	for(auto& pcard : *material) {
 		if(pcard->current.location == LOCATION_GRAVE)
 			rem.insert(pcard);
-		else if(pcard->current.location == LOCATION_OVERLAY)
-			xyz.insert(pcard);
+		else if(pcard->current.location == LOCATION_OVERLAY || pcard->current.location == LOCATION_EXTRA)
+			tgy.insert(pcard);
 		else
 			rel.insert(pcard);
 	}
-	send_to(&xyz, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+	send_to(&tgy, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 	release(&rel, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player);
 	send_to(&rem, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, POS_FACEUP);
 }
