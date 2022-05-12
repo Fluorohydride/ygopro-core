@@ -1764,8 +1764,11 @@ int32 scriptlib::duel_negate_activate(lua_State *L) {
 int32 scriptlib::duel_negate_effect(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 c = (uint32)lua_tointeger(L, 1);
+	uint8 forced = FALSE;
+	if(lua_gettop(L) > 1)
+		forced = lua_toboolean(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushboolean(L, pduel->game_field->disable_chain(c));
+	lua_pushboolean(L, pduel->game_field->disable_chain(c, forced));
 	return 1;
 }
 int32 scriptlib::duel_negate_related_chain(lua_State *L) {

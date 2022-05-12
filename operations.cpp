@@ -20,7 +20,7 @@ int32 field::negate_chain(uint8 chaincount) {
 	chain& pchain = core.current_chain[chaincount - 1];
 	card* phandler = pchain.triggering_effect->handler;
 	if(!(pchain.flag & CHAIN_DISABLE_ACTIVATE) && is_chain_negatable(pchain.chain_count)
-	        && (!phandler->is_has_relation(pchain) || phandler->is_affect_by_effect(core.reason_effect))) {
+		&& (!phandler->is_has_relation(pchain) || phandler->is_affect_by_effect(core.reason_effect))) {
 		pchain.flag |= CHAIN_DISABLE_ACTIVATE;
 		pchain.disable_reason = core.reason_effect;
 		pchain.disable_player = core.reason_player;
@@ -37,7 +37,7 @@ int32 field::negate_chain(uint8 chaincount) {
 	}
 	return FALSE;
 }
-int32 field::disable_chain(uint8 chaincount) {
+int32 field::disable_chain(uint8 chaincount, uint8 forced) {
 	if(core.current_chain.size() == 0)
 		return FALSE;
 	if(chaincount > core.current_chain.size() || chaincount < 1)
@@ -45,7 +45,8 @@ int32 field::disable_chain(uint8 chaincount) {
 	chain& pchain = core.current_chain[chaincount - 1];
 	card* phandler = pchain.triggering_effect->handler;
 	if(!(pchain.flag & CHAIN_DISABLE_EFFECT) && is_chain_disablable(pchain.chain_count)
-	        && (!phandler->is_has_relation(pchain) || phandler->is_affect_by_effect(core.reason_effect))) {
+		&& (!phandler->is_has_relation(pchain) || phandler->is_affect_by_effect(core.reason_effect))
+		&& !(phandler->is_has_relation(pchain) && phandler->is_status(STATUS_DISABLED) && !forced)) {
 		core.current_chain[chaincount - 1].flag |= CHAIN_DISABLE_EFFECT;
 		core.current_chain[chaincount - 1].disable_reason = core.reason_effect;
 		core.current_chain[chaincount - 1].disable_player = core.reason_player;
