@@ -582,6 +582,7 @@ public:
 	static int32 duel_is_player_can_additional_summon(lua_State *L);
 	static int32 duel_is_chain_negatable(lua_State *L);
 	static int32 duel_is_chain_disablable(lua_State *L);
+	static int32 duel_is_chain_disabled(lua_State *L);
 	static int32 duel_check_chain_target(lua_State *L);
 	static int32 duel_check_chain_uniqueness(lua_State *L);
 	static int32 duel_get_activity_count(lua_State *L);
