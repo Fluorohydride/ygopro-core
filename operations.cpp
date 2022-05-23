@@ -4444,9 +4444,10 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			if(is_location_useable(playerid, LOCATION_PZONE, 1))
 				flag |= 0x1u << (core.duel_rule >= 4 ? 12 : 15);
 			if(!flag) {
+				core.units.begin()->step = 3;
 				if(target->current.location != LOCATION_GRAVE)
 					send_to(target, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
-				return TRUE;
+				return FALSE;
 			}
 			if(move_player != playerid)
 				flag = flag << 16;
@@ -4466,9 +4467,10 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				return FALSE;
 			}
 			if(ct <= 0) {
+				core.units.begin()->step = 3;
 				if(target->current.location != LOCATION_GRAVE)
 					send_to(target, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
-				return TRUE;
+				return FALSE;
 			}
 			if((zone & zone - 1) == 0) {
 				for(uint8 seq = 0; seq < 8; seq++) {
