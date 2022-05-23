@@ -1764,8 +1764,11 @@ int32 scriptlib::duel_negate_activate(lua_State *L) {
 int32 scriptlib::duel_negate_effect(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 c = (uint32)lua_tointeger(L, 1);
+	uint8 forced = FALSE;
+	if(lua_gettop(L) > 1)
+		forced = lua_toboolean(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushboolean(L, pduel->game_field->disable_chain(c));
+	lua_pushboolean(L, pduel->game_field->disable_chain(c, forced));
 	return 1;
 }
 int32 scriptlib::duel_negate_related_chain(lua_State *L) {
@@ -4311,6 +4314,17 @@ int32 scriptlib::duel_is_chain_disablable(lua_State * L) {
 	lua_pushboolean(L, 1);
 	return 1;
 }
+int32 scriptlib::duel_is_chain_disabled(lua_State* L) {
+	check_param_count(L, 1);
+	int32 chaincount = (int32)lua_tointeger(L, 1);
+	duel* pduel = interpreter::get_duel_info(L);
+	if(pduel->game_field->core.chain_solving) {
+		lua_pushboolean(L, pduel->game_field->is_chain_disabled(chaincount));
+		return 1;
+	}
+	lua_pushboolean(L, 0);
+	return 1;
+}
 int32 scriptlib::duel_check_chain_target(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 2);
@@ -4753,6 +4767,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsPlayerCanAdditionalSummon", scriptlib::duel_is_player_can_additional_summon },
 	{ "IsChainNegatable", scriptlib::duel_is_chain_negatable },
 	{ "IsChainDisablable", scriptlib::duel_is_chain_disablable },
+	{ "IsChainDisabled", scriptlib::duel_is_chain_disabled },
 	{ "CheckChainTarget", scriptlib::duel_check_chain_target },
 	{ "CheckChainUniqueness", scriptlib::duel_check_chain_uniqueness },
 	{ "GetActivityCount", scriptlib::duel_get_activity_count },
