@@ -13,7 +13,6 @@
 
 #include <algorithm>
 #include <stack>
-#include <set>
 
 int32 field::select_battle_command(uint16 step, uint8 playerid) {
 	if(step == 0) {
