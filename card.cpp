@@ -2073,8 +2073,12 @@ void card::create_relation(effect* peffect) {
 }
 int32 card::is_has_relation(effect* peffect) {
 	for(auto& it : relate_effect) {
-		if(it.first == peffect)
-			return TRUE;
+		if(it.first == peffect) {
+			for(auto cit = pduel->game_field->core.current_chain.rbegin(); cit != pduel->game_field->core.current_chain.rend(); ++cit) {
+				if(cit->chain_id == it.second)
+					return TRUE;
+			}
+		}
 	}
 	return FALSE;
 }
