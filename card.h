@@ -300,7 +300,7 @@ public:
 	void release_relation(const chain& ch);
 	void clear_relate_effect();
 	void create_relation(effect* peffect);
-	int32 is_has_relation(effect* peffect);
+	int32 is_has_relation(effect* peffect, uint8 any_chain = FALSE);
 	void release_relation(effect* peffect);
 	int32 leave_field_redirect(uint32 reason);
 	int32 destination_redirect(uint8 destination, uint32 reason);

@@ -1900,7 +1900,11 @@ int32 scriptlib::card_is_relate_to_effect(lua_State *L) {
 	check_param(L, PARAM_TYPE_EFFECT, 2);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 2);
-	if(pcard && pcard->is_has_relation(peffect))
+	uint8 any_effect = FALSE;
+	if(lua_gettop(L) > 2) {
+		any_effect = lua_toboolean(L, 3);
+	}
+	if(pcard && pcard->is_has_relation(peffect, any_effect))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
