@@ -2073,15 +2073,15 @@ void card::create_relation(effect* peffect) {
 }
 int32 card::is_has_relation(effect* peffect, uint8 any_chain) {
 	if(!any_chain) {
-			for(auto cit = pduel->game_field->core.current_chain.rbegin(); cit != pduel->game_field->core.current_chain.rend(); ++cit) {
+		for(auto cit = pduel->game_field->core.current_chain.rbegin(); cit != pduel->game_field->core.current_chain.rend(); ++cit) {
 			if(peffect == cit->triggering_effect && relate_effect.find(std::make_pair(peffect, cit->chain_id)) != relate_effect.end())
 				return TRUE;
 		}
 	} else {
-			for(auto& it : relate_effect) {
-				if(it.first == peffect)
-					return TRUE;
-			}
+		for(auto& it : relate_effect) {
+			if(it.first == peffect)
+				return TRUE;
+		}
 	}
 	return FALSE;
 }
