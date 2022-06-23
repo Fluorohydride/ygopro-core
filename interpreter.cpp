@@ -17,20 +17,32 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_state = luaL_newstate();
 	current_state = lua_state;
 	pduel = pd;
+	memcpy(lua_getextraspace(lua_state), &pd, LUA_EXTRASPACE); //set_duel_info
 	no_action = 0;
 	call_depth = 0;
-	set_duel_info(lua_state, pd);
 	//Initial
 	luaL_openlibs(lua_state);
 	lua_pushnil(lua_state);
 	lua_setglobal(lua_state, "io");
 	lua_pushnil(lua_state);
 	lua_setglobal(lua_state, "os");
+	lua_pushnil(lua_state);
+	lua_setglobal(lua_state, "package");
+	lua_pushnil(lua_state);
+	lua_setglobal(lua_state, "debug");
+	lua_pushnil(lua_state);
+	lua_setglobal(lua_state, "coroutine");
 	luaL_getsubtable(lua_state, LUA_REGISTRYINDEX, "_LOADED");
 	lua_pushnil(lua_state);
 	lua_setfield(lua_state, -2, "io");
 	lua_pushnil(lua_state);
 	lua_setfield(lua_state, -2, "os");
+	lua_pushnil(lua_state);
+	lua_setfield(lua_state, -2, "package");
+	lua_pushnil(lua_state);
+	lua_setfield(lua_state, -2, "debug");
+	lua_pushnil(lua_state);
+	lua_setfield(lua_state, -2, "coroutine");
 	lua_pop(lua_state, 1);
 	//open all libs
 	scriptlib::open_cardlib(lua_state);
@@ -55,7 +67,7 @@ int32 interpreter::register_card(card *pcard) {
 	//some userdata may be created in script like token so use current_state
 	lua_rawgeti(current_state, LUA_REGISTRYINDEX, pcard->ref_handle);
 	//load script
-	if(pcard->data.alias && (pcard->data.alias < pcard->data.code + 10) && (pcard->data.code < pcard->data.alias + 10))
+	if(pcard->data.alias && (pcard->data.alias < pcard->data.code + CARD_ARTWORK_VERSIONS_OFFSET) && (pcard->data.code < pcard->data.alias + CARD_ARTWORK_VERSIONS_OFFSET))
 		load_card_script(pcard->data.alias);
 	else
 		load_card_script(pcard->data.code);
@@ -157,9 +169,18 @@ int32 interpreter::load_card_script(uint32 code) {
 		lua_pushstring(current_state, "__index");
 		lua_pushvalue(current_state, -2);
 		lua_rawset(current_state, -3);
+		lua_getglobal(current_state, class_name);
+		lua_setglobal(current_state, "self_table");
+		lua_pushinteger(current_state, code);
+		lua_setglobal(current_state, "self_code");
 		char script_name[64];
 		sprintf(script_name, "./script/c%d.lua", code);
-		if(!load_script(script_name)) {
+		int32 res = load_script(script_name);
+		lua_pushnil(current_state);
+		lua_setglobal(current_state, "self_table");
+		lua_pushnil(current_state);
+		lua_setglobal(current_state, "self_code");
+		if(!res) {
 			return OPERATION_FAIL;
 		}
 	}
@@ -560,12 +581,25 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 		}
 	}
 	push_param(rthread, true);
+	lua_State* prev_state = current_state;
 	current_state = rthread;
+#if (LUA_VERSION_NUM >= 504)
+	int32 nresults;
+	int32 result = lua_resume(rthread, prev_state, param_count, &nresults);
+#else
 	int32 result = lua_resume(rthread, 0, param_count);
+	int32 nresults = lua_gettop(rthread);
+#endif
 	if (result == 0) {
 		coroutines.erase(f);
-		if(yield_value)
-			*yield_value = lua_isboolean(rthread, -1) ? lua_toboolean(rthread, -1) : (uint32)lua_tointeger(rthread, -1);
+		if(yield_value) {
+			if(nresults == 0)
+				*yield_value = 0;
+			else if(lua_isboolean(rthread, -1))
+				*yield_value = lua_toboolean(rthread, -1);
+			else
+				*yield_value = (uint32)lua_tointeger(rthread, -1);
+		}
 		current_state = lua_state;
 		call_depth--;
 		if(call_depth == 0) {
@@ -639,14 +673,8 @@ int32 interpreter::get_function_handle(lua_State* L, int32 index) {
 	int32 ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	return ref;
 }
-void interpreter::set_duel_info(lua_State* L, duel* pduel) {
-	lua_pushlightuserdata(L, pduel);
-	luaL_ref(L, LUA_REGISTRYINDEX);
-}
 duel* interpreter::get_duel_info(lua_State * L) {
-	luaL_checkstack(L, 1, NULL);
-	lua_rawgeti(L, LUA_REGISTRYINDEX, 3);
-	duel* pduel = (duel*)lua_topointer(L, -1);
-	lua_pop(L, 1);
+	duel* pduel;
+	memcpy(&pduel, lua_getextraspace(L), LUA_EXTRASPACE);
 	return pduel;
 }

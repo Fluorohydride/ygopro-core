@@ -53,6 +53,10 @@ struct card_sort {
 //For redirect
 #define LOCATION_DECKBOT	0x10001		//Return to deck bottom
 #define LOCATION_DECKSHF	0x20001		//Return to deck and shuffle
+//For Duel.SendtoDeck
+#define SEQ_DECKTOP			0			//Return to deck top
+#define SEQ_DECKBOTTOM		1			//Return to deck bottom
+#define SEQ_DECKSHUFFLE		2			//Return to deck and shuffle
 
 //Positions
 #define POS_FACEUP_ATTACK		0x1
@@ -183,7 +187,7 @@ struct card_sort {
 #define STATUS_FUTURE_FUSION		0x100000
 #define STATUS_ATTACK_CANCELED		0x200000
 #define STATUS_INITIALIZING			0x400000
-//#define STATUS_ACTIVATED			0x800000
+#define STATUS_TO_HAND_WITHOUT_CONFIRM	0x800000
 #define STATUS_JUST_POS				0x1000000
 #define STATUS_CONTINUOUS_POS		0x2000000
 #define STATUS_FORBIDDEN			0x4000000
@@ -218,14 +222,14 @@ struct card_sort {
 #define QUERY_LINK			0x800000
 
 //Link markers
-#define LINK_MARKER_BOTTOM_LEFT		0001
-#define LINK_MARKER_BOTTOM			0002
-#define LINK_MARKER_BOTTOM_RIGHT	0004
-#define LINK_MARKER_LEFT			0010
-#define LINK_MARKER_RIGHT			0040
-#define LINK_MARKER_TOP_LEFT		0100
-#define LINK_MARKER_TOP				0200
-#define LINK_MARKER_TOP_RIGHT		0400
+#define LINK_MARKER_BOTTOM_LEFT		0x001
+#define LINK_MARKER_BOTTOM			0x002
+#define LINK_MARKER_BOTTOM_RIGHT	0x004
+#define LINK_MARKER_LEFT			0x008
+#define LINK_MARKER_RIGHT			0x020
+#define LINK_MARKER_TOP_LEFT		0x040
+#define LINK_MARKER_TOP				0x080
+#define LINK_MARKER_TOP_RIGHT		0x100
 
 //Messages
 #define MSG_RETRY				1
@@ -385,10 +389,20 @@ struct card_sort {
 //Options
 #define DUEL_TEST_MODE			0x01
 #define DUEL_ATTACK_FIRST_TURN	0x02
-//#define DUEL_NO_CHAIN_HINT		0x04
+#define DUEL_OLD_REPLAY			0x04
 #define DUEL_OBSOLETE_RULING	0x08
 #define DUEL_PSEUDO_SHUFFLE		0x10
 #define DUEL_TAG_MODE			0x20
 #define DUEL_SIMPLE_AI			0x40
+#define DUEL_RETURN_DECK_TOP	0x80
+
+//Activity
+#define ACTIVITY_SUMMON			1
+#define ACTIVITY_NORMALSUMMON	2
+#define ACTIVITY_SPSUMMON		3
+#define ACTIVITY_FLIPSUMMON		4
+#define ACTIVITY_ATTACK			5
+#define ACTIVITY_BATTLE_PHASE	6
+#define ACTIVITY_CHAIN			7
 
 #endif /* COMMON_H_ */

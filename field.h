@@ -71,7 +71,7 @@ struct chain {
 	uint32 flag;
 
 	chain()
-		: chain_id(0), chain_count(0), triggering_player(PLAYER_NONE), triggering_controler(PLAYER_NONE), triggering_location(0), triggering_sequence(0), triggering_position(0), 
+		: chain_id(0), chain_count(0), triggering_player(PLAYER_NONE), triggering_controler(PLAYER_NONE), triggering_location(0), triggering_sequence(0), triggering_position(0),
 		triggering_state(), triggering_effect(nullptr), target_cards(nullptr), replace_op(0), target_player(PLAYER_NONE), target_param(0), disable_reason(nullptr), disable_player(PLAYER_NONE),
 		evt(), flag(0) {}
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
@@ -236,7 +236,7 @@ struct processor {
 	instant_f_list quick_f_chain;
 	card_set leave_confirmed;
 	card_set special_summoning;
-	card_set ss_tograve_set;
+	card_set unable_tofield_set;
 	card_set equiping_cards;
 	card_set control_adjust_set[2];
 	card_set unique_destroy_set;
@@ -446,7 +446,7 @@ public:
 	int32 get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, group* mg = NULL, uint32 ex = 0, uint32 releasable = 0xff00ff, uint32 pos = 0x1);
 	int32 get_summon_count_limit(uint8 playerid);
 	int32 get_draw_count(uint8 playerid);
-	void get_ritual_material(uint8 playerid, effect* peffect, card_set* material);
+	void get_ritual_material(uint8 playerid, effect* peffect, card_set* material, uint8 no_level = FALSE);
 	void get_fusion_material(uint8 playerid, card_set* material_all, card_set* material_base, uint32 location);
 	void ritual_release(card_set* material);
 	void get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc, group* mg);
@@ -468,10 +468,10 @@ public:
 	void set_spsummon_counter(uint8 playerid);
 	int32 check_spsummon_counter(uint8 playerid, uint8 ct = 1);
 
-	int32 check_lp_cost(uint8 playerid, uint32 cost);
+	int32 check_lp_cost(uint8 playerid, uint32 cost, uint32 must_pay);
 	void save_lp_cost() {}
 	void restore_lp_cost() {}
-	int32 pay_lp_cost(uint32 step, uint8 playerid, uint32 cost);
+	int32 pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_pay);
 
 	uint32 get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype);
 	int32 effect_replace_check(uint32 code, const tevent& e);
@@ -522,7 +522,7 @@ public:
 	int32 check_spself_from_hand_trigger(const chain& ch) const;
 	int32 is_able_to_enter_bp();
 
-	void add_process(uint16 type, uint16 step, effect* peffect, group* target, ptr arg1, ptr arg2, ptr arg3 = 0, ptr arg4 = 0, void* ptr1 = NULL, void* ptr2 = NULL);
+	void add_process(uint16 type, uint16 step, effect* peffect, group* target, ptr arg1, ptr arg2, ptr arg3 = 0, ptr arg4 = 0, void* ptr1 = nullptr, void* ptr2 = nullptr);
 	int32 process();
 	int32 execute_cost(uint16 step, effect* peffect, uint8 triggering_player);
 	int32 execute_operation(uint16 step, effect* peffect, uint8 triggering_player);
@@ -558,7 +558,7 @@ public:
 
 	//operations
 	int32 negate_chain(uint8 chaincount);
-	int32 disable_chain(uint8 chaincount);
+	int32 disable_chain(uint8 chaincount, uint8 forced);
 	void change_chain_effect(uint8 chaincount, int32 replace_op);
 	void change_target(uint8 chaincount, group* targets);
 	void change_target_player(uint8 chaincount, uint8 playerid);
@@ -724,6 +724,7 @@ public:
 #define GLOBALFLAG_SELF_TOGRAVE			0x100
 #define GLOBALFLAG_SPSUMMON_ONCE		0x200
 #define GLOBALFLAG_TUNE_MAGICIAN		0x400
+#define GLOBALFLAG_ACTIVATION_COUNT		0x800
 //
 #define PROCESSOR_NONE		0
 #define PROCESSOR_WAITING	0x10000
