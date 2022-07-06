@@ -486,6 +486,7 @@ public:
 	static int32 duel_chain_attack(lua_State *L);
 	static int32 duel_readjust(lua_State *L);
 	static int32 duel_adjust_instantly(lua_State *L);
+	static int32 duel_adjust_all(lua_State *L);
 
 	static int32 duel_get_field_group(lua_State *L);
 	static int32 duel_get_field_group_count(lua_State *L);
