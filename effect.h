@@ -61,6 +61,7 @@ public:
 	int32 target;
 	int32 value;
 	int32 operation;
+	uint8 cost_checked;
 
 	explicit effect(duel* pd);
 	~effect() = default;
