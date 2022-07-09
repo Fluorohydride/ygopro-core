@@ -3865,12 +3865,12 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 					pcard->previous.attack = pcard->data.attack;
 					pcard->previous.defense = pcard->data.defense;
 				}
+				pcard->previous.setcode.clear();
 				effect_set eset;
 				pcard->filter_effect(EFFECT_ADD_SETCODE, &eset);
-				if(eset.size())
-					pcard->previous.setcode = eset.get_last()->get_value(pcard);
-				else
-					pcard->previous.setcode = 0;
+				for(int32 i = 0; i < eset.size(); ++i) {
+					pcard->previous.setcode.insert(eset[i]->get_value(pcard));
+				}
 			}
 		}
 		if(leave_p.size())

@@ -28,6 +28,28 @@ bool card_state::is_location(int32 loc) const {
 		return true;
 	return false;
 }
+void card_state::init_state() {
+	code = 0xffffffff;
+	code2 = 0xffffffff;
+	type = 0xffffffff;
+	level = 0xffffffff;
+	rank = 0xffffffff;
+	link = 0xffffffff;
+	lscale = 0xffffffff;
+	rscale = 0xffffffff;
+	attribute = 0xffffffff;
+	race = 0xffffffff;
+	attack = 0xffffffff;
+	defense = 0xffffffff;
+	base_attack = 0xffffffff;
+	base_defense = 0xffffffff;
+	controler = 0xff;
+	location = 0xff;
+	sequence = 0xff;
+	position = 0xff;
+	reason = 0xffffffff;
+	reason_player = 0xff;
+}
 bool card::card_operation_sort(card* c1, card* c2) {
 	duel* pduel = c1->pduel;
 	int32 cp1 = c1->overlay_target ? c1->overlay_target->current.controler : c1->current.controler;
@@ -87,9 +109,9 @@ card::card(duel* pd) {
 	equiping_target = 0;
 	pre_equip_target = 0;
 	overlay_target = 0;
-	std::memset(&current, 0, sizeof(card_state));
-	std::memset(&previous, 0, sizeof(card_state));
-	std::memset(&temp, 0xff, sizeof(card_state));
+	current = {};
+	previous = {};
+	temp.init_state();
 	unique_pos[0] = unique_pos[1] = 0;
 	spsummon_counter[0] = spsummon_counter[1] = 0;
 	unique_code = 0;
@@ -376,9 +398,10 @@ int32 card::is_pre_set_card(uint32 set_code) {
 		setcode = setcode >> 16;
 	}
 	//add set code
-	setcode = previous.setcode;
-	if (setcode && (setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
-		return TRUE;
+	for(auto& presetcode : previous.setcode) {
+		if (presetcode && (presetcode & 0xfff) == settype && (presetcode & 0xf000 & setsubtype) == setsubtype)
+			return TRUE;
+	}
 	//another code
 	uint32 code2 = previous.code2;
 	uint64 setcode2;
