@@ -329,6 +329,7 @@ public:
 	static int32 effect_is_has_type(lua_State *L);
 	static int32 effect_is_activatable(lua_State *L);
 	static int32 effect_is_activated(lua_State *L);
+	static int32 effect_is_cost_checked(lua_State *L);
 	static int32 effect_get_activate_location(lua_State *L);
 	static int32 effect_get_activate_sequence(lua_State *L);
 	static int32 effect_check_count_limit(lua_State *L);
