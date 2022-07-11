@@ -1431,7 +1431,11 @@ int32 scriptlib::duel_check_lp_cost(lua_State *L) {
 	uint32 playerid = (uint32)lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	uint32 cost = (uint32)lua_tointeger(L, 2);
+	int32 cost = (int32)lua_tointeger(L, 2);
+	if(cost <= 0) {
+		lua_pushboolean(L, 0);
+		return 1;
+	}
 	duel* pduel = interpreter::get_duel_info(L);
 	uint32 must_pay = FALSE;
 	if(lua_gettop(L) > 2)
