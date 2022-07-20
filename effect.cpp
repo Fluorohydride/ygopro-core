@@ -9,6 +9,7 @@
 #include "card.h"
 #include "duel.h"
 #include "group.h"
+#include "ocgapi.h"
 #include "interpreter.h"
 
 bool effect_sort_id(const effect* e1, const effect* e2) {
@@ -38,6 +39,9 @@ effect::effect(duel* pd) {
 	active_location = 0;
 	active_sequence = 0;
 	active_handler = 0;
+	active_code = 0;
+	active_code2 = 0;
+	active_setcode.reserve(4);
 	id = 0;
 	code = 0;
 	type = 0;
@@ -855,4 +859,76 @@ int32 effect::get_code_type() {
 		return CODE_PHASE;
 	else
 		return CODE_VALUE;
+}
+void effect::set_active_code() {
+	card* phandler = get_handler();
+	active_code = phandler->get_code();
+	active_code2 = phandler->get_another_code();
+	active_setcode.clear();
+	effect_set eset;
+	phandler->filter_effect(EFFECT_ADD_SETCODE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		active_setcode.push_back((uint32)eset[i]->get_value(phandler));
+	}
+}
+uint32 effect::get_active_code(int32 is_another) {
+	if(is_another) {
+		if(type & 0x7f0) {
+			if(active_code2)
+				return active_code2;
+			else
+				return get_handler()->get_another_code();
+		} else
+			return owner->get_another_code();
+	} else {
+		if(type & 0x7f0) {
+			if(active_code)
+				return active_code;
+			else
+				return get_handler()->get_code();
+		} else
+			return owner->get_code();
+	}
+}
+int32 effect::is_active_setcode(uint32 set_code) {
+	if(type & 0x7f0) {
+		if(active_code) {
+			uint64 setcode;
+			if(active_code == get_handler()->data.code) {
+				setcode = get_handler()->data.setcode;
+			} else {
+				card_data dat;
+				::read_card(active_code, &dat);
+				setcode = dat.setcode;
+			}
+			uint32 settype = set_code & 0xfff;
+			uint32 setsubtype = set_code & 0xf000;
+			while(setcode) {
+				if ((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
+					return TRUE;
+				setcode = setcode >> 16;
+			}
+			//add set code
+			for(auto& actsetcode : active_setcode) {
+				if (actsetcode && (actsetcode & 0xfff) == settype && (actsetcode & 0xf000 & setsubtype) == setsubtype)
+					return TRUE;
+			}
+			uint64 setcode2;
+			if (active_code2 != 0) {
+				card_data dat;
+				::read_card(active_code2, &dat);
+				setcode2 = dat.setcode;
+			} else {
+				return FALSE;
+			}
+			while(setcode2) {
+				if ((setcode2 & 0xfff) == settype && (setcode2 & 0xf000 & setsubtype) == setsubtype)
+					return TRUE;
+				setcode2 = setcode2 >> 16;
+			}
+			return FALSE;
+		} else
+			return get_handler()->is_set_card(set_code);
+	} else
+		return owner->is_set_card(set_code);
 }

@@ -452,6 +452,18 @@ int32 scriptlib::effect_get_active_type(lua_State *L) {
 	lua_pushinteger(L, peffect->get_active_type());
 	return 1;
 }
+int32 scriptlib::effect_get_active_code(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	lua_pushinteger(L, peffect->get_active_code());
+	uint32 otcode = peffect->get_active_code(TRUE);
+	if(otcode) {
+		lua_pushinteger(L, otcode);
+		return 2;
+	}
+	return 1;
+}
 int32 scriptlib::effect_is_active_type(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
@@ -461,6 +473,44 @@ int32 scriptlib::effect_is_active_type(lua_State *L) {
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::effect_is_active_code(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	uint32 code1 = peffect->get_active_code();
+	uint32 code2 = peffect->get_active_code(TRUE);
+	uint32 count = lua_gettop(L) - 1;
+	uint32 result = FALSE;
+	for(uint32 i = 0; i < count; ++i) {
+		if(lua_isnil(L, i + 2))
+			continue;
+		uint32 tcode = (uint32)lua_tointeger(L, i + 2);
+		if(code1 == tcode || (code2 && code2 == tcode)) {
+			result = TRUE;
+			break;
+		}
+	}
+	lua_pushboolean(L, result);
+	return 1;
+}
+int32 scriptlib::effect_is_active_setcode(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	uint32 count = lua_gettop(L) - 1;
+	uint32 result = FALSE;
+	for(uint32 i = 0; i < count; ++i) {
+		if(lua_isnil(L, i + 2))
+			continue;
+		uint32 set_code = (uint32)lua_tointeger(L, i + 2);
+		if(peffect->is_active_setcode(set_code)) {
+			result = TRUE;
+			break;
+		}
+	}
+	lua_pushboolean(L, result);
 	return 1;
 }
 int32 scriptlib::effect_is_has_property(lua_State *L) {
@@ -609,7 +659,10 @@ static const struct luaL_Reg effectlib[] = {
 	{ "GetValue", scriptlib::effect_get_value },
 	{ "GetOperation", scriptlib::effect_get_operation },
 	{ "GetActiveType", scriptlib::effect_get_active_type },
+	{ "GetActiveCode", scriptlib::effect_get_active_code },
 	{ "IsActiveType", scriptlib::effect_is_active_type },
+	{ "IsActiveCode", scriptlib::effect_is_active_code },
+	{ "IsActiveSetCard", scriptlib::effect_is_active_setcode },
 	{ "GetOwnerPlayer", scriptlib::effect_get_owner_player },
 	{ "GetHandlerPlayer", scriptlib::effect_get_handler_player },
 	{ "IsHasProperty", scriptlib::effect_is_has_property },

@@ -323,7 +323,10 @@ public:
 	static int32 effect_get_value(lua_State *L);
 	static int32 effect_get_operation(lua_State *L);
 	static int32 effect_get_active_type(lua_State *L);
+	static int32 effect_get_active_code(lua_State *L);
 	static int32 effect_is_active_type(lua_State *L);
+	static int32 effect_is_active_code(lua_State *L);
+	static int32 effect_is_active_setcode(lua_State *L);
 	static int32 effect_is_has_property(lua_State *L);
 	static int32 effect_is_has_category(lua_State *L);
 	static int32 effect_is_has_type(lua_State *L);
