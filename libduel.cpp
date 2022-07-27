@@ -2226,6 +2226,20 @@ int32 scriptlib::duel_get_first_target(lua_State *L) {
 		interpreter::card2value(L, pcard);
 	return (int32)ch->target_cards->container.size();
 }
+int32 scriptlib::duel_get_targets_relate_to_chain(lua_State* L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	group* pgroup = pduel->new_group();
+	chain* ch = pduel->game_field->get_chain(0);
+	if(ch && ch->target_cards && ch->target_cards->container.size() > 0) {
+		for(auto& pcard : ch->target_cards->container) {
+			if(pcard->is_has_relation(*ch)) {
+				pgroup->container.insert(pcard);
+			}
+		}
+	}
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
 int32 scriptlib::duel_get_current_phase(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	lua_pushinteger(L, pduel->game_field->infos.phase);
@@ -4668,6 +4682,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetChainInfo", scriptlib::duel_get_chain_info },
 	{ "GetChainEvent", scriptlib::duel_get_chain_event },
 	{ "GetFirstTarget", scriptlib::duel_get_first_target },
+	{ "GetTargetsRelateToChain", scriptlib::duel_get_targets_relate_to_chain },
 	{ "GetCurrentPhase", scriptlib::duel_get_current_phase },
 	{ "SkipPhase", scriptlib::duel_skip_phase },
 	{ "IsDamageCalculated", scriptlib::duel_is_damage_calculated },
