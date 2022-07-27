@@ -2436,6 +2436,13 @@ int32 scriptlib::card_is_faceup(lua_State *L) {
 	lua_pushboolean(L, pcard->is_position(POS_FACEUP));
 	return 1;
 }
+int32 scriptlib::card_is_faceup_ex(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_pushboolean(L, pcard->is_position(POS_FACEUP) | (pcard->current.location & (LOCATION_HAND | LOCATION_GRAVE)));
+	return 1;
+}
 int32 scriptlib::card_is_attack_pos(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -3421,6 +3428,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsAttackable", scriptlib::card_is_attackable },
 	{ "IsChainAttackable", scriptlib::card_is_chain_attackable },
 	{ "IsFaceup", scriptlib::card_is_faceup },
+	{ "IsFaceupEx", scriptlib::card_is_faceup_ex },
 	{ "IsAttackPos", scriptlib::card_is_attack_pos },
 	{ "IsFacedown", scriptlib::card_is_facedown },
 	{ "IsDefensePos", scriptlib::card_is_defense_pos },
