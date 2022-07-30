@@ -222,6 +222,7 @@ public:
 	static int32 card_is_attackable(lua_State *L);
 	static int32 card_is_chain_attackable(lua_State *L);
 	static int32 card_is_faceup(lua_State *L);
+	static int32 card_is_faceup_ex(lua_State *L);
 	static int32 card_is_attack_pos(lua_State *L);
 	static int32 card_is_facedown(lua_State *L);
 	static int32 card_is_defense_pos(lua_State *L);
