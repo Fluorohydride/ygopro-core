@@ -1907,10 +1907,12 @@ int32 scriptlib::card_is_relate_to_effect(lua_State *L) {
 	return 1;
 }
 int32 scriptlib::card_is_relate_to_chain(lua_State *L) {
-	check_param_count(L, 2);
+	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint32 chain_count = (uint32)lua_tointeger(L, 2);
+	uint32 chain_count = 0;
+	if(lua_gettop(L) >= 2)
+		chain_count = (uint32)lua_tointeger(L, 2);
 	duel* pduel = pcard->pduel;
 	if(chain_count > pduel->game_field->core.current_chain.size() || chain_count < 1)
 		chain_count = (uint32)pduel->game_field->core.current_chain.size();
