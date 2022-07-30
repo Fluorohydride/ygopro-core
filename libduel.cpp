@@ -2347,6 +2347,13 @@ int32 scriptlib::duel_adjust_instantly(lua_State *L) {
 	pduel->game_field->adjust_instant();
 	return 0;
 }
+int32 scriptlib::duel_adjust_all(lua_State* L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	pduel->game_field->adjust_all();
+	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
+		return 0;
+	});
+}
 /**
  * \brief Duel.GetFieldGroup
  * \param playerid, location1, location2
@@ -4678,6 +4685,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "ChainAttack", scriptlib::duel_chain_attack },
 	{ "Readjust", scriptlib::duel_readjust },
 	{ "AdjustInstantly", scriptlib::duel_adjust_instantly },
+	{ "AdjustAll", scriptlib::duel_adjust_all },
 	{ "GetFieldGroup", scriptlib::duel_get_field_group },
 	{ "GetFieldGroupCount", scriptlib::duel_get_field_group_count },
 	{ "GetDecktopGroup", scriptlib::duel_get_decktop_group },
