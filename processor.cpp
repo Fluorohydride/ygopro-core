@@ -4147,6 +4147,7 @@ int32 field::add_chain(uint16 step) {
 	case 5: {
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
+		peffect->cost_checked = TRUE;
 		if(peffect->cost) {
 			core.sub_solving_event.push_back(clit.evt);
 			add_process(PROCESSOR_EXECUTE_COST, 0, peffect, 0, clit.triggering_player, 0);
@@ -4166,6 +4167,7 @@ int32 field::add_chain(uint16 step) {
 		break_effect();
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
+		peffect->cost_checked = FALSE;
 		card* phandler = peffect->get_handler();
 		if(clit.target_cards && clit.target_cards->container.size()) {
 			if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
