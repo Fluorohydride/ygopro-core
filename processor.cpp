@@ -4187,7 +4187,6 @@ int32 field::add_chain(uint16 step) {
 				&& phandler->is_has_relation(clit) && phandler->current.location == LOCATION_SZONE
 				&& !peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 			clit.flag |= CHAIN_CONTINUOUS_CARD;
-		core.phase_action = TRUE;
 		pduel->write_buffer8(MSG_CHAINED);
 		pduel->write_buffer8(clit.chain_count);
 		raise_event(phandler, EVENT_CHAINING, peffect, 0, clit.triggering_player, clit.triggering_player, clit.chain_count);
@@ -4305,6 +4304,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 	auto cait = core.current_chain.rbegin();
 	switch(step) {
 	case 0: {
+		core.phase_action = TRUE;
 		pduel->write_buffer8(MSG_CHAIN_SOLVING);
 		pduel->write_buffer8(cait->chain_count);
 		add_to_disable_check_list(cait->triggering_effect->get_handler());
