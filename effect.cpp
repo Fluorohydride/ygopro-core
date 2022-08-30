@@ -21,7 +21,7 @@ bool is_continuous_event(uint32 code) {
 	else if (code & 0xf0000)
 		return false;
 	else if (code & 0xf000)
-		return !!(code & EVENT_PHASE_START);
+		return (code & EVENT_PHASE_START) && (code < 0x10000);
 	else
 		return continuous_event.find(code) != continuous_event.end();
 }
