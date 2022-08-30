@@ -375,7 +375,6 @@ public:
 	static void open_grouplib(lua_State *L);
 
 	//Duel functions
-	static int32 duel_assume_reset(lua_State *L);
 	static int32 duel_enable_global_flag(lua_State *L);
 	static int32 duel_get_lp(lua_State *L);
 	static int32 duel_set_lp(lua_State *L);
@@ -600,6 +599,7 @@ public:
 	//specific card functions
 	static int32 duel_swap_deck_and_grave(lua_State *L);
 	static int32 duel_majestic_copy(lua_State *L);
+	static int32 duel_assume_reset(lua_State *L);
 
 	static void open_duellib(lua_State *L);
 
