@@ -166,6 +166,8 @@ public:
 #define EFFECT_TYPE_GRANT			0x2000	//
 #define EFFECT_TYPE_TARGET			0x4000	//
 
+#define EFFECT_TYPES_TRIGGER_LIKE	(EFFECT_TYPE_ACTIVATE | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F)
+
 //========== Flags ==========
 enum effect_flag : uint32 {
 	EFFECT_FLAG_INITIAL				= 0x0001,
@@ -466,7 +468,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_ACTIVATION_COUNT_LIMIT	367
 #define EFFECT_LIMIT_SPECIAL_SUMMON_POSITION	368
 
-#define EVENT_STARTUP		1000
+//#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
 #define EVENT_FREE_CHAIN	1002
 #define EVENT_DESTROY		1010
@@ -543,7 +545,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define DOUBLE_DAMAGE				0x80000000
 #define HALF_DAMAGE					0x80000001
 
-// The type of bit field in code
+// The type of event in code
 #define CODE_CUSTOM		1	// header + id (28 bits)
 #define CODE_COUNTER	2	// header + counter_id (16 bits)
 #define CODE_PHASE		3	// header + phase_id (12 bits)
