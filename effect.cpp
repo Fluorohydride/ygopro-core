@@ -16,14 +16,7 @@ bool effect_sort_id(const effect* e1, const effect* e2) {
 }
 // return: code is an event reserved for EFFECT_TYPE_CONTINUOUS or not
 bool is_continuous_event(uint32 code) {
-	if (code & EVENT_CUSTOM)
-		return false;
-	else if (code & 0xf0000)
-		return false;
-	else if (code & EVENT_PHASE_START)
-		return (code & 0x2fff) == code;
-	else
-		return continuous_event.find(code) != continuous_event.end();
+	return (code & (EVENT_PHASE_START + 0xfff)) == code || continuous_event.find(code) != continuous_event.end();
 }
 
 effect::effect(duel* pd) {
