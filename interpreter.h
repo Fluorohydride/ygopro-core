@@ -69,7 +69,6 @@ public:
 	static void effect2value(lua_State* L, effect* peffect);
 	static void function2value(lua_State* L, int32 pointer);
 	static int32 get_function_handle(lua_State* L, int32 index);
-	static void set_duel_info(lua_State* L, duel* pduel);
 	static duel* get_duel_info(lua_State* L);
 
 	template <size_t N, typename... TR>

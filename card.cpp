@@ -43,9 +43,10 @@ bool card::card_operation_sort(card* c1, card* c2) {
 	if(c1->current.location != c2->current.location)
 		return c1->current.location < c2->current.location;
 	if(c1->current.location & LOCATION_OVERLAY) {
-		if(c1->overlay_target->current.sequence != c2->overlay_target->current.sequence)
+		if(c1->overlay_target && c2->overlay_target && c1->overlay_target->current.sequence != c2->overlay_target->current.sequence)
 			return c1->overlay_target->current.sequence < c2->overlay_target->current.sequence;
-		else return c1->current.sequence < c2->current.sequence;
+		else
+			return c1->current.sequence < c2->current.sequence;
 	} else {
 		if(c1->current.location & (LOCATION_DECK | LOCATION_EXTRA | LOCATION_GRAVE | LOCATION_REMOVED))
 			return c1->current.sequence > c2->current.sequence;
@@ -101,6 +102,7 @@ card::card(duel* pd) {
 uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 	int32* p = (int32*)buf;
 	int32 tdata = 0;
+	std::pair<int32, int32> atk_def(-10, -10);
 	p += 2;
 	if(query_flag & QUERY_CODE) *p++ = data.code;
 	if(query_flag & QUERY_POSITION) *p++ = get_info_location();
@@ -111,12 +113,21 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 		if(query_flag & QUERY_RANK) q_cache.rank = *p++ = get_rank();
 		if(query_flag & QUERY_ATTRIBUTE) q_cache.attribute = *p++ = get_attribute();
 		if(query_flag & QUERY_RACE) q_cache.race = *p++ = get_race();
-		if(query_flag & QUERY_ATTACK) q_cache.attack = *p++ = get_attack();
-		if(query_flag & QUERY_DEFENSE) q_cache.defense = *p++ = get_defense();
+		if (query_flag & QUERY_ATTACK) {
+			atk_def = get_atk_def();
+			q_cache.attack = *p++ = atk_def.first;
+		}
+		if (query_flag & QUERY_DEFENSE) {
+			if(atk_def.second == -10)
+				q_cache.defense = *p++ = get_defense();
+			else
+				q_cache.defense = *p++ = atk_def.second;
+		}
 		if(query_flag & QUERY_BASE_ATTACK) q_cache.base_attack = *p++ = get_base_attack();
 		if(query_flag & QUERY_BASE_DEFENSE) q_cache.base_defense = *p++ = get_base_defense();
 		if(query_flag & QUERY_REASON) q_cache.reason = *p++ = current.reason;
-	} else {
+	}
+	else {
 		if((query_flag & QUERY_ALIAS) && ((uint32)(tdata = get_code()) != q_cache.alias)) {
 			q_cache.alias = tdata;
 			*p++ = tdata;
@@ -202,7 +213,8 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 			q_cache.link = *p++ = get_link();
 			q_cache.link_marker = *p++ = get_link_marker();
 		}
-	} else {
+	}
+	else {
 		if((query_flag & QUERY_LSCALE) && ((uint32)(tdata = get_lscale()) != q_cache.lscale)) {
 			q_cache.lscale = tdata;
 			*p++ = tdata;
@@ -476,37 +488,46 @@ uint32 card::get_xyz_type() {
 	return get_type();
 }
 uint32 card::get_link_type() {
-	if(current.location == LOCATION_SZONE && (data.type & TYPE_MONSTER))
-		return data.type;
+	if(current.location == LOCATION_SZONE)
+		return data.type | TYPE_MONSTER;
 	return get_type();
 }
-int32 card::get_base_attack() {
-	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
-		return 0;
+std::pair<int32, int32> card::get_base_atk_def() {
+	if (!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
+		return std::pair<int32, int32>(0, 0);
+	std::pair<int32, int32> ret(data.attack, 0);
+	if (!(data.type & TYPE_LINK))
+		ret.second = data.defense;
 	if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
-		return data.attack;
-	if (temp.base_attack != -1)
-		return temp.base_attack;
-	int32 batk = data.attack;
-	if(batk < 0)
-		batk = 0;
-	int32 bdef = data.defense;
-	if(bdef < 0)
-		bdef = 0;
-	temp.base_attack = batk;
-	effect_set eset;
-	int32 swap = 0;
-	if(!(data.type & TYPE_LINK)) {
-		filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
-		swap = eset.size();
+		return ret;	
+	if (temp.base_attack != -1){
+		ret.first = temp.base_attack;
+		ret.second = temp.base_defense;
+		return ret;
 	}
+	int32 batk = data.attack;
+	if (batk < 0)
+		batk = 0;
+	int32 bdef = 0;
+	if (!(data.type & TYPE_LINK)) {
+		bdef = data.defense;
+		if (bdef < 0)
+			bdef = 0;
+	}
+	temp.base_attack = batk;
+	temp.base_defense = bdef;
+	effect_set eset;
 	filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
-	if(swap)
+	filter_effect(EFFECT_SET_BASE_ATTACK_FINAL, &eset, FALSE);
+	if (!(data.type & TYPE_LINK)) {
+		filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
 		filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
+		filter_effect(EFFECT_SET_BASE_DEFENSE_FINAL, &eset, FALSE);
+	}
 	eset.sort();
-	// calculate continuous effects of this first
+	// calculate single effects of this first
 	for(int32 i = 0; i < eset.size();) {
-		if(!(eset[i]->type & EFFECT_TYPE_SINGLE) || eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+		if (eset[i]->type & EFFECT_TYPE_SINGLE) {
 			switch(eset[i]->code) {
 			case EFFECT_SET_BASE_ATTACK:
 				batk = eset[i]->get_value(this);
@@ -519,6 +540,7 @@ int32 card::get_base_attack() {
 				bdef = eset[i]->get_value(this);
 				if(bdef < 0)
 					bdef = 0;
+				temp.base_defense = bdef;
 				eset.remove_item(i);
 				continue;
 			}
@@ -528,11 +550,13 @@ int32 card::get_base_attack() {
 	for(int32 i = 0; i < eset.size(); ++i) {
 		switch(eset[i]->code) {
 		case EFFECT_SET_BASE_ATTACK:
+		case EFFECT_SET_BASE_ATTACK_FINAL:
 			batk = eset[i]->get_value(this);
 			if(batk < 0)
 				batk = 0;
 			break;
 		case EFFECT_SET_BASE_DEFENSE:
+		case EFFECT_SET_BASE_DEFENSE_FINAL:
 			bdef = eset[i]->get_value(this);
 			if(bdef < 0)
 				bdef = 0;
@@ -542,327 +566,229 @@ int32 card::get_base_attack() {
 			break;
 		}
 		temp.base_attack = batk;
+		temp.base_defense = bdef;
 	}
+	ret.first = batk;
+	ret.second = bdef;
 	temp.base_attack = -1;
-	return batk;
+	temp.base_defense = -1;
+	return ret;
 }
-int32 card::get_attack() {
-	if(assume_type == ASSUME_ATTACK)
-		return assume_value;
-	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
-		return 0;
+std::pair<int32, int32> card::get_atk_def() {
+	if (assume_type == ASSUME_ATTACK)
+		return std::pair<int32, int32>(assume_value, 0);
+	if (assume_type == ASSUME_DEFENSE) {
+		if (data.type & TYPE_LINK)
+			return std::pair<int32, int32>(0, 0);
+		else
+			return std::pair<int32, int32>(0, assume_value);
+	}
+	if (!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
+		return std::pair<int32, int32>(0, 0);
+	std::pair<int32, int32> ret(data.attack, 0);
+	if (!(data.type & TYPE_LINK))
+		ret.second = data.defense;
 	if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
-		return data.attack;
-	if (temp.attack != -1)
-		return temp.attack;
-	int32 batk = data.attack;
-	if(batk < 0)
-		batk = 0;
-	int32 bdef = data.defense;
-	if(bdef < 0)
-		bdef = 0;
-	temp.base_attack = batk;
-	temp.attack = batk;
-	int32 atk = -1;
+		return ret;
+	if (temp.attack != -1) {
+		ret.first = temp.attack;
+		ret.second = temp.defense;
+		return ret;
+	}
+	int32 atk = -1, def = -1;
 	int32 up_atk = 0, upc_atk = 0;
-	int32 swap_final = FALSE;
+	int32 up_def = 0, upc_def = 0;
+	bool swap_final = false;
 	effect_set eset;
+	effect_set effects_atk_final, effects_atk_wicked, effects_atk_option;
+	effect_set effects_def_final, effects_def_wicked, effects_def_option;
+	int32 batk = data.attack;
+	if (batk < 0)
+		batk = 0;
+	int32 bdef = 0;
+	if (!(data.type & TYPE_LINK)) {
+		bdef = data.defense;
+		if (bdef < 0)
+			bdef = 0;
+	}
+	temp.attack = batk;
+	temp.defense = bdef;
+	std::pair<int32, int32> base_val = get_base_atk_def();
+	atk = base_val.first;
+	def = base_val.second;
+	temp.attack = atk;
+	temp.defense = def;
 	filter_effect(EFFECT_UPDATE_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SET_ATTACK, &eset, FALSE);
 	filter_effect(EFFECT_SET_ATTACK_FINAL, &eset, FALSE);
-	filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
-	if(!(data.type & TYPE_LINK)) {
+	if (!(data.type & TYPE_LINK)) {
 		filter_effect(EFFECT_SWAP_AD, &eset, FALSE);
-		filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
-		filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
+		filter_effect(EFFECT_UPDATE_DEFENSE, &eset, FALSE);
+		filter_effect(EFFECT_SET_DEFENSE, &eset, FALSE);
+		filter_effect(EFFECT_SET_DEFENSE_FINAL, &eset, FALSE);
 	}
 	eset.sort();
-	int32 rev = FALSE;
-	if(is_affected_by_effect(EFFECT_REVERSE_UPDATE))
-		rev = TRUE;
-	effect_set effects_atk, effects_atk_r;
-	for(int32 i = 0; i < eset.size();) {
-		if(!(eset[i]->type & EFFECT_TYPE_SINGLE) || eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
-			switch(eset[i]->code) {
-			case EFFECT_SET_BASE_ATTACK:
-				batk = eset[i]->get_value(this);
-				if(batk < 0)
-					batk = 0;
-				temp.base_attack = batk;
+	bool rev = false;
+	if (is_affected_by_effect(EFFECT_REVERSE_UPDATE))
+		rev = true;
+	for (int32 i = 0; i < eset.size();) {
+		if (eset[i]->type & EFFECT_TYPE_SINGLE) {
+			switch (eset[i]->code) {
+			case EFFECT_SET_ATTACK:
+				atk = eset[i]->get_value(this);
+				if (atk < 0)
+					atk = 0;
+				temp.attack = atk;
 				eset.remove_item(i);
 				continue;
-			case EFFECT_SET_BASE_DEFENSE:
-				bdef = eset[i]->get_value(this);
-				if(bdef < 0)
-					bdef = 0;
+			case EFFECT_SET_DEFENSE:
+				def = eset[i]->get_value(this);
+				if (def < 0)
+					def = 0;
+				temp.defense = def;
 				eset.remove_item(i);
 				continue;
 			}
 		}
 		++i;
 	}
-	temp.attack = batk;
-	for(int32 i = 0; i < eset.size(); ++i) {
-		switch(eset[i]->code) {
+	for (int32 i = 0; i < eset.size(); ++i) {
+		switch (eset[i]->code) {
 		case EFFECT_UPDATE_ATTACK:
-			if((eset[i]->type & EFFECT_TYPE_SINGLE) && !eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))
 				up_atk += eset[i]->get_value(this);
 			else
 				upc_atk += eset[i]->get_value(this);
 			break;
 		case EFFECT_SET_ATTACK:
 			atk = eset[i]->get_value(this);
-			if(!(eset[i]->type & EFFECT_TYPE_SINGLE))
-				up_atk = 0;
+			if (atk < 0)
+				atk = 0;
+			up_atk = 0;
 			break;
 		case EFFECT_SET_ATTACK_FINAL:
-			if((eset[i]->type & EFFECT_TYPE_SINGLE) && !eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 				atk = eset[i]->get_value(this);
+				if (atk < 0)
+					atk = 0;
 				up_atk = 0;
 				upc_atk = 0;
-			} else {
-				if(!eset[i]->is_flag(EFFECT_FLAG_DELAY))
-					effects_atk.add_item(eset[i]);
-				else
-					effects_atk_r.add_item(eset[i]);
+			}
+			else if (eset[i]->is_flag(EFFECT_FLAG2_OPTION)) {
+				effects_atk_option.add_item(eset[i]);
+			}
+			else if (eset[i]->is_flag(EFFECT_FLAG2_WICKED)) {
+				effects_atk_wicked.add_item(eset[i]);
+			}
+			else {
+				effects_atk_final.add_item(eset[i]);
 			}
 			break;
-		case EFFECT_SET_BASE_ATTACK:
-			batk = eset[i]->get_value(this);
-			if(batk < 0)
-				batk = 0;
-			atk = -1;
-			break;
-		case EFFECT_SET_BASE_DEFENSE:
-			bdef = eset[i]->get_value(this);
-			if(bdef < 0)
-				bdef = 0;
-			break;
-		case EFFECT_SWAP_AD:
-			swap_final = !swap_final;
-			break;
-		case EFFECT_SWAP_BASE_AD:
-			std::swap(batk, bdef);
-			break;
-		}
-		temp.base_attack = batk;
-		if(!rev) {
-			temp.attack = ((atk < 0) ? batk : atk) + up_atk + upc_atk;
-		} else {
-			temp.attack = ((atk < 0) ? batk : atk) - up_atk - upc_atk;
-		}
-		if(temp.attack < 0)
-			temp.attack = 0;
-	}
-	for(int32 i = 0; i < effects_atk.size(); ++i)
-		temp.attack = effects_atk[i]->get_value(this);
-	if(temp.defense == -1) {
-		if(swap_final) {
-			temp.attack = get_defense();
-		}
-		for(int32 i = 0; i < effects_atk_r.size(); ++i) {
-			temp.attack = effects_atk_r[i]->get_value(this);
-			if(effects_atk_r[i]->is_flag(EFFECT_FLAG_REPEAT))
-				temp.attack = effects_atk_r[i]->get_value(this);
-		}
-	}
-	atk = temp.attack;
-	if(atk < 0)
-		atk = 0;
-	temp.base_attack = -1;
-	temp.attack = -1;
-	return atk;
-}
-int32 card::get_base_defense() {
-	if(data.type & TYPE_LINK)
-		return 0;
-	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
-		return 0;
-	if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
-		return data.defense;
-	if (temp.base_defense != -1)
-		return temp.base_defense;
-	int32 batk = data.attack;
-	if(batk < 0)
-		batk = 0;
-	int32 bdef = data.defense;
-	if(bdef < 0)
-		bdef = 0;
-	temp.base_defense = bdef;
-	effect_set eset;
-	filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
-	int32 swap = eset.size();
-	filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
-	if(swap)
-		filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
-	eset.sort();
-	for(int32 i = 0; i < eset.size();) {
-		if(!(eset[i]->type & EFFECT_TYPE_SINGLE) || eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
-			switch(eset[i]->code) {
-			case EFFECT_SET_BASE_ATTACK:
-				batk = eset[i]->get_value(this);
-				if(batk < 0)
-					batk = 0;
-				eset.remove_item(i);
-				continue;
-			case EFFECT_SET_BASE_DEFENSE:
-				bdef = eset[i]->get_value(this);
-				if(bdef < 0)
-					bdef = 0;
-				temp.base_defense = bdef;
-				eset.remove_item(i);
-				continue;
-			}
-		}
-		++i;
-	}
-	for(int32 i = 0; i < eset.size(); ++i) {
-		switch(eset[i]->code) {
-		case EFFECT_SET_BASE_ATTACK:
-			batk = eset[i]->get_value(this);
-			if(batk < 0)
-				batk = 0;
-			break;
-		case EFFECT_SET_BASE_DEFENSE:
-			bdef = eset[i]->get_value(this);
-			if(bdef < 0)
-				bdef = 0;
-			break;
-		case EFFECT_SWAP_BASE_AD:
-			std::swap(batk, bdef);
-			break;
-		}
-		temp.base_defense = bdef;
-	}
-	temp.base_defense = -1;
-	return bdef;
-}
-int32 card::get_defense() {
-	if(data.type & TYPE_LINK)
-		return 0;
-	if(assume_type == ASSUME_DEFENSE)
-		return assume_value;
-	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
-		return 0;
-	if (current.location != LOCATION_MZONE || get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
-		return data.defense;
-	if (temp.defense != -1)
-		return temp.defense;
-	int32 batk = data.attack;
-	if(batk < 0)
-		batk = 0;
-	int32 bdef = data.defense;
-	if(bdef < 0)
-		bdef = 0;
-	temp.base_defense = bdef;
-	temp.defense = bdef;
-	int32 def = -1;
-	int32 up_def = 0, upc_def = 0;
-	int32 swap_final = FALSE;
-	effect_set eset;
-	filter_effect(EFFECT_SWAP_AD, &eset, FALSE);
-	filter_effect(EFFECT_UPDATE_DEFENSE, &eset, FALSE);
-	filter_effect(EFFECT_SET_DEFENSE, &eset, FALSE);
-	filter_effect(EFFECT_SET_DEFENSE_FINAL, &eset, FALSE);
-	filter_effect(EFFECT_SWAP_BASE_AD, &eset, FALSE);
-	filter_effect(EFFECT_SET_BASE_ATTACK, &eset, FALSE);
-	filter_effect(EFFECT_SET_BASE_DEFENSE, &eset, FALSE);
-	eset.sort();
-	int32 rev = FALSE;
-	if(is_affected_by_effect(EFFECT_REVERSE_UPDATE))
-		rev = TRUE;
-	effect_set effects_def, effects_def_r;
-	for(int32 i = 0; i < eset.size();) {
-		if(!(eset[i]->type & EFFECT_TYPE_SINGLE) || eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
-			switch(eset[i]->code) {
-			case EFFECT_SET_BASE_ATTACK:
-				batk = eset[i]->get_value(this);
-				if(batk < 0)
-					batk = 0;
-				eset.remove_item(i);
-				continue;
-			case EFFECT_SET_BASE_DEFENSE:
-				bdef = eset[i]->get_value(this);
-				if(bdef < 0)
-					bdef = 0;
-				temp.base_defense = bdef;
-				eset.remove_item(i);
-				continue;
-			}
-		}
-		++i;
-	}
-	temp.defense = bdef;
-	for(int32 i = 0; i < eset.size(); ++i) {
-		switch(eset[i]->code) {
+		// def
 		case EFFECT_UPDATE_DEFENSE:
-			if((eset[i]->type & EFFECT_TYPE_SINGLE) && !eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE))
 				up_def += eset[i]->get_value(this);
 			else
 				upc_def += eset[i]->get_value(this);
 			break;
 		case EFFECT_SET_DEFENSE:
 			def = eset[i]->get_value(this);
-			if(!(eset[i]->type & EFFECT_TYPE_SINGLE))
-				up_def = 0;
+			if (def < 0)
+				def = 0;
+			up_def = 0;
 			break;
 		case EFFECT_SET_DEFENSE_FINAL:
-			if((eset[i]->type & EFFECT_TYPE_SINGLE) && !eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+			if ((eset[i]->type & EFFECT_TYPE_SINGLE) && !eset[i]->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 				def = eset[i]->get_value(this);
+				if (def < 0)
+					def = 0;
 				up_def = 0;
 				upc_def = 0;
-			} else {
-				if(!eset[i]->is_flag(EFFECT_FLAG_DELAY))
-					effects_def.add_item(eset[i]);
-				else
-					effects_def_r.add_item(eset[i]);
 			}
-			break;
-		case EFFECT_SET_BASE_DEFENSE:
-			bdef = eset[i]->get_value(this);
-			if(bdef < 0)
-				bdef = 0;
-			def = -1;
-			break;
-		case EFFECT_SET_BASE_ATTACK:
-			batk = eset[i]->get_value(this);
-			if(batk < 0)
-				batk = 0;
+			else if (eset[i]->is_flag(EFFECT_FLAG2_OPTION)) {
+				effects_def_option.add_item(eset[i]);
+			}
+			else if (eset[i]->is_flag(EFFECT_FLAG2_WICKED)) {
+				effects_def_wicked.add_item(eset[i]);
+			}
+			else {
+				effects_def_final.add_item(eset[i]);
+			}
 			break;
 		case EFFECT_SWAP_AD:
 			swap_final = !swap_final;
 			break;
-		case EFFECT_SWAP_BASE_AD:
-			std::swap(batk, bdef);
-			break;
 		}
-		temp.base_defense = bdef;
-		if(!rev) {
-			temp.defense = ((def < 0) ? bdef : def) + up_def + upc_def;
-		} else {
-			temp.defense = ((def < 0) ? bdef : def) - up_def - upc_def;
+		if (!rev) {
+			temp.attack = atk + up_atk + upc_atk;
+			temp.defense = def + up_def + upc_def;
 		}
-		if(temp.defense < 0)
+		else {
+			temp.attack = atk - up_atk - upc_atk;
+			temp.defense = def - up_def - upc_def;
+		}
+		if (temp.attack < 0)
+			temp.attack = 0;
+		if (temp.defense < 0)
 			temp.defense = 0;
 	}
-	for(int32 i = 0; i < effects_def.size(); ++i)
-		temp.defense = effects_def[i]->get_value(this);
-	if(temp.attack == -1) {
-		if(swap_final) {
-			temp.defense = get_attack();
-		}
-		for(int32 i = 0; i < effects_def_r.size(); ++i) {
-			temp.defense = effects_def_r[i]->get_value(this);
-			if(effects_def_r[i]->is_flag(EFFECT_FLAG_REPEAT))
-				temp.defense = effects_def_r[i]->get_value(this);
-		}
+	for (int32 i = 0; i < effects_atk_final.size(); ++i) {
+		atk = effects_atk_final[i]->get_value(this);
+		if (atk < 0)
+			atk = 0;
+		temp.attack = atk;
 	}
-	def = temp.defense;
-	if(def < 0)
-		def = 0;
-	temp.base_defense = -1;
+	for (int32 i = 0; i < effects_def_final.size(); ++i){
+		def = effects_def_final[i]->get_value(this);
+		if (def < 0)
+			def = 0;
+		temp.defense = def;
+	}
+	if (swap_final)
+		std::swap(temp.attack, temp.defense);
+	// The Wicked
+	for (int32 i = 0; i < effects_atk_wicked.size(); ++i) {
+		atk = effects_atk_wicked[i]->get_value(this);
+		if (atk < 0)
+			atk = 0;
+		temp.attack = atk;
+	}
+	for (int32 i = 0; i < effects_def_wicked.size(); ++i) {
+		def = effects_def_wicked[i]->get_value(this);
+		if (def < 0)
+			def = 0;
+		temp.defense = def;
+	}
+	// Gradius' Option
+	for (int32 i = 0; i < effects_atk_option.size(); ++i) {
+		atk = effects_atk_option[i]->get_value(this);
+		if (atk < 0)
+			atk = 0;
+		temp.attack = atk;
+	}
+	for (int32 i = 0; i < effects_def_option.size(); ++i) {
+		def = effects_def_option[i]->get_value(this);
+		if (def < 0)
+			def = 0;
+		temp.defense = def;
+	}
+	ret.first = temp.attack;
+	ret.second = temp.defense;
+	temp.attack = -1;
 	temp.defense = -1;
-	return def;
+	return ret;
+}
+int32 card::get_base_attack() {
+	return get_base_atk_def().first;
+}
+int32 card::get_attack() {
+	return get_atk_def().first;
+}
+int32 card::get_base_defense() {
+	return get_base_atk_def().second;
+}
+int32 card::get_defense() {
+	return get_atk_def().second;
 }
 int32 card::get_battle_attack() {
 	effect_set eset;
@@ -870,7 +796,7 @@ int32 card::get_battle_attack() {
 	if(eset.size())
 		return eset.get_last()->get_value(this);
 	else
-		return get_attack();
+		return get_atk_def().first;
 }
 int32 card::get_battle_defense() {
 	effect_set eset;
@@ -878,7 +804,7 @@ int32 card::get_battle_defense() {
 	if(eset.size())
 		return eset.get_last()->get_value(this);
 	else
-		return get_defense();
+		return get_atk_def().second;
 }
 uint32 card::get_level() {
 	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL)
@@ -1046,6 +972,26 @@ uint32 card::get_link_attribute(uint8 playerid) {
 	}
 	return attribute;
 }
+uint32 card::get_grave_attribute(uint8 playerid) {
+	if(!(data.type & TYPE_MONSTER))
+		return 0;
+	if(current.is_location(LOCATION_GRAVE))
+		return get_attribute();
+	uint32 attribute = data.attribute;
+	effect_set eset;
+	pduel->game_field->filter_player_effect(playerid, EFFECT_CHANGE_GRAVE_ATTRIBUTE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		if(!eset[i]->target)
+			attribute = eset[i]->get_value(this);
+		else {
+			pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(this, PARAM_TYPE_CARD);
+			if(pduel->lua->check_condition(eset[i]->target, 2))
+				attribute = eset[i]->get_value(this);
+		}
+	}
+	return attribute;
+}
 uint32 card::get_race() {
 	if(assume_type == ASSUME_RACE)
 		return assume_value;
@@ -1084,6 +1030,26 @@ uint32 card::get_link_race(uint8 playerid) {
 	}
 	return race;
 }
+uint32 card::get_grave_race(uint8 playerid) {
+	if(!(data.type & TYPE_MONSTER))
+		return 0;
+	if(current.is_location(LOCATION_GRAVE))
+		return get_race();
+	uint32 race = data.race;
+	effect_set eset;
+	pduel->game_field->filter_player_effect(playerid, EFFECT_CHANGE_GRAVE_RACE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		if(!eset[i]->target)
+			race = eset[i]->get_value(this);
+		else {
+			pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(this, PARAM_TYPE_CARD);
+			if(pduel->lua->check_condition(eset[i]->target, 2))
+				race = eset[i]->get_value(this);
+		}
+	}
+	return race;
+}
 uint32 card::get_lscale() {
 	if(!current.is_location(LOCATION_PZONE))
 		return data.lscale;
@@ -1108,6 +1074,8 @@ uint32 card::get_lscale() {
 		temp.lscale = lscale;
 	}
 	lscale += up + upc;
+	if(lscale < 0 && current.pzone)
+		lscale = 0;
 	temp.lscale = 0xffffffff;
 	return lscale;
 }
@@ -1135,6 +1103,8 @@ uint32 card::get_rscale() {
 		temp.rscale = rscale;
 	}
 	rscale += up + upc;
+	if(rscale < 0 && current.pzone)
+		rscale = 0;
 	temp.rscale = 0xffffffff;
 	return rscale;
 }
@@ -1415,7 +1385,7 @@ int32 card::get_old_union_count() {
 void card::xyz_overlay(card_set* materials) {
 	if(materials->size() == 0)
 		return;
-	card_set des;
+	card_set des, leave_grave;
 	field::card_vector cv;
 	for(auto& pcard : *materials)
 		cv.push_back(pcard);
@@ -1482,8 +1452,17 @@ void card::xyz_overlay(card_set* materials) {
 			pduel->game_field->add_to_disable_check_list(pcard);
 		}
 		xyz_add(pcard);
+		if(pcard->previous.location == LOCATION_GRAVE) {
+			leave_grave.insert(pcard);
+			pduel->game_field->raise_single_event(pcard, 0, EVENT_LEAVE_GRAVE, pduel->game_field->core.reason_effect, pcard->current.reason, pduel->game_field->core.reason_player, 0, 0);
+		}
 		pduel->write_buffer32(pcard->get_info_location());
 		pduel->write_buffer32(pcard->current.reason);
+	}
+	if(leave_grave.size()) {
+		pduel->game_field->raise_event(&leave_grave, EVENT_LEAVE_GRAVE, pduel->game_field->core.reason_effect, REASON_XYZ + REASON_MATERIAL, pduel->game_field->core.reason_player, 0, 0);
+		pduel->game_field->process_single_event();
+		pduel->game_field->process_instant_event();
 	}
 	if(des.size())
 		pduel->game_field->destroy(&des, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
@@ -1528,8 +1507,7 @@ void card::apply_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto& it : field_effect) {
-		if (it.second->in_range(this)
-				|| ((it.second->range & LOCATION_HAND) && (it.second->type & EFFECT_TYPE_TRIGGER_O) && !(it.second->code & EVENT_PHASE))) {
+		if (it.second->in_range(this) || it.second->is_hand_trigger()) {
 			pduel->game_field->add_effect(it.second);
 		}
 	}
@@ -1541,8 +1519,7 @@ void card::cancel_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto& it : field_effect) {
-		if (it.second->in_range(this)
-				|| ((it.second->range & LOCATION_HAND) && (it.second->type & EFFECT_TYPE_TRIGGER_O) && !(it.second->code & EVENT_PHASE))) {
+		if (it.second->in_range(this) || it.second->is_hand_trigger()) {
 			pduel->game_field->remove_effect(it.second);
 		}
 	}
@@ -1591,38 +1568,88 @@ int32 card::add_effect(effect* peffect) {
 	}
 	if (indexer.find(peffect) != indexer.end())
 		return 0;
+	if (peffect->type & EFFECT_TYPE_SINGLE && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE) && peffect->owner == this 
+		&& get_status(STATUS_DISABLED) && (peffect->reset_flag & RESET_DISABLE))
+		return 0;
+	if (!(peffect->type & EFFECT_TYPE_CONTINUOUS) && is_continuous_event(peffect->code))
+		return 0;
+	// the trigger effect in phase is "once per turn" by default
+	if (peffect->get_code_type() == CODE_PHASE && peffect->code & (PHASE_DRAW | PHASE_STANDBY | PHASE_END) && peffect->type & (EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F)
+		&& !peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
+		peffect->flag[0] |= EFFECT_FLAG_COUNT_LIMIT;
+		peffect->count_limit = 1;
+		peffect->count_limit_max = 1;
+	}
+	// add EFFECT_FLAG_IGNORE_IMMUNE to EFFECT_CANNOT_TRIGGER by default
+	if (peffect->code == EFFECT_CANNOT_TRIGGER) {
+		peffect->flag[0] |= EFFECT_FLAG_IGNORE_IMMUNE;
+	}
 	card_set check_target = { this };
 	effect_container::iterator eit;
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
-		if((peffect->code == EFFECT_SET_ATTACK || peffect->code == EFFECT_SET_BASE_ATTACK) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+		// assign atk/def
+		if(peffect->code == EFFECT_SET_ATTACK && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			for(auto it = single_effect.begin(); it != single_effect.end();) {
 				auto rm = it++;
-				if((rm->second->code == EFFECT_SET_ATTACK || rm->second->code == EFFECT_SET_ATTACK_FINAL || rm->second->code == EFFECT_SET_BASE_ATTACK)
-				        && !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+				if(rm->second->code == EFFECT_SET_ATTACK && !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
 					remove_effect(rm->second);
 			}
 		}
 		if(peffect->code == EFFECT_SET_ATTACK_FINAL && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			for(auto it = single_effect.begin(); it != single_effect.end();) {
 				auto rm = it++;
-				if((rm->second->code == EFFECT_UPDATE_ATTACK || rm->second->code == EFFECT_SET_ATTACK
-				        || rm->second->code == EFFECT_SET_ATTACK_FINAL) && !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+				auto code = rm->second->code;
+				if((code == EFFECT_UPDATE_ATTACK || code == EFFECT_SET_ATTACK || code == EFFECT_SET_ATTACK_FINAL)
+						&& !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
 					remove_effect(rm->second);
 			}
 		}
-		if((peffect->code == EFFECT_SET_DEFENSE || peffect->code == EFFECT_SET_BASE_DEFENSE) && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+		if(peffect->code == EFFECT_SET_DEFENSE && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			for(auto it = single_effect.begin(); it != single_effect.end();) {
 				auto rm = it++;
-				if((rm->second->code == EFFECT_SET_DEFENSE || rm->second->code == EFFECT_SET_DEFENSE_FINAL || rm->second->code == EFFECT_SET_BASE_DEFENSE)
-				        && !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+				if(rm->second->code == EFFECT_SET_DEFENSE && !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
 					remove_effect(rm->second);
 			}
 		}
 		if(peffect->code == EFFECT_SET_DEFENSE_FINAL && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
 			for(auto it = single_effect.begin(); it != single_effect.end();) {
 				auto rm = it++;
-				if((rm->second->code == EFFECT_UPDATE_DEFENSE || rm->second->code == EFFECT_SET_DEFENSE
-				        || rm->second->code == EFFECT_SET_DEFENSE_FINAL) && !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+				auto code = rm->second->code;
+				if((code == EFFECT_UPDATE_DEFENSE || code == EFFECT_SET_DEFENSE || code == EFFECT_SET_DEFENSE_FINAL)
+						&& !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+					remove_effect(rm->second);
+			}
+		}
+		// assign base atk/def
+		if (peffect->code == EFFECT_SET_BASE_ATTACK && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+			for (auto it = single_effect.begin(); it != single_effect.end();) {
+				auto rm = it++;
+				if (rm->second->code == EFFECT_SET_BASE_ATTACK && !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+					remove_effect(rm->second);
+			}
+		}
+		if (peffect->code == EFFECT_SET_BASE_ATTACK_FINAL && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+			for (auto it = single_effect.begin(); it != single_effect.end();) {
+				auto rm = it++;
+				auto code = rm->second->code;
+				if ((code == EFFECT_SET_BASE_ATTACK || code == EFFECT_SET_BASE_ATTACK_FINAL || code == EFFECT_SET_ATTACK || code == EFFECT_SET_ATTACK_FINAL)
+					&& !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+					remove_effect(rm->second);
+			}
+		}
+		if (peffect->code == EFFECT_SET_BASE_DEFENSE && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+			for (auto it = single_effect.begin(); it != single_effect.end();) {
+				auto rm = it++;
+				if (rm->second->code == EFFECT_SET_BASE_DEFENSE && !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+					remove_effect(rm->second);
+			}
+		}
+		if (peffect->code == EFFECT_SET_BASE_DEFENSE_FINAL && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE)) {
+			for (auto it = single_effect.begin(); it != single_effect.end();) {
+				auto rm = it++;
+				auto code = rm->second->code;
+				if ((code == EFFECT_SET_BASE_DEFENSE || code == EFFECT_SET_BASE_DEFENSE_FINAL || code == EFFECT_SET_DEFENSE || code == EFFECT_SET_DEFENSE_FINAL)
+					&& !rm->second->is_flag(EFFECT_FLAG_SINGLE_RANGE))
 					remove_effect(rm->second);
 			}
 		}
@@ -1668,14 +1695,14 @@ int32 card::add_effect(effect* peffect) {
 	indexer.emplace(peffect, eit);
 	peffect->handler = this;
 	if((peffect->type & EFFECT_TYPE_FIELD)) {
-		if(peffect->in_range(this)
-			|| current.controler != PLAYER_NONE && ((peffect->range & LOCATION_HAND) && (peffect->type & EFFECT_TYPE_TRIGGER_O) && !(peffect->code & EVENT_PHASE)))
+		if(peffect->in_range(this) || current.controler != PLAYER_NONE && peffect->is_hand_trigger())
 			pduel->game_field->add_effect(peffect);
 	}
 	if (current.controler != PLAYER_NONE && !check_target.empty()) {
-		if(peffect->is_disable_related())
-			for(auto& target : check_target)
+		if (peffect->is_disable_related()) {
+			for (auto& target : check_target)
 				pduel->game_field->add_to_disable_check_list(target);
+		}
 	}
 	if(peffect->is_flag(EFFECT_FLAG_OATH)) {
 		pduel->game_field->effects.oath.emplace(peffect, reason_effect);
@@ -1738,14 +1765,14 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			pduel->game_field->update_disable_check_list(peffect);
 		}
 		field_effect.erase(it);
-		if(peffect->in_range(this)
-			|| current.controler != PLAYER_NONE && ((peffect->range & LOCATION_HAND) && (peffect->type & EFFECT_TYPE_TRIGGER_O) && !(peffect->code & EVENT_PHASE)))
+		if(peffect->in_range(this) || current.controler != PLAYER_NONE && peffect->is_hand_trigger())
 			pduel->game_field->remove_effect(peffect);
 	}
 	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && !check_target.empty()) {
-		if (peffect->is_disable_related())
-			for(auto& target : check_target)
+		if (peffect->is_disable_related()) {
+			for (auto& target : check_target)
 				pduel->game_field->add_to_disable_check_list(target);
+		}
 	}
 	if (peffect->is_flag(EFFECT_FLAG_INITIAL) && peffect->copy_id && is_status(STATUS_EFFECT_REPLACED)) {
 		set_status(STATUS_EFFECT_REPLACED, FALSE);
@@ -1899,8 +1926,10 @@ void card::reset(uint32 id, uint32 reset_type) {
 			battled_cards.clear();
 			reset_effect_count();
 			auto pr = field_effect.equal_range(EFFECT_DISABLE_FIELD);
-			for(; pr.first != pr.second; ++pr.first)
-				pr.first->second->value = 0;
+			for(; pr.first != pr.second; ++pr.first){
+				if(!pr.first->second->is_flag(EFFECT_FLAG_FUNC_VALUE))
+					pr.first->second->value = 0;
+			}
 		}
 		if(id & (RESET_TODECK | RESET_TOHAND | RESET_TOGRAVE | RESET_REMOVE | RESET_TEMP_REMOVE
 			| RESET_OVERLAY | RESET_MSCHANGE | RESET_TOFIELD  | RESET_TURN_SET)) {
@@ -1914,6 +1943,9 @@ void card::reset(uint32 id, uint32 reset_type) {
 			pr = field_effect.equal_range(EFFECT_USE_EXTRA_SZONE);
 			for(; pr.first != pr.second; ++pr.first)
 				pr.first->second->value = pr.first->second->value & 0xffff;
+		}
+		if(id & RESET_TOFIELD) {
+			pre_equip_target = 0;
 		}
 		if(id & RESET_DISABLE) {
 			for(auto cmit = counters.begin(); cmit != counters.end();) {
@@ -2058,18 +2090,31 @@ void card::release_relation(effect* peffect) {
 int32 card::leave_field_redirect(uint32 reason) {
 	effect_set es;
 	uint32 redirect;
+	uint32 redirects = 0;
 	if(data.type & TYPE_TOKEN)
 		return 0;
 	filter_effect(EFFECT_LEAVE_FIELD_REDIRECT, &es);
 	for(int32 i = 0; i < es.size(); ++i) {
 		redirect = es[i]->get_value(this, 0);
 		if((redirect & LOCATION_HAND) && !is_affected_by_effect(EFFECT_CANNOT_TO_HAND) && pduel->game_field->is_player_can_send_to_hand(es[i]->get_handler_player(), this))
-			return redirect;
+			redirects |= redirect;
 		else if((redirect & LOCATION_DECK) && !is_affected_by_effect(EFFECT_CANNOT_TO_DECK) && pduel->game_field->is_player_can_send_to_deck(es[i]->get_handler_player(), this))
-			return redirect;
+			redirects |= redirect;
 		else if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(es[i]->get_handler_player(), this, REASON_EFFECT))
-			return redirect;
+			redirects |= redirect;
 	}
+	if(redirects & LOCATION_REMOVED)
+		return LOCATION_REMOVED;
+	// the ruling for the priority of the following redirects can't be confirmed for now
+	if(redirects & LOCATION_DECK) {
+		if((redirects & LOCATION_DECKBOT) == LOCATION_DECKBOT)
+			return LOCATION_DECKBOT;
+		if((redirects & LOCATION_DECKSHF) == LOCATION_DECKSHF)
+			return LOCATION_DECKSHF;
+		return LOCATION_DECK;
+	}
+	if(redirects & LOCATION_HAND)
+		return LOCATION_HAND;
 	return 0;
 }
 int32 card::destination_redirect(uint8 destination, uint32 reason) {
@@ -2105,7 +2150,7 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly) {
 	if(!is_can_add_counter(playerid, countertype, count, singly, 0))
 		return FALSE;
-	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
+	uint16 cttype = countertype;
 	auto pr = counters.emplace(cttype, counter_map::mapped_type());
 	auto cmit = pr.first;
 	if(pr.second) {
@@ -2125,7 +2170,7 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 
 				pcount = mcount;
 		}
 	}
-	if((countertype & COUNTER_WITHOUT_PERMIT) && !(countertype & COUNTER_NEED_ENABLE))
+	if(countertype & COUNTER_WITHOUT_PERMIT)
 		cmit->second[0] += pcount;
 	else
 		cmit->second[1] += pcount;
@@ -2161,32 +2206,21 @@ int32 card::remove_counter(uint16 countertype, uint16 count) {
 	pduel->write_buffer16(count);
 	return TRUE;
 }
+// return: the player can put a counter on this or not
 int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 loc) {
 	effect_set eset;
-	if(count > 0) {
-		if(!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
-			return FALSE;
-		if(!loc && (!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)))
-			return FALSE;
-		if((countertype & COUNTER_NEED_ENABLE) && is_status(STATUS_DISABLED))
-			return FALSE;
-	}
+	if (!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
+		return FALSE;
+	if (!loc && (!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)))
+		return FALSE;
 	uint32 check = countertype & COUNTER_WITHOUT_PERMIT;
 	if(!check) {
 		filter_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff), &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
-			uint32 prange = eset[i]->get_value();
+			uint32 prange = eset[i]->range;
 			if(loc)
 				check = loc & prange;
-			else if(current.location & LOCATION_ONFIELD) {
-				uint32 filter = TRUE;
-				if(eset[i]->target) {
-					pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
-					pduel->lua->add_param(this, PARAM_TYPE_CARD);
-					filter = pduel->lua->check_condition(eset[i]->target, 2);
-				}
-				check = current.is_location(prange) && is_position(POS_FACEUP) && filter;
-			} else
+			else
 				check = TRUE;
 			if(check)
 				break;
@@ -2195,7 +2229,7 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 	}
 	if(!check)
 		return FALSE;
-	uint16 cttype = countertype & ~COUNTER_NEED_ENABLE;
+	uint16 cttype = countertype;
 	int32 limit = -1;
 	int32 cur = 0;
 	auto cmit = counters.find(cttype);
@@ -2207,6 +2241,27 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 	if(limit > 0 && (cur + (singly ? 1 : count) > limit))
 		return FALSE;
 	return TRUE;
+}
+// return: this have a EFFECT_COUNTER_PERMIT of countertype or not
+int32 card::is_can_have_counter(uint16 countertype) {
+	effect_set eset;
+	if (countertype & COUNTER_WITHOUT_PERMIT)
+		return FALSE;
+	else {
+		filter_self_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff), &eset);
+		if (current.is_location(LOCATION_ONFIELD)) {
+			for (int32 i = 0; i < eset.size(); ++i) {
+				if (eset[i]->is_single_ready())
+					return TRUE;
+			}
+			return FALSE;
+		}
+		else if (eset.size())
+			return TRUE;
+		else
+			return FALSE;
+	}
+	return FALSE;
 }
 int32 card::get_counter(uint16 countertype) {
 	auto cmit = counters.find(countertype);
@@ -2320,17 +2375,6 @@ void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {
 	if(sort)
 		eset->sort();
 }
-void card::filter_single_effect(int32 code, effect_set* eset, uint8 sort) {
-	effect* peffect;
-	auto rg = single_effect.equal_range(code);
-	for (; rg.first != rg.second; ++rg.first) {
-		peffect = rg.first->second;
-		if (peffect->is_available() && !peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))
-			eset->add_item(peffect);
-	}
-	if(sort)
-		eset->sort();
-}
 void card::filter_single_continuous_effect(int32 code, effect_set* eset, uint8 sort) {
 	auto rg = single_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first)
@@ -2358,6 +2402,25 @@ void card::filter_single_continuous_effect(int32 code, effect_set* eset, uint8 s
 		}
 	}
 	if(sort)
+		eset->sort();
+}
+void card::filter_self_effect(int32 code, effect_set* eset, uint8 sort) {
+	auto rg = single_effect.equal_range(code);
+	for (; rg.first != rg.second; ++rg.first) {
+		effect* peffect = rg.first->second;
+		if(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))
+			eset->add_item(rg.first->second);
+	}
+	for (auto& pcard : xyz_materials) {
+		rg = pcard->xmaterial_effect.equal_range(code);
+		for (; rg.first != rg.second; ++rg.first) {
+			effect* peffect = rg.first->second;
+			if (peffect->type & EFFECT_TYPE_FIELD)
+				continue;
+			eset->add_item(peffect);
+		}
+	}
+	if (sort)
 		eset->sort();
 }
 // refresh this->immune_effect
@@ -2592,7 +2655,7 @@ int32 card::check_set_procedure(effect* proc, uint8 playerid, uint8 ignore_count
 		return is_summonable(proc, min_tribute, zone);
 	return FALSE;
 }
-void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 summon_type) {
+void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 summon_type, material_info info) {
 	auto pr = field_effect.equal_range(EFFECT_SPSUMMON_PROC);
 	uint8 toplayer;
 	uint8 topos;
@@ -2609,7 +2672,7 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 s
 			topos = POS_FACEUP;
 			toplayer = playerid;
 		}
-		if(peffect->is_available() && peffect->check_count_limit(playerid) && is_spsummonable(peffect)
+		if(peffect->is_available() && peffect->check_count_limit(playerid) && is_spsummonable(peffect, info)
 				&& ((topos & POS_FACEDOWN) || !pduel->game_field->check_unique_onfield(this, toplayer, LOCATION_MZONE))) {
 			effect* sumeffect = pduel->game_field->core.reason_effect;
 			if(!sumeffect)
@@ -2861,35 +2924,55 @@ int32 card::check_cost_condition(int32 ecode, int32 playerid) {
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, ecode, &eset, FALSE);
 	filter_effect(ecode, &eset);
+	int32 res = TRUE;
+	effect* oreason = pduel->game_field->core.reason_effect;
+	uint8 op = pduel->game_field->core.reason_player;
 	for(int32 i = 0; i < eset.size(); ++i) {
-		pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+		effect* peffect = eset[i];
+		pduel->game_field->core.reason_effect = peffect;
+		pduel->game_field->core.reason_player = playerid;
+		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-		if(!pduel->lua->check_condition(eset[i]->cost, 3))
-			return FALSE;
+		if(!pduel->lua->check_condition(peffect->cost, 3)) {
+			res = FALSE;
+			break;
+		}
 	}
-	return TRUE;
+	pduel->game_field->core.reason_effect = oreason;
+	pduel->game_field->core.reason_player = op;
+	return res;
 }
 int32 card::check_cost_condition(int32 ecode, int32 playerid, int32 sumtype) {
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, ecode, &eset, FALSE);
 	filter_effect(ecode, &eset);
+	int32 res = TRUE;
+	effect* oreason = pduel->game_field->core.reason_effect;
+	uint8 op = pduel->game_field->core.reason_player;
 	for(int32 i = 0; i < eset.size(); ++i) {
-		pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+		effect* peffect = eset[i];
+		pduel->game_field->core.reason_effect = peffect;
+		pduel->game_field->core.reason_player = playerid;
+		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		pduel->lua->add_param(sumtype, PARAM_TYPE_INT);
-		if(!pduel->lua->check_condition(eset[i]->cost, 4))
-			return FALSE;
+		if(!pduel->lua->check_condition(peffect->cost, 4)) {
+			res = FALSE;
+			break;
+		}
 	}
-	return TRUE;
+	pduel->game_field->core.reason_effect = oreason;
+	pduel->game_field->core.reason_player = op;
+	return res;
 }
 int32 card::is_summonable_card() {
 	if(!(data.type & TYPE_MONSTER))
 		return FALSE;
 	return !(data.type & (TYPE_RITUAL | TYPE_SPSUMMON
 		| TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK
-		| TYPE_TOKEN));
+		| TYPE_TOKEN | TYPE_TRAPMONSTER));
 }
 int32 card::is_fusion_summonable_card(uint32 summon_type) {
 	if(!(data.type & TYPE_FUSION))
@@ -2908,7 +2991,8 @@ int32 card::is_fusion_summonable_card(uint32 summon_type) {
 	}
 	return TRUE;
 }
-int32 card::is_spsummonable(effect* proc) {
+// check the condition function of proc
+int32 card::is_spsummonable(effect* proc, material_info info) {
 	effect* oreason = pduel->game_field->core.reason_effect;
 	uint8 op = pduel->game_field->core.reason_player;
 	pduel->game_field->core.reason_effect = proc;
@@ -2917,34 +3001,34 @@ int32 card::is_spsummonable(effect* proc) {
 	pduel->lua->add_param(proc, PARAM_TYPE_EFFECT);
 	pduel->lua->add_param(this, PARAM_TYPE_CARD);
 	uint32 result = FALSE;
-	if(pduel->game_field->core.limit_tuner || pduel->game_field->core.limit_syn) {
-		pduel->lua->add_param(pduel->game_field->core.limit_tuner, PARAM_TYPE_CARD);
-		pduel->lua->add_param(pduel->game_field->core.limit_syn, PARAM_TYPE_GROUP);
+	if(info.limit_tuner || info.limit_syn) {
+		pduel->lua->add_param(info.limit_tuner, PARAM_TYPE_CARD);
+		pduel->lua->add_param(info.limit_syn, PARAM_TYPE_GROUP);
 		uint32 param_count = 4;
-		if(pduel->game_field->core.limit_syn_minc) {
-			pduel->lua->add_param(pduel->game_field->core.limit_syn_minc, PARAM_TYPE_INT);
-			pduel->lua->add_param(pduel->game_field->core.limit_syn_maxc, PARAM_TYPE_INT);
+		if(info.limit_syn_minc) {
+			pduel->lua->add_param(info.limit_syn_minc, PARAM_TYPE_INT);
+			pduel->lua->add_param(info.limit_syn_maxc, PARAM_TYPE_INT);
 			param_count = 6;
 		}
 		if(pduel->lua->check_condition(proc->condition, param_count))
 			result = TRUE;
-	} else if(pduel->game_field->core.limit_xyz) {
-		pduel->lua->add_param(pduel->game_field->core.limit_xyz, PARAM_TYPE_GROUP);
+	} else if(info.limit_xyz) {
+		pduel->lua->add_param(info.limit_xyz, PARAM_TYPE_GROUP);
 		uint32 param_count = 3;
-		if(pduel->game_field->core.limit_xyz_minc) {
-			pduel->lua->add_param(pduel->game_field->core.limit_xyz_minc, PARAM_TYPE_INT);
-			pduel->lua->add_param(pduel->game_field->core.limit_xyz_maxc, PARAM_TYPE_INT);
+		if(info.limit_xyz_minc) {
+			pduel->lua->add_param(info.limit_xyz_minc, PARAM_TYPE_INT);
+			pduel->lua->add_param(info.limit_xyz_maxc, PARAM_TYPE_INT);
 			param_count = 5;
 		}
 		if(pduel->lua->check_condition(proc->condition, param_count))
 			result = TRUE;
-	} else if(pduel->game_field->core.limit_link || pduel->game_field->core.limit_link_card) {
-		pduel->lua->add_param(pduel->game_field->core.limit_link, PARAM_TYPE_GROUP);
-		pduel->lua->add_param(pduel->game_field->core.limit_link_card, PARAM_TYPE_CARD);
+	} else if(info.limit_link || info.limit_link_card) {
+		pduel->lua->add_param(info.limit_link, PARAM_TYPE_GROUP);
+		pduel->lua->add_param(info.limit_link_card, PARAM_TYPE_CARD);
 		uint32 param_count = 4;
-		if(pduel->game_field->core.limit_link_minc) {
-			pduel->lua->add_param(pduel->game_field->core.limit_link_minc, PARAM_TYPE_INT);
-			pduel->lua->add_param(pduel->game_field->core.limit_link_maxc, PARAM_TYPE_INT);
+		if(info.limit_link_minc) {
+			pduel->lua->add_param(info.limit_link_minc, PARAM_TYPE_INT);
+			pduel->lua->add_param(info.limit_link_maxc, PARAM_TYPE_INT);
 			param_count = 6;
 		}
 		if(pduel->lua->check_condition(proc->condition, param_count))
@@ -3027,7 +3111,6 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 }
 int32 card::get_summon_tribute_count() {
 	int32 min = 0, max = 0;
-	int32 minul = 0, maxul = 0;
 	int32 level = get_level();
 	if(level < 5)
 		return 0;
@@ -3035,22 +3118,26 @@ int32 card::get_summon_tribute_count() {
 		min = max = 1;
 	else
 		min = max = 2;
+	std::vector<int32> duplicate;
 	effect_set eset;
 	filter_effect(EFFECT_DECREASE_TRIBUTE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
-		int32 dec = eset[i]->get_value(this);
-		if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
-			if(minul < (dec & 0xffff))
-				minul = dec & 0xffff;
-			if(maxul < (dec >> 16))
-				maxul = dec >> 16;
-		} else if(eset[i]->count_limit > 0) {
-			min -= dec & 0xffff;
-			max -= dec >> 16;
+		if(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT) && eset[i]->count_limit == 0)
+			continue;
+		std::vector<int32> retval;
+		eset[i]->get_value(this, 0, &retval);
+		int32 dec = retval.size() > 0 ? retval[0] : 0;
+		int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+		if(effect_code > 0) {
+			auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
+			if(it == duplicate.end())
+				duplicate.push_back(effect_code);
+			else
+				continue;
 		}
+		min -= dec & 0xffff;
+		max -= dec >> 16;
 	}
-	min -= minul;
-	max -= maxul;
 	if(min < 0) min = 0;
 	if(max < min) max = min;
 	return min + (max << 16);
@@ -3064,10 +3151,23 @@ int32 card::get_set_tribute_count() {
 		min = max = 1;
 	else
 		min = max = 2;
+	std::vector<int32> duplicate;
 	effect_set eset;
 	filter_effect(EFFECT_DECREASE_TRIBUTE_SET, &eset);
-	if(eset.size()) {
-		int32 dec = eset.get_last()->get_value(this);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		if(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT) && eset[i]->count_limit == 0)
+			continue;
+		std::vector<int32> retval;
+		eset[i]->get_value(this, 0, &retval);
+		int32 dec = retval.size() > 0 ? retval[0] : 0;
+		int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+		if(effect_code > 0) {
+			auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
+			if(it == duplicate.end())
+				duplicate.push_back(effect_code);
+			else
+				continue;
+		}
 		min -= dec & 0xffff;
 		max -= dec >> 16;
 	}
@@ -3104,7 +3204,7 @@ int32 card::is_can_be_flip_summoned(uint8 playerid) {
 }
 // check if this can be sp_summoned by EFFECT_SPSUMMON_PROC
 // call filter_spsummon_procedure()
-int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
+int32 card::is_special_summonable(uint8 playerid, uint32 summon_type, material_info info) {
 	if(!(data.type & TYPE_MONSTER))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_SPECIAL_SUMMON))
@@ -3117,7 +3217,7 @@ int32 card::is_special_summonable(uint8 playerid, uint32 summon_type) {
 		return FALSE;
 	}
 	effect_set eset;
-	filter_spsummon_procedure(playerid, &eset, summon_type);
+	filter_spsummon_procedure(playerid, &eset, summon_type, info);
 	pduel->game_field->restore_lp_cost();
 	return eset.size();
 }
@@ -3138,7 +3238,7 @@ int32 card::is_can_be_special_summoned(effect* reason_effect, uint32 sumtype, ui
 	if((data.type & TYPE_PENDULUM) && current.location == LOCATION_EXTRA && (current.position & POS_FACEUP)
 		&& (sumtype == SUMMON_TYPE_FUSION || sumtype == SUMMON_TYPE_SYNCHRO || sumtype == SUMMON_TYPE_XYZ))
 		return FALSE;
-	if((sumpos & POS_FACEDOWN) && pduel->game_field->is_player_affected_by_effect(sumplayer, EFFECT_DEVINE_LIGHT))
+	if((sumpos & POS_FACEDOWN) && pduel->game_field->is_player_affected_by_effect(sumplayer, EFFECT_DIVINE_LIGHT))
 		sumpos = (sumpos & POS_FACEUP) | ((sumpos & POS_FACEDOWN) >> 1);
 	if(!(sumpos & POS_FACEDOWN) && pduel->game_field->check_unique_onfield(this, toplayer, LOCATION_MZONE))
 		return FALSE;
@@ -3179,6 +3279,36 @@ int32 card::is_can_be_special_summoned(effect* reason_effect, uint32 sumtype, ui
 	}
 	pduel->game_field->restore_lp_cost();
 	return TRUE;
+}
+uint8 card::get_spsummonable_position(effect* reason_effect, uint32 sumtype, uint8 sumpos, uint8 sumplayer, uint8 toplayer) {
+	uint8 position = 0;
+	uint8 positions[4] = { POS_FACEUP_ATTACK, POS_FACEDOWN_ATTACK, POS_FACEUP_DEFENSE, POS_FACEDOWN_DEFENSE };
+	effect_set eset;
+	for(int32 p = 0; p < 4; ++p) {
+		bool poscheck = true;
+		if(!(positions[p] & sumpos))
+			continue;
+		if((data.type & (TYPE_TOKEN | TYPE_LINK)) && (positions[p] & POS_FACEDOWN))
+			continue;
+		pduel->game_field->filter_player_effect(sumplayer, EFFECT_LIMIT_SPECIAL_SUMMON_POSITION, &eset);
+		for(int32 i = 0; i < eset.size(); ++i) {
+			if(!eset[i]->target)
+				continue;
+			pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(this, PARAM_TYPE_CARD);
+			pduel->lua->add_param(sumplayer, PARAM_TYPE_INT);
+			pduel->lua->add_param(sumtype, PARAM_TYPE_INT);
+			pduel->lua->add_param(positions[p], PARAM_TYPE_INT);
+			pduel->lua->add_param(toplayer, PARAM_TYPE_INT);
+			pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
+			if(pduel->lua->check_condition(eset[i]->target, 7))
+				poscheck = false;
+		}
+		eset.clear();
+		if(poscheck)
+			position |= positions[p];
+	}
+	return position;
 }
 int32 card::is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect, uint8 min_tribute, uint32 zone) {
 	if(!is_summonable_card())
@@ -3408,7 +3538,7 @@ int32 card::is_capable_send_to_hand(uint8 playerid) {
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_TO_HAND))
 		return FALSE;
-	if(is_extra_deck_monster() && !is_capable_send_to_deck(playerid))
+	if(is_extra_deck_monster() && !is_capable_send_to_extra(playerid))
 		return FALSE;
 	if(!pduel->game_field->is_player_can_send_to_hand(playerid, this))
 		return FALSE;
@@ -3428,7 +3558,7 @@ int32 card::is_capable_send_to_deck(uint8 playerid) {
 int32 card::is_capable_send_to_extra(uint8 playerid) {
 	if(!is_extra_deck_monster() && !(data.type & TYPE_PENDULUM))
 		return FALSE;
-	if(is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
+	if(is_extra_deck_monster() && is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
 		return FALSE;
 	if(!pduel->game_field->is_player_can_send_to_deck(playerid, this))
 		return FALSE;
@@ -3439,7 +3569,7 @@ int32 card::is_capable_cost_to_grave(uint8 playerid) {
 	uint32 dest = LOCATION_GRAVE;
 	if(data.type & TYPE_TOKEN)
 		return FALSE;
-	if((data.type & TYPE_PENDULUM) && (current.location & LOCATION_ONFIELD) && !is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
+	if((data.type & TYPE_PENDULUM) && (current.location & LOCATION_ONFIELD))
 		return FALSE;
 	if(current.location == LOCATION_GRAVE)
 		return FALSE;

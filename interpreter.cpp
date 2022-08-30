@@ -17,20 +17,32 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_state = luaL_newstate();
 	current_state = lua_state;
 	pduel = pd;
+	memcpy(lua_getextraspace(lua_state), &pd, LUA_EXTRASPACE); //set_duel_info
 	no_action = 0;
 	call_depth = 0;
-	set_duel_info(lua_state, pd);
 	//Initial
 	luaL_openlibs(lua_state);
 	lua_pushnil(lua_state);
 	lua_setglobal(lua_state, "io");
 	lua_pushnil(lua_state);
 	lua_setglobal(lua_state, "os");
+	lua_pushnil(lua_state);
+	lua_setglobal(lua_state, "package");
+	lua_pushnil(lua_state);
+	lua_setglobal(lua_state, "debug");
+	lua_pushnil(lua_state);
+	lua_setglobal(lua_state, "coroutine");
 	luaL_getsubtable(lua_state, LUA_REGISTRYINDEX, "_LOADED");
 	lua_pushnil(lua_state);
 	lua_setfield(lua_state, -2, "io");
 	lua_pushnil(lua_state);
 	lua_setfield(lua_state, -2, "os");
+	lua_pushnil(lua_state);
+	lua_setfield(lua_state, -2, "package");
+	lua_pushnil(lua_state);
+	lua_setfield(lua_state, -2, "debug");
+	lua_pushnil(lua_state);
+	lua_setfield(lua_state, -2, "coroutine");
 	lua_pop(lua_state, 1);
 	//open all libs
 	scriptlib::open_cardlib(lua_state);
@@ -47,13 +59,15 @@ interpreter::~interpreter() {
 }
 int32 interpreter::register_card(card *pcard) {
 	//create a card in by userdata
+	luaL_checkstack(lua_state, 1, NULL);
+	luaL_checkstack(current_state, 1, NULL);
 	card ** ppcard = (card**) lua_newuserdata(lua_state, sizeof(card*));
 	*ppcard = pcard;
 	pcard->ref_handle = luaL_ref(lua_state, LUA_REGISTRYINDEX);
 	//some userdata may be created in script like token so use current_state
 	lua_rawgeti(current_state, LUA_REGISTRYINDEX, pcard->ref_handle);
 	//load script
-	if(pcard->data.alias && (pcard->data.alias < pcard->data.code + 10) && (pcard->data.code < pcard->data.alias + 10))
+	if(pcard->data.alias && (pcard->data.alias < pcard->data.code + CARD_ARTWORK_VERSIONS_OFFSET) && (pcard->data.code < pcard->data.alias + CARD_ARTWORK_VERSIONS_OFFSET))
 		load_card_script(pcard->data.alias);
 	else
 		load_card_script(pcard->data.code);
@@ -74,6 +88,7 @@ void interpreter::register_effect(effect *peffect) {
 	if (!peffect)
 		return;
 	//create a effect in by userdata
+	luaL_checkstack(lua_state, 3, NULL);
 	effect ** ppeffect = (effect**) lua_newuserdata(lua_state, sizeof(effect*));
 	*ppeffect = peffect;
 	peffect->ref_handle = luaL_ref(lua_state, LUA_REGISTRYINDEX);
@@ -103,6 +118,7 @@ void interpreter::register_group(group *pgroup) {
 	if (!pgroup)
 		return;
 	//create a group in by userdata
+	luaL_checkstack(lua_state, 3, NULL);
 	group ** ppgroup = (group**) lua_newuserdata(lua_state, sizeof(group*));
 	*ppgroup = pgroup;
 	pgroup->ref_handle = luaL_ref(lua_state, LUA_REGISTRYINDEX);
@@ -138,9 +154,11 @@ int32 interpreter::load_script(const char* script_name) {
 int32 interpreter::load_card_script(uint32 code) {
 	char class_name[20];
 	sprintf(class_name, "c%d", code);
+	luaL_checkstack(current_state, 1, NULL);
 	lua_getglobal(current_state, class_name);
 	//if script is not loaded, create and load it
 	if (lua_isnil(current_state, -1)) {
+		luaL_checkstack(current_state, 5, NULL);
 		lua_pop(current_state, 1);
 		//create a table & set metatable
 		lua_createtable(current_state, 0, 0);
@@ -151,9 +169,18 @@ int32 interpreter::load_card_script(uint32 code) {
 		lua_pushstring(current_state, "__index");
 		lua_pushvalue(current_state, -2);
 		lua_rawset(current_state, -3);
+		lua_getglobal(current_state, class_name);
+		lua_setglobal(current_state, "self_table");
+		lua_pushinteger(current_state, code);
+		lua_setglobal(current_state, "self_code");
 		char script_name[64];
 		sprintf(script_name, "./script/c%d.lua", code);
-		if(!load_script(script_name)) {
+		int32 res = load_script(script_name);
+		lua_pushnil(current_state);
+		lua_setglobal(current_state, "self_table");
+		lua_pushnil(current_state);
+		lua_setglobal(current_state, "self_code");
+		if(!res) {
 			return OPERATION_FAIL;
 		}
 	}
@@ -174,6 +201,7 @@ void interpreter::add_param(ptr param, int32 type, bool front) {
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	int32 pushed = 0;
 	for (const auto& it : params) {
+		luaL_checkstack(L, 1, NULL);
 		uint32 type = it.second;
 		switch(type) {
 		case PARAM_TYPE_INT:
@@ -283,6 +311,7 @@ int32 interpreter::call_card_function(card* pcard, const char* f, uint32 param_c
 		return OPERATION_FAIL;
 	}
 	card2value(current_state, pcard);
+	luaL_checkstack(current_state, 1, NULL);
 	lua_getfield(current_state, -1, f);
 	if (!lua_isfunction(current_state, -1)) {
 		sprintf(pduel->strbuffer, "\"CallCardFunction\"(c%d.%s): attempt to call an error function", pcard->data.code, f);
@@ -323,6 +352,7 @@ int32 interpreter::call_code_function(uint32 code, const char* f, uint32 param_c
 		return OPERATION_FAIL;
 	}
 	load_card_script(code);
+	luaL_checkstack(current_state, 1, NULL);
 	lua_getfield(current_state, -1, f);
 	if (!lua_isfunction(current_state, -1)) {
 		sprintf(pduel->strbuffer, "\"CallCodeFunction\": attempt to call an error function");
@@ -386,6 +416,7 @@ int32 interpreter::check_matching(card* pcard, int32 findex, int32 extraargs) {
 		return TRUE;
 	no_action++;
 	call_depth++;
+	luaL_checkstack(current_state, 1 + extraargs, NULL);
 	lua_pushvalue(current_state, findex);
 	interpreter::card2value(current_state, pcard);
 	for(int32 i = 0; i < extraargs; ++i)
@@ -417,6 +448,7 @@ int32 interpreter::get_operation_value(card* pcard, int32 findex, int32 extraarg
 		return 0;
 	no_action++;
 	call_depth++;
+	luaL_checkstack(current_state, 1 + extraargs, NULL);
 	lua_pushvalue(current_state, findex);
 	interpreter::card2value(current_state, pcard);
 	for(int32 i = 0; i < extraargs; ++i)
@@ -549,12 +581,25 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 		}
 	}
 	push_param(rthread, true);
+	lua_State* prev_state = current_state;
 	current_state = rthread;
+#if (LUA_VERSION_NUM >= 504)
+	int32 nresults;
+	int32 result = lua_resume(rthread, prev_state, param_count, &nresults);
+#else
 	int32 result = lua_resume(rthread, 0, param_count);
+	int32 nresults = lua_gettop(rthread);
+#endif
 	if (result == 0) {
 		coroutines.erase(f);
-		if(yield_value)
-			*yield_value = lua_isboolean(rthread, -1) ? lua_toboolean(rthread, -1) : (uint32)lua_tointeger(rthread, -1);
+		if(yield_value) {
+			if(nresults == 0)
+				*yield_value = 0;
+			else if(lua_isboolean(rthread, -1))
+				*yield_value = lua_toboolean(rthread, -1);
+			else
+				*yield_value = (uint32)lua_tointeger(rthread, -1);
+		}
 		current_state = lua_state;
 		call_depth--;
 		if(call_depth == 0) {
@@ -579,6 +624,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	}
 }
 int32 interpreter::clone_function_ref(int32 func_ref) {
+	luaL_checkstack(current_state, 1, NULL);
 	lua_rawgeti(current_state, LUA_REGISTRYINDEX, func_ref);
 	int32 ref = luaL_ref(current_state, LUA_REGISTRYINDEX);
 	return ref;
@@ -586,6 +632,7 @@ int32 interpreter::clone_function_ref(int32 func_ref) {
 void* interpreter::get_ref_object(int32 ref_handler) {
 	if(ref_handler == 0)
 		return nullptr;
+	luaL_checkstack(current_state, 1, NULL);
 	lua_rawgeti(current_state, LUA_REGISTRYINDEX, ref_handler);
 	void* p = *(void**)lua_touserdata(current_state, -1);
 	lua_pop(current_state, 1);
@@ -593,41 +640,41 @@ void* interpreter::get_ref_object(int32 ref_handler) {
 }
 //Convert a pointer to a lua value, +1 -0
 void interpreter::card2value(lua_State* L, card* pcard) {
+	luaL_checkstack(L, 1, NULL);
 	if (!pcard || pcard->ref_handle == 0)
 		lua_pushnil(L);
 	else
 		lua_rawgeti(L, LUA_REGISTRYINDEX, pcard->ref_handle);
 }
 void interpreter::group2value(lua_State* L, group* pgroup) {
+	luaL_checkstack(L, 1, NULL);
 	if (!pgroup || pgroup->ref_handle == 0)
 		lua_pushnil(L);
 	else
 		lua_rawgeti(L, LUA_REGISTRYINDEX, pgroup->ref_handle);
 }
 void interpreter::effect2value(lua_State* L, effect* peffect) {
+	luaL_checkstack(L, 1, NULL);
 	if (!peffect || peffect->ref_handle == 0)
 		lua_pushnil(L);
 	else
 		lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->ref_handle);
 }
 void interpreter::function2value(lua_State* L, int32 func_ref) {
+	luaL_checkstack(L, 1, NULL);
 	if (!func_ref)
 		lua_pushnil(L);
 	else
 		lua_rawgeti(L, LUA_REGISTRYINDEX, func_ref);
 }
 int32 interpreter::get_function_handle(lua_State* L, int32 index) {
+	luaL_checkstack(L, 1, NULL);
 	lua_pushvalue(L, index);
 	int32 ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	return ref;
 }
-void interpreter::set_duel_info(lua_State* L, duel* pduel) {
-	lua_pushlightuserdata(L, pduel);
-	luaL_ref(L, LUA_REGISTRYINDEX);
-}
 duel* interpreter::get_duel_info(lua_State * L) {
-	lua_rawgeti(L, LUA_REGISTRYINDEX, 3);
-	duel* pduel = (duel*)lua_topointer(L, -1);
-	lua_pop(L, 1);
+	duel* pduel;
+	memcpy(&pduel, lua_getextraspace(L), LUA_EXTRASPACE);
 	return pduel;
 }
