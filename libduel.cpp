@@ -1437,7 +1437,11 @@ int32 scriptlib::duel_check_lp_cost(lua_State *L) {
 	uint32 playerid = (uint32)lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	uint32 cost = (uint32)lua_tointeger(L, 2);
+	int32 cost = (int32)lua_tointeger(L, 2);
+	if(cost <= 0) {
+		lua_pushboolean(L, 0);
+		return 1;
+	}
 	duel* pduel = interpreter::get_duel_info(L);
 	uint32 must_pay = FALSE;
 	if(lua_gettop(L) > 2)
@@ -2228,6 +2232,20 @@ int32 scriptlib::duel_get_first_target(lua_State *L) {
 		interpreter::card2value(L, pcard);
 	return (int32)ch->target_cards->container.size();
 }
+int32 scriptlib::duel_get_targets_relate_to_chain(lua_State* L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	group* pgroup = pduel->new_group();
+	chain* ch = pduel->game_field->get_chain(0);
+	if(ch && ch->target_cards && ch->target_cards->container.size() > 0) {
+		for(auto& pcard : ch->target_cards->container) {
+			if(pcard->is_has_relation(*ch)) {
+				pgroup->container.insert(pcard);
+			}
+		}
+	}
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
 int32 scriptlib::duel_get_current_phase(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	lua_pushinteger(L, pduel->game_field->infos.phase);
@@ -2348,6 +2366,13 @@ int32 scriptlib::duel_adjust_instantly(lua_State *L) {
 	}
 	pduel->game_field->adjust_instant();
 	return 0;
+}
+int32 scriptlib::duel_adjust_all(lua_State* L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	pduel->game_field->adjust_all();
+	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
+		return 0;
+	});
 }
 /**
  * \brief Duel.GetFieldGroup
@@ -4670,6 +4695,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetChainInfo", scriptlib::duel_get_chain_info },
 	{ "GetChainEvent", scriptlib::duel_get_chain_event },
 	{ "GetFirstTarget", scriptlib::duel_get_first_target },
+	{ "GetTargetsRelateToChain", scriptlib::duel_get_targets_relate_to_chain },
 	{ "GetCurrentPhase", scriptlib::duel_get_current_phase },
 	{ "SkipPhase", scriptlib::duel_skip_phase },
 	{ "IsDamageCalculated", scriptlib::duel_is_damage_calculated },
@@ -4680,6 +4706,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "ChainAttack", scriptlib::duel_chain_attack },
 	{ "Readjust", scriptlib::duel_readjust },
 	{ "AdjustInstantly", scriptlib::duel_adjust_instantly },
+	{ "AdjustAll", scriptlib::duel_adjust_all },
 	{ "GetFieldGroup", scriptlib::duel_get_field_group },
 	{ "GetFieldGroupCount", scriptlib::duel_get_field_group_count },
 	{ "GetDecktopGroup", scriptlib::duel_get_decktop_group },

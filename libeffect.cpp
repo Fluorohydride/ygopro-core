@@ -512,11 +512,18 @@ int32 scriptlib::effect_is_activatable(lua_State *L) {
 	lua_pushboolean(L, peffect->is_activateable(playerid, peffect->pduel->game_field->nil_event, 0, 0, neglect_target, neglect_loc));
 	return 1;
 }
-int32 scriptlib::effect_is_activated(lua_State * L) {
+int32 scriptlib::effect_is_activated(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	lua_pushboolean(L, (peffect->type & 0x7f0));
+	return 1;
+}
+int32 scriptlib::effect_is_cost_checked(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**)lua_touserdata(L, 1);
+	lua_pushboolean(L, peffect->cost_checked);
 	return 1;
 }
 int32 scriptlib::effect_get_activate_location(lua_State *L) {
@@ -610,6 +617,7 @@ static const struct luaL_Reg effectlib[] = {
 	{ "IsHasType", scriptlib::effect_is_has_type },
 	{ "IsActivatable", scriptlib::effect_is_activatable },
 	{ "IsActivated", scriptlib::effect_is_activated },
+	{ "IsCostChecked", scriptlib::effect_is_cost_checked },
 	{ "GetActivateLocation", scriptlib::effect_get_activate_location },
 	{ "GetActivateSequence", scriptlib::effect_get_activate_sequence },
 	{ "CheckCountLimit", scriptlib::effect_check_count_limit },
