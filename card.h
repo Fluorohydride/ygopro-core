@@ -408,6 +408,7 @@ public:
 #define ASSUME_RACE			6
 #define ASSUME_ATTACK		7
 #define ASSUME_DEFENSE		8
+#define ASSUME_SYNCHRO_LEVEL	9
 
 //double-name cards
 #define CARD_MARINE_DOLPHIN	78734254
