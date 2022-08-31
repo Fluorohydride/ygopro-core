@@ -4535,6 +4535,11 @@ int32 scriptlib::duel_get_battled_count(lua_State *L) {
 	lua_pushinteger(L, pduel->game_field->core.battled_count[playerid]);
 	return 1;
 }
+int32 scriptlib::duel_restore_assumes(lua_State *L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	pduel->restore_assumes();
+	return 1;
+}
 int32 scriptlib::duel_is_able_to_enter_bp(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	lua_pushboolean(L, pduel->game_field->is_able_to_enter_bp());
@@ -4802,6 +4807,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "AddCustomActivityCounter", scriptlib::duel_add_custom_activity_counter },
 	{ "GetCustomActivityCount", scriptlib::duel_get_custom_activity_count },
 	{ "GetBattledCount", scriptlib::duel_get_battled_count },
+	{ "RestoreAssumes", scriptlib::duel_restore_assumes },
 	{ "IsAbleToEnterBP", scriptlib::duel_is_able_to_enter_bp },
 	{ "SwapDeckAndGrave", scriptlib::duel_swap_deck_and_grave },
 	{ "MajesticCopy", scriptlib::duel_majestic_copy },
