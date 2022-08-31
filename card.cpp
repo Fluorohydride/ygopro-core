@@ -879,6 +879,8 @@ uint32 card::get_link() {
 uint32 card::get_synchro_level(card* pcard) {
 	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL))
 		return 0;
+	if(assume_type == ASSUME_SYNCHRO_LEVEL)
+		return assume_value;
 	uint32 lev;
 	effect_set eset;
 	filter_effect(EFFECT_SYNCHRO_LEVEL, &eset);
