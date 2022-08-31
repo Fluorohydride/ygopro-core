@@ -2376,6 +2376,26 @@ int32 field::sset(uint16 step, uint8 setplayer, uint8 toplayer, card * target, e
 			return TRUE;
 		if(target->is_affected_by_effect(EFFECT_CANNOT_SSET))
 			return TRUE;
+		uint32 flag = 0;
+		if(target->data.type & TYPE_FIELD) {
+			flag = ~(0x1 << 13);
+		} else {
+			get_useable_count(target, setplayer, LOCATION_SZONE, toplayer, LOCATION_REASON_TOFIELD, 0xff, &flag);
+			flag = ((flag & 0xff) << 8) | 0xffff00ff;
+			flag |= 0xe080e080;
+		}
+		pduel->write_buffer8(MSG_HINT);
+		pduel->write_buffer8(HINT_SELECTMSG);
+		pduel->write_buffer8(setplayer);
+		pduel->write_buffer32(target->data.code);
+		add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, setplayer, flag, 0);
+		return FALSE;
+	}
+	case 1: {
+		if(returns.bvalue[1] == 0) {
+			return TRUE;
+		}
+		target->to_field_param = returns.bvalue[2];
 		effect_set eset;
 		target->filter_effect(EFFECT_SSET_COST, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
@@ -2386,12 +2406,12 @@ int32 field::sset(uint16 step, uint8 setplayer, uint8 toplayer, card * target, e
 		}
 		return FALSE;
 	}
-	case 1: {
+	case 2: {
 		target->enable_field_effect(false);
-		move_to_field(target, setplayer, toplayer, LOCATION_SZONE, POS_FACEDOWN, FALSE, 0, FALSE, (target->data.type & TYPE_FIELD) ? 0x1 << 5 : 0xff);
+		move_to_field(target, setplayer, toplayer, LOCATION_SZONE, POS_FACEDOWN, FALSE, 0, FALSE, 0x1 << target->to_field_param);
 		return FALSE;
 	}
-	case 2: {
+	case 3: {
 		core.phase_action = TRUE;
 		target->set_status(STATUS_SET_TURN, TRUE);
 		if(target->data.type & TYPE_MONSTER) {
