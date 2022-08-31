@@ -595,6 +595,7 @@ public:
 	static int32 duel_get_custom_activity_count(lua_State *L);
 	static int32 duel_is_able_to_enter_bp(lua_State *L);
 	static int32 duel_get_battled_count(lua_State *L);
+	static int32 duel_restore_assumes(lua_State *L);
 
 	//specific card functions
 	static int32 duel_swap_deck_and_grave(lua_State *L);
