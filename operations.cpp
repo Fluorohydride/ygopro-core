@@ -2395,6 +2395,7 @@ int32 field::sset(uint16 step, uint8 setplayer, uint8 toplayer, card * target, e
 		if(returns.bvalue[1] == 0) {
 			return TRUE;
 		}
+		target->to_field_param = returns.bvalue[2];
 		effect_set eset;
 		target->filter_effect(EFFECT_SSET_COST, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
@@ -2407,7 +2408,7 @@ int32 field::sset(uint16 step, uint8 setplayer, uint8 toplayer, card * target, e
 	}
 	case 2: {
 		target->enable_field_effect(false);
-		move_to_field(target, setplayer, toplayer, LOCATION_SZONE, POS_FACEDOWN, FALSE, 0, FALSE, (target->data.type & TYPE_FIELD) ? 0x1 << 5 : 0xff);
+		move_to_field(target, setplayer, toplayer, LOCATION_SZONE, POS_FACEDOWN, FALSE, 0, FALSE, 0x1 << target->to_field_param);
 		return FALSE;
 	}
 	case 3: {
@@ -4460,7 +4461,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				adjust_all();
 			}
 		} else if(pzone && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM)) {
-			if((zone & zone - 1) == 0) {
+			if((zone & zone - 1) == 0) { // zone was selected in field::add_chain
 				for(uint8 seq = 0; seq < 9; seq++) {
 					if((1 << seq) & zone) {
 						returns.bvalue[2] = seq;

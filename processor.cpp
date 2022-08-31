@@ -4002,7 +4002,7 @@ int32 field::add_chain(uint16 step) {
 		effect* peffect = clit.triggering_effect;
 		card* phandler = peffect->get_handler();
 		if((peffect->type & EFFECT_TYPE_ACTIVATE) && phandler->current.location == LOCATION_HAND) {
-			if(returns.bvalue[1] == 0) {
+			if(returns.bvalue[1] == 0) { // select place canceled, execute the last part of the last step
 				core.new_chains.pop_front();
 				if(core.new_chains.size())
 					add_process(PROCESSOR_ADD_CHAIN, 0, 0, 0, 0, 0);
