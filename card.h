@@ -41,12 +41,12 @@ struct card_data {
 
 struct card_state {
 	card_state()
-		: code(0), code2(0), setcode(0), type(0), level(0), rank(0), link(0), lscale(0), rscale(0), attribute(0), race(0), attack(0), defense(0), base_attack(0), base_defense(0), 
+		: code(0), code2(0), type(0), level(0), rank(0), link(0), lscale(0), rscale(0), attribute(0), race(0), attack(0), defense(0), base_attack(0), base_defense(0), 
 		controler(PLAYER_NONE), location(0), sequence(0), position(0), reason(0), pzone(false), reason_card(nullptr), reason_player(PLAYER_NONE), reason_effect(nullptr) {}
 
 	uint32 code;
 	uint32 code2;
-	uint16 setcode;
+	std::vector<uint32> setcode;
 	uint32 type;
 	uint32 level;
 	uint32 rank;
@@ -69,6 +69,7 @@ struct card_state {
 	uint8 reason_player;
 	effect* reason_effect;
 	bool is_location(int32 loc) const;
+	void init_state();
 };
 
 struct query_cache {
