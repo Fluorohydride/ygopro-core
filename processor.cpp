@@ -607,18 +607,6 @@ int32 field::process() {
 		}
 		return pduel->bufferlen;
 	}
-	case PROCESSOR_SELECT_SYNCHRO: {
-		int32 ret = TRUE;
-		if(!(it->arg1 >> 16))
-			ret = select_synchro_material(it->step, it->arg1 & 0xffff, (card*)it->ptarget, it->arg2 & 0xffff, it->arg2 >> 16, 0, (group*)it->peffect);
-		else
-			ret = select_synchro_material(it->step, it->arg1 & 0xffff, (card*)it->ptarget, it->arg2 & 0xffff, it->arg2 >> 16, (card*)it->peffect, 0);
-		if(ret)
-			core.units.pop_front();
-		else
-			it->step++;
-		return pduel->bufferlen;
-	}
 	case PROCESSOR_SELECT_XMATERIAL: {
 		if (select_xyz_material(it->step, it->arg1 & 0xffff, it->arg1 >> 16, (card*)it->ptarget, it->arg2 & 0xffff, it->arg2 >> 16))
 			core.units.pop_front();
