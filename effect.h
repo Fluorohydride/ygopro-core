@@ -467,6 +467,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CHANGE_GRAVE_RACE		366
 #define EFFECT_ACTIVATION_COUNT_LIMIT	367
 #define EFFECT_LIMIT_SPECIAL_SUMMON_POSITION	368
+#define EFFECT_EXTRA_SYNCHRO_MATERIAL		369
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
