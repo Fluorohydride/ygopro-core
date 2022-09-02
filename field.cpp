@@ -2519,24 +2519,6 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		pduel->restore_assumes();
 		return FALSE;
 	}
-	effect* pcustom = tuner->is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL_CUSTOM, pcard);
-	if(pcustom) {
-		if(!pcustom->target) {
-			pduel->restore_assumes();
-			return FALSE;
-		}
-		pduel->lua->add_param(pcustom, PARAM_TYPE_EFFECT);
-		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
-		pduel->lua->add_param(findex2, PARAM_TYPE_INDEX);
-		pduel->lua->add_param(min, PARAM_TYPE_INT);
-		pduel->lua->add_param(max, PARAM_TYPE_INT);
-		if(pduel->lua->check_condition(pcustom->target, 5)) {
-			pduel->restore_assumes();
-			return TRUE;
-		}
-		pduel->restore_assumes();
-		return FALSE;
-	}
 	int32 playerid = pcard->current.controler;
 	int32 ct = get_spsummonable_count(pcard, playerid);
 	card_set handover_zone_cards;
