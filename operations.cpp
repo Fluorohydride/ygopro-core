@@ -5395,48 +5395,6 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 	}
 	case 7: {
 		int32 lv = pcard->get_level();
-		if(core.global_flag & GLOBALFLAG_SCRAP_CHIMERA) {
-			effect* peffect = 0;
-			for(auto& pm : core.select_cards) {
-				peffect = pm->is_affected_by_effect(EFFECT_SCRAP_CHIMERA);
-				if(peffect)
-					break;
-			}
-			if(peffect) {
-				card_vector nsyn(core.must_select_cards);
-				nsyn.insert(nsyn.end(), core.select_cards.begin(), core.select_cards.end());
-				card_vector nsyn_filtered;
-				for(auto& pm : nsyn) {
-					if(!peffect->get_value(pm))
-						nsyn_filtered.push_back(pm);
-				}
-				if(nsyn_filtered.size() < nsyn.size()) {
-					card_vector nsyn_removed;
-					for(auto& pm : nsyn) {
-						if(!pm->is_affected_by_effect(EFFECT_SCRAP_CHIMERA))
-							nsyn_removed.push_back(pm);
-					}
-					bool mfiltered = true;
-					bool mremoved = true;
-					int32 mcount = (int32)core.must_select_cards.size();
-					for(int32 i = 0; i < mcount; ++i) {
-						if(peffect->get_value(nsyn[i]))
-							mfiltered = false;
-						if(nsyn[i]->is_affected_by_effect(EFFECT_SCRAP_CHIMERA))
-							mremoved = false;
-					}
-					if(mfiltered && check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, 0xffff, mcount)) {
-						if(mremoved && check_with_sum_limit_m(nsyn_removed, lv, 0, min, max, 0xffff, mcount)) {
-							add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, playerid, peffect->description);
-							core.units.begin()->step = 9;
-							return FALSE;
-						} else
-							core.select_cards.assign(nsyn_filtered.begin() + mcount, nsyn_filtered.end());
-					} else
-						core.select_cards.assign(nsyn_removed.begin() + mcount, nsyn_removed.end());
-				}
-			}
-		}
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
@@ -5471,27 +5429,6 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 	}
 	case 10: {
 		int32 lv = pcard->get_level();
-		if(returns.ivalue[0]) {
-			effect* peffect = 0;
-			for(auto& pm : core.select_cards) {
-				peffect = pm->is_affected_by_effect(EFFECT_SCRAP_CHIMERA);
-				if(peffect)
-					break;
-			}
-			card_vector nsyn_filtered;
-			for(auto& pm : core.select_cards) {
-				if(!peffect->get_value(pm))
-					nsyn_filtered.push_back(pm);
-			}
-			core.select_cards.swap(nsyn_filtered);
-		} else {
-			card_vector nsyn_removed;
-			for(auto& pm : core.select_cards) {
-				if(!pm->is_affected_by_effect(EFFECT_SCRAP_CHIMERA))
-					nsyn_removed.push_back(pm);
-			}
-			core.select_cards.swap(nsyn_removed);
-		}
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
