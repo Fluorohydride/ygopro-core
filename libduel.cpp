@@ -3692,7 +3692,16 @@ int32 scriptlib::duel_select_field(lua_State* L) {
 	uint32 location1 = (uint32)lua_tointeger(L, 3);
 	uint32 location2 = (uint32)lua_tointeger(L, 4);
 	uint32 filter = (uint32)lua_tointeger(L, 5);
+	uint16 type = PROCESSOR_SELECT_DISFIELD;
 	duel* pduel = interpreter::get_duel_info(L);
+	if(lua_gettop(L) >= 6) {
+		type = PROCESSOR_SELECT_PLACE;
+		uint32 code = (uint32)lua_tointeger(L, 6);
+		pduel->write_buffer8(MSG_HINT);
+		pduel->write_buffer8(HINT_SELECTMSG);
+		pduel->write_buffer8(playerid);
+		pduel->write_buffer32(code);
+	}
 	uint32 flag = 0xffffffff;
 	if(location1 & LOCATION_MZONE) {
 		flag &= 0xffffffe0;
@@ -3710,7 +3719,7 @@ int32 scriptlib::duel_select_field(lua_State* L) {
 		flag &= 0xffffff9f;
 	}
 	flag |= filter | 0x00800080;
-	pduel->game_field->add_process(PROCESSOR_SELECT_DISFIELD, 0, 0, 0, playerid, flag, count);
+	pduel->game_field->add_process(type, 0, 0, 0, playerid, flag, count);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State* L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		int32 playerid = (int32)lua_tointeger(L, 1);
