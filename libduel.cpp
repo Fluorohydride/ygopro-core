@@ -3001,7 +3001,7 @@ int32 scriptlib::duel_set_fusion_material(lua_State *L) {
 	duel* pduel = pgroup->pduel;
 	pduel->game_field->core.fusion_materials = pgroup->container;
 	return 0;
-}}
+}
 int32 scriptlib::duel_get_ritual_material(lua_State *L) {
 	check_param_count(L, 1);
 	int32 playerid = (int32)lua_tointeger(L, 1);
