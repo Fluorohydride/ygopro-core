@@ -5207,20 +5207,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		if(pcheck)
 			pcheck->get_value(tuner);
 		core.limit_tuner = tuner;
-		effect* peffect;
-		if((peffect = tuner->is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL_CUSTOM, pcard))) {
-			if(!peffect->operation)
-				return FALSE;
-			core.synchro_materials.clear();
-			pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
-			pduel->lua->add_param(-2, PARAM_TYPE_INDEX);
-			pduel->lua->add_param(min, PARAM_TYPE_INT);
-			pduel->lua->add_param(max, PARAM_TYPE_INT);
-			core.sub_solving_event.push_back(nil_event);
-			add_process(PROCESSOR_EXECUTE_OPERATION, 0, peffect, 0, playerid, 0);
-		} else {
-			core.units.begin()->step = 2;
-		}
+		core.units.begin()->step = 2;
 		return FALSE;
 	}
 	case 2: {
