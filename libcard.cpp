@@ -1652,52 +1652,6 @@ int32 scriptlib::card_get_tuner_limit(lua_State *L) {
 	}
 	return 0;
 }
-int32 scriptlib::card_get_hand_synchro(lua_State *L) {
-	check_param_count(L, 1);
-	check_param(L, PARAM_TYPE_CARD, 1);
-	card* pcard = *(card**)lua_touserdata(L, 1);
-	if(!(pcard->current.location & LOCATION_MZONE))
-		return 0;
-	effect* peffect = pcard->is_affected_by_effect(EFFECT_HAND_SYNCHRO);
-	if(peffect) {
-		interpreter::effect2value(L, peffect);
-		if(peffect->target)
-			interpreter::function2value(L, peffect->target);
-		else
-			lua_pushnil(L);
-		uint16 min = 0;
-		uint16 max = 99;
-		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
-			if(peffect->s_range && peffect->s_range > min)
-				min = peffect->s_range;
-			if(peffect->o_range && peffect->o_range < max)
-				max = peffect->o_range;
-		}
-		lua_pushinteger(L, min);
-		lua_pushinteger(L, max);
-		return 4;
-	}
-	peffect = pcard->is_affected_by_effect(EFFECT_TUNER_MATERIAL_LIMIT);
-	if(peffect && (peffect->value & LOCATION_HAND)) {
-		interpreter::effect2value(L, peffect);
-		if(peffect->target)
-			interpreter::function2value(L, peffect->target);
-		else
-			lua_pushnil(L);
-		uint16 min = 0;
-		uint16 max = 99;
-		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
-			if(peffect->s_range && peffect->s_range > min)
-				min = peffect->s_range;
-			if(peffect->o_range && peffect->o_range < max)
-				max = peffect->o_range;
-		}
-		lua_pushinteger(L, min);
-		lua_pushinteger(L, max);
-		return 4;
-	}
-	return 0;
-}
 int32 scriptlib::card_register_effect(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -3373,7 +3327,6 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetActivateEffect", scriptlib::card_get_activate_effect },
 	{ "CheckActivateEffect", scriptlib::card_check_activate_effect },
 	{ "GetTunerLimit", scriptlib::card_get_tuner_limit },
-	{ "GetHandSynchro", scriptlib::card_get_hand_synchro },
 	{ "RegisterEffect", scriptlib::card_register_effect },
 	{ "IsHasEffect", scriptlib::card_is_has_effect },
 	{ "ResetEffect", scriptlib::card_reset_effect },
