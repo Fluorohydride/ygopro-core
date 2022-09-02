@@ -3001,137 +3001,7 @@ int32 scriptlib::duel_set_fusion_material(lua_State *L) {
 	duel* pduel = pgroup->pduel;
 	pduel->game_field->core.fusion_materials = pgroup->container;
 	return 0;
-}
-int32 scriptlib::duel_set_synchro_material(lua_State *L) {
-	check_param_count(L, 1);
-	check_param(L, PARAM_TYPE_GROUP, 1);
-	group* pgroup = *(group**) lua_touserdata(L, 1);
-	duel* pduel = pgroup->pduel;
-	pduel->game_field->core.synchro_materials = pgroup->container;
-	return 0;
-}
-int32 scriptlib::duel_select_synchro_material(lua_State *L) {
-	check_param_count(L, 6);
-	check_param(L, PARAM_TYPE_CARD, 2);
-	int32 playerid = (int32)lua_tointeger(L, 1);
-	if(playerid != 0 && playerid != 1)
-		return 0;
-	card* pcard = *(card**) lua_touserdata(L, 2);
-	duel* pduel = pcard->pduel;
-	if(!lua_isnil(L, 3))
-		check_param(L, PARAM_TYPE_FUNCTION, 3);
-	if(!lua_isnil(L, 4))
-		check_param(L, PARAM_TYPE_FUNCTION, 4);
-	int32 min = (int32)lua_tointeger(L, 5);
-	int32 max = (int32)lua_tointeger(L, 6);
-	card* smat = 0;
-	group* mg = 0;
-	if(lua_gettop(L) >= 7 && !lua_isnil(L, 7)) {
-		check_param(L, PARAM_TYPE_CARD, 7);
-		smat = *(card**) lua_touserdata(L, 7);
-	}
-	if(lua_gettop(L) >= 8 && !lua_isnil(L, 8)) {
-		check_param(L, PARAM_TYPE_GROUP, 8);
-		mg = *(group**) lua_touserdata(L, 8);
-	}
-	if(mg)
-		pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 0, (effect*)mg, (group*)pcard, playerid, min + (max << 16));
-	else
-		pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 0, (effect*)smat, (group*)pcard, playerid + 0x10000, min + (max << 16));
-	lua_pushvalue(L, 3);
-	lua_pushvalue(L, 4);
-	lua_pushvalue(L, 2);
-	return lua_yield(L, 3);
-}
-int32 scriptlib::duel_check_synchro_material(lua_State *L) {
-	check_param_count(L, 5);
-	check_param(L, PARAM_TYPE_CARD, 1);
-	card* pcard = *(card**) lua_touserdata(L, 1);
-	duel* pduel = pcard->pduel;
-	if(!lua_isnil(L, 2))
-		check_param(L, PARAM_TYPE_FUNCTION, 2);
-	if(!lua_isnil(L, 3))
-		check_param(L, PARAM_TYPE_FUNCTION, 3);
-	int32 min = (int32)lua_tointeger(L, 4);
-	int32 max = (int32)lua_tointeger(L, 5);
-	card* smat = 0;
-	group* mg = 0;
-	if(lua_gettop(L) >= 6 && !lua_isnil(L, 6)) {
-		check_param(L, PARAM_TYPE_CARD, 6);
-		smat = *(card**) lua_touserdata(L, 6);
-	}
-	if(lua_gettop(L) >= 7 && !lua_isnil(L, 7)) {
-		check_param(L, PARAM_TYPE_GROUP, 7);
-		mg = *(group**) lua_touserdata(L, 7);
-	}
-	lua_pushvalue(L, 1);
-	lua_pushboolean(L, pduel->game_field->check_synchro_material(pcard, 2, 3, min, max, smat, mg));
-	return 1;
-}
-int32 scriptlib::duel_select_tuner_material(lua_State *L) {
-	check_param_count(L, 7);
-	check_param(L, PARAM_TYPE_CARD, 2);
-	check_param(L, PARAM_TYPE_CARD, 3);
-	int32 playerid = (int32)lua_tointeger(L, 1);
-	if(playerid != 0 && playerid != 1)
-		return 0;
-	card* pcard = *(card**) lua_touserdata(L, 2);
-	card* tuner = *(card**) lua_touserdata(L, 3);
-	duel* pduel = pcard->pduel;
-	if(!lua_isnil(L, 4))
-		check_param(L, PARAM_TYPE_FUNCTION, 4);
-	if(!lua_isnil(L, 5))
-		check_param(L, PARAM_TYPE_FUNCTION, 5);
-	int32 min = (int32)lua_tointeger(L, 6);
-	int32 max = (int32)lua_tointeger(L, 7);
-	group* mg = 0;
-	if(lua_gettop(L) >= 8 && !lua_isnil(L, 8)) {
-		check_param(L, PARAM_TYPE_GROUP, 8);
-		mg = *(group**) lua_touserdata(L, 8);
-	}
-	lua_pushvalue(L, 2);
-	if(!pduel->game_field->check_tuner_material(pcard, tuner, 4, 5, min, max, 0, mg))
-		return 0;
-	lua_pop(L, 1);
-	pduel->game_field->core.select_cards.clear();
-	pduel->game_field->core.select_cards.push_back(tuner);
-	pduel->game_field->returns.bvalue[1] = 0;
-	pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 1, (effect*)mg, (group*)pcard, playerid, min + (max << 16));
-	lua_pushvalue(L, 4);
-	lua_pushvalue(L, 5);
-	lua_pushvalue(L, 2);
-	return lua_yield(L, 3);
-}
-int32 scriptlib::duel_check_tuner_material(lua_State *L) {
-	check_param_count(L, 6);
-	check_param(L, PARAM_TYPE_CARD, 1);
-	check_param(L, PARAM_TYPE_CARD, 2);
-	card* pcard = *(card**) lua_touserdata(L, 1);
-	card* tuner = *(card**) lua_touserdata(L, 2);
-	duel* pduel = pcard->pduel;
-	if(pduel->game_field->core.global_flag & GLOBALFLAG_MUST_BE_SMATERIAL) {
-		effect_set eset;
-		pduel->game_field->filter_player_effect(pcard->current.controler, EFFECT_MUST_BE_SMATERIAL, &eset);
-		if(eset.size() && eset[0]->handler != tuner) {
-			lua_pushboolean(L, false);
-			return 1;
-		}
-	}
-	if(!lua_isnil(L, 3))
-		check_param(L, PARAM_TYPE_FUNCTION, 3);
-	if(!lua_isnil(L, 4))
-		check_param(L, PARAM_TYPE_FUNCTION, 4);
-	int32 min = (int32)lua_tointeger(L, 5);
-	int32 max = (int32)lua_tointeger(L, 6);
-	group* mg = 0;
-	if(lua_gettop(L) >= 7 && !lua_isnil(L, 7)) {
-		check_param(L, PARAM_TYPE_GROUP, 7);
-		mg = *(group**) lua_touserdata(L, 7);
-	}
-	lua_pushvalue(L, 1);
-	lua_pushboolean(L, pduel->game_field->check_tuner_material(pcard, tuner, 3, 4, min, max, 0, mg));
-	return 1;
-}
+}}
 int32 scriptlib::duel_get_ritual_material(lua_State *L) {
 	check_param_count(L, 1);
 	int32 playerid = (int32)lua_tointeger(L, 1);
@@ -4733,12 +4603,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsExistingTarget", scriptlib::duel_is_existing_target },
 	{ "SelectTarget", scriptlib::duel_select_target },
 	{ "SelectFusionMaterial", scriptlib::duel_select_fusion_material },
-	{ "SetFusionMaterial", scriptlib::duel_set_fusion_material },
-	{ "SetSynchroMaterial", scriptlib::duel_set_synchro_material },
-	{ "SelectSynchroMaterial", scriptlib::duel_select_synchro_material },
-	{ "CheckSynchroMaterial", scriptlib::duel_check_synchro_material },
-	{ "SelectTunerMaterial", scriptlib::duel_select_tuner_material },
-	{ "CheckTunerMaterial", scriptlib::duel_check_tuner_material },
+	{ "SetFusionMaterial", scriptlib::duel_set_fusion_material 
 	{ "GetRitualMaterial", scriptlib::duel_get_ritual_material },
 	{ "GetRitualMaterialEx", scriptlib::duel_get_ritual_material_ex },
 	{ "ReleaseRitualMaterial", scriptlib::duel_release_ritual_material },
