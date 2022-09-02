@@ -3820,20 +3820,13 @@ int32 card::is_can_be_fusion_material(card* fcard, uint32 summon_type) {
 	}
 	return TRUE;
 }
-int32 card::is_can_be_synchro_material(card* scard, card* tuner) {
+int32 card::is_can_be_synchro_material(card* scard) {
 	if(data.type & (TYPE_XYZ | TYPE_LINK))
 		return FALSE;
 	if(!(get_synchro_type() & TYPE_MONSTER))
 		return FALSE;
-	if(scard && current.location == LOCATION_MZONE && current.controler != scard->current.controler && !is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL))
-		return FALSE;
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
-	//special fix for scrap chimera, not perfect yet
-	if(tuner && (pduel->game_field->core.global_flag & GLOBALFLAG_SCRAP_CHIMERA)) {
-		if(is_affected_by_effect(EFFECT_SCRAP_CHIMERA, tuner))
-			return false;
-	}
 	effect_set eset;
 	filter_effect(EFFECT_CANNOT_BE_SYNCHRO_MATERIAL, &eset);
 	for(int32 i = 0; i < eset.size(); ++i)
