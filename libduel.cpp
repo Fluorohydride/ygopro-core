@@ -4603,7 +4603,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsExistingTarget", scriptlib::duel_is_existing_target },
 	{ "SelectTarget", scriptlib::duel_select_target },
 	{ "SelectFusionMaterial", scriptlib::duel_select_fusion_material },
-	{ "SetFusionMaterial", scriptlib::duel_set_fusion_material 
+	{ "SetFusionMaterial", scriptlib::duel_set_fusion_material },
 	{ "GetRitualMaterial", scriptlib::duel_get_ritual_material },
 	{ "GetRitualMaterialEx", scriptlib::duel_get_ritual_material_ex },
 	{ "ReleaseRitualMaterial", scriptlib::duel_release_ritual_material },
