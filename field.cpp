@@ -2669,55 +2669,8 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	return FALSE;
 }
 int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int32 min, int32 max, int32 mcount) {
-	if(!(core.global_flag & GLOBALFLAG_SCRAP_CHIMERA)) {
-		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, 0xffff, mcount)) {
-			return TRUE;
-		}
-		return FALSE;
-	}
-	effect* pscrap = 0;
-	for(auto& pm : nsyn) {
-		pscrap = pm->is_affected_by_effect(EFFECT_SCRAP_CHIMERA);
-		if(pscrap)
-			break;
-	}
-	if(!pscrap) {
-		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, 0xffff, mcount)) {
-			return TRUE;
-		}
-		return FALSE;
-	}
-	card_vector nsyn_filtered;
-	for(auto& pm : nsyn) {
-		if(!pscrap->get_value(pm))
-			nsyn_filtered.push_back(pm);
-	}
-	if(nsyn_filtered.size() == nsyn.size()) {
-		if(check_with_sum_limit_m(nsyn, lv, 0, min, max, 0xffff, mcount)) {
-			return TRUE;
-		}
-	} else {
-		bool mfiltered = true;
-		for(int32 i = 0; i < mcount; ++i) {
-			if(pscrap->get_value(nsyn[i]))
-				mfiltered = false;
-		}
-		if(mfiltered && check_with_sum_limit_m(nsyn_filtered, lv, 0, min, max, 0xffff, mcount)) {
-			return TRUE;
-		}
-		for(int32 i = 0; i < mcount; ++i) {
-			if(nsyn[i]->is_affected_by_effect(EFFECT_SCRAP_CHIMERA)) {
-				return FALSE;
-			}
-		}
-		card_vector nsyn_removed;
-		for(auto& pm : nsyn) {
-			if(!pm->is_affected_by_effect(EFFECT_SCRAP_CHIMERA))
-				nsyn_removed.push_back(pm);
-		}
-		if(check_with_sum_limit_m(nsyn_removed, lv, 0, min, max, 0xffff, mcount)) {
-			return TRUE;
-		}
+	if(check_with_sum_limit_m(nsyn, lv, 0, min, max, 0xffff, mcount)) {
+		return TRUE;
 	}
 	return FALSE;
 }
