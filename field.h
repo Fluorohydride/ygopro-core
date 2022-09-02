@@ -248,7 +248,6 @@ struct processor {
 	card_set release_cards_ex_oneof;
 	card_set battle_destroy_rep;
 	card_set fusion_materials;
-	card_set synchro_materials;
 	card_set operated_set;
 	card_set discarded_set;
 	card_set destroy_canceled;
