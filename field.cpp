@@ -377,7 +377,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 			}
 		} else {
 			if((pcard->data.type & TYPE_PENDULUM) && (location == LOCATION_GRAVE)
-			        && pcard->is_capable_send_to_extra(playerid, TRUE)
+			        && pcard->is_capable_send_to_extra(playerid, 1)
 			        && (((pcard->current.location == LOCATION_MZONE) && !pcard->is_status(STATUS_SUMMON_DISABLED))
 			        || ((pcard->current.location == LOCATION_SZONE) && !pcard->is_status(STATUS_ACTIVATE_DISABLED)))) {
 				location = LOCATION_EXTRA;
