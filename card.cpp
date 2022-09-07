@@ -3674,16 +3674,16 @@ int32 card::is_capable_cost_to_deck(uint8 playerid) {
 		return FALSE;
 	return TRUE;
 }
-int32 card::is_capable_cost_to_extra(uint8 playerid) {
+int32 card::is_capable_cost_to_extra(uint8 playerid, uint8 faceup) {
 	uint32 redirect = 0;
 	uint32 dest = LOCATION_DECK;
-	if(!is_extra_deck_monster())
-		return FALSE;
 	if(current.location == LOCATION_EXTRA)
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_USE_AS_COST))
 		return FALSE;
-	if(!is_capable_send_to_deck(playerid))
+	if(is_status(STATUS_LEAVE_CONFIRMED))
+		return FALSE;
+	if (!is_capable_send_to_extra(playerid, faceup))
 		return FALSE;
 	auto op_param = sendto_param;
 	sendto_param.location = dest;
