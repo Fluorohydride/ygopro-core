@@ -3570,7 +3570,7 @@ int32 card::is_capable_send_to_hand(uint8 playerid) {
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_CANNOT_TO_HAND))
 		return FALSE;
-	if(is_extra_deck_monster() && !is_capable_send_to_extra(playerid))
+	if(is_extra_deck_monster() && !is_capable_send_to_extra(playerid, 0))
 		return FALSE;
 	if(!pduel->game_field->is_player_can_send_to_hand(playerid, this))
 		return FALSE;
@@ -3587,13 +3587,18 @@ int32 card::is_capable_send_to_deck(uint8 playerid) {
 		return FALSE;
 	return TRUE;
 }
-int32 card::is_capable_send_to_extra(uint8 playerid) {
-	if(!is_extra_deck_monster() && !(data.type & TYPE_PENDULUM))
-		return FALSE;
-	if(is_extra_deck_monster() && is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
-		return FALSE;
-	if(!pduel->game_field->is_player_can_send_to_deck(playerid, this))
-		return FALSE;
+int32 card::is_capable_send_to_extra(uint8 playerid, uint8 faceup) {
+	if (faceup) {
+		if (!(data.type & TYPE_PENDULUM))
+			return FALSE;
+	} else {
+		if (!is_extra_deck_monster())
+			return FALSE;
+		if (is_affected_by_effect(EFFECT_CANNOT_TO_DECK))
+			return FALSE;
+		if (!pduel->game_field->is_player_can_send_to_deck(playerid, this))
+			return FALSE;
+	}
 	return TRUE;
 }
 int32 card::is_capable_cost_to_grave(uint8 playerid) {
