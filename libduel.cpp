@@ -1138,9 +1138,9 @@ int32 scriptlib::duel_get_environment(lua_State *L) {
 	card* pcard = pduel->game_field->player[0].list_szone[5];
 	int32 code = 0;
 	int32 p = 2;
-	if(pcard == 0 || pcard->is_position(POS_FACEDOWN) || !pcard->get_status(STATUS_EFFECT_ENABLED))
+	if(pcard == 0 || pcard->is_position(POS_FACEDOWN))
 		pcard = pduel->game_field->player[1].list_szone[5];
-	if(pcard == 0 || pcard->is_position(POS_FACEDOWN) || !pcard->get_status(STATUS_EFFECT_ENABLED)) {
+	if(pcard == 0 || pcard->is_position(POS_FACEDOWN)) {
 		pduel->game_field->filter_field_effect(EFFECT_CHANGE_ENVIRONMENT, &eset);
 		if(eset.size()) {
 			effect* peffect = eset.get_last();
