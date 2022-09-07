@@ -364,7 +364,7 @@ public:
 	int32 is_capable_send_to_grave(uint8 playerid);
 	int32 is_capable_send_to_hand(uint8 playerid);
 	int32 is_capable_send_to_deck(uint8 playerid);
-	int32 is_capable_send_to_extra(uint8 playerid);
+	int32 is_capable_send_to_extra(uint8 playerid, uint8 faceup = FALSE);
 	int32 is_capable_cost_to_grave(uint8 playerid);
 	int32 is_capable_cost_to_hand(uint8 playerid);
 	int32 is_capable_cost_to_deck(uint8 playerid);
