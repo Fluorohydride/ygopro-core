@@ -1132,29 +1132,6 @@ int32 scriptlib::duel_check_timing(lua_State *L) {
 	lua_pushboolean(L, (pduel->game_field->core.hint_timing[0]&tm) || (pduel->game_field->core.hint_timing[1]&tm));
 	return 1;
 }
-int32 scriptlib::duel_get_environment(lua_State *L) {
-	duel* pduel = interpreter::get_duel_info(L);
-	effect_set eset;
-	card* pcard = pduel->game_field->player[0].list_szone[5];
-	int32 code = 0;
-	int32 p = 2;
-	if(pcard == 0 || pcard->is_position(POS_FACEDOWN))
-		pcard = pduel->game_field->player[1].list_szone[5];
-	if(pcard == 0 || pcard->is_position(POS_FACEDOWN)) {
-		pduel->game_field->filter_field_effect(EFFECT_CHANGE_ENVIRONMENT, &eset);
-		if(eset.size()) {
-			effect* peffect = eset.get_last();
-			code = peffect->get_value();
-			p = peffect->get_handler_player();
-		}
-	} else {
-		code = pcard->get_code();
-		p = pcard->current.controler;
-	}
-	lua_pushinteger(L, code);
-	lua_pushinteger(L, p);
-	return 2;
-}
 int32 scriptlib::duel_is_environment(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 code = (uint32)lua_tointeger(L, 1);
@@ -4648,7 +4625,6 @@ static const struct luaL_Reg duellib[] = {
 	{ "RaiseEvent", scriptlib::duel_raise_event },
 	{ "RaiseSingleEvent", scriptlib::duel_raise_single_event },
 	{ "CheckTiming", scriptlib::duel_check_timing },
-	{ "GetEnvironment", scriptlib::duel_get_environment },
 	{ "IsEnvironment", scriptlib::duel_is_environment },
 	{ "Win", scriptlib::duel_win },
 	{ "Draw", scriptlib::duel_draw },
