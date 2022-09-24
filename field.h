@@ -236,7 +236,7 @@ struct processor {
 	instant_f_list quick_f_chain;
 	card_set leave_confirmed;
 	card_set special_summoning;
-	card_set ss_tograve_set;
+	card_set unable_tofield_set;
 	card_set equiping_cards;
 	card_set control_adjust_set[2];
 	card_set unique_destroy_set;
@@ -446,7 +446,7 @@ public:
 	int32 get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, group* mg = NULL, uint32 ex = 0, uint32 releasable = 0xff00ff, uint32 pos = 0x1);
 	int32 get_summon_count_limit(uint8 playerid);
 	int32 get_draw_count(uint8 playerid);
-	void get_ritual_material(uint8 playerid, effect* peffect, card_set* material);
+	void get_ritual_material(uint8 playerid, effect* peffect, card_set* material, uint8 no_level = FALSE);
 	void get_fusion_material(uint8 playerid, card_set* material_all, card_set* material_base, uint32 location);
 	void ritual_release(card_set* material);
 	void get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc, group* mg);
@@ -558,7 +558,7 @@ public:
 
 	//operations
 	int32 negate_chain(uint8 chaincount);
-	int32 disable_chain(uint8 chaincount);
+	int32 disable_chain(uint8 chaincount, uint8 forced);
 	void change_chain_effect(uint8 chaincount, int32 replace_op);
 	void change_target(uint8 chaincount, group* targets);
 	void change_target_player(uint8 chaincount, uint8 playerid);

@@ -61,6 +61,7 @@ public:
 	int32 target;
 	int32 value;
 	int32 operation;
+	uint8 cost_checked;
 
 	explicit effect(duel* pd);
 	~effect() = default;
@@ -165,6 +166,8 @@ public:
 #define EFFECT_TYPE_GRANT			0x2000	//
 #define EFFECT_TYPE_TARGET			0x4000	//
 
+#define EFFECT_TYPES_TRIGGER_LIKE	(EFFECT_TYPE_ACTIVATE | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F)
+
 //========== Flags ==========
 enum effect_flag : uint32 {
 	EFFECT_FLAG_INITIAL				= 0x0001,
@@ -188,7 +191,7 @@ enum effect_flag : uint32 {
 	EFFECT_FLAG_UNCOPYABLE			= 0x40000,
 	EFFECT_FLAG_OATH				= 0x80000,
 	EFFECT_FLAG_SPSUM_PARAM			= 0x100000,
-	EFFECT_FLAG_REPEAT				= 0x200000,
+//	EFFECT_FLAG_REPEAT				= 0x200000,
 	EFFECT_FLAG_NO_TURN_RESET		= 0x400000,
 	EFFECT_FLAG_EVENT_PLAYER		= 0x800000,
 	EFFECT_FLAG_OWNER_RELATE		= 0x1000000,
@@ -201,8 +204,10 @@ enum effect_flag : uint32 {
 	EFFECT_FLAG_IMMEDIATELY_APPLY	= 0x80000000,
 };
 enum effect_flag2 : uint32 {
-	EFFECT_FLAG2_MILLENNIUM_RESTRICT	= 0x0001,
+//	EFFECT_FLAG2_MILLENNIUM_RESTRICT	= 0x0001,
 	EFFECT_FLAG2_COF					= 0x0002,
+	EFFECT_FLAG2_WICKED					= 0x0004,
+	EFFECT_FLAG2_OPTION					= 0x0008,
 };
 inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 {
@@ -308,8 +313,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_REVERSE_UPDATE			108	//
 #define EFFECT_SWAP_AD					109	//
 #define EFFECT_SWAP_BASE_AD				110	//
-//#define EFFECT_SWAP_ATTACK_FINAL		111
-//#define EFFECT_SWAP_DEFENSE_FINAL		112
+#define EFFECT_SET_BASE_ATTACK_FINAL	111	//
+#define EFFECT_SET_BASE_DEFENSE_FINAL	112	//
 #define EFFECT_ADD_CODE					113	//
 #define EFFECT_CHANGE_CODE				114	//
 #define EFFECT_ADD_TYPE					115	//
@@ -461,8 +466,9 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CHANGE_GRAVE_ATTRIBUTE	365
 #define EFFECT_CHANGE_GRAVE_RACE		366
 #define EFFECT_ACTIVATION_COUNT_LIMIT	367
+#define EFFECT_LIMIT_SPECIAL_SUMMON_POSITION	368
 
-#define EVENT_STARTUP		1000
+//#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
 #define EVENT_FREE_CHAIN	1002
 #define EVENT_DESTROY		1010
@@ -539,7 +545,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define DOUBLE_DAMAGE				0x80000000
 #define HALF_DAMAGE					0x80000001
 
-// The type of bit field in code
+// The type of event in code
 #define CODE_CUSTOM		1	// header + id (28 bits)
 #define CODE_COUNTER	2	// header + counter_id (16 bits)
 #define CODE_PHASE		3	// header + phase_id (12 bits)

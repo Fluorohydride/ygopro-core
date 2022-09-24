@@ -36,8 +36,9 @@ void chain::set_triggering_state(card* pcard) {
 	triggering_state.rank = pcard->get_rank();
 	triggering_state.attribute = pcard->get_attribute();
 	triggering_state.race = pcard->get_race();
-	triggering_state.attack = pcard->get_attack();
-	triggering_state.defense = pcard->get_defense();
+	std::pair<int32, int32> atk_def = pcard->get_atk_def();
+	triggering_state.attack = atk_def.first;
+	triggering_state.defense = atk_def.second;
 }
 bool tevent::operator< (const tevent& v) const {
 	return std::memcmp(this, &v, sizeof(tevent)) < 0;
@@ -221,6 +222,7 @@ void field::remove_card(card* pcard) {
 			core.shuffle_deck_check[playerid] = TRUE;
 		break;
 	case LOCATION_HAND:
+		pcard->set_status(STATUS_TO_HAND_WITHOUT_CONFIRM, FALSE);
 		player[playerid].list_hand.erase(player[playerid].list_hand.begin() + pcard->current.sequence);
 		reset_sequence(playerid, LOCATION_HAND);
 		break;
@@ -263,7 +265,7 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 		pcard->sendto_param.position = POS_FACEDOWN_DEFENSE;
 	}
 	if (pcard->current.location) {
-		if (pcard->current.location == location) {
+		if (pcard->current.location == location && pcard->current.pzone == !!pzone) {
 			if (pcard->current.location == LOCATION_DECK) {
 				if(preplayer == playerid) {
 					pduel->write_buffer8(MSG_MOVE);
@@ -955,14 +957,14 @@ void field::shuffle(uint8 playerid, uint8 location) {
 		}
 	}
 	if(location == LOCATION_HAND || !(core.duel_options & DUEL_PSEUDO_SHUFFLE)) {
-		uint32 s = (uint32)svector.size();
+		int32 s = (int32)svector.size();
 		if(location == LOCATION_EXTRA)
-			s = s - player[playerid].extra_p_count;
+			s = s - (int32)player[playerid].extra_p_count;
 		if(s > 1) {
 			if (core.duel_options & DUEL_OLD_REPLAY)
-				pduel->random.shuffle_vector_old(svector);
+				pduel->random.shuffle_vector_old(svector, 0, s - 1);
 			else
-				pduel->random.shuffle_vector(svector);
+				pduel->random.shuffle_vector(svector, 0, s - 1);
 			reset_sequence(playerid, location);
 		}
 	}
@@ -1822,6 +1824,9 @@ int32 field::get_summon_count_limit(uint8 playerid) {
 	return count;
 }
 int32 field::get_draw_count(uint8 playerid) {
+	if ((core.duel_rule >= 3) && (infos.turn_id == 1) && (infos.turn_player == playerid)) {
+		return 0;
+	}
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_DRAW_COUNT, &eset);
 	int32 count = player[playerid].draw_count;
@@ -1834,26 +1839,35 @@ int32 field::get_draw_count(uint8 playerid) {
 	}
 	return count;
 }
-void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* material) {
+void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* material, uint8 no_level) {
 	for(auto& pcard : player[playerid].list_mzone) {
 		if(pcard && pcard->is_affect_by_effect(peffect)
-		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect))
+		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect)
+				&& (no_level || pcard->get_level() > 0))
 			material->insert(pcard);
 		if(pcard && pcard->is_affected_by_effect(EFFECT_OVERLAY_RITUAL_MATERIAL))
 			for(auto& mcard : pcard->xyz_materials)
-				material->insert(mcard);
+				if (no_level || mcard->get_level() > 0)
+					material->insert(mcard);
 	}
 	for(auto& pcard : player[1 - playerid].list_mzone) {
 		if(pcard && pcard->is_affect_by_effect(peffect)
 		        && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)
-		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect))
+		        && pcard->is_releasable_by_nonsummon(playerid) && pcard->is_releasable_by_effect(playerid, peffect)
+				&& (no_level || pcard->get_level() > 0))
 			material->insert(pcard);
 	}
 	for(auto& pcard : player[playerid].list_hand)
 		if((pcard->data.type & TYPE_MONSTER) && pcard->is_releasable_by_nonsummon(playerid))
 			material->insert(pcard);
 	for(auto& pcard : player[playerid].list_grave)
-		if((pcard->data.type & TYPE_MONSTER) && pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL) && pcard->is_removeable(playerid, POS_FACEUP, REASON_EFFECT))
+		if((pcard->data.type & TYPE_MONSTER)
+				&& pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL) && pcard->is_removeable(playerid, POS_FACEUP, REASON_EFFECT)
+				&& (no_level || pcard->get_level() > 0))
+			material->insert(pcard);
+	for(auto& pcard : player[playerid].list_extra)
+		if(pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL)
+				&& (no_level || pcard->get_level() > 0))
 			material->insert(pcard);
 }
 void field::get_fusion_material(uint8 playerid, card_set* material_all, card_set* material_base, uint32 location) {
@@ -1918,16 +1932,16 @@ void field::get_fusion_material(uint8 playerid, card_set* material_all, card_set
 void field::ritual_release(card_set* material) {
 	card_set rel;
 	card_set rem;
-	card_set xyz;
+	card_set tgy;
 	for(auto& pcard : *material) {
 		if(pcard->current.location == LOCATION_GRAVE)
 			rem.insert(pcard);
-		else if(pcard->current.location == LOCATION_OVERLAY)
-			xyz.insert(pcard);
+		else if(pcard->current.location == LOCATION_OVERLAY || pcard->current.location == LOCATION_EXTRA)
+			tgy.insert(pcard);
 		else
 			rel.insert(pcard);
 	}
-	send_to(&xyz, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+	send_to(&tgy, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 	release(&rel, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player);
 	send_to(&rem, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, POS_FACEUP);
 }
@@ -3062,7 +3076,8 @@ int32 field::is_player_can_spsummon(effect* reason_effect, uint32 sumtype, uint8
 		return FALSE;
 	if(pcard->data.type & TYPE_LINK)
 		sumpos &= POS_FACEUP_ATTACK;
-	if(sumpos == 0)
+	uint8 position = pcard->get_spsummonable_position(reason_effect, sumtype, sumpos, playerid, toplayer);
+	if(position == 0)
 		return FALSE;
 	sumtype |= SUMMON_TYPE_SPECIAL;
 	save_lp_cost();
@@ -3071,8 +3086,8 @@ int32 field::is_player_can_spsummon(effect* reason_effect, uint32 sumtype, uint8
 		return FALSE;
 	}
 	restore_lp_cost();
-	if(sumpos & POS_FACEDOWN && is_player_affected_by_effect(playerid, EFFECT_DIVINE_LIGHT))
-		sumpos = (sumpos & POS_FACEUP) | ((sumpos & POS_FACEDOWN) >> 1);
+	if(position & POS_FACEDOWN && is_player_affected_by_effect(playerid, EFFECT_DIVINE_LIGHT))
+		position = (position & POS_FACEUP) | ((position & POS_FACEDOWN) >> 1);
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_CANNOT_SPECIAL_SUMMON, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
@@ -3082,7 +3097,7 @@ int32 field::is_player_can_spsummon(effect* reason_effect, uint32 sumtype, uint8
 		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		pduel->lua->add_param(sumtype, PARAM_TYPE_INT);
-		pduel->lua->add_param(sumpos, PARAM_TYPE_INT);
+		pduel->lua->add_param(position, PARAM_TYPE_INT);
 		pduel->lua->add_param(toplayer, PARAM_TYPE_INT);
 		pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
 		if (pduel->lua->check_condition(eset[i]->target, 7))
@@ -3370,8 +3385,9 @@ int32 field::get_cteffect(effect* peffect, int32 playerid, int32 store) {
 			continue;
 		uint32 code = efit.first;
 		if(code == EVENT_FREE_CHAIN || code == EVENT_PHASE + infos.phase) {
-			nil_event.event_code = code;
-			if(get_cteffect_evt(feffect, playerid, nil_event, store) && !store)
+			tevent test_event;
+			test_event.event_code = code;
+			if(get_cteffect_evt(feffect, playerid, test_event, store) && !store)
 				return TRUE;
 		} else {
 			for(const auto& ev : core.point_event) {
@@ -3420,8 +3436,9 @@ int32 field::check_cteffect_hint(effect* peffect, uint8 playerid) {
 			continue;
 		uint32 code = efit.first;
 		if(code == EVENT_FREE_CHAIN || code == EVENT_PHASE + infos.phase) {
-			nil_event.event_code = code;
-			if(get_cteffect_evt(feffect, playerid, nil_event, FALSE)
+			tevent test_event;
+			test_event.event_code = code;
+			if(get_cteffect_evt(feffect, playerid, test_event, FALSE)
 				&& (code != EVENT_FREE_CHAIN || check_hint_timing(feffect)))
 				return TRUE;
 		} else {

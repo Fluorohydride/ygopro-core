@@ -31,8 +31,7 @@ int32 scriptlib::card_get_origin_code(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	if(pcard->data.alias) {
-		int32 dif = pcard->data.code - pcard->data.alias;
-		if(dif > -10 && dif < 10)
+		if((pcard->data.alias < pcard->data.code + CARD_ARTWORK_VERSIONS_OFFSET) && (pcard->data.code < pcard->data.alias + CARD_ARTWORK_VERSIONS_OFFSET))
 			lua_pushinteger(L, pcard->data.alias);
 		else
 			lua_pushinteger(L, pcard->data.code);
@@ -1908,10 +1907,12 @@ int32 scriptlib::card_is_relate_to_effect(lua_State *L) {
 	return 1;
 }
 int32 scriptlib::card_is_relate_to_chain(lua_State *L) {
-	check_param_count(L, 2);
+	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint32 chain_count = (uint32)lua_tointeger(L, 2);
+	uint32 chain_count = 0;
+	if(lua_gettop(L) >= 2)
+		chain_count = (uint32)lua_tointeger(L, 2);
 	duel* pduel = pcard->pduel;
 	if(chain_count > pduel->game_field->core.current_chain.size() || chain_count < 1)
 		chain_count = (uint32)pduel->game_field->core.current_chain.size();
@@ -2435,6 +2436,13 @@ int32 scriptlib::card_is_faceup(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	lua_pushboolean(L, pcard->is_position(POS_FACEUP));
+	return 1;
+}
+int32 scriptlib::card_is_faceup_ex(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_pushboolean(L, pcard->is_position(POS_FACEUP) | (pcard->current.location & (LOCATION_HAND | LOCATION_GRAVE | LOCATION_DECK)));
 	return 1;
 }
 int32 scriptlib::card_is_attack_pos(lua_State *L) {
@@ -2963,6 +2971,15 @@ int32 scriptlib::card_is_immune_to_effect(lua_State *L) {
 	lua_pushboolean(L, !pcard->is_affect_by_effect(peffect));
 	return 1;
 }
+int32 scriptlib::card_is_can_be_disabled_by_effect(lua_State* L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	check_param(L, PARAM_TYPE_EFFECT, 2);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	effect* peffect = *(effect**)lua_touserdata(L, 2);
+	lua_pushboolean(L, pcard->is_can_be_disabled_by_effect(peffect));
+	return 1;
+}
 int32 scriptlib::card_is_can_be_effect_target(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -3422,6 +3439,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsAttackable", scriptlib::card_is_attackable },
 	{ "IsChainAttackable", scriptlib::card_is_chain_attackable },
 	{ "IsFaceup", scriptlib::card_is_faceup },
+	{ "IsFaceupEx", scriptlib::card_is_faceup_ex },
 	{ "IsAttackPos", scriptlib::card_is_attack_pos },
 	{ "IsFacedown", scriptlib::card_is_facedown },
 	{ "IsDefensePos", scriptlib::card_is_defense_pos },
@@ -3465,6 +3483,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "CheckFusionMaterial", scriptlib::card_check_fusion_material },
 	{ "CheckFusionSubstitute", scriptlib::card_check_fusion_substitute },
 	{ "IsImmuneToEffect", scriptlib::card_is_immune_to_effect },
+	{ "IsCanBeDisabledByEffect", scriptlib::card_is_can_be_disabled_by_effect },
 	{ "IsCanBeEffectTarget", scriptlib::card_is_can_be_effect_target },
 	{ "IsCanBeBattleTarget", scriptlib::card_is_can_be_battle_target },
 	{ "AddMonsterAttribute", scriptlib::card_add_monster_attribute },

@@ -29,7 +29,7 @@ int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 
 			return TRUE;
 		if(retfalse)
 			return FALSE;
-		luaL_error(L, "Parameter %d should be \"Card\".", index);
+		return luaL_error(L, "Parameter %d should be \"Card\".", index);
 		break;
 	}
 	case PARAM_TYPE_GROUP: {
@@ -37,7 +37,7 @@ int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 
 			return TRUE;
 		if(retfalse)
 			return FALSE;
-		luaL_error(L, "Parameter %d should be \"Group\".", index);
+		return luaL_error(L, "Parameter %d should be \"Group\".", index);
 		break;
 	}
 	case PARAM_TYPE_EFFECT: {
@@ -45,7 +45,7 @@ int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 
 			return TRUE;
 		if(retfalse)
 			return FALSE;
-		luaL_error(L, "Parameter %d should be \"Effect\".", index);
+		return luaL_error(L, "Parameter %d should be \"Effect\".", index);
 		break;
 	}
 	case PARAM_TYPE_FUNCTION: {
@@ -53,7 +53,7 @@ int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 
 			return TRUE;
 		if(retfalse)
 			return FALSE;
-		luaL_error(L, "Parameter %d should be \"Function\".", index);
+		return luaL_error(L, "Parameter %d should be \"Function\".", index);
 		break;
 	}
 	case PARAM_TYPE_STRING: {
@@ -61,7 +61,7 @@ int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 
 			return TRUE;
 		if(retfalse)
 			return FALSE;
-		luaL_error(L, "Parameter %d should be \"String\".", index);
+		return luaL_error(L, "Parameter %d should be \"String\".", index);
 		break;
 	}
 	}
@@ -70,12 +70,12 @@ int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 
 
 int32 scriptlib::check_param_count(lua_State* L, int32 count) {
 	if (lua_gettop(L) < count)
-		luaL_error(L, "%d Parameters are needed.", count);
+		return luaL_error(L, "%d Parameters are needed.", count);
 	return TRUE;
 }
 int32 scriptlib::check_action_permission(lua_State* L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	if(pduel->lua->no_action)
-		luaL_error(L, "Action is not allowed here.");
+		return luaL_error(L, "Action is not allowed here.");
 	return TRUE;
 }

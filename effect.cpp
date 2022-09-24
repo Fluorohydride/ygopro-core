@@ -63,6 +63,7 @@ effect::effect(duel* pd) {
 	target = 0;
 	value = 0;
 	operation = 0;
+	cost_checked = FALSE;
 }
 int32 effect::is_disable_related() {
 	if (code == EFFECT_IMMUNE_EFFECT || code == EFFECT_DISABLE || code == EFFECT_CANNOT_DISABLE || code == EFFECT_FORBIDDEN)
@@ -410,18 +411,22 @@ int32 effect::is_activate_ready(effect* reason_effect, uint8 playerid, const tev
 			return FALSE;
 		}
 	}
-	if(!neglect_cost && cost && !(type & EFFECT_TYPE_CONTINUOUS)) {
-		pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
-		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-		pduel->lua->add_param(e.event_cards, PARAM_TYPE_GROUP);
-		pduel->lua->add_param(e.event_player, PARAM_TYPE_INT);
-		pduel->lua->add_param(e.event_value, PARAM_TYPE_INT);
-		pduel->lua->add_param(e.reason_effect, PARAM_TYPE_EFFECT);
-		pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
-		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
-		pduel->lua->add_param(0, PARAM_TYPE_INT);
-		if(!pduel->lua->check_condition(cost, 9)) {
-			return FALSE;
+	if(!neglect_cost && !(type & EFFECT_TYPE_CONTINUOUS)) {
+		cost_checked = TRUE;
+		if(cost) {
+			pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+			pduel->lua->add_param(e.event_cards, PARAM_TYPE_GROUP);
+			pduel->lua->add_param(e.event_player, PARAM_TYPE_INT);
+			pduel->lua->add_param(e.event_value, PARAM_TYPE_INT);
+			pduel->lua->add_param(e.reason_effect, PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
+			pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
+			pduel->lua->add_param(0, PARAM_TYPE_INT);
+			if(!pduel->lua->check_condition(cost, 9)) {
+				cost_checked = FALSE;
+				return FALSE;
+			}
 		}
 	}
 	if(!neglect_target && target) {
@@ -435,9 +440,11 @@ int32 effect::is_activate_ready(effect* reason_effect, uint8 playerid, const tev
 		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
 		pduel->lua->add_param(0, PARAM_TYPE_INT);
 		if(!pduel->lua->check_condition(target, 9)) {
+			cost_checked = FALSE;
 			return FALSE;
 		}
 	}
+	cost_checked = FALSE;
 	return TRUE;
 }
 int32 effect::is_activate_ready(uint8 playerid, const tevent& e, int32 neglect_cond, int32 neglect_cost, int32 neglect_target) {
