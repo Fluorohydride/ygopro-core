@@ -2997,6 +2997,25 @@ int32 card::is_summonable_card() {
 		| TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK
 		| TYPE_TOKEN | TYPE_TRAPMONSTER));
 }
+int32 card::is_spsummonable_card() {
+	if(!(data.type & TYPE_MONSTER))
+		return FALSE;
+	if(is_affected_by_effect(EFFECT_REVIVE_LIMIT) && !is_status(STATUS_PROC_COMPLETE)
+		&& (current.location & (LOCATION_GRAVE | LOCATION_REMOVED | LOCATION_SZONE)))
+		return FALSE;
+	effect_set eset;
+	filter_effect(EFFECT_SPSUMMON_CONDITION, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		pduel->lua->add_param(pduel->game_field->core.reason_effect, PARAM_TYPE_EFFECT);
+		pduel->lua->add_param(pduel->game_field->core.reason_player, PARAM_TYPE_INT);
+		pduel->lua->add_param(SUMMON_TYPE_SPECIAL, PARAM_TYPE_INT);
+		pduel->lua->add_param((void*)0, PARAM_TYPE_INT);
+		pduel->lua->add_param((void*)0, PARAM_TYPE_INT);
+		if(!eset[i]->check_value_condition(5))
+			return FALSE;
+	}
+	return TRUE;
+}
 int32 card::is_fusion_summonable_card(uint32 summon_type) {
 	if(!(data.type & TYPE_FUSION))
 		return FALSE;
