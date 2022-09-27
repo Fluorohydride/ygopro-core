@@ -196,6 +196,7 @@ public:
 	static int32 card_is_disabled(lua_State *L);
 	static int32 card_is_destructable(lua_State *L);
 	static int32 card_is_summonable(lua_State *L);
+	static int32 card_is_special_summonable_card(lua_State *L);
 	static int32 card_is_fusion_summonable_card(lua_State *L);
 	static int32 card_is_msetable(lua_State *L);
 	static int32 card_is_ssetable(lua_State *L);

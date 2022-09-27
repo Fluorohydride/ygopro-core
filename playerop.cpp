@@ -374,8 +374,6 @@ int32 field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 fo
 }
 int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count) {
 	if(step == 0) {
-		if(count == 0)
-			return TRUE;
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
 			flag = ~flag;
 			int32 filter;
@@ -433,14 +431,15 @@ int32 field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count)
 	} else {
 		uint8 pt = 0;
 		uint32 selected = 0;
-		for(int8 i = 0; i < count; ++i) {
+		for(int8 i = 0; i < 1 || i < count; ++i) {
 			uint8 p = returns.bvalue[pt];
 			uint8 l = returns.bvalue[pt + 1];
 			uint8 s = returns.bvalue[pt + 2];
 			uint32 sel = 0x1u << (s + (p == playerid ? 0 : 16) + (l == LOCATION_MZONE ? 0 : 8));
-			if((p != 0 && p != 1)
+			if(!(count == 0 && i == 0 && l == 0)
+				&& ((p != 0 && p != 1)
 					|| ((l != LOCATION_MZONE) && (l != LOCATION_SZONE))
-					|| (sel & flag) || (sel & selected)) {
+					|| (sel & flag) || (sel & selected))) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
 			}
