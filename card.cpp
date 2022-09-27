@@ -3000,9 +3000,12 @@ int32 card::is_summonable_card() {
 int32 card::is_spsummonable_card() {
 	if(!(data.type & TYPE_MONSTER))
 		return FALSE;
-	if(is_affected_by_effect(EFFECT_REVIVE_LIMIT) && !is_status(STATUS_PROC_COMPLETE)
-		&& (current.location & (LOCATION_GRAVE | LOCATION_REMOVED | LOCATION_SZONE)))
-		return FALSE;
+	if(is_affected_by_effect(EFFECT_REVIVE_LIMIT) && !is_status(STATUS_PROC_COMPLETE)) {
+		if(current.location & (LOCATION_GRAVE | LOCATION_REMOVED | LOCATION_SZONE))
+			return FALSE;
+		if((data.type & TYPE_PENDULUM) && current.location == LOCATION_EXTRA && (current.position & POS_FACEUP))
+			return FALSE;
+	}
 	effect_set eset;
 	filter_effect(EFFECT_SPSUMMON_CONDITION, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
