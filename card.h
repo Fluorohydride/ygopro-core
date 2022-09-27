@@ -338,6 +338,7 @@ public:
 	int32 check_cost_condition(int32 ecode, int32 playerid);
 	int32 check_cost_condition(int32 ecode, int32 playerid, int32 sumtype);
 	int32 is_summonable_card();
+	int32 is_spsummonable_card();
 	int32 is_fusion_summonable_card(uint32 summon_type);
 	int32 is_spsummonable(effect* proc, material_info info = null_info);
 	int32 is_summonable(effect* proc, uint8 min_tribute, uint32 zone = 0x1f, uint32 releasable = 0xff00ff);

@@ -2024,6 +2024,13 @@ int32 scriptlib::card_is_summonable(lua_State *L) {
 	lua_pushboolean(L, pcard->is_summonable_card());
 	return 1;
 }
+int32 scriptlib::card_is_special_summonable_card(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_pushboolean(L, pcard->is_spsummonable_card());
+	return 1;
+}
 int32 scriptlib::card_is_fusion_summonable_card(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -3413,6 +3420,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsDisabled", scriptlib::card_is_disabled },
 	{ "IsDestructable", scriptlib::card_is_destructable },
 	{ "IsSummonableCard", scriptlib::card_is_summonable },
+	{ "IsSpecialSummonableCard", scriptlib::card_is_special_summonable_card },
 	{ "IsFusionSummonableCard", scriptlib::card_is_fusion_summonable_card },
 	{ "IsSpecialSummonable", scriptlib::card_is_special_summonable },
 	{ "IsSynchroSummonable", scriptlib::card_is_synchro_summonable },
