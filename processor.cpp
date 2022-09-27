@@ -1473,7 +1473,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			if(!core.hand_adjusted)
 				add_process(PROCESSOR_QUICK_EFFECT, 0, 0, 0, skip_freechain, infos.turn_player);
 		} else
-			add_process(PROCESSOR_QUICK_EFFECT, 0, 0, 0, skip_freechain, 1 - core.current_chain.back().triggering_player);
+			add_process(PROCESSOR_QUICK_EFFECT, 0, 0, 0, FALSE, 1 - core.current_chain.back().triggering_player);
 		return FALSE;
 	}
 	case 10: {
@@ -3742,7 +3742,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		pduel->write_buffer8(turn_player);
 		pduel->write_buffer32(27);
 		if(core.new_fchain.size() || core.new_ochain.size())
-			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
+			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x100, TRUE);
 		return FALSE;
 	}
 	case 2: {
