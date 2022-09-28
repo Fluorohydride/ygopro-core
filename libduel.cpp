@@ -3681,13 +3681,13 @@ int32 scriptlib::duel_select_field(lua_State* L) {
 	}
 	uint32 flag = 0xffffffff;
 	if(location1 & LOCATION_MZONE) {
-		flag &= 0xffffffe0;
+		flag &= 0xffffff80;
 	}
 	if(location1 & LOCATION_SZONE) {
 		flag &= pduel->game_field->core.duel_rule == 3 ? 0xffff00ff : 0xffffc0ff;
 	}
 	if(location2 & LOCATION_MZONE) {
-		flag &= 0xffe0ffff;
+		flag &= 0xff80ffff;
 	}
 	if(location2 & LOCATION_SZONE) {
 		flag &= pduel->game_field->core.duel_rule == 3 ? 0x00ffffff : 0xc0ffffff;
