@@ -422,7 +422,7 @@ int32 effect::is_activate_ready(effect* reason_effect, uint8 playerid, const tev
 			pduel->lua->add_param(e.reason_effect, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 			pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
-			pduel->lua->add_param((ptr)0, PARAM_TYPE_INT);
+			pduel->lua->add_param(0, PARAM_TYPE_INT);
 			if(!pduel->lua->check_condition(cost, 9)) {
 				reason_effect->cost_checked = FALSE;
 				return FALSE;
@@ -440,7 +440,7 @@ int32 effect::is_activate_ready(effect* reason_effect, uint8 playerid, const tev
 		pduel->lua->add_param(e.reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
-		pduel->lua->add_param((ptr)0, PARAM_TYPE_INT);
+		pduel->lua->add_param(0, PARAM_TYPE_INT);
 		if(!pduel->lua->check_condition(target, 9)) {
 			reason_effect->cost_checked = FALSE;
 			return FALSE;

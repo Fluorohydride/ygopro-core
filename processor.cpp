@@ -14,7 +14,7 @@
 #include "ocgapi.h"
 #include <iterator>
 
-void field::add_process(uint16 type, uint16 step, effect* peffect, group* target, ptr arg1, ptr arg2, ptr arg3, ptr arg4, void* ptr1, void* ptr2) {
+void field::add_process(uint16 type, uint16 step, effect* peffect, group* target, int32 arg1, int32 arg2, int32 arg3, int32 arg4, void* ptr1, void* ptr2) {
 	processor_unit new_unit;
 	new_unit.type = type;
 	new_unit.step = step;
