@@ -438,7 +438,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_NO_EFFECT_DAMAGE			335
 //#define EFFECT_UNSUMMONABLE_CARD		336
 #define EFFECT_DISCARD_COST_CHANGE		338
-//#define EFFECT_HAND_SYNCHRO				339
+#define EFFECT_HAND_SYNCHRO				339
 #define EFFECT_ADD_FUSION_CODE			340
 #define EFFECT_ADD_FUSION_SETCODE		341
 #define EFFECT_ONLY_ATTACK_MONSTER		343
@@ -467,7 +467,6 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CHANGE_GRAVE_RACE		366
 #define EFFECT_ACTIVATION_COUNT_LIMIT	367
 #define EFFECT_LIMIT_SPECIAL_SUMMON_POSITION	368
-#define EFFECT_EXTRA_SYNCHRO_MATERIAL		369
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
