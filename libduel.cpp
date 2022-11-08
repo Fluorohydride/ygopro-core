@@ -3430,7 +3430,8 @@ int32 scriptlib::duel_overlay(lua_State *L) {
 		oset.insert(pcard->xyz_materials.begin(), pcard->xyz_materials.end());
 	target->xyz_overlay(&cset);
 	duel* pduel = interpreter::get_duel_info(L);
-	pduel->game_field->send_to(&oset, pduel->game_field->core.reason_effect, REASON_LOST_OVERLAY + REASON_RULE, pduel->game_field->core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+	if(oset.size())
+		pduel->game_field->send_to(&oset, pduel->game_field->core.reason_effect, REASON_LOST_OVERLAY + REASON_RULE, pduel->game_field->core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 	uint32 adjust = TRUE;
 	if(lua_gettop(L) > 2) {
 		adjust = lua_toboolean(L, 3);
