@@ -409,6 +409,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			if(core.deck_reversed && (public_count < drawed)) {
 				pduel->write_buffer8(MSG_CONFIRM_CARDS);
 				pduel->write_buffer8(1 - playerid);
+				pduel->write_buffer8(0);
 				pduel->write_buffer8((uint8)drawed_set->size());
 				for(auto& pcard : *drawed_set) {
 					pduel->write_buffer32(pcard->data.code);
@@ -2576,6 +2577,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		if(confirm) {
 			pduel->write_buffer8(MSG_CONFIRM_CARDS);
 			pduel->write_buffer8(toplayer);
+			pduel->write_buffer8(0);
 			pduel->write_buffer8((uint8)core.set_group_set.size());
 			for(auto& pcard : core.set_group_set) {
 				pduel->write_buffer32(pcard->data.code);
