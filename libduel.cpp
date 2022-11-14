@@ -2087,7 +2087,10 @@ int32 scriptlib::duel_check_location(lua_State *L) {
 }
 int32 scriptlib::duel_get_current_chain(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushinteger(L, pduel->game_field->core.current_chain.size());
+	uint32 count = pduel->game_field->core.current_chain.size();
+	if(count > 0 && pduel->game_field->core.skip_current_chain_count)
+		count--;
+	lua_pushinteger(L, count);
 	return 1;
 }
 int32 scriptlib::duel_get_chain_info(lua_State *L) {
@@ -2095,6 +2098,13 @@ int32 scriptlib::duel_get_chain_info(lua_State *L) {
 	uint32 c = (uint32)lua_tointeger(L, 1);
 	uint32 args = lua_gettop(L) - 1;
 	duel* pduel = interpreter::get_duel_info(L);
+	if(pduel->game_field->core.skip_current_chain_count
+		&& !(c == 0 && pduel->game_field->core.continuous_chain.size() && (pduel->game_field->core.reason_effect->type & EFFECT_TYPE_CONTINUOUS))) {
+		if(c == 0)
+			c = pduel->game_field->core.current_chain.size();
+		if(c > 0)
+			c--;
+	}
 	chain* ch = pduel->game_field->get_chain(c);
 	if(!ch)
 		return 0;
@@ -3359,6 +3369,14 @@ int32 scriptlib::duel_clear_operation_info(lua_State* L) {
 			pduel->delete_group(oit.second.op_cards);
 	}
 	ch->opinfos.clear();
+	return 0;
+}
+int32 scriptlib::duel_skip_current_chain_count(lua_State *L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	uint8 skip = TRUE;
+	if(lua_gettop(L) > 0)
+		skip = lua_toboolean(L, 1);
+	pduel->game_field->core.skip_current_chain_count = skip;
 	return 0;
 }
 int32 scriptlib::duel_check_xyz_material(lua_State *L) {
@@ -4730,6 +4748,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetOperationInfo", scriptlib::duel_get_operation_info },
 	{ "GetOperationCount", scriptlib::duel_get_operation_count },
 	{ "ClearOperationInfo", scriptlib::duel_clear_operation_info },
+	{ "SkipCurrentChainCount", scriptlib::duel_skip_current_chain_count },
 	{ "CheckXyzMaterial", scriptlib::duel_check_xyz_material },
 	{ "SelectXyzMaterial", scriptlib::duel_select_xyz_material },
 	{ "Overlay", scriptlib::duel_overlay },

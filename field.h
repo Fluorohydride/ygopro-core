@@ -323,6 +323,7 @@ struct processor {
 	card* chain_attack_target;
 	uint8 attack_player;
 	uint8 selfdes_disabled;
+	uint8 skip_current_chain_count;
 	uint8 overdraw[2];
 	int32 check_level;
 	uint8 shuffle_check_disabled;
@@ -359,7 +360,7 @@ struct processor {
 		limit_tuner(nullptr), limit_syn(nullptr), limit_syn_minc(0), limit_syn_maxc(0), limit_xyz(nullptr), limit_xyz_minc(0), limit_xyz_maxc(0), limit_link(nullptr), limit_link_card(nullptr),
 		limit_link_minc(0), limit_link_maxc(0), not_material(FALSE), attack_cancelable(FALSE), attack_rollback(FALSE), effect_damage_step(0), battle_damage{ 0 }, summon_count{ 0 }, extra_summon{ FALSE },
 		spe_effect{ 0 }, duel_options(0), duel_rule(0), copy_reset(0), copy_reset_count(0), last_control_changed_id(0), set_group_used_zones(0), set_group_seq{ 0 }, dice_result{ 0 }, coin_result{ 0 },
-		to_bp(FALSE), to_m2(FALSE), to_ep(FALSE), skip_m2(FALSE), chain_attack(FALSE), chain_attacker_id(0), chain_attack_target(nullptr), attack_player(PLAYER_NONE), selfdes_disabled(FALSE),
+		to_bp(FALSE), to_m2(FALSE), to_ep(FALSE), skip_m2(FALSE), chain_attack(FALSE), chain_attacker_id(0), chain_attack_target(nullptr), attack_player(PLAYER_NONE), selfdes_disabled(FALSE), skip_current_chain_count(FALSE),
 		overdraw{ FALSE }, check_level(0), shuffle_check_disabled(FALSE), shuffle_hand_check{ FALSE }, shuffle_deck_check{ FALSE }, deck_reversed(FALSE), remove_brainwashing(FALSE), flip_delayed(FALSE),
 		damage_calculated(FALSE), hand_adjusted(FALSE), summon_state_count{ 0 }, normalsummon_state_count{ 0 }, flipsummon_state_count{ 0 }, spsummon_state_count{ 0 }, attack_state_count{ 0 },
 		battle_phase_count{ 0 }, battled_count{ 0 }, phase_action(FALSE), hint_timing{ 0 }, current_player(PLAYER_NONE), conti_player(PLAYER_NONE) {}

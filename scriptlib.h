@@ -537,6 +537,7 @@ public:
 	static int32 duel_get_operation_info(lua_State *L);
 	static int32 duel_get_operation_count(lua_State *L);
 	static int32 duel_clear_operation_info(lua_State *L);
+	static int32 duel_skip_current_chain_count(lua_State *L);
 	static int32 duel_check_xyz_material(lua_State *L);
 	static int32 duel_select_xyz_material(lua_State *L);
 	static int32 duel_overlay(lua_State *L);
