@@ -97,6 +97,7 @@ struct card_sort {
 #define TYPE_LINK			0x4000000	//
 
 //Attributes
+#define ATTRIBUTE_ALL		0x7f		//
 #define ATTRIBUTE_EARTH		0x01		//
 #define ATTRIBUTE_WATER		0x02		//
 #define ATTRIBUTE_FIRE		0x04		//
