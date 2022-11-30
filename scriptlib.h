@@ -125,6 +125,7 @@ public:
 	static int32 card_is_attribute(lua_State *L);
 	static int32 card_is_fusion_attribute(lua_State *L);
 	static int32 card_is_link_attribute(lua_State *L);
+	static int32 card_is_non_attribute(lua_State *L);
 	static int32 card_is_extra_deck_monster(lua_State *L);
 	static int32 card_is_reason(lua_State *L);
 	static int32 card_is_summon_type(lua_State *L);
