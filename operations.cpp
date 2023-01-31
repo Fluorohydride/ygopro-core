@@ -5188,20 +5188,6 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 	switch(step) {
 	case 0: {
 		core.select_cards.clear();
-		if(core.global_flag & GLOBALFLAG_MUST_BE_SMATERIAL) {
-			effect_set eset;
-			filter_player_effect(pcard->current.controler, EFFECT_MUST_BE_SMATERIAL, &eset);
-			if(eset.size() && (!mg || mg->has_card(eset[0]->handler))) {
-				core.select_cards.push_back(eset[0]->handler);
-				pduel->restore_assumes();
-				pduel->write_buffer8(MSG_HINT);
-				pduel->write_buffer8(HINT_SELECTMSG);
-				pduel->write_buffer8(playerid);
-				pduel->write_buffer32(512);
-				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + ((uint32)core.summon_cancelable << 16), 0x10001);
-				return FALSE;
-			}
-		}
 		if(mg) {
 			for(auto& pm : mg->container) {
 				if(check_tuner_material(pcard, pm, -3, -2, min, max, smat, mg))
@@ -5287,6 +5273,14 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		if(pcheck)
 			pcheck->get_value(smat);
 		if(min == 0) {
+			group* pgroup = pduel->new_group();
+			pgroup->container.insert(tuner);
+			pgroup->container.insert(smat);
+			if(!check_must_material(pgroup, playerid, EFFECT_MUST_BE_SMATERIAL)) {
+				pduel->restore_assumes();
+				core.limit_tuner = 0;
+				return TRUE;
+			}
 			int32 lv = pcard->get_level();
 			card_vector nsyn;
 			nsyn.push_back(tuner);
@@ -5314,11 +5308,21 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 			core.must_select_cards.push_back(smat);
 			smat->sum_param = smat->get_synchro_level(pcard);
 		}
+		card_set must_list;
+		int32 mct = get_must_material_list(playerid, EFFECT_MUST_BE_SMATERIAL, &must_list);
+		if(mct > 0) {
+			for(auto& mcard : must_list) {
+				if(mcard == tuner || mcard == smat)
+					continue;
+				core.must_select_cards.push_back(mcard);
+				mcard->sum_param = mcard->get_synchro_level(pcard);
+			}
+		}
 		card_vector nsyn(core.must_select_cards);
 		int32 mcount = (int32)nsyn.size();
 		if(mg) {
 			for(auto& pm : mg->container) {
-				if(pm == tuner || pm == smat || !pm->is_can_be_synchro_material(pcard, tuner))
+				if(pm == tuner || pm == smat || must_list.find(pm) != must_list.end() || !pm->is_can_be_synchro_material(pcard, tuner))
 					continue;
 				if(ptuner && ptuner->target) {
 					pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
@@ -5344,7 +5348,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 			if(location & LOCATION_HAND)
 				cv.insert(cv.end(), player[playerid].list_hand.begin(), player[playerid].list_hand.end());
 			for(auto& pm : cv) {
-				if(!pm || pm == tuner || pm == smat || !pm->is_can_be_synchro_material(pcard, tuner))
+				if(!pm || pm == tuner || pm == smat || must_list.find(pm) != must_list.end() || !pm->is_can_be_synchro_material(pcard, tuner))
 					continue;
 				if(ptuner && ptuner->target) {
 					pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
@@ -5557,12 +5561,12 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 				core.units.begin()->arg2 = min + (max << 16);
 			}
 		}
-		effect_set eset;
-		filter_player_effect(playerid, EFFECT_MUST_BE_XMATERIAL, &eset);
+		card_set mcset;
+		int32 mct = get_must_material_list(playerid, EFFECT_MUST_BE_XMATERIAL, &mcset);
 		core.select_cards.clear();
-		for(int i = 0; i < eset.size(); ++i)
-			core.select_cards.push_back(eset[i]->handler);
-		int32 mct = (int32)core.select_cards.size();
+		for(auto& mcard : mcset) {
+			core.select_cards.push_back(mcard);
+		}
 		if(mct == 0) {
 			returns.ivalue[0] = 1;
 			core.units.begin()->step = 1;

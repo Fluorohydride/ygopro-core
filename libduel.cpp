@@ -2937,6 +2937,47 @@ int32 scriptlib::duel_select_target(lua_State *L) {
 		return 1;
 	});
 }
+int32 scriptlib::duel_get_must_material(lua_State *L) {
+	check_param_count(L, 2);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	uint32 limit = (uint32)lua_tointeger(L, 2);
+	duel* pduel = interpreter::get_duel_info(L);
+	group* pgroup = pduel->new_group();
+	pduel->game_field->get_must_material_list(playerid, limit, &pgroup->container);
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
+int32 scriptlib::duel_check_must_material(lua_State *L) {
+	check_param_count(L, 3);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	card* mcard = 0;
+	group* mgroup = 0;
+	group* pgroup = 0;
+	duel* pduel = 0;
+	if(check_param(L, PARAM_TYPE_CARD, 2, TRUE)) {
+		mcard = *(card**)lua_touserdata(L, 2);
+		pduel = mcard->pduel;
+	} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
+		mgroup = *(group**)lua_touserdata(L, 2);
+		pduel = mgroup->pduel;
+	} else
+		pduel = interpreter::get_duel_info(L);
+	if(mgroup) {
+		pgroup = pduel->new_group(mgroup->container);
+		pgroup->is_readonly = TRUE;
+	} else if(mcard) {
+		pgroup = pduel->new_group(mcard);
+		pgroup->is_readonly = TRUE;
+	} else
+		pgroup = 0;
+	uint32 limit = (uint32)lua_tointeger(L, 3);
+	lua_pushboolean(L, pduel->game_field->check_must_material(pgroup, playerid, limit));
+	return 1;
+}
 int32 scriptlib::duel_select_fusion_material(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 3);
@@ -3086,14 +3127,6 @@ int32 scriptlib::duel_check_tuner_material(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	card* tuner = *(card**) lua_touserdata(L, 2);
 	duel* pduel = pcard->pduel;
-	if(pduel->game_field->core.global_flag & GLOBALFLAG_MUST_BE_SMATERIAL) {
-		effect_set eset;
-		pduel->game_field->filter_player_effect(pcard->current.controler, EFFECT_MUST_BE_SMATERIAL, &eset);
-		if(eset.size() && eset[0]->handler != tuner) {
-			lua_pushboolean(L, false);
-			return 1;
-		}
-	}
 	if(!lua_isnil(L, 3))
 		check_param(L, PARAM_TYPE_FUNCTION, 3);
 	if(!lua_isnil(L, 4))
@@ -4708,6 +4741,8 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetTargetCount", scriptlib::duel_get_target_count },
 	{ "IsExistingTarget", scriptlib::duel_is_existing_target },
 	{ "SelectTarget", scriptlib::duel_select_target },
+	{ "GetMustMaterial", scriptlib::duel_get_must_material },
+	{ "CheckMustMaterial", scriptlib::duel_check_must_material },
 	{ "SelectFusionMaterial", scriptlib::duel_select_fusion_material },
 	{ "SetFusionMaterial", scriptlib::duel_set_fusion_material },
 	{ "SetSynchroMaterial", scriptlib::duel_set_synchro_material },
