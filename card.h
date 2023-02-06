@@ -332,6 +332,7 @@ public:
 	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf, uint8 not_material);
 	int32 check_fusion_substitute(card* fcard);
 	int32 is_not_tuner(card* scard);
+	int32 is_tuner(card* scard);
 
 	int32 check_unique_code(card* pcard);
 	void get_unique_target(card_set* cset, int32 controler, card* icard = 0);
