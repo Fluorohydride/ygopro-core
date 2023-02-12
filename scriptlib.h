@@ -133,6 +133,7 @@ public:
 	static int32 card_is_summon_player(lua_State *L);
 	static int32 card_is_status(lua_State *L);
 	static int32 card_is_not_tuner(lua_State *L);
+	static int32 card_is_tuner(lua_State* L);
 	static int32 card_set_status(lua_State *L);
 	static int32 card_is_dual_state(lua_State *L);
 	static int32 card_enable_dual_state(lua_State *L);
