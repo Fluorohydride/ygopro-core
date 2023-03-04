@@ -3004,7 +3004,10 @@ int32 scriptlib::card_is_can_be_disabled_by_effect(lua_State* L) {
 	check_param(L, PARAM_TYPE_EFFECT, 2);
 	card* pcard = *(card**)lua_touserdata(L, 1);
 	effect* peffect = *(effect**)lua_touserdata(L, 2);
-	lua_pushboolean(L, pcard->is_can_be_disabled_by_effect(peffect));
+	bool is_monster_effect = true;
+	if (lua_gettop(L) > 2)
+		is_monster_effect = lua_toboolean(L, 3);
+	lua_pushboolean(L, pcard->is_can_be_disabled_by_effect(peffect, is_monster_effect));
 	return 1;
 }
 int32 scriptlib::card_is_can_be_effect_target(lua_State *L) {
