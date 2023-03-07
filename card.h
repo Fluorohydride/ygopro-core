@@ -353,7 +353,7 @@ public:
 	int32 is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect, uint8 min_tribute, uint32 zone = 0x1f);
 	int32 is_setable_szone(uint8 playerid, uint8 ignore_fd = 0);
 	int32 is_affect_by_effect(effect* reason_effect);
-	int32 is_can_be_disabled_by_effect(effect* reason_effect);
+	int32 is_can_be_disabled_by_effect(effect* reason_effect, bool is_monster_effect);
 	int32 is_destructable();
 	int32 is_destructable_by_battle(card* pcard);
 	effect* check_indestructable_by_effect(effect* reason_effect, uint8 playerid);
