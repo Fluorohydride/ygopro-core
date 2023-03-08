@@ -3028,6 +3028,20 @@ int32 scriptlib::duel_set_synchro_material(lua_State *L) {
 	pduel->game_field->core.synchro_materials = pgroup->container;
 	return 0;
 }
+int32 scriptlib::duel_get_synchro_material(lua_State *L) {
+	check_param_count(L, 1);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	uint32 location = LOCATION_HAND + LOCATION_MZONE;
+	if(lua_gettop(L) >= 2)
+		location = (uint32)lua_tointeger(L, 2);
+	duel* pduel = interpreter::get_duel_info(L);
+	group* pgroup = pduel->new_group();
+	pduel->game_field->get_synchro_material(playerid, &pgroup->container, location);
+	interpreter::group2value(L, pgroup);
+	return 1;
+}
 int32 scriptlib::duel_select_synchro_material(lua_State *L) {
 	check_param_count(L, 6);
 	check_param(L, PARAM_TYPE_CARD, 2);
@@ -4746,6 +4760,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "SelectFusionMaterial", scriptlib::duel_select_fusion_material },
 	{ "SetFusionMaterial", scriptlib::duel_set_fusion_material },
 	{ "SetSynchroMaterial", scriptlib::duel_set_synchro_material },
+	{ "GetSynchroMaterial", scriptlib::duel_get_synchro_material },
 	{ "SelectSynchroMaterial", scriptlib::duel_select_synchro_material },
 	{ "CheckSynchroMaterial", scriptlib::duel_check_synchro_material },
 	{ "SelectTunerMaterial", scriptlib::duel_select_tuner_material },

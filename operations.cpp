@@ -5194,11 +5194,11 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 					core.select_cards.push_back(pm);
 			}
 		} else {
-			for(uint8 p = 0; p < 2; ++p) {
-				for(auto& tuner : player[p].list_mzone) {
-					if(check_tuner_material(pcard, tuner, -3, -2, min, max, smat, mg))
-						core.select_cards.push_back(tuner);
-				}
+			card_set material;
+			get_synchro_material(playerid, &material, LOCATION_MZONE + LOCATION_HAND);
+			for(auto& tuner : material) {
+				if(check_tuner_material(pcard, tuner, -3, -2, min, max, smat, mg))
+					core.select_cards.push_back(tuner);
 			}
 		}
 		if(core.select_cards.size() == 0)
@@ -5294,11 +5294,14 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 	}
 	case 4: {
 		card* tuner = core.limit_tuner;
-		int32 location = LOCATION_MZONE;
+		int32 location = LOCATION_MZONE + LOCATION_HAND;
+		int32 tuner_limit = FALSE;
 		effect* ptuner = tuner->is_affected_by_effect(EFFECT_TUNER_MATERIAL_LIMIT);
 		if(ptuner) {
-			if(ptuner->value)
+			if(ptuner->value) {
 				location = ptuner->value;
+				tuner_limit = TRUE;
+			}
 		}
 		effect* pcheck = tuner->is_affected_by_effect(EFFECT_SYNCHRO_CHECK);
 		core.must_select_cards.clear();
@@ -5340,13 +5343,8 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 				pm->sum_param = pm->get_synchro_level(pcard);
 			}
 		} else {
-			card_vector cv;
-			if(location & LOCATION_MZONE) {
-				cv.insert(cv.end(), player[0].list_mzone.begin(), player[0].list_mzone.end());
-				cv.insert(cv.end(), player[1].list_mzone.begin(), player[1].list_mzone.end());
-			}
-			if(location & LOCATION_HAND)
-				cv.insert(cv.end(), player[playerid].list_hand.begin(), player[playerid].list_hand.end());
+			card_set cv;
+			get_synchro_material(playerid, &cv, location, tuner_limit);
 			for(auto& pm : cv) {
 				if(!pm || pm == tuner || pm == smat || must_list.find(pm) != must_list.end() || !pm->is_can_be_synchro_material(pcard, tuner))
 					continue;

@@ -522,6 +522,7 @@ public:
 	static int32 duel_select_fusion_material(lua_State *L);
 	static int32 duel_set_fusion_material(lua_State *L);
 	static int32 duel_set_synchro_material(lua_State *L);
+	static int32 duel_get_synchro_material(lua_State *L);
 	static int32 duel_select_synchro_material(lua_State *L);
 	static int32 duel_check_synchro_material(lua_State *L);
 	static int32 duel_select_tuner_material(lua_State *L);
