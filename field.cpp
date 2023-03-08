@@ -2514,7 +2514,7 @@ void field::get_synchro_material(uint8 playerid, card_set* material, uint32 loca
 				material->insert(pcard);
 		}
 		for(auto& pcard : player[1 - playerid].list_mzone) {
-			if(pcard && (tuner_limit || pcard->is_affected_by_effect(EFFECT_EXTRA_SYNCHRO_MATERIAL)))
+			if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_SYNCHRO_MATERIAL))
 				material->insert(pcard);
 		}
 	}
