@@ -4142,6 +4142,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			core.sub_solving_event.push_back(e);
 			add_process(PROCESSOR_EXECUTE_OPERATION, 0, param->predirect, 0, pcard->current.controler, 0);
 		}
+		pcard->sendto_param.playerid |= 0x1u << 5;
 		++param->cvit;
 		core.units.begin()->step = 4;
 		return FALSE;
@@ -4222,7 +4223,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		card_set equipings, overlays;
 		for(auto& pcard : targets->container) {
 			uint8 nloc = pcard->current.location;
-			if(pcard->equiping_target)
+			uint8 cb_redirected = pcard->sendto_param.playerid >> 5;
+			if(pcard->equiping_target && !cb_redirected)
 				pcard->unequip();
 			if(pcard->equiping_cards.size()) {
 				for(auto csit = pcard->equiping_cards.begin(); csit != pcard->equiping_cards.end();) {
