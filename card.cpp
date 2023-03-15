@@ -3897,11 +3897,12 @@ int32 card::is_can_be_synchro_material(card* scard, card* tuner) {
 		eset.clear();
 		filter_effect(EFFECT_EXTRA_SYNCHRO_MATERIAL, &eset);
 		if(eset.size()) {
-			for(int32 i = 0; i < eset.size(); ++i)
+			for(int32 i = 0; i < eset.size(); ++i) {
 				if(!eset[i]->check_count_limit(scard->current.controler))
 					continue;
 				if(eset[i]->get_value(scard))
 					return TRUE;
+			}
 			return FALSE;
 		}
 	}
