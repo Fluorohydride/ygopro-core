@@ -3033,12 +3033,9 @@ int32 scriptlib::duel_get_synchro_material(lua_State *L) {
 	int32 playerid = (int32)lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	uint32 location = LOCATION_HAND + LOCATION_MZONE;
-	if(lua_gettop(L) >= 2)
-		location = (uint32)lua_tointeger(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = pduel->new_group();
-	pduel->game_field->get_synchro_material(playerid, &pgroup->container, location);
+	pduel->game_field->get_synchro_material(playerid, &pgroup->container);
 	interpreter::group2value(L, pgroup);
 	return 1;
 }

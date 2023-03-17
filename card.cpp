@@ -3888,12 +3888,7 @@ int32 card::is_can_be_synchro_material(card* scard, card* tuner) {
 	for(int32 i = 0; i < eset.size(); ++i)
 		if(eset[i]->get_value(scard))
 			return FALSE;
-	if(scard && (current.location == LOCATION_HAND || current.controler != scard->current.controler)) {
-		if(tuner && current.location == LOCATION_HAND) {
-			effect* ptuner = tuner->is_affected_by_effect(EFFECT_TUNER_MATERIAL_LIMIT);
-			if(ptuner && ptuner->value)
-				return TRUE;
-		}
+	if(scard && !(current.location == LOCATION_MZONE && current.controler == scard->current.controler)) {
 		eset.clear();
 		filter_effect(EFFECT_EXTRA_SYNCHRO_MATERIAL, &eset);
 		if(eset.size()) {

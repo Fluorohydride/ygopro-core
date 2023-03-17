@@ -2507,8 +2507,22 @@ int32 field::check_must_material(group* mg, uint8 playerid, uint32 limit) {
 			return FALSE;
 	return TRUE;
 }
-void field::get_synchro_material(uint8 playerid, card_set* material, uint32 location, uint32 tuner_limit) {
-	if(location & LOCATION_MZONE) {
+void field::get_synchro_material(uint8 playerid, card_set* material, effect* ptuner) {
+	if(ptuner && ptuner->value) {
+		int32 location = ptuner->value;
+		if(location & LOCATION_MZONE) {
+			for(auto& pcard : player[playerid].list_mzone) {
+				if(pcard)
+					material->insert(pcard);
+			}
+		}
+		if(location & LOCATION_HAND) {
+			for(auto& pcard : player[playerid].list_hand) {
+				if(pcard)
+					material->insert(pcard);
+			}
+		}
+	} else {
 		for(auto& pcard : player[playerid].list_mzone) {
 			if(pcard)
 				material->insert(pcard);
@@ -2517,10 +2531,8 @@ void field::get_synchro_material(uint8 playerid, card_set* material, uint32 loca
 			if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_SYNCHRO_MATERIAL))
 				material->insert(pcard);
 		}
-	}
-	if(location & LOCATION_HAND) {
 		for(auto& pcard : player[playerid].list_hand) {
-			if(pcard && (tuner_limit || pcard->is_affected_by_effect(EFFECT_EXTRA_SYNCHRO_MATERIAL)))
+			if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_SYNCHRO_MATERIAL))
 				material->insert(pcard);
 		}
 	}
@@ -2533,7 +2545,7 @@ int32 field::check_synchro_material(card* pcard, int32 findex1, int32 findex2, i
 		}
 	} else {
 		card_set material;
-		get_synchro_material(pcard->current.controler, &material, LOCATION_MZONE + LOCATION_HAND);
+		get_synchro_material(pcard->current.controler, &material);
 		for(auto& tuner : material) {
 			if(check_tuner_material(pcard, tuner, findex1, findex2, min, max, smat, mg))
 				return TRUE;
@@ -2587,14 +2599,11 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		if(handover_zone_cards.find(tuner) != handover_zone_cards.end())
 			ct++;
 	}
-	int32 location = LOCATION_MZONE + LOCATION_HAND;
-	int32 tuner_limit = FALSE;
+	int32 location = LOCATION_MZONE;
 	effect* ptuner = tuner->is_affected_by_effect(EFFECT_TUNER_MATERIAL_LIMIT);
 	if(ptuner) {
-		if(ptuner->value) {
+		if(ptuner->value)
 			location = ptuner->value;
-			tuner_limit = TRUE;
-		}
 		if(ptuner->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
 			if(ptuner->s_range && ptuner->s_range > min)
 				min = ptuner->s_range;
@@ -2713,7 +2722,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		}
 	} else {
 		card_set cv;
-		get_synchro_material(playerid, &cv, location, tuner_limit);
+		get_synchro_material(playerid, &cv, ptuner);
 		for(auto& pm : cv) {
 			if(!pm || pm == tuner || pm == smat || must_list.find(pm) != must_list.end() || !pm->is_can_be_synchro_material(pcard, tuner))
 				continue;
