@@ -3891,8 +3891,6 @@ int32 card::is_can_be_synchro_material(card* scard, card* tuner) {
 		return FALSE;
 	if(!(get_synchro_type() & TYPE_MONSTER))
 		return FALSE;
-	if(scard && current.location == LOCATION_MZONE && current.controler != scard->current.controler && !is_affected_by_effect(EFFECT_SYNCHRO_MATERIAL))
-		return FALSE;
 	if(is_status(STATUS_FORBIDDEN))
 		return FALSE;
 	//special fix for scrap chimera, not perfect yet
@@ -3905,6 +3903,19 @@ int32 card::is_can_be_synchro_material(card* scard, card* tuner) {
 	for(int32 i = 0; i < eset.size(); ++i)
 		if(eset[i]->get_value(scard))
 			return FALSE;
+	if(scard && !(current.location == LOCATION_MZONE && current.controler == scard->current.controler)) {
+		eset.clear();
+		filter_effect(EFFECT_EXTRA_SYNCHRO_MATERIAL, &eset);
+		if(eset.size()) {
+			for(int32 i = 0; i < eset.size(); ++i) {
+				if(!eset[i]->check_count_limit(scard->current.controler))
+					continue;
+				if(eset[i]->get_value(scard))
+					return TRUE;
+			}
+			return FALSE;
+		}
+	}
 	return TRUE;
 }
 int32 card::is_can_be_ritual_material(card* scard) {
