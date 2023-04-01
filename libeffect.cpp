@@ -120,6 +120,8 @@ int32 scriptlib::effect_set_count_limit(lua_State *L) {
 		code = (uint32)lua_tointeger(L, 3);
 	if(v == 0)
 		v = 1;
+	if(code == EFFECT_COUNT_CODE_CHAIN)
+		code = EFFECT_COUNT_CODE_CHAIN + EFFECT_COUNT_CODE_SINGLE;
 	peffect->flag[0] |= EFFECT_FLAG_COUNT_LIMIT;
 	peffect->count_limit = v;
 	peffect->count_limit_max = v;
