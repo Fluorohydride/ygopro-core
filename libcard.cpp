@@ -1262,6 +1262,15 @@ int32 scriptlib::card_is_not_tuner(lua_State *L) {
 	lua_pushboolean(L, pcard->is_not_tuner(scard));
 	return 1;
 }
+int32 scriptlib::card_is_tuner(lua_State* L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	check_param(L, PARAM_TYPE_CARD, 2);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	card* scard = *(card**)lua_touserdata(L, 2);
+	lua_pushboolean(L, pcard->is_tuner(scard));
+	return 1;
+}
 int32 scriptlib::card_set_status(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -2995,7 +3004,10 @@ int32 scriptlib::card_is_can_be_disabled_by_effect(lua_State* L) {
 	check_param(L, PARAM_TYPE_EFFECT, 2);
 	card* pcard = *(card**)lua_touserdata(L, 1);
 	effect* peffect = *(effect**)lua_touserdata(L, 2);
-	lua_pushboolean(L, pcard->is_can_be_disabled_by_effect(peffect));
+	bool is_monster_effect = true;
+	if (lua_gettop(L) > 2)
+		is_monster_effect = lua_toboolean(L, 3);
+	lua_pushboolean(L, pcard->is_can_be_disabled_by_effect(peffect, is_monster_effect));
 	return 1;
 }
 int32 scriptlib::card_is_can_be_effect_target(lua_State *L) {
@@ -3368,6 +3380,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsSummonPlayer", scriptlib::card_is_summon_player },
 	{ "IsStatus", scriptlib::card_is_status },
 	{ "IsNotTuner", scriptlib::card_is_not_tuner },
+	{ "IsTuner", scriptlib::card_is_tuner },
 	{ "SetStatus", scriptlib::card_set_status },
 	{ "IsDualState", scriptlib::card_is_dual_state },
 	{ "EnableDualState", scriptlib::card_enable_dual_state },

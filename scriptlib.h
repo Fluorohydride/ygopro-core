@@ -133,6 +133,7 @@ public:
 	static int32 card_is_summon_player(lua_State *L);
 	static int32 card_is_status(lua_State *L);
 	static int32 card_is_not_tuner(lua_State *L);
+	static int32 card_is_tuner(lua_State* L);
 	static int32 card_set_status(lua_State *L);
 	static int32 card_is_dual_state(lua_State *L);
 	static int32 card_enable_dual_state(lua_State *L);
@@ -516,9 +517,12 @@ public:
 	static int32 duel_get_target_count(lua_State *L);
 	static int32 duel_is_existing_target(lua_State *L);
 	static int32 duel_select_target(lua_State *L);
+	static int32 duel_get_must_material(lua_State *L);
+	static int32 duel_check_must_material(lua_State *L);
 	static int32 duel_select_fusion_material(lua_State *L);
 	static int32 duel_set_fusion_material(lua_State *L);
 	static int32 duel_set_synchro_material(lua_State *L);
+	static int32 duel_get_synchro_material(lua_State *L);
 	static int32 duel_select_synchro_material(lua_State *L);
 	static int32 duel_check_synchro_material(lua_State *L);
 	static int32 duel_select_tuner_material(lua_State *L);

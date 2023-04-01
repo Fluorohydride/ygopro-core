@@ -205,7 +205,7 @@ enum effect_flag : uint32 {
 	EFFECT_FLAG_IMMEDIATELY_APPLY	= 0x80000000,
 };
 enum effect_flag2 : uint32 {
-//	EFFECT_FLAG2_MILLENNIUM_RESTRICT	= 0x0001,
+	EFFECT_FLAG2_REPEAT_UPDATE			= 0x0001,
 	EFFECT_FLAG2_COF					= 0x0002,
 	EFFECT_FLAG2_WICKED					= 0x0004,
 	EFFECT_FLAG2_OPTION					= 0x0008,
@@ -384,7 +384,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_TOSS_DICE_REPLACE		221
 #define EFFECT_FUSION_MATERIAL			230
 #define EFFECT_CHAIN_MATERIAL			231
-#define EFFECT_SYNCHRO_MATERIAL			232
+#define EFFECT_EXTRA_SYNCHRO_MATERIAL	232
 #define EFFECT_XYZ_MATERIAL				233
 #define EFFECT_FUSION_SUBSTITUTE		234
 #define EFFECT_CANNOT_BE_FUSION_MATERIAL	235
@@ -468,6 +468,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CHANGE_GRAVE_RACE		366
 #define EFFECT_ACTIVATION_COUNT_LIMIT	367
 #define EFFECT_LIMIT_SPECIAL_SUMMON_POSITION	368
+#define EFFECT_TUNER					369
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
@@ -494,6 +495,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_DESTROYED			1029
 #define EVENT_MOVE				1030
 #define EVENT_LEAVE_GRAVE		1031
+#define EVENT_LEAVE_DECK		1032
 #define EVENT_ADJUST			1040
 #define EVENT_BREAK_EFFECT		1050
 #define EVENT_SUMMON_SUCCESS		1100

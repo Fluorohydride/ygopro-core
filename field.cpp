@@ -2488,30 +2488,73 @@ void field::attack_all_target_check() {
 	if(!peffect->get_value(core.attack_target))
 		core.attacker->attack_all_target = FALSE;
 }
-int32 field::check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg) {
-	if(core.global_flag & GLOBALFLAG_MUST_BE_SMATERIAL) {
-		effect_set eset;
-		filter_player_effect(pcard->current.controler, EFFECT_MUST_BE_SMATERIAL, &eset);
-		if(eset.size())
-			return check_tuner_material(pcard, eset[0]->handler, findex1, findex2, min, max, smat, mg);
+int32 field::get_must_material_list(uint8 playerid, uint32 limit, card_set* must_list) {
+	effect_set eset;
+	filter_player_effect(playerid, limit, &eset);
+	for(int32 i = 0; i < eset.size(); ++i)
+		must_list->insert(eset[i]->handler);
+	return (int32)must_list->size();
+}
+int32 field::check_must_material(group* mg, uint8 playerid, uint32 limit) {
+	card_set must_list;
+	int32 m = get_must_material_list(playerid, limit, &must_list);
+	if(m <= 0)
+		return TRUE;
+	if(!mg)
+		return FALSE;
+	for(auto& pcard : must_list)
+		if(!mg->has_card(pcard))
+			return FALSE;
+	return TRUE;
+}
+void field::get_synchro_material(uint8 playerid, card_set* material, effect* ptuner) {
+	if(ptuner && ptuner->value) {
+		int32 location = ptuner->value;
+		if(location & LOCATION_MZONE) {
+			for(auto& pcard : player[playerid].list_mzone) {
+				if(pcard)
+					material->insert(pcard);
+			}
+		}
+		if(location & LOCATION_HAND) {
+			for(auto& pcard : player[playerid].list_hand) {
+				if(pcard)
+					material->insert(pcard);
+			}
+		}
+	} else {
+		for(auto& pcard : player[playerid].list_mzone) {
+			if(pcard)
+				material->insert(pcard);
+		}
+		for(auto& pcard : player[1 - playerid].list_mzone) {
+			if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_SYNCHRO_MATERIAL))
+				material->insert(pcard);
+		}
+		for(auto& pcard : player[playerid].list_hand) {
+			if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_SYNCHRO_MATERIAL))
+				material->insert(pcard);
+		}
 	}
+}
+int32 field::check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg) {
 	if(mg) {
 		for(auto& tuner : mg->container) {
 			if(check_tuner_material(pcard, tuner, findex1, findex2, min, max, smat, mg))
 				return TRUE;
 		}
 	} else {
-		for(uint8 p = 0; p < 2; ++p) {
-			for(auto& tuner : player[p].list_mzone) {
-				if(check_tuner_material(pcard, tuner, findex1, findex2, min, max, smat, mg))
-					return TRUE;
-			}
+		card_set material;
+		get_synchro_material(pcard->current.controler, &material);
+		for(auto& tuner : material) {
+			if(check_tuner_material(pcard, tuner, findex1, findex2, min, max, smat, mg))
+				return TRUE;
 		}
 	}
 	return FALSE;
 }
 int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg) {
-	if(!tuner || (tuner->current.location == LOCATION_MZONE && !tuner->is_position(POS_FACEUP)) || !(tuner->get_synchro_type() & TYPE_TUNER) || !tuner->is_can_be_synchro_material(pcard))
+	if(!tuner || (tuner->current.location == LOCATION_MZONE && !tuner->is_position(POS_FACEUP)) || !tuner->is_tuner(pcard) || !tuner->is_can_be_synchro_material(pcard))
 		return FALSE;
 	effect* pcheck = tuner->is_affected_by_effect(EFFECT_SYNCHRO_CHECK);
 	if(pcheck)
@@ -2539,6 +2582,13 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		return FALSE;
 	}
 	int32 playerid = pcard->current.controler;
+	card_set must_list;
+	int32 mct = get_must_material_list(playerid, EFFECT_MUST_BE_SMATERIAL, &must_list);
+	auto tit = must_list.find(tuner);
+	if(tit != must_list.end()) {
+		mct--;
+		must_list.erase(tit);
+	}
 	int32 ct = get_spsummonable_count(pcard, playerid);
 	card_set handover_zone_cards;
 	if(ct <= 0) {
@@ -2587,7 +2637,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	if(smat) {
 		if(pcheck)
 			pcheck->get_value(smat);
-		if(!smat->is_position(POS_FACEUP) || !smat->is_can_be_synchro_material(pcard, tuner) || !pduel->lua->check_matching(smat, findex2, 1)) {
+		if((smat->current.location == LOCATION_MZONE && !smat->is_position(POS_FACEUP)) || !smat->is_can_be_synchro_material(pcard, tuner) || !pduel->lua->check_matching(smat, findex2, 1)) {
 			pduel->restore_assumes();
 			return FALSE;
 		}
@@ -2604,6 +2654,13 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		nsyn.push_back(smat);
 		smat->sum_param = smat->get_synchro_level(pcard);
 		mcount++;
+		if(mct > 0) {
+			auto sit = must_list.find(smat);
+			if(sit != must_list.end()) {
+				mct--;
+				must_list.erase(sit);
+			}
+		}
 		if(ct <= 0) {
 			if(handover_zone_cards.find(smat) != handover_zone_cards.end())
 				ct++;
@@ -2619,9 +2676,34 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 			}
 		}
 	}
+	if(mct > 0) {
+		for(auto& mcard : must_list) {
+			if(mcard == tuner || mcard == smat)
+				continue;
+			if(pcheck)
+				pcheck->get_value(mcard);
+			if((mcard->current.location == LOCATION_MZONE && !mcard->is_position(POS_FACEUP)) || !mcard->is_can_be_synchro_material(pcard, tuner) || !pduel->lua->check_matching(mcard, findex2, 1)) {
+				pduel->restore_assumes();
+				return FALSE;
+			}
+			if(ptuner && ptuner->target) {
+				pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+				pduel->lua->add_param(mcard, PARAM_TYPE_CARD);
+				if(!pduel->lua->get_function_value(ptuner->target, 2)) {
+					pduel->restore_assumes();
+					return FALSE;
+				}
+			}
+			min--;
+			max--;
+			nsyn.push_back(mcard);
+			mcard->sum_param = mcard->get_synchro_level(pcard);
+			mcount++;
+		}
+	}
 	if(mg) {
 		for(auto& pm : mg->container) {
-			if(pm == tuner || pm == smat || !pm->is_can_be_synchro_material(pcard, tuner))
+			if(pm == tuner || pm == smat || must_list.find(pm) != must_list.end() || !pm->is_can_be_synchro_material(pcard, tuner))
 				continue;
 			if(ptuner && ptuner->target) {
 				pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
@@ -2639,15 +2721,10 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 			pm->sum_param = pm->get_synchro_level(pcard);
 		}
 	} else {
-		card_vector cv;
-		if(location & LOCATION_MZONE) {
-			cv.insert(cv.end(), player[0].list_mzone.begin(), player[0].list_mzone.end());
-			cv.insert(cv.end(), player[1].list_mzone.begin(), player[1].list_mzone.end());
-		}
-		if(location & LOCATION_HAND)
-			cv.insert(cv.end(), player[playerid].list_hand.begin(), player[playerid].list_hand.end());
+		card_set cv;
+		get_synchro_material(playerid, &cv, ptuner);
 		for(auto& pm : cv) {
-			if(!pm || pm == tuner || pm == smat || !pm->is_can_be_synchro_material(pcard, tuner))
+			if(!pm || pm == tuner || pm == smat || must_list.find(pm) != must_list.end() || !pm->is_can_be_synchro_material(pcard, tuner))
 				continue;
 			if(ptuner && ptuner->target) {
 				pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
@@ -2862,12 +2939,8 @@ int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, 
 		if(min > max)
 			return FALSE;
 	}
-	effect_set eset;
-	filter_player_effect(playerid, EFFECT_MUST_BE_XMATERIAL, &eset);
 	card_set mcset;
-	for(int32 i = 0; i < eset.size(); ++i)
-		mcset.insert(eset[i]->handler);
-	int32 mct = (int32)mcset.size();
+	int32 mct = get_must_material_list(playerid, EFFECT_MUST_BE_XMATERIAL, &mcset);
 	if(mct > 0) {
 		if(ct == 0 && std::none_of(mcset.begin(), mcset.end(),
 			[=](card* pcard) { return handover_zone_cards.find(pcard) != handover_zone_cards.end(); }))
