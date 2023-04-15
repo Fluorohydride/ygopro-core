@@ -400,6 +400,18 @@ public:
 #define SUMMON_TYPE_XYZ			0x49000000
 #define SUMMON_TYPE_PENDULUM	0x4a000000
 #define SUMMON_TYPE_LINK		0x4c000000
+
+static uint32 get_summon_reason(uint32 summon_info) {
+	uint32 summontype = summon_info & 0xff000000;
+	if(summontype == SUMMON_TYPE_FUSION)	return REASON_FUSION;
+	if(summontype == SUMMON_TYPE_RITUAL)	return REASON_RITUAL;
+	if(summontype == SUMMON_TYPE_SYNCHRO)	return REASON_SYNCHRO;
+	if(summontype == SUMMON_TYPE_XYZ)		return REASON_XYZ;
+	if(summontype == SUMMON_TYPE_PENDULUM)	return REASON_PENDULUM;
+	if(summontype == SUMMON_TYPE_LINK)		return REASON_LINK;
+	return 0;
+}
+
 //Counter
 #define COUNTER_WITHOUT_PERMIT	0x1000
 //#define COUNTER_NEED_ENABLE		0x2000
