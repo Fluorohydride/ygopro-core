@@ -2864,12 +2864,20 @@ int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 t
 		return FALSE;
 	return TRUE;
 }
+static void get_sum_params(uint32 sum_param, int32& op1, int32& op2) {
+	op1 = sum_param & 0xffff;
+	op2 = (sum_param >> 16) & 0xffff;
+	if(op2 & 0x8000) {
+		op1 = sum_param & 0x7fffffff;
+		op2 = 0;
+	}
+}
 int32 field::check_with_sum_limit(const card_vector& mats, int32 acc, int32 index, int32 count, int32 min, int32 max, int32 opmin) {
 	if(count > max)
 		return FALSE;
 	while(index < (int32)mats.size()) {
-		int32 op1 = mats[index]->sum_param & 0xffff;
-		int32 op2 = (mats[index]->sum_param >> 16) & 0xffff;
+		int32 op1, op2;
+		get_sum_params(mats[index]->sum_param, op1, op2);
 		if(((op1 == acc && acc + opmin > op1) || (op2 && op2 == acc && acc + opmin > op2)) && count >= min)
 			return TRUE;
 		index++;
@@ -2887,8 +2895,9 @@ int32 field::check_with_sum_limit_m(const card_vector& mats, int32 acc, int32 in
 		return check_with_sum_limit(mats, acc, index, 1, min, max, opmin);
 	if(index >= (int32)mats.size())
 		return FALSE;
-	int32 op1 = mats[index]->sum_param & 0xffff;
-	int32 op2 = (mats[index]->sum_param >> 16) & 0xffff;
+	int32 op1;
+	int32 op2;
+	get_sum_params(mats[index]->sum_param, op1, op2);
 	if(acc >= op1 && check_with_sum_limit_m(mats, acc - op1, index + 1, min, max, std::min(opmin, op1), must_count))
 		return TRUE;
 	if(op2 && acc >= op2 && check_with_sum_limit_m(mats, acc - op2, index + 1, min, max, std::min(opmin, op2), must_count))
@@ -2897,8 +2906,9 @@ int32 field::check_with_sum_limit_m(const card_vector& mats, int32 acc, int32 in
 }
 int32 field::check_with_sum_greater_limit(const card_vector& mats, int32 acc, int32 index, int32 opmin) {
 	while(index < (int32)mats.size()) {
-		int32 op1 = mats[index]->sum_param & 0xffff;
-		int32 op2 = (mats[index]->sum_param >> 16) & 0xffff;
+		int32 op1;
+		int32 op2;
+		get_sum_params(mats[index]->sum_param, op1, op2);
 		if((acc <= op1 && acc + opmin > op1) || (op2 && acc <= op2 && acc + opmin > op2))
 			return TRUE;
 		index++;
@@ -2916,8 +2926,9 @@ int32 field::check_with_sum_greater_limit_m(const card_vector& mats, int32 acc, 
 		return check_with_sum_greater_limit(mats, acc, index, opmin);
 	if(index >= (int32)mats.size())
 		return FALSE;
-	int32 op1 = mats[index]->sum_param & 0xffff;
-	int32 op2 = (mats[index]->sum_param >> 16) & 0xffff;
+	int32 op1;
+	int32 op2;
+	get_sum_params(mats[index]->sum_param, op1, op2);
 	if(check_with_sum_greater_limit_m(mats, acc - op1, index + 1, std::min(opmin, op1), must_count))
 		return TRUE;
 	if(op2 && check_with_sum_greater_limit_m(mats, acc - op2, index + 1, std::min(opmin, op2), must_count))

@@ -605,11 +605,19 @@ int32 field::select_counter(uint16 step, uint8 playerid, uint16 countertype, uin
 	}
 	return TRUE;
 }
+static void get_sum_params(int32 sum_param, int32& op1, int32& op2) {
+	op1 = sum_param & 0xffff;
+	op2 = (sum_param >> 16) & 0xffff;
+	if(op2 & 0x8000) {
+		op1 = sum_param & 0x7fffffff;
+		op2 = 0;
+	}
+}
 static int32 select_sum_check1(const int32* oparam, int32 size, int32 index, int32 acc, int32 opmin) {
 	if(acc == 0 || index == size)
 		return FALSE;
-	int32 o1 = oparam[index] & 0xffff;
-	int32 o2 = oparam[index] >> 16;
+	int32 o1, o2;
+	get_sum_params(oparam[index], o1, o2);
 	if(index == size - 1)
 		return (acc == o1 && acc + opmin > o1) || (o2 && acc == o2 && acc + opmin > o2);
 	return (acc > o1 && select_sum_check1(oparam, size, index + 1, acc - o1, std::min(o1, opmin)))
@@ -628,7 +636,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 		if(max < min)
 			max = min;
 		pduel->write_buffer8(playerid);
-		pduel->write_buffer32(acc & 0xffff);
+		pduel->write_buffer32(acc);
 		pduel->write_buffer8(min);
 		pduel->write_buffer8(max);
 		pduel->write_buffer8((uint8)core.must_select_cards.size());
@@ -679,9 +687,8 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 			int32 mcount = (int32)core.must_select_cards.size();
 			int32 sum = 0, mx = 0, mn = 0x7fffffff;
 			for(int32 i = 0; i < mcount; ++i) {
-				int32 op = core.must_select_cards[i]->sum_param;
-				int32 o1 = op & 0xffff;
-				int32 o2 = op >> 16;
+				int32 o1, o2;
+				get_sum_params(core.must_select_cards[i]->sum_param, o1, o2);
 				int32 ms = (o2 && o2 < o1) ? o2 : o1;
 				sum += ms;
 				mx += (o2 > o1) ? o2 : o1;
@@ -696,9 +703,8 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 					return FALSE;
 				}
 				c.insert(v);
-				int32 op = core.select_cards[v]->sum_param;
-				int32 o1 = op & 0xffff;
-				int32 o2 = op >> 16;
+				int32 o1, o2;
+				get_sum_params(core.select_cards[v]->sum_param, o1, o2);
 				int32 ms = (o2 && o2 < o1) ? o2 : o1;
 				sum += ms;
 				mx += (o2 > o1) ? o2 : o1;
