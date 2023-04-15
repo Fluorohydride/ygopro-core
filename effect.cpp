@@ -201,7 +201,7 @@ int32 effect::check_count_limit(uint8 playerid) {
 		if(count_code) {
 			uint32 code = count_code & 0xfffffff;
 			uint32 count = count_limit_max;
-			if(code == 1) {
+			if(code == EFFECT_COUNT_CODE_SINGLE) {
 				if(pduel->game_field->get_effect_code((count_code & 0xf0000000) | get_handler()->fieldid, PLAYER_NONE) >= count)
 					return FALSE;
 			} else {
@@ -666,7 +666,7 @@ void effect::dec_count(uint32 playerid) {
 		count_limit -= 1;
 	if(count_code) {
 		uint32 code = count_code & 0xfffffff;
-		if(code == 1)
+		if(code == EFFECT_COUNT_CODE_SINGLE)
 			pduel->game_field->add_effect_code((count_code & 0xf0000000) | get_handler()->fieldid, PLAYER_NONE);
 		else
 			pduel->game_field->add_effect_code(count_code, playerid);
