@@ -605,7 +605,7 @@ int32 field::select_counter(uint16 step, uint8 playerid, uint16 countertype, uin
 	}
 	return TRUE;
 }
-static void get_sum_params(int32 sum_param, int32& op1, int32& op2) {
+static void get_sum_params(uint32 sum_param, int32& op1, int32& op2) {
 	op1 = sum_param & 0xffff;
 	op2 = (sum_param >> 16) & 0xffff;
 	if(op2 & 0x8000) {
@@ -613,7 +613,7 @@ static void get_sum_params(int32 sum_param, int32& op1, int32& op2) {
 		op2 = 0;
 	}
 }
-static int32 select_sum_check1(const int32* oparam, int32 size, int32 index, int32 acc, int32 opmin) {
+static int32 select_sum_check1(const uint32* oparam, int32 size, int32 index, int32 acc, int32 opmin) {
 	if(acc == 0 || index == size)
 		return FALSE;
 	int32 o1, o2;
@@ -660,7 +660,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 	} else {
 		std::set<int32> c;
 		if(max) {
-			int32 oparam[16];
+			uint32 oparam[16];
 			int32 mcount = (int32)core.must_select_cards.size();
 			if(returns.bvalue[0] < min + mcount || returns.bvalue[0] > max + mcount) {
 				pduel->write_buffer8(MSG_RETRY);
