@@ -2974,12 +2974,11 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		group* pgroup = core.units.begin()->ptarget;
 		card* pcard = *pgroup->it;
 		pcard->enable_field_effect(false);
-		pcard->current.reason = REASON_SPSUMMON;
-		pcard->current.reason_effect = peffect;
-		pcard->current.reason_player = sumplayer;
 		pcard->summon_player = sumplayer;
 		pcard->summon_info = (peffect->get_value(pcard) & 0xff00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)pcard->current.location << 16);
-		pcard->current.reason |= get_summon_reason(pcard->summon_info);
+		pcard->current.reason = REASON_SPSUMMON | get_summon_reason(pcard->summon_info);
+		pcard->current.reason_effect = peffect;
+		pcard->current.reason_player = sumplayer;
 		uint32 zone = 0xff;
 		uint32 flag1, flag2;
 		int32 ct1 = get_tofield_count(pcard, sumplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD, zone, &flag1);
