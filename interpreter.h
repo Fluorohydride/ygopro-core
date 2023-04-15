@@ -17,7 +17,6 @@
 #include <vector>
 #include <cstdio>
 #include <cstring>
-#include <cmath>
 
 class card;
 class effect;
@@ -51,7 +50,7 @@ public:
 	int32 load_script(const char* script_name);
 	int32 load_card_script(uint32 code);
 	void add_param(void* param, int32 type, bool front = false);
-	void add_param(ptr param, int32 type, bool front = false);
+	void add_param(int32 param, int32 type, bool front = false);
 	void push_param(lua_State* L, bool is_coroutine = false);
 	int32 call_function(int32 f, uint32 param_count, int32 ret_count);
 	int32 call_card_function(card* pcard, const char* f, uint32 param_count, int32 ret_count);
@@ -70,7 +69,6 @@ public:
 	static void effect2value(lua_State* L, effect* peffect);
 	static void function2value(lua_State* L, int32 pointer);
 	static int32 get_function_handle(lua_State* L, int32 index);
-	static void set_duel_info(lua_State* L, duel* pduel);
 	static duel* get_duel_info(lua_State* L);
 
 	template <size_t N, typename... TR>
