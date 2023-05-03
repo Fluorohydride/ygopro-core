@@ -107,6 +107,8 @@ struct card_sort {
 #define ATTRIBUTE_DEVINE	0x40		//
 
 //Races
+#define RACES_COUNT			26
+#define RACE_ALL			0x3ffffff
 #define RACE_WARRIOR		0x1			//
 #define RACE_SPELLCASTER	0x2			//
 #define RACE_FAIRY			0x4			//
@@ -132,6 +134,7 @@ struct card_sort {
 #define RACE_CREATORGOD		0x400000	//
 #define RACE_WYRM			0x800000	//
 #define RACE_CYBERSE		0x1000000	//
+#define RACE_ILLUSION		0x2000000	//
 
 //Reason
 #define REASON_DESTROY		0x1		//
