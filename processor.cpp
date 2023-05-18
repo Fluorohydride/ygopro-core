@@ -3305,8 +3305,12 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 	case 3: {
 		core.attacker = (card*)core.units.begin()->peffect;
 		core.attack_target = (card*)core.units.begin()->ptarget;
-		if(core.attacker)
+		if(core.attacker) {
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
+			core.attacker->announce_count++;
+			core.attacker->announced_cards.addcard(core.attack_target);
+			attack_all_target_check();
+		}
 		if(core.attack_target)
 			core.attack_target->set_status(STATUS_ATTACK_CANCELED, TRUE);
 		core.effect_damage_step = 0;
