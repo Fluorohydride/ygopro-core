@@ -3402,6 +3402,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					continue;
 				}
 			}
+			// monsters with EFFECT_INDESTRUCTABLE_COUNT cannot apply EFFECT_DESTROY_REPLACE
 			eset.clear();
 			pcard->filter_effect(EFFECT_INDESTRUCTABLE_COUNT, &eset);
 			if (eset.size()) {
@@ -3423,8 +3424,8 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 						pduel->lua->add_param(pcard->current.reason_player, PARAM_TYPE_INT);
 						int32 ct;
 						if(ct = eset[i]->get_value(3)) {
-							auto it = pcard->indestructable_effects.emplace(eset[i]->id, 0);
-							if(++it.first->second <= ct) {
+							auto ret = pcard->indestructable_effects.emplace(eset[i]->id, 0);
+							if(++ret.first->second <= ct) {
 								indestructable_effect_set.insert(eset[i]);
 								is_destructable = false;
 							}
@@ -3432,7 +3433,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					}
 				}
 				if(!is_destructable) {
-					indestructable_set.insert(pcard);
+					core.indestructable_count_set.insert(pcard);
 					continue;
 				}
 			}
@@ -3463,6 +3464,12 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 			pcard->current.reason_effect = pcard->temp.reason_effect;
 			pcard->current.reason_player = pcard->temp.reason_player;
 			pcard->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
+			targets->container.erase(pcard);
+		}
+		for (auto& pcard : core.indestructable_count_set) {
+			pcard->current.reason = pcard->temp.reason;
+			pcard->current.reason_effect = pcard->temp.reason_effect;
+			pcard->current.reason_player = pcard->temp.reason_player;
 			targets->container.erase(pcard);
 		}
 		for (auto& rep : extra) {
@@ -3497,6 +3504,9 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 		for (auto& pcard : core.destroy_canceled)
 			pcard->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
 		core.destroy_canceled.clear();
+		for (auto& pcard : core.indestructable_count_set)
+			pcard->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
+		core.indestructable_count_set.clear();
 		return FALSE;
 	}
 	case 3: {

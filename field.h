@@ -252,6 +252,7 @@ struct processor {
 	card_set operated_set;
 	card_set discarded_set;
 	card_set destroy_canceled;
+	card_set indestructable_count_set;
 	card_set delayed_enable_set;
 	card_set set_group_pre_set;
 	card_set set_group_set;
