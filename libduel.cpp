@@ -195,10 +195,13 @@ int32 scriptlib::duel_destroy(lua_State *L) {
 	uint32 dest = LOCATION_GRAVE;
 	if(lua_gettop(L) >= 3)
 		dest = (uint32)lua_tointeger(L, 3);
+	uint32 reason_player = pduel->game_field->core.reason_player;
+	if (lua_gettop(L) >= 4)
+		reason_player = (uint32)lua_tointeger(L, 4);
 	if(pcard)
-		pduel->game_field->destroy(pcard, pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, PLAYER_NONE, dest, 0);
+		pduel->game_field->destroy(pcard, pduel->game_field->core.reason_effect, reason, reason_player, PLAYER_NONE, dest, 0);
 	else
-		pduel->game_field->destroy(&(pgroup->container), pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, PLAYER_NONE, dest, 0);
+		pduel->game_field->destroy(&(pgroup->container), pduel->game_field->core.reason_effect, reason, reason_player, PLAYER_NONE, dest, 0);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
@@ -221,10 +224,13 @@ int32 scriptlib::duel_remove(lua_State *L) {
 		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	uint32 pos = (uint32)lua_tointeger(L, 2);
 	uint32 reason = (uint32)lua_tointeger(L, 3);
+	uint32 reason_player = pduel->game_field->core.reason_player;
+	if (lua_gettop(L) >= 4)
+		reason_player = (uint32)lua_tointeger(L, 4);
 	if(pcard)
-		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, pos);
+		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, pos);
 	else
-		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, pos);
+		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, pos);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
@@ -246,10 +252,13 @@ int32 scriptlib::duel_sendto_grave(lua_State *L) {
 	} else
 		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	uint32 reason = (uint32)lua_tointeger(L, 2);
+	uint32 reason_player = pduel->game_field->core.reason_player;
+	if (lua_gettop(L) >= 3)
+		reason_player = (uint32)lua_tointeger(L, 3);
 	if(pcard)
-		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 	else
-		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
@@ -790,10 +799,13 @@ int32 scriptlib::duel_release(lua_State *L) {
 	} else
 		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	uint32 reason = (uint32)lua_tointeger(L, 2);
+	uint32 reason_player = pduel->game_field->core.reason_player;
+	if (lua_gettop(L) >= 3)
+		reason_player = (uint32)lua_tointeger(L, 3);
 	if(pcard)
-		pduel->game_field->release(pcard, pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player);
+		pduel->game_field->release(pcard, pduel->game_field->core.reason_effect, reason, reason_player);
 	else
-		pduel->game_field->release(&(pgroup->container), pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player);
+		pduel->game_field->release(&(pgroup->container), pduel->game_field->core.reason_effect, reason, reason_player);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
