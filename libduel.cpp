@@ -642,10 +642,13 @@ int32 scriptlib::duel_sendto_deck(lua_State *L) {
 		playerid = PLAYER_NONE;
 	uint32 sequence = (uint32)lua_tointeger(L, 3);
 	uint32 reason = (uint32)lua_tointeger(L, 4);
+	uint32 reason_player = pduel->game_field->core.reason_player;
+	if (lua_gettop(L) >= 5)
+		reason_player = (uint32)lua_tointeger(L, 5);
 	if(pcard)
-		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, playerid, LOCATION_DECK, sequence, POS_FACEUP);
+		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, reason_player, playerid, LOCATION_DECK, sequence, POS_FACEUP);
 	else
-		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, playerid, LOCATION_DECK, sequence, POS_FACEUP);
+		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, reason_player, playerid, LOCATION_DECK, sequence, POS_FACEUP);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
