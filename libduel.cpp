@@ -3718,6 +3718,11 @@ int32 scriptlib::duel_select_disable_field(lua_State * L) {
 		return 1;
 	});
 }
+/*
+Select zones from the viewpoint of playerid.
+flag	selectable zones XX000000 X0000000 for each player, 1 byte for SZONE(6), 1 byte for MZONE(7)
+filter	excluding zones, 0 for selectable, 1 for unselectable
+*/
 int32 scriptlib::duel_select_field(lua_State* L) {
 	check_action_permission(L);
 	check_param_count(L, 5);
