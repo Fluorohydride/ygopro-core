@@ -329,6 +329,7 @@ struct card_sort {
 #define MSG_PLAYER_HINT			165
 #define MSG_MATCH_KILL			170
 #define MSG_CUSTOM_MSG			180
+#define MSG_AI_RECEIVE			181
 
 //Hints
 #define HINT_EVENT				1

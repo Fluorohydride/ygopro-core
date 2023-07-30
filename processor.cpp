@@ -727,6 +727,1654 @@ int32 field::process() {
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
+int32 field::ai_request(uint32 index,uint8 func_type, uint16 func_code,byte (&ai_resb)[64],byte* &pbuffer,uint32& plen) {
+	lua_State* L = pduel->lua->current_state;
+	auto set_lua_state = [](lua_State* L,const char* oname,const char* fname){
+		lua_getglobal(L, "process_ai_request");
+		if (lua_isnil(L, -1)) {
+			lua_createtable(L, 0, 0);
+			lua_setglobal(L,"process_ai_request");
+			lua_getglobal(L,"process_ai_request");
+		}
+		lua_getglobal(L, "Card");
+		lua_setmetatable(L, -2);
+		lua_getglobal(L, oname);
+		lua_pushstring(L, fname);
+		lua_gettable(L, -2);
+	};
+	auto lua_pushuserdata = [](lua_State* L,card* fcard) {
+		void* data = lua_newuserdata(L, sizeof(card*));
+		*(card**)data = fcard;
+		lua_getglobal(L, "process_ai_request");
+		lua_setmetatable(L,-2);
+	};
+	auto write_buffer32 = [&pbuffer,&plen](uint32 value){
+		std::memcpy(pbuffer, &value, sizeof(value));
+		pbuffer += 4;
+		plen += 4;
+	};
+	auto write_buffer8 = [&pbuffer,&plen](uint8 value){
+		std::memcpy(pbuffer, &value, sizeof(value));
+		pbuffer += 1;
+		plen += 1;
+	};
+	auto write_group = [&write_buffer32,&write_buffer8](lua_State* L,duel* pduel,uint32 index) {
+		group* pgroup = *(group**) lua_touserdata(L, index);
+		write_buffer32(pgroup->container.size());
+		for(auto git = pgroup->container.begin(); git != pgroup->container.end(); ++git) {
+			card* pcard = *git;
+			if(pcard == nullptr) continue;
+			write_buffer32(pcard->get_code());
+			write_buffer8(pcard->current.controler);
+			write_buffer32(pcard->current.location);
+			write_buffer32(pcard->current.sequence);
+		} 
+		pduel->delete_group(pgroup);
+	};
+	auto write_card = [&write_buffer32,&write_buffer8](lua_State* L,duel* pduel,uint32 index) {
+		if(!lua_isnil(L, -1)) {
+			card* pcard = *(card**) lua_touserdata(L, -1);
+			write_buffer32(pcard->get_code());
+			write_buffer8(pcard->current.controler);
+			write_buffer32(pcard->current.location);
+			write_buffer32(pcard->current.sequence);
+		} else {
+			write_buffer32(0);
+		}
+	};
+	const char* oname = "";
+	const char* fname = "";
+#define RECEIVE_NULL 0
+#define RECEIVE_SUCCESS 1
+#define RECEIVE_LUA_ERROR 2
+#define RECEIVE_CORE_ERROR 3
+#define PLAYER_NULL 4
+	uint32 rtype = RECEIVE_NULL;
+	switch (func_type)
+	{
+	case 0:{//Card
+		uint8 controller = ai_resb[index];
+		index++;
+		uint32 location = *reinterpret_cast<uint32*>(&ai_resb[index]);
+		index += 4;
+		uint32 sequence = *reinterpret_cast<uint32*>(&ai_resb[index]);
+		index += 4;
+		card* fcard = get_field_card(controller,location,sequence);
+		oname = "Card";
+		if(fcard == nullptr) {
+			int32 a = 10;
+			fcard = get_field_card(controller,location,sequence);
+			return RECEIVE_NULL;
+		}
+#define C_TO_DOUBLEINT_INDEX  0
+#define C_TO_INT_INDEX C_TO_DOUBLEINT_INDEX + 5
+#define C_TO_INTEX_INDEX C_TO_INT_INDEX + 65
+#define C_INT_INTEX_TO_BOOL_INDEX  C_TO_INTEX_INDEX + 2
+#define DOUBLEC_TO_INT_INDEX  C_INT_INTEX_TO_BOOL_INDEX + 17
+#define C_INT_TO_BOOL_INDEX  DOUBLEC_TO_INT_INDEX + 2
+#define C_TO_G_INDEX  C_INT_TO_BOOL_INDEX + 37
+#define C_TO_BOOL_INDEX  C_TO_G_INDEX + 9
+#define C_INT_TO_INT_INDEX  C_TO_BOOL_INDEX + 30
+#define C_TO_C_INDEX  C_INT_TO_INT_INDEX + 5
+#define DOUBLEC_TO_BOOL_INDEX  C_TO_C_INDEX + 6
+#define C_INT_TO_INT DOUBLEC_TO_BOOL_INDEX + 8
+#define SPECIAL_INDEX C_INT_TO_INT + 3
+		if(func_code >= C_TO_DOUBLEINT_INDEX && func_code < C_TO_INT_INDEX) {
+			uint32 result = 0; 
+			uint32 result2 = 0;
+			std::map<uint8, const char*> codeMap = {
+				{C_TO_DOUBLEINT_INDEX, "GetCode"},{C_TO_DOUBLEINT_INDEX + 1, "GetOriginalCodeRule"},{C_TO_DOUBLEINT_INDEX + 2, "GetPreviousCodeOnField"},
+				{C_TO_DOUBLEINT_INDEX + 3, "GetUnionCount"},{C_TO_DOUBLEINT_INDEX + 4, "GetTributeRequirement"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			try {
+				if(lua_pcall(L, 1, 2, 0) == LUA_OK) {
+					result = lua_tointeger(L, -2); 
+					result2 = lua_tointeger(L, -1);
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+			write_buffer32(result2);
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code < C_TO_INTEX_INDEX) {
+			uint32 result = 0; 
+			std::map<uint8, const char*> codeMap = {
+				{C_TO_INT_INDEX, "GetOriginalCode"}, {C_TO_INT_INDEX + 1, "GetType"}, {C_TO_INT_INDEX + 2, "GetOriginalType"},
+				{C_TO_INT_INDEX + 3, "GetFusionType"}, {C_TO_INT_INDEX + 4, "GetSynchroType"}, {C_TO_INT_INDEX + 5, "GetXyzType"},
+				{C_TO_INT_INDEX + 6, "GetLinkType"}, {C_TO_INT_INDEX + 7, "GetLevel"}, {C_TO_INT_INDEX + 8, "GetRank"},
+				{C_TO_INT_INDEX + 9, "GetLink"}, {C_TO_INT_INDEX + 10, "GetOriginalLevel"}, {C_TO_INT_INDEX + 11, "GetOriginalRank"},
+				{C_TO_INT_INDEX + 12, "GetLeftScale"}, {C_TO_INT_INDEX + 13, "GetOriginalLeftScale"}, {C_TO_INT_INDEX + 14, "GetRightScale"},
+				{C_TO_INT_INDEX + 15, "GetOriginalRightScale"}, {C_TO_INT_INDEX + 16, "GetCurrentScale"}, {C_TO_INT_INDEX + 17, "GetLinkedGroupCount"},
+				{C_TO_INT_INDEX + 18, "GetMutualLinkedGroupCount"}, {C_TO_INT_INDEX + 19, "GetColumnGroupCount"}, {C_TO_INT_INDEX + 20, "GetAttribute"},
+				{C_TO_INT_INDEX + 21, "GetOriginalAttribute"}, {C_TO_INT_INDEX + 22, "GetRace"}, {C_TO_INT_INDEX + 23, "GetOriginalRace"},
+				{C_TO_INT_INDEX + 24, "GetAttack"}, {C_TO_INT_INDEX + 25, "GetBaseAttack"}, {C_TO_INT_INDEX + 26, "GetTextAttack"},
+				{C_TO_INT_INDEX + 27, "GetDefense"}, {C_TO_INT_INDEX + 28, "GetBaseDefense"}, {C_TO_INT_INDEX + 29, "GetTextDefense"},
+				{C_TO_INT_INDEX + 30, "GetPreviousTypeOnField"}, {C_TO_INT_INDEX + 31, "GetPreviousLevelOnField"}, {C_TO_INT_INDEX + 32, "GetPreviousRankOnField"},
+				{C_TO_INT_INDEX + 33, "GetPreviousAttributeOnField"}, {C_TO_INT_INDEX + 34, "GetPreviousRaceOnField"}, {C_TO_INT_INDEX + 35, "GetPreviousAttackOnField"},
+				{C_TO_INT_INDEX + 36, "GetPreviousDefenseOnField"}, {C_TO_INT_INDEX + 37, "GetOwner"}, {C_TO_INT_INDEX + 38, "GetControler"},
+				{C_TO_INT_INDEX + 39, "GetPreviousControler"}, {C_TO_INT_INDEX + 40, "GetReason"}, {C_TO_INT_INDEX + 41, "GetReasonPlayer"},
+				{C_TO_INT_INDEX + 42, "GetPosition"}, {C_TO_INT_INDEX + 43, "GetPreviousPosition"}, {C_TO_INT_INDEX + 44, "GetBattlePosition"},
+				{C_TO_INT_INDEX + 45, "GetLocation"}, {C_TO_INT_INDEX + 46, "GetPreviousLocation"}, {C_TO_INT_INDEX + 47, "GetSequence"},
+				{C_TO_INT_INDEX + 48, "GetSummonType"}, {C_TO_INT_INDEX + 49, "GetSummonLocation"}, {C_TO_INT_INDEX + 50, "GetSummonPlayer"},
+				{C_TO_INT_INDEX + 51, "GetDestination"}, {C_TO_INT_INDEX + 52, "GetLeaveFieldDest"}, {C_TO_INT_INDEX + 53, "GetTurnID"},
+				{C_TO_INT_INDEX + 54, "GetFieldID"}, {C_TO_INT_INDEX + 55, "GetRealFieldID"}, {C_TO_INT_INDEX + 56, "GetTurnCounter"},
+				{C_TO_INT_INDEX + 57, "GetMaterialCount"}, {C_TO_INT_INDEX + 58, "GetEquipCount"}, {C_TO_INT_INDEX + 59, "GetOverlayCount"},
+				{C_TO_INT_INDEX + 60, "GetAttackedGroupCount"}, {C_TO_INT_INDEX + 61, "GetAttackedCount"}, {C_TO_INT_INDEX + 62, "GetAttackAnnouncedCount"},
+				{C_TO_INT_INDEX + 63, "GetCardTargetCount"},	{C_TO_INT_INDEX + 64, "GetOwnerTargetCount"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			try{
+				if(lua_pcall(L, 1, 1, 0) == LUA_OK) result = lua_tointeger(L, -1);
+				else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+			rtype = RECEIVE_SUCCESS;
+
+		} else if(func_code < C_INT_INTEX_TO_BOOL_INDEX) {
+			uint32 code = 0; 
+			if(func_code == C_TO_INTEX_INDEX) fname = "GetFusionCode";
+			else if(func_code == C_TO_INTEX_INDEX + 1) fname = "GetLinkCode";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			try{
+				if(lua_pcall(L, 1, LUA_MULTRET, 0) == LUA_OK) {
+					uint32 rcount = lua_gettop(L) - 3;
+					write_buffer32(rcount);
+					for (int32 i = 0, j = -1; i < rcount; ++i,--j) {
+						code = lua_tointeger(L, j);
+						write_buffer32(code);
+					}
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code < DOUBLEC_TO_INT_INDEX) {
+			uint32 count = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			std::map<uint8, const char*> codeMap = {
+				{C_INT_INTEX_TO_BOOL_INDEX, "IsFusionCode"},{C_INT_INTEX_TO_BOOL_INDEX + 1, "IsLinkCode"},{C_INT_INTEX_TO_BOOL_INDEX + 2, "IsSetCard"},
+				{C_INT_INTEX_TO_BOOL_INDEX + 3, "IsOriginalSetCard"},{C_INT_INTEX_TO_BOOL_INDEX + 4, "IsPreviousSetCard"},{C_INT_INTEX_TO_BOOL_INDEX + 5, "IsFusionSetCard"},
+				{C_INT_INTEX_TO_BOOL_INDEX + 6, "IsLinkSetCard"},{C_INT_INTEX_TO_BOOL_INDEX + 7, "IsOriginalCodeRule"},{C_INT_INTEX_TO_BOOL_INDEX + 8, "IsCode"},
+				{C_INT_INTEX_TO_BOOL_INDEX + 9, "IsLevel"},{C_INT_INTEX_TO_BOOL_INDEX + 10, "IsRank"},{C_INT_INTEX_TO_BOOL_INDEX + 11, "IsLink"},
+				{C_INT_INTEX_TO_BOOL_INDEX + 12, "IsAttack"},{C_INT_INTEX_TO_BOOL_INDEX + 13, "IsDefense"},{C_INT_INTEX_TO_BOOL_INDEX + 14, "IsLinkRace"},
+				{C_INT_INTEX_TO_BOOL_INDEX + 15, "IsFusionAttribute"},{C_INT_INTEX_TO_BOOL_INDEX + 16, "IsLinkAttribute"},
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			uint32 parameter = 0;
+			for (uint32 i = 0; i < count; ++i)
+			{
+				if(index >= 64) {
+					--i;
+					break;
+				}
+				parameter = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index += 4;
+				lua_pushinteger(L,parameter);
+			}
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, count + 1, 1, 0) == LUA_OK) {
+					result = lua_toboolean(L, -1);
+				}
+				else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code < C_INT_TO_BOOL_INDEX) {
+			uint8 controller_2 = ai_resb[index];
+			index++;
+			uint32 location_2 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 sequence_2= *reinterpret_cast<uint32*>(&ai_resb[index]);
+			card* fcard_2 = get_field_card(controller_2,location_2,sequence_2);
+			if(fcard_2 == nullptr) return RECEIVE_NULL;
+			if(func_code == DOUBLEC_TO_INT_INDEX) fname = "GetSynchroLevel"; 
+			else if(func_code == DOUBLEC_TO_INT_INDEX + 1) fname = "GetRitualLevel";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushuserdata(L,fcard_2);
+			uint32 result = 0;
+			try{
+				if(lua_pcall(L, 2, 1, 0) == LUA_OK) result = lua_tointeger(L, -1); 
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code < C_TO_G_INDEX) {
+			std::map<uint8, const char*> codeMap = {
+				{C_INT_TO_BOOL_INDEX, "IsLinkMarker"},{C_INT_TO_BOOL_INDEX + 1, "IsType"},{C_INT_TO_BOOL_INDEX + 2, "IsFusionType"},
+				{C_INT_TO_BOOL_INDEX + 3, "IsSynchroType"},{C_INT_TO_BOOL_INDEX + 4, "IsXyzType"},{C_INT_TO_BOOL_INDEX + 5, "IsLinkType"},
+				{C_INT_TO_BOOL_INDEX + 6, "IsRace"},{C_INT_TO_BOOL_INDEX + 7, "IsAttribute"},{C_INT_TO_BOOL_INDEX + 8, "IsReason"},
+				{C_INT_TO_BOOL_INDEX + 9, "IsSummonType"},{C_INT_TO_BOOL_INDEX + 10, "IsSummonLocation"},{C_INT_TO_BOOL_INDEX + 11, "IsSummonPlayer"},
+				{C_INT_TO_BOOL_INDEX + 12, "IsStatus"},{C_INT_TO_BOOL_INDEX + 13, "IsRelateToChain"},{C_INT_TO_BOOL_INDEX + 14, "IsPosition"},
+				{C_INT_TO_BOOL_INDEX + 15, "IsPreviousPosition"},{C_INT_TO_BOOL_INDEX + 16, "IsControler"},{C_INT_TO_BOOL_INDEX + 17, "IsPreviousControler"},
+				{C_INT_TO_BOOL_INDEX + 18, "IsLocation"},{C_INT_TO_BOOL_INDEX + 19, "IsPreviousLocation"},{C_INT_TO_BOOL_INDEX + 20, "IsLevelBelow"},
+				{C_INT_TO_BOOL_INDEX + 21, "IsLevelAbove"},{C_INT_TO_BOOL_INDEX + 22, "IsRankBelow"},{C_INT_TO_BOOL_INDEX + 23, "IsRankAbove"},
+				{C_INT_TO_BOOL_INDEX + 24, "IsLinkBelow"},{C_INT_TO_BOOL_INDEX + 25, "IsLinkAbove"},{C_INT_TO_BOOL_INDEX + 26, "IsAttackBelow"},
+				{C_INT_TO_BOOL_INDEX + 27, "IsAttackAbove"},{C_INT_TO_BOOL_INDEX + 28, "IsDefenseBelow"},{C_INT_TO_BOOL_INDEX + 29, "IsDefenseAbove"},
+				{C_INT_TO_BOOL_INDEX + 30, "IsCanHaveCounter"},{C_INT_TO_BOOL_INDEX + 31, "IsFusionSummonableCard"},{C_INT_TO_BOOL_INDEX + 32, "IsSpecialSummonable"},
+				{C_INT_TO_BOOL_INDEX + 33, "IsAbleToHand"}, {C_INT_TO_BOOL_INDEX + 34, "IsAbleToRemoveAsCost"},{C_INT_TO_BOOL_INDEX + 35, "IsDiscardable"},
+				{C_INT_TO_BOOL_INDEX + 36, "IsCanOverlay"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			uint32 parameter = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			lua_pushuserdata(L,fcard);
+			lua_pushinteger(L,parameter);
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, 2, 1, 0) == LUA_OK) result = lua_toboolean(L, -1);
+				else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code < C_TO_BOOL_INDEX || func_code == SPECIAL_INDEX + 7) {
+			std::map<uint8, const char*> codeMap = {
+				{C_TO_G_INDEX, "GetLinkedGroup"},{C_TO_G_INDEX + 1, "GetMutualLinkedGroup"},{C_TO_G_INDEX + 2,"GetColumnGroup"},
+				{C_TO_G_INDEX + 3,"GetMaterial"},{C_TO_G_INDEX + 4,"GetEquipGroup"},{C_TO_G_INDEX + 5,"GetAttackedGroup"},
+				{C_TO_G_INDEX + 6,"GetBattledGroup"},{C_TO_G_INDEX + 7,"GetCardTarget"},{C_TO_G_INDEX + 8,"GetOwnerTarget"},
+				{SPECIAL_INDEX + 7,"GetOverlayGroup"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			try {
+				if(lua_pcall(L, 1, 1, 0) == LUA_OK) {
+					write_group(L,pduel,-1);
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code < C_INT_TO_INT_INDEX) {
+			std::map<uint8, const char*> codeMap = {
+				{C_TO_BOOL_INDEX, "IsLinkState"},{C_TO_BOOL_INDEX + 1, "IsExtraLinkState"},{C_TO_BOOL_INDEX + 2, "IsAllColumn"},
+				{C_TO_BOOL_INDEX + 3,"IsExtraDeckMonster"},{C_TO_BOOL_INDEX + 4,"IsDualState"},{C_TO_BOOL_INDEX + 5,"IsDirectAttacked"},
+				{C_TO_BOOL_INDEX + 6,"IsRelateToBattle"},{C_TO_BOOL_INDEX + 7,"IsDisabled"},{C_TO_BOOL_INDEX + 8,"IsSummonableCard"},
+				{C_TO_BOOL_INDEX + 9,"IsAbleToDeck"},{C_TO_BOOL_INDEX + 10,"IsAbleToExtra"},{C_TO_BOOL_INDEX + 11,"IsAbleToGrave"},
+				{C_TO_BOOL_INDEX + 12,"IsAbleToHandAsCost"},{C_TO_BOOL_INDEX + 13,"IsAbleToDeckAsCost"},{C_TO_BOOL_INDEX + 14,"IsAbleToExtraAsCost"},
+				{C_TO_BOOL_INDEX + 15,"IsAbleToDeckOrExtraAsCost"},{C_TO_BOOL_INDEX + 16,"IsAbleToGraveAsCost"},{C_TO_BOOL_INDEX + 17,"IsReleasable"},
+				{C_TO_BOOL_INDEX + 18,"IsReleasableByEffect"},{C_TO_BOOL_INDEX + 19,"IsAttackable"},{C_TO_BOOL_INDEX + 20,"IsFaceup"},
+				{C_TO_BOOL_INDEX + 21,"IsAttackPos"},{C_TO_BOOL_INDEX + 22,"IsFacedown"},{C_TO_BOOL_INDEX + 23,"IsDefensePos"},
+				{C_TO_BOOL_INDEX + 24,"IsOnField"},{C_TO_BOOL_INDEX + 25,"IsPublic"},{C_TO_BOOL_INDEX + 26,"IsForbidden"},
+				{C_TO_BOOL_INDEX + 27,"IsAbleToChangeControler"},{C_TO_BOOL_INDEX + 28,"IsCanChangePosition"},{C_TO_BOOL_INDEX + 29,"IsCanTurnSet"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, 1, 1, 0) == LUA_OK) result = lua_toboolean(L, -1);
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code < C_TO_C_INDEX) {
+			std::map<uint8, const char*> codeMap = {
+				{C_INT_TO_INT_INDEX, "GetLinkedZone"},{C_INT_TO_INT_INDEX + 1, "GetMutualLinkedZone"},{C_INT_TO_INT_INDEX + 2, "GetFusionAttribute"},
+				{C_INT_TO_INT_INDEX + 3, "GetLinkAttribute"},{C_INT_TO_INT_INDEX + 4, "GetLinkRace"}
+			};
+			fname = codeMap.find(func_code)->second;
+			uint8 player = ai_resb[index];
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushinteger(L,player);
+			uint32 result = 0; 
+			try{
+				if(lua_pcall(L, 2, 1, 0) == LUA_OK) result = lua_tointeger(L, -1); 
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code < DOUBLEC_TO_BOOL_INDEX) {
+			std::map<uint8, const char*> codeMap = {
+				{C_TO_C_INDEX, "GetReasonCard"},{C_TO_C_INDEX + 1, "GetEquipTarget"},{C_TO_C_INDEX + 2, "GetPreviousEquipTarget"},
+				{C_TO_C_INDEX + 3, "GetOverlayTarget"},{C_TO_C_INDEX + 4, "GetFirstCardTarget"},{C_TO_C_INDEX + 5, "GetBattleTarget"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			try{
+				if(lua_pcall(L, 1, 1, 0) == LUA_OK) {
+					write_card(L,pduel,-1);
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code < C_INT_TO_INT) {
+			uint8 controller_2 = ai_resb[index];
+			index++;
+			uint32 location_2 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 sequence_2 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			card* fcard_2 = get_field_card(controller_2,location_2,sequence_2);
+			if(fcard_2 == nullptr) return RECEIVE_NULL;
+			std::map<uint8, const char*> codeMap = {
+				{DOUBLEC_TO_BOOL_INDEX, "IsNotTuner"},{DOUBLEC_TO_BOOL_INDEX + 1, "CheckEquipTarget"},{DOUBLEC_TO_BOOL_INDEX + 2, "CheckUnionTarget"},
+				{DOUBLEC_TO_BOOL_INDEX + 3, "IsHasCardTarget"},{DOUBLEC_TO_BOOL_INDEX + 4, "IsRelateToCard"},{DOUBLEC_TO_BOOL_INDEX + 5, "CheckFusionSubstitute"},
+				{DOUBLEC_TO_BOOL_INDEX + 6, "IsCanBeBattleTarget"},{DOUBLEC_TO_BOOL_INDEX + 7, "IsSynchroSummonable"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushuserdata(L,fcard_2);
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, 2, 1, 0) == LUA_OK) result = lua_toboolean(L, -1); 
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+
+		} else if(func_code < SPECIAL_INDEX) {
+			uint32 ecode = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			std::map<uint8, const char*> codeMap = {
+				{C_INT_TO_INT, "GetEffectCount"},{C_INT_TO_INT + 1, "GetFlagEffect"},{C_INT_TO_INT + 2, "GetFlagEffectLabel"},
+				{C_INT_TO_INT + 3, "GetCounter"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushinteger(L,ecode);
+			uint32 result = 0;
+			try{
+				if(lua_pcall(L, 2, 1, 0) == LUA_OK) result = lua_isnil(L, -1) ? lua_tointeger(L, -1) : 0; 
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code < SPECIAL_INDEX + 2) {
+			bool ignore = *reinterpret_cast<uint8*>(&ai_resb[index]);
+			index++;
+			uint32 minc = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 zone = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			if(func_code == SPECIAL_INDEX) fname = "IsSummonable";
+			else if(func_code == SPECIAL_INDEX + 1) fname = "IsMSetable";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushboolean(L,ignore);
+			lua_pushnil(L);
+			lua_pushinteger(L,minc);
+			lua_pushinteger(L,zone);
+			uint8 result = 0; 
+			try{
+				if(lua_pcall(L, 5, 1, 0) == LUA_OK) result = lua_toboolean(L,-1);
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code < SPECIAL_INDEX + 4) {
+			card* fcard_2 = nullptr;
+			if(func_code == SPECIAL_INDEX + 3) {
+				uint8 controller_2 = ai_resb[index];
+				index++;
+				if(controller_2 != PLAYER_NONE) {
+					uint32 location_2 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+					index += 4;
+					uint32 sequence_2= *reinterpret_cast<uint32*>(&ai_resb[index]);
+					index += 4;
+					fcard_2 = get_field_card(controller_2,location_2,sequence_2);
+				}
+			}
+			uint32 minc = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 maxc = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			if(func_code == SPECIAL_INDEX + 2) fname = "IsXyzSummonable";
+			else if(func_code == SPECIAL_INDEX + 3) fname = "IsLinkSummonable";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushnil(L);
+			if(func_code == SPECIAL_INDEX + 3) {
+				fcard_2 == nullptr ? lua_pushnil(L) : lua_pushuserdata(L,fcard_2);
+			} 
+			lua_pushinteger(L,minc);
+			lua_pushinteger(L,maxc);
+			uint8 result = 0; 
+			uint32 count = 0;
+			if(func_code == SPECIAL_INDEX + 2) count = 4;
+			else if(func_code == SPECIAL_INDEX + 3) count = 5;
+			try{
+				if(lua_pcall(L, count, 1, 0) == LUA_OK) result = lua_toboolean(L,-1);
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code == SPECIAL_INDEX + 4) {
+			uint8 controller_2 = ai_resb[index];
+			index++;
+			uint32 location_2 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 sequence_2 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			card* fcard_2 = get_field_card(controller_2,location_2,sequence_2);
+			if(fcard_2 == nullptr) return RECEIVE_NULL;
+			uint32 level = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			fname = "IsXyzLevel";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushuserdata(L,fcard_2);
+			lua_pushinteger(L,level);
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, 3, 1, 0) == LUA_OK) result = lua_toboolean(L,-1);
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+		} else if(func_code == SPECIAL_INDEX + 5) {
+			fname = "GetFlagEffectLabel";
+			set_lua_state(L,oname,fname);
+			uint32 ecode = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			lua_pushuserdata(L,fcard);
+			lua_pushinteger(L,ecode);
+			try{
+				if(lua_pcall(L, 2, LUA_MULTRET, 0) == LUA_OK) {
+					if(!lua_isnil(L,-1)) {
+						uint32 rcount = lua_gettop(L) - 3; 
+						write_buffer32(rcount);
+						for (int32 i = 0,j = -1; i < rcount; ++i,--j)
+						{
+							write_buffer32(lua_tointeger(L, j));
+						}
+					} else {
+						write_buffer32(0);
+					}
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == SPECIAL_INDEX + 6) {
+			fname = "GetColumnZone";
+			set_lua_state(L,oname,fname);
+			uint32 location = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint8 player = *reinterpret_cast<uint8*>(&ai_resb[index]);
+			lua_pushuserdata(L,fcard);
+			lua_pushinteger(L,location);
+			lua_pushinteger(L,player);
+			uint32 result = 0; 
+			try{
+				if(lua_pcall(L, 3, 1, 0) == LUA_OK) result = lua_tointeger(L, -1);
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code == SPECIAL_INDEX + 8) {
+			fname = "CheckRemoveOverlayCard";
+			set_lua_state(L,oname,fname);
+			uint8 player = *reinterpret_cast<uint8*>(&ai_resb[index]);
+			index++;
+			uint32 count = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 reason = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			lua_pushuserdata(L,fcard);
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,count);
+			lua_pushinteger(L,reason);
+			uint8 result = 0; 
+			try{
+				if(lua_pcall(L, 4, 1, 0) == LUA_OK) result = lua_toboolean(L, -1);
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+		} else if(func_code == SPECIAL_INDEX + 9) {
+			fname = "IsHasEffect";
+			set_lua_state(L,oname,fname);
+			uint32 ecode = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint8 player = *reinterpret_cast<uint8*>(&ai_resb[index]);
+			lua_pushuserdata(L,fcard);
+			lua_pushinteger(L,ecode);
+			lua_pushinteger(L,player);
+			uint8 result = 0; 
+			try{
+				if(lua_pcall(L, 3, 1, 0) == LUA_OK) result = lua_isnil(L,-1) ? 0 : 1;
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == SPECIAL_INDEX + 10) {
+			fname = "GetAttackableTarget";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			uint8 result = 0; 
+			try {
+				if(lua_pcall(L, 1, 2, 0) == LUA_OK) {
+					result = lua_toboolean(L, -1);
+					write_buffer8(result);
+					write_group(L,pduel,-2);
+				}  else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code < SPECIAL_INDEX + 15) {
+			/*
+			IsCanBeCardTarget
+			IsCanBeDisabledByCard
+			IsImmuneToCard
+			IsDestructable
+			*/
+			uint8 controller_2 = ai_resb[index];
+			index++;
+			uint32 location_2 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 sequence_2 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			card* fcard_2 = get_field_card(controller_2,location_2,sequence_2);
+			if(fcard_2 == nullptr) return RECEIVE_NULL;
+			auto handle_result = [](uint16 func_code,card* fcard, effect* effect,uint8 playerid) -> uint32{
+				return ((func_code == SPECIAL_INDEX + 11 && fcard->is_capable_be_effect_target(effect,playerid))
+					|| (func_code == SPECIAL_INDEX + 12 && fcard->is_can_be_disabled_by_effect(effect,playerid))
+					|| (func_code == SPECIAL_INDEX + 13 && !fcard->is_affect_by_effect(effect))
+					|| (func_code == SPECIAL_INDEX + 14 && fcard->is_destructable_by_effect(effect,playerid)));
+			};
+			uint8 result = 0;
+			for(auto it = fcard_2->single_effect.begin(); it != fcard_2->single_effect.end() && result != 1;) {
+				auto rm = it++;
+				auto effect = rm->second;
+				if(effect == nullptr) continue;
+				if(handle_result(func_code,fcard,effect,controller_2)) {
+					result = 1;
+					break;
+				}
+			}
+			for(auto it = fcard_2->equip_effect.begin(); it != fcard_2->equip_effect.end() && result != 1;) {
+				auto rm = it++;
+				auto effect = rm->second;
+				if(effect == nullptr) continue;
+				if(handle_result(func_code,fcard,effect,controller_2)) {
+					result = 1;
+					break;
+				}
+			}
+			for(auto it = fcard_2->target_effect.begin(); it != fcard_2->target_effect.end() && result != 1;) {
+				auto rm = it++;
+				auto effect = rm->second;
+				if(effect == nullptr) continue;
+				if(handle_result(func_code,fcard,effect,controller_2)) {
+					result = 1;
+					break;
+				}
+			}
+			for(auto it = fcard_2->xmaterial_effect.begin(); it != fcard_2->xmaterial_effect.end() && result != 1;) {
+				auto rm = it++;
+				auto effect = rm->second;
+				if(effect == nullptr) continue;
+				if(handle_result(func_code,fcard,effect,controller_2)) {
+					result = 1;
+					break;
+				}
+			}
+			for(auto it = fcard_2->field_effect.begin(); it != fcard_2->field_effect.end() && result != 1;) {
+				auto rm = it++;
+				auto effect = rm->second;
+				if(effect == nullptr) continue;
+				if(handle_result(func_code,fcard,effect,controller_2)) {
+					result = 1;
+					break;
+				}
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == SPECIAL_INDEX + 15) {
+			uint8 ignore_field = ai_resb[index];
+			fname = "IsSSetable";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushboolean(L,ignore_field);
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, 2, 1, 0) == LUA_OK) result = lua_toboolean(L, -1); 
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == SPECIAL_INDEX + 16) {
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 pos = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 reason = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			fname = "IsAbleToRemove";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,pos);
+			lua_pushinteger(L,reason);
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, 4, 1, 0) == LUA_OK) result = lua_toboolean(L, -1); 
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == SPECIAL_INDEX + 17) {
+			uint32 ac = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint8 monsteronly = ai_resb[index];
+			fname = "IsChainAttackable";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushinteger(L,ac);
+			lua_pushboolean(L,monsteronly);
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, 3, 1, 0) == LUA_OK) result = lua_toboolean(L, -1); 
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == SPECIAL_INDEX + 18) {
+			uint8 ignore_mzone = ai_resb[index];
+			index++;
+			uint32 zone = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			fname = "IsControlerCanBeChanged";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushboolean(L,ignore_mzone);
+			lua_pushinteger(L,zone);
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, 3, 1, 0) == LUA_OK) result = lua_toboolean(L, -1); 
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == SPECIAL_INDEX + 19) {
+			uint32 countertype = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 count = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint8 singly = ai_resb[index];
+			index++;
+			uint32 location_2= *reinterpret_cast<uint32*>(&ai_resb[index]);
+			fname = "IsCanAddCounter";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushinteger(L,countertype);
+			lua_pushinteger(L,count);
+			lua_pushboolean(L,singly);
+			lua_pushinteger(L,location_2);
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, 5, 1, 0) == LUA_OK) result = lua_toboolean(L, -1); 
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == SPECIAL_INDEX + 20) {
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 countertype = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 count = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 reason = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			fname = "IsCanRemoveCounter";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,countertype);
+			lua_pushinteger(L,count);
+			lua_pushinteger(L,reason);
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, 5, 1, 0) == LUA_OK) result = lua_toboolean(L, -1); 
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code < SPECIAL_INDEX + 26) {
+			/*
+			IsCanBeFusionMaterial
+			IsCanBeSynchroMaterial
+			IsCanBeRitualMaterial
+			IsCanBeXyzMaterial
+			IsCanBeLinkMaterial
+			*/
+			uint8 controller_2 = ai_resb[index];
+			index++;
+			card* fcard_2 = nullptr;
+			if(controller_2 != PLAYER_NONE) {
+				uint32 location_2 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index += 4;
+				uint32 sequence_2 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index += 4;
+				fcard_2 = get_field_card(controller_2,location_2,sequence_2);
+				if(fcard_2 == nullptr) return RECEIVE_NULL;
+			}
+			std::map<uint8, const char*> codeMap = {
+				{SPECIAL_INDEX + 21, "IsCanBeFusionMaterial"},{SPECIAL_INDEX + 22, "IsCanBeSynchroMaterial"},{SPECIAL_INDEX + 23, "IsCanBeRitualMaterial"},
+				{SPECIAL_INDEX + 24, "IsCanBeXyzMaterial"},{SPECIAL_INDEX + 25, "IsCanBeLinkMaterial"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			uint32 count = 0;
+			if(fname == "IsCanBeFusionMaterial") {
+				uint32 summon_type = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				fcard_2 == nullptr ? lua_pushnil(L) : lua_pushuserdata(L,fcard_2);
+				lua_pushinteger(L,summon_type);
+				count = 3;
+			} else if(fname == "IsCanBeSynchroMaterial") {
+				count++;
+				uint8 controller_3 = ai_resb[index];
+				card* fcard_3 = nullptr;
+				if(controller_3 != PLAYER_NONE) {
+					index++;
+					uint32 location_3 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+					index += 4;
+					uint32 sequence_3 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+					fcard_3 = get_field_card(controller_3,location_3,sequence_3);
+					if(fcard_3 == nullptr) {rtype = RECEIVE_NULL; break;}
+				}
+				if(fcard_2 != nullptr) {
+					count++;
+					lua_pushuserdata(L,fcard_2);
+				}
+				if(fcard_3 != nullptr) {
+					count++;
+					lua_pushuserdata(L,fcard_3);
+				}
+
+			} else {
+				fcard_2 == nullptr ? lua_pushnil(L) : lua_pushuserdata(L,fcard_2);
+				count = 2;
+			}
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, count, 1, 0) == LUA_OK) result = lua_toboolean(L, -1); 
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == SPECIAL_INDEX + 26) {
+			uint8 check_player = ai_resb[index];
+			index++;
+			uint32 check_location = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint8 controller_2 = ai_resb[index];
+			index++;
+			card* fcard_2 = nullptr;
+			if(controller_2 != PLAYER_NONE) {
+				uint32 location_2 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index += 4;
+				uint32 sequence_2 = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index += 4;
+				fcard_2 = get_field_card(controller_2,location_2,sequence_2);
+				if(fcard_2 == nullptr) return RECEIVE_NULL;
+			}
+			fname = "CheckUniqueOnField";
+			set_lua_state(L,oname,fname);
+			lua_pushuserdata(L,fcard);
+			lua_pushinteger(L,check_player);
+			lua_pushinteger(L,check_location);
+			fcard_2 == nullptr ? lua_pushnil(L) : lua_pushuserdata(L,fcard_2);
+			uint8 result = 0;
+			try{
+				if(lua_pcall(L, 4, 1, 0) == LUA_OK) result = lua_toboolean(L, -1); 
+				else {rtype = RECEIVE_LUA_ERROR;break;}
+			}  catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}
+	}
+		  break;
+	case 1:{//Duel
+#define B_TO_OBJECT 0
+#define TO_OBJECT B_TO_OBJECT + 8
+#define DOUBLEOBJECT_TO_OBJECT TO_OBJECT + 8
+#define DUEL_SPECIAL_INDEX DOUBLEOBJECT_TO_OBJECT + 15
+		oname = "Duel";
+		if(func_code < TO_OBJECT) {
+			std::map<uint8, const char*> codeMap = {
+				{B_TO_OBJECT, "GetLP"},{B_TO_OBJECT + 1, "GetTurnCount"},{B_TO_OBJECT + 2, "GetDrawCount"},
+				{B_TO_OBJECT + 3, "GetBattleDamage"},{B_TO_OBJECT + 4, "GetLinkedZone"},{B_TO_OBJECT + 5, "GetRitualMaterial"},
+				{B_TO_OBJECT + 6, "IsPlayerCanAdditionalSummon"},{B_TO_OBJECT + 7, "GetBattledCount"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			uint32 count = 0;
+			if(fname != "GetTurnCount" || player != PLAYER_NONE) {
+				lua_pushinteger(L,player);
+				count++;
+			} 
+			try {
+				if(lua_pcall(L, count, 1, 0) == LUA_OK) {
+					if(fname == "GetRitualMaterial") {
+						write_group(L,pduel,-1);
+					} else if(fname == "IsPlayerCanAdditionalSummon") {
+						write_buffer8(lua_toboolean(L, -1)); 
+					} else {
+						write_buffer32(lua_tointeger(L, -1)); 
+					}
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code < DOUBLEOBJECT_TO_OBJECT) {
+			std::map<uint8, const char*> codeMap = {
+				{TO_OBJECT, "GetTurnPlayer"},{TO_OBJECT + 1, "GetCurrentChain"},{TO_OBJECT + 2, "GetCurrentPhase"},
+				{TO_OBJECT + 3, "IsDamageCalculated"},{TO_OBJECT + 4, "GetAttacker"},{TO_OBJECT + 5, "GetAttackTarget"},
+				{TO_OBJECT + 6, "CheckPhaseActivity"},{TO_OBJECT + 7, "IsAbleToEnterBP"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			try {
+				if(lua_pcall(L, 0, 1, 0) == LUA_OK) {
+					if(fname == "IsDamageCalculated" || fname == "CheckPhaseActivity" || fname == "IsAbleToEnterBP") {
+						write_buffer8(lua_toboolean(L, -1));
+					} else if(fname == "GetAttacker" || fname == "GetAttackTarget") {
+						write_card(L,pduel,-1);
+					} else {
+						write_buffer32(lua_tointeger(L, -1));
+					}
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code < DUEL_SPECIAL_INDEX) {
+			std::map<uint8, const char*> codeMap = {
+				{DOUBLEOBJECT_TO_OBJECT, "GetDecktopGroup"},{DOUBLEOBJECT_TO_OBJECT + 1, "GetExtraTopGroup"},{DOUBLEOBJECT_TO_OBJECT + 2, "GetReleaseGroup"},
+				{DOUBLEOBJECT_TO_OBJECT + 3, "GetReleaseGroupCount"},{DOUBLEOBJECT_TO_OBJECT + 4, "GetFusionMaterial"},{DOUBLEOBJECT_TO_OBJECT + 5, "IsPlayerAffectedByEffect"},
+				{DOUBLEOBJECT_TO_OBJECT + 6, "IsPlayerCanDraw"},{DOUBLEOBJECT_TO_OBJECT + 7,"IsPlayerCanDiscardDeck"},{DOUBLEOBJECT_TO_OBJECT + 8,"IsPlayerCanDiscardDeckAsCost"},
+				{DOUBLEOBJECT_TO_OBJECT + 9, "IsPlayerCanSSet"},{DOUBLEOBJECT_TO_OBJECT + 10, "IsPlayerCanSpecialSummonCount"},{DOUBLEOBJECT_TO_OBJECT + 11, "IsPlayerCanRelease"},
+				{DOUBLEOBJECT_TO_OBJECT + 12, "IsPlayerCanSendtoHand"},{DOUBLEOBJECT_TO_OBJECT + 13, "IsPlayerCanSendtoGrave"},{DOUBLEOBJECT_TO_OBJECT + 14, "IsPlayerCanSendtoDeck"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			uint32 pcount = 2; 
+			uint32 count = 1; 
+			uint8 player = ai_resb[index];
+			index++;
+			lua_pushinteger(L,player);
+			if(fname == "GetDecktopGroup" || fname == "GetExtraTopGroup" || fname == "GetFusionMaterial"
+				|| fname == "IsPlayerAffectedByEffect"|| fname == "IsPlayerCanDraw"|| fname == "IsPlayerCanDiscardDeck"
+				|| fname == "IsPlayerCanDiscardDeckAsCost"|| fname == "IsPlayerCanSpecialSummonCount") {
+				uint32 parameter = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				lua_pushinteger(L,parameter);
+			}else if(fname == "IsPlayerCanSSet" || fname == "IsPlayerCanRelease" || fname == "IsPlayerCanSendtoHand"
+				|| fname == "IsPlayerCanSendtoGrave" || fname == "IsPlayerCanSendtoDeck") {
+				card* fcard = nullptr;
+				uint8 controller = ai_resb[index];
+				if(controller != PLAYER_NONE) {
+					index++;
+					uint32 location = *reinterpret_cast<uint32*>(&ai_resb[index]);
+					index += 4;
+					uint32 sequence = *reinterpret_cast<uint32*>(&ai_resb[index]);
+					index += 4;
+					fcard = get_field_card(controller,location,sequence);
+					if(fcard == nullptr) {rtype = RECEIVE_NULL; break;}
+				}
+				if(fcard != nullptr) {
+					lua_pushuserdata(L,fcard);
+				} else pcount = 1;
+			}  else {
+				uint8 parameter = ai_resb[index];
+				lua_pushboolean(L,parameter);
+			}
+			if(fname == "GetFusionMaterial")count = 2;
+			try {
+				if(lua_pcall(L, pcount, count, 0) == LUA_OK) {
+					if(fname == "GetReleaseGroupCount") {
+						write_buffer32(lua_tointeger(L, -1));
+					} else if(fname == "GetFusionMaterial") {
+						write_group(L,pduel,-1);
+						write_group(L,pduel,-2);
+					}else if(fname == "IsPlayerAffectedByEffect") {
+						lua_isnil(L,-1) ? write_buffer8(0):write_buffer8(1);
+					} else if(fname == "GetDecktopGroup" || fname == "GetExtraTopGroup"|| fname == "GetReleaseGroup"){
+						write_group(L,pduel,-1);
+					}else {
+						write_buffer8(lua_toboolean(L,-1));
+					}
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX) {
+			fname = "GetBattleMonster";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			lua_pushinteger(L,player);
+			try {
+				if(lua_pcall(L, 1, 2, 0) == LUA_OK) {
+					if(!lua_isnil(L,-1)) {
+						write_buffer8(1);
+						write_card(L,pduel,-2);
+						write_card(L,pduel,-1);
+					} else {
+						write_buffer8(0);
+					}
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code == DUEL_SPECIAL_INDEX + 1) {
+			fname = "GetFlagEffect";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 code = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			uint32 result = 0; 
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,code);
+			try {
+				if(lua_pcall(L, 2, 1, 0) == LUA_OK) {
+					result = lua_tointeger(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code == DUEL_SPECIAL_INDEX + 2) {
+			fname = "GetFlagEffectLabel";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 code = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,code);
+			try {
+				if(lua_pcall(L, 2, LUA_MULTRET, 0) == LUA_OK) {
+					if(!lua_isnil(L,-1)) {
+						uint32 rcount = lua_gettop(L) - 3;
+						write_buffer32(rcount);
+						for (int32 i = 0,j = -1; i < rcount; ++i,--j)
+						{
+							write_buffer32(lua_tointeger(L, j));
+						}
+					} else {
+						write_buffer32(0);
+					}
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX + 3) {
+			fname = "IsCanAddCounter";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint8 ex = ai_resb[index];
+			uint32 count = 0;
+			lua_pushinteger(L,player);
+			if(ex) {
+				index++;
+				uint32 countertype = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index += 4;
+				uint32 count = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index += 4;
+				uint8 controller = ai_resb[index];
+				index++;
+				uint32 location = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index += 4;
+				uint32 sequence = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				card* fcard = get_field_card(controller,location,sequence);
+				if(fcard == nullptr)  {rtype = RECEIVE_NULL;break; }
+				lua_pushinteger(L,countertype);
+				lua_pushinteger(L,count);
+				lua_pushuserdata(L,fcard);
+				count = 4;
+			} else {
+				count = 1;
+			}
+			uint8 result = 0;
+			try {
+				if(lua_pcall(L, count, 1, 0) == LUA_OK) {
+					result = lua_toboolean(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX + 4) {
+			fname = "IsCanRemoveCounter";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 s = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint32 o = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint32 countertype = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint32 count = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint32 reason = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,s);
+			lua_pushinteger(L,o);
+			lua_pushinteger(L,countertype);
+			lua_pushinteger(L,count);
+			lua_pushinteger(L,reason);
+			uint8 result = 0;
+			try {
+				if(lua_pcall(L, 6, 1, 0) == LUA_OK) {
+					result = lua_toboolean(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX + 5) {
+			fname = "GetCounter";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 s = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint32 o = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint32 countertype = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,s);
+			lua_pushinteger(L,o);
+			lua_pushinteger(L,countertype);
+			uint32 result = 0;
+			try {
+				if(lua_pcall(L, 4, 1, 0) == LUA_OK) {
+					result = lua_tointeger(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX + 6) {
+			fname = "IsEnvironment";
+			set_lua_state(L,oname,fname);
+			uint32 code = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 loc = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			lua_pushinteger(L,code);
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,loc);
+			uint8 result = 0;
+			try {
+				if(lua_pcall(L, 3, 1, 0) == LUA_OK) {
+					result = lua_toboolean(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX + 7) {
+			fname = "CheckLPCost";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 cost = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,cost);
+			uint8 result = 0;
+			try {
+				if(lua_pcall(L, 2, 1, 0) == LUA_OK) {
+					result = lua_toboolean(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX + 8) {
+			fname = "CheckSummonedCount";
+			set_lua_state(L,oname,fname);
+			uint8 controller = ai_resb[index];
+			card* fcard = nullptr;
+			if(controller != PLAYER_NONE) {
+				index++;
+				uint32 location = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index += 4;
+				uint32 sequence = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				fcard = get_field_card(controller,location,sequence);
+				if(fcard == nullptr) return RECEIVE_NULL;
+			}
+			uint32 count = 0;
+			if(fcard != nullptr) {
+				lua_pushuserdata(L,fcard);
+				++count;
+			}
+			uint8 result = 0;
+			try {
+				if(lua_pcall(L, count, 1, 0) == LUA_OK) {
+					result = lua_toboolean(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX + 9) {
+			fname = "GetLocationCount";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 location = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint8 uplayer = ai_resb[index];
+			uint32 reason = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 zone = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,location);
+			uplayer == PLAYER_NULL ? lua_pushnil(L) : lua_pushinteger(L,uplayer);
+			lua_pushinteger(L,reason);
+			lua_pushinteger(L,zone);
+			uint32 result = 0;
+			try {
+				if(lua_pcall(L, 5, 1, 0) == LUA_OK) {
+					result = lua_tointeger(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX + 10) {
+			fname = "GetUsableMZoneCount";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint8 use_player = ai_resb[index];
+			uint32 count = 1;
+			lua_pushinteger(L,player);
+			if(use_player != PLAYER_NULL) {
+				lua_pushinteger(L,use_player);
+				count++;
+			}
+			uint32 result = 0;
+			try {
+				if(lua_pcall(L, count, 1, 0) == LUA_OK) {
+					result = lua_tointeger(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer32(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code < DUEL_SPECIAL_INDEX + 19) {
+			std::map<uint8, const char*> codeMap = {
+				{DUEL_SPECIAL_INDEX + 11, "GetLinkedGroup"},{DUEL_SPECIAL_INDEX + 12, "GetLinkedGroupCount"},{DUEL_SPECIAL_INDEX + 13, "GetFieldCard"},
+				{DUEL_SPECIAL_INDEX + 14, "CheckLocation"},{DUEL_SPECIAL_INDEX + 15, "GetFieldGroup"},{DUEL_SPECIAL_INDEX + 16, "GetFieldGroupCount"},
+				{DUEL_SPECIAL_INDEX + 17, "GetOverlayGroup"},{DUEL_SPECIAL_INDEX + 18, "GetOverlayCount"}
+			};
+			fname = codeMap.find(func_code)->second;
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 parameter1  =*reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 parameter2  =*reinterpret_cast<uint32*>(&ai_resb[index]);
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,parameter1);
+			lua_pushinteger(L,parameter2);
+			try {
+				if(lua_pcall(L, 3, 1, 0) == LUA_OK) {
+					if(fname == "GetLinkedGroup" || fname == "GetFieldGroup" || fname == "GetOverlayGroup") {
+						write_group(L,pduel,-1);
+					} else if(fname == "GetLinkedGroupCount" || fname == "GetFieldGroupCount"|| fname == "GetOverlayCount") {
+						write_buffer32(lua_tointeger(L,-1));
+					} else if(fname == "GetFieldCard") {
+						write_card(L,pduel,-1);
+					} else if(fname == "CheckLocation") {
+						write_buffer8(lua_toboolean(L,-1));
+					} 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX + 19) {
+			fname = "GetTributeGroup";
+			set_lua_state(L,oname,fname);
+			uint8 controller = ai_resb[index];
+			index++;
+			uint32 location = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index += 4;
+			uint32 sequence = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			card* fcard = get_field_card(controller,location,sequence);
+			if(fcard == nullptr) return RECEIVE_NULL;
+			lua_pushuserdata(L,fcard);
+			try {
+				if(lua_pcall(L, 1, 1, 0) == LUA_OK) {
+					write_group(L,pduel,-1);
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX + 20) {
+			fname = "CheckRemoveOverlayCard";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 s = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint32 o = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint32 count = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint32 reason = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,s);
+			lua_pushinteger(L,o);
+			lua_pushinteger(L,count);
+			lua_pushinteger(L,reason);
+			uint8 result = 0;
+			try {
+				if(lua_pcall(L, 5, 1, 0) == LUA_OK) {
+					result = lua_toboolean(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code < DUEL_SPECIAL_INDEX + 23) {
+			fname = func_code == (DUEL_SPECIAL_INDEX + 21) ?  "IsPlayerCanSummon" : "IsPlayerCanMSet";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 sumtype = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint8 controller = ai_resb[index];
+			card* fcard = nullptr;
+			if(controller != PLAYER_NONE) {
+				index++;
+				uint32 location = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index += 4;
+				uint32 sequence = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				fcard = get_field_card(controller,location,sequence);
+				if(fcard == nullptr) return RECEIVE_NULL;
+			}
+			uint32 count = 1;
+			lua_pushinteger(L,player);
+			if(fcard != nullptr) {
+				lua_pushinteger(L,sumtype);
+				lua_pushuserdata(L,fcard);
+				count = 3;
+			}
+			uint8 result = 0;
+			try {
+				if(lua_pcall(L, count, 1, 0) == LUA_OK) {
+					result = lua_toboolean(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX + 23) {
+			fname = "IsPlayerCanSpecialSummon";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 sumtype = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint32 sumpos = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint8 target_player = ai_resb[index];
+			card* fcard = nullptr;
+			if(target_player != PLAYER_NULL) {
+				index++;
+				uint8 controller = ai_resb[index];
+				if(controller != PLAYER_NONE) {
+					index++;
+					uint32 location = *reinterpret_cast<uint32*>(&ai_resb[index]);
+					index += 4;
+					uint32 sequence = *reinterpret_cast<uint32*>(&ai_resb[index]);
+					fcard = get_field_card(controller,location,sequence);
+					if(fcard == nullptr) return RECEIVE_NULL;
+				}
+			}
+			uint32 count = 1;
+			lua_pushinteger(L,player);
+			if(fcard != nullptr) {
+				lua_pushinteger(L,sumtype);
+				lua_pushinteger(L,sumpos);
+				lua_pushinteger(L,target_player);
+				lua_pushuserdata(L,fcard);
+				count = 5;
+			}
+			uint8 result = 0;
+			try {
+				if(lua_pcall(L, count, 1, 0) == LUA_OK) {
+					result = lua_toboolean(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}else if(func_code == DUEL_SPECIAL_INDEX + 24) {
+			fname = "IsPlayerCanSpecialSummonMonster";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint32 code = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			lua_pushinteger(L,player);
+			lua_pushinteger(L,code);
+			uint8 issetcode = ai_resb[index];
+			index++;
+			if(issetcode) {
+				uint32 setcode = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index+=4;
+				lua_pushinteger(L,setcode);
+			} else lua_pushnil(L);
+			uint8 istype = ai_resb[index];
+			index++;
+			if(istype) {
+				uint32 type = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index+=4;
+				lua_pushinteger(L,type);
+			} else lua_pushnil(L);
+			uint8 isatk = ai_resb[index];
+			index++;
+			if(isatk) {
+				uint32 atk = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index+=4;
+				lua_pushinteger(L,atk);
+			} else lua_pushnil(L);
+			uint8 isdef = ai_resb[index];
+			index++;
+			if(isdef) {
+				uint32 def = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index+=4;
+				lua_pushinteger(L,def);
+			} else lua_pushnil(L);
+			uint8 islevel = ai_resb[index];
+			index++;
+			if(islevel) {
+				uint32 level = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index+=4;
+				lua_pushinteger(L,level);
+			} else lua_pushnil(L);
+			uint8 israce = ai_resb[index];
+			index++;
+			if(israce) {
+				uint32 race = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index+=4;
+				lua_pushinteger(L,race);
+			} else lua_pushnil(L);
+			uint8 isattribute = ai_resb[index];
+			index++;
+			if(isattribute) {
+				uint32 attribute = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index+=4;
+				lua_pushinteger(L,attribute);
+			} else lua_pushnil(L);
+			uint32 pos = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			index+=4;
+			uint8 target_player = ai_resb[index];
+			index++;
+			uint32 sumtype = *reinterpret_cast<uint32*>(&ai_resb[index]);
+			lua_pushinteger(L,pos);
+			lua_pushinteger(L,target_player);
+			lua_pushinteger(L,sumtype);
+			uint8 result = 0;
+			try {
+				if(lua_pcall(L, 12, 1, 0) == LUA_OK) {
+					result = lua_toboolean(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		} else if(func_code == DUEL_SPECIAL_INDEX + 25) {
+			fname = "IsPlayerCanRemove";
+			set_lua_state(L,oname,fname);
+			uint8 player = ai_resb[index];
+			index++;
+			uint8 controller = ai_resb[index];
+			card* fcard = nullptr;
+			uint32 reason = 0;
+			if(controller != PLAYER_NONE) {
+				index++;
+				uint32 location = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index += 4;
+				uint32 sequence = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				index += 4;
+				reason = *reinterpret_cast<uint32*>(&ai_resb[index]);
+				fcard = get_field_card(controller,location,sequence);
+				if(fcard == nullptr) return RECEIVE_NULL;
+			}
+			uint32 count = 1;
+			lua_pushinteger(L,player);
+			if(fcard != nullptr) {
+				lua_pushuserdata(L,fcard);
+				lua_pushinteger(L,reason);
+				count = 3;
+			}
+			uint8 result = 0;
+			try {
+				if(lua_pcall(L, count, 1, 0) == LUA_OK) {
+					result = lua_toboolean(L, -1); 
+				} else {
+					rtype = RECEIVE_LUA_ERROR;
+					break;
+				}
+			} catch(...) {
+				rtype = RECEIVE_CORE_ERROR;
+				break;
+			}
+			write_buffer8(result);
+			rtype = RECEIVE_SUCCESS;
+		}
+
+	}
+		  break;
+	default:
+		return rtype;
+	}
+	lua_settop(L,0);
+	return rtype;
+
+}
 int32 field::execute_cost(uint16 step, effect * triggering_effect, uint8 triggering_player) {
 	if(!triggering_effect->cost) {
 		core.solving_event.splice(core.solving_event.begin(), core.sub_solving_event);

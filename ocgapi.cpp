@@ -342,3 +342,6 @@ extern "C" DECL_DLLEXPORT void set_responseb(intptr_t pduel, byte* buf) {
 extern "C" DECL_DLLEXPORT int32 preload_script(intptr_t pduel, const char* script, int32 len) {
 	return ((duel*)pduel)->lua->load_script(script);
 }
+extern "C" DECL_DLLEXPORT int32 ai_request(intptr_t pduel,uint32 index,uint8 func_type, uint16 func_code,byte (&ai_resb)[64],byte* &pbuffer,uint32& plen) {
+	return ((duel*)pduel)->game_field->ai_request(index,func_type,func_code,ai_resb,pbuffer,plen);
+}
