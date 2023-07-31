@@ -802,7 +802,6 @@ int32 field::ai_request(uint32 index,uint8 func_type, uint16 func_code,byte (&ai
 		card* fcard = get_field_card(controller,location,sequence);
 		oname = "Card";
 		if(fcard == nullptr) {
-			int32 a = 10;
 			fcard = get_field_card(controller,location,sequence);
 			return RECEIVE_NULL;
 		}
