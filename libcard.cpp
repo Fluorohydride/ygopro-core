@@ -1793,7 +1793,7 @@ int32 scriptlib::card_register_flag_effect(lua_State *L) {
 	check_param_count(L, 5);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	int32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
+	int32 code = (lua_tointeger(L, 2) & MAX_CARD_ID) | HEADER_FLAG_EFFECT;
 	int32 reset = (int32)lua_tointeger(L, 3);
 	int32 flag = (int32)lua_tointeger(L, 4);
 	int32 count = (int32)lua_tointeger(L, 5);
@@ -1827,7 +1827,7 @@ int32 scriptlib::card_get_flag_effect(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	int32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
+	int32 code = (lua_tointeger(L, 2) & MAX_CARD_ID) | HEADER_FLAG_EFFECT;
 	lua_pushinteger(L, pcard->single_effect.count(code));
 	return 1;
 }
@@ -1835,7 +1835,7 @@ int32 scriptlib::card_reset_flag_effect(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	int32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
+	int32 code = (lua_tointeger(L, 2) & MAX_CARD_ID) | HEADER_FLAG_EFFECT;
 	pcard->reset(code, RESET_CODE);
 	return 0;
 }
@@ -1843,7 +1843,7 @@ int32 scriptlib::card_set_flag_effect_label(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
+	uint32 code = (lua_tointeger(L, 2) & MAX_CARD_ID) | HEADER_FLAG_EFFECT;
 	int32 lab = (int32)lua_tointeger(L, 3);
 	auto eit = pcard->single_effect.find(code);
 	if(eit == pcard->single_effect.end())
@@ -1859,7 +1859,7 @@ int32 scriptlib::card_get_flag_effect_label(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
+	uint32 code = (lua_tointeger(L, 2) & MAX_CARD_ID) | HEADER_FLAG_EFFECT;
 	auto rg = pcard->single_effect.equal_range(code);
 	int32 count = 0;
 	for(; rg.first != rg.second; ++rg.first, ++count)

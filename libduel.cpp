@@ -85,7 +85,7 @@ int32 scriptlib::duel_register_flag_effect(lua_State *L) {
 	int32 playerid = (int32)lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	int32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
+	int32 code = (lua_tointeger(L, 2) & MAX_CARD_ID) | HEADER_FLAG_EFFECT;
 	int32 reset = (int32)lua_tointeger(L, 3);
 	int32 flag = (int32)lua_tointeger(L, 4);
 	int32 count = (int32)lua_tointeger(L, 5);
@@ -118,7 +118,7 @@ int32 scriptlib::duel_get_flag_effect(lua_State *L) {
 	int32 playerid = (int32)lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	int32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
+	int32 code = (lua_tointeger(L, 2) & MAX_CARD_ID) | HEADER_FLAG_EFFECT;
 	duel* pduel = interpreter::get_duel_info(L);
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, code, &eset);
@@ -130,7 +130,7 @@ int32 scriptlib::duel_reset_flag_effect(lua_State *L) {
 	int32 playerid = (int32)lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	uint32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
+	uint32 code = (lua_tointeger(L, 2) & MAX_CARD_ID) | HEADER_FLAG_EFFECT;
 	duel* pduel = interpreter::get_duel_info(L);
 	auto pr = pduel->game_field->effects.aura_effect.equal_range(code);
 	for(; pr.first != pr.second; ) {
@@ -146,7 +146,7 @@ int32 scriptlib::duel_set_flag_effect_label(lua_State *L) {
 	int32 playerid = (int32)lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	uint32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
+	uint32 code = (lua_tointeger(L, 2) & MAX_CARD_ID) | HEADER_FLAG_EFFECT;
 	int32 lab = (int32)lua_tointeger(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
 	effect_set eset;
@@ -165,7 +165,7 @@ int32 scriptlib::duel_get_flag_effect_label(lua_State *L) {
 	int32 playerid = (int32)lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	uint32 code = (lua_tointeger(L, 2) & 0xfffffff) | 0x10000000;
+	uint32 code = (lua_tointeger(L, 2) & MAX_CARD_ID) | HEADER_FLAG_EFFECT;
 	duel* pduel = interpreter::get_duel_info(L);
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, code, &eset);
