@@ -21,28 +21,15 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	no_action = 0;
 	call_depth = 0;
 	//Initial
-	luaL_openlibs(lua_state);
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "io");
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "os");
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "package");
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "debug");
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "coroutine");
-	luaL_getsubtable(lua_state, LUA_REGISTRYINDEX, "_LOADED");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "io");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "os");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "package");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "debug");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "coroutine");
+	luaL_requiref(lua_state, "base", luaopen_base, 0);
+	lua_pop(lua_state, 1);
+	luaL_requiref(lua_state, "string", luaopen_string, 1);
+	lua_pop(lua_state, 1);
+	luaL_requiref(lua_state, "utf8", luaopen_utf8, 1);
+	lua_pop(lua_state, 1);
+	luaL_requiref(lua_state, "table", luaopen_table, 1);
+	lua_pop(lua_state, 1);
+	luaL_requiref(lua_state, "math", luaopen_math, 1);
 	lua_pop(lua_state, 1);
 	//open all libs
 	scriptlib::open_cardlib(lua_state);
