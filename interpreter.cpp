@@ -590,7 +590,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	int32 result = lua_resume(rthread, 0, param_count);
 	int32 nresults = lua_gettop(rthread);
 #endif
-	if (result == 0) {
+	if (result == LUA_OK) {
 		coroutines.erase(f);
 		if(yield_value) {
 			if(nresults == 0)
