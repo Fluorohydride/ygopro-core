@@ -849,7 +849,7 @@ uint32 effect::get_active_type() {
 }
 int32 effect::get_code_type() {
 	// start from the highest bit
-	if (code & EVENT_CUSTOM)
+	if (code & 0xf0000000)
 		return CODE_CUSTOM;
 	else if (code & 0xf0000)
 		return CODE_COUNTER;

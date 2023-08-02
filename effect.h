@@ -553,7 +553,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define HEADER_FLAG_EFFECT	0x20000000
 #define MAX_CARD_ID			0xfffffff
 
-// The type of event in code
+// The type of effect code
 #define CODE_CUSTOM		1	// header + id (28 bits)
 #define CODE_COUNTER	2	// header + counter_id (16 bits)
 #define CODE_PHASE		3	// header + phase_id (12 bits)
