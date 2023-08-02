@@ -576,10 +576,16 @@ int32 field::recover(uint16 step, effect* reason_effect, uint32 reason, uint8 re
 		if(reason & REASON_RDAMAGE)
 			core.units.begin()->step = 2;
 		core.hint_timing[playerid] |= TIMING_RECOVER;
-		player[playerid].lp += amount;
+		int32 limit = INT32_MAX - player[playerid].lp;
+		int32 val = amount;
+		if (val > limit) {
+			val = limit;
+			core.units.begin()->arg3 = val;
+		}
+		player[playerid].lp += val;
 		pduel->write_buffer8(MSG_RECOVER);
 		pduel->write_buffer8(playerid);
-		pduel->write_buffer32(amount);
+		pduel->write_buffer32(val);
 		raise_event((card*)0, EVENT_RECOVER, reason_effect, reason, reason_player, playerid, amount);
 		process_instant_event();
 		return FALSE;
