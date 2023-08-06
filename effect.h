@@ -550,7 +550,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define HALF_DAMAGE					0x80000001
 
 // flag effect
-#define HEADER_FLAG_EFFECT	0x20000000
+#define EFFECT_FLAG_EFFECT	0x20000000
 #define MAX_CARD_ID			0xfffffff
 
 // The type of effect code
