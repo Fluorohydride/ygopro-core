@@ -580,7 +580,6 @@ int32 field::recover(uint16 step, effect* reason_effect, uint32 reason, uint8 re
 		int32 val = amount;
 		if (val > limit) {
 			val = limit;
-			core.units.begin()->arg3 = val;
 		}
 		player[playerid].lp += val;
 		pduel->write_buffer8(MSG_RECOVER);
