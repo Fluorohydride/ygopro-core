@@ -434,7 +434,7 @@ int32 field::process() {
 			reason_card = (card*)it->peffect;
 		else
 			reason_effect = it->peffect;
-		if (damage(it->step, reason_effect, reason, (it->arg2 >> 26) & 0x3, reason_card, (it->arg2 >> 24) & 0x3, it->arg2 & 0xffffff, (it->arg2 >> 28) & 0x1)) {
+		if (damage(it->step, reason_effect, reason, (it->arg2 >> 2) & 0x3, reason_card, (it->arg2) & 0x3, it->arg3, (it->arg2 >> 4) & 0x1)) {
 			if(it->step == 9) {
 				it->step = 1;
 				core.recover_damage_reserve.splice(core.recover_damage_reserve.end(), core.units, it);
@@ -445,7 +445,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_RECOVER: {
-		if (recover(it->step, it->peffect, it->arg1, (it->arg2 >> 26) & 0x3, (it->arg2 >> 24) & 0x3, it->arg2 & 0xffffff, (it->arg2 >> 28) & 0x1)) {
+		if (recover(it->step, it->peffect, it->arg1, (it->arg2 >> 2) & 0x3, (it->arg2) & 0x3, it->arg3, (it->arg2 >> 4) & 0x1)) {
 			if(it->step == 9) {
 				it->step = 1;
 				core.recover_damage_reserve.splice(core.recover_damage_reserve.end(), core.units, it);
@@ -2866,7 +2866,7 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 24: {
 		// PHASE_DAMAGE_CAL;
-		calculate_battle_damage(0, 0, 0);
+		calculate_battle_damage(nullptr, nullptr, nullptr);
 		raise_single_event(core.attacker, 0, EVENT_PRE_DAMAGE_CALCULATE, 0, 0, 0, 0, 0);
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_PRE_DAMAGE_CALCULATE, 0, 0, 0, 0, 1);
