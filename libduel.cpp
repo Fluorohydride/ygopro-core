@@ -1247,7 +1247,9 @@ int32 scriptlib::duel_draw(lua_State *L) {
 	uint32 playerid = (uint32)lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
-	uint32 count = (uint32)lua_tointeger(L, 2);
+	int32 count = (int32)lua_tointeger(L, 2);
+	if (count < 0)
+		count = 0;
 	uint32 reason = (uint32)lua_tointeger(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->game_field->draw(pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, playerid, count);

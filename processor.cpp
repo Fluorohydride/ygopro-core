@@ -420,7 +420,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_DRAW	: {
-		if (draw(it->step, it->peffect, it->arg1, (it->arg2 >> 28) & 0xf, (it->arg2 >> 24) & 0xf, it->arg2 & 0xffffff))
+		if (draw(it->step, it->peffect, it->arg1, (it->arg2 >> 4) & 0xf, (it->arg2) & 0xf, it->arg3))
 			core.units.pop_front();
 		else
 			it->step++;
@@ -3755,7 +3755,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		if((core.duel_rule <= 2) || (infos.turn_id > 1)) {
 			int32 count = get_draw_count(infos.turn_player);
 			if(count > 0) {
-				draw(0, REASON_RULE, turn_player, turn_player, count);
+				draw(nullptr, REASON_RULE, turn_player, turn_player, count);
 				add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
 			}
 		}
