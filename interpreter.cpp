@@ -40,6 +40,7 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	//extra scripts
 	load_script("./script/constant.lua");
 	load_script("./script/utility.lua");
+	load_script("./script/summon.lua");
 }
 interpreter::~interpreter() {
 	lua_close(lua_state);
