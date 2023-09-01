@@ -500,6 +500,19 @@ int32 field::damage(uint16 step, effect* reason_effect, uint32 reason, uint8 rea
 			if(val == 0)
 				return TRUE;
 		}
+		eset.clear();
+		filter_player_effect(playerid, EFFECT_REPLACE_DAMAGE, &eset);
+		for (int32 i = 0; i < eset.size(); ++i) {
+			pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
+			pduel->lua->add_param(val, PARAM_TYPE_INT);
+			pduel->lua->add_param(reason, PARAM_TYPE_INT);
+			pduel->lua->add_param(reason_player, PARAM_TYPE_INT);
+			pduel->lua->add_param(reason_card, PARAM_TYPE_CARD);
+			val = eset[i]->get_value(5);
+			returns.ivalue[0] = val;
+			if (val == 0)
+				return TRUE;
+		}
 		core.units.begin()->arg3 = val;
 		if(is_step) {
 			core.units.begin()->step = 9;
