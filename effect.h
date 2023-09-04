@@ -471,6 +471,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_LIMIT_SPECIAL_SUMMON_POSITION	368
 #define EFFECT_TUNER					369
 #define EFFECT_KAISER_COLOSSEUM			370
+#define EFFECT_REPLACE_DAMAGE			371
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
