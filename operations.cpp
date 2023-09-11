@@ -6311,7 +6311,9 @@ int32 field::select_tribute_cards(int16 step, card* target, uint8 playerid, uint
 	}
 	return TRUE;
 }
-int32 field::toss_coin(uint16 step, effect * reason_effect, uint8 reason_player, uint8 playerid, uint8 count) {
+int32 field::toss_coin(uint16 step, effect * reason_effect, uint8 reason_player, uint8 playerid, int32 count) {
+	if (count > MAX_COIN_COUNT)
+		count = MAX_COIN_COUNT;
 	switch(step) {
 	case 0: {
 		effect_set eset;
@@ -6323,7 +6325,7 @@ int32 field::toss_coin(uint16 step, effect * reason_effect, uint8 reason_player,
 		e.reason = 0;
 		e.reason_effect = reason_effect;
 		e.reason_player = reason_player;
-		for(uint8 i = 0; i < 5; ++i)
+		for(int32 i = 0; i < MAX_COIN_COUNT; ++i)
 			core.coin_result[i] = 0;
 		auto pr = effects.continuous_effect.equal_range(EFFECT_TOSS_COIN_REPLACE);
 		for(auto eit = pr.first; eit != pr.second;) {
@@ -6337,7 +6339,8 @@ int32 field::toss_coin(uint16 step, effect * reason_effect, uint8 reason_player,
 		if(!peffect) {
 			pduel->write_buffer8(MSG_TOSS_COIN);
 			pduel->write_buffer8(playerid);
-			pduel->write_buffer8(count);
+			pduel->write_buffer8((uint8)count);
+			core.coin_count = count;
 			for(int32 i = 0; i < count; ++i) {
 				core.coin_result[i] = pduel->get_next_integer(0, 1);
 				pduel->write_buffer8(core.coin_result[i]);
