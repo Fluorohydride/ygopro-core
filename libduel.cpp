@@ -3970,14 +3970,14 @@ int32 scriptlib::duel_toss_coin(lua_State * L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	int32 playerid = (int32)lua_tointeger(L, 1);
 	int32 count = (int32)lua_tointeger(L, 2);
-	if((playerid != 0 && playerid != 1) || count <= 0)
+	if((playerid != 0 && playerid != 1) || count == 0 || count < -1)
 		return 0;
 	if(count > MAX_COIN_COUNT)
 		count = MAX_COIN_COUNT;
 	pduel->game_field->add_process(PROCESSOR_TOSS_COIN, 0, pduel->game_field->core.reason_effect, 0, (pduel->game_field->core.reason_player << 16) + playerid, count);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
-		int32 count = (int32)lua_tointeger(L, 2);
+		int32 count = pduel->game_field->core.coin_count;
 		for(int32 i = 0; i < count; ++i)
 			lua_pushinteger(L, pduel->game_field->core.coin_result[i]);
 		return count;
