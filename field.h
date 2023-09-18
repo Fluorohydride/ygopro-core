@@ -20,6 +20,8 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#define MAX_COIN_COUNT	20
+
 class card;
 struct card_data;
 class duel;
@@ -315,7 +317,9 @@ struct processor {
 	uint32 set_group_used_zones;
 	uint8 set_group_seq[7];
 	uint8 dice_result[5];
-	uint8 coin_result[5];
+	uint8 coin_result[MAX_COIN_COUNT];
+	int32 coin_count;
+
 	uint8 to_bp;
 	uint8 to_m2;
 	uint8 to_ep;
@@ -361,7 +365,7 @@ struct processor {
 		limit_tuner(nullptr), limit_syn(nullptr), limit_syn_minc(0), limit_syn_maxc(0), limit_xyz(nullptr), limit_xyz_minc(0), limit_xyz_maxc(0), limit_link(nullptr), limit_link_card(nullptr),
 		limit_link_minc(0), limit_link_maxc(0), not_material(FALSE), attack_cancelable(FALSE), attack_rollback(FALSE), effect_damage_step(0), battle_damage{ 0 }, summon_count{ 0 }, extra_summon{ FALSE },
 		spe_effect{ 0 }, duel_options(0), duel_rule(0), copy_reset(0), copy_reset_count(0), last_control_changed_id(0), set_group_used_zones(0), set_group_seq{ 0 }, dice_result{ 0 }, coin_result{ 0 },
-		to_bp(FALSE), to_m2(FALSE), to_ep(FALSE), skip_m2(FALSE), chain_attack(FALSE), chain_attacker_id(0), chain_attack_target(nullptr), attack_player(PLAYER_NONE), selfdes_disabled(FALSE),
+		coin_count(0), to_bp(FALSE), to_m2(FALSE), to_ep(FALSE), skip_m2(FALSE), chain_attack(FALSE), chain_attacker_id(0), chain_attack_target(nullptr), attack_player(PLAYER_NONE), selfdes_disabled(FALSE),
 		overdraw{ FALSE }, check_level(0), shuffle_check_disabled(FALSE), shuffle_hand_check{ FALSE }, shuffle_deck_check{ FALSE }, deck_reversed(FALSE), remove_brainwashing(FALSE), flip_delayed(FALSE),
 		damage_calculated(FALSE), hand_adjusted(FALSE), summon_state_count{ 0 }, normalsummon_state_count{ 0 }, flipsummon_state_count{ 0 }, spsummon_state_count{ 0 }, attack_state_count{ 0 },
 		battle_phase_count{ 0 }, battled_count{ 0 }, phase_action(FALSE), hint_timing{ 0 }, current_player(PLAYER_NONE), conti_player(PLAYER_NONE) {}
@@ -629,7 +633,7 @@ public:
 	int32 select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* pcard, int32 min, int32 max);
 	int32 select_release_cards(int16 step, uint8 playerid, uint8 cancelable, int32 min, int32 max);
 	int32 select_tribute_cards(int16 step, card* target, uint8 playerid, uint8 cancelable, int32 min, int32 max, uint8 toplayer, uint32 zone);
-	int32 toss_coin(uint16 step, effect* reason_effect, uint8 reason_player, uint8 playerid, uint8 count);
+	int32 toss_coin(uint16 step, effect* reason_effect, uint8 reason_player, uint8 playerid, int32 count);
 	int32 toss_dice(uint16 step, effect* reason_effect, uint8 reason_player, uint8 playerid, uint8 count1, uint8 count2);
 	int32 rock_paper_scissors(uint16 step, uint8 repeat);
 

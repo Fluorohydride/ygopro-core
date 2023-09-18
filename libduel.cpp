@@ -3973,14 +3973,14 @@ int32 scriptlib::duel_toss_coin(lua_State * L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	int32 playerid = (int32)lua_tointeger(L, 1);
 	int32 count = (int32)lua_tointeger(L, 2);
-	if((playerid != 0 && playerid != 1) || count <= 0)
+	if((playerid != 0 && playerid != 1) || count == 0 || count < -1)
 		return 0;
-	if(count > 5)
-		count = 5;
+	if(count > MAX_COIN_COUNT)
+		count = MAX_COIN_COUNT;
 	pduel->game_field->add_process(PROCESSOR_TOSS_COIN, 0, pduel->game_field->core.reason_effect, 0, (pduel->game_field->core.reason_player << 16) + playerid, count);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
-		int32 count = (int32)lua_tointeger(L, 2);
+		int32 count = pduel->game_field->core.coin_count;
 		for(int32 i = 0; i < count; ++i)
 			lua_pushinteger(L, pduel->game_field->core.coin_result[i]);
 		return count;
@@ -4027,9 +4027,9 @@ int32 scriptlib::duel_rock_paper_scissors(lua_State * L) {
 }
 int32 scriptlib::duel_get_coin_result(lua_State * L) {
 	duel* pduel = interpreter::get_duel_info(L);
-	for(int32 i = 0; i < 5; ++i)
+	for(int32 i = 0; i < pduel->game_field->core.coin_count; ++i)
 		lua_pushinteger(L, pduel->game_field->core.coin_result[i]);
-	return 5;
+	return pduel->game_field->core.coin_count;
 }
 int32 scriptlib::duel_get_dice_result(lua_State * L) {
 	duel* pduel = interpreter::get_duel_info(L);
@@ -4040,7 +4040,7 @@ int32 scriptlib::duel_get_dice_result(lua_State * L) {
 int32 scriptlib::duel_set_coin_result(lua_State * L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	int32 res;
-	for(int32 i = 0; i < 5; ++i) {
+	for(int32 i = 0; i < MAX_COIN_COUNT; ++i) {
 		res = (int32)lua_tointeger(L, i + 1);
 		if(res != 0 && res != 1)
 			res = 0;
