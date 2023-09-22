@@ -6359,7 +6359,7 @@ int32 field::toss_coin(uint16 step, effect * reason_effect, uint8 reason_player,
 					}
 				}
 				if (!core.coin_count)
-					core.coin_count == MAX_COIN_COUNT;
+					core.coin_count = MAX_COIN_COUNT;
 				pduel->write_buffer8(MSG_TOSS_COIN);
 				pduel->write_buffer8(playerid);
 				pduel->write_buffer8((uint8)core.coin_count);
