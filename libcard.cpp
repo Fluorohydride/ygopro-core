@@ -962,6 +962,17 @@ int32 scriptlib::card_is_type(lua_State *L) {
 		lua_pushboolean(L, 0);
 	return 1;
 }
+int32 scriptlib::card_is_all_types(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 ttype = (uint32)lua_tointeger(L, 2);
+	if((pcard->get_type() & ttype) == ttype)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
 int32 scriptlib::card_is_fusion_type(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -1204,6 +1215,17 @@ int32 scriptlib::card_is_reason(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 treason = (uint32)lua_tointeger(L, 2);
 	if(pcard->current.reason & treason)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::card_is_all_reasons(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 treason = (uint32)lua_tointeger(L, 2);
+	if((pcard->current.reason & treason) == treason)
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
@@ -2695,6 +2717,29 @@ int32 scriptlib::card_is_defense_above(lua_State *L) {
 	}
 	return 1;
 }
+int32 scriptlib::card_is_has_level(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	if((pcard->data.type & (TYPE_XYZ | TYPE_LINK))
+		|| (pcard->status & STATUS_NO_LEVEL)
+		|| (!(pcard->data.type & TYPE_MONSTER) && !(pcard->get_type() & TYPE_MONSTER) && !pcard->is_affected_by_effect(EFFECT_PRE_MONSTER)))
+		lua_pushboolean(L, 0);
+	else
+		lua_pushboolean(L, 1);
+	return 1;
+}
+int32 scriptlib::card_is_has_defense(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	if((pcard->data.type & TYPE_LINK)
+		|| (!(pcard->data.type & TYPE_MONSTER) && !(pcard->get_type() & TYPE_MONSTER) && !pcard->is_affected_by_effect(EFFECT_PRE_MONSTER)))
+		lua_pushboolean(L, 0);
+	else
+		lua_pushboolean(L, 1);
+	return 1;
+}
 int32 scriptlib::card_is_public(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -3358,6 +3403,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsOriginalCodeRule", scriptlib::card_is_origin_code_rule },
 	{ "IsCode", scriptlib::card_is_code },
 	{ "IsType", scriptlib::card_is_type },
+	{ "IsAllTypes", scriptlib::card_is_all_types },
 	{ "IsFusionType", scriptlib::card_is_fusion_type },
 	{ "IsSynchroType", scriptlib::card_is_synchro_type },
 	{ "IsXyzType", scriptlib::card_is_xyz_type },
@@ -3375,6 +3421,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsNonAttribute", scriptlib::card_is_non_attribute },
 	{ "IsExtraDeckMonster", scriptlib::card_is_extra_deck_monster },
 	{ "IsReason", scriptlib::card_is_reason },
+	{ "IsAllReasons", scriptlib::card_is_all_reasons },
 	{ "IsSummonType", scriptlib::card_is_summon_type },
 	{ "IsSummonLocation", scriptlib::card_is_summon_location },
 	{ "IsSummonPlayer", scriptlib::card_is_summon_player },
@@ -3493,6 +3540,8 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsAttackAbove", scriptlib::card_is_attack_above },
 	{ "IsDefenseBelow", scriptlib::card_is_defense_below },
 	{ "IsDefenseAbove", scriptlib::card_is_defense_above },
+	{ "IsHasLevel", scriptlib::card_is_has_level },
+	{ "IsHasDefense", scriptlib::card_is_has_defense },
 	{ "IsPublic", scriptlib::card_is_public },
 	{ "IsForbidden", scriptlib::card_is_forbidden },
 	{ "IsAbleToChangeControler", scriptlib::card_is_able_to_change_controler },
