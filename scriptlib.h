@@ -383,6 +383,7 @@ public:
 	static int32 duel_enable_global_flag(lua_State *L);
 	static int32 duel_get_lp(lua_State *L);
 	static int32 duel_set_lp(lua_State *L);
+	static int32 duel_is_turn_player(lua_State *L);
 	static int32 duel_get_turn_player(lua_State *L);
 	static int32 duel_get_turn_count(lua_State *L);
 	static int32 duel_get_draw_count(lua_State *L);
@@ -483,6 +484,9 @@ public:
 	static int32 duel_get_chain_event(lua_State *L);
 	static int32 duel_get_first_target(lua_State *L);
 	static int32 duel_get_targets_relate_to_chain(lua_State *L);
+	static int32 duel_is_phase(lua_State *L);
+	static int32 duel_is_main_phase(lua_State *L);
+	static int32 duel_is_battle_phase(lua_State *L);
 	static int32 duel_get_current_phase(lua_State *L);
 	static int32 duel_skip_phase(lua_State *L);
 	static int32 duel_is_damage_calculated(lua_State *L);

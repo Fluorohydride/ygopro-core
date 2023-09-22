@@ -44,6 +44,16 @@ int32 scriptlib::duel_set_lp(lua_State *L) {
 	pduel->write_buffer32(lp);
 	return 0;
 }
+int32 scriptlib::duel_is_turn_player(lua_State *L) {
+	check_param_count(L, 1);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	duel* pduel = interpreter::get_duel_info(L);
+	if(pduel->game_field->infos.turn_player == playerid)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
 int32 scriptlib::duel_get_turn_player(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	lua_pushinteger(L, pduel->game_field->infos.turn_player);
@@ -2235,6 +2245,34 @@ int32 scriptlib::duel_get_targets_relate_to_chain(lua_State* L) {
 		}
 	}
 	interpreter::group2value(L, pgroup);
+	return 1;
+}
+int32 scriptlib::duel_is_phase(lua_State *L) {
+	check_param_count(L, 1);
+	uint32 pphase = (uint32)lua_tointeger(L, 1);
+	duel* pduel = interpreter::get_duel_info(L);
+	if(pduel->game_field->infos.phase == pphase)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::duel_is_main_phase(lua_State *L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	uint16 phase = pduel->game_field->infos.phase;
+	if(phase == PHASE_MAIN1 || phase == PHASE_MAIN2)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::duel_is_battle_phase(lua_State *L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	uint16 phase = pduel->game_field->infos.phase;
+	if((phase >= PHASE_BATTLE_START) && (phase <= PHASE_BATTLE))
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
 	return 1;
 }
 int32 scriptlib::duel_get_current_phase(lua_State *L) {
@@ -4645,6 +4683,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "EnableGlobalFlag", scriptlib::duel_enable_global_flag },
 	{ "GetLP", scriptlib::duel_get_lp },
 	{ "SetLP", scriptlib::duel_set_lp },
+	{ "IsTurnPlayer", scriptlib::duel_is_turn_player },
 	{ "GetTurnPlayer", scriptlib::duel_get_turn_player },
 	{ "GetTurnCount", scriptlib::duel_get_turn_count },
 	{ "GetDrawCount", scriptlib::duel_get_draw_count },
@@ -4744,6 +4783,9 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetChainEvent", scriptlib::duel_get_chain_event },
 	{ "GetFirstTarget", scriptlib::duel_get_first_target },
 	{ "GetTargetsRelateToChain", scriptlib::duel_get_targets_relate_to_chain },
+	{ "IsPhase", scriptlib::duel_is_phase },
+	{ "IsMainPhase", scriptlib::duel_is_main_phase },
+	{ "IsBattlePhase", scriptlib::duel_is_battle_phase },
 	{ "GetCurrentPhase", scriptlib::duel_get_current_phase },
 	{ "SkipPhase", scriptlib::duel_skip_phase },
 	{ "IsDamageCalculated", scriptlib::duel_is_damage_calculated },
