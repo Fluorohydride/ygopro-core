@@ -445,7 +445,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 		card_set* drawed_set = (card_set*)core.units.begin()->ptarget;
 		core.operated_set.swap(*drawed_set);
 		delete drawed_set;
-		returns.ivalue[0] = count;
+		returns.ivalue[0] = (int32)core.operated_set.size();
 		return TRUE;
 	}
 	}
