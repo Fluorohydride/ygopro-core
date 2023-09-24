@@ -111,6 +111,7 @@ public:
 	static int32 card_is_origin_code_rule(lua_State *L);
 	static int32 card_is_code(lua_State *L);
 	static int32 card_is_type(lua_State *L);
+	static int32 card_is_all_types(lua_State *L);
 	static int32 card_is_fusion_type(lua_State *L);
 	static int32 card_is_synchro_type(lua_State *L);
 	static int32 card_is_xyz_type(lua_State *L);
@@ -128,6 +129,7 @@ public:
 	static int32 card_is_non_attribute(lua_State *L);
 	static int32 card_is_extra_deck_monster(lua_State *L);
 	static int32 card_is_reason(lua_State *L);
+	static int32 card_is_all_reasons(lua_State *L);
 	static int32 card_is_summon_type(lua_State *L);
 	static int32 card_is_summon_location(lua_State *L);
 	static int32 card_is_summon_player(lua_State *L);
@@ -246,6 +248,8 @@ public:
 	static int32 card_is_attack_above(lua_State *L);
 	static int32 card_is_defense_below(lua_State *L);
 	static int32 card_is_defense_above(lua_State *L);
+	static int32 card_is_has_level(lua_State *L);
+	static int32 card_is_has_defense(lua_State *L);
 	static int32 card_is_public(lua_State *L);
 	static int32 card_is_forbidden(lua_State *L);
 	static int32 card_is_able_to_change_controler(lua_State *L);
