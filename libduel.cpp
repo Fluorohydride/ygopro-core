@@ -498,9 +498,6 @@ int32 scriptlib::duel_sets(lua_State *L) {
 		pgroup = pduel->new_group(pcard);
 	} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
 		pgroup = *(group**) lua_touserdata(L, 2);
-		if(pgroup->container.empty()) {
-			return 0;
-		}
 		pduel = pgroup->pduel;
 	} else
 		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
