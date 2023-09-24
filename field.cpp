@@ -2477,7 +2477,7 @@ int32 field::get_attack_target(card* pcard, card_vector* v, uint8 chain_attack, 
 		return atype;
 	if((mcount == 0 || pcard->is_affected_by_effect(EFFECT_DIRECT_ATTACK) || core.attack_player)
 		&& !pcard->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK)
-		&& !(extra_count_m && pcard->announce_count > extra_count)
+		&& !(!chain_attack && extra_count_m && pcard->announce_count > extra_count)
 		&& !(chain_attack && core.chain_attack_target))
 		pcard->direct_attackable = 1;
 	return atype;
