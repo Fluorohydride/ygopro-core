@@ -115,6 +115,14 @@ void field::remove_overlay_card(uint32 reason, card* pcard, uint32 rplayer, uint
 void field::get_control(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 playerid, uint32 reset_phase, uint32 reset_count, uint32 zone) {
 	group* ng = pduel->new_group(*targets);
 	ng->is_readonly = TRUE;
+	for(auto& pcard : *targets) {
+		pcard->temp.reason = pcard->current.reason;
+		pcard->temp.reason_effect = pcard->current.reason_effect;
+		pcard->temp.reason_player = pcard->current.reason_player;
+		pcard->current.reason = REASON_EFFECT;
+		pcard->current.reason_effect = reason_effect;
+		pcard->current.reason_player = reason_player;
+	}
 	add_process(PROCESSOR_GET_CONTROL, 0, reason_effect, ng, 0, (reason_player << 28) + (playerid << 24) + (reset_phase << 8) + reset_count, zone);
 }
 void field::get_control(card* target, effect* reason_effect, uint32 reason_player, uint32 playerid, uint32 reset_phase, uint32 reset_count, uint32 zone) {
@@ -127,6 +135,22 @@ void field::swap_control(effect* reason_effect, uint32 reason_player, card_set* 
 	ng1->is_readonly = TRUE;
 	group* ng2 = pduel->new_group(*targets2);
 	ng2->is_readonly = TRUE;
+	for(auto& pcard : *targets1) {
+		pcard->temp.reason = pcard->current.reason;
+		pcard->temp.reason_effect = pcard->current.reason_effect;
+		pcard->temp.reason_player = pcard->current.reason_player;
+		pcard->current.reason = REASON_EFFECT;
+		pcard->current.reason_effect = reason_effect;
+		pcard->current.reason_player = reason_player;
+	}
+	for(auto& pcard : *targets2) {
+		pcard->temp.reason = pcard->current.reason;
+		pcard->temp.reason_effect = pcard->current.reason_effect;
+		pcard->temp.reason_player = pcard->current.reason_player;
+		pcard->current.reason = REASON_EFFECT;
+		pcard->current.reason_effect = reason_effect;
+		pcard->current.reason_player = reason_player;
+	}
 	add_process(PROCESSOR_SWAP_CONTROL, 0, reason_effect, ng1, reason_player, reset_phase, reset_count, 0, ng2);
 }
 void field::swap_control(effect* reason_effect, uint32 reason_player, card* pcard1, card* pcard2, uint32 reset_phase, uint32 reset_count) {
@@ -961,6 +985,12 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 			}
 			if(pcard->unique_code && (pcard->unique_location & LOCATION_MZONE))
 				add_unique_card(pcard);
+			if(reason_player == PLAYER_NONE && pcard->set_control_player != PLAYER_NONE) {
+				// called by adjusting EFFECT_SET_CONTROL
+				pcard->current.reason_effect = pcard->set_control_effect;
+				pcard->current.reason_player = pcard->set_control_player;
+				pcard->set_control_player = PLAYER_NONE;
+			}
 			raise_single_event(pcard, 0, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, playerid, 0);
 			raise_single_event(pcard, 0, EVENT_MOVE, reason_effect, REASON_EFFECT, reason_player, playerid, 0);
 		}
