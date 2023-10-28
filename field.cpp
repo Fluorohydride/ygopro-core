@@ -2655,10 +2655,16 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 			pduel->restore_assumes();
 			return FALSE;
 		}
-		if(ptuner && ptuner->target) {
-			pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
-			pduel->lua->add_param(smat, PARAM_TYPE_CARD);
-			if(!pduel->lua->get_function_value(ptuner->target, 2)) {
+		if(ptuner) {
+			if(ptuner->target) {
+				pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+				pduel->lua->add_param(smat, PARAM_TYPE_CARD);
+				if(!pduel->lua->get_function_value(ptuner->target, 2)) {
+					pduel->restore_assumes();
+					return FALSE;
+				}
+			}
+			if(ptuner->value && !(smat->current.location & location)) {
 				pduel->restore_assumes();
 				return FALSE;
 			}
@@ -2700,10 +2706,16 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 				pduel->restore_assumes();
 				return FALSE;
 			}
-			if(ptuner && ptuner->target) {
-				pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
-				pduel->lua->add_param(mcard, PARAM_TYPE_CARD);
-				if(!pduel->lua->get_function_value(ptuner->target, 2)) {
+			if(ptuner) {
+				if(ptuner->target) {
+					pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+					pduel->lua->add_param(mcard, PARAM_TYPE_CARD);
+					if(!pduel->lua->get_function_value(ptuner->target, 2)) {
+						pduel->restore_assumes();
+						return FALSE;
+					}
+				}
+				if(ptuner->value && !(mcard->current.location & location)) {
 					pduel->restore_assumes();
 					return FALSE;
 				}
@@ -2719,10 +2731,14 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		for(auto& pm : mg->container) {
 			if(pm == tuner || pm == smat || must_list.find(pm) != must_list.end() || !pm->is_can_be_synchro_material(pcard, tuner))
 				continue;
-			if(ptuner && ptuner->target) {
-				pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
-				pduel->lua->add_param(pm, PARAM_TYPE_CARD);
-				if(!pduel->lua->get_function_value(ptuner->target, 2))
+			if(ptuner) {
+				if(ptuner->target) {
+					pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+					pduel->lua->add_param(pm, PARAM_TYPE_CARD);
+					if(!pduel->lua->get_function_value(ptuner->target, 2))
+						continue;
+				}
+				if(ptuner->value && !(pm->current.location & location))
 					continue;
 			}
 			if(pcheck)
