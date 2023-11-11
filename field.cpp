@@ -1698,8 +1698,8 @@ effect* field::is_player_affected_by_effect(uint8 playerid, uint32 code) {
 int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg) {
 	uint32 rcount = 0;
 	for(auto& pcard : player[playerid].list_mzone) {
-		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && pcard->is_releasable_by_nonsummon(playerid)
-		        && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
+		if(pcard && pcard != exc && !(exg && exg->has_card(pcard))
+				&& (!use_con || pduel->lua->check_matching(pcard, fun, exarg)) && pcard->is_releasable_by_nonsummon(playerid)) {
 			if(release_list)
 				release_list->insert(pcard);
 			pcard->release_param = 1;
@@ -1708,8 +1708,8 @@ int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* 
 	}
 	if(use_hand) {
 		for(auto& pcard : player[playerid].list_hand) {
-			if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && pcard->is_releasable_by_nonsummon(playerid)
-			        && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
+			if(pcard && pcard != exc && !(exg && exg->has_card(pcard))
+					&& (!use_con || pduel->lua->check_matching(pcard, fun, exarg)) && pcard->is_releasable_by_nonsummon(playerid)) {
 				if(release_list)
 					release_list->insert(pcard);
 				pcard->release_param = 1;
@@ -1720,7 +1720,7 @@ int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* 
 	int32 ex_oneof_max = 0;
 	for(auto& pcard : player[1 - playerid].list_mzone) {
 		if(pcard && pcard != exc && !(exg && exg->has_card(pcard)) && (pcard->is_position(POS_FACEUP) || !use_con)
-		        && pcard->is_releasable_by_nonsummon(playerid) && (!use_con || pduel->lua->check_matching(pcard, fun, exarg))) {
+				&& (!use_con || pduel->lua->check_matching(pcard, fun, exarg)) && pcard->is_releasable_by_nonsummon(playerid)) {
 			pcard->release_param = 1;
 			if(pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE)) {
 				if(ex_list)

@@ -3595,8 +3595,15 @@ int32 card::is_releasable_by_nonsummon(uint8 playerid) {
 		return FALSE;
 	if(!pduel->game_field->is_player_can_release(playerid, this))
 		return FALSE;
-	if(is_affected_by_effect(EFFECT_UNRELEASABLE_NONSUM))
-		return FALSE;
+	effect_set eset;
+	filter_effect(EFFECT_UNRELEASABLE_NONSUM, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		pduel->lua->add_param(this, PARAM_TYPE_CARD);
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		pduel->lua->add_param(pduel->game_field->core.reason_effect, PARAM_TYPE_EFFECT);
+		if(eset[i]->check_value_condition(3))
+			return FALSE;
+	}
 	return TRUE;
 }
 int32 card::is_releasable_by_effect(uint8 playerid, effect* reason_effect) {
