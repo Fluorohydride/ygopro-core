@@ -14,7 +14,7 @@
 #include "ocgapi.h"
 #include <iterator>
 
-void field::add_process(uint16 type, uint16 step, effect* peffect, group* target, ptr arg1, ptr arg2, ptr arg3, ptr arg4, void* ptr1, void* ptr2) {
+void field::add_process(uint16 type, uint16 step, effect* peffect, group* target, int32 arg1, int32 arg2, int32 arg3, int32 arg4, void* ptr1, void* ptr2) {
 	processor_unit new_unit;
 	new_unit.type = type;
 	new_unit.step = step;
@@ -420,7 +420,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_DRAW	: {
-		if (draw(it->step, it->peffect, it->arg1, (it->arg2 >> 28) & 0xf, (it->arg2 >> 24) & 0xf, it->arg2 & 0xffffff))
+		if (draw(it->step, it->peffect, it->arg1, (it->arg2 >> 4) & 0xf, (it->arg2) & 0xf, it->arg3))
 			core.units.pop_front();
 		else
 			it->step++;
@@ -434,7 +434,7 @@ int32 field::process() {
 			reason_card = (card*)it->peffect;
 		else
 			reason_effect = it->peffect;
-		if (damage(it->step, reason_effect, reason, (it->arg2 >> 26) & 0x3, reason_card, (it->arg2 >> 24) & 0x3, it->arg2 & 0xffffff, (it->arg2 >> 28) & 0x1)) {
+		if (damage(it->step, reason_effect, reason, (it->arg2 >> 2) & 0x3, reason_card, (it->arg2) & 0x3, it->arg3, (it->arg2 >> 4) & 0x1)) {
 			if(it->step == 9) {
 				it->step = 1;
 				core.recover_damage_reserve.splice(core.recover_damage_reserve.end(), core.units, it);
@@ -445,7 +445,7 @@ int32 field::process() {
 		return pduel->bufferlen;
 	}
 	case PROCESSOR_RECOVER: {
-		if (recover(it->step, it->peffect, it->arg1, (it->arg2 >> 26) & 0x3, (it->arg2 >> 24) & 0x3, it->arg2 & 0xffffff, (it->arg2 >> 28) & 0x1)) {
+		if (recover(it->step, it->peffect, it->arg1, (it->arg2 >> 2) & 0x3, (it->arg2) & 0x3, it->arg3, (it->arg2 >> 4) & 0x1)) {
 			if(it->step == 9) {
 				it->step = 1;
 				core.recover_damage_reserve.splice(core.recover_damage_reserve.end(), core.units, it);
@@ -1473,7 +1473,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			if(!core.hand_adjusted)
 				add_process(PROCESSOR_QUICK_EFFECT, 0, 0, 0, skip_freechain, infos.turn_player);
 		} else
-			add_process(PROCESSOR_QUICK_EFFECT, 0, 0, 0, skip_freechain, 1 - core.current_chain.back().triggering_player);
+			add_process(PROCESSOR_QUICK_EFFECT, 0, 0, 0, FALSE, 1 - core.current_chain.back().triggering_player);
 		return FALSE;
 	}
 	case 10: {
@@ -1492,6 +1492,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			for(auto& ch_lim_p : core.chain_limit_p)
 				luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim_p.function);
 			core.chain_limit_p.clear();
+			core.effect_count_code_chain.clear();
 			reset_chain();
 			returns.ivalue[0] = FALSE;
 		}
@@ -2865,7 +2866,7 @@ int32 field::process_battle_command(uint16 step) {
 	}
 	case 24: {
 		// PHASE_DAMAGE_CAL;
-		calculate_battle_damage(0, 0, 0);
+		calculate_battle_damage(nullptr, nullptr, nullptr);
 		raise_single_event(core.attacker, 0, EVENT_PRE_DAMAGE_CALCULATE, 0, 0, 0, 0, 0);
 		if(core.attack_target)
 			raise_single_event(core.attack_target, 0, EVENT_PRE_DAMAGE_CALCULATE, 0, 0, 0, 0, 1);
@@ -3304,8 +3305,12 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 	case 3: {
 		core.attacker = (card*)core.units.begin()->peffect;
 		core.attack_target = (card*)core.units.begin()->ptarget;
-		if(core.attacker)
+		if(core.attacker) {
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
+			core.attacker->announce_count++;
+			core.attacker->announced_cards.addcard(core.attack_target);
+			attack_all_target_check();
+		}
 		if(core.attack_target)
 			core.attack_target->set_status(STATUS_ATTACK_CANCELED, TRUE);
 		core.effect_damage_step = 0;
@@ -3742,7 +3747,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		pduel->write_buffer8(turn_player);
 		pduel->write_buffer32(27);
 		if(core.new_fchain.size() || core.new_ochain.size())
-			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
+			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x100, TRUE);
 		return FALSE;
 	}
 	case 2: {
@@ -3750,7 +3755,7 @@ int32 field::process_turn(uint16 step, uint8 turn_player) {
 		if((core.duel_rule <= 2) || (infos.turn_id > 1)) {
 			int32 count = get_draw_count(infos.turn_player);
 			if(count > 0) {
-				draw(0, REASON_RULE, turn_player, turn_player, count);
+				draw(nullptr, REASON_RULE, turn_player, turn_player, count);
 				add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0, 0);
 			}
 		}
@@ -4147,6 +4152,7 @@ int32 field::add_chain(uint16 step) {
 	case 5: {
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
+		peffect->cost_checked = TRUE;
 		if(peffect->cost) {
 			core.sub_solving_event.push_back(clit.evt);
 			add_process(PROCESSOR_EXECUTE_COST, 0, peffect, 0, clit.triggering_player, 0);
@@ -4166,6 +4172,7 @@ int32 field::add_chain(uint16 step) {
 		break_effect();
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
+		peffect->cost_checked = FALSE;
 		card* phandler = peffect->get_handler();
 		if(clit.target_cards && clit.target_cards->container.size()) {
 			if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
@@ -4483,6 +4490,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		for(auto& ch_lim_p : core.chain_limit_p)
 			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim_p.function);
 		core.chain_limit_p.clear();
+		core.effect_count_code_chain.clear();
 		reset_chain();
 		if(core.summoning_card || core.effect_damage_step == 1)
 			core.subunits.push_back(core.reserved);

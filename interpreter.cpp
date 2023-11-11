@@ -21,28 +21,15 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	no_action = 0;
 	call_depth = 0;
 	//Initial
-	luaL_openlibs(lua_state);
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "io");
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "os");
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "package");
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "debug");
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "coroutine");
-	luaL_getsubtable(lua_state, LUA_REGISTRYINDEX, "_LOADED");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "io");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "os");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "package");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "debug");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "coroutine");
+	luaL_requiref(lua_state, "base", luaopen_base, 0);
+	lua_pop(lua_state, 1);
+	luaL_requiref(lua_state, "string", luaopen_string, 1);
+	lua_pop(lua_state, 1);
+	luaL_requiref(lua_state, "utf8", luaopen_utf8, 1);
+	lua_pop(lua_state, 1);
+	luaL_requiref(lua_state, "table", luaopen_table, 1);
+	lua_pop(lua_state, 1);
+	luaL_requiref(lua_state, "math", luaopen_math, 1);
 	lua_pop(lua_state, 1);
 	//open all libs
 	scriptlib::open_cardlib(lua_state);
@@ -53,6 +40,7 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	//extra scripts
 	load_script("./script/constant.lua");
 	load_script("./script/utility.lua");
+	load_script("./script/procedure.lua");
 }
 interpreter::~interpreter() {
 	lua_close(lua_state);
@@ -192,11 +180,11 @@ void interpreter::add_param(void *param, int32 type, bool front) {
 	else
 		params.emplace_back(param, type);
 }
-void interpreter::add_param(ptr param, int32 type, bool front) {
+void interpreter::add_param(int32 param, int32 type, bool front) {
 	if(front)
-		params.emplace_front((void*)param, type);
+		params.emplace_front((void*)(intptr_t)param, type);
 	else
-		params.emplace_back((void*)param, type);
+		params.emplace_back((void*)(intptr_t)param, type);
 }
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	int32 pushed = 0;
@@ -205,13 +193,13 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 		uint32 type = it.second;
 		switch(type) {
 		case PARAM_TYPE_INT:
-			lua_pushinteger(L, (ptr) it.first);
+			lua_pushinteger(L, (lua_Integer)it.first);
 			break;
 		case PARAM_TYPE_STRING:
-			lua_pushstring(L, (const char *) it.first);
+			lua_pushstring(L, (const char *)it.first);
 			break;
 		case PARAM_TYPE_BOOLEAN:
-			lua_pushboolean(L, (int32)(ptr)it.first);
+			lua_pushboolean(L, (int32)(intptr_t)it.first);
 			break;
 		case PARAM_TYPE_CARD: {
 			if (it.first)
@@ -235,11 +223,11 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 			break;
 		}
 		case PARAM_TYPE_FUNCTION: {
-			function2value(L, (int32)(ptr)it.first);
+			function2value(L, (int32)(intptr_t)it.first);
 			break;
 		}
 		case PARAM_TYPE_INDEX: {
-			int32 index = (int32)(ptr)it.first;
+			int32 index = (int32)(intptr_t)it.first;
 			if(index > 0)
 				lua_pushvalue(L, index);
 			else if(is_coroutine) {
@@ -590,7 +578,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	int32 result = lua_resume(rthread, 0, param_count);
 	int32 nresults = lua_gettop(rthread);
 #endif
-	if (result == 0) {
+	if (result == LUA_OK) {
 		coroutines.erase(f);
 		if(yield_value) {
 			if(nresults == 0)

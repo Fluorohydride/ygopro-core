@@ -199,9 +199,9 @@ int32 effect::check_count_limit(uint8 playerid) {
 		if(count_limit == 0)
 			return FALSE;
 		if(count_code) {
-			uint32 code = count_code & 0xfffffff;
+			uint32 code = count_code & MAX_CARD_ID;
 			uint32 count = count_limit_max;
-			if(code == 1) {
+			if(code == EFFECT_COUNT_CODE_SINGLE) {
 				if(pduel->game_field->get_effect_code((count_code & 0xf0000000) | get_handler()->fieldid, PLAYER_NONE) >= count)
 					return FALSE;
 			} else {
@@ -412,7 +412,7 @@ int32 effect::is_activate_ready(effect* reason_effect, uint8 playerid, const tev
 		}
 	}
 	if(!neglect_cost && !(type & EFFECT_TYPE_CONTINUOUS)) {
-		cost_checked = TRUE;
+		reason_effect->cost_checked = TRUE;
 		if(cost) {
 			pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
@@ -422,12 +422,14 @@ int32 effect::is_activate_ready(effect* reason_effect, uint8 playerid, const tev
 			pduel->lua->add_param(e.reason_effect, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 			pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
-			pduel->lua->add_param((ptr)0, PARAM_TYPE_INT);
+			pduel->lua->add_param(0, PARAM_TYPE_INT);
 			if(!pduel->lua->check_condition(cost, 9)) {
-				cost_checked = FALSE;
+				reason_effect->cost_checked = FALSE;
 				return FALSE;
 			}
 		}
+	} else {
+		reason_effect->cost_checked = FALSE;
 	}
 	if(!neglect_target && target) {
 		pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
@@ -438,13 +440,13 @@ int32 effect::is_activate_ready(effect* reason_effect, uint8 playerid, const tev
 		pduel->lua->add_param(e.reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
-		pduel->lua->add_param((ptr)0, PARAM_TYPE_INT);
+		pduel->lua->add_param(0, PARAM_TYPE_INT);
 		if(!pduel->lua->check_condition(target, 9)) {
-			cost_checked = FALSE;
+			reason_effect->cost_checked = FALSE;
 			return FALSE;
 		}
 	}
-	cost_checked = FALSE;
+	reason_effect->cost_checked = FALSE;
 	return TRUE;
 }
 int32 effect::is_activate_ready(uint8 playerid, const tevent& e, int32 neglect_cond, int32 neglect_cost, int32 neglect_target) {
@@ -663,8 +665,8 @@ void effect::dec_count(uint32 playerid) {
 	if(count_code == 0 || is_flag(EFFECT_FLAG_NO_TURN_RESET))
 		count_limit -= 1;
 	if(count_code) {
-		uint32 code = count_code & 0xfffffff;
-		if(code == 1)
+		uint32 code = count_code & MAX_CARD_ID;
+		if(code == EFFECT_COUNT_CODE_SINGLE)
 			pduel->game_field->add_effect_code((count_code & 0xf0000000) | get_handler()->fieldid, PLAYER_NONE);
 		else
 			pduel->game_field->add_effect_code(count_code, playerid);
@@ -847,7 +849,7 @@ uint32 effect::get_active_type() {
 }
 int32 effect::get_code_type() {
 	// start from the highest bit
-	if (code & EVENT_CUSTOM)
+	if (code & 0xf0000000)
 		return CODE_CUSTOM;
 	else if (code & 0xf0000)
 		return CODE_COUNTER;

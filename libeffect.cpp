@@ -120,6 +120,8 @@ int32 scriptlib::effect_set_count_limit(lua_State *L) {
 		code = (uint32)lua_tointeger(L, 3);
 	if(v == 0)
 		v = 1;
+	if(code == EFFECT_COUNT_CODE_CHAIN)
+		code = EFFECT_COUNT_CODE_CHAIN + EFFECT_COUNT_CODE_SINGLE;
 	peffect->flag[0] |= EFFECT_FLAG_COUNT_LIMIT;
 	peffect->count_limit = v;
 	peffect->count_limit_max = v;
@@ -526,6 +528,14 @@ int32 scriptlib::effect_is_cost_checked(lua_State *L) {
 	lua_pushboolean(L, peffect->cost_checked);
 	return 1;
 }
+int32 scriptlib::effect_set_cost_check(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	uint8 cost_check = lua_toboolean(L, 2);
+	peffect->cost_checked = cost_check;
+	return 0;
+}
 int32 scriptlib::effect_get_activate_location(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
@@ -618,6 +628,7 @@ static const struct luaL_Reg effectlib[] = {
 	{ "IsActivatable", scriptlib::effect_is_activatable },
 	{ "IsActivated", scriptlib::effect_is_activated },
 	{ "IsCostChecked", scriptlib::effect_is_cost_checked },
+	{ "SetCostCheck", scriptlib::effect_set_cost_check },
 	{ "GetActivateLocation", scriptlib::effect_get_activate_location },
 	{ "GetActivateSequence", scriptlib::effect_get_activate_sequence },
 	{ "CheckCountLimit", scriptlib::effect_check_count_limit },

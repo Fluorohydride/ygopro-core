@@ -41,12 +41,12 @@ struct card_data {
 
 struct card_state {
 	card_state()
-		: code(0), code2(0), setcode(0), type(0), level(0), rank(0), link(0), lscale(0), rscale(0), attribute(0), race(0), attack(0), defense(0), base_attack(0), base_defense(0), 
+		: code(0), code2(0), type(0), level(0), rank(0), link(0), lscale(0), rscale(0), attribute(0), race(0), attack(0), defense(0), base_attack(0), base_defense(0), 
 		controler(PLAYER_NONE), location(0), sequence(0), position(0), reason(0), pzone(false), reason_card(nullptr), reason_player(PLAYER_NONE), reason_effect(nullptr) {}
 
 	uint32 code;
 	uint32 code2;
-	uint16 setcode;
+	std::vector<uint32> setcode;
 	uint32 type;
 	uint32 level;
 	uint32 rank;
@@ -69,6 +69,7 @@ struct card_state {
 	uint8 reason_player;
 	effect* reason_effect;
 	bool is_location(int32 loc) const;
+	void init_state();
 };
 
 struct query_cache {
@@ -331,12 +332,14 @@ public:
 	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf, uint8 not_material);
 	int32 check_fusion_substitute(card* fcard);
 	int32 is_not_tuner(card* scard);
+	int32 is_tuner(card* scard);
 
 	int32 check_unique_code(card* pcard);
 	void get_unique_target(card_set* cset, int32 controler, card* icard = 0);
 	int32 check_cost_condition(int32 ecode, int32 playerid);
 	int32 check_cost_condition(int32 ecode, int32 playerid, int32 sumtype);
 	int32 is_summonable_card();
+	int32 is_spsummonable_card();
 	int32 is_fusion_summonable_card(uint32 summon_type);
 	int32 is_spsummonable(effect* proc, material_info info = null_info);
 	int32 is_summonable(effect* proc, uint8 min_tribute, uint32 zone = 0x1f, uint32 releasable = 0xff00ff);
@@ -350,6 +353,7 @@ public:
 	int32 is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect, uint8 min_tribute, uint32 zone = 0x1f);
 	int32 is_setable_szone(uint8 playerid, uint8 ignore_fd = 0);
 	int32 is_affect_by_effect(effect* reason_effect);
+	int32 is_can_be_disabled_by_effect(effect* reason_effect, bool is_monster_effect);
 	int32 is_destructable();
 	int32 is_destructable_by_battle(card* pcard);
 	effect* check_indestructable_by_effect(effect* reason_effect, uint8 playerid);
