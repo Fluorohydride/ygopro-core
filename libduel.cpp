@@ -2744,17 +2744,17 @@ int32 scriptlib::duel_check_release_group_ex(lua_State *L) {
 	uint32 extraargs = lua_gettop(L) - 4;
 	duel* pduel = interpreter::get_duel_info(L);
 	uint32 fcount = (uint32)lua_tointeger(L, 3);
-	for(uint8 p = 0; p < 2; p++) for(auto& pcard : pduel->game_field->player[p].list_mzone) {
+	for(uint8 p = 0; p < 2; p++) for(auto& pcard : pduel->game_field->player[p].list_mzone) if(pcard) {
 		pcard->temp.reason = pcard->current.reason;
 		pcard->current.reason |= REASON_COST;
 	}
-	for(auto& pcard : pduel->game_field->player[playerid].list_hand) {
+	for(auto& pcard : pduel->game_field->player[playerid].list_hand) if(pcard) {
 		pcard->temp.reason = pcard->current.reason;
 		pcard->current.reason |= REASON_COST;
 	}
 	int32 result = pduel->game_field->check_release_list(playerid, fcount, use_con, TRUE, 2, extraargs, pexception, pexgroup);
-	for(uint8 p = 0; p < 2; p++) for(auto& pcard : pduel->game_field->player[p].list_mzone) pcard->current.reason = pcard->temp.reason;
-	for(auto& pcard : pduel->game_field->player[playerid].list_hand) pcard->current.reason = pcard->temp.reason;
+	for(uint8 p = 0; p < 2; p++) for(auto& pcard : pduel->game_field->player[p].list_mzone) if(pcard) pcard->current.reason = pcard->temp.reason;
+	for(auto& pcard : pduel->game_field->player[playerid].list_hand) if(pcard) pcard->current.reason = pcard->temp.reason;
 	pduel->game_field->core.must_select_cards.clear();
 	lua_pushboolean(L, result);
 	return 1;
