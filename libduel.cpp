@@ -4325,7 +4325,7 @@ int32 scriptlib::duel_is_player_can_release(lua_State * L) {
 		check_param(L, PARAM_TYPE_CARD, 2);
 		card* pcard = *(card**) lua_touserdata(L, 2);
 		uint32 reason = 0;
-		if (!lua_isnil(L, 3))
+		if (lua_gettop(L) >= 3)
 			reason = (uint32)lua_tointeger(L, 3);
 		lua_pushboolean(L, pduel->game_field->is_player_can_release(playerid, pcard, reason));
 	}
