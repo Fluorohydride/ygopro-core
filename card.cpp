@@ -3584,7 +3584,7 @@ int32 card::is_releasable_by_summon(uint8 playerid, card *pcard) {
 		return FALSE;
 	return TRUE;
 }
-int32 card::is_releasable_by_nonsummon(uint8 playerid) {
+int32 card::is_releasable_by_nonsummon(uint8 playerid, uint32 reason) {
 	if(is_status(STATUS_SUMMONING))
 		return FALSE;
 	if(overlay_target)
@@ -3593,7 +3593,7 @@ int32 card::is_releasable_by_nonsummon(uint8 playerid) {
 		return FALSE;
 	if((current.location == LOCATION_HAND) && (data.type & (TYPE_SPELL | TYPE_TRAP)))
 		return FALSE;
-	if(!pduel->game_field->is_player_can_release(playerid, this))
+	if(!pduel->game_field->is_player_can_release(playerid, this, reason))
 		return FALSE;
 	if(is_affected_by_effect(EFFECT_UNRELEASABLE_NONSUM))
 		return FALSE;

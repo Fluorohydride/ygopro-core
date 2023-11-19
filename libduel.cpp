@@ -2645,25 +2645,27 @@ int32 scriptlib::duel_get_release_group_count(lua_State *L) {
 	return 1;
 }
 int32 scriptlib::duel_check_release_group(lua_State *L) {
-	check_param_count(L, 4);
-	int32 playerid = (int32)lua_tointeger(L, 1);
+	const int32 must_param = 5;
+	check_param_count(L, must_param);
+	uint32 reason = (uint32)lua_tointeger(L, 1);
+	int32 playerid = (int32)lua_tointeger(L, 2);
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	int32 use_con = FALSE;
-	if(!lua_isnil(L, 2)) {
-		check_param(L, PARAM_TYPE_FUNCTION, 2);
+	if(!lua_isnil(L, 3)) {
+		check_param(L, PARAM_TYPE_FUNCTION, 3);
 		use_con = TRUE;
 	}
+	uint32 fcount = (uint32)lua_tointeger(L, 4);
 	card* pexception = 0;
 	group* pexgroup = 0;
-	if(check_param(L, PARAM_TYPE_CARD, 4, TRUE))
-		pexception = *(card**) lua_touserdata(L, 4);
-	else if(check_param(L, PARAM_TYPE_GROUP, 4, TRUE))
-		pexgroup = *(group**) lua_touserdata(L, 4);
-	uint32 extraargs = lua_gettop(L) - 4;
+	if(check_param(L, PARAM_TYPE_CARD, 5, TRUE))
+		pexception = *(card**) lua_touserdata(L, 5);
+	else if(check_param(L, PARAM_TYPE_GROUP, 5, TRUE))
+		pexgroup = *(group**) lua_touserdata(L, 5);
+	uint32 extraargs = lua_gettop(L) - must_param;
 	duel* pduel = interpreter::get_duel_info(L);
-	uint32 fcount = (uint32)lua_tointeger(L, 3);
-	int32 result = pduel->game_field->check_release_list(playerid, fcount, use_con, FALSE, 2, extraargs, pexception, pexgroup);
+	int32 result = pduel->game_field->check_release_list(playerid, fcount, use_con, FALSE, 2, extraargs, pexception, pexgroup, reason);
 	pduel->game_field->core.must_select_cards.clear();
 	lua_pushboolean(L, result);
 	return 1;
@@ -2706,25 +2708,27 @@ int32 scriptlib::duel_select_release_group(lua_State *L) {
 	});
 }
 int32 scriptlib::duel_check_release_group_ex(lua_State *L) {
-	check_param_count(L, 4);
-	int32 playerid = (int32)lua_tointeger(L, 1);
+	const int32 must_param = 5;
+	check_param_count(L, must_param);
+	uint32 reason = (uint32)lua_tointeger(L, 1);
+	int32 playerid = (int32)lua_tointeger(L, 2);
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	int32 use_con = FALSE;
-	if(!lua_isnil(L, 2)) {
-		check_param(L, PARAM_TYPE_FUNCTION, 2);
+	if(!lua_isnil(L, 3)) {
+		check_param(L, PARAM_TYPE_FUNCTION, 3);
 		use_con = TRUE;
 	}
+	uint32 fcount = (uint32)lua_tointeger(L, 4);
 	card* pexception = 0;
 	group* pexgroup = 0;
-	if(check_param(L, PARAM_TYPE_CARD, 4, TRUE))
-		pexception = *(card**) lua_touserdata(L, 4);
-	else if(check_param(L, PARAM_TYPE_GROUP, 4, TRUE))
-		pexgroup = *(group**) lua_touserdata(L, 4);
-	uint32 extraargs = lua_gettop(L) - 4;
+	if(check_param(L, PARAM_TYPE_CARD, 5, TRUE))
+		pexception = *(card**) lua_touserdata(L, 5);
+	else if(check_param(L, PARAM_TYPE_GROUP, 5, TRUE))
+		pexgroup = *(group**) lua_touserdata(L, 5);
+	uint32 extraargs = lua_gettop(L) - must_param;
 	duel* pduel = interpreter::get_duel_info(L);
-	uint32 fcount = (uint32)lua_tointeger(L, 3);
-	int32 result = pduel->game_field->check_release_list(playerid, fcount, use_con, TRUE, 2, extraargs, pexception, pexgroup);
+	int32 result = pduel->game_field->check_release_list(playerid, fcount, use_con, TRUE, 2, extraargs, pexception, pexgroup, reason);
 	pduel->game_field->core.must_select_cards.clear();
 	lua_pushboolean(L, result);
 	return 1;
