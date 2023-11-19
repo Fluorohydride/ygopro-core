@@ -2410,7 +2410,10 @@ int32 scriptlib::card_is_releasable(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 p = pcard->pduel->game_field->core.reason_player;
-	if(pcard->is_releasable_by_nonsummon(p))
+	uint32 reason = 0;
+	if (!lua_isnil(L, 2))
+		reason = (uint32)lua_tointeger(L, 2);
+	if(pcard->is_releasable_by_nonsummon(p, reason))
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
