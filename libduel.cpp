@@ -2621,7 +2621,7 @@ int32 scriptlib::duel_get_release_group(lua_State *L) {
 	uint32 hand = FALSE;
 	if(lua_gettop(L) > 1)
 		hand = lua_toboolean(L, 2);
-	uint32 reason = 0;
+	uint32 reason = REASON_COST;
 	if (lua_gettop(L) >= 3)
 		reason = (uint32)lua_tointeger(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
@@ -2643,7 +2643,7 @@ int32 scriptlib::duel_get_release_group_count(lua_State *L) {
 	uint32 hand = FALSE;
 	if(lua_gettop(L) > 1)
 		hand = lua_toboolean(L, 2);
-	uint32 reason = 0;
+	uint32 reason = REASON_COST;
 	if (lua_gettop(L) >= 3)
 		reason = (uint32)lua_tointeger(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
