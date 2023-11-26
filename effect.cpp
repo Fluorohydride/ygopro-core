@@ -302,8 +302,6 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			card* phandler = get_handler();
 			if(!(phandler->get_type() & TYPE_MONSTER) && (get_active_type() & TYPE_MONSTER))
 				return FALSE;
-			if((phandler->get_type() & TYPE_CONTINUOUS) && (phandler->get_type() & TYPE_EQUIP))
-				return FALSE;
 			if((type & EFFECT_TYPE_QUICK_O) && is_flag(EFFECT_FLAG_DELAY) && !in_range(phandler))
 				return FALSE;
 			if(!neglect_faceup && (phandler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED))) {
@@ -327,6 +325,8 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				if((type & EFFECT_TYPE_FIELD) && !(range & (LOCATION_DECK | LOCATION_EXTRA)))
 					return FALSE;
 			}
+			if (phandler->current.is_stzone() && (phandler->data.type & (TYPE_SPELL|TYPE_TRAP))	&& phandler->is_affected_by_effect(EFFECT_CHANGE_TYPE))
+				return FALSE;
 			if((type & EFFECT_TYPE_FIELD) && (phandler->current.controler != playerid) && !is_flag(EFFECT_FLAG_BOTH_SIDE | EFFECT_FLAG_EVENT_PLAYER))
 				return FALSE;
 			if(phandler->is_status(STATUS_FORBIDDEN))
@@ -337,8 +337,9 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			card* phandler = get_handler();
 			if((type & EFFECT_TYPE_FIELD) && phandler->is_status(STATUS_BATTLE_DESTROYED))
 				return FALSE;
-			if(((type & EFFECT_TYPE_FIELD) || ((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE))) && (phandler->current.location & LOCATION_ONFIELD)
-			        && (!phandler->is_position(POS_FACEUP) || !phandler->is_status(STATUS_EFFECT_ENABLED)))
+			if(((type & EFFECT_TYPE_FIELD) || ((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE)))
+				&& (phandler->current.location & LOCATION_ONFIELD)
+				&& (!phandler->is_position(POS_FACEUP) || !phandler->is_status(STATUS_EFFECT_ENABLED)))
 				return FALSE;
 			if((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE) && !in_range(phandler))
 				return FALSE;
