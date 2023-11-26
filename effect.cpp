@@ -325,7 +325,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				if((type & EFFECT_TYPE_FIELD) && !(range & (LOCATION_DECK | LOCATION_EXTRA)))
 					return FALSE;
 			}
-			if (phandler->current.is_stzone() && (phandler->data.type & (TYPE_SPELL|TYPE_TRAP))	&& phandler->is_affected_by_effect(EFFECT_CHANGE_TYPE))
+			if (phandler->current.is_stzone() && (phandler->data.type & (TYPE_SPELL|TYPE_TRAP)) && phandler->is_affected_by_effect(EFFECT_CHANGE_TYPE))
 				return FALSE;
 			if((type & EFFECT_TYPE_FIELD) && (phandler->current.controler != playerid) && !is_flag(EFFECT_FLAG_BOTH_SIDE | EFFECT_FLAG_EVENT_PLAYER))
 				return FALSE;
