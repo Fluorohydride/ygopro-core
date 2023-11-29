@@ -165,6 +165,8 @@ struct card_sort {
 #define REASON_REVEAL		0x8000000	//
 #define REASON_LINK			0x10000000	//
 #define REASON_LOST_OVERLAY	0x20000000	//
+#define REASON_MAINTENANCE	0x40000000	//
+#define REASON_ACTION		0x80000000	//
 
 //Status
 #define STATUS_DISABLED				0x0001	//
