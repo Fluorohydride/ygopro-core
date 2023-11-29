@@ -136,7 +136,9 @@ int32 effect::is_available(int32 neglect_disabled) {
 				return FALSE;
 			if(!phandler->get_status(STATUS_EFFECT_ENABLED) && !is_flag(EFFECT_FLAG_IMMEDIATELY_APPLY))
 				return FALSE;
-			if((phandler->current.location & LOCATION_ONFIELD) && !phandler->is_position(POS_FACEUP))
+			if (phandler->current.is_location(LOCATION_ONFIELD) && !phandler->is_position(POS_FACEUP))
+				return FALSE;
+			if (phandler->current.is_stzone() && (phandler->data.type & (TYPE_SPELL | TYPE_TRAP)) && phandler->is_affected_by_effect(EFFECT_CHANGE_TYPE))
 				return FALSE;
 			if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && powner->is_status(STATUS_FORBIDDEN))
 				return FALSE;
