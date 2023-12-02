@@ -170,7 +170,7 @@ void field::special_summon(card_set* target, uint32 sumtype, uint32 sumplayer, u
 		pcard->temp.reason_player = pcard->current.reason_player;
 		pcard->summon_info = (sumtype & 0xf00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)pcard->current.location << 16);
 		pcard->summon_player = sumplayer;
-		pcard->current.reason = REASON_SPSUMMON;
+		pcard->current.reason = REASON_SPSUMMON | get_summon_reason(pcard->summon_info);
 		pcard->current.reason_effect = core.reason_effect;
 		pcard->current.reason_player = core.reason_player;
 		pcard->spsummon_param = (playerid << 24) + (nocheck << 16) + (nolimit << 8) + positions;
@@ -187,7 +187,7 @@ void field::special_summon_step(card* target, uint32 sumtype, uint32 sumplayer, 
 	target->temp.reason_player = target->current.reason_player;
 	target->summon_info = (sumtype & 0xf00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)target->current.location << 16);
 	target->summon_player = sumplayer;
-	target->current.reason = REASON_SPSUMMON;
+	target->current.reason = REASON_SPSUMMON | get_summon_reason(target->summon_info);
 	target->current.reason_effect = core.reason_effect;
 	target->current.reason_player = core.reason_player;
 	target->spsummon_param = (playerid << 24) + (nocheck << 16) + (nolimit << 8) + positions;
@@ -2812,7 +2812,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		target->summon_info = (summon_info & 0xf00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)target->current.location << 16);
 		target->enable_field_effect(false);
 		move_to_field(target, sumplayer, targetplayer, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
-		target->current.reason = REASON_SPSUMMON;
+		target->current.reason = REASON_SPSUMMON | get_summon_reason(target->summon_info);
 		target->current.reason_effect = peffect;
 		target->current.reason_player = sumplayer;
 		target->summon_player = sumplayer;
@@ -2992,11 +2992,11 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		group* pgroup = core.units.begin()->ptarget;
 		card* pcard = *pgroup->it;
 		pcard->enable_field_effect(false);
-		pcard->current.reason = REASON_SPSUMMON;
-		pcard->current.reason_effect = peffect;
-		pcard->current.reason_player = sumplayer;
 		pcard->summon_player = sumplayer;
 		pcard->summon_info = (peffect->get_value(pcard) & 0xff00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)pcard->current.location << 16);
+		pcard->current.reason = REASON_SPSUMMON | get_summon_reason(pcard->summon_info);
+		pcard->current.reason_effect = peffect;
+		pcard->current.reason_player = sumplayer;
 		uint32 zone = 0xff;
 		uint32 flag1, flag2;
 		int32 ct1 = get_tofield_count(pcard, sumplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD, zone, &flag1);
