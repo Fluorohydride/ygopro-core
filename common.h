@@ -166,6 +166,8 @@ struct card_sort {
 #define REASON_LINK			0x10000000	//
 #define REASON_LOST_OVERLAY	0x20000000	//
 
+#define REASONS_PROCEDURE	(REASON_SYNCHRO | REASON_XYZ | REASON_LINK)
+
 //Status
 #define STATUS_DISABLED				0x0001	//
 #define STATUS_TO_ENABLE			0x0002	//
