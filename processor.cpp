@@ -2296,6 +2296,7 @@ int32 field::process_idle_command(uint16 step) {
 			adjust_all();
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
 		} else if(target->is_position(POS_FACEDOWN_ATTACK)) {
+			//deprecated rule (POS_FACEDOWN_ATTACK)
 			core.units.begin()->ptarget = (group*)target;
 			int32 positions = 0;
 			if(target->is_capable_change_position(infos.turn_player))
@@ -2356,6 +2357,7 @@ int32 field::process_idle_command(uint16 step) {
 		return FALSE;
 	}
 	case 13: {
+		//deprecated rule (POS_FACEDOWN_ATTACK)
 		card* target = (card*)core.units.begin()->ptarget;
 		if(returns.ivalue[0] == POS_FACEUP_ATTACK)
 			add_process(PROCESSOR_FLIP_SUMMON, 0, 0, (group*)target, target->current.controler, 0);
