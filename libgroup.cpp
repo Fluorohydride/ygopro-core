@@ -88,6 +88,8 @@ int32 scriptlib::group_remove_card(lua_State *L) {
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	card* pcard = *(card**) lua_touserdata(L, 2);
 	if (pgroup->is_readonly != 1) {
+		if (pgroup->it != pgroup->container.end() && *pgroup->it == pcard)
+			++pgroup->it;
 		pgroup->container.erase(pcard);
 	}
 	return 0;
