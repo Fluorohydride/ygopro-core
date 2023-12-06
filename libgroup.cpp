@@ -640,11 +640,13 @@ int32 scriptlib::group_remove(lua_State *L) {
 	if(pgroup->is_readonly == 1)
 		return 0;
 	for (auto cit = pgroup->container.begin(); cit != pgroup->container.end();) {
-		auto rm = cit++;
-		if((*rm) != pexception && pduel->lua->check_matching(*rm, 2, extraargs)) {
-			pgroup->container.erase(rm);
+		if((*cit) != pexception && pduel->lua->check_matching(*cit, 2, extraargs)) {
+			cit = pgroup->container.erase(cit);
 		}
+		else
+			++cit;
 	}
+	pgroup->it = pgroup->container.begin();
 	return 0;
 }
 int32 scriptlib::group_merge(lua_State *L) {
