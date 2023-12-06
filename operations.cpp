@@ -204,7 +204,7 @@ void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uin
 	for(auto cit = targets->begin(); cit != targets->end();) {
 		card* pcard = *cit;
 		if(pcard->is_status(STATUS_DESTROY_CONFIRMED) && core.destroy_canceled.find(pcard) == core.destroy_canceled.end()) {
-			targets->erase(cit++);
+			cit = targets->erase(cit);
 			continue;
 		}
 		pcard->temp.reason = pcard->current.reason;
@@ -3597,7 +3597,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 		core.operated_set = targets->container;
 		for(auto cit = core.operated_set.begin(); cit != core.operated_set.end();) {
 			if((*cit)->current.reason & REASON_REPLACE)
-				core.operated_set.erase(cit++);
+				cit = core.operated_set.erase(cit);
 			else
 				cit++;
 		}
