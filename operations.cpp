@@ -943,13 +943,15 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 		return FALSE;
 	}
 	case 4: {
-		card* pcard = *targets->it;
-		pcard->set_status(STATUS_ATTACK_CANCELED, TRUE);
-		set_control(pcard, playerid, reset_phase, reset_count);
-		pcard->reset(RESET_CONTROL, RESET_EVENT);
-		pcard->filter_disable_related_cards();
-		++targets->it;
-		core.units.begin()->step = 2;
+		if (targets->it != targets->container.end()) {
+			card* pcard = *targets->it;
+			pcard->set_status(STATUS_ATTACK_CANCELED, TRUE);
+			set_control(pcard, playerid, reset_phase, reset_count);
+			pcard->reset(RESET_CONTROL, RESET_EVENT);
+			pcard->filter_disable_related_cards();
+			++targets->it;
+			core.units.begin()->step = 2;
+		}
 		return FALSE;
 	}
 	case 5: {
@@ -1059,11 +1061,12 @@ int32 field::swap_control(uint16 step, effect* reason_effect, uint8 reason_playe
 		return FALSE;
 	}
 	case 1: {
-		if(targets1->it == targets1->container.end()) {
+		if (targets1->it == targets1->container.end() || targets2->it == targets2->container.end()) {
 			core.units.begin()->step = 3;
 			return FALSE;
 		}
 		card* pcard1 = *targets1->it;
+		card* pcard2 = *targets2->it;
 		uint8 p1 = pcard1->current.controler;
 		uint8 s1 = pcard1->current.sequence;
 		uint32 flag;
@@ -1072,7 +1075,6 @@ int32 field::swap_control(uint16 step, effect* reason_effect, uint8 reason_playe
 			flag = (flag & ~(1 << s1) & 0xff) | ~0x1f;
 		else
 			flag = ((flag & ~(1 << s1)) << 16 & 0xff0000) | ~0x1f0000;
-		card* pcard2 = *targets2->it;
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(reason_player);
@@ -1081,7 +1083,12 @@ int32 field::swap_control(uint16 step, effect* reason_effect, uint8 reason_playe
 		return FALSE;
 	}
 	case 2: {
+		if (targets1->it == targets1->container.end() || targets2->it == targets2->container.end()) {
+			core.units.begin()->step = 3;
+			return FALSE;
+		}
 		core.units.begin()->arg4 = returns.bvalue[2];
+		card* pcard1 = *targets1->it;
 		card* pcard2 = *targets2->it;
 		uint8 p2 = pcard2->current.controler;
 		uint8 s2 = pcard2->current.sequence;
@@ -1091,7 +1098,6 @@ int32 field::swap_control(uint16 step, effect* reason_effect, uint8 reason_playe
 			flag = (flag & ~(1 << s2) & 0xff) | ~0x1f;
 		else
 			flag = ((flag & ~(1 << s2)) << 16 & 0xff0000) | ~0x1f0000;
-		card* pcard1 = *targets1->it;
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(reason_player);
@@ -1100,6 +1106,9 @@ int32 field::swap_control(uint16 step, effect* reason_effect, uint8 reason_playe
 		return FALSE;
 	}
 	case 3: {
+		if (targets1->it == targets1->container.end() || targets2->it == targets2->container.end()) {
+			return FALSE;
+		}
 		card* pcard1 = *targets1->it;
 		card* pcard2 = *targets2->it;
 		uint8 p1 = pcard1->current.controler, p2 = pcard2->current.controler;
@@ -2992,6 +3001,10 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 	case 23: {
 		effect* peffect = core.units.begin()->peffect;
 		group* pgroup = core.units.begin()->ptarget;
+		if (pgroup->it == pgroup->container.end()) {
+			core.units.begin()->step = 24;
+			return FALSE;
+		}
 		card* pcard = *pgroup->it;
 		pcard->enable_field_effect(false);
 		pcard->current.reason = REASON_SPSUMMON;
@@ -3022,7 +3035,11 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 	}
 	case 24: {
 		group* pgroup = core.units.begin()->ptarget;
-		card* pcard = *pgroup->it++;
+		if (pgroup->it == pgroup->container.end()) {
+			return FALSE;
+		}
+		card* pcard = *pgroup->it;
+		++pgroup->it;
 		pduel->write_buffer8(MSG_SPSUMMONING);
 		pduel->write_buffer32(pcard->data.code);
 		pduel->write_buffer8(pcard->current.controler);
