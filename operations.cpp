@@ -3599,7 +3599,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 			if((*cit)->current.reason & REASON_REPLACE)
 				cit = core.operated_set.erase(cit);
 			else
-				cit++;
+				++cit;
 		}
 		returns.ivalue[0] = (int32)core.operated_set.size();
 		pduel->delete_group(targets);
@@ -3754,8 +3754,7 @@ int32 field::release(uint16 step, group * targets, effect * reason_effect, uint3
 	switch (step) {
 	case 0: {
 		for (auto cit = targets->container.begin(); cit != targets->container.end();) {
-			auto rm = cit++;
-			card* pcard = *rm;
+			card* pcard = *cit;
 			if (pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
 			        || ((reason & REASON_SUMMON) && !pcard->is_releasable_by_summon(reason_player, pcard->current.reason_card))
 			        || (!(pcard->current.reason & (REASON_RULE | REASON_SUMMON | REASON_COST))
@@ -3763,9 +3762,10 @@ int32 field::release(uint16 step, group * targets, effect * reason_effect, uint3
 				pcard->current.reason = pcard->temp.reason;
 				pcard->current.reason_effect = pcard->temp.reason_effect;
 				pcard->current.reason_player = pcard->temp.reason_player;
-				targets->container.erase(rm);
-				continue;
+				cit = targets->container.erase(cit);
 			}
+			else
+				++cit;
 		}
 		if(reason & REASON_RULE)
 			return FALSE;
@@ -3857,8 +3857,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 	switch(step) {
 	case 0: {
 		for(auto cit = targets->container.begin(); cit != targets->container.end();) {
-			auto rm = cit++;
-			card* pcard = *rm;
+			card* pcard = *cit;
 			uint8 dest = pcard->sendto_param.location;
 			if(!(reason & REASON_RULE) &&
 			        (pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
@@ -3871,9 +3870,10 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				pcard->current.reason = pcard->temp.reason;
 				pcard->current.reason_player = pcard->temp.reason_player;
 				pcard->current.reason_effect = pcard->temp.reason_effect;
-				targets->container.erase(rm);
-				continue;
+				cit = targets->container.erase(cit);
 			}
+			else
+				++cit;
 		}
 		if(reason & REASON_RULE)
 			return FALSE;
@@ -5037,15 +5037,16 @@ int32 field::operation_replace(uint16 step, effect* replace_effect, group* targe
 	case 6: {
 		if (returns.ivalue[0]) {
 			for (auto cit = targets->container.begin(); cit != targets->container.end();) {
-				auto rm = cit++;
-				if(replace_effect->get_value(*rm) && !((*rm)->current.reason_effect && (*rm)->current.reason_effect->is_self_destroy_related())) {
-					(*rm)->current.reason = (*rm)->temp.reason;
-					(*rm)->current.reason_effect = (*rm)->temp.reason_effect;
-					(*rm)->current.reason_player = (*rm)->temp.reason_player;
+				if(replace_effect->get_value(*cit) && !((*cit)->current.reason_effect && (*cit)->current.reason_effect->is_self_destroy_related())) {
+					(*cit)->current.reason = (*cit)->temp.reason;
+					(*cit)->current.reason_effect = (*cit)->temp.reason_effect;
+					(*cit)->current.reason_player = (*cit)->temp.reason_player;
 					if(is_destroy)
-						core.destroy_canceled.insert(*rm);
-					targets->container.erase(rm);
+						core.destroy_canceled.insert(*cit);
+					cit = targets->container.erase(cit);
 				}
+				else
+					++cit;
 			}
 			replace_effect->dec_count(replace_effect->get_handler_player());
 		} else
@@ -5148,15 +5149,16 @@ int32 field::operation_replace(uint16 step, effect* replace_effect, group* targe
 	case 13: {
 		if (returns.ivalue[0]) {
 			for (auto cit = targets->container.begin(); cit != targets->container.end();) {
-				auto rm = cit++;
-				if (replace_effect->get_value(*rm)) {
-					(*rm)->current.reason = (*rm)->temp.reason;
-					(*rm)->current.reason_effect = (*rm)->temp.reason_effect;
-					(*rm)->current.reason_player = (*rm)->temp.reason_player;
+				if (replace_effect->get_value(*cit)) {
+					(*cit)->current.reason = (*cit)->temp.reason;
+					(*cit)->current.reason_effect = (*cit)->temp.reason_effect;
+					(*cit)->current.reason_player = (*cit)->temp.reason_player;
 					if(is_destroy)
-						core.destroy_canceled.insert(*rm);
-					targets->container.erase(rm);
+						core.destroy_canceled.insert(*cit);
+					cit = targets->container.erase(cit);
 				}
+				else
+					++cit;
 			}
 			replace_effect->dec_count(replace_effect->get_handler_player());
 			core.desrep_chain.push_back(core.continuous_chain.front());

@@ -3136,9 +3136,10 @@ int32 field::process_battle_command(uint16 step) {
 		group* des = core.units.begin()->ptarget;
 		if(des) {
 			for(auto cit = des->container.begin(); cit != des->container.end();) {
-				auto rm = cit++;
-				if((*rm)->current.location != LOCATION_MZONE || ((*rm)->fieldid_r != core.pre_field[0] && (*rm)->fieldid_r != core.pre_field[1]))
-					des->container.erase(rm);
+				if ((*cit)->current.location != LOCATION_MZONE || ((*cit)->fieldid_r != core.pre_field[0] && (*cit)->fieldid_r != core.pre_field[1]))
+					cit = des->container.erase(cit);
+				else
+					++cit;
 			}
 			add_process(PROCESSOR_DESTROY, 3, 0, des, REASON_BATTLE, PLAYER_NONE);
 		}
@@ -4478,9 +4479,10 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 	}
 	case 11: {
 		for(auto cit = core.leave_confirmed.begin(); cit != core.leave_confirmed.end();) {
-			auto rm = cit++;
-			if(!(*rm)->is_status(STATUS_LEAVE_CONFIRMED))
-				core.leave_confirmed.erase(rm);
+			if(!(*cit)->is_status(STATUS_LEAVE_CONFIRMED))
+				cit = core.leave_confirmed.erase(cit);
+			else
+				++cit;
 		}
 		if(core.leave_confirmed.size())
 			send_to(&core.leave_confirmed, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
@@ -4518,17 +4520,18 @@ int32 field::break_effect() {
 	core.hint_timing[0] &= TIMING_DAMAGE_STEP | TIMING_DAMAGE_CAL;
 	core.hint_timing[1] &= TIMING_DAMAGE_STEP | TIMING_DAMAGE_CAL;
 	for (auto chit = core.new_ochain.begin(); chit != core.new_ochain.end();) {
-		auto rm = chit++;
-		effect* peffect = rm->triggering_effect;
+		effect* peffect = chit->triggering_effect;
 		if (!peffect->is_flag(EFFECT_FLAG_DELAY)) {
 			if (peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)
-			        || !(peffect->type & EFFECT_TYPE_FIELD) || peffect->in_range(*rm)) {
+			        || !(peffect->type & EFFECT_TYPE_FIELD) || peffect->in_range(*chit)) {
 				pduel->write_buffer8(MSG_MISSED_EFFECT);
 				pduel->write_buffer32(peffect->get_handler()->get_info_location());
 				pduel->write_buffer32(peffect->get_handler()->data.code);
 			}
-			core.new_ochain.erase(rm);
+			chit = core.new_ochain.erase(chit);
 		}
+		else
+			++chit;
 	}
 	core.used_event.splice(core.used_event.end(), core.instant_event);
 	adjust_instant();

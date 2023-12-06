@@ -1281,15 +1281,16 @@ void field::remove_effect(effect* peffect) {
 }
 void field::remove_oath_effect(effect* reason_effect) {
 	for(auto oeit = effects.oath.begin(); oeit != effects.oath.end();) {
-		auto rm = oeit++;
-		if(rm->second == reason_effect) {
-			effect* peffect = rm->first;
-			effects.oath.erase(rm);
+		if(oeit->second == reason_effect) {
+			effect* peffect = oeit->first;
+			oeit = effects.oath.erase(oeit);
 			if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 				remove_effect(peffect);
 			else
 				peffect->handler->remove_effect(peffect);
 		}
+		else
+			++oeit;
 	}
 }
 void field::release_oath_relation(effect* reason_effect) {
