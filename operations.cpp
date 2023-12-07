@@ -959,15 +959,16 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 	}
 	case 5: {
 		for(auto cit = targets->container.begin(); cit != targets->container.end(); ) {
-			card* pcard = *cit++;
+			card* pcard = *cit;
 			if(!(pcard->current.location & LOCATION_ONFIELD)) {
-				targets->container.erase(pcard);
+				cit = targets->container.erase(cit);
 				continue;
 			}
 			if(pcard->unique_code && (pcard->unique_location & LOCATION_MZONE))
 				add_unique_card(pcard);
 			raise_single_event(pcard, 0, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, playerid, 0);
 			raise_single_event(pcard, 0, EVENT_MOVE, reason_effect, REASON_EFFECT, reason_player, playerid, 0);
+			++cit;
 		}
 		if(targets->container.size()) {
 			raise_event(&targets->container, EVENT_CONTROL_CHANGED, reason_effect, REASON_EFFECT, reason_player, playerid, 0);
@@ -2969,12 +2970,12 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 	case 21: {
 		group* pgroup = core.units.begin()->ptarget;
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ) {
-			card* pcard = *cit++;
+			card* pcard = *cit;
 			if(!(pcard->data.type & TYPE_MONSTER)
-			        || (pcard->current.location == LOCATION_MZONE)
-			        || check_unique_onfield(pcard, sumplayer, LOCATION_MZONE)
-			        || pcard->is_affected_by_effect(EFFECT_CANNOT_SPECIAL_SUMMON)) {
-			    pgroup->container.erase(pcard);
+				|| (pcard->current.location == LOCATION_MZONE)
+				|| check_unique_onfield(pcard, sumplayer, LOCATION_MZONE)
+				|| pcard->is_affected_by_effect(EFFECT_CANNOT_SPECIAL_SUMMON)) {
+				cit = pgroup->container.erase(cit);
 			    continue;
 			}
 			effect_set eset;
@@ -2990,6 +2991,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 				*peset = std::move(eset);
 				core.units.begin()->ptr1 = peset;
 			}
+			++cit;
 		}
 		return FALSE;
 	}
@@ -3074,12 +3076,14 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		group* pgroup = core.units.begin()->ptarget;
 		card_set cset;
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ) {
-			card* pcard = *cit++;
-			if(!pcard->is_status(STATUS_SUMMONING)) {
-				pgroup->container.erase(pcard);
-				if(pcard->current.location == LOCATION_MZONE)
+			card* pcard = *cit;
+			if (!pcard->is_status(STATUS_SUMMONING)) {
+				cit = pgroup->container.erase(cit);
+				if (pcard->current.location == LOCATION_MZONE)
 					cset.insert(pcard);
 			}
+			else
+				++cit;
 		}
 		if(cset.size()) {
 			send_to(&cset, 0, REASON_RULE, sumplayer, sumplayer, LOCATION_GRAVE, 0, 0);
@@ -4759,18 +4763,19 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 	switch(step) {
 	case 0: {
 		for(auto cit = targets->container.begin(); cit != targets->container.end();) {
-			card* pcard = *cit++;
+			card* pcard = *cit;
 			uint8 npos = pcard->position_param & 0xff;
 			uint8 opos = pcard->current.position;
-			if((pcard->current.location != LOCATION_MZONE && pcard->current.location != LOCATION_SZONE)
+			if ((pcard->current.location != LOCATION_MZONE && pcard->current.location != LOCATION_SZONE)
 				|| (pcard->data.type & TYPE_LINK)
 				|| pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
 				|| !pcard->is_affect_by_effect(reason_effect) || npos == opos
 				|| (!(pcard->data.type & TYPE_TOKEN) && (opos & POS_FACEUP) && (npos & POS_FACEDOWN) && !pcard->is_capable_turn_set(reason_player))
 				|| (reason_effect && pcard->is_affected_by_effect(EFFECT_CANNOT_CHANGE_POS_E))) {
-				targets->container.erase(pcard);
-				continue;
+				cit = targets->container.erase(cit);
 			}
+			else
+				++cit;
 		}
 		card_set* to_grave_set = new card_set;
 		core.units.begin()->ptr1 = to_grave_set;
