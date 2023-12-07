@@ -3615,14 +3615,13 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 	case 10: {
 		effect_set eset;
 		for (auto cit = targets->container.begin(); cit != targets->container.end();) {
-			auto rm = cit++;
-			card* pcard = *rm;
+			card* pcard = *cit;
 			if (!pcard->is_destructable()) {
 				pcard->current.reason = pcard->temp.reason;
 				pcard->current.reason_effect = pcard->temp.reason_effect;
 				pcard->current.reason_player = pcard->temp.reason_player;
 				pcard->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
-				targets->container.erase(pcard);
+				cit = targets->container.erase(cit);
 				continue;
 			}
 			eset.clear();
@@ -3647,7 +3646,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					pcard->current.reason_effect = pcard->temp.reason_effect;
 					pcard->current.reason_player = pcard->temp.reason_player;
 					pcard->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
-					targets->container.erase(pcard);
+					cit = targets->container.erase(cit);
 					continue;
 				}
 			}
@@ -3692,7 +3691,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					pcard->current.reason_effect = pcard->temp.reason_effect;
 					pcard->current.reason_player = pcard->temp.reason_player;
 					pcard->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
-					targets->container.erase(pcard);
+					cit = targets->container.erase(cit);
 					continue;
 				}
 			}
@@ -3714,9 +3713,10 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					pcard->current.reason_effect = pcard->temp.reason_effect;
 					pcard->current.reason_player = pcard->temp.reason_player;
 					core.destroy_canceled.insert(pcard);
-					targets->container.erase(pcard);
+					cit = targets->container.erase(cit);
 				}
 			}
+			++cit;
 		}
 		if(targets->container.size()) {
 			operation_replace(EFFECT_DESTROY_REPLACE, 12, targets);
