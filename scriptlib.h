@@ -13,7 +13,7 @@
 
 class scriptlib {
 public:
-	static int32 check_param(lua_State* L, int32 param_type, int32 index, BOOL retfalse = FALSE);
+	static int32 check_param(lua_State* L, int32 param_type, int32 index, int32 retfalse = FALSE);
 	static int32 check_param_count(lua_State* L, int32 count);
 	static int32 check_action_permission(lua_State* L);
 
