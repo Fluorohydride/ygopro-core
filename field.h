@@ -249,86 +249,86 @@ struct processor {
 	std::unordered_map<uint32, uint32> spsummon_once_map[2];
 	std::multimap<int32, card*, std::greater<int32>> xmaterial_lst;
 
-	int32 temp_var[4];
-	uint32 global_flag;
-	uint16 pre_field[2];
+	int32 temp_var[4]{ 0 };
+	uint32 global_flag{ 0 };
+	uint16 pre_field[2]{ 0 };
 	std::set<uint16> opp_mzone;
 	chain_limit_list chain_limit;
 	chain_limit_list chain_limit_p;
-	uint8 chain_solving;
-	uint8 conti_solving;
-	uint8 win_player;
-	uint8 win_reason;
-	uint8 re_adjust;
-	effect* reason_effect;
-	uint8 reason_player;
-	card* summoning_card;
-	uint8 summon_depth;
-	uint8 summon_cancelable;
-	card* attacker;
-	card* attack_target;
-	uint32 limit_extra_summon_zone;
-	uint32 limit_extra_summon_releasable;
-	card* limit_tuner;
-	group* limit_syn;
-	int32 limit_syn_minc;
-	int32 limit_syn_maxc;
-	group* limit_xyz;
-	int32 limit_xyz_minc;
-	int32 limit_xyz_maxc;
-	group* limit_link;
-	card* limit_link_card;
-	int32 limit_link_minc;
-	int32 limit_link_maxc;
-	uint8 not_material;
-	uint8 attack_cancelable;
-	uint8 attack_rollback;
-	uint8 effect_damage_step;
-	int32 battle_damage[2];
-	int32 summon_count[2];
-	uint8 extra_summon[2];
-	int32 spe_effect[2];
-	int32 duel_options;
-	int32 duel_rule;	//current rule: 5, Master Rule 2020
-	uint32 copy_reset;
-	uint8 copy_reset_count;
-	uint32 last_control_changed_id;
-	uint32 set_group_used_zones;
-	uint8 set_group_seq[7];
-	uint8 dice_result[5];
+	uint8 chain_solving{ FALSE };
+	uint8 conti_solving{ FALSE };
+	uint8 win_player{ 5 };
+	uint8 win_reason{ 0 };
+	uint8 re_adjust{ FALSE };
+	effect* reason_effect{ nullptr };
+	uint8 reason_player{ PLAYER_NONE };
+	card* summoning_card{ nullptr };
+	uint8 summon_depth{ 0 };
+	uint8 summon_cancelable{ FALSE };
+	card* attacker{ nullptr };
+	card* attack_target{ nullptr };
+	uint32 limit_extra_summon_zone{ 0 };
+	uint32 limit_extra_summon_releasable{ 0 };
+	card* limit_tuner{ nullptr };
+	group* limit_syn{ nullptr };
+	int32 limit_syn_minc{ 0 };
+	int32 limit_syn_maxc{ 0 };
+	group* limit_xyz{ nullptr };
+	int32 limit_xyz_minc{ 0 };
+	int32 limit_xyz_maxc{ 0 };
+	group* limit_link{ nullptr };
+	card* limit_link_card{ nullptr };
+	int32 limit_link_minc{ 0 };
+	int32 limit_link_maxc{ 0 };
+	uint8 not_material{ FALSE };
+	uint8 attack_cancelable{ FALSE };
+	uint8 attack_rollback{ FALSE };
+	uint8 effect_damage_step{ 0 };
+	int32 battle_damage[2]{ 0 };
+	int32 summon_count[2]{ 0 };
+	uint8 extra_summon[2]{ FALSE };
+	int32 spe_effect[2]{ 0 };
+	int32 duel_options{ 0 };
+	int32 duel_rule{ 5 };	//current rule: 5, Master Rule 2020
+	uint32 copy_reset{ 0 };
+	uint8 copy_reset_count{ 0 };
+	uint32 last_control_changed_id{ 0 };
+	uint32 set_group_used_zones{ 0 };
+	uint8 set_group_seq[7]{ 0 };
+	uint8 dice_result[5]{ 0 };
 	uint8 coin_result[MAX_COIN_COUNT];
-	int32 coin_count;
+	int32 coin_count{ 0 };
 
-	uint8 to_bp;
-	uint8 to_m2;
-	uint8 to_ep;
-	uint8 skip_m2;
-	uint8 chain_attack;
-	uint32 chain_attacker_id;
-	card* chain_attack_target;
-	uint8 attack_player;
-	uint8 selfdes_disabled;
-	uint8 overdraw[2];
-	int32 check_level;
-	uint8 shuffle_check_disabled;
-	uint8 shuffle_hand_check[2];
-	uint8 shuffle_deck_check[2];
-	uint8 deck_reversed;
-	uint8 remove_brainwashing;
-	uint8 flip_delayed;
-	uint8 damage_calculated;
-	uint8 hand_adjusted;
-	uint8 summon_state_count[2];
-	uint8 normalsummon_state_count[2];
-	uint8 flipsummon_state_count[2];
-	uint8 spsummon_state_count[2];
-	uint8 attack_state_count[2];
-	uint8 battle_phase_count[2];
-	uint8 battled_count[2];
-	uint8 phase_action;
-	uint32 hint_timing[2];
-	uint8 current_player;
-	uint8 conti_player;
+	uint8 to_bp{ FALSE };
+	uint8 to_m2{ FALSE };
+	uint8 to_ep{ FALSE };
+	uint8 skip_m2{ FALSE };
+	uint8 chain_attack{ FALSE };
+	uint32 chain_attacker_id{ 0 };
+	card* chain_attack_target{ nullptr };
+	uint8 attack_player{ PLAYER_NONE };
+	uint8 selfdes_disabled{ FALSE };
+	uint8 overdraw[2]{ FALSE };
+	int32 check_level{ 0 };
+	uint8 shuffle_check_disabled{ FALSE };
+	uint8 shuffle_hand_check[2]{ FALSE };
+	uint8 shuffle_deck_check[2]{ FALSE };
+	uint8 deck_reversed{ FALSE };
+	uint8 remove_brainwashing{ FALSE };
+	uint8 flip_delayed{ FALSE };
+	uint8 damage_calculated{ FALSE };
+	uint8 hand_adjusted{ FALSE };
+	uint8 summon_state_count[2]{ 0 };
+	uint8 normalsummon_state_count[2]{ 0 };
+	uint8 flipsummon_state_count[2]{ 0 };
+	uint8 spsummon_state_count[2]{ 0 };
+	uint8 attack_state_count[2]{ 0 };
+	uint8 battle_phase_count[2]{ 0 };
+	uint8 battled_count[2]{ 0 };
+	uint8 phase_action{ FALSE };
+	uint32 hint_timing[2]{ 0 };
+	uint8 current_player{ PLAYER_NONE };
+	uint8 conti_player{ PLAYER_NONE };
 	std::unordered_map<uint32, std::pair<uint32, uint32>> summon_counter;
 	std::unordered_map<uint32, std::pair<uint32, uint32>> normalsummon_counter;
 	std::unordered_map<uint32, std::pair<uint32, uint32>> spsummon_counter;
@@ -337,17 +337,6 @@ struct processor {
 	std::unordered_map<uint32, std::pair<uint32, uint32>> chain_counter;
 	processor_list recover_damage_reserve;
 	effect_vector dec_count_reserve;
-
-	processor()
-		: temp_var{ 0 }, global_flag(0), pre_field{ 0 }, chain_solving(FALSE), conti_solving(FALSE), win_player(5), win_reason(0), re_adjust(FALSE), reason_effect(nullptr), reason_player(PLAYER_NONE),
-		summoning_card(nullptr), summon_depth(0), summon_cancelable(FALSE), attacker(nullptr), attack_target(nullptr), limit_extra_summon_zone(0), limit_extra_summon_releasable(0),
-		limit_tuner(nullptr), limit_syn(nullptr), limit_syn_minc(0), limit_syn_maxc(0), limit_xyz(nullptr), limit_xyz_minc(0), limit_xyz_maxc(0), limit_link(nullptr), limit_link_card(nullptr),
-		limit_link_minc(0), limit_link_maxc(0), not_material(FALSE), attack_cancelable(FALSE), attack_rollback(FALSE), effect_damage_step(0), battle_damage{ 0 }, summon_count{ 0 }, extra_summon{ FALSE },
-		spe_effect{ 0 }, duel_options(0), duel_rule(0), copy_reset(0), copy_reset_count(0), last_control_changed_id(0), set_group_used_zones(0), set_group_seq{ 0 }, dice_result{ 0 }, coin_result{ 0 },
-		coin_count(0), to_bp(FALSE), to_m2(FALSE), to_ep(FALSE), skip_m2(FALSE), chain_attack(FALSE), chain_attacker_id(0), chain_attack_target(nullptr), attack_player(PLAYER_NONE), selfdes_disabled(FALSE),
-		overdraw{ FALSE }, check_level(0), shuffle_check_disabled(FALSE), shuffle_hand_check{ FALSE }, shuffle_deck_check{ FALSE }, deck_reversed(FALSE), remove_brainwashing(FALSE), flip_delayed(FALSE),
-		damage_calculated(FALSE), hand_adjusted(FALSE), summon_state_count{ 0 }, normalsummon_state_count{ 0 }, flipsummon_state_count{ 0 }, spsummon_state_count{ 0 }, attack_state_count{ 0 },
-		battle_phase_count{ 0 }, battled_count{ 0 }, phase_action(FALSE), hint_timing{ 0 }, current_player(PLAYER_NONE), conti_player(PLAYER_NONE) {}
 };
 class field {
 public:
