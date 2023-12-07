@@ -894,7 +894,7 @@ void field::raise_event(card* event_card, uint32 event_code, effect* reason_effe
 	new_event.trigger_card = 0;
 	if (event_card) {
 		group* pgroup = pduel->new_group(event_card);
-		pgroup->is_readonly = TRUE;
+		pgroup->is_readonly = 1;
 		new_event.event_cards = pgroup;
 	} else
 		new_event.event_cards = 0;
@@ -911,7 +911,7 @@ void field::raise_event(card_set* event_cards, uint32 event_code, effect* reason
 	new_event.trigger_card = 0;
 	if (event_cards) {
 		group* pgroup = pduel->new_group(*event_cards);
-		pgroup->is_readonly = TRUE;
+		pgroup->is_readonly = 1;
 		new_event.event_cards = pgroup;
 	} else
 		new_event.event_cards = 0;
@@ -928,7 +928,7 @@ void field::raise_single_event(card* trigger_card, card_set* event_cards, uint32
 	new_event.trigger_card = trigger_card;
 	if (event_cards) {
 		group* pgroup = pduel->new_group(*event_cards);
-		pgroup->is_readonly = TRUE;
+		pgroup->is_readonly = 1;
 		new_event.event_cards = pgroup;
 	} else
 		new_event.event_cards = 0;
@@ -3073,7 +3073,7 @@ int32 field::process_battle_command(uint16 step) {
 		if(des.size()) {
 			group* ng = pduel->new_group();
 			ng->container.swap(des);
-			ng->is_readonly = TRUE;
+			ng->is_readonly = 1;
 			add_process(PROCESSOR_DESTROY, 10, 0, ng, REASON_BATTLE, PLAYER_NONE);
 			core.units.begin()->ptarget = ng;
 		}
@@ -4958,7 +4958,7 @@ int32 field::adjust_step(uint16 step) {
 			core.re_adjust = TRUE;
 			group* ng = pduel->new_group();
 			ng->container.swap(pos_adjust);
-			ng->is_readonly = TRUE;
+			ng->is_readonly = 1;
 			add_process(PROCESSOR_CHANGEPOS, 0, 0, ng, PLAYER_NONE, TRUE);
 		}
 		return FALSE;

@@ -352,7 +352,7 @@ int32 scriptlib::duel_synchro_summon(lua_State *L) {
 			check_param(L, PARAM_TYPE_GROUP, 4);
 			group* pgroup = *(group**) lua_touserdata(L, 4);
 			mg = pduel->new_group(pgroup->container);
-			mg->is_readonly = TRUE;
+			mg->is_readonly = 1;
 		}
 	}
 	int32 minc = 0;
@@ -390,7 +390,7 @@ int32 scriptlib::duel_xyz_summon(lua_State *L) {
 		check_param(L, PARAM_TYPE_GROUP, 3);
 		group* pgroup = *(group**)lua_touserdata(L, 3);
 		materials = pduel->new_group(pgroup->container);
-		materials->is_readonly = TRUE;
+		materials->is_readonly = 1;
 	}
 	int32 minc = 0;
 	if(lua_gettop(L) >= 4)
@@ -427,7 +427,7 @@ int32 scriptlib::duel_link_summon(lua_State *L) {
 		check_param(L, PARAM_TYPE_GROUP, 3);
 		group* pgroup = *(group**)lua_touserdata(L, 3);
 		materials = pduel->new_group(pgroup->container);
-		materials->is_readonly = TRUE;
+		materials->is_readonly = 1;
 	}
 	if(lua_gettop(L) >= 4) {
 		if(!lua_isnil(L, 4)) {
@@ -2970,7 +2970,7 @@ int32 scriptlib::duel_select_target(lua_State *L) {
 			return 0;
 		if(!ch->target_cards) {
 			ch->target_cards = pduel->new_group();
-			ch->target_cards->is_readonly = TRUE;
+			ch->target_cards->is_readonly = 1;
 		}
 		group* tg = ch->target_cards;
 		effect* peffect = ch->triggering_effect;
@@ -3027,10 +3027,10 @@ int32 scriptlib::duel_check_must_material(lua_State *L) {
 		pduel = interpreter::get_duel_info(L);
 	if(mgroup) {
 		pgroup = pduel->new_group(mgroup->container);
-		pgroup->is_readonly = TRUE;
+		pgroup->is_readonly = 1;
 	} else if(mcard) {
 		pgroup = pduel->new_group(mcard);
-		pgroup->is_readonly = TRUE;
+		pgroup->is_readonly = 1;
 	} else
 		pgroup = 0;
 	uint32 limit = (uint32)lua_tointeger(L, 3);
@@ -3306,7 +3306,7 @@ int32 scriptlib::duel_set_target_card(lua_State *L) {
 		return 0;
 	if(!ch->target_cards) {
 		ch->target_cards = pduel->new_group();
-		ch->target_cards->is_readonly = TRUE;
+		ch->target_cards->is_readonly = 1;
 	}
 	group* targets = ch->target_cards;
 	effect* peffect = ch->triggering_effect;
@@ -3397,12 +3397,12 @@ int32 scriptlib::duel_set_operation_info(lua_State *L) {
 		return 0;
 	if(pgroup) {
 		pg = pduel->new_group(pgroup->container);
-		pg->is_readonly = TRUE;
+		pg->is_readonly = 1;
 	} else if(pcard) {
 		pg = pduel->new_group(pcard);
-		pg->is_readonly = TRUE;
+		pg->is_readonly = 1;
 	} else
-		pg = 0;
+		pg = nullptr;
 	optarget opt;
 	opt.op_cards = pg;
 	opt.op_count = count;
