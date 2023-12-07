@@ -23,6 +23,7 @@ public:
 	card_set::iterator it;
 	int32 ref_handle{ 0 };
 	uint32 is_readonly{ 0 };
+	bool is_iterator_dirty{ true };
 	
 	inline bool has_card(card* c) {
 		return container.find(c) != container.end();
