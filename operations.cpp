@@ -3404,10 +3404,10 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 		card_set indestructable_set;
 		std::set<effect*> indestructable_effect_set;
 		for (auto cit = targets->container.begin(); cit != targets->container.end();) {
-			auto rm = cit++;
-			card* pcard = *rm;
+			card* pcard = *cit;
 			if(!pcard->is_destructable()) {
 				indestructable_set.insert(pcard);
+				++cit;
 				continue;
 			}
 			if (!(pcard->current.reason & (REASON_RULE | REASON_COST))) {
@@ -3423,6 +3423,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					is_destructable = false;
 				if (!is_destructable) {
 					indestructable_set.insert(pcard);
+					++cit;
 					continue;
 				}
 			}
@@ -3443,6 +3444,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				}
 				if(!is_destructable) {
 					indestructable_set.insert(pcard);
+					++cit;
 					continue;
 				}
 			}
@@ -3478,6 +3480,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 				}
 				if(!is_destructable) {
 					core.indestructable_count_set.insert(pcard);
+					++cit;
 					continue;
 				}
 			}
@@ -3499,9 +3502,11 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					pcard->current.reason_effect = pcard->temp.reason_effect;
 					pcard->current.reason_player = pcard->temp.reason_player;
 					core.destroy_canceled.insert(pcard);
-					targets->container.erase(pcard);
+					cit = targets->container.erase(cit);
+					continue;
 				}
 			}
+			++cit;
 		}
 		for (auto& pcard : indestructable_set) {
 			pcard->current.reason = pcard->temp.reason;

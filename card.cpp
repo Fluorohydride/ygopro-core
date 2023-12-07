@@ -1950,9 +1950,10 @@ void card::reset(uint32 id, uint32 reset_type) {
 		return;
 	if (reset_type == RESET_EVENT) {
 		for (auto rit = relations.begin(); rit != relations.end();) {
-			auto rrm = rit++;
-			if (rrm->second & 0xffff0000 & id)
-				relations.erase(rrm);
+			if (rit->second & 0xffff0000 & id)
+				rit = relations.erase(rit);
+			else
+				++rit;
 		}
 		if(id & (RESET_TODECK | RESET_TOHAND | RESET_TOGRAVE | RESET_REMOVE | RESET_TEMP_REMOVE
 			| RESET_OVERLAY | RESET_MSCHANGE))
