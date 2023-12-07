@@ -875,25 +875,28 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 		card_set* destroy_set = new card_set;
 		core.units.begin()->ptr1 = destroy_set;
 		for(auto cit = targets->container.begin(); cit != targets->container.end();) {
-			card* pcard = *cit++;
+			card* pcard = *cit;
 			pcard->filter_disable_related_cards();
 			bool change = true;
 			if(pcard->overlay_target)
 				change = false;
-			if(pcard->current.controler == playerid)
+			else if(pcard->current.controler == playerid)
 				change = false;
-			if(pcard->current.controler == PLAYER_NONE)
+			else if(pcard->current.controler == PLAYER_NONE)
 				change = false;
-			if(pcard->current.location != LOCATION_MZONE)
+			else if(pcard->current.location != LOCATION_MZONE)
 				change = false;
-			if(!pcard->is_capable_change_control())
+			else if(!pcard->is_capable_change_control())
 				change = false;
-			if(!pcard->is_affect_by_effect(reason_effect))
+			else if(!pcard->is_affect_by_effect(reason_effect))
 				change = false;
-			if(core.duel_rule <= 4 && (pcard->get_type() & TYPE_TRAPMONSTER) && get_useable_count(pcard, playerid, LOCATION_SZONE, reason_player, LOCATION_REASON_CONTROL) <= 0)
+			else if(core.duel_rule <= 4 && (pcard->get_type() & TYPE_TRAPMONSTER) 
+				&& get_useable_count(pcard, playerid, LOCATION_SZONE, reason_player, LOCATION_REASON_CONTROL) <= 0)
 				change = false;
-			if(!change)
-				targets->container.erase(pcard);
+			if (!change)
+				cit = targets->container.erase(cit);
+			else
+				++cit;
 		}
 		int32 fcount = get_useable_count(NULL, playerid, LOCATION_MZONE, reason_player, LOCATION_REASON_CONTROL, zone);
 		if(fcount <= 0) {
