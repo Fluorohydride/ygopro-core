@@ -671,7 +671,6 @@ int32 scriptlib::group_sub(lua_State *L) {
 	for (auto& pcard : sgroup->container) {
 		pgroup->container.erase(pcard);
 	}
-	pgroup->it = pgroup->container.begin();
 	return 0;
 }
 int32 scriptlib::group_equal(lua_State *L) {
@@ -791,7 +790,6 @@ int32 scriptlib::group_meta_sub(lua_State* L) {
 		for(auto cit = cgroup->container.begin(); cit != cgroup->container.end(); ++cit)
 			pgroup->container.erase(*cit);
 	}
-	pgroup->it = pgroup->container.begin();
 	interpreter::group2value(L, pgroup);
 	return 1;
 }
@@ -855,7 +853,6 @@ int32 scriptlib::group_meta_bxor(lua_State* L) {
 				pgroup->container.insert(*cit);
 		}
 	}
-	pgroup->it = pgroup->container.begin();
 	interpreter::group2value(L, pgroup);
 	return 1;
 }
