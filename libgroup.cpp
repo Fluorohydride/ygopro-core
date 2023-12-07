@@ -67,7 +67,6 @@ int32 scriptlib::group_clear(lua_State *L) {
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	if (pgroup->is_readonly != 1) {
 		pgroup->container.clear();
-		pgroup->it = pgroup->container.begin();
 	}
 	return 0;
 }
@@ -562,7 +561,6 @@ int32 scriptlib::group_get_min_group(lua_State *L) {
 		else if(op < min) {
 			newgroup->container.clear();
 			newgroup->container.insert(*cit);
-			newgroup->it = newgroup->container.begin();
 			min = op;
 		}
 	}
@@ -592,7 +590,6 @@ int32 scriptlib::group_get_max_group(lua_State *L) {
 		else if(op > max) {
 			newgroup->container.clear();
 			newgroup->container.insert(*cit);
-			newgroup->it = newgroup->container.begin();
 			max = op;
 		}
 	}
