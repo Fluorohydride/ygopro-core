@@ -29,66 +29,57 @@ class group;
 class effect;
 
 struct tevent {
-	card* trigger_card;
-	group* event_cards;
-	effect* reason_effect;
-	uint32 event_code;
-	uint32 event_value;
-	uint32 reason;
-	uint8 event_player;
-	uint8 reason_player;
+	card* trigger_card{ nullptr };
+	group* event_cards{ nullptr };
+	effect* reason_effect{ nullptr };
+	uint32 event_code{ 0 };
+	uint32 event_value{ 0 };
+	uint32 reason{ 0 };
+	uint8 event_player{ PLAYER_NONE };
+	uint8 reason_player{ PLAYER_NONE };
 
-	tevent()
-		: trigger_card(nullptr), event_cards(nullptr), reason_effect(nullptr), event_code(0), event_value(0), reason(0), event_player(PLAYER_NONE), reason_player(PLAYER_NONE) {}
 	bool operator< (const tevent& v) const;
 };
 struct optarget {
-	group* op_cards;
-	uint8 op_count;
-	uint8 op_player;
-	int32 op_param;
-
-	optarget()
-		: op_cards(nullptr), op_count(0), op_player(PLAYER_NONE), op_param(0) {}
+	group* op_cards{ nullptr };
+	uint8 op_count{ 0 };
+	uint8 op_player{ PLAYER_NONE };
+	int32 op_param{ 0 };
 };
 struct chain {
 	using opmap = std::unordered_map<uint32, optarget>;
-	uint16 chain_id;
-	uint8 chain_count;
-	uint8 triggering_player;
-	uint8 triggering_controler;
-	uint16 triggering_location;
-	uint8 triggering_sequence;
-	uint8 triggering_position;
+	uint16 chain_id{ 0 };
+	uint8 chain_count{ 0 };
+	uint8 triggering_player{ PLAYER_NONE };
+	uint8 triggering_controler{ PLAYER_NONE };
+	uint16 triggering_location{ 0 };
+	uint8 triggering_sequence{ 0 };
+	uint8 triggering_position{ 0 };
 	card_state triggering_state;
-	effect* triggering_effect;
-	group* target_cards;
-	int32 replace_op;
-	uint8 target_player;
-	int32 target_param;
-	effect* disable_reason;
-	uint8 disable_player;
+	effect* triggering_effect{ nullptr };
+	group* target_cards{ nullptr };
+	int32 replace_op{ 0 };
+	uint8 target_player{ PLAYER_NONE };
+	int32 target_param{ 0 };
+	effect* disable_reason{ nullptr };
+	uint8 disable_player{ PLAYER_NONE };
 	tevent evt;
 	opmap opinfos;
-	uint32 flag;
+	uint32 flag{ 0 };
 
-	chain()
-		: chain_id(0), chain_count(0), triggering_player(PLAYER_NONE), triggering_controler(PLAYER_NONE), triggering_location(0), triggering_sequence(0), triggering_position(0),
-		triggering_state(), triggering_effect(nullptr), target_cards(nullptr), replace_op(0), target_player(PLAYER_NONE), target_param(0), disable_reason(nullptr), disable_player(PLAYER_NONE),
-		evt(), flag(0) {}
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
 	void set_triggering_state(card* pcard);
 };
 
 struct player_info {
 	using card_vector = std::vector<card*>;
-	int32 lp;
-	int32 start_count;
-	int32 draw_count;
-	uint32 used_location;
-	uint32 disabled_location;
-	uint32 extra_p_count;
-	uint32 tag_extra_p_count;
+	int32 lp{ 0 };
+	int32 start_count{ 0 };
+	int32 draw_count{ 0 };
+	uint32 used_location{ 0 };
+	uint32 disabled_location{ 0 };
+	uint32 extra_p_count{ 0 };
+	uint32 tag_extra_p_count{ 0 };
 	card_vector list_mzone;
 	card_vector list_szone;
 	card_vector list_main;
@@ -99,9 +90,6 @@ struct player_info {
 	card_vector tag_list_main;
 	card_vector tag_list_hand;
 	card_vector tag_list_extra;
-
-	player_info()
-		: lp(0), start_count(0), draw_count(0), used_location(0), disabled_location(0), extra_p_count(0), tag_extra_p_count(0) {}
 };
 struct field_effect {
 	using effect_container = std::multimap<uint32, effect*>;
@@ -132,41 +120,32 @@ struct field_effect {
 	grant_effect_container grant_effect;
 };
 struct field_info {
-	int32 field_id;
-	int16 copy_id;
-	int16 turn_id;
-	int16 turn_id_by_player[2];
-	int16 card_id;
-	uint16 phase;
-	uint8 turn_player;
-	uint8 priorities[2];
-	uint8 can_shuffle;
-
-	field_info()
-		: field_id(0), copy_id(0), turn_id(0), turn_id_by_player{ 0 }, card_id(0), phase(0), turn_player(0), priorities{ 0 }, can_shuffle(TRUE) {}
+	int32 field_id{ 0 };
+	int16 copy_id{ 0 };
+	int16 turn_id{ 0 };
+	int16 turn_id_by_player[2]{ 0 };
+	int16 card_id{ 0 };
+	uint16 phase{ 0 };
+	uint8 turn_player{ 0 };
+	uint8 priorities[2]{ 0 };
+	uint8 can_shuffle{ TRUE };
 };
 struct lpcost {
-	int32 count;
-	int32 amount;
-	int32 lpstack[8];
-
-	lpcost()
-		: count(0), amount(0), lpstack{ 0 } {}
+	int32 count{ 0 };
+	int32 amount{ 0 };
+	int32 lpstack[8]{ 0 };
 };
 struct processor_unit {
-	uint16 type;
-	uint16 step;
-	effect* peffect;
-	group* ptarget;
-	int32 arg1;
-	int32 arg2;
-	int32 arg3;
-	int32 arg4;
-	void* ptr1;
-	void* ptr2;
-
-	processor_unit()
-		: type(0), step(0), peffect(nullptr), ptarget(nullptr), arg1(0), arg2(0), arg3(0), arg4(0), ptr1(nullptr), ptr2(nullptr) {}
+	uint16 type{ 0 };
+	uint16 step{ 0 };
+	effect* peffect{ nullptr };
+	group* ptarget{ nullptr };
+	int32 arg1{ 0 };
+	int32 arg2{ 0 };
+	int32 arg3{ 0 };
+	int32 arg4{ 0 };
+	void* ptr1{ nullptr };
+	void* ptr2{ nullptr };
 };
 union return_value {
 	int8 bvalue[64];
