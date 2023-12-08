@@ -223,14 +223,14 @@ extern "C" DECL_DLLEXPORT int32 query_field_count(intptr_t pduel, uint8 playerid
 	if(location == LOCATION_DECK)
 		return (int32)player.list_main.size();
 	if(location == LOCATION_MZONE) {
-		uint32 count = 0;
+		int32 count = 0;
 		for(auto& pcard : player.list_mzone)
 			if(pcard)
 				++count;
 		return count;
 	}
 	if(location == LOCATION_SZONE) {
-		uint32 count = 0;
+		int32 count = 0;
 		for(auto& pcard : player.list_szone)
 			if(pcard)
 				++count;
