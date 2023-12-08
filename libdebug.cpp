@@ -152,7 +152,7 @@ int32 scriptlib::debug_reload_field_begin(lua_State *L) {
 	else if (flag & DUEL_OBSOLETE_RULING)
 		pduel->game_field->core.duel_rule = 1;
 	else
-		pduel->game_field->core.duel_rule = 5;
+		pduel->game_field->core.duel_rule = CURRENT_RULE;
 	return 0;
 }
 int32 scriptlib::debug_reload_field_end(lua_State *L) {

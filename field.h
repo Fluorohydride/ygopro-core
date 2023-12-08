@@ -289,7 +289,7 @@ struct processor {
 	uint8 extra_summon[2]{ FALSE };
 	int32 spe_effect[2]{ 0 };
 	int32 duel_options{ 0 };
-	int32 duel_rule{ 5 };	//current rule: 5, Master Rule 2020
+	int32 duel_rule{ CURRENT_RULE };	//current rule: 5, Master Rule 2020
 	uint32 copy_reset{ 0 };
 	uint8 copy_reset_count{ 0 };
 	uint32 last_control_changed_id{ 0 };

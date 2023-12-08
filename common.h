@@ -37,6 +37,8 @@ struct card_sort {
 	bool operator()(void* const & c1, void* const & c2) const;
 };
 
+#define CURRENT_RULE	5
+
 //Locations
 #define LOCATION_DECK		0x01		//
 #define LOCATION_HAND		0x02		//
