@@ -354,7 +354,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 				core.overdraw[playerid] = TRUE;
 				break;
 			}
-			drawed++;
+			++drawed;
 			card* pcard = player[playerid].list_main.back();
 			pcard->enable_field_effect(false);
 			pcard->cancel_field_effect();
@@ -373,7 +373,7 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			pcard->enable_field_effect(true);
 			effect* pub = pcard->is_affected_by_effect(EFFECT_PUBLIC);
 			if(pub)
-				public_count++;
+				++public_count;
 			pcard->current.position = pub ? POS_FACEUP : POS_FACEDOWN;
 			cv.push_back(pcard);
 			pcard->reset(RESET_TOHAND, RESET_EVENT);
@@ -1501,7 +1501,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		}
 		if(core.summon_depth)
 			core.summon_cancelable = FALSE;
-		core.summon_depth++;
+		++core.summon_depth;
 		target->material_cards.clear();
 		return FALSE;
 	}
@@ -1788,7 +1788,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 			return FALSE;
 		effect* pextra = (effect*)core.units.begin()->ptr1;
 		if(!pextra)
-			core.summon_count[sumplayer]++;
+			++core.summon_count[sumplayer];
 		else {
 			core.extra_summon[sumplayer] = TRUE;
 			pduel->write_buffer8(MSG_HINT);
@@ -1841,7 +1841,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 			return FALSE;
 		effect* pextra = (effect*)core.units.begin()->ptr1;
 		if(!pextra)
-			core.summon_count[sumplayer]++;
+			++core.summon_count[sumplayer];
 		else {
 			core.extra_summon[sumplayer] = TRUE;
 			pduel->write_buffer8(MSG_HINT);
@@ -1945,8 +1945,8 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		return FALSE;
 	}
 	case 17: {
-		core.summon_state_count[sumplayer]++;
-		core.normalsummon_state_count[sumplayer]++;
+		++core.summon_state_count[sumplayer];
+		++core.normalsummon_state_count[sumplayer];
 		check_card_counter(target, ACTIVITY_SUMMON, sumplayer);
 		check_card_counter(target, ACTIVITY_NORMALSUMMON, sumplayer);
 		raise_single_event(target, 0, EVENT_SUMMON_SUCCESS, proc, 0, sumplayer, sumplayer, 0);
@@ -2037,7 +2037,7 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target) {
 	}
 	case 4: {
 		pduel->write_buffer8(MSG_FLIPSUMMONED);
-		core.flipsummon_state_count[sumplayer]++;
+		++core.flipsummon_state_count[sumplayer];
 		check_card_counter(target, ACTIVITY_FLIPSUMMON, sumplayer);
 		adjust_instant();
 		raise_single_event(target, 0, EVENT_FLIP, 0, 0, sumplayer, sumplayer, 0);
@@ -2347,7 +2347,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 			return FALSE;
 		effect* pextra = (effect*)core.units.begin()->ptr1;
 		if(!pextra)
-			core.summon_count[setplayer]++;
+			++core.summon_count[setplayer];
 		else {
 			core.extra_summon[setplayer] = TRUE;
 			pduel->write_buffer8(MSG_HINT);
@@ -2377,7 +2377,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 	case 9: {
 		set_control(target, target->current.controler, 0, 0);
 		core.phase_action = TRUE;
-		core.normalsummon_state_count[setplayer]++;
+		++core.normalsummon_state_count[setplayer];
 		check_card_counter(target, ACTIVITY_NORMALSUMMON, setplayer);
 		target->set_status(STATUS_SUMMON_TURN, TRUE);
 		pduel->write_buffer8(MSG_SET);
@@ -2636,7 +2636,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		for(auto cit = core.operated_set.begin(); cit != core.operated_set.end(); ++cit) {
 			card* pcard = *cit;
 			uint8 seq = core.set_group_seq[i];
-			i++;
+			++i;
 			if(pcard->data.type & TYPE_FIELD)
 				continue;
 			pduel->write_buffer32(pcard->get_info_location());
@@ -2943,7 +2943,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		set_spsummon_counter(sumplayer);
 		check_card_counter(target, ACTIVITY_SPSUMMON, sumplayer);
 		if(target->spsummon_code)
-			core.spsummon_once_map[sumplayer][target->spsummon_code]++;
+			++core.spsummon_once_map[sumplayer][target->spsummon_code];
 		raise_single_event(target, 0, EVENT_SPSUMMON_SUCCESS, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
 		process_single_event();
 		raise_event(target, EVENT_SPSUMMON_SUCCESS, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
@@ -3135,7 +3135,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 				spsummon_once_set.insert(pcard->spsummon_code);
 		}
 		for(auto& cit : spsummon_once_set)
-			core.spsummon_once_map[sumplayer][cit]++;
+			++core.spsummon_once_map[sumplayer][cit];
 		for(auto& pcard : pgroup->container)
 			raise_single_event(pcard, 0, EVENT_SPSUMMON_SUCCESS, pcard->current.reason_effect, 0, pcard->current.reason_player, pcard->summon_player, 0);
 		process_single_event();
@@ -3319,9 +3319,9 @@ int32 field::special_summon(uint16 step, effect* reason_effect, uint8 reason_pla
 		if(ntp)
 			set_spsummon_counter(1 - infos.turn_player);
 		for(auto& cit : spsummon_once_set[0])
-			core.spsummon_once_map[0][cit]++;
+			++core.spsummon_once_map[0][cit];
 		for(auto& cit : spsummon_once_set[1])
-			core.spsummon_once_map[1][cit]++;
+			++core.spsummon_once_map[1][cit];
 		for(auto& pcard : targets->container) {
 			pcard->set_status(STATUS_SPSUMMON_STEP, FALSE);
 			pcard->set_status(STATUS_SPSUMMON_TURN, TRUE);
@@ -5453,9 +5453,9 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		uint32 handover_zone = get_rule_zone_fromex(playerid, pcard) & ~must_use_zone_flag;
 		get_cards_in_zone(&handover_zone_cards, handover_zone, playerid, LOCATION_MZONE);
 		if(handover_zone_cards.find(tuner) != handover_zone_cards.end())
-			ct++;
+			++ct;
 		if(smat && handover_zone_cards.find(smat) != handover_zone_cards.end())
-			ct++;
+			++ct;
 		if(ct > 0) {
 			core.units.begin()->step = 6;
 			return FALSE;
@@ -5742,7 +5742,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 				for(auto cit = mat.begin(); cit != mat.end(); ++cit) {
 					card* pcard = cit->second;
 					if(handover_zone_cards.find(pcard) != handover_zone_cards.end())
-						ft++;
+						++ft;
 				}
 				if(ft <= 0)
 					continue;
@@ -5791,7 +5791,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 			if(handover_zone_cards.find(pcard) != handover_zone_cards.end())
 				core.select_cards.push_back(pcard);
 			else
-				mmax++;
+				++mmax;
 		}
 		if(min > mmax) {
 			returns.ivalue[0] = 1;
@@ -6202,7 +6202,7 @@ int32 field::select_tribute_cards(int16 step, card* target, uint8 playerid, uint
 		if(!core.operated_set.empty()) {
 			min -= (*core.operated_set.begin())->release_param;
 			max--;
-			fcount++;
+			++fcount;
 		}
 		if(core.release_cards_ex.size() + core.release_cards_ex_oneof.size() == 0
 		        || (fcount <= 0 && min < 2)) {

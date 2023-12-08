@@ -193,7 +193,7 @@ int32 scriptlib::group_filter_count(lua_State *L) {
 	uint32 count = 0;
 	for (auto& pcard : cset) {
 		if(pduel->lua->check_matching(pcard, 2, extraargs))
-			count++;
+			++count;
 	}
 	lua_pushinteger(L, count);
 	return 1;
@@ -395,7 +395,7 @@ int32 scriptlib::group_is_exists(lua_State *L) {
 	uint32 result = FALSE;
 	for (auto& pcard : cset) {
 		if(pduel->lua->check_matching(pcard, 2, extraargs)) {
-			fcount++;
+			++fcount;
 			if(fcount >= count) {
 				result = TRUE;
 				break;
@@ -742,7 +742,7 @@ int32 scriptlib::group_get_bin_class_count(lua_State *L) {
 	int32 ans = 0;
 	while(er) {
 		er &= er - 1;
-		ans++;
+		++ans;
 	}
 	lua_pushinteger(L, ans);
 	return 1;

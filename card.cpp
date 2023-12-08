@@ -79,7 +79,7 @@ bool card::card_operation_sort(card* c1, card* c2) {
 void card::attacker_map::addcard(card* pcard) {
 	uint16 fid = pcard ? pcard->fieldid_r : 0;
 	auto pr = emplace(fid, std::make_pair(pcard, 0));
-	pr.first->second.second++;
+	++pr.first->second.second;
 }
 uint32 card::attacker_map::findcard(card* pcard) {
 	uint16 fid = pcard ? pcard->fieldid_r : 0;
@@ -1371,7 +1371,7 @@ int32 card::is_all_column() {
 	get_column_cards(&cset);
 	int32 full = 3;
 	if(pduel->game_field->core.duel_rule >= 4 && (current.sequence == 1 || current.sequence == 3))
-		full++;
+		++full;
 	if(cset.size() == full)
 		return TRUE;
 	return FALSE;
@@ -1408,7 +1408,7 @@ int32 card::get_union_count() {
 	int32 count = 0;
 	for(auto& pcard : equiping_cards) {
 		if((pcard->data.type & TYPE_UNION) && pcard->is_affected_by_effect(EFFECT_UNION_STATUS))
-			count++;
+			++count;
 	}
 	return count;
 }
@@ -1416,7 +1416,7 @@ int32 card::get_old_union_count() {
 	int32 count = 0;
 	for(auto& pcard : equiping_cards) {
 		if((pcard->data.type & TYPE_UNION) && pcard->is_affected_by_effect(EFFECT_OLDUNION_STATUS))
-			count++;
+			++count;
 	}
 	return count;
 }
@@ -1875,7 +1875,7 @@ int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
 	pduel->game_field->core.copy_reset_count = count;
 	pduel->lua->add_param(this, PARAM_TYPE_CARD);
 	pduel->lua->call_code_function(code, "initial_effect", 1, 0);
-	pduel->game_field->infos.copy_id++;
+	++pduel->game_field->infos.copy_id;
 	set_status(STATUS_COPYING_EFFECT, FALSE);
 	pduel->game_field->core.copy_reset = cr;
 	pduel->game_field->core.copy_reset_count = crc;
@@ -1921,7 +1921,7 @@ int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 	pduel->lua->add_param(this, PARAM_TYPE_CARD);
 	pduel->lua->call_code_function(code, "initial_effect", 1, 0);
 	set_status(STATUS_INITIALIZING | STATUS_COPYING_EFFECT, FALSE);
-	pduel->game_field->infos.copy_id++;
+	++pduel->game_field->infos.copy_id;
 	pduel->game_field->core.copy_reset = cr;
 	pduel->game_field->core.copy_reset_count = crc;
 	set_status(STATUS_EFFECT_REPLACED, TRUE);

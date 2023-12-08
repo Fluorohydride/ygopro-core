@@ -68,7 +68,7 @@ int32 scriptlib::card_get_fusion_code(lua_State *L) {
 	uint32 otcode = pcard->get_another_code();
 	if(otcode) {
 		lua_pushinteger(L, otcode);
-		count++;
+		++count;
 	}
 	if(pcard->pduel->game_field->core.not_material)
 		return count;
@@ -87,7 +87,7 @@ int32 scriptlib::card_get_link_code(lua_State *L) {
 	uint32 otcode = pcard->get_another_code();
 	if(otcode) {
 		lua_pushinteger(L, otcode);
-		count++;
+		++count;
 	}
 	effect_set eset;
 	pcard->filter_effect(EFFECT_ADD_LINK_CODE, &eset);
@@ -1629,7 +1629,7 @@ int32 scriptlib::card_get_activate_effect(lua_State *L) {
 	for(auto& eit : pcard->field_effect) {
 		if(eit.second->type & EFFECT_TYPE_ACTIVATE) {
 			interpreter::effect2value(L, eit.second);
-			count++;
+			++count;
 		}
 	}
 	return count;
@@ -1783,7 +1783,7 @@ int32 scriptlib::card_is_has_effect(lua_State *L) {
 	for(int32 i = 0; i < eset.size(); ++i) {
 		if(check_player == PLAYER_NONE || eset[i]->check_count_limit(check_player)) {
 			interpreter::effect2value(L, eset[i]);
-			size++;
+			++size;
 		}
 	}
 	if(!size) {

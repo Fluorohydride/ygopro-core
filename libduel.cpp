@@ -1576,7 +1576,7 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 		loc = pcard->current.location;
 		ms[ct] = pcard;
 		seq[ct] = pcard->current.sequence;
-		ct++;
+		++ct;
 	}
 	for(int32 i = ct - 1; i > 0; --i) {
 		int32 s = pduel->get_next_integer(0, i);
@@ -1617,16 +1617,16 @@ int32 scriptlib::duel_change_attacker(lua_State *L) {
 	if(pduel->game_field->core.attacker == attacker)
 		return 0;
 	card* attack_target = pduel->game_field->core.attack_target;
-	pduel->game_field->core.attacker->announce_count++;
+	++pduel->game_field->core.attacker->announce_count;
 	pduel->game_field->core.attacker->announced_cards.addcard(attack_target);
 	pduel->game_field->attack_all_target_check();
 	pduel->game_field->core.attacker = attacker;
 	attacker->attack_controler = attacker->current.controler;
 	pduel->game_field->core.pre_field[0] = attacker->fieldid_r;
 	if(!ignore_count) {
-		attacker->attack_announce_count++;
+		++attacker->attack_announce_count;
 		if(pduel->game_field->infos.phase == PHASE_DAMAGE) {
-			attacker->attacked_count++;
+			++attacker->attacked_count;
 			attacker->attacked_cards.addcard(attack_target);
 		}
 	}
@@ -1863,7 +1863,7 @@ int32 scriptlib::duel_increase_summon_count(lua_State *L) {
 	if(pcard && (pextra = pcard->is_affected_by_effect(EFFECT_EXTRA_SUMMON_COUNT)))
 		pextra->get_value(pcard);
 	else
-		pduel->game_field->core.summon_count[playerid]++;
+		++pduel->game_field->core.summon_count[playerid];
 	return 0;
 }
 int32 scriptlib::duel_check_summon_count(lua_State *L) {
@@ -2379,7 +2379,7 @@ int32 scriptlib::duel_chain_attack(lua_State *L) {
 int32 scriptlib::duel_readjust(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	card* adjcard = pduel->game_field->core.reason_effect->get_handler();
-	pduel->game_field->core.readjust_map[adjcard]++;
+	++pduel->game_field->core.readjust_map[adjcard];
 	if(pduel->game_field->core.readjust_map[adjcard] > 3) {
 		pduel->game_field->send_to(adjcard, 0, REASON_RULE, pduel->game_field->core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		return lua_yield(L, 0);
@@ -4113,7 +4113,7 @@ int32 scriptlib::duel_is_player_affected_by_effect(lua_State *L) {
 	for(int32 i = 0; i < eset.size(); ++i) {
 		if(eset[i]->check_count_limit(playerid)) {
 			interpreter::effect2value(L, eset[i]);
-			size++;
+			++size;
 		}
 	}
 	if(!size) {
