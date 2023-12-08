@@ -121,139 +121,249 @@ card::card(duel* pd) {
 	spsummon_code = 0;
 	current.controler = PLAYER_NONE;
 }
+constexpr void update_cache(uint32& tdata, uint32& cache, int32*& p, uint32& query_flag, const uint32 flag) {
+	if (tdata != cache) {
+		cache = tdata;
+		*p = tdata;
+		++p;
+	}
+	else
+		query_flag &= ~flag;
+}
 int32 card::get_infos(byte* buf, uint32 query_flag, int32 use_cache) {
 	int32* p = (int32*)buf;
-	int32 tdata = 0;
 	std::pair<int32, int32> atk_def(-10, -10);
+	std::pair<int32, int32> base_atk_def(-10, -10);
+	if ((query_flag & QUERY_ATTACK) || (query_flag & QUERY_DEFENSE)) {
+		atk_def = get_atk_def();
+	}
+	if ((query_flag & QUERY_BASE_ATTACK) || (query_flag & QUERY_BASE_DEFENSE)) {
+		base_atk_def = get_base_atk_def();
+	}
 	p += 2;
-	if(query_flag & QUERY_CODE) *p++ = data.code;
-	if(query_flag & QUERY_POSITION) *p++ = get_info_location();
+	if (query_flag & QUERY_CODE) {
+		*p = data.code;
+		++p;
+	}
+	if (query_flag & QUERY_POSITION) {
+		*p = get_info_location();
+		++p;
+	}
 	if(!use_cache) {
-		if(query_flag & QUERY_ALIAS) q_cache.alias = *p++ = get_code();
-		if(query_flag & QUERY_TYPE) q_cache.type = *p++ = get_type();
-		if(query_flag & QUERY_LEVEL) q_cache.level = *p++ = get_level();
-		if(query_flag & QUERY_RANK) q_cache.rank = *p++ = get_rank();
-		if(query_flag & QUERY_ATTRIBUTE) q_cache.attribute = *p++ = get_attribute();
-		if(query_flag & QUERY_RACE) q_cache.race = *p++ = get_race();
+		if (query_flag & QUERY_ALIAS) {
+			*p = get_code();
+			q_cache.current_code = *p;
+			++p;
+		}
+		if (query_flag & QUERY_TYPE) {
+			*p = get_type();
+			q_cache.type = *p;
+			++p;
+		}
+		if (query_flag & QUERY_LEVEL) {
+			*p = get_level();
+			q_cache.level = *p;
+			++p;
+		}
+		if (query_flag & QUERY_RANK) {
+			*p = get_rank();
+			q_cache.rank = *p;
+			++p;
+		}
+		if (query_flag & QUERY_ATTRIBUTE) {
+			*p = get_attribute();
+			q_cache.attribute = *p;
+			++p;
+		}
+		if (query_flag & QUERY_RACE) {
+			*p = get_race();
+			q_cache.race = *p;
+			++p;
+		}
 		if (query_flag & QUERY_ATTACK) {
-			atk_def = get_atk_def();
-			q_cache.attack = *p++ = atk_def.first;
+			*p = atk_def.first;
+			q_cache.attack = atk_def.first;
+			++p;
 		}
 		if (query_flag & QUERY_DEFENSE) {
-			if(atk_def.second == -10)
-				q_cache.defense = *p++ = get_defense();
-			else
-				q_cache.defense = *p++ = atk_def.second;
+			*p = atk_def.second;
+			q_cache.defense = atk_def.second;
+			++p;
 		}
-		if(query_flag & QUERY_BASE_ATTACK) q_cache.base_attack = *p++ = get_base_attack();
-		if(query_flag & QUERY_BASE_DEFENSE) q_cache.base_defense = *p++ = get_base_defense();
-		if(query_flag & QUERY_REASON) q_cache.reason = *p++ = current.reason;
+		if (query_flag & QUERY_BASE_ATTACK) {
+			*p = base_atk_def.first;
+			q_cache.base_attack = base_atk_def.first;
+			++p;
+		}
+		if (query_flag & QUERY_BASE_DEFENSE) {
+			*p = base_atk_def.second;
+			q_cache.base_defense = base_atk_def.second;
+			++p;
+		}
+		if (query_flag & QUERY_REASON) {
+			*p = current.reason;
+			q_cache.reason = current.reason;
+			++p;
+		}
 	}
 	else {
-		if((query_flag & QUERY_ALIAS) && ((uint32)(tdata = get_code()) != q_cache.alias)) {
-			q_cache.alias = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_ALIAS;
-		if((query_flag & QUERY_TYPE) && ((uint32)(tdata = get_type()) != q_cache.type)) {
-			q_cache.type = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_TYPE;
-		if((query_flag & QUERY_LEVEL) && ((uint32)(tdata = get_level()) != q_cache.level)) {
-			q_cache.level = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_LEVEL;
-		if((query_flag & QUERY_RANK) && ((uint32)(tdata = get_rank()) != q_cache.rank)) {
-			q_cache.rank = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_RANK;
-		if((query_flag & QUERY_ATTRIBUTE) && ((uint32)(tdata = get_attribute()) != q_cache.attribute)) {
-			q_cache.attribute = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_ATTRIBUTE;
-		if((query_flag & QUERY_RACE) && ((uint32)(tdata = get_race()) != q_cache.race)) {
-			q_cache.race = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_RACE;
-		if((query_flag & QUERY_ATTACK) && ((tdata = get_attack()) != q_cache.attack)) {
-			q_cache.attack = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_ATTACK;
-		if((query_flag & QUERY_DEFENSE) && ((tdata = get_defense()) != q_cache.defense)) {
-			q_cache.defense = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_DEFENSE;
-		if((query_flag & QUERY_BASE_ATTACK) && ((tdata = get_base_attack()) != q_cache.base_attack)) {
-			q_cache.base_attack = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_BASE_ATTACK;
-		if((query_flag & QUERY_BASE_DEFENSE) && ((tdata = get_base_defense()) != q_cache.base_defense)) {
-			q_cache.base_defense = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_BASE_DEFENSE;
-		if((query_flag & QUERY_REASON) && ((uint32)(tdata = current.reason) != q_cache.reason)) {
-			q_cache.reason = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_REASON;
+		if((query_flag & QUERY_ALIAS)) {
+			uint32 tdata = get_code();
+			update_cache(tdata, q_cache.current_code, p, query_flag, QUERY_ALIAS);
+		} 
+		if((query_flag & QUERY_TYPE)) {
+			uint32 tdata = get_type();
+			update_cache(tdata, q_cache.type, p, query_flag, QUERY_TYPE);
+		}
+		if((query_flag & QUERY_LEVEL)) {
+			uint32 tdata = get_level();
+			update_cache(tdata, q_cache.level, p, query_flag, QUERY_LEVEL);
+		}
+		if((query_flag & QUERY_RANK)) {
+			uint32 tdata = get_rank();
+			update_cache(tdata, q_cache.rank, p, query_flag, QUERY_RANK);
+		}
+		if((query_flag & QUERY_ATTRIBUTE)) {
+			uint32 tdata = get_attribute();
+			update_cache(tdata, q_cache.attribute, p, query_flag, QUERY_ATTRIBUTE);
+		}
+		if((query_flag & QUERY_RACE)) {
+			uint32 tdata = get_race();
+			update_cache(tdata, q_cache.race, p, query_flag, QUERY_RACE);
+		}
+		if((query_flag & QUERY_ATTACK)) {
+			if (atk_def.first != q_cache.attack) {
+				q_cache.attack = atk_def.first;
+				*p = atk_def.first;
+				++p;
+			}
+			else
+				query_flag &= ~QUERY_ATTACK;
+		}
+		if((query_flag & QUERY_DEFENSE)) {
+			if (atk_def.second != q_cache.defense) {
+				q_cache.defense = atk_def.second;
+				*p = atk_def.second;
+				++p;
+			}
+			else
+				query_flag &= ~QUERY_DEFENSE;
+		}
+		if((query_flag & QUERY_BASE_ATTACK)) {
+			if (base_atk_def.first != q_cache.base_attack) {
+				q_cache.base_attack = base_atk_def.first;
+				*p = base_atk_def.first;
+				++p;
+			}
+			else
+				query_flag &= ~QUERY_BASE_ATTACK;
+		}
+		if((query_flag & QUERY_BASE_DEFENSE)) {
+			if (base_atk_def.second != q_cache.base_defense) {
+				q_cache.base_defense = base_atk_def.second;
+				*p = base_atk_def.second;
+				++p;
+			}
+			else
+				query_flag &= ~QUERY_BASE_DEFENSE;
+		}
+		if((query_flag & QUERY_REASON)) {
+			uint32 tdata = current.reason;
+			update_cache(tdata, q_cache.reason, p, query_flag, QUERY_REASON);
+		}
 	}
-	if(query_flag & QUERY_REASON_CARD)
-		*p++ = current.reason_card ? current.reason_card->get_info_location() : 0;
+	if (query_flag & QUERY_REASON_CARD) {
+		*p = current.reason_card ? current.reason_card->get_info_location() : 0;
+		++p;
+	}
 	if(query_flag & QUERY_EQUIP_CARD) {
-		if(equiping_target)
-			*p++ = equiping_target->get_info_location();
+		if (equiping_target) {
+			*p = equiping_target->get_info_location();
+			++p;
+		}
 		else
 			query_flag &= ~QUERY_EQUIP_CARD;
 	}
 	if(query_flag & QUERY_TARGET_CARD) {
-		*p++ = (int32)effect_target_cards.size();
-		for(auto& pcard : effect_target_cards)
-			*p++ = pcard->get_info_location();
+		*p = (int32)effect_target_cards.size();
+		++p;
+		for (auto& pcard : effect_target_cards) {
+			*p = pcard->get_info_location();
+			++p;
+		}
 	}
 	if(query_flag & QUERY_OVERLAY_CARD) {
-		*p++ = (int32)xyz_materials.size();
-		for(auto& xcard : xyz_materials)
-			*p++ = xcard->data.code;
+		*p = (int32)xyz_materials.size();
+		++p;
+		for (auto& xcard : xyz_materials) {
+			*p = xcard->data.code;
+			++p;
+		}
 	}
 	if(query_flag & QUERY_COUNTERS) {
-		*p++ = (int32)counters.size();
-		for(const auto& cmit : counters)
-			*p++ = cmit.first + ((cmit.second[0] + cmit.second[1]) << 16);
+		*p = (int32)counters.size();
+		++p;
+		for (const auto& cmit : counters) {
+			*p = cmit.first + ((cmit.second[0] + cmit.second[1]) << 16);
+			++p;
+		}
 	}
-	if(query_flag & QUERY_OWNER)
-		*p++ = owner;
+	if (query_flag & QUERY_OWNER) {
+		*p = owner;
+		++p;
+	}
 	if(query_flag & QUERY_STATUS) {
-		tdata = status & (STATUS_DISABLED | STATUS_FORBIDDEN | STATUS_PROC_COMPLETE);
+		uint32 tdata = status & (STATUS_DISABLED | STATUS_FORBIDDEN | STATUS_PROC_COMPLETE);
 		if(!use_cache || (tdata != q_cache.status)) {
 			q_cache.status = tdata;
-			*p++ = tdata;
-		} else
+			*p = tdata;
+			++p;
+		}
+		else
 			query_flag &= ~QUERY_STATUS;
 	}
 	if(!use_cache) {
-		if(query_flag & QUERY_LSCALE) q_cache.lscale = *p++ = get_lscale();
-		if(query_flag & QUERY_RSCALE) q_cache.rscale = *p++ = get_rscale();
+		if (query_flag & QUERY_LSCALE) {
+			*p = get_lscale();
+			q_cache.lscale = *p;
+			++p;
+		}
+		if (query_flag & QUERY_RSCALE) {
+			*p = get_rscale();
+			q_cache.rscale = *p;
+			++p;
+		}
 		if(query_flag & QUERY_LINK) {
-			q_cache.link = *p++ = get_link();
-			q_cache.link_marker = *p++ = get_link_marker();
+			*p = get_link();
+			q_cache.link = *p;
+			++p;
+			*p = get_link_marker();
+			q_cache.link_marker = *p;
+			++p;
 		}
 	}
 	else {
-		if((query_flag & QUERY_LSCALE) && ((uint32)(tdata = get_lscale()) != q_cache.lscale)) {
-			q_cache.lscale = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_LSCALE;
-		if((query_flag & QUERY_RSCALE) && ((uint32)(tdata = get_rscale()) != q_cache.rscale)) {
-			q_cache.rscale = tdata;
-			*p++ = tdata;
-		} else query_flag &= ~QUERY_RSCALE;
+		if((query_flag & QUERY_LSCALE)) {
+			uint32 tdata = get_lscale();
+			update_cache(tdata, q_cache.lscale, p, query_flag, QUERY_LSCALE);
+		}
+		if((query_flag & QUERY_RSCALE)) {
+			uint32 tdata = get_rscale();
+			update_cache(tdata, q_cache.rscale, p, query_flag, QUERY_RSCALE);
+		}
 		if(query_flag & QUERY_LINK) {
 			uint32 link = get_link();
 			uint32 link_marker = get_link_marker();
 			if((link != q_cache.link) || (link_marker != q_cache.link_marker)) {
 				q_cache.link = link;
-				*p++ = (int32)link;
+				*p = (int32)link;
+				++p;
 				q_cache.link_marker = link_marker;
-				*p++ = (int32)link_marker;
-			} else query_flag &= ~QUERY_LINK;
+				*p = (int32)link_marker;
+				++p;
+			}
+			else
+				query_flag &= ~QUERY_LINK;
 		}
 	}
 	int32* finalize = (int32*)buf;
