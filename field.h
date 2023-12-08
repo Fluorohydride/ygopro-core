@@ -296,7 +296,7 @@ struct processor {
 	uint32 set_group_used_zones{ 0 };
 	uint8 set_group_seq[7]{ 0 };
 	uint8 dice_result[5]{ 0 };
-	uint8 coin_result[MAX_COIN_COUNT];
+	uint8 coin_result[MAX_COIN_COUNT]{ 0 };
 	int32 coin_count{ 0 };
 
 	uint8 to_bp{ FALSE };

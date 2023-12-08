@@ -2855,14 +2855,21 @@ int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_mater
 		effect_set eset;
 		filter_effect(EFFECT_MATERIAL_LIMIT, &eset);
 		for(auto cit = matgroup->container.begin(); cit != matgroup->container.end();) {
-			card* pcard = *cit++;
+			card* pcard = *cit;
+			bool is_erase = false;
 			for(int32 i = 0; i < eset.size(); ++i) {
 				pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 				pduel->lua->add_param(this, PARAM_TYPE_CARD);
 				pduel->lua->add_param(summon_type, PARAM_TYPE_INT);
-				if(!eset[i]->check_value_condition(3))
-					matgroup->container.erase(pcard);
+				if (!eset[i]->check_value_condition(3)) {
+					is_erase = true;
+					break;
+				}
 			}
+			if (is_erase)
+				cit = matgroup->container.erase(cit);
+			else
+				++cit;
 		}
 	} else if(fusion_m) {
 		matgroup = pduel->new_group(fusion_m->container);
@@ -2898,14 +2905,21 @@ void card::fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf,
 		effect_set eset;
 		filter_effect(EFFECT_MATERIAL_LIMIT, &eset);
 		for(auto cit = matgroup->container.begin(); cit != matgroup->container.end();) {
-			card* pcard = *cit++;
+			card* pcard = *cit;
+			bool is_erase = false;
 			for(int32 i = 0; i < eset.size(); ++i) {
 				pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 				pduel->lua->add_param(this, PARAM_TYPE_CARD);
 				pduel->lua->add_param(summon_type, PARAM_TYPE_INT);
-				if(!eset[i]->check_value_condition(3))
-					matgroup->container.erase(pcard);
+				if (!eset[i]->check_value_condition(3)) {
+					is_erase = true;
+					break;
+				}
 			}
+			if (is_erase)
+				cit = matgroup->container.erase(cit);
+			else
+				++cit;
 		}
 	} else if(fusion_m) {
 		matgroup = pduel->new_group(fusion_m->container);
