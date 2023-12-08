@@ -764,7 +764,7 @@ int32 field::execute_cost(uint16 step, effect * triggering_effect, uint8 trigger
 	if (result == COROUTINE_FINISH || result == COROUTINE_ERROR || result == OPERATION_FAIL) {
 		core.reason_effect = 0;
 		core.reason_player = PLAYER_NONE;
-		core.check_level--;
+		--core.check_level;
 		if(core.check_level == 0) {
 			if(core.shuffle_hand_check[0])
 				shuffle(0, LOCATION_HAND);
@@ -816,7 +816,7 @@ int32 field::execute_operation(uint16 step, effect * triggering_effect, uint8 tr
 	if (result == COROUTINE_FINISH || result == COROUTINE_ERROR || result == OPERATION_FAIL) {
 		core.reason_effect = 0;
 		core.reason_player = PLAYER_NONE;
-		core.check_level--;
+		--core.check_level;
 		if(core.check_level == 0) {
 			if(core.shuffle_hand_check[0])
 				shuffle(0, LOCATION_HAND);
@@ -873,7 +873,7 @@ int32 field::execute_target(uint16 step, effect * triggering_effect, uint8 trigg
 	if (result == COROUTINE_FINISH || result == COROUTINE_ERROR || result == OPERATION_FAIL) {
 		core.reason_effect = 0;
 		core.reason_player = PLAYER_NONE;
-		core.check_level--;
+		--core.check_level;
 		if(core.check_level == 0) {
 			if(core.shuffle_hand_check[0])
 				shuffle(0, LOCATION_HAND);
@@ -1158,7 +1158,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 		return FALSE;
 	}
 	case 1: {
-		returns.ivalue[0]--;
+		--returns.ivalue[0];
 		return FALSE;
 	}
 	case 2: {
@@ -1397,7 +1397,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 		return FALSE;
 	}
 	case 5: {
-		returns.ivalue[0]--;
+		--returns.ivalue[0];
 		return FALSE;
 	}
 	case 6: {

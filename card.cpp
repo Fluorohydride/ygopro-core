@@ -1435,9 +1435,9 @@ void card::xyz_overlay(card_set* materials) {
 			if(pcard->current.location != LOCATION_DECK)
 				continue;
 			if((pcard->current.controler == 0) && (pcard->current.sequence == s0))
-				s0--;
+				--s0;
 			if((pcard->current.controler == 1) && (pcard->current.sequence == s1))
-				s1--;
+				--s1;
 		}
 		if((s0 != d0) && (s0 > 0)) {
 			card* ptop = pduel->game_field->player[0].list_main[s0];

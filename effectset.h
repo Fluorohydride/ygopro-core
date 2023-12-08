@@ -28,12 +28,12 @@ struct effect_set {
 		if(index >= count)
 			return;
 		if(index == count - 1) {
-			count--;
+			--count;
 			return;
 		}
 		for(int i = index; i < count - 1; ++i)
 			container[i] = container[i + 1];
-		count--;
+		--count;
 	}
 	void clear() {
 		count = 0;

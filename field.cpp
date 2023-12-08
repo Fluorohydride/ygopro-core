@@ -1347,7 +1347,7 @@ void field::dec_effect_code(uint32 code, uint32 playerid) {
 	if(iter == count_map->end())
 		return;
 	if(iter->second > 0)
-		iter->second--;
+		--iter->second;
 }
 void field::filter_field_effect(uint32 code, effect_set* eset, uint8 sort) {
 	auto rg = effects.aura_effect.equal_range(code);
@@ -2342,7 +2342,7 @@ void field::save_lp_cost() {
 }
 void field::restore_lp_cost() {
 	for(uint8 playerid = 0; playerid < 2; ++playerid) {
-		cost[playerid].count--;
+		--cost[playerid].count;
 		if(cost[playerid].count < 8)
 			cost[playerid].amount = cost[playerid].lpstack[cost[playerid].count];
 	}
@@ -2601,7 +2601,7 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 	int32 mct = get_must_material_list(playerid, EFFECT_MUST_BE_SMATERIAL, &must_list);
 	auto tit = must_list.find(tuner);
 	if(tit != must_list.end()) {
-		mct--;
+		--mct;
 		must_list.erase(tit);
 	}
 	int32 ct = get_spsummonable_count(pcard, playerid);
@@ -2664,15 +2664,15 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 				return FALSE;
 			}
 		}
-		min--;
-		max--;
+		--min;
+		--max;
 		nsyn.push_back(smat);
 		smat->sum_param = smat->get_synchro_level(pcard);
 		++mcount;
 		if(mct > 0) {
 			auto sit = must_list.find(smat);
 			if(sit != must_list.end()) {
-				mct--;
+				--mct;
 				must_list.erase(sit);
 			}
 		}
@@ -2709,8 +2709,8 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 					return FALSE;
 				}
 			}
-			min--;
-			max--;
+			--min;
+			--max;
 			nsyn.push_back(mcard);
 			mcard->sum_param = mcard->get_synchro_level(pcard);
 			++mcount;
