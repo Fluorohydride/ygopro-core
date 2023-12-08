@@ -121,7 +121,7 @@ card::card(duel* pd) {
 	spsummon_code = 0;
 	current.controler = PLAYER_NONE;
 }
-uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
+int32 card::get_infos(byte* buf, uint32 query_flag, int32 use_cache) {
 	int32* p = (int32*)buf;
 	int32 tdata = 0;
 	std::pair<int32, int32> atk_def(-10, -10);
@@ -256,9 +256,12 @@ uint32 card::get_infos(byte* buf, int32 query_flag, int32 use_cache) {
 			} else query_flag &= ~QUERY_LINK;
 		}
 	}
-	*(uint32*)buf = (uint32)((byte*)p - buf);
-	*(uint32*)(buf + 4) = query_flag;
-	return (uint32)((byte*)p - buf);
+	int32* finalize = (int32*)buf;
+	*finalize = (byte*)p - buf;
+	++finalize;
+	*finalize = query_flag;
+	++finalize;
+	return (byte*)p - buf;
 }
 uint32 card::get_info_location() {
 	if(overlay_target) {

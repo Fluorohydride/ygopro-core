@@ -46,7 +46,7 @@ extern "C" DECL_DLLEXPORT void new_card(intptr_t pduel, uint32 code, uint8 owner
 extern "C" DECL_DLLEXPORT void new_tag_card(intptr_t pduel, uint32 code, uint8 owner, uint8 location);
 extern "C" DECL_DLLEXPORT int32 query_card(intptr_t pduel, uint8 playerid, uint8 location, uint8 sequence, int32 query_flag, byte* buf, int32 use_cache);
 extern "C" DECL_DLLEXPORT int32 query_field_count(intptr_t pduel, uint8 playerid, uint8 location);
-extern "C" DECL_DLLEXPORT int32 query_field_card(intptr_t pduel, uint8 playerid, uint8 location, int32 query_flag, byte* buf, int32 use_cache);
+extern "C" DECL_DLLEXPORT int32 query_field_card(intptr_t pduel, uint8 playerid, uint8 location, uint32 query_flag, byte* buf, int32 use_cache);
 extern "C" DECL_DLLEXPORT int32 query_field_info(intptr_t pduel, byte* buf);
 extern "C" DECL_DLLEXPORT void set_responsei(intptr_t pduel, int32 value);
 extern "C" DECL_DLLEXPORT void set_responseb(intptr_t pduel, byte* buf);
