@@ -76,7 +76,7 @@ struct card_state {
 };
 
 struct query_cache {
-	uint32 data_code;
+	uint32 info_location;
 	uint32 current_code;
 	uint32 type;
 	uint32 level;

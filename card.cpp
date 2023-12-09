@@ -146,8 +146,14 @@ int32 card::get_infos(byte* buf, uint32 query_flag, int32 use_cache) {
 		++p;
 	}
 	if (query_flag & QUERY_POSITION) {
-		*p = get_info_location();
+		uint32 tdata = get_info_location();
+		*p = tdata;
 		++p;
+		if (q_cache.info_location != tdata) {
+			std::memset(&q_cache, 0xff, sizeof(query_cache));
+			q_cache.info_location = tdata;
+			use_cache = 0;
+		}
 	}
 	if(!use_cache) {
 		if (query_flag & QUERY_ALIAS) {
