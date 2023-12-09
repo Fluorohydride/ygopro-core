@@ -111,6 +111,7 @@ card::card(duel* pd) {
 	overlay_target = 0;
 	current = {};
 	previous = {};
+	spsummon = {};
 	temp.init_state();
 	unique_pos[0] = unique_pos[1] = 0;
 	spsummon_counter[0] = spsummon_counter[1] = 0;
@@ -578,6 +579,45 @@ int32 card::is_link_set_card(uint32 set_code) {
 				return TRUE;
 			setcode = setcode >> 16;
 		}
+	}
+	return FALSE;
+}
+int32 card::is_special_summon_set_card(uint32 set_code) {
+	uint32 code = spsummon.code;
+	uint64 setcode;
+	if (code == data.code) {
+		setcode = data.setcode;
+	} else {
+		card_data dat;
+		::read_card(code, &dat);
+		setcode = dat.setcode;
+	}
+	uint32 settype = set_code & 0xfff;
+	uint32 setsubtype = set_code & 0xf000;
+	while(setcode) {
+		if ((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
+			return TRUE;
+		setcode = setcode >> 16;
+	}
+	//add set code
+	for(auto& spsetcode : spsummon.setcode) {
+		if (spsetcode && (spsetcode & 0xfff) == settype && (spsetcode & 0xf000 & setsubtype) == setsubtype)
+			return TRUE;
+	}
+	//another code
+	uint32 code2 = spsummon.code2;
+	uint64 setcode2;
+	if (code2 != 0) {
+		card_data dat;
+		::read_card(code2, &dat);
+		setcode2 = dat.setcode;
+	} else {
+		return FALSE;
+	}
+	while(setcode2) {
+		if ((setcode2 & 0xfff) == settype && (setcode2 & 0xf000 & setsubtype) == setsubtype)
+			return TRUE;
+		setcode2 = setcode2 >> 16;
 	}
 	return FALSE;
 }
@@ -2493,6 +2533,62 @@ void card::clear_card_target() {
 	}
 	effect_target_owner.clear();
 	effect_target_cards.clear();
+}
+void card::set_special_summon_status(effect* peffect) {
+	if((peffect->code == EFFECT_SPSUMMON_PROC || peffect->code == EFFECT_SPSUMMON_PROC_G)
+		&& peffect->is_flag(EFFECT_FLAG_CANNOT_DISABLE) && peffect->is_flag(EFFECT_FLAG_UNCOPYABLE)) {
+		spsummon.code = 0;
+		spsummon.code2 = 0;
+		spsummon.type = 0;
+		spsummon.level = 0;
+		spsummon.rank = 0;
+		spsummon.attribute = 0;
+		spsummon.race = 0;
+		spsummon.attack = 0;
+		spsummon.defense = 0;
+		spsummon.setcode.clear();
+		spsummon.reason_effect = nullptr;
+		return;
+	}
+	card* pcard = peffect->get_handler();
+	auto cait = pduel->game_field->core.current_chain.rbegin();
+	if(!(peffect->type & 0x7f0) || pcard->is_has_relation(*cait)) {
+		spsummon.code = pcard->get_code();
+		spsummon.code2 = pcard->get_another_code();
+		spsummon.type = pcard->get_type();
+		spsummon.level = pcard->get_level();
+		spsummon.rank = pcard->get_rank();
+		spsummon.attribute = pcard->get_attribute();
+		spsummon.race = pcard->get_race();
+		std::pair<int32, int32> atk_def = pcard->get_atk_def();
+		spsummon.attack = atk_def.first;
+		spsummon.defense = atk_def.second;
+		spsummon.setcode.clear();
+		effect_set eset;
+		pcard->filter_effect(EFFECT_ADD_SETCODE, &eset);
+		for(int32 i = 0; i < eset.size(); ++i) {
+			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard));
+		}
+		spsummon.reason_effect = peffect;
+	} else {
+		pcard = cait->triggering_effect->get_handler();
+		spsummon.code = cait->triggering_state.code;
+		spsummon.code2 = cait->triggering_state.code2;
+		spsummon.type = cait->triggering_effect->card_type;
+		spsummon.level = cait->triggering_state.level;
+		spsummon.rank = cait->triggering_state.rank;
+		spsummon.attribute = cait->triggering_state.attribute;
+		spsummon.race = cait->triggering_state.race;
+		spsummon.attack = cait->triggering_state.attack;
+		spsummon.defense = cait->triggering_state.defense;
+		spsummon.setcode.clear();
+		effect_set eset;
+		pcard->filter_effect(EFFECT_ADD_SETCODE, &eset);
+		for(int32 i = 0; i < eset.size(); ++i) {
+			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard));
+		}
+		spsummon.reason_effect = cait->triggering_effect;
+	}
 }
 void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {
 	effect* peffect;

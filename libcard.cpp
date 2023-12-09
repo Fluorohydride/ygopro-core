@@ -245,6 +245,24 @@ int32 scriptlib::card_is_link_set_card(lua_State *L) {
 	lua_pushboolean(L, result);
 	return 1;
 }
+int32 scriptlib::card_is_special_summon_set_card(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 count = lua_gettop(L) - 1;
+	uint32 result = FALSE;
+	for(uint32 i = 0; i < count; ++i) {
+		if(lua_isnil(L, i + 2))
+			continue;
+		uint32 set_code = (uint32)lua_tointeger(L, i + 2);
+		if(pcard->is_special_summon_set_card(set_code)) {
+			result = TRUE;
+			break;
+		}
+	}
+	lua_pushboolean(L, result);
+	return 1;
+}
 int32 scriptlib::card_get_type(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -864,6 +882,51 @@ int32 scriptlib::card_get_summon_player(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	lua_pushinteger(L, pcard->summon_player);
 	return 1;
+}
+int32 scriptlib::card_get_special_summon_info(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 args = lua_gettop(L) - 1;
+	for(uint32 i = 0; i < args; ++i) {
+		uint32 flag = (uint32)lua_tointeger(L, 2 + i);
+		switch(flag) {
+			case SUMMON_INFO_CODE:
+				lua_pushinteger(L, pcard->spsummon.code);
+				break;
+			case SUMMON_INFO_CODE2:
+				lua_pushinteger(L, pcard->spsummon.code2);
+				break;
+			case SUMMON_INFO_TYPE:
+				lua_pushinteger(L, pcard->spsummon.type);
+				break;
+			case SUMMON_INFO_LEVEL:
+				lua_pushinteger(L, pcard->spsummon.level);
+				break;
+			case SUMMON_INFO_RANK:
+				lua_pushinteger(L, pcard->spsummon.rank);
+				break;
+			case SUMMON_INFO_ATTRIBUTE:
+				lua_pushinteger(L, pcard->spsummon.attribute);
+				break;
+			case SUMMON_INFO_RACE:
+				lua_pushinteger(L, pcard->spsummon.race);
+				break;
+			case SUMMON_INFO_ATTACK:
+				lua_pushinteger(L, pcard->spsummon.attack);
+				break;
+			case SUMMON_INFO_DEFENSE:
+				lua_pushinteger(L, pcard->spsummon.defense);
+				break;
+			case SUMMON_INFO_REASON_EFFECT:
+				interpreter::effect2value(L, pcard->spsummon.reason_effect);
+				break;
+			default:
+				lua_pushnil(L);
+				break;
+		}
+	}
+	return args;
 }
 int32 scriptlib::card_get_destination(lua_State *L) {
 	check_param_count(L, 1);
@@ -3322,6 +3385,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsPreviousSetCard", scriptlib::card_is_pre_set_card },
 	{ "IsFusionSetCard", scriptlib::card_is_fusion_set_card },
 	{ "IsLinkSetCard", scriptlib::card_is_link_set_card },
+	{ "IsSpecialSummonSetCard", scriptlib::card_is_special_summon_set_card },
 	{ "GetType", scriptlib::card_get_type },
 	{ "GetOriginalType", scriptlib::card_get_origin_type },
 	{ "GetFusionType", scriptlib::card_get_fusion_type },
@@ -3395,6 +3459,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetSummonType", scriptlib::card_get_summon_type },
 	{ "GetSummonLocation", scriptlib::card_get_summon_location },
 	{ "GetSummonPlayer", scriptlib::card_get_summon_player },
+	{ "GetSpecialSummonInfo", scriptlib::card_get_special_summon_info },
 	{ "GetDestination", scriptlib::card_get_destination },
 	{ "GetLeaveFieldDest", scriptlib::card_get_leave_field_dest },
 	{ "GetTurnID", scriptlib::card_get_turnid },
