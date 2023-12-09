@@ -25,7 +25,7 @@ public:
 	uint32 is_readonly{ 0 };
 	bool is_iterator_dirty{ true };
 	
-	inline bool has_card(card* c) {
+	bool has_card(card* c) {
 		return container.find(c) != container.end();
 	}
 	

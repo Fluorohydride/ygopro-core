@@ -66,10 +66,10 @@ struct card_state {
 	effect* reason_effect{ nullptr };
 
 	bool is_location(int32 loc) const;
-	inline bool is_main_mzone() const {
+	bool is_main_mzone() const {
 		return location == LOCATION_MZONE && sequence >= 0 && sequence <= 4;
 	}
-	inline bool is_stzone() const {
+	bool is_stzone() const {
 		return location == LOCATION_SZONE && sequence >= 0 && sequence <= 4;
 	}
 	void init_state();
