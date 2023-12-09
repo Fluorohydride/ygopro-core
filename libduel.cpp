@@ -2121,6 +2121,15 @@ int32 scriptlib::duel_get_current_chain(lua_State *L) {
 	lua_pushinteger(L, pduel->game_field->core.current_chain.size());
 	return 1;
 }
+int32 scriptlib::duel_get_ready_chain(lua_State* L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	int32 size = (int32)pduel->game_field->core.current_chain.size();
+	if (size && !pduel->game_field->core.is_target_ready) {
+		--size;
+	}
+	lua_pushinteger(L, size);
+	return 1;
+}
 int32 scriptlib::duel_get_chain_info(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 c = (uint32)lua_tointeger(L, 1);
@@ -4780,6 +4789,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetFieldCard", scriptlib::duel_get_field_card },
 	{ "CheckLocation", scriptlib::duel_check_location },
 	{ "GetCurrentChain", scriptlib::duel_get_current_chain },
+	{ "GetReadyChain", scriptlib::duel_get_ready_chain },
 	{ "GetChainInfo", scriptlib::duel_get_chain_info },
 	{ "GetChainEvent", scriptlib::duel_get_chain_event },
 	{ "GetFirstTarget", scriptlib::duel_get_first_target },
