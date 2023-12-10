@@ -278,7 +278,7 @@ int32 scriptlib::group_select_unselect(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	group* select_group = *(group**)lua_touserdata(L, 1);
-	group* unselect_group = 0;
+	group* unselect_group = nullptr;
 	if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE))
 		unselect_group = *(group**)lua_touserdata(L, 2);
 	duel* pduel = select_group->pduel;
@@ -635,7 +635,7 @@ int32 scriptlib::group_remove(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	check_param(L, PARAM_TYPE_FUNCTION, 2);
-	card* pexception = 0;
+	card* pexception = nullptr;
 	if(!lua_isnil(L, 3)) {
 		check_param(L, PARAM_TYPE_CARD, 3);
 		pexception = *(card**) lua_touserdata(L, 3);

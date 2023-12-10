@@ -2802,7 +2802,7 @@ int32 field::check_other_synchro_material(const card_vector& nsyn, int32 lv, int
 		}
 		return FALSE;
 	}
-	effect* pscrap = 0;
+	effect* pscrap = nullptr;
 	for(auto& pm : nsyn) {
 		pscrap = pm->is_affected_by_effect(EFFECT_SCRAP_CHIMERA);
 		if(pscrap)

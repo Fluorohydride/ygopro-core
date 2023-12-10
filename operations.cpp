@@ -5502,7 +5502,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 	case 7: {
 		int32 lv = pcard->get_level();
 		if(core.global_flag & GLOBALFLAG_SCRAP_CHIMERA) {
-			effect* peffect = 0;
+			effect* peffect = nullptr;
 			for(auto& pm : core.select_cards) {
 				peffect = pm->is_affected_by_effect(EFFECT_SCRAP_CHIMERA);
 				if(peffect)
@@ -5578,7 +5578,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 	case 10: {
 		int32 lv = pcard->get_level();
 		if(returns.ivalue[0]) {
-			effect* peffect = 0;
+			effect* peffect = nullptr;
 			for(auto& pm : core.select_cards) {
 				peffect = pm->is_affected_by_effect(EFFECT_SCRAP_CHIMERA);
 				if(peffect)
@@ -6354,7 +6354,7 @@ int32 field::toss_coin(uint16 step, effect * reason_effect, uint8 reason_player,
 	switch(step) {
 	case 0: {
 		effect_set eset;
-		effect* peffect = 0;
+		effect* peffect = nullptr;
 		tevent e;
 		e.event_cards = 0;
 		e.event_player = playerid;
@@ -6423,7 +6423,7 @@ int32 field::toss_dice(uint16 step, effect * reason_effect, uint8 reason_player,
 	switch(step) {
 	case 0: {
 		effect_set eset;
-		effect* peffect = 0;
+		effect* peffect = nullptr;
 		tevent e;
 		e.event_cards = 0;
 		e.event_player = playerid;

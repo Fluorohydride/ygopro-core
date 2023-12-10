@@ -428,8 +428,8 @@ int32 field::process() {
 	}
 	case PROCESSOR_DAMAGE: {
 		int32 reason = it->arg1;
-		effect* reason_effect = 0;
-		card* reason_card = 0;
+		effect* reason_effect = nullptr;
+		card* reason_card = nullptr;
 		if(reason & REASON_BATTLE)
 			reason_card = (card*)it->peffect;
 		else
@@ -2379,7 +2379,7 @@ int32 field::process_battle_command(uint16 step) {
 	free_event.event_code = EVENT_FREE_CHAIN;
 	switch(step) {
 	case 0: {
-		effect* peffect = 0;
+		effect* peffect = nullptr;
 		core.select_chains.clear();
 		chain newchain;
 		if(!core.chain_attack) {
@@ -2921,8 +2921,8 @@ int32 field::process_battle_command(uint16 step) {
 				core.attack_target->set_status(STATUS_OPPO_BATTLE, TRUE);
 			}
 		}
-		effect* damchange = 0;
-		card* reason_card = 0;
+		effect* damchange = nullptr;
+		card* reason_card = nullptr;
 		uint8 bd[2];
 		calculate_battle_damage(&damchange, &reason_card, bd);
 		if(bd[0]) {
@@ -2999,7 +2999,7 @@ int32 field::process_battle_command(uint16 step) {
 		if(core.attack_target)
 			core.attack_target->battled_cards.addcard(core.attacker);
 		uint8 reason_player = (uint8)core.temp_var[0];
-		card* reason_card = 0;
+		card* reason_card = nullptr;
 		if(core.temp_var[1] == 1)
 			reason_card = core.attacker;
 		else if(core.temp_var[1] == 2)
@@ -3995,7 +3995,7 @@ int32 field::add_chain(uint16 step) {
 			if(ecode) {
 				eset.clear();
 				phandler->filter_effect(ecode, &eset);
-				effect* pactin = 0;
+				effect* pactin = nullptr;
 				for(int32 i = 0; i < eset.size(); ++i) {
 					if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
 						pactin = eset[i];

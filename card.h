@@ -271,7 +271,7 @@ public:
 	void get_column_cards(card_set* cset);
 	int32 is_all_column();
 
-	void equip(card *target, uint32 send_msg = TRUE);
+	void equip(card* target, uint32 send_msg = TRUE);
 	void unequip();
 	int32 get_union_count();
 	int32 get_old_union_count();
@@ -334,7 +334,7 @@ public:
 	int32 is_tuner(card* scard);
 
 	int32 check_unique_code(card* pcard);
-	void get_unique_target(card_set* cset, int32 controler, card* icard = 0);
+	void get_unique_target(card_set* cset, int32 controler, card* icard = nullptr);
 	int32 check_cost_condition(int32 ecode, int32 playerid);
 	int32 check_cost_condition(int32 ecode, int32 playerid, int32 sumtype);
 	int32 is_summonable_card();
@@ -381,7 +381,7 @@ public:
 	int32 is_capable_be_effect_target(effect* reason_effect, uint8 playerid);
 	int32 is_capable_overlay(uint8 playerid);
 	int32 is_can_be_fusion_material(card* fcard, uint32 summon_type);
-	int32 is_can_be_synchro_material(card* scard, card* tuner = 0);
+	int32 is_can_be_synchro_material(card* scard, card* tuner = nullptr);
 	int32 is_can_be_ritual_material(card* scard);
 	int32 is_can_be_xyz_material(card* scard);
 	int32 is_can_be_link_material(card* scard);

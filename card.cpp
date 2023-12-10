@@ -1503,7 +1503,7 @@ int32 card::is_all_column() {
 		return TRUE;
 	return FALSE;
 }
-void card::equip(card *target, uint32 send_msg) {
+void card::equip(card* target, uint32 send_msg) {
 	if (equiping_target)
 		return;
 	target->equiping_cards.insert(this);
@@ -2884,9 +2884,9 @@ void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset) {
 		pduel->game_field->core.reason_player = op;
 	}
 }
-// return: an effect with code which affects this or 0
+// find an effect with code which affects this
 effect* card::is_affected_by_effect(int32 code) {
-	effect* peffect;
+	effect* peffect = nullptr;
 	auto rg = single_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
@@ -2926,10 +2926,10 @@ effect* card::is_affected_by_effect(int32 code) {
 			&& peffect->is_available() && is_affect_by_effect(peffect))
 			return peffect;
 	}
-	return 0;
+	return nullptr;
 }
 effect* card::is_affected_by_effect(int32 code, card* target) {
-	effect* peffect;
+	effect* peffect = nullptr;
 	auto rg = single_effect.equal_range(code);
 	for (; rg.first != rg.second; ++rg.first) {
 		peffect = rg.first->second;
@@ -2970,10 +2970,10 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 		        && peffect->is_target(this) && is_affect_by_effect(peffect) && peffect->get_value(target))
 			return peffect;
 	}
-	return 0;
+	return nullptr;
 }
 int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_material) {
-	group* matgroup = 0;
+	group* matgroup = nullptr;
 	if(fusion_m && !not_material) {
 		matgroup = pduel->new_group(fusion_m->container);
 		uint32 summon_type = SUMMON_TYPE_FUSION;
@@ -3023,7 +3023,7 @@ int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_mater
 	return res;
 }
 void card::fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf, uint8 not_material) {
-	group* matgroup = 0;
+	group* matgroup = nullptr;
 	if(fusion_m && !not_material) {
 		matgroup = pduel->new_group(fusion_m->container);
 		uint32 summon_type = SUMMON_TYPE_FUSION;
@@ -3051,7 +3051,7 @@ void card::fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf,
 	} else if(fusion_m) {
 		matgroup = pduel->new_group(fusion_m->container);
 	}
-	effect* peffect = 0;
+	effect* peffect = nullptr;
 	auto ecit = single_effect.find(EFFECT_FUSION_MATERIAL);
 	if(ecit != single_effect.end())
 		peffect = ecit->second;
