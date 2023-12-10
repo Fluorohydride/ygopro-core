@@ -3619,7 +3619,7 @@ int32 card::is_destructable_by_battle(card * pcard) {
 }
 effect* card::check_indestructable_by_effect(effect* reason_effect, uint8 playerid) {
 	if(!reason_effect)
-		return 0;
+		return nullptr;
 	effect_set eset;
 	filter_effect(EFFECT_INDESTRUCTABLE_EFFECT, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
@@ -3629,7 +3629,7 @@ effect* card::check_indestructable_by_effect(effect* reason_effect, uint8 player
 		if(eset[i]->check_value_condition(3))
 			return eset[i];
 	}
-	return 0;
+	return nullptr;
 }
 int32 card::is_destructable_by_effect(effect* reason_effect, uint8 playerid) {
 	if(!is_affect_by_effect(reason_effect))
