@@ -3324,12 +3324,12 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 	return TRUE;
 }
 void field::calculate_battle_damage(effect** pdamchange, card** preason_card, uint8* battle_destroyed) {
-	uint32 aa = core.attacker->get_battle_attack(), ad = core.attacker->get_battle_defense();
-	uint32 da = 0, dd = 0, attacker_value = aa, defender_value;
-	uint8 pa = core.attacker->current.controler, pd;
+	int32 aa = core.attacker->get_battle_attack(), ad = core.attacker->get_battle_defense();
+	int32 da = 0, dd = 0, attacker_value = aa, defender_value = 0;
+	uint8 pa = core.attacker->current.controler, pd = PLAYER_NONE;
 	uint8 damp = 0;
-	effect* damchange = 0;
-	card* reason_card = 0;
+	effect* damchange = nullptr;
+	card* reason_card = nullptr;
 	uint8 bd[2] = {FALSE, FALSE};
 	bool pierce = false;
 	core.battle_damage[0] = core.battle_damage[1] = 0;
@@ -3625,7 +3625,7 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 			core.battle_damage[1 - damp] = 0;
 	}
 	if(!core.battle_damage[damp] && !core.battle_damage[1 - damp])
-		reason_card = 0;
+		reason_card = nullptr;
 	if(pdamchange)
 		*pdamchange = damchange;
 	if(preason_card)
