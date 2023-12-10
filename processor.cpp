@@ -3325,7 +3325,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 }
 void field::calculate_battle_damage(effect** pdamchange, card** preason_card, uint8* battle_destroyed) {
 	uint32 aa = core.attacker->get_battle_attack(), ad = core.attacker->get_battle_defense();
-	uint32 da = 0, dd = 0, a = aa, d;
+	uint32 da = 0, dd = 0, attacker_value = aa, defender_value;
 	uint8 pa = core.attacker->current.controler, pd;
 	uint8 damp = 0;
 	effect* damchange = 0;
@@ -3336,33 +3336,33 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 	if(core.attacker->is_position(POS_FACEUP_DEFENSE)) {
 		effect* defattack = core.attacker->is_affected_by_effect(EFFECT_DEFENSE_ATTACK);
 		if(defattack && defattack->get_value(core.attacker))
-			a = ad;
+			attacker_value = ad;
 	}
 	if(core.attack_target) {
 		da = core.attack_target->get_battle_attack();
 		dd = core.attack_target->get_battle_defense();
 		pd = core.attack_target->current.controler;
 		if(core.attack_target->is_position(POS_ATTACK)) {
-			d = da;
-			if(a > d) {
+			defender_value = da;
+			if(attacker_value > defender_value) {
 				damp = pd;
-				core.battle_damage[damp] = a - d;
+				core.battle_damage[damp] = attacker_value - defender_value;
 				reason_card = core.attacker;
 				bd[1] = TRUE;
-			} else if(a < d) {
+			} else if(attacker_value < defender_value) {
 				damp = pa;
-				core.battle_damage[damp] = d - a;
+				core.battle_damage[damp] = defender_value - attacker_value;
 				reason_card = core.attack_target;
 				bd[0] = TRUE;
 			} else {
-				if(a != 0) {
+				if(attacker_value != 0) {
 					bd[0] = TRUE;
 					bd[1] = TRUE;
 				}
 			}
 		} else {
-			d = dd;
-			if(a > d) {
+			defender_value = dd;
+			if(attacker_value > defender_value) {
 				effect_set eset;
 				core.attacker->filter_effect(EFFECT_PIERCE, &eset);
 				if(eset.size()) {
@@ -3371,9 +3371,9 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 					for(int32 i = 0; i < eset.size(); ++i)
 						dp[1 - eset[i]->get_handler_player()] = 1;
 					if(dp[0])
-						core.battle_damage[0] = a - d;
+						core.battle_damage[0] = attacker_value - defender_value;
 					if(dp[1])
-						core.battle_damage[1] = a - d;
+						core.battle_damage[1] = attacker_value - defender_value;
 					bool double_damage = false;
 					//bool half_damage = false;
 					for(int32 i = 0; i < eset.size(); ++i) {
@@ -3505,16 +3505,16 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 					reason_card = core.attacker;
 				}
 				bd[1] = TRUE;
-			} else if(a < d) {
+			} else if(attacker_value < defender_value) {
 				damp = pa;
-				core.battle_damage[damp] = d - a;
+				core.battle_damage[damp] = defender_value - attacker_value;
 				reason_card = core.attack_target;
 			}
 		}
 	} else {
-		if(a != 0) {
+		if(attacker_value != 0) {
 			damp = 1 - pa;
-			core.battle_damage[damp] = a;
+			core.battle_damage[damp] = attacker_value;
 			reason_card = core.attacker;
 		}
 	}
