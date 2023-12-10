@@ -950,16 +950,24 @@ int32 card::get_defense() {
 int32 card::get_battle_attack() {
 	effect_set eset;
 	filter_effect(EFFECT_SET_BATTLE_ATTACK, &eset);
-	if(eset.size())
-		return eset.get_last()->get_value(this);
+	if (eset.size()) {
+		int32 atk = eset.get_last()->get_value(this);
+		if (atk < 0)
+			atk = 0;
+		return atk;
+	}
 	else
 		return get_atk_def().first;
 }
 int32 card::get_battle_defense() {
 	effect_set eset;
 	filter_effect(EFFECT_SET_BATTLE_DEFENSE, &eset);
-	if(eset.size())
-		return eset.get_last()->get_value(this);
+	if (eset.size()) {
+		int32 def = eset.get_last()->get_value(this);
+		if (def < 0)
+			def = 0;
+		return def;
+	}
 	else
 		return get_atk_def().second;
 }
