@@ -157,6 +157,7 @@ public:
 	card_state previous;
 	card_state temp;
 	card_state current;
+	card_state spsummon;
 	query_cache q_cache;
 	uint8 owner;
 	uint8 summon_player;
@@ -227,6 +228,7 @@ public:
 	int32 is_pre_set_card(uint32 set_code);
 	int32 is_fusion_set_card(uint32 set_code);
 	int32 is_link_set_card(uint32 set_code);
+	int32 is_special_summon_set_card(uint32 set_code);
 	uint32 get_type();
 	uint32 get_fusion_type();
 	uint32 get_synchro_type();
@@ -313,6 +315,7 @@ public:
 	void add_card_target(card* pcard);
 	void cancel_card_target(card* pcard);
 	void clear_card_target();
+	void set_special_summon_status(effect* peffect);
 
 	void filter_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_single_continuous_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
@@ -399,10 +402,12 @@ public:
 #define SUMMON_TYPE_XYZ			0x49000000
 #define SUMMON_TYPE_PENDULUM	0x4a000000
 #define SUMMON_TYPE_LINK		0x4c000000
+
 //Counter
 #define COUNTER_WITHOUT_PERMIT	0x1000
 //#define COUNTER_NEED_ENABLE		0x2000
 
+//Assume
 #define ASSUME_CODE			1
 #define ASSUME_TYPE			2
 #define ASSUME_LEVEL		3
@@ -411,6 +416,18 @@ public:
 #define ASSUME_RACE			6
 #define ASSUME_ATTACK		7
 #define ASSUME_DEFENSE		8
+
+//Summon info
+#define SUMMON_INFO_CODE			0x01
+#define SUMMON_INFO_CODE2			0x02
+#define SUMMON_INFO_TYPE			0x04
+#define SUMMON_INFO_LEVEL			0x08
+#define SUMMON_INFO_RANK			0x10
+#define SUMMON_INFO_ATTRIBUTE		0x20
+#define SUMMON_INFO_RACE			0x40
+#define SUMMON_INFO_ATTACK			0x80
+#define SUMMON_INFO_DEFENSE			0x100
+#define SUMMON_INFO_REASON_EFFECT	0x200
 
 //double-name cards
 #define CARD_MARINE_DOLPHIN	78734254
