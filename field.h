@@ -298,6 +298,7 @@ struct processor {
 	uint8 dice_result[5]{ 0 };
 	uint8 coin_result[MAX_COIN_COUNT]{ 0 };
 	int32 coin_count{ 0 };
+	bool is_target_ready{ false };
 
 	uint8 to_bp{ FALSE };
 	uint8 to_m2{ FALSE };

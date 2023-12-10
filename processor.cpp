@@ -4071,6 +4071,7 @@ int32 field::add_chain(uint16 step) {
 		if(phandler->current.location == LOCATION_HAND)
 			clit.flag |= CHAIN_HAND_EFFECT;
 		core.current_chain.push_back(clit);
+		core.is_target_ready = false;
 		check_chain_counter(peffect, clit.triggering_player, clit.chain_count);
 		// triggered events which are not caused by event create relation with the handler
 		if(!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY) 
@@ -4173,6 +4174,7 @@ int32 field::add_chain(uint16 step) {
 	}
 	case 7: {
 		break_effect();
+		core.is_target_ready = true;
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
 		peffect->cost_checked = FALSE;
