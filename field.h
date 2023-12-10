@@ -167,8 +167,8 @@ struct processor {
 	using delayed_effect_collection = std::set<std::pair<effect*, tevent>>;
 	struct chain_limit_t {
 		chain_limit_t(int32 f, int32 p): function(f), player(p) {}
-		int32 function;
-		int32 player;
+		int32 function{ 0 };
+		int32 player{ PLAYER_NONE };
 	};
 	using chain_limit_list = std::vector<chain_limit_t>;
 

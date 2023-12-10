@@ -146,10 +146,10 @@ public:
 			location = 0;
 			sequence = 0;
 		}
-		uint8 playerid;
-		uint8 position;
-		uint8 location;
-		uint8 sequence;
+		uint8 playerid{ 0 };
+		uint8 position{ 0 };
+		uint8 location{ 0 };
+		uint8 sequence{ 0 };
 	};
 	int32 ref_handle;
 	duel* pduel;

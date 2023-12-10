@@ -3856,15 +3856,12 @@ int32 field::send_replace(uint16 step, group * targets, card * target) {
 }
 int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint32 reason, uint8 reason_player) {
 	struct exargs {
-		group* targets;
+		group* targets{ nullptr };
 		card_set leave_field, leave_grave, leave_deck, detach;
-		bool show_decktop[2];
+		bool show_decktop[2]{ false };
 		card_vector cv;
 		card_vector::iterator cvit;
-		effect* predirect;
-
-		exargs()
-			: targets(nullptr), show_decktop{ FALSE }, predirect(nullptr) {}
+		effect* predirect{ nullptr };
 	} ;
 	switch(step) {
 	case 0: {
