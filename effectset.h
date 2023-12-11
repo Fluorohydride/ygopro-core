@@ -63,7 +63,7 @@ struct effect_set {
 		return container[index];
 	}
 private:
-	std::array<effect*, 64> container;
+	std::array<effect*, 64> container{ nullptr };
 	int count{ 0 };
 };
 

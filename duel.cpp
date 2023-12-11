@@ -95,7 +95,7 @@ void duel::delete_effect(effect* peffect) {
 	delete peffect;
 }
 int32 duel::read_buffer(byte* buf) {
-	std::memcpy(buf, buffer, bufferlen);
+	std::memcpy(buf, message_buffer, bufferlen);
 	return bufferlen;
 }
 void duel::release_script_group() {
@@ -130,7 +130,7 @@ void duel::write_buffer8(uint8 value) {
 }
 void duel::clear_buffer() {
 	bufferlen = 0;
-	bufferp = buffer;
+	bufferp = message_buffer;
 }
 void duel::set_responsei(uint32 resp) {
 	game_field->returns.ivalue[0] = resp;

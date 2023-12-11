@@ -174,9 +174,9 @@ int32 scriptlib::debug_set_ai_name(lua_State *L) {
 	if(len > 100)
 		len = 100;
 	pduel->write_buffer16(len);
-	memcpy(pduel->bufferp, pstr, len);
-	pduel->bufferp += len;
-	pduel->bufferlen += len;
+	for (int i = 0; i < len; ++i) {
+		pduel->write_buffer8(pstr[i]);
+	}
 	pduel->write_buffer8(0);
 	return 0;
 }
@@ -190,9 +190,9 @@ int32 scriptlib::debug_show_hint(lua_State *L) {
 	if(len > 1024)
 		len = 1024;
 	pduel->write_buffer16(len);
-	memcpy(pduel->bufferp, pstr, len);
-	pduel->bufferp += len;
-	pduel->bufferlen += len;
+	for (int i = 0; i < len; ++i) {
+		pduel->write_buffer8(pstr[i]);
+	}
 	pduel->write_buffer8(0);
 	return 0;
 }

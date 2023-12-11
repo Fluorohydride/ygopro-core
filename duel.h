@@ -13,6 +13,8 @@
 #include <set>
 #include <unordered_set>
 
+#define BUFFER_SIZE	4096
+
 class card;
 class group;
 class effect;
@@ -23,8 +25,8 @@ class duel {
 public:
 	using card_set = std::set<card*, card_sort>;
 	char strbuffer[256];
-	byte buffer[0x1000];
-	uint32 bufferlen;
+	byte message_buffer[BUFFER_SIZE];
+	int32 bufferlen;
 	byte* bufferp;
 	interpreter* lua;
 	field* game_field;
