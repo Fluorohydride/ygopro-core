@@ -18,7 +18,6 @@ typedef long long int64;
 typedef int int32;
 typedef short int16;
 typedef signed char int8;
-typedef int BOOL;
 
 #define MATCH_ALL(x,y) (((x)&(y))==(y))
 #define MATCH_ANY(x,y) ((x)&(y))
@@ -241,12 +240,12 @@ struct card_sort {
 //Messages
 #define MSG_RETRY				1
 #define MSG_HINT				2
-#define MSG_WAITING				3
-#define MSG_START				4
+//#define MSG_WAITING			3
+//#define MSG_START				4
 #define MSG_WIN					5
-#define MSG_UPDATE_DATA			6
-#define MSG_UPDATE_CARD			7
-#define MSG_REQUEST_DECK		8
+//#define MSG_UPDATE_DATA		6
+//#define MSG_UPDATE_CARD		7
+//#define MSG_REQUEST_DECK		8
 #define MSG_SELECT_BATTLECMD	10
 #define MSG_SELECT_IDLECMD		11
 #define MSG_SELECT_EFFECTYN		12
@@ -257,7 +256,6 @@ struct card_sort {
 #define MSG_SELECT_PLACE		18
 #define MSG_SELECT_POSITION		19
 #define MSG_SELECT_TRIBUTE		20
-//#define MSG_SORT_CHAIN			21
 #define MSG_SELECT_COUNTER		22
 #define MSG_SELECT_SUM			23
 #define MSG_SELECT_DISFIELD		24
@@ -267,7 +265,7 @@ struct card_sort {
 #define MSG_CONFIRM_CARDS		31
 #define MSG_SHUFFLE_DECK		32
 #define MSG_SHUFFLE_HAND		33
-#define MSG_REFRESH_DECK		34
+//#define MSG_REFRESH_DECK		34
 #define MSG_SWAP_GRAVE_DECK		35
 #define MSG_SHUFFLE_SET_CARD	36
 #define MSG_REVERSE_DECK		37
@@ -294,7 +292,7 @@ struct card_sort {
 #define MSG_CHAIN_END			74
 #define MSG_CHAIN_NEGATED		75
 #define MSG_CHAIN_DISABLED		76
-#define MSG_CARD_SELECTED		80
+//#define MSG_CARD_SELECTED		80
 #define MSG_RANDOM_SELECTED		81
 #define MSG_BECOME_TARGET		83
 #define MSG_DRAW				90
@@ -302,7 +300,7 @@ struct card_sort {
 #define MSG_RECOVER				92
 #define MSG_EQUIP				93
 #define MSG_LPUPDATE			94
-#define MSG_UNEQUIP				95
+//#define MSG_UNEQUIP			95
 #define MSG_CARD_TARGET			96
 #define MSG_CANCEL_TARGET		97
 #define MSG_PAY_LPCOST			100
@@ -314,9 +312,9 @@ struct card_sort {
 #define MSG_DAMAGE_STEP_START	113
 #define MSG_DAMAGE_STEP_END		114
 #define MSG_MISSED_EFFECT		120
-#define MSG_BE_CHAIN_TARGET		121
-#define MSG_CREATE_RELATION		122
-#define MSG_RELEASE_RELATION	123
+//#define MSG_BE_CHAIN_TARGET	121
+//#define MSG_CREATE_RELATION	122
+//#define MSG_RELEASE_RELATION	123
 #define MSG_TOSS_COIN			130
 #define MSG_TOSS_DICE			131
 #define MSG_ROCK_PAPER_SCISSORS	132
