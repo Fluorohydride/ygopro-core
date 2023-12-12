@@ -57,7 +57,7 @@ uint32 default_card_reader(uint32 code, card_data* data) {
 uint32 default_message_handler(void* pduel, uint32 message_type) {
 	return 0;
 }
-extern "C" DECL_DLLEXPORT intptr_t create_duel(uint32 seed) {
+extern "C" DECL_DLLEXPORT intptr_t create_duel(uint_fast32_t seed) {
 	duel* pduel = new duel();
 	duel_set.insert(pduel);
 	pduel->random.reset(seed);
