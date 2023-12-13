@@ -501,7 +501,7 @@ public:
 	int32 is_able_to_enter_bp();
 
 	void add_process(uint16 type, uint16 step, effect* peffect, group* target, int32 arg1, int32 arg2, int32 arg3 = 0, int32 arg4 = 0, void* ptr1 = nullptr, void* ptr2 = nullptr);
-	int32 process();
+	uint32 process();
 	int32 execute_cost(uint16 step, effect* peffect, uint8 triggering_player);
 	int32 execute_operation(uint16 step, effect* peffect, uint8 triggering_player);
 	int32 execute_target(uint16 step, effect* peffect, uint8 triggering_player);
@@ -704,9 +704,6 @@ public:
 #define GLOBALFLAG_TUNE_MAGICIAN		0x400
 #define GLOBALFLAG_ACTIVATION_COUNT		0x800
 //
-#define PROCESSOR_NONE		0
-#define PROCESSOR_WAITING	0x10000
-#define PROCESSOR_END		0x20000
 
 #define PROCESSOR_ADJUST			1
 #define PROCESSOR_HINT				2

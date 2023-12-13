@@ -29,6 +29,15 @@ typedef signed char int8;
 #define OPERATION_CANCELED -1
 #define TRUE 1
 #define FALSE 0
+#define MESSAGE_BUFFER_SIZE 0x2000
+#define QUERY_BUFFER_SIZE 0x4000
+
+#define PROCESSOR_BUFFER_LEN	0x0fffffff
+#define PROCESSOR_FLAG			0xf0000000
+#define PROCESSOR_NONE			0
+#define PROCESSOR_WAITING		0x10000000
+#define PROCESSOR_END			0x20000000
+
 #ifndef NULL
 #define NULL 0
 #endif

@@ -17,7 +17,7 @@ duel::duel() {
 	lua = new interpreter(this);
 	game_field = new field(this);
 	game_field->temp_card = new_card(0);
-	clear_buffer();
+	message_buffer.reserve(MESSAGE_BUFFER_SIZE);
 }
 duel::~duel() {
 	for(auto& pcard : cards)
@@ -95,8 +95,9 @@ void duel::delete_effect(effect* peffect) {
 	delete peffect;
 }
 int32 duel::read_buffer(byte* buf) {
-	std::memcpy(buf, message_buffer, bufferlen);
-	return bufferlen;
+	if(message_buffer.size())
+		std::memcpy(buf, message_buffer.data(), message_buffer.size());
+	return (int32)message_buffer.size();
 }
 void duel::release_script_group() {
 	for(auto& pgroup : sgroups) {
@@ -113,24 +114,20 @@ void duel::restore_assumes() {
 		pcard->assume_type = 0;
 	assumes.clear();
 }
+void duel::write_buffer(const void* data, int size) {
+	write_buffer_vector(message_buffer, data, size);
+}
 void duel::write_buffer32(uint32 value) {
-	std::memcpy(bufferp, &value, sizeof(value));
-	bufferp += 4;
-	bufferlen += 4;
+	write_buffer(&value, sizeof(value));
 }
 void duel::write_buffer16(uint16 value) {
-	std::memcpy(bufferp, &value, sizeof(value));
-	bufferp += 2;
-	bufferlen += 2;
+	write_buffer(&value, sizeof(value));
 }
 void duel::write_buffer8(uint8 value) {
-	std::memcpy(bufferp, &value, sizeof(value));
-	bufferp += 1;
-	bufferlen += 1;
+	write_buffer(&value, sizeof(value));
 }
 void duel::clear_buffer() {
-	bufferlen = 0;
-	bufferp = message_buffer;
+	message_buffer.clear();
 }
 void duel::set_responsei(uint32 resp) {
 	game_field->returns.ivalue[0] = resp;

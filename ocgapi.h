@@ -41,7 +41,7 @@ extern "C" DECL_DLLEXPORT void end_duel(intptr_t pduel);
 extern "C" DECL_DLLEXPORT void set_player_info(intptr_t pduel, int32 playerid, int32 lp, int32 startcount, int32 drawcount);
 extern "C" DECL_DLLEXPORT void get_log_message(intptr_t pduel, byte* buf);
 extern "C" DECL_DLLEXPORT int32 get_message(intptr_t pduel, byte* buf);
-extern "C" DECL_DLLEXPORT int32 process(intptr_t pduel);
+extern "C" DECL_DLLEXPORT uint32 process(intptr_t pduel);
 extern "C" DECL_DLLEXPORT void new_card(intptr_t pduel, uint32 code, uint8 owner, uint8 playerid, uint8 location, uint8 sequence, uint8 position);
 extern "C" DECL_DLLEXPORT void new_tag_card(intptr_t pduel, uint32 code, uint8 owner, uint8 location);
 extern "C" DECL_DLLEXPORT int32 query_card(intptr_t pduel, uint8 playerid, uint8 location, uint8 sequence, int32 query_flag, byte* buf, int32 use_cache);

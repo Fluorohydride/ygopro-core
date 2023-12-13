@@ -127,11 +127,12 @@ extern "C" DECL_DLLEXPORT int32 get_message(intptr_t pduel, byte* buf) {
 	((duel*)pduel)->clear_buffer();
 	return len;
 }
-extern "C" DECL_DLLEXPORT int32 process(intptr_t pduel) {
+extern "C" DECL_DLLEXPORT uint32 process(intptr_t pduel) {
 	duel* pd = (duel*)pduel;
-	int result = pd->game_field->process();
-	while((result & 0xffff) == 0 && (result & 0xf0000) == 0)
+	uint32 result = 0; 
+	do {
 		result = pd->game_field->process();
+	} while ((result & PROCESSOR_BUFFER_LEN) == 0 && (result & PROCESSOR_FLAG) == 0);
 	return result;
 }
 extern "C" DECL_DLLEXPORT void new_card(intptr_t pduel, uint32 code, uint8 owner, uint8 playerid, uint8 location, uint8 sequence, uint8 position) {
