@@ -16,6 +16,8 @@
 #define DECL_DLLEXPORT
 #endif
 
+#define LEN_EMPTY 4
+
 class card;
 struct card_data;
 struct card_info;

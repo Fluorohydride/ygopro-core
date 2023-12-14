@@ -204,8 +204,8 @@ extern "C" DECL_DLLEXPORT int32 query_card(intptr_t pduel, uint8 playerid, uint8
 		return pcard->get_infos(buf, query_flag, use_cache);
 	}
 	else {
-		*((int32*)buf) = 4;
-		return 4;
+		*((int32*)buf) = LEN_EMPTY;
+		return LEN_EMPTY;
 	}
 }
 extern "C" DECL_DLLEXPORT int32 query_field_count(intptr_t pduel, uint8 playerid, uint8 location) {
@@ -251,8 +251,8 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(intptr_t pduel, uint8 playerid,
 				int32 clen = pcard->get_infos(p, query_flag, use_cache);
 				p += clen;
 			} else {
-				*((int32*)p) = 4;
-				p += 4;
+				*((int32*)p) = LEN_EMPTY;
+				p += LEN_EMPTY;
 			}
 		}
 	}
@@ -262,8 +262,8 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(intptr_t pduel, uint8 playerid,
 				int32 clen = pcard->get_infos(p, query_flag, use_cache);
 				p += clen;
 			} else {
-				*((int32*)p) = 4;
-				p += 4;
+				*((int32*)p) = LEN_EMPTY;
+				p += LEN_EMPTY;
 			}
 		}
 	}

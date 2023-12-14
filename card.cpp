@@ -141,6 +141,7 @@ int32 card::get_infos(byte* buf, uint32 query_flag, int32 use_cache) {
 	if ((query_flag & QUERY_BASE_ATTACK) || (query_flag & QUERY_BASE_DEFENSE)) {
 		base_atk_def = get_base_atk_def();
 	}
+	//first 8 bytes: data length, query flag
 	p += 2;
 	if (query_flag & QUERY_CODE) {
 		*p = data.code;
