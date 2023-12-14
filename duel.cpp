@@ -17,7 +17,7 @@ duel::duel() {
 	lua = new interpreter(this);
 	game_field = new field(this);
 	game_field->temp_card = new_card(0);
-	message_buffer.reserve(MESSAGE_BUFFER_SIZE);
+	message_buffer.reserve(SIZE_MESSAGE_BUFFER);
 }
 duel::~duel() {
 	for(auto& pcard : cards)
