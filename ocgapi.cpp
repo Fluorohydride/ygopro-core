@@ -177,26 +177,28 @@ extern "C" DECL_DLLEXPORT void new_tag_card(intptr_t pduel, uint32 code, uint8 o
 }
 extern "C" DECL_DLLEXPORT int32 query_card(intptr_t pduel, uint8 playerid, uint8 location, uint8 sequence, int32 query_flag, byte* buf, int32 use_cache) {
 	if(playerid != 0 && playerid != 1)
-		return 0;
+		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
-	card* pcard = 0;
+	card* pcard = nullptr;
 	location &= 0x7f;
 	if(location & LOCATION_ONFIELD)
 		pcard = ptduel->game_field->get_field_card(playerid, location, sequence);
 	else {
-		field::card_vector* lst = 0;
-		if(location == LOCATION_HAND)
+		field::card_vector* lst = nullptr;
+		if (location == LOCATION_HAND)
 			lst = &ptduel->game_field->player[playerid].list_hand;
-		else if(location == LOCATION_GRAVE)
+		else if (location == LOCATION_GRAVE)
 			lst = &ptduel->game_field->player[playerid].list_grave;
-		else if(location == LOCATION_REMOVED)
+		else if (location == LOCATION_REMOVED)
 			lst = &ptduel->game_field->player[playerid].list_remove;
-		else if(location == LOCATION_EXTRA)
+		else if (location == LOCATION_EXTRA)
 			lst = &ptduel->game_field->player[playerid].list_extra;
-		else if(location == LOCATION_DECK)
+		else if (location == LOCATION_DECK)
 			lst = &ptduel->game_field->player[playerid].list_main;
-		if(!lst || sequence >= lst->size())
-			pcard = 0;
+		else
+			return LEN_FAIL;
+		if(sequence >= (int32)lst->size())
+			pcard = nullptr;
 		else
 			pcard = (*lst)[sequence];
 	}
@@ -241,7 +243,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_count(intptr_t pduel, uint8 playerid
 }
 extern "C" DECL_DLLEXPORT int32 query_field_card(intptr_t pduel, uint8 playerid, uint8 location, uint32 query_flag, byte* buf, int32 use_cache) {
 	if(playerid != 0 && playerid != 1)
-		return 0;
+		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
 	auto& player = ptduel->game_field->player[playerid];
 	byte* p = buf;
@@ -280,7 +282,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(intptr_t pduel, uint8 playerid,
 		else if(location == LOCATION_DECK)
 			lst = &player.list_main;
 		else
-			return 0;
+			return LEN_FAIL;
 		for(auto& pcard : *lst) {
 			int32 clen = pcard->get_infos(p, query_flag, use_cache);
 			p += clen;
