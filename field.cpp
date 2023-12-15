@@ -66,11 +66,11 @@ field::field(duel* pduel) {
 		player[i].tag_extra_p_count = 0;
 		player[i].list_mzone.resize(7, 0);
 		player[i].list_szone.resize(8, 0);
-		player[i].list_main.reserve(45);
-		player[i].list_hand.reserve(10);
-		player[i].list_grave.reserve(30);
-		player[i].list_remove.reserve(30);
-		player[i].list_extra.reserve(15);
+		player[i].list_main.reserve(60);
+		player[i].list_hand.reserve(60);
+		player[i].list_grave.reserve(75);
+		player[i].list_remove.reserve(75);
+		player[i].list_extra.reserve(30);
 	}
 	returns = { 0 };
 	temp_card = nullptr;
@@ -200,9 +200,9 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 		pcard->unique_fieldid = UINT_MAX;
 	pcard->turnid = infos.turn_id;
 	if (location == LOCATION_MZONE)
-		player[playerid].used_location |= 1 << sequence;
+		player[playerid].used_location |= 0x1 << sequence;
 	if (location == LOCATION_SZONE)
-		player[playerid].used_location |= 256 << sequence;
+		player[playerid].used_location |= 0x100 << sequence;
 }
 void field::remove_card(card* pcard) {
 	if (pcard->current.controler == PLAYER_NONE || pcard->current.location == 0)
@@ -243,9 +243,9 @@ void field::remove_card(card* pcard) {
 	}
 	pcard->cancel_field_effect();
 	if (pcard->current.location == LOCATION_MZONE)
-		player[playerid].used_location &= ~(1 << pcard->current.sequence);
+		player[playerid].used_location &= ~(0x1 << pcard->current.sequence);
 	if (pcard->current.location == LOCATION_SZONE)
-		player[playerid].used_location &= ~(256 << pcard->current.sequence);
+		player[playerid].used_location &= ~(0x100 << pcard->current.sequence);
 	pcard->previous.controler = pcard->current.controler;
 	pcard->previous.location = pcard->current.location;
 	pcard->previous.sequence = pcard->current.sequence;
@@ -321,9 +321,9 @@ void field::move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequenc
 					pcard->current.sequence = sequence;
 				} else {
 					player[preplayer].list_szone[presequence] = 0;
-					player[preplayer].used_location &= ~(256 << presequence);
+					player[preplayer].used_location &= ~(0x100 << presequence);
 					player[playerid].list_szone[sequence] = pcard;
-					player[playerid].used_location |= 256 << sequence;
+					player[playerid].used_location |= 0x100 << sequence;
 					pcard->current.controler = playerid;
 					pcard->current.sequence = sequence;
 				}
@@ -436,13 +436,13 @@ void field::swap_card(card* pcard1, card* pcard2, uint8 new_sequence1, uint8 new
 			player[p1].used_location |= 1 << new_sequence1;
 		} else if(l1 == LOCATION_SZONE) {
 			player[p1].list_szone[s1] = 0;
-			player[p1].used_location &= ~(256 << s1);
+			player[p1].used_location &= ~(0x100 << s1);
 			player[p2].list_szone[s2] = 0;
-			player[p2].used_location &= ~(256 << s2);
+			player[p2].used_location &= ~(0x100 << s2);
 			player[p2].list_szone[new_sequence2] = pcard1;
-			player[p2].used_location |= 256 << new_sequence2;
+			player[p2].used_location |= 0x100 << new_sequence2;
 			player[p1].list_szone[new_sequence1] = pcard2;
-			player[p1].used_location |= 256 << new_sequence1;
+			player[p1].used_location |= 0x100 << new_sequence1;
 		}
 	} else {
 		remove_card(pcard1);
@@ -513,21 +513,21 @@ card* field::get_field_card(uint32 playerid, uint32 location, uint32 sequence) {
 		if(sequence < player[playerid].list_mzone.size())
 			return player[playerid].list_mzone[sequence];
 		else
-			return 0;
+			return nullptr;
 		break;
 	}
 	case LOCATION_SZONE: {
 		if(sequence < player[playerid].list_szone.size())
 			return player[playerid].list_szone[sequence];
 		else
-			return 0;
+			return nullptr;
 		break;
 	}
 	case LOCATION_FZONE: {
 		if(sequence == 0)
 			return player[playerid].list_szone[5];
 		else
-			return 0;
+			return nullptr;
 		break;
 	}
 	case LOCATION_PZONE: {
@@ -538,46 +538,46 @@ card* field::get_field_card(uint32 playerid, uint32 location, uint32 sequence) {
 			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? 4 : 7];
 			return pcard && pcard->current.pzone ? pcard : 0;
 		} else
-			return 0;
+			return nullptr;
 		break;
 	}
 	case LOCATION_DECK: {
 		if(sequence < player[playerid].list_main.size())
 			return player[playerid].list_main[sequence];
 		else
-			return 0;
+			return nullptr;
 		break;
 	}
 	case LOCATION_HAND: {
 		if(sequence < player[playerid].list_hand.size())
 			return player[playerid].list_hand[sequence];
 		else
-			return 0;
+			return nullptr;
 		break;
 	}
 	case LOCATION_GRAVE: {
 		if(sequence < player[playerid].list_grave.size())
 			return player[playerid].list_grave[sequence];
 		else
-			return 0;
+			return nullptr;
 		break;
 	}
 	case LOCATION_REMOVED: {
 		if(sequence < player[playerid].list_remove.size())
 			return player[playerid].list_remove[sequence];
 		else
-			return 0;
+			return nullptr;
 		break;
 	}
 	case LOCATION_EXTRA: {
 		if(sequence < player[playerid].list_extra.size())
 			return player[playerid].list_extra[sequence];
 		else
-			return 0;
+			return nullptr;
 		break;
 	}
 	}
-	return 0;
+	return nullptr;
 }
 int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequence) {
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
@@ -1694,7 +1694,7 @@ effect* field::is_player_affected_by_effect(uint8 playerid, uint32 code) {
 		if (peffect->is_target_player(playerid) && peffect->is_available())
 			return peffect;
 	}
-	return 0;
+	return nullptr;
 }
 int32 field::get_release_list(uint8 playerid, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg) {
 	uint32 rcount = 0;
@@ -2195,7 +2195,7 @@ effect* field::check_unique_onfield(card* pcard, uint8 controler, uint8 location
 		cset.insert(pcard);
 	if(cset.size() >= 2)
 		return pcard->unique_effect;
-	return 0;
+	return nullptr;
 }
 int32 field::check_spsummon_once(card* pcard, uint8 playerid) {
 	if(pcard->spsummon_code == 0)
