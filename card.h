@@ -23,58 +23,61 @@ class group;
 struct chain;
 
 struct card_data {
-	uint32 code;
-	uint32 alias;
-	uint64 setcode;
-	uint32 type;
-	uint32 level;
-	uint32 attribute;
-	uint32 race;
-	int32 attack;
-	int32 defense;
-	uint32 lscale;
-	uint32 rscale;
-	uint32 link_marker;
+	uint32 code{ 0 };
+	uint32 alias{ 0 };
+	uint64 setcode{ 0 };
+	uint32 type{ 0 };
+	uint32 level{ 0 };
+	uint32 attribute{ 0 };
+	uint32 race{ 0 };
+	int32 attack{ 0 };
+	int32 defense{ 0 };
+	uint32 lscale{ 0 };
+	uint32 rscale{ 0 };
+	uint32 link_marker{ 0 };
 
 	void clear();
 };
 
 struct card_state {
-	card_state()
-		: code(0), code2(0), type(0), level(0), rank(0), link(0), lscale(0), rscale(0), attribute(0), race(0), attack(0), defense(0), base_attack(0), base_defense(0), 
-		controler(PLAYER_NONE), location(0), sequence(0), position(0), reason(0), pzone(false), reason_card(nullptr), reason_player(PLAYER_NONE), reason_effect(nullptr) {}
-
-	uint32 code;
-	uint32 code2;
+	uint32 code{ 0 };
+	uint32 code2{ 0 };
 	std::vector<uint32> setcode;
-	uint32 type;
-	uint32 level;
-	uint32 rank;
-	uint32 link;
-	uint32 lscale;
-	uint32 rscale;
-	uint32 attribute;
-	uint32 race;
-	int32 attack;
-	int32 defense;
-	int32 base_attack;
-	int32 base_defense;
-	uint8 controler;
-	uint8 location;
-	uint8 sequence;
-	uint8 position;
-	uint32 reason;
-	bool pzone;
-	card* reason_card;
-	uint8 reason_player;
-	effect* reason_effect;
+	uint32 type{ 0 };
+	uint32 level{ 0 };
+	uint32 rank{ 0 };
+	uint32 link{ 0 };
+	uint32 lscale{ 0 };
+	uint32 rscale{ 0 };
+	uint32 attribute{ 0 };
+	uint32 race{ 0 };
+	int32 attack{ 0 };
+	int32 defense{ 0 };
+	int32 base_attack{ 0 };
+	int32 base_defense{ 0 };
+	uint8 controler{ PLAYER_NONE };
+	uint8 location{ 0 };
+	uint8 sequence{ 0 };
+	uint8 position{ 0 };
+	uint32 reason{ 0 };
+	bool pzone{ false };
+	card* reason_card{ nullptr };
+	uint8 reason_player{ PLAYER_NONE };
+	effect* reason_effect{ nullptr };
+
 	bool is_location(int32 loc) const;
+	bool is_main_mzone() const {
+		return location == LOCATION_MZONE && sequence >= 0 && sequence <= 4;
+	}
+	bool is_stzone() const {
+		return location == LOCATION_SZONE && sequence >= 0 && sequence <= 4;
+	}
 	void init_state();
 };
 
 struct query_cache {
-	uint32 code;
-	uint32 alias;
+	uint32 info_location;
+	uint32 current_code;
 	uint32 type;
 	uint32 level;
 	uint32 rank;
@@ -94,23 +97,19 @@ struct query_cache {
 
 struct material_info {
 	// Synchron
-	card* limit_tuner;
-	group* limit_syn;
-	int32 limit_syn_minc;
-	int32 limit_syn_maxc;
+	card* limit_tuner{ nullptr };
+	group* limit_syn{ nullptr };
+	int32 limit_syn_minc{ 0 };
+	int32 limit_syn_maxc{ 0 };
 	// Xyz
-	group* limit_xyz;
-	int32 limit_xyz_minc;
-	int32 limit_xyz_maxc;
+	group* limit_xyz{ nullptr };
+	int32 limit_xyz_minc{ 0 };
+	int32 limit_xyz_maxc{ 0 };
 	// Link
-	group* limit_link;
-	card* limit_link_card;
-	int32 limit_link_minc;
-	int32 limit_link_maxc;
-
-	material_info()
-		: limit_tuner(nullptr), limit_syn(nullptr), limit_syn_minc(0), limit_syn_maxc(0), limit_xyz(nullptr), limit_xyz_minc(0), limit_xyz_maxc(0), 
-		limit_link(nullptr), limit_link_card(nullptr), limit_link_minc(0), limit_link_maxc(0) {}
+	group* limit_link{ nullptr };
+	card* limit_link_card{ nullptr };
+	int32 limit_link_minc{ 0 };
+	int32 limit_link_maxc{ 0 };
 };
 const material_info null_info;
 
@@ -147,10 +146,10 @@ public:
 			location = 0;
 			sequence = 0;
 		}
-		uint8 playerid;
-		uint8 position;
-		uint8 location;
-		uint8 sequence;
+		uint8 playerid{ 0 };
+		uint8 position{ 0 };
+		uint8 location{ 0 };
+		uint8 sequence{ 0 };
 	};
 	int32 ref_handle;
 	duel* pduel;
@@ -158,6 +157,7 @@ public:
 	card_state previous;
 	card_state temp;
 	card_state current;
+	card_state spsummon;
 	query_cache q_cache;
 	uint8 owner;
 	uint8 summon_player;
@@ -218,7 +218,7 @@ public:
 	static bool card_operation_sort(card* c1, card* c2);
 	const bool is_extra_deck_monster() { return !!(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK)); }
 
-	uint32 get_infos(byte* buf, int32 query_flag, int32 use_cache = TRUE);
+	int32 get_infos(byte* buf, uint32 query_flag, int32 use_cache = TRUE);
 	uint32 get_info_location();
 	uint32 second_code(uint32 code);
 	uint32 get_code();
@@ -228,6 +228,7 @@ public:
 	int32 is_pre_set_card(uint32 set_code);
 	int32 is_fusion_set_card(uint32 set_code);
 	int32 is_link_set_card(uint32 set_code);
+	int32 is_special_summon_set_card(uint32 set_code);
 	uint32 get_type();
 	uint32 get_fusion_type();
 	uint32 get_synchro_type();
@@ -272,7 +273,7 @@ public:
 	void get_column_cards(card_set* cset);
 	int32 is_all_column();
 
-	void equip(card *target, uint32 send_msg = TRUE);
+	void equip(card* target, uint32 send_msg = TRUE);
 	void unequip();
 	int32 get_union_count();
 	int32 get_old_union_count();
@@ -314,6 +315,7 @@ public:
 	void add_card_target(card* pcard);
 	void cancel_card_target(card* pcard);
 	void clear_card_target();
+	void set_special_summon_status(effect* peffect);
 
 	void filter_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_single_continuous_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
@@ -335,7 +337,7 @@ public:
 	int32 is_tuner(card* scard);
 
 	int32 check_unique_code(card* pcard);
-	void get_unique_target(card_set* cset, int32 controler, card* icard = 0);
+	void get_unique_target(card_set* cset, int32 controler, card* icard = nullptr);
 	int32 check_cost_condition(int32 ecode, int32 playerid);
 	int32 check_cost_condition(int32 ecode, int32 playerid, int32 sumtype);
 	int32 is_summonable_card();
@@ -382,7 +384,7 @@ public:
 	int32 is_capable_be_effect_target(effect* reason_effect, uint8 playerid);
 	int32 is_capable_overlay(uint8 playerid);
 	int32 is_can_be_fusion_material(card* fcard, uint32 summon_type);
-	int32 is_can_be_synchro_material(card* scard, card* tuner = 0);
+	int32 is_can_be_synchro_material(card* scard, card* tuner = nullptr);
 	int32 is_can_be_ritual_material(card* scard);
 	int32 is_can_be_xyz_material(card* scard);
 	int32 is_can_be_link_material(card* scard);
@@ -400,10 +402,12 @@ public:
 #define SUMMON_TYPE_XYZ			0x49000000
 #define SUMMON_TYPE_PENDULUM	0x4a000000
 #define SUMMON_TYPE_LINK		0x4c000000
+
 //Counter
 #define COUNTER_WITHOUT_PERMIT	0x1000
 //#define COUNTER_NEED_ENABLE		0x2000
 
+//Assume
 #define ASSUME_CODE			1
 #define ASSUME_TYPE			2
 #define ASSUME_LEVEL		3
@@ -412,6 +416,18 @@ public:
 #define ASSUME_RACE			6
 #define ASSUME_ATTACK		7
 #define ASSUME_DEFENSE		8
+
+//Summon info
+#define SUMMON_INFO_CODE			0x01
+#define SUMMON_INFO_CODE2			0x02
+#define SUMMON_INFO_TYPE			0x04
+#define SUMMON_INFO_LEVEL			0x08
+#define SUMMON_INFO_RANK			0x10
+#define SUMMON_INFO_ATTRIBUTE		0x20
+#define SUMMON_INFO_RACE			0x40
+#define SUMMON_INFO_ATTACK			0x80
+#define SUMMON_INFO_DEFENSE			0x100
+#define SUMMON_INFO_REASON_EFFECT	0x200
 
 //double-name cards
 #define CARD_MARINE_DOLPHIN	78734254

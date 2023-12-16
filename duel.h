@@ -19,13 +19,19 @@ class effect;
 class field;
 class interpreter;
 
+inline void write_buffer_vector(std::vector<byte>& buffer, const void* data, int size) {
+	if (size > 0) {
+		const auto len = buffer.size();
+		buffer.resize(len + size);
+		std::memcpy(&buffer[len], data, size);
+	}
+}
+
 class duel {
 public:
 	using card_set = std::set<card*, card_sort>;
 	char strbuffer[256];
-	byte buffer[0x1000];
-	uint32 bufferlen;
-	byte* bufferp;
+	std::vector<byte> message_buffer;
 	interpreter* lua;
 	field* game_field;
 	mt19937 random;
@@ -51,6 +57,7 @@ public:
 	void release_script_group();
 	void restore_assumes();
 	int32 read_buffer(byte* buf);
+	void write_buffer(const void* data, int size);
 	void write_buffer32(uint32 value);
 	void write_buffer16(uint16 value);
 	void write_buffer8(uint8 value);

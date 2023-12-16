@@ -29,66 +29,57 @@ class group;
 class effect;
 
 struct tevent {
-	card* trigger_card;
-	group* event_cards;
-	effect* reason_effect;
-	uint32 event_code;
-	uint32 event_value;
-	uint32 reason;
-	uint8 event_player;
-	uint8 reason_player;
+	card* trigger_card{ nullptr };
+	group* event_cards{ nullptr };
+	effect* reason_effect{ nullptr };
+	uint32 event_code{ 0 };
+	uint32 event_value{ 0 };
+	uint32 reason{ 0 };
+	uint8 event_player{ PLAYER_NONE };
+	uint8 reason_player{ PLAYER_NONE };
 
-	tevent()
-		: trigger_card(nullptr), event_cards(nullptr), reason_effect(nullptr), event_code(0), event_value(0), reason(0), event_player(PLAYER_NONE), reason_player(PLAYER_NONE) {}
 	bool operator< (const tevent& v) const;
 };
 struct optarget {
-	group* op_cards;
-	uint8 op_count;
-	uint8 op_player;
-	int32 op_param;
-
-	optarget()
-		: op_cards(nullptr), op_count(0), op_player(PLAYER_NONE), op_param(0) {}
+	group* op_cards{ nullptr };
+	uint8 op_count{ 0 };
+	uint8 op_player{ PLAYER_NONE };
+	int32 op_param{ 0 };
 };
 struct chain {
 	using opmap = std::unordered_map<uint32, optarget>;
-	uint16 chain_id;
-	uint8 chain_count;
-	uint8 triggering_player;
-	uint8 triggering_controler;
-	uint16 triggering_location;
-	uint8 triggering_sequence;
-	uint8 triggering_position;
+	uint16 chain_id{ 0 };
+	uint8 chain_count{ 0 };
+	uint8 triggering_player{ PLAYER_NONE };
+	uint8 triggering_controler{ PLAYER_NONE };
+	uint16 triggering_location{ 0 };
+	uint8 triggering_sequence{ 0 };
+	uint8 triggering_position{ 0 };
 	card_state triggering_state;
-	effect* triggering_effect;
-	group* target_cards;
-	int32 replace_op;
-	uint8 target_player;
-	int32 target_param;
-	effect* disable_reason;
-	uint8 disable_player;
+	effect* triggering_effect{ nullptr };
+	group* target_cards{ nullptr };
+	int32 replace_op{ 0 };
+	uint8 target_player{ PLAYER_NONE };
+	int32 target_param{ 0 };
+	effect* disable_reason{ nullptr };
+	uint8 disable_player{ PLAYER_NONE };
 	tevent evt;
 	opmap opinfos;
-	uint32 flag;
+	uint32 flag{ 0 };
 
-	chain()
-		: chain_id(0), chain_count(0), triggering_player(PLAYER_NONE), triggering_controler(PLAYER_NONE), triggering_location(0), triggering_sequence(0), triggering_position(0),
-		triggering_state(), triggering_effect(nullptr), target_cards(nullptr), replace_op(0), target_player(PLAYER_NONE), target_param(0), disable_reason(nullptr), disable_player(PLAYER_NONE),
-		evt(), flag(0) {}
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
 	void set_triggering_state(card* pcard);
 };
 
 struct player_info {
 	using card_vector = std::vector<card*>;
-	int32 lp;
-	int32 start_count;
-	int32 draw_count;
-	uint32 used_location;
-	uint32 disabled_location;
-	uint32 extra_p_count;
-	uint32 tag_extra_p_count;
+	int32 lp{ 0 };
+	int32 start_count{ 0 };
+	int32 draw_count{ 0 };
+	uint32 used_location{ 0 };
+	uint32 disabled_location{ 0 };
+	uint32 extra_p_count{ 0 };
+	uint32 tag_extra_p_count{ 0 };
 	card_vector list_mzone;
 	card_vector list_szone;
 	card_vector list_main;
@@ -99,9 +90,6 @@ struct player_info {
 	card_vector tag_list_main;
 	card_vector tag_list_hand;
 	card_vector tag_list_extra;
-
-	player_info()
-		: lp(0), start_count(0), draw_count(0), used_location(0), disabled_location(0), extra_p_count(0), tag_extra_p_count(0) {}
 };
 struct field_effect {
 	using effect_container = std::multimap<uint32, effect*>;
@@ -132,41 +120,32 @@ struct field_effect {
 	grant_effect_container grant_effect;
 };
 struct field_info {
-	int32 field_id;
-	int16 copy_id;
-	int16 turn_id;
-	int16 turn_id_by_player[2];
-	int16 card_id;
-	uint16 phase;
-	uint8 turn_player;
-	uint8 priorities[2];
-	uint8 can_shuffle;
-
-	field_info()
-		: field_id(0), copy_id(0), turn_id(0), turn_id_by_player{ 0 }, card_id(0), phase(0), turn_player(0), priorities{ 0 }, can_shuffle(TRUE) {}
+	int32 field_id{ 0 };
+	int16 copy_id{ 0 };
+	int16 turn_id{ 0 };
+	int16 turn_id_by_player[2]{ 0 };
+	int16 card_id{ 0 };
+	uint16 phase{ 0 };
+	uint8 turn_player{ 0 };
+	uint8 priorities[2]{ 0 };
+	uint8 can_shuffle{ TRUE };
 };
 struct lpcost {
-	int32 count;
-	int32 amount;
-	int32 lpstack[8];
-
-	lpcost()
-		: count(0), amount(0), lpstack{ 0 } {}
+	int32 count{ 0 };
+	int32 amount{ 0 };
+	int32 lpstack[8]{ 0 };
 };
 struct processor_unit {
-	uint16 type;
-	uint16 step;
-	effect* peffect;
-	group* ptarget;
-	int32 arg1;
-	int32 arg2;
-	int32 arg3;
-	int32 arg4;
-	void* ptr1;
-	void* ptr2;
-
-	processor_unit()
-		: type(0), step(0), peffect(nullptr), ptarget(nullptr), arg1(0), arg2(0), arg3(0), arg4(0), ptr1(nullptr), ptr2(nullptr) {}
+	uint16 type{ 0 };
+	uint16 step{ 0 };
+	effect* peffect{ nullptr };
+	group* ptarget{ nullptr };
+	int32 arg1{ 0 };
+	int32 arg2{ 0 };
+	int32 arg3{ 0 };
+	int32 arg4{ 0 };
+	void* ptr1{ nullptr };
+	void* ptr2{ nullptr };
 };
 union return_value {
 	int8 bvalue[64];
@@ -188,8 +167,8 @@ struct processor {
 	using delayed_effect_collection = std::set<std::pair<effect*, tevent>>;
 	struct chain_limit_t {
 		chain_limit_t(int32 f, int32 p): function(f), player(p) {}
-		int32 function;
-		int32 player;
+		int32 function{ 0 };
+		int32 player{ PLAYER_NONE };
 	};
 	using chain_limit_list = std::vector<chain_limit_t>;
 
@@ -270,86 +249,87 @@ struct processor {
 	std::unordered_map<uint32, uint32> spsummon_once_map[2];
 	std::multimap<int32, card*, std::greater<int32>> xmaterial_lst;
 
-	int32 temp_var[4];
-	uint32 global_flag;
-	uint16 pre_field[2];
+	int32 temp_var[4]{ 0 };
+	uint32 global_flag{ 0 };
+	uint16 pre_field[2]{ 0 };
 	std::set<uint16> opp_mzone;
 	chain_limit_list chain_limit;
 	chain_limit_list chain_limit_p;
-	uint8 chain_solving;
-	uint8 conti_solving;
-	uint8 win_player;
-	uint8 win_reason;
-	uint8 re_adjust;
-	effect* reason_effect;
-	uint8 reason_player;
-	card* summoning_card;
-	uint8 summon_depth;
-	uint8 summon_cancelable;
-	card* attacker;
-	card* attack_target;
-	uint32 limit_extra_summon_zone;
-	uint32 limit_extra_summon_releasable;
-	card* limit_tuner;
-	group* limit_syn;
-	int32 limit_syn_minc;
-	int32 limit_syn_maxc;
-	group* limit_xyz;
-	int32 limit_xyz_minc;
-	int32 limit_xyz_maxc;
-	group* limit_link;
-	card* limit_link_card;
-	int32 limit_link_minc;
-	int32 limit_link_maxc;
-	uint8 not_material;
-	uint8 attack_cancelable;
-	uint8 attack_rollback;
-	uint8 effect_damage_step;
-	int32 battle_damage[2];
-	int32 summon_count[2];
-	uint8 extra_summon[2];
-	int32 spe_effect[2];
-	int32 duel_options;
-	int32 duel_rule;	//current rule: 5, Master Rule 2020
-	uint32 copy_reset;
-	uint8 copy_reset_count;
-	uint32 last_control_changed_id;
-	uint32 set_group_used_zones;
-	uint8 set_group_seq[7];
-	uint8 dice_result[5];
-	uint8 coin_result[MAX_COIN_COUNT];
-	int32 coin_count;
+	uint8 chain_solving{ FALSE };
+	uint8 conti_solving{ FALSE };
+	uint8 win_player{ 5 };
+	uint8 win_reason{ 0 };
+	uint8 re_adjust{ FALSE };
+	effect* reason_effect{ nullptr };
+	uint8 reason_player{ PLAYER_NONE };
+	card* summoning_card{ nullptr };
+	uint8 summon_depth{ 0 };
+	uint8 summon_cancelable{ FALSE };
+	card* attacker{ nullptr };
+	card* attack_target{ nullptr };
+	uint32 limit_extra_summon_zone{ 0 };
+	uint32 limit_extra_summon_releasable{ 0 };
+	card* limit_tuner{ nullptr };
+	group* limit_syn{ nullptr };
+	int32 limit_syn_minc{ 0 };
+	int32 limit_syn_maxc{ 0 };
+	group* limit_xyz{ nullptr };
+	int32 limit_xyz_minc{ 0 };
+	int32 limit_xyz_maxc{ 0 };
+	group* limit_link{ nullptr };
+	card* limit_link_card{ nullptr };
+	int32 limit_link_minc{ 0 };
+	int32 limit_link_maxc{ 0 };
+	uint8 not_material{ FALSE };
+	uint8 attack_cancelable{ FALSE };
+	uint8 attack_rollback{ FALSE };
+	uint8 effect_damage_step{ 0 };
+	int32 battle_damage[2]{ 0 };
+	int32 summon_count[2]{ 0 };
+	uint8 extra_summon[2]{ FALSE };
+	int32 spe_effect[2]{ 0 };
+	int32 duel_options{ 0 };
+	int32 duel_rule{ CURRENT_RULE };	//current rule: 5, Master Rule 2020
+	uint32 copy_reset{ 0 };
+	uint8 copy_reset_count{ 0 };
+	uint32 last_control_changed_id{ 0 };
+	uint32 set_group_used_zones{ 0 };
+	uint8 set_group_seq[7]{ 0 };
+	uint8 dice_result[5]{ 0 };
+	uint8 coin_result[MAX_COIN_COUNT]{ 0 };
+	int32 coin_count{ 0 };
+	bool is_target_ready{ false };
 
-	uint8 to_bp;
-	uint8 to_m2;
-	uint8 to_ep;
-	uint8 skip_m2;
-	uint8 chain_attack;
-	uint32 chain_attacker_id;
-	card* chain_attack_target;
-	uint8 attack_player;
-	uint8 selfdes_disabled;
-	uint8 overdraw[2];
-	int32 check_level;
-	uint8 shuffle_check_disabled;
-	uint8 shuffle_hand_check[2];
-	uint8 shuffle_deck_check[2];
-	uint8 deck_reversed;
-	uint8 remove_brainwashing;
-	uint8 flip_delayed;
-	uint8 damage_calculated;
-	uint8 hand_adjusted;
-	uint8 summon_state_count[2];
-	uint8 normalsummon_state_count[2];
-	uint8 flipsummon_state_count[2];
-	uint8 spsummon_state_count[2];
-	uint8 attack_state_count[2];
-	uint8 battle_phase_count[2];
-	uint8 battled_count[2];
-	uint8 phase_action;
-	uint32 hint_timing[2];
-	uint8 current_player;
-	uint8 conti_player;
+	uint8 to_bp{ FALSE };
+	uint8 to_m2{ FALSE };
+	uint8 to_ep{ FALSE };
+	uint8 skip_m2{ FALSE };
+	uint8 chain_attack{ FALSE };
+	uint32 chain_attacker_id{ 0 };
+	card* chain_attack_target{ nullptr };
+	uint8 attack_player{ PLAYER_NONE };
+	uint8 selfdes_disabled{ FALSE };
+	uint8 overdraw[2]{ FALSE };
+	int32 check_level{ 0 };
+	uint8 shuffle_check_disabled{ FALSE };
+	uint8 shuffle_hand_check[2]{ FALSE };
+	uint8 shuffle_deck_check[2]{ FALSE };
+	uint8 deck_reversed{ FALSE };
+	uint8 remove_brainwashing{ FALSE };
+	uint8 flip_delayed{ FALSE };
+	uint8 damage_calculated{ FALSE };
+	uint8 hand_adjusted{ FALSE };
+	uint8 summon_state_count[2]{ 0 };
+	uint8 normalsummon_state_count[2]{ 0 };
+	uint8 flipsummon_state_count[2]{ 0 };
+	uint8 spsummon_state_count[2]{ 0 };
+	uint8 attack_state_count[2]{ 0 };
+	uint8 battle_phase_count[2]{ 0 };
+	uint8 battled_count[2]{ 0 };
+	uint8 phase_action{ FALSE };
+	uint32 hint_timing[2]{ 0 };
+	uint8 current_player{ PLAYER_NONE };
+	uint8 conti_player{ PLAYER_NONE };
 	std::unordered_map<uint32, std::pair<uint32, uint32>> summon_counter;
 	std::unordered_map<uint32, std::pair<uint32, uint32>> normalsummon_counter;
 	std::unordered_map<uint32, std::pair<uint32, uint32>> spsummon_counter;
@@ -358,17 +338,6 @@ struct processor {
 	std::unordered_map<uint32, std::pair<uint32, uint32>> chain_counter;
 	processor_list recover_damage_reserve;
 	effect_vector dec_count_reserve;
-
-	processor()
-		: temp_var{ 0 }, global_flag(0), pre_field{ 0 }, chain_solving(FALSE), conti_solving(FALSE), win_player(5), win_reason(0), re_adjust(FALSE), reason_effect(nullptr), reason_player(PLAYER_NONE),
-		summoning_card(nullptr), summon_depth(0), summon_cancelable(FALSE), attacker(nullptr), attack_target(nullptr), limit_extra_summon_zone(0), limit_extra_summon_releasable(0),
-		limit_tuner(nullptr), limit_syn(nullptr), limit_syn_minc(0), limit_syn_maxc(0), limit_xyz(nullptr), limit_xyz_minc(0), limit_xyz_maxc(0), limit_link(nullptr), limit_link_card(nullptr),
-		limit_link_minc(0), limit_link_maxc(0), not_material(FALSE), attack_cancelable(FALSE), attack_rollback(FALSE), effect_damage_step(0), battle_damage{ 0 }, summon_count{ 0 }, extra_summon{ FALSE },
-		spe_effect{ 0 }, duel_options(0), duel_rule(0), copy_reset(0), copy_reset_count(0), last_control_changed_id(0), set_group_used_zones(0), set_group_seq{ 0 }, dice_result{ 0 }, coin_result{ 0 },
-		coin_count(0), to_bp(FALSE), to_m2(FALSE), to_ep(FALSE), skip_m2(FALSE), chain_attack(FALSE), chain_attacker_id(0), chain_attack_target(nullptr), attack_player(PLAYER_NONE), selfdes_disabled(FALSE),
-		overdraw{ FALSE }, check_level(0), shuffle_check_disabled(FALSE), shuffle_hand_check{ FALSE }, shuffle_deck_check{ FALSE }, deck_reversed(FALSE), remove_brainwashing(FALSE), flip_delayed(FALSE),
-		damage_calculated(FALSE), hand_adjusted(FALSE), summon_state_count{ 0 }, normalsummon_state_count{ 0 }, flipsummon_state_count{ 0 }, spsummon_state_count{ 0 }, attack_state_count{ 0 },
-		battle_phase_count{ 0 }, battled_count{ 0 }, phase_action(FALSE), hint_timing{ 0 }, current_player(PLAYER_NONE), conti_player(PLAYER_NONE) {}
 };
 class field {
 public:
@@ -406,14 +375,14 @@ public:
 	void set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 reset_count);
 	card* get_field_card(uint32 playerid, uint32 location, uint32 sequence);
 	int32 is_location_useable(uint32 playerid, uint32 location, uint32 sequence);
-	int32 get_useable_count(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone = 0xff, uint32* list = 0);
-	int32 get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = 0);
-	int32 get_spsummonable_count(card* pcard, uint8 playerid, uint32 zone = 0xff, uint32* list = 0);
-	int32 get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = 0);
-	int32 get_useable_count_other(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone = 0xff, uint32* list = 0);
-	int32 get_tofield_count(card* pcard, uint8 playerid, uint8 location, uint32 uplayer, uint32 reason, uint32 zone = 0xff, uint32* list = 0);
-	int32 get_useable_count_fromex_rule4(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = 0);
-	int32 get_spsummonable_count_fromex_rule4(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = 0);
+	int32 get_useable_count(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone = 0xff, uint32* list = nullptr);
+	int32 get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = nullptr);
+	int32 get_spsummonable_count(card* pcard, uint8 playerid, uint32 zone = 0xff, uint32* list = nullptr);
+	int32 get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = nullptr);
+	int32 get_useable_count_other(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone = 0xff, uint32* list = nullptr);
+	int32 get_tofield_count(card* pcard, uint8 playerid, uint8 location, uint32 uplayer, uint32 reason, uint32 zone = 0xff, uint32* list = nullptr);
+	int32 get_useable_count_fromex_rule4(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = nullptr);
+	int32 get_spsummonable_count_fromex_rule4(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone = 0xff, uint32* list = nullptr);
 	int32 get_mzone_limit(uint8 playerid, uint8 uplayer, uint32 reason);
 	int32 get_szone_limit(uint8 playerid, uint8 uplayer, uint32 reason);
 	uint32 get_linked_zone(int32 playerid);
@@ -443,7 +412,7 @@ public:
 	void filter_affected_cards(effect* peffect, card_set* cset);
 	void filter_inrange_cards(effect* peffect, card_set* cset);
 	void filter_player_effect(uint8 playerid, uint32 code, effect_set* eset, uint8 sort = TRUE);
-	int32 filter_matching_card(int32 findex, uint8 self, uint32 location1, uint32 location2, group* pgroup, card* pexception, group* pexgroup, uint32 extraargs, card** pret = 0, int32 fcount = 0, int32 is_target = FALSE);
+	int32 filter_matching_card(int32 findex, uint8 self, uint32 location1, uint32 location2, group* pgroup, card* pexception, group* pexgroup, uint32 extraargs, card** pret = nullptr, int32 fcount = 0, int32 is_target = FALSE);
 	int32 filter_field_card(uint8 self, uint32 location, uint32 location2, group* pgroup);
 	effect* is_player_affected_by_effect(uint8 playerid, uint32 code);
 
@@ -466,7 +435,7 @@ public:
 	int32 adjust_grant_effect();
 	void add_unique_card(card* pcard);
 	void remove_unique_card(card* pcard);
-	effect* check_unique_onfield(card* pcard, uint8 controler, uint8 location, card* icard = 0);
+	effect* check_unique_onfield(card* pcard, uint8 controler, uint8 location, card* icard = nullptr);
 	int32 check_spsummon_once(card* pcard, uint8 playerid);
 	void check_card_counter(card* pcard, int32 counter_type, int32 playerid);
 	void check_card_counter(group* pgroup, int32 counter_type, int32 playerid);
@@ -486,7 +455,7 @@ public:
 	void attack_all_target_check();
 	int32 get_must_material_list(uint8 playerid, uint32 limit, card_set* must_list);
 	int32 check_must_material(group* mg, uint8 playerid, uint32 limit);
-	void get_synchro_material(uint8 playerid, card_set* material, effect* ptuner = 0);
+	void get_synchro_material(uint8 playerid, card_set* material, effect* ptuner = nullptr);
 	int32 check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
 	int32 check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
 	int32 check_other_synchro_material(const card_vector& nsyn, int32 lv, int32 min, int32 max, int32 mcount);
@@ -532,15 +501,15 @@ public:
 	int32 is_able_to_enter_bp();
 
 	void add_process(uint16 type, uint16 step, effect* peffect, group* target, int32 arg1, int32 arg2, int32 arg3 = 0, int32 arg4 = 0, void* ptr1 = nullptr, void* ptr2 = nullptr);
-	int32 process();
+	uint32 process();
 	int32 execute_cost(uint16 step, effect* peffect, uint8 triggering_player);
 	int32 execute_operation(uint16 step, effect* peffect, uint8 triggering_player);
 	int32 execute_target(uint16 step, effect* peffect, uint8 triggering_player);
 	void raise_event(card* event_card, uint32 event_code, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 event_player, uint32 event_value);
 	void raise_event(card_set* event_cards, uint32 event_code, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 event_player, uint32 event_value);
 	void raise_single_event(card* trigger_card, card_set* event_cards, uint32 event_code, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 event_player, uint32 event_value);
-	int32 check_event(uint32 code, tevent* pe = 0);
-	int32 check_event_c(effect* peffect, uint8 playerid, int32 neglect_con, int32 neglect_cost, int32 copy_info, tevent* pe = 0);
+	int32 check_event(uint32 code, tevent* pe = nullptr);
+	int32 check_event_c(effect* peffect, uint8 playerid, int32 neglect_con, int32 neglect_cost, int32 copy_info, tevent* pe = nullptr);
 	int32 check_hint_timing(effect* peffect);
 	int32 process_phase_event(int16 step, int32 phase_event);
 	int32 process_point_event(int16 step, int32 skip_trigger, int32 skip_freechain, int32 skip_new);
@@ -735,9 +704,6 @@ public:
 #define GLOBALFLAG_TUNE_MAGICIAN		0x400
 #define GLOBALFLAG_ACTIVATION_COUNT		0x800
 //
-#define PROCESSOR_NONE		0
-#define PROCESSOR_WAITING	0x10000
-#define PROCESSOR_END		0x20000
 
 #define PROCESSOR_ADJUST			1
 #define PROCESSOR_HINT				2

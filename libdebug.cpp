@@ -152,7 +152,7 @@ int32 scriptlib::debug_reload_field_begin(lua_State *L) {
 	else if (flag & DUEL_OBSOLETE_RULING)
 		pduel->game_field->core.duel_rule = 1;
 	else
-		pduel->game_field->core.duel_rule = 5;
+		pduel->game_field->core.duel_rule = CURRENT_RULE;
 	return 0;
 }
 int32 scriptlib::debug_reload_field_end(lua_State *L) {
@@ -174,9 +174,7 @@ int32 scriptlib::debug_set_ai_name(lua_State *L) {
 	if(len > 100)
 		len = 100;
 	pduel->write_buffer16(len);
-	memcpy(pduel->bufferp, pstr, len);
-	pduel->bufferp += len;
-	pduel->bufferlen += len;
+	pduel->write_buffer(pstr, len);
 	pduel->write_buffer8(0);
 	return 0;
 }
@@ -190,9 +188,7 @@ int32 scriptlib::debug_show_hint(lua_State *L) {
 	if(len > 1024)
 		len = 1024;
 	pduel->write_buffer16(len);
-	memcpy(pduel->bufferp, pstr, len);
-	pduel->bufferp += len;
-	pduel->bufferlen += len;
+	pduel->write_buffer(pstr, len);
 	pduel->write_buffer8(0);
 	return 0;
 }
