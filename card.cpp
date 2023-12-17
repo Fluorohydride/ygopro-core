@@ -19,20 +19,6 @@ bool card_sort::operator()(void* const & p1, void* const & p2) const {
 	card* c2 = (card*)p2;
 	return c1->cardid < c2->cardid;
 }
-void card_data::clear() {
-	code = 0;
-	alias = 0;
-	setcode = 0;
-	type = 0;
-	level = 0;
-	attribute = 0;
-	race = 0;
-	attack = 0;
-	defense = 0;
-	lscale = 0;
-	rscale = 0;
-	link_marker = 0;
-}
 bool card_state::is_location(int32 loc) const {
 	if((loc & LOCATION_FZONE) && location == LOCATION_SZONE && sequence == 5)
 		return true;

@@ -10,6 +10,7 @@
 
 #include "common.h"
 #include "effectset.h"
+#include "card_data.h"
 #include <set>
 #include <map>
 #include <unordered_set>
@@ -21,23 +22,6 @@ class duel;
 class effect;
 class group;
 struct chain;
-
-struct card_data {
-	uint32 code{ 0 };
-	uint32 alias{ 0 };
-	uint64 setcode{ 0 };
-	uint32 type{ 0 };
-	uint32 level{ 0 };
-	uint32 attribute{ 0 };
-	uint32 race{ 0 };
-	int32 attack{ 0 };
-	int32 defense{ 0 };
-	uint32 lscale{ 0 };
-	uint32 rscale{ 0 };
-	uint32 link_marker{ 0 };
-
-	void clear();
-};
 
 struct card_state {
 	uint32 code{ 0 };
