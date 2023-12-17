@@ -76,23 +76,25 @@ struct card_state {
 };
 
 struct query_cache {
-	uint32 info_location;
-	uint32 current_code;
-	uint32 type;
-	uint32 level;
-	uint32 rank;
-	uint32 link;
-	uint32 attribute;
-	uint32 race;
-	int32 attack;
-	int32 defense;
-	int32 base_attack;
-	int32 base_defense;
-	uint32 reason;
-	int32 status;
-	uint32 lscale;
-	uint32 rscale;
-	uint32 link_marker;
+	uint32 info_location{ UINT32_MAX };
+	uint32 current_code{ UINT32_MAX };
+	uint32 type{ UINT32_MAX };
+	uint32 level{ UINT32_MAX };
+	uint32 rank{ UINT32_MAX };
+	uint32 link{ UINT32_MAX };
+	uint32 attribute{ UINT32_MAX };
+	uint32 race{ UINT32_MAX };
+	int32 attack{ -1 };
+	int32 defense{ -1 };
+	int32 base_attack{ -1 };
+	int32 base_defense{ -1 };
+	uint32 reason{ UINT32_MAX };
+	uint32 status{ UINT32_MAX };
+	uint32 lscale{ UINT32_MAX };
+	uint32 rscale{ UINT32_MAX };
+	uint32 link_marker{ UINT32_MAX };
+
+	void clear_cache();
 };
 
 struct material_info {
