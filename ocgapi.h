@@ -29,7 +29,7 @@ class interpreter;
 
 typedef byte* (*script_reader)(const char*, int*);
 typedef uint32 (*card_reader)(uint32, card_data*);
-typedef uint32 (*message_handler)(void*, uint32);
+typedef uint32 (*message_handler)(intptr_t, uint32);
 
 extern "C" DECL_DLLEXPORT void set_script_reader(script_reader f);
 extern "C" DECL_DLLEXPORT void set_card_reader(card_reader f);
@@ -57,6 +57,6 @@ extern "C" DECL_DLLEXPORT void set_responseb(intptr_t pduel, byte* buf);
 extern "C" DECL_DLLEXPORT int32 preload_script(intptr_t pduel, const char* script, int32 len);
 byte* default_script_reader(const char* script_name, int* len);
 uint32 default_card_reader(uint32 code, card_data* data);
-uint32 default_message_handler(void* pduel, uint32 msg_type);
+uint32 default_message_handler(intptr_t pduel, uint32 msg_type);
 
 #endif /* OCGAPI_H_ */

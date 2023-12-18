@@ -37,7 +37,7 @@ uint32 read_card(uint32 code, card_data* data) {
 	return creader(code, data);
 }
 uint32 handle_message(void* pduel, uint32 msg_type) {
-	return mhandler(pduel, msg_type);
+	return mhandler((intptr_t)pduel, msg_type);
 }
 byte* default_script_reader(const char* script_name, int* slen) {
 	FILE *fp;
@@ -54,7 +54,7 @@ byte* default_script_reader(const char* script_name, int* slen) {
 uint32 default_card_reader(uint32 code, card_data* data) {
 	return 0;
 }
-uint32 default_message_handler(void* pduel, uint32 message_type) {
+uint32 default_message_handler(intptr_t pduel, uint32 message_type) {
 	return 0;
 }
 extern "C" DECL_DLLEXPORT intptr_t create_duel(uint_fast32_t seed) {
