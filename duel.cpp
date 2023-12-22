@@ -5,6 +5,7 @@
  *      Author: Argon
  */
 
+#include <cstring>
 #include "duel.h"
 #include "interpreter.h"
 #include "field.h"
@@ -12,6 +13,14 @@
 #include "effect.h"
 #include "group.h"
 #include "ocgapi.h"
+
+inline void write_buffer_vector(std::vector<byte>& buffer, const void* data, int size) {
+	if (size > 0) {
+		const auto len = buffer.size();
+		buffer.resize(len + size);
+		std::memcpy(&buffer[len], data, size);
+	}
+}
 
 duel::duel() {
 	lua = new interpreter(this);

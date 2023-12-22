@@ -19,14 +19,6 @@ class effect;
 class field;
 class interpreter;
 
-inline void write_buffer_vector(std::vector<byte>& buffer, const void* data, int size) {
-	if (size > 0) {
-		const auto len = buffer.size();
-		buffer.resize(len + size);
-		std::memcpy(&buffer[len], data, size);
-	}
-}
-
 class duel {
 public:
 	using card_set = std::set<card*, card_sort>;

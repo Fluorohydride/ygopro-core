@@ -5,6 +5,7 @@
  *      Author: Argon
  */
 
+#include <cstring>
 #include "duel.h"
 #include "group.h"
 #include "card.h"
@@ -17,7 +18,7 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_state = luaL_newstate();
 	current_state = lua_state;
 	pduel = pd;
-	memcpy(lua_getextraspace(lua_state), &pd, LUA_EXTRASPACE); //set_duel_info
+	std::memcpy(lua_getextraspace(lua_state), &pd, LUA_EXTRASPACE); //set_duel_info
 	no_action = 0;
 	call_depth = 0;
 	//Initial
@@ -663,6 +664,6 @@ int32 interpreter::get_function_handle(lua_State* L, int32 index) {
 }
 duel* interpreter::get_duel_info(lua_State * L) {
 	duel* pduel;
-	memcpy(&pduel, lua_getextraspace(L), LUA_EXTRASPACE);
+	std::memcpy(&pduel, lua_getextraspace(L), LUA_EXTRASPACE);
 	return pduel;
 }

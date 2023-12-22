@@ -5,7 +5,7 @@
  *      Author: Argon
  */
 
-#include <string.h>
+#include <cstring>
 #include "scriptlib.h"
 #include "duel.h"
 #include "field.h"
@@ -170,7 +170,7 @@ int32 scriptlib::debug_set_ai_name(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->write_buffer8(MSG_AI_NAME);
 	const char* pstr = lua_tostring(L, 1);
-	int len = (int)strlen(pstr);
+	int len = (int)std::strlen(pstr);
 	if(len > 100)
 		len = 100;
 	pduel->write_buffer16(len);
@@ -184,7 +184,7 @@ int32 scriptlib::debug_show_hint(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->write_buffer8(MSG_SHOW_HINT);
 	const char* pstr = lua_tostring(L, 1);
-	int len = (int)strlen(pstr);
+	int len = (int)std::strlen(pstr);
 	if(len > 1024)
 		len = 1024;
 	pduel->write_buffer16(len);

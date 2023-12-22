@@ -5,7 +5,7 @@
  *      Author: Argon
  */
 #include <stdio.h>
-#include <string.h>
+#include <cstring>
 #include "ocgapi.h"
 #include "duel.h"
 #include "card.h"
@@ -120,7 +120,7 @@ extern "C" DECL_DLLEXPORT void set_player_info(intptr_t pduel, int32 playerid, i
 		pd->game_field->player[playerid].draw_count = drawcount;
 }
 extern "C" DECL_DLLEXPORT void get_log_message(intptr_t pduel, byte* buf) {
-	strcpy((char*)buf, ((duel*)pduel)->strbuffer);
+	std::strcpy((char*)buf, ((duel*)pduel)->strbuffer);
 }
 extern "C" DECL_DLLEXPORT int32 get_message(intptr_t pduel, byte* buf) {
 	int32 len = ((duel*)pduel)->read_buffer(buf);
