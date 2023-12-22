@@ -8,7 +8,6 @@
 #ifndef MTRANDOM_H_
 #define MTRANDOM_H_
 
-#include <cstdint>
 #include <random>
 
 class mt19937 {
