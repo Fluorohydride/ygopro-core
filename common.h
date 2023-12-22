@@ -30,7 +30,6 @@ typedef signed char int8;
 #define TRUE 1
 #define FALSE 0
 #define SIZE_MESSAGE_BUFFER 0x2000
-#define SIZE_QUERY_BUFFER 0x4000
 
 #define PROCESSOR_BUFFER_LEN	0x0fffffff
 #define PROCESSOR_FLAG			0xf0000000
