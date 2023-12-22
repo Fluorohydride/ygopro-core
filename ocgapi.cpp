@@ -4,7 +4,7 @@
  *  Created on: 2010-5-2
  *      Author: Argon
  */
-#include <stdio.h>
+#include <cstdio>
 #include <cstring>
 #include "ocgapi.h"
 #include "duel.h"
@@ -41,11 +41,11 @@ uint32 handle_message(void* pduel, uint32 msg_type) {
 }
 byte* default_script_reader(const char* script_name, int* slen) {
 	FILE *fp;
-	fp = fopen(script_name, "rb");
+	fp = std::fopen(script_name, "rb");
 	if (!fp)
 		return 0;
 	int len = (int)fread(buffer, 1, sizeof(buffer), fp);
-	fclose(fp);
+	std::fclose(fp);
 	if(len >= sizeof(buffer))
 		return 0;
 	*slen = len;
