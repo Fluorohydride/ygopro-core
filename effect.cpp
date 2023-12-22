@@ -27,43 +27,8 @@ bool is_continuous_event(uint32 code) {
 }
 
 effect::effect(duel* pd) {
-	ref_handle = 0;
 	pduel = pd;
-	owner = 0;
-	handler = 0;
-	description = 0;
-	effect_owner = PLAYER_NONE;
-	card_type = 0;
-	active_type = 0;
-	active_location = 0;
-	active_sequence = 0;
-	active_handler = 0;
-	id = 0;
-	code = 0;
-	type = 0;
-	flag[0] = 0;
-	flag[1] = 0;
-	copy_id = 0;
-	range = 0;
-	s_range = 0;
-	o_range = 0;
-	count_limit = 0;
-	count_limit_max = 0;
-	reset_count = 0;
-	reset_flag = 0;
-	count_code = 0;
-	category = 0;
 	label.reserve(4);
-	label_object = 0;
-	hint_timing[0] = 0;
-	hint_timing[1] = 0;
-	status = 0;
-	condition = 0;
-	cost = 0;
-	target = 0;
-	value = 0;
-	operation = 0;
-	cost_checked = FALSE;
 }
 int32 effect::is_disable_related() {
 	if (code == EFFECT_IMMUNE_EFFECT || code == EFFECT_DISABLE || code == EFFECT_CANNOT_DISABLE || code == EFFECT_FORBIDDEN)
