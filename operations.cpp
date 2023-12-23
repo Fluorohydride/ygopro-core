@@ -589,7 +589,10 @@ int32 field::recover(uint16 step, effect* reason_effect, uint32 reason, uint8 re
 		if(reason & REASON_RDAMAGE)
 			core.units.begin()->step = 2;
 		core.hint_timing[playerid] |= TIMING_RECOVER;
-		int32 limit = INT32_MAX - player[playerid].lp;
+		int32 limit = 0;
+		if (player[playerid].lp > 0) {
+			limit = INT32_MAX - player[playerid].lp;
+		}
 		int32 val = amount;
 		if (val > limit) {
 			val = limit;
