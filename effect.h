@@ -548,8 +548,8 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_REMOVE_COUNTER		0x20000
 #define EVENT_CUSTOM				0x10000000
 
-#define DOUBLE_DAMAGE				0x80000000
-#define HALF_DAMAGE					0x80000001
+constexpr int32 DOUBLE_DAMAGE = 0x80000000;
+constexpr int32 HALF_DAMAGE = 0x80000001;
 
 // flag effect
 #define EFFECT_FLAG_EFFECT	0x20000000
