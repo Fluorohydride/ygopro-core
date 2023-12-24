@@ -3587,21 +3587,26 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 			bool double_dam = false;
 			bool half_dam = false;
 			int32 dam_value = -1;
+			int32 current_min = INT32_MAX;
 			for(int32 i = 0; i < eset.size(); ++i) {
 				int32 val = -1;
 				if(!eset[i]->is_flag(EFFECT_FLAG_PLAYER_TARGET)) {
 					pduel->lua->add_param(p, PARAM_TYPE_INT);
 					val = eset[i]->get_value(1);
-				} else if(eset[i]->is_target_player(p))
+				}
+				else if (eset[i]->is_target_player(p))
 					val = eset[i]->get_value();
-				if(val == 0) {
+				if (val == 0) {
 					dam_value = 0;
 					break;
-				} else if(val > 0)
+				}
+				else if (val > 0 && val < current_min) {
+					current_min = val;
 					dam_value = val;
-				else if(val == DOUBLE_DAMAGE)
+				}
+				else if (val == DOUBLE_DAMAGE)
 					double_dam = true;
-				else if(val == HALF_DAMAGE)
+				else if (val == HALF_DAMAGE)
 					half_dam = true;
 			}
 			if(double_dam && half_dam) {
