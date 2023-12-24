@@ -393,6 +393,10 @@ int32 scriptlib::group_is_exists(lua_State *L) {
 	uint32 extraargs = lua_gettop(L) - 4;
 	uint32 fcount = 0;
 	uint32 result = FALSE;
+	if (count > pgroup->container.size()) {
+		lua_pushboolean(L, 0);
+		return 1;
+	}
 	for (auto& pcard : cset) {
 		if(pduel->lua->check_matching(pcard, 2, extraargs)) {
 			++fcount;
@@ -721,11 +725,12 @@ int32 scriptlib::group_search_card(lua_State *L) {
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	duel* pduel = pgroup->pduel;
 	uint32 extraargs = lua_gettop(L) - 2;
-	for(auto& pcard : pgroup->container)
-		if(pduel->lua->check_matching(pcard, 2, extraargs)) {
+	for (auto& pcard : pgroup->container) {
+		if (pduel->lua->check_matching(pcard, 2, extraargs)) {
 			interpreter::card2value(L, pcard);
 			return 1;
 		}
+	}
 	return 0;
 }
 int32 scriptlib::group_get_bin_class_count(lua_State *L) {
