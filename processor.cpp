@@ -4485,29 +4485,27 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		return FALSE;
 	}
 	case 11: {
-		for(auto cit = core.leave_confirmed.begin(); cit != core.leave_confirmed.end();) {
-			if(!(*cit)->is_status(STATUS_LEAVE_CONFIRMED))
-				cit = core.leave_confirmed.erase(cit);
-			else
-				++cit;
-		}
-		if(core.leave_confirmed.size())
-			send_to(&core.leave_confirmed, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
-		return FALSE;
-	}
-	case 12: {
 		core.used_event.splice(core.used_event.end(), core.point_event);
 		pduel->write_buffer8(MSG_CHAIN_END);
-		for(auto& ch_lim_p : core.chain_limit_p)
+		for (auto& ch_lim_p : core.chain_limit_p)
 			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim_p.function);
 		core.chain_limit_p.clear();
 		core.effect_count_code_chain.clear();
 		reset_chain();
 		if (core.summoning_card)
 			core.subunits.push_back(core.summon_reserved);
-		if (core.effect_damage_step == 1)
-			core.subunits.push_back(core.damage_step_reserved);
 		core.summoning_card = 0;
+		return FALSE;
+	}
+	case 12: {
+		for (auto cit = core.leave_confirmed.begin(); cit != core.leave_confirmed.end();) {
+			if (!(*cit)->is_status(STATUS_LEAVE_CONFIRMED))
+				cit = core.leave_confirmed.erase(cit);
+			else
+				++cit;
+		}
+		if (core.leave_confirmed.size())
+			send_to(&core.leave_confirmed, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		return FALSE;
 	}
 	case 13: {
@@ -4519,6 +4517,8 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			core.hint_timing[1] |= TIMING_CHAIN_END;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, chainend_arg1, chainend_arg2);
 		}
+		if (core.effect_damage_step == 1)
+			core.subunits.push_back(core.damage_step_reserved);
 		returns.ivalue[0] = TRUE;
 		return TRUE;
 	}
