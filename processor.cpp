@@ -364,14 +364,14 @@ uint32 field::process() {
 		return pduel->message_buffer.size();
 	}
 	case PROCESSOR_SUMMON_RULE: {
-		if (summon(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff, (it->arg1 >> 24) & 0xff))
+		if (summon(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff, (it->arg1 >> 24) & 0xff, it->arg3))
 			core.units.pop_front();
 		else
 			++it->step;
 		return pduel->message_buffer.size();
 	}
 	case PROCESSOR_SPSUMMON_RULE: {
-		if (special_summon_rule(it->step, it->arg1, (card*)it->ptarget, it->arg2))
+		if (special_summon_rule(it->step, it->arg1, (card*)it->ptarget, it->arg2, it->arg3))
 			core.units.pop_front();
 		else
 			++it->step;
@@ -385,14 +385,14 @@ uint32 field::process() {
 		return pduel->message_buffer.size();
 	}
 	case PROCESSOR_FLIP_SUMMON: {
-		if (flip_summon(it->step, it->arg1, (card*)(it->ptarget)))
+		if (flip_summon(it->step, it->arg1, (card*)(it->ptarget), it->arg3))
 			core.units.pop_front();
 		else
 			++it->step;
 		return pduel->message_buffer.size();
 	}
 	case PROCESSOR_MSET: {
-		if (mset(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff, (it->arg1 >> 24) & 0xff))
+		if (mset(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff, (it->arg1 >> 24) & 0xff, it->arg3))
 			core.units.pop_front();
 		else
 			++it->step;
@@ -4480,7 +4480,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		}
 		if(core.summoning_card)
 			core.subunits.push_back(core.summon_reserved);
-		core.summoning_card = 0;
+		core.summoning_card = nullptr;
 		core.units.begin()->step = -1;
 		return FALSE;
 	}
@@ -4494,7 +4494,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		reset_chain();
 		if (core.summoning_card)
 			core.subunits.push_back(core.summon_reserved);
-		core.summoning_card = 0;
+		core.summoning_card = nullptr;
 		return FALSE;
 	}
 	case 12: {
