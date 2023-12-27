@@ -34,7 +34,7 @@ public:
 	uint8 effect_owner{ PLAYER_NONE };
 	uint32 description{ 0 };
 	uint32 code{ 0 };
-	uint32 flag[2]{ 0 };
+	uint32 flag[2]{};
 	uint32 id{ 0 };
 	uint16 type{ 0 };
 	uint16 copy_id{ 0 };
@@ -47,7 +47,7 @@ public:
 	uint32 reset_flag{ 0 };
 	uint32 count_code{ 0 };
 	uint32 category{ 0 };
-	uint32 hint_timing[2]{ 0 };
+	uint32 hint_timing[2]{};
 	uint32 card_type{ 0 };
 	uint32 active_type{ 0 };
 	uint16 active_location{ 0 };

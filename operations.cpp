@@ -3865,7 +3865,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 	struct exargs {
 		group* targets{ nullptr };
 		card_set leave_field, leave_grave, leave_deck, detach;
-		bool show_decktop[2]{ false };
+		bool show_decktop[2]{};
 		card_vector cv;
 		card_vector::iterator cvit;
 		effect* predirect{ nullptr };

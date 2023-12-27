@@ -123,17 +123,17 @@ struct field_info {
 	int32 field_id{ 0 };
 	int16 copy_id{ 0 };
 	int16 turn_id{ 0 };
-	int16 turn_id_by_player[2]{ 0 };
+	int16 turn_id_by_player[2]{};
 	int16 card_id{ 0 };
 	uint16 phase{ 0 };
 	uint8 turn_player{ 0 };
-	uint8 priorities[2]{ 0 };
+	uint8 priorities[2]{};
 	uint8 can_shuffle{ TRUE };
 };
 struct lpcost {
 	int32 count{ 0 };
 	int32 amount{ 0 };
-	int32 lpstack[8]{ 0 };
+	int32 lpstack[8]{};
 };
 struct processor_unit {
 	uint16 type{ 0 };
@@ -249,9 +249,9 @@ struct processor {
 	std::unordered_map<uint32, uint32> spsummon_once_map[2];
 	std::multimap<int32, card*, std::greater<int32>> xmaterial_lst;
 
-	int32 temp_var[4]{ 0 };
+	int32 temp_var[4]{};
 	uint32 global_flag{ 0 };
-	uint16 pre_field[2]{ 0 };
+	uint16 pre_field[2]{};
 	std::set<uint16> opp_mzone;
 	chain_limit_list chain_limit;
 	chain_limit_list chain_limit_p;
@@ -284,19 +284,19 @@ struct processor {
 	uint8 attack_cancelable{ FALSE };
 	uint8 attack_rollback{ FALSE };
 	uint8 effect_damage_step{ 0 };
-	int32 battle_damage[2]{ 0 };
-	int32 summon_count[2]{ 0 };
-	uint8 extra_summon[2]{ FALSE };
-	int32 spe_effect[2]{ 0 };
+	int32 battle_damage[2]{};
+	int32 summon_count[2]{};
+	uint8 extra_summon[2]{};
+	int32 spe_effect[2]{};
 	int32 duel_options{ 0 };
 	int32 duel_rule{ CURRENT_RULE };	//current rule: 5, Master Rule 2020
 	uint32 copy_reset{ 0 };
 	uint8 copy_reset_count{ 0 };
 	uint32 last_control_changed_id{ 0 };
 	uint32 set_group_used_zones{ 0 };
-	uint8 set_group_seq[7]{ 0 };
-	uint8 dice_result[5]{ 0 };
-	uint8 coin_result[MAX_COIN_COUNT]{ 0 };
+	uint8 set_group_seq[7]{};
+	uint8 dice_result[5]{};
+	uint8 coin_result[MAX_COIN_COUNT]{};
 	int32 coin_count{ 0 };
 	bool is_target_ready{ false };
 
@@ -309,25 +309,25 @@ struct processor {
 	card* chain_attack_target{ nullptr };
 	uint8 attack_player{ PLAYER_NONE };
 	uint8 selfdes_disabled{ FALSE };
-	uint8 overdraw[2]{ FALSE };
+	uint8 overdraw[2]{};
 	int32 check_level{ 0 };
 	uint8 shuffle_check_disabled{ FALSE };
-	uint8 shuffle_hand_check[2]{ FALSE };
-	uint8 shuffle_deck_check[2]{ FALSE };
+	uint8 shuffle_hand_check[2]{};
+	uint8 shuffle_deck_check[2]{};
 	uint8 deck_reversed{ FALSE };
 	uint8 remove_brainwashing{ FALSE };
 	uint8 flip_delayed{ FALSE };
 	uint8 damage_calculated{ FALSE };
 	uint8 hand_adjusted{ FALSE };
-	uint8 summon_state_count[2]{ 0 };
-	uint8 normalsummon_state_count[2]{ 0 };
-	uint8 flipsummon_state_count[2]{ 0 };
-	uint8 spsummon_state_count[2]{ 0 };
-	uint8 attack_state_count[2]{ 0 };
-	uint8 battle_phase_count[2]{ 0 };
-	uint8 battled_count[2]{ 0 };
+	uint8 summon_state_count[2]{};
+	uint8 normalsummon_state_count[2]{};
+	uint8 flipsummon_state_count[2]{};
+	uint8 spsummon_state_count[2]{};
+	uint8 attack_state_count[2]{};
+	uint8 battle_phase_count[2]{};
+	uint8 battled_count[2]{};
 	uint8 phase_action{ FALSE };
-	uint32 hint_timing[2]{ 0 };
+	uint32 hint_timing[2]{};
 	uint8 current_player{ PLAYER_NONE };
 	uint8 conti_player{ PLAYER_NONE };
 	std::unordered_map<uint32, std::pair<uint32, uint32>> summon_counter;
