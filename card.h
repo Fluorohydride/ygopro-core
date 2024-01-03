@@ -389,6 +389,9 @@ public:
 #define SUMMON_TYPE_PENDULUM	0x4a000000
 #define SUMMON_TYPE_LINK		0x4c000000
 
+#define SUMMON_TYPE_MAIN		0xf0000000
+#define SUMMON_TYPE_LOCATION	0x00ff0000
+
 //Counter
 #define COUNTER_WITHOUT_PERMIT	0x1000
 //#define COUNTER_NEED_ENABLE		0x2000
@@ -403,7 +406,7 @@ public:
 #define ASSUME_ATTACK		7
 #define ASSUME_DEFENSE		8
 
-//Summon info
+//Special Summon effect info
 #define SUMMON_INFO_CODE			0x01
 #define SUMMON_INFO_CODE2			0x02
 #define SUMMON_INFO_TYPE			0x04

@@ -1824,14 +1824,14 @@ int32 scriptlib::duel_disable_summon(lua_State *L) {
 		sumplayer = pcard->summon_player;
 		pcard->set_status(STATUS_SUMMONING, FALSE);
 		pcard->set_status(STATUS_SUMMON_DISABLED, TRUE);
-		if((pcard->summon_info & SUMMON_TYPE_PENDULUM) != SUMMON_TYPE_PENDULUM)
+		if (!match_all(pcard->summon_info, SUMMON_TYPE_FLIP) && !match_all(pcard->summon_info, SUMMON_TYPE_DUAL))
 			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
 	} else {
 		for(auto& pcard : pgroup->container) {
 			sumplayer = pcard->summon_player;
 			pcard->set_status(STATUS_SUMMONING, FALSE);
 			pcard->set_status(STATUS_SUMMON_DISABLED, TRUE);
-			if((pcard->summon_info & SUMMON_TYPE_PENDULUM) != SUMMON_TYPE_PENDULUM)
+			if (!match_all(pcard->summon_info, SUMMON_TYPE_FLIP) && !match_all(pcard->summon_info, SUMMON_TYPE_DUAL))
 				pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
 		}
 	}
