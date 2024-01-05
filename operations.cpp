@@ -3728,7 +3728,9 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					cit = targets->container.erase(cit);
 				}
 			}
-			++cit;
+			if (cit != targets->container.end()) {
+				++cit;
+			}
 		}
 		if(targets->container.size()) {
 			operation_replace(EFFECT_DESTROY_REPLACE, 12, targets);
