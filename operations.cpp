@@ -2981,7 +2981,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 				|| check_unique_onfield(pcard, sumplayer, LOCATION_MZONE)
 				|| pcard->is_affected_by_effect(EFFECT_CANNOT_SPECIAL_SUMMON)) {
 				cit = pgroup->container.erase(cit);
-			    continue;
+				continue;
 			}
 			effect_set eset;
 			pcard->filter_effect(EFFECT_SPSUMMON_COST, &eset);
