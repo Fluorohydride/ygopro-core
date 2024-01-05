@@ -533,10 +533,10 @@ card* field::get_field_card(uint32 playerid, uint32 location, uint32 sequence) {
 	case LOCATION_PZONE: {
 		if(sequence == 0) {
 			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? 0 : 6];
-			return pcard && pcard->current.pzone ? pcard : 0;
+			return (pcard && pcard->current.pzone) ? pcard : 0;
 		} else if(sequence == 1) {
 			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? 4 : 7];
-			return pcard && pcard->current.pzone ? pcard : 0;
+			return (pcard && pcard->current.pzone) ? pcard : 0;
 		} else
 			return nullptr;
 		break;
@@ -1894,7 +1894,7 @@ void field::get_ritual_material(uint8 playerid, effect* peffect, card_set* mater
 void field::get_fusion_material(uint8 playerid, card_set* material_all, card_set* material_base, uint32 location) {
 	if(location & LOCATION_MZONE) {
 		for(auto& pcard : player[playerid].list_mzone) {
-			if(pcard)
+			if(pcard && !pcard->is_status(STATUS_SUMMONING))
 				material_base->insert(pcard);
 		}
 	}
