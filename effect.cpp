@@ -43,8 +43,6 @@ int32 effect::is_self_destroy_related() {
 int32 effect::is_can_be_forbidden() {
 	if (is_flag(EFFECT_FLAG_CANNOT_DISABLE) && !is_flag(EFFECT_FLAG_CANNOT_NEGATE))
 		return FALSE;
-	if (code == EFFECT_CHANGE_CODE)
-		return FALSE;
 	return TRUE;
 }
 // check if a single/field/equip effect is available
