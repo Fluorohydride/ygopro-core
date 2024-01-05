@@ -3726,6 +3726,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 					pcard->current.reason_player = pcard->temp.reason_player;
 					core.destroy_canceled.insert(pcard);
 					cit = targets->container.erase(cit);
+					continue;
 				}
 			}
 			++cit;
