@@ -14,6 +14,14 @@
 #include "ocgapi.h"
 #include <algorithm>
 
+const std::unordered_map<uint32, uint32> card::second_code = {
+	{CARD_MARINE_DOLPHIN, 17955766u},
+	{CARD_TWINKLE_MOSS, 17732278u},
+	{CARD_TIMAEUS, 10000050u},
+	{CARD_CRITIAS, 10000060u},
+	{CARD_HERMOS, 10000070u}
+};
+
 bool card_sort::operator()(void* const & p1, void* const & p2) const {
 	card* c1 = (card*)p1;
 	card* c2 = (card*)p2;
@@ -411,55 +419,60 @@ uint32 card::get_info_location() {
 		return c + (l << 8) + (s << 16) + (ss << 24);
 	}
 }
-// mapping of double-name cards
-uint32 card::second_code(uint32 code){
-	switch(code){
-		case CARD_MARINE_DOLPHIN:
-			return 17955766u;
-		case CARD_TWINKLE_MOSS:
-			return 17732278u;
-		default:
-			return 0;
+// get the printed code on card
+uint32 card::get_original_code() const {
+	if (data.alias && (data.alias < data.code + CARD_ARTWORK_VERSIONS_OFFSET) && (data.code < data.alias + CARD_ARTWORK_VERSIONS_OFFSET))
+		return data.alias;
+	else
+		return data.code;
+}
+// get the original code in duel (can be different from printed code)
+std::tuple<uint32, uint32> card::get_original_code_rule() const {
+	auto it = second_code.find(data.code);
+	if (it != second_code.end()) {
+		return std::make_tuple(data.code, it->second);
+	}
+	else {
+		if (data.alias)
+			return std::make_tuple(data.alias, 0);
+		else
+			return std::make_tuple(data.code, 0);
 	}
 }
 // return: the current card name
-// for double-name card, it returns printed name
+// for double-name cards, it returns printed name
 uint32 card::get_code() {
 	if(assume_type == ASSUME_CODE)
 		return assume_value;
 	if (temp.code != 0xffffffff)
 		return temp.code;
 	effect_set effects;
-	uint32 code = data.code;
-	temp.code = data.code;
+	uint32 code = std::get<0>(get_original_code_rule());
+	temp.code = code;
 	filter_effect(EFFECT_CHANGE_CODE, &effects);
 	if (effects.size())
 		code = effects.get_last()->get_value(this);
 	temp.code = 0xffffffff;
-	if (code == data.code) {
-		if(data.alias && !is_affected_by_effect(EFFECT_ADD_CODE))
-			code = data.alias;
-	} else {
-		card_data dat;
-		read_card(code, &dat);
-		if (dat.alias && !second_code(code))
-			code = dat.alias;
-	}
 	return code;
 }
 // return: the current second card name
 // for double-name cards, it returns the name in description
 uint32 card::get_another_code() {
-	uint32 code = get_code();
-	if(code != data.code){
-		return second_code(code);
+	uint32 code1 = get_code();
+	if (is_affected_by_effect(EFFECT_CHANGE_CODE)) {
+		auto it = second_code.find(code1);
+		if (it != second_code.end())
+			return it->second;
+		else
+			return 0;
 	}
+	uint32 code2 = std::get<1>(get_original_code_rule());
 	effect_set eset;
 	filter_effect(EFFECT_ADD_CODE, &eset);
 	if(!eset.size())
-		return 0;
+		return code2;
 	uint32 otcode = eset.get_last()->get_value(this);
-	if(code != otcode)
+	if(code1 != otcode)
 		return otcode;
 	return 0;
 }
