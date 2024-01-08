@@ -24,10 +24,6 @@ typedef signed char int8;
 #define ADD_BIT(x,y) ((x)|=(y))
 #define REMOVE_BIT(x,y) ((x)&=~(y))
 
-constexpr bool match_all(uint32 x, uint32 y) {
-	return (x & y) == y;
-}
-
 #define OPERATION_SUCCESS 1
 #define OPERATION_FAIL 0
 #define OPERATION_CANCELED -1

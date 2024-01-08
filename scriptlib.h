@@ -11,6 +11,10 @@
 #include "common.h"
 #include "interpreter.h"
 
+constexpr bool match_all(uint32 x, uint32 y) {
+	return (x & y) == y;
+}
+
 class scriptlib {
 public:
 	static int32 check_param(lua_State* L, int32 param_type, int32 index, int32 retfalse = FALSE);
