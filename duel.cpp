@@ -14,7 +14,7 @@
 #include "group.h"
 #include "ocgapi.h"
 
-inline void write_buffer_vector(std::vector<byte>& buffer, const void* data, int size) {
+inline void write_buffer_vector(std::vector<byte>& buffer, const void*& data, int size) {
 	if (size > 0) {
 		const auto len = buffer.size();
 		buffer.resize(len + size);
