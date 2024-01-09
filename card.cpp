@@ -2544,7 +2544,7 @@ void card::set_special_summon_status(effect* peffect) {
 		effect_set eset;
 		pcard->filter_effect(EFFECT_ADD_SETCODE, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
-			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard));
+			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard) & 0xffff);
 		}
 		spsummon.reason_effect = peffect;
 		spsummon.reason_player = peffect->get_handler_player();
@@ -2563,7 +2563,7 @@ void card::set_special_summon_status(effect* peffect) {
 		effect_set eset;
 		pcard->filter_effect(EFFECT_ADD_SETCODE, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
-			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard));
+			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard) & 0xffff);
 		}
 		spsummon.reason_effect = cait->triggering_effect;
 		spsummon.reason_player = cait->triggering_player;

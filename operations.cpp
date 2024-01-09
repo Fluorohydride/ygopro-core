@@ -3946,7 +3946,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				effect_set eset;
 				pcard->filter_effect(EFFECT_ADD_SETCODE, &eset);
 				for(int32 i = 0; i < eset.size(); ++i) {
-					pcard->previous.setcode.push_back((uint32)eset[i]->get_value(pcard));
+					pcard->previous.setcode.push_back((uint32)eset[i]->get_value(pcard) & 0xffff);
 				}
 			}
 		}

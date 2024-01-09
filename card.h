@@ -26,7 +26,7 @@ struct chain;
 struct card_state {
 	uint32 code{ 0 };
 	uint32 code2{ 0 };
-	std::vector<uint32> setcode;
+	std::vector<uint16_t> setcode;
 	uint32 type{ 0 };
 	uint32 level{ 0 };
 	uint32 rank{ 0 };
