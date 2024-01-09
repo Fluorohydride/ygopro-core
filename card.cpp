@@ -2578,6 +2578,7 @@ void card::set_special_summon_status(effect* peffect) {
 		spsummon.defense = 0;
 		spsummon.setcode.clear();
 		spsummon.reason_effect = nullptr;
+		spsummon.reason_player = PLAYER_NONE;
 		return;
 	}
 	card* pcard = peffect->get_handler();
@@ -2600,6 +2601,7 @@ void card::set_special_summon_status(effect* peffect) {
 			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard));
 		}
 		spsummon.reason_effect = peffect;
+		spsummon.reason_player = peffect->get_handler_player();
 	} else {
 		pcard = cait->triggering_effect->get_handler();
 		spsummon.code = cait->triggering_state.code;
@@ -2618,6 +2620,7 @@ void card::set_special_summon_status(effect* peffect) {
 			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard));
 		}
 		spsummon.reason_effect = cait->triggering_effect;
+		spsummon.reason_player = cait->triggering_player;
 	}
 }
 void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {

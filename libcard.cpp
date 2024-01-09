@@ -921,6 +921,9 @@ int32 scriptlib::card_get_special_summon_info(lua_State *L) {
 			case SUMMON_INFO_REASON_EFFECT:
 				interpreter::effect2value(L, pcard->spsummon.reason_effect);
 				break;
+			case SUMMON_INFO_REASON_PLAYER:
+				lua_pushinteger(L, pcard->spsummon.reason_player);
+				break;
 			default:
 				lua_pushnil(L);
 				break;
