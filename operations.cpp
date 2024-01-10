@@ -3931,16 +3931,9 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 						pcard->previous.defense = atk_def.second;
 					}
 				} else {
-					effect_set eset;
-					pcard->filter_effect(EFFECT_ADD_CODE, &eset);
-					if(pcard->data.alias && !eset.size())
-						pcard->previous.code = pcard->data.alias;
-					else
-						pcard->previous.code = pcard->data.code;
-					if(eset.size())
-						pcard->previous.code2 = eset.get_last()->get_value(pcard);
-					else
-						pcard->previous.code2 = 0;
+					auto codes = pcard->get_original_code_rule();
+					pcard->previous.code = std::get<0>(codes);
+					pcard->previous.code2 = std::get<1>(codes);
 					pcard->previous.type = pcard->data.type;
 					pcard->previous.level = pcard->data.level;
 					pcard->previous.rank = pcard->data.level;
