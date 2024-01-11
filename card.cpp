@@ -421,7 +421,7 @@ uint32 card::get_info_location() {
 }
 // get the printed code on card
 uint32 card::get_original_code() const {
-	if (data.alias && (data.alias < data.code + CARD_ARTWORK_VERSIONS_OFFSET) && (data.code < data.alias + CARD_ARTWORK_VERSIONS_OFFSET))
+	if (data.is_alternative())
 		return data.alias;
 	else
 		return data.code;

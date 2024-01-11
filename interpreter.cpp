@@ -56,7 +56,7 @@ int32 interpreter::register_card(card *pcard) {
 	//some userdata may be created in script like token so use current_state
 	lua_rawgeti(current_state, LUA_REGISTRYINDEX, pcard->ref_handle);
 	//load script
-	if(pcard->data.alias && (pcard->data.alias < pcard->data.code + CARD_ARTWORK_VERSIONS_OFFSET) && (pcard->data.code < pcard->data.alias + CARD_ARTWORK_VERSIONS_OFFSET))
+	if(pcard->data.is_alternative())
 		load_card_script(pcard->data.alias);
 	else
 		load_card_script(pcard->data.code);

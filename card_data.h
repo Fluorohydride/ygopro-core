@@ -4,6 +4,8 @@
 #include "common.h"
 #include <vector>
 
+constexpr int CARD_ARTWORK_VERSIONS_OFFSET = 10;
+
 struct card_data {
 	uint32 code{};
 	uint32 alias{};
@@ -41,6 +43,10 @@ struct card_data {
 				return true;
 		}
 		return false;
+	}
+
+	bool is_alternative() const {
+		return alias && (alias < code + CARD_ARTWORK_VERSIONS_OFFSET) && (code < alias + CARD_ARTWORK_VERSIONS_OFFSET);
 	}
 
 	void set_setcode(uint64 value) {
