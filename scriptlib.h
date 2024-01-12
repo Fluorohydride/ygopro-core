@@ -521,9 +521,11 @@ public:
 	static int32 duel_select_matching_cards(lua_State *L);
 	static int32 duel_get_release_group(lua_State *L);
 	static int32 duel_get_release_group_count(lua_State *L);
+	static int32 _duel_check_release_group(lua_State *L, int use_hand);
 	static int32 duel_check_release_group(lua_State *L);
-	static int32 duel_select_release_group(lua_State *L);
 	static int32 duel_check_release_group_ex(lua_State *L);
+	static int32 _duel_select_release_group(lua_State *L, int use_hand);
+	static int32 duel_select_release_group(lua_State *L);
 	static int32 duel_select_release_group_ex(lua_State *L);
 	static int32 duel_get_tribute_group(lua_State *L);
 	static int32 duel_get_tribute_count(lua_State *L);
@@ -542,6 +544,7 @@ public:
 	static int32 duel_check_synchro_material(lua_State *L);
 	static int32 duel_select_tuner_material(lua_State *L);
 	static int32 duel_check_tuner_material(lua_State *L);
+	static int32 _duel_get_ritual_material(lua_State *L, uint8 no_level);
 	static int32 duel_get_ritual_material(lua_State *L);
 	static int32 duel_get_ritual_material_ex(lua_State *L);
 	static int32 duel_release_ritual_material(lua_State *L);
