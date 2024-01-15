@@ -2132,6 +2132,10 @@ int32 scriptlib::card_is_msetable(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
+	if(pcard->pduel->game_field->core.effect_damage_step) {
+		lua_pushboolean(L, FALSE);
+		return 1;
+	}
 	uint32 p = pcard->pduel->game_field->core.reason_player;
 	uint32 ign = lua_toboolean(L, 2);
 	effect* peffect = nullptr;
@@ -2174,7 +2178,7 @@ int32 scriptlib::card_is_synchro_summonable(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	if(!(pcard->data.type & TYPE_SYNCHRO)) {
+	if(!(pcard->data.type & TYPE_SYNCHRO) || pcard->pduel->game_field->core.effect_damage_step) {
 		lua_pushboolean(L, FALSE);
 		return 1;
 	}
@@ -2210,7 +2214,7 @@ int32 scriptlib::card_is_xyz_summonable(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	if(!(pcard->data.type & TYPE_XYZ)) {
+	if(!(pcard->data.type & TYPE_XYZ) || pcard->pduel->game_field->core.effect_damage_step) {
 		lua_pushboolean(L, FALSE);
 		return 1;
 	}
@@ -2238,7 +2242,7 @@ int32 scriptlib::card_is_link_summonable(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**)lua_touserdata(L, 1);
-	if(!(pcard->data.type & TYPE_LINK)) {
+	if(!(pcard->data.type & TYPE_LINK) || pcard->pduel->game_field->core.effect_damage_step) {
 		lua_pushboolean(L, FALSE);
 		return 1;
 	}
@@ -2274,6 +2278,10 @@ int32 scriptlib::card_is_can_be_summoned(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
+	if(pcard->pduel->game_field->core.effect_damage_step) {
+		lua_pushboolean(L, FALSE);
+		return 1;
+	}
 	uint32 p = pcard->pduel->game_field->core.reason_player;
 	uint32 ign = lua_toboolean(L, 2);
 	effect* peffect = nullptr;
