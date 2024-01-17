@@ -1343,12 +1343,9 @@ int32 scriptlib::duel_equip(lua_State *L) {
 int32 scriptlib::duel_equip_complete(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	field::card_set etargets;
-	field::card_set set_cards;
 	for(auto& equip_card : pduel->game_field->core.equiping_cards) {
 		if(equip_card->is_position(POS_FACEUP))
 			equip_card->enable_field_effect(true);
-		if(equip_card->is_position(POS_FACEDOWN))
-			set_cards.insert(equip_card);
 		etargets.insert(equip_card->equiping_target);
 	}
 	pduel->game_field->adjust_instant();
@@ -1356,8 +1353,7 @@ int32 scriptlib::duel_equip_complete(lua_State *L) {
 		pduel->game_field->raise_single_event(equip_target, &pduel->game_field->core.equiping_cards, EVENT_EQUIP,
 		                                      pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, PLAYER_NONE, 0);
 	pduel->game_field->raise_event(&pduel->game_field->core.equiping_cards, EVENT_EQUIP,
-									pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, PLAYER_NONE, 0);
-	pduel->game_field->raise_event(&set_cards, EVENT_SSET,	pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, 0, 0);
+	                               pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, PLAYER_NONE, 0);
 	pduel->game_field->core.hint_timing[0] |= TIMING_EQUIP;
 	pduel->game_field->core.hint_timing[1] |= TIMING_EQUIP;
 	pduel->game_field->process_single_event();
