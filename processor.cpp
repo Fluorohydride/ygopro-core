@@ -1312,6 +1312,10 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 			card* phandler = peffect->get_handler();
 			if(phandler->is_has_relation(*clit)) //work around: position and control should be refreshed before raising event
 				clit->set_triggering_state(phandler);
+			if(clit->triggering_player != phandler->current.controler && !peffect->is_flag(EFFECT_FLAG_EVENT_PLAYER)) {
+				clit->triggering_player = phandler->current.controler;
+				clit->set_triggering_state(phandler);
+			}
 			uint8 tp = clit->triggering_player;
 			if(check_trigger_effect(*clit) && peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)) {
 				if(tp == core.current_player)
@@ -1366,6 +1370,10 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				if(!phandler->is_has_relation(*clit) && peffect->is_condition_check(phandler->current.controler, clit->evt))
 					phandler->create_relation(*clit);
 				peffect->set_activate_location();
+				clit->triggering_player = phandler->current.controler;
+				clit->set_triggering_state(phandler);
+			}
+			if(clit->triggering_player != phandler->current.controler && !peffect->is_flag(EFFECT_FLAG_EVENT_PLAYER)) {
 				clit->triggering_player = phandler->current.controler;
 				clit->set_triggering_state(phandler);
 			}
