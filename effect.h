@@ -518,6 +518,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_SUMMON_NEGATED		1114
 #define EVENT_FLIP_SUMMON_NEGATED	1115
 #define EVENT_SPSUMMON_NEGATED		1116
+#define EVENT_SPSUMMON_SUCCESS_G_P	1117
 #define EVENT_CONTROL_CHANGED		1120
 #define EVENT_EQUIP					1121
 #define EVENT_ATTACK_ANNOUNCE		1130
