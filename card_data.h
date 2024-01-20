@@ -2,7 +2,6 @@
 #define CARD_DATA_H_
 
 #include "common.h"
-#include <vector>
 
 constexpr int CARD_ARTWORK_VERSIONS_OFFSET = 10;
 constexpr int SIZE_SETCODE = 16;
