@@ -371,6 +371,7 @@ public:
 	static int32 group_select(lua_State *L);
 	static int32 group_select_unselect(lua_State *L);
 	static int32 group_random_select(lua_State *L);
+	static int32 group_cancelable_select(lua_State *L);
 	static int32 group_is_exists(lua_State *L);
 	static int32 group_check_with_sum_equal(lua_State *L);
 	static int32 group_select_with_sum_equal(lua_State *L);
