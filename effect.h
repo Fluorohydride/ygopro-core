@@ -562,7 +562,13 @@ constexpr int32 HALF_DAMAGE = 0x80000001;
 #define CODE_PHASE		3	// header + phase_id (12 bits)
 #define CODE_VALUE		4	// numeric value, max = 4095
 
-const std::unordered_set<uint32> continuous_event({ EVENT_ADJUST, EVENT_BREAK_EFFECT, EVENT_TURN_END });
+const std::unordered_set<uint32> continuous_event{
+	EVENT_ADJUST,
+	EVENT_BREAK_EFFECT,
+	EVENT_TURN_END,
+	EVENT_PRE_BATTLE_DAMAGE,
+	EVENT_SPSUMMON_SUCCESS_G_P,
+};
 bool is_continuous_event(uint32 code);
 
 #endif /* EFFECT_H_ */
