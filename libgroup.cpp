@@ -374,6 +374,46 @@ int32 scriptlib::group_random_select(lua_State *L) {
 	interpreter::group2value(L, newgroup);
 	return 1;
 }
+int32 scriptlib::group_cancelable_select(lua_State *L) {
+	check_action_permission(L);
+	check_param_count(L, 5);
+	check_param(L, PARAM_TYPE_GROUP, 1);
+	group* pgroup = *(group**) lua_touserdata(L, 1);
+	field::card_set cset(pgroup->container);
+	if(check_param(L, PARAM_TYPE_CARD, 5, TRUE)) {
+		card* pexception = *(card**) lua_touserdata(L, 5);
+		cset.erase(pexception);
+	} else if(check_param(L, PARAM_TYPE_GROUP, 5, TRUE)) {
+		group* pexgroup = *(group**) lua_touserdata(L, 5);
+		for(auto& pcard : pexgroup->container)
+			cset.erase(pcard);
+	}
+	duel* pduel = pgroup->pduel;
+	uint32 playerid = (uint32)lua_tointeger(L, 2);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	uint32 min = (uint32)lua_tointeger(L, 3);
+	uint32 max = (uint32)lua_tointeger(L, 4);
+	pduel->game_field->core.select_cards.clear();
+	for (auto& pcard : cset) {
+		pduel->game_field->core.select_cards.push_back(pcard);
+	}
+	pduel->game_field->add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + 0x10000, min + (max << 16));
+	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
+		duel* pduel = (duel*)ctx;
+		if(pduel->game_field->returns.bvalue[0] == -1) {
+			lua_pushnil(L);
+		} else {
+			group* pgroup = pduel->new_group();
+			for(int32 i = 0; i < pduel->game_field->returns.bvalue[0]; ++i) {
+				card* pcard = pduel->game_field->core.select_cards[pduel->game_field->returns.bvalue[i + 1]];
+				pgroup->container.insert(pcard);
+			}
+			interpreter::group2value(L, pgroup);
+		}
+		return 1;
+	});
+}
 int32 scriptlib::group_is_exists(lua_State *L) {
 	check_param_count(L, 4);
 	check_param(L, PARAM_TYPE_GROUP, 1);
@@ -890,6 +930,7 @@ static const struct luaL_Reg grouplib[] = {
 	{ "Select", scriptlib::group_select },
 	{ "SelectUnselect", scriptlib::group_select_unselect },
 	{ "RandomSelect", scriptlib::group_random_select },
+	{ "CancelableSelect", scriptlib::group_cancelable_select },
 	{ "IsExists", scriptlib::group_is_exists },
 	{ "CheckWithSumEqual", scriptlib::group_check_with_sum_equal },
 	{ "SelectWithSumEqual", scriptlib::group_select_with_sum_equal },
