@@ -1909,7 +1909,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 			delete peset;
 			core.units.begin()->ptr2 = 0;
 		}
-		if(target->current.location == LOCATION_MZONE)
+		if (target->is_status(STATUS_SUMMON_DISABLED) && target->current.location == LOCATION_MZONE)
 			send_to(target, 0, REASON_RULE, PLAYER_NONE, sumplayer, LOCATION_GRAVE, 0, 0);
 		adjust_instant();
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
@@ -2018,7 +2018,7 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target, uint32 act
 			delete peset;
 			core.units.begin()->ptr1 = 0;
 		}
-		if(target->current.location == LOCATION_MZONE)
+		if (target->is_status(STATUS_SUMMON_DISABLED) && target->current.location == LOCATION_MZONE)
 			send_to(target, 0, REASON_RULE, PLAYER_NONE, sumplayer, LOCATION_GRAVE, 0, 0);
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
 		return TRUE;
@@ -2900,7 +2900,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			delete peset;
 			core.units.begin()->ptr1 = 0;
 		}
-		if(target->current.location == LOCATION_MZONE)
+		if (target->is_status(STATUS_SUMMON_DISABLED) && target->current.location == LOCATION_MZONE)
 			send_to(target, 0, REASON_RULE, PLAYER_NONE, sumplayer, LOCATION_GRAVE, 0, 0);
 		adjust_instant();
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
@@ -3084,7 +3084,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			card* pcard = *cit;
 			if (!pcard->is_status(STATUS_SUMMONING)) {
 				cit = pgroup->container.erase(cit);
-				if (pcard->current.location == LOCATION_MZONE)
+				if (pcard->is_status(STATUS_SUMMON_DISABLED) && pcard->current.location == LOCATION_MZONE)
 					cset.insert(pcard);
 			}
 			else
