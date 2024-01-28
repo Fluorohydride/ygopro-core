@@ -1822,27 +1822,40 @@ int32 scriptlib::duel_disable_summon(lua_State *L) {
 	} else
 		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 1);
 	uint8 sumplayer = PLAYER_NONE;
+	uint32 sumtype = 0;
+	if (pduel->game_field->check_event(EVENT_SUMMON)) {
+		if (pduel->game_field->core.is_gemini_summoning)
+			sumtype = SUMMON_TYPE_DUAL;
+		else
+			sumtype = SUMMON_TYPE_NORMAL;
+	}
+	else if (pduel->game_field->check_event(EVENT_FLIP_SUMMON))
+		sumtype = SUMMON_TYPE_FLIP;
+	else if (pduel->game_field->check_event(EVENT_SPSUMMON))
+		sumtype = SUMMON_TYPE_SPECIAL;
+	else
+		return 0;
 	if(pcard) {
 		sumplayer = pcard->summon_player;
 		pcard->set_status(STATUS_SUMMONING, FALSE);
 		pcard->set_status(STATUS_SUMMON_DISABLED, TRUE);
-		if (!match_all(pcard->summon_info, SUMMON_TYPE_FLIP) && !match_all(pcard->summon_info, SUMMON_TYPE_DUAL))
+		if (!match_all(sumtype, SUMMON_TYPE_FLIP) && !match_all(sumtype, SUMMON_TYPE_DUAL))
 			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
 	} else {
 		for(auto& pcard : pgroup->container) {
 			sumplayer = pcard->summon_player;
 			pcard->set_status(STATUS_SUMMONING, FALSE);
 			pcard->set_status(STATUS_SUMMON_DISABLED, TRUE);
-			if (!match_all(pcard->summon_info, SUMMON_TYPE_FLIP) && !match_all(pcard->summon_info, SUMMON_TYPE_DUAL))
+			if (!match_all(sumtype, SUMMON_TYPE_FLIP) && !match_all(sumtype, SUMMON_TYPE_DUAL))
 				pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
 		}
 	}
 	uint32 event_code = 0;
-	if(pduel->game_field->check_event(EVENT_SUMMON))
+	if(sumtype & SUMMON_TYPE_NORMAL)
 		event_code = EVENT_SUMMON_NEGATED;
-	else if(pduel->game_field->check_event(EVENT_FLIP_SUMMON))
+	else if(sumtype & SUMMON_TYPE_FLIP)
 		event_code = EVENT_FLIP_SUMMON_NEGATED;
-	else if(pduel->game_field->check_event(EVENT_SPSUMMON))
+	else if(sumtype & SUMMON_TYPE_SPECIAL)
 		event_code = EVENT_SPSUMMON_NEGATED;
 	effect* reason_effect = pduel->game_field->core.reason_effect;
 	uint8 reason_player = pduel->game_field->core.reason_player;
