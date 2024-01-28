@@ -3352,7 +3352,8 @@ int32 field::special_summon(uint16 step, effect* reason_effect, uint8 reason_pla
 			if(!(pcard->current.position & POS_FACEDOWN))
 				raise_single_event(pcard, 0, EVENT_SPSUMMON_SUCCESS, pcard->current.reason_effect, 0, pcard->current.reason_player, pcard->summon_player, 0);
 			int32 summontype = pcard->summon_info & (SUMMON_VALUE_MAIN_TYPE | SUMMON_VALUE_SUB_TYPE);
-			if(summontype && pcard->material_cards.size() && !pcard->is_status(STATUS_FUTURE_FUSION)) {
+			int32 custom_type = pcard->summon_info & SUMMON_VALUE_CUSTOM_TYPE;
+			if(summontype && pcard->material_cards.size() && custom_type != SUMMON_VALUE_FUTURE_FUSION) {
 				int32 matreason = 0;
 				if(summontype == SUMMON_TYPE_FUSION)
 					matreason = REASON_FUSION;
@@ -3366,7 +3367,6 @@ int32 field::special_summon(uint16 step, effect* reason_effect, uint8 reason_pla
 					raise_single_event(mcard, &targets->container, EVENT_BE_MATERIAL, pcard->current.reason_effect, matreason, pcard->current.reason_player, pcard->summon_player, 0);
 				raise_event(&(pcard->material_cards), EVENT_BE_MATERIAL, reason_effect, matreason, reason_player, pcard->summon_player, 0);
 			}
-			pcard->set_status(STATUS_FUTURE_FUSION, FALSE);
 		}
 		process_single_event();
 		process_instant_event();
