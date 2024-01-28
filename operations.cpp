@@ -1992,6 +1992,7 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target) {
 		target->previous.position = target->current.position;
 		target->current.position = POS_FACEUP_ATTACK;
 		target->summon_player = sumplayer;
+		target->summon_info |= SUMMON_TYPE_FLIP;
 		target->fieldid = infos.field_id++;
 		core.phase_action = TRUE;
 		pduel->write_buffer8(MSG_FLIPSUMMONING);
