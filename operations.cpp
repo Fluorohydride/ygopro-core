@@ -1824,6 +1824,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		target->summon_info |= SUMMON_TYPE_NORMAL;
 		target->current.reason_effect = 0;
 		target->current.reason_player = sumplayer;
+		core.is_gemini_summoning = true;
 		effect* deffect = pduel->new_effect();
 		deffect->owner = target;
 		deffect->code = EFFECT_DUAL_STATUS;
@@ -1895,6 +1896,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 			core.units.begin()->step = 14;
 			return FALSE;
 		}
+		core.is_gemini_summoning = false;
 		if(proc) {
 			remove_oath_effect(proc);
 			if(proc->is_flag(EFFECT_FLAG_COUNT_LIMIT) && (proc->count_code & EFFECT_COUNT_CODE_OATH)) {
@@ -1914,6 +1916,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		return TRUE;
 	}
 	case 15: {
+		core.is_gemini_summoning = false;
 		if(proc) {
 			release_oath_relation(proc);
 		}
