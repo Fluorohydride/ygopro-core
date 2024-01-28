@@ -1761,7 +1761,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		return FALSE;
 	}
 	case 6: {
-		target->summon_info = (proc->get_value(target) & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_LOCATION | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
+		target->summon_info = (proc->get_value(target) & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
 		target->current.reason_effect = proc;
 		target->current.reason_player = sumplayer;
 		int32 releasable = (int32)core.units.begin()->arg3;
@@ -2332,7 +2332,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 		return FALSE;
 	}
 	case 6: {
-		target->summon_info = (proc->get_value(target) & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_LOCATION | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
+		target->summon_info = (proc->get_value(target) & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
 		target->summon_player = setplayer;
 		target->current.reason_effect = proc;
 		target->current.reason_player = setplayer;
