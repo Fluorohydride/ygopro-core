@@ -1638,8 +1638,8 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 		chain newchain;
 		if(core.ignition_priority_chains.size())
 			core.select_chains.swap(core.ignition_priority_chains);
-		for(const auto* ev_list : { &core.point_event, &core.instant_event }) {
-			for(const auto& ev : *ev_list) {
+		for(const auto& ev_list : { core.point_event, core.instant_event }) {
+			for(const auto& ev : ev_list) {
 				auto pr = effects.activate_effect.equal_range(ev.event_code);
 				for(auto eit = pr.first; eit != pr.second;) {
 					effect* peffect = eit->second;
