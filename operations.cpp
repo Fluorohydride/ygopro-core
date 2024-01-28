@@ -4896,9 +4896,9 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 				pcard->set_status(STATUS_SET_TURN, TRUE);
 				pcard->enable_field_effect(false);
 				pcard->previous.location = 0;
-				pcard->summon_info &= 0xdf00ffff;
-				if((pcard->summon_info & SUMMON_TYPE_PENDULUM) == SUMMON_TYPE_PENDULUM)
-					pcard->summon_info &= 0xf000ffff;
+				pcard->summon_info &= (DEFAULT_SUMMON_TYPE & ~SUMMON_TYPE_FLIP);
+				if ((pcard->summon_info & SUMMON_TYPE_PENDULUM) == SUMMON_TYPE_PENDULUM)
+					pcard->summon_info &= (SUMMON_VALUE_MAIN_TYPE | SUMMON_VALUE_CUSTOM_TYPE);
 				pcard->spsummon_counter[0] = pcard->spsummon_counter[1] = 0;
 			}
 			if((npos & POS_FACEDOWN) && pcard->equiping_cards.size()) {
