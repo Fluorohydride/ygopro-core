@@ -3462,6 +3462,28 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 	pduel->game_field->restore_lp_cost();
 	return TRUE;
 }
+int32 card::is_summon_negatable(uint32 sumtype, effect* reason_effect) {
+	uint32 code = 0;
+	if (sumtype & SUMMON_TYPE_NORMAL)
+		code = EFFECT_CANNOT_DISABLE_SUMMON;
+	else if (sumtype & SUMMON_TYPE_FLIP)
+		code = EFFECT_CANNOT_DISABLE_FLIP_SUMMON;
+	else if (sumtype & SUMMON_TYPE_SPECIAL)
+		code = EFFECT_CANNOT_DISABLE_SPSUMMON;
+	else
+		return FALSE;
+	if (is_affected_by_effect(code))
+		return FALSE;
+	if (sumtype == SUMMON_TYPE_DUAL || sumtype & SUMMON_TYPE_FLIP) {
+		if (!is_status(STATUS_FLIP_SUMMONING))
+			return FALSE;
+		if (!is_affect_by_effect(reason_effect))
+			return FALSE;
+		if (sumtype == SUMMON_TYPE_DUAL && (!is_affected_by_effect(EFFECT_DUAL_SUMMONABLE) || is_affected_by_effect(EFFECT_DUAL_STATUS)))
+			return FALSE;
+	}
+	return TRUE;
+}
 int32 card::get_summon_tribute_count() {
 	int32 min = 0, max = 0;
 	int32 level = get_level();
