@@ -1404,7 +1404,7 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 	}
 	case 1: {
 		equip_card->equip(target);
-		if(!(equip_card->data.type & TYPE_EQUIP) && !(equip_card->get_type() & TYPE_EQUIP)) {
+		if(!(equip_card->data.type & TYPE_EQUIP)) {
 			effect* peffect = pduel->new_effect();
 			peffect->owner = equip_card;
 			peffect->handler = equip_card;
