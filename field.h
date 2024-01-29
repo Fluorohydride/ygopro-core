@@ -301,6 +301,7 @@ struct processor {
 	int32 coin_count{ 0 };
 	bool is_target_ready{ false };
 	bool is_gemini_summoning{ false };
+	bool is_summon_negated{ false };
 
 	uint8 to_bp{ FALSE };
 	uint8 to_m2{ FALSE };
