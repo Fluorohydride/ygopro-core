@@ -709,7 +709,7 @@ public:
 //
 
 //summon action type
-#define SUMMON_IN_MP	0
+#define SUMMON_IN_IDLE	0
 #define SUMMON_IN_CHAIN	1
 
 #define PROCESSOR_ADJUST			1
