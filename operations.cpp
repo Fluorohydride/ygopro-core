@@ -1954,7 +1954,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		process_single_event();
 		raise_event(target, EVENT_SUMMON_SUCCESS, proc, 0, sumplayer, sumplayer, 0);
 		process_instant_event();
-		if(!action_type) {
+		if (action_type == SUMMON_IN_MP) {
 			adjust_all();
 			core.hint_timing[sumplayer] |= TIMING_SUMMON;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
@@ -2050,7 +2050,7 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target, uint32 act
 		raise_event(target, EVENT_CHANGE_POS, 0, 0, sumplayer, sumplayer, 0);
 		process_instant_event();
 		adjust_all();
-		if(!action_type) {
+		if (action_type == SUMMON_IN_MP) {
 			core.hint_timing[sumplayer] |= TIMING_FLIPSUMMON;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
 		}
@@ -2387,7 +2387,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 		adjust_instant();
 		raise_event(target, EVENT_MSET, proc, 0, setplayer, setplayer, 0);
 		process_instant_event();
-		if(!action_type) {
+		if(action_type == SUMMON_IN_MP) {
 			adjust_all();
 			core.hint_timing[setplayer] |= TIMING_MSET;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, FALSE);
@@ -2951,7 +2951,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		process_single_event();
 		raise_event(target, EVENT_SPSUMMON_SUCCESS, proc, 0, sumplayer, sumplayer, 0);
 		process_instant_event();
-		if(!action_type) {
+		if(action_type == SUMMON_IN_MP) {
 			adjust_all();
 			core.hint_timing[sumplayer] |= TIMING_SPSUMMON;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
@@ -2959,6 +2959,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		return TRUE;
 	}
 	case 20: {
+		// EFFECT_SPSUMMON_PROC_G (Pendulum Summon)
 		effect* peffect = core.units.begin()->peffect;
 		core.units.begin()->ptarget = pduel->new_group();
 		if(peffect->operation) {
@@ -3145,7 +3146,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		process_single_event();
 		raise_event(&pgroup->container, EVENT_SPSUMMON_SUCCESS, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
 		process_instant_event();
-		if(!action_type) {
+		if(action_type == SUMMON_IN_MP) {
 			adjust_all();
 			core.hint_timing[sumplayer] |= TIMING_SPSUMMON;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
