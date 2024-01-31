@@ -756,7 +756,7 @@ public:
 #define PROCESSOR_RELEASE_REPLACE	57
 #define PROCESSOR_SENDTO_REPLACE	58
 #define PROCESSOR_SUMMON_RULE		60  //arg1: arguments, arg2: max, arg3: releasable, arg4: arguments
-#define PROCESSOR_SPSUMMON_RULE		61
+#define PROCESSOR_SPSUMMON_RULE		61  //arg1: arguments, arg2: arguments, arg3: arguments
 #define PROCESSOR_SPSUMMON			62
 #define PROCESSOR_FLIP_SUMMON		63  //arg1: arguments, arg2: arguments
 #define PROCESSOR_MSET				64  //arg1: arguments, arg2: max, arg3: arguments
