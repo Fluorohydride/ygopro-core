@@ -168,7 +168,7 @@ void field::special_summon(card_set* target, uint32 sumtype, uint32 sumplayer, u
 		pcard->temp.reason = pcard->current.reason;
 		pcard->temp.reason_effect = pcard->current.reason_effect;
 		pcard->temp.reason_player = pcard->current.reason_player;
-		pcard->summon_info = (sumtype & 0xf00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)pcard->current.location << 16);
+		pcard->summon_info = (sumtype & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_SPECIAL | ((uint32)pcard->current.location << 16);
 		pcard->summon_player = sumplayer;
 		pcard->current.reason = REASON_SPSUMMON;
 		pcard->current.reason_effect = core.reason_effect;
@@ -185,7 +185,7 @@ void field::special_summon_step(card* target, uint32 sumtype, uint32 sumplayer, 
 	target->temp.reason = target->current.reason;
 	target->temp.reason_effect = target->current.reason_effect;
 	target->temp.reason_player = target->current.reason_player;
-	target->summon_info = (sumtype & 0xf00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)target->current.location << 16);
+	target->summon_info = (sumtype & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_SPECIAL | ((uint32)target->current.location << 16);
 	target->summon_player = sumplayer;
 	target->current.reason = REASON_SPSUMMON;
 	target->current.reason_effect = core.reason_effect;
@@ -1758,7 +1758,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		return FALSE;
 	}
 	case 6: {
-		target->summon_info = (proc->get_value(target) & 0xfffffff) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
+		target->summon_info = (proc->get_value(target) & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
 		target->current.reason_effect = proc;
 		target->current.reason_player = sumplayer;
 		int32 releasable = (int32)core.units.begin()->arg3;
@@ -1989,6 +1989,7 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target, uint32 act
 		target->previous.position = target->current.position;
 		target->current.position = POS_FACEUP_ATTACK;
 		target->summon_player = sumplayer;
+		target->summon_info |= SUMMON_TYPE_FLIP;
 		target->fieldid = infos.field_id++;
 		core.phase_action = TRUE;
 		pduel->write_buffer8(MSG_FLIPSUMMONING);
@@ -2329,7 +2330,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 		return FALSE;
 	}
 	case 6: {
-		target->summon_info = (proc->get_value(target) & 0xfffffff) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
+		target->summon_info = (proc->get_value(target) & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
 		target->summon_player = setplayer;
 		target->current.reason_effect = proc;
 		target->current.reason_player = setplayer;
@@ -2818,11 +2819,11 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		std::vector<int32> retval;
 		peffect->get_value(target, 0, &retval);
 		uint32 summon_info = retval.size() > 0 ? retval[0] : 0;
-		positions = target->get_spsummonable_position(peffect, ((summon_info & 0xf00ffff) | SUMMON_TYPE_SPECIAL), positions, sumplayer, targetplayer);
+		positions = target->get_spsummonable_position(peffect, ((summon_info & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_SPECIAL), positions, sumplayer, targetplayer);
 		if(positions == 0)
 			positions = POS_FACEUP_ATTACK;
 		uint32 zone = retval.size() > 1 ? retval[1] : 0xff;
-		target->summon_info = (summon_info & 0xf00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)target->current.location << 16);
+		target->summon_info = (summon_info & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_SPECIAL | ((uint32)target->current.location << 16);
 		target->enable_field_effect(false);
 		move_to_field(target, sumplayer, targetplayer, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
 		target->current.reason = REASON_SPSUMMON;
@@ -3017,7 +3018,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		pcard->current.reason_effect = peffect;
 		pcard->current.reason_player = sumplayer;
 		pcard->summon_player = sumplayer;
-		pcard->summon_info = (peffect->get_value(pcard) & 0xff00ffff) | SUMMON_TYPE_SPECIAL | ((uint32)pcard->current.location << 16);
+		pcard->summon_info = (peffect->get_value(pcard) & DEFAULT_SUMMON_TYPE) | SUMMON_TYPE_SPECIAL | ((uint32)pcard->current.location << 16);
 		uint32 zone = 0xff;
 		uint32 flag1, flag2;
 		int32 ct1 = get_tofield_count(pcard, sumplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD, zone, &flag1);
@@ -3176,7 +3177,7 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 		}
 		if((target->current.location == LOCATION_MZONE)
 				|| !(positions & POS_FACEDOWN) && check_unique_onfield(target, playerid, LOCATION_MZONE)
-		        || !is_player_can_spsummon(core.reason_effect, target->summon_info & 0xff00ffff, positions, target->summon_player, playerid, target)
+		        || !is_player_can_spsummon(core.reason_effect, target->summon_info & DEFAULT_SUMMON_TYPE, positions, target->summon_player, playerid, target)
 		        || (!nocheck && !(target->data.type & TYPE_MONSTER))) {
 			core.units.begin()->step = 4;
 			return FALSE;
@@ -3192,7 +3193,7 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 			for(int32 i = 0; i < eset.size(); ++i) {
 				pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
 				pduel->lua->add_param(target->summon_player, PARAM_TYPE_INT);
-				pduel->lua->add_param(target->summon_info & 0xff00ffff, PARAM_TYPE_INT);
+				pduel->lua->add_param(target->summon_info & DEFAULT_SUMMON_TYPE, PARAM_TYPE_INT);
 				pduel->lua->add_param(positions, PARAM_TYPE_INT);
 				pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 				if(!eset[i]->check_value_condition(5)) {
@@ -3246,7 +3247,7 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 					zone &= flag1;
 			}
 		}
-		uint8 sumpositions = target->get_spsummonable_position(core.reason_effect, (target->summon_info & 0xff00ffff), positions, target->summon_player, playerid);
+		uint8 sumpositions = target->get_spsummonable_position(core.reason_effect, target->summon_info & DEFAULT_SUMMON_TYPE, positions, target->summon_player, playerid);
 		move_to_field(target, target->summon_player, playerid, LOCATION_MZONE, sumpositions, FALSE, 0, FALSE, zone);
 		return FALSE;
 	}
@@ -3347,7 +3348,7 @@ int32 field::special_summon(uint16 step, effect* reason_effect, uint8 reason_pla
 			pcard->set_special_summon_status(pcard->current.reason_effect);
 			if(!(pcard->current.position & POS_FACEDOWN))
 				raise_single_event(pcard, 0, EVENT_SPSUMMON_SUCCESS, pcard->current.reason_effect, 0, pcard->current.reason_player, pcard->summon_player, 0);
-			int32 summontype = pcard->summon_info & 0xff000000;
+			int32 summontype = pcard->summon_info & (SUMMON_VALUE_MAIN_TYPE | SUMMON_VALUE_SUB_TYPE);
 			if(summontype && pcard->material_cards.size() && !pcard->is_status(STATUS_FUTURE_FUSION)) {
 				int32 matreason = 0;
 				if(summontype == SUMMON_TYPE_FUSION)
@@ -4901,9 +4902,9 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 				pcard->set_status(STATUS_SET_TURN, TRUE);
 				pcard->enable_field_effect(false);
 				pcard->previous.location = 0;
-				pcard->summon_info &= 0xdf00ffff;
-				if((pcard->summon_info & SUMMON_TYPE_PENDULUM) == SUMMON_TYPE_PENDULUM)
-					pcard->summon_info &= 0xf000ffff;
+				pcard->summon_info &= (DEFAULT_SUMMON_TYPE & ~SUMMON_TYPE_FLIP);
+				if ((pcard->summon_info & SUMMON_TYPE_PENDULUM) == SUMMON_TYPE_PENDULUM)
+					pcard->summon_info &= (SUMMON_VALUE_MAIN_TYPE | SUMMON_VALUE_CUSTOM_TYPE);
 				pcard->spsummon_counter[0] = pcard->spsummon_counter[1] = 0;
 			}
 			if((npos & POS_FACEDOWN) && pcard->equiping_cards.size()) {
