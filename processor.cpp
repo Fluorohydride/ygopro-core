@@ -385,7 +385,7 @@ uint32 field::process() {
 		return pduel->message_buffer.size();
 	}
 	case PROCESSOR_FLIP_SUMMON: {
-		if (flip_summon(it->step, it->arg1, (card*)(it->ptarget), it->arg3))
+		if (flip_summon(it->step, it->arg1, (card*)(it->ptarget), it->arg2))
 			core.units.pop_front();
 		else
 			++it->step;

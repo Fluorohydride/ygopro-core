@@ -758,7 +758,7 @@ public:
 #define PROCESSOR_SUMMON_RULE		60  //arg1: arguments, arg2: max, arg3: releasable, arg4: arguments
 #define PROCESSOR_SPSUMMON_RULE		61
 #define PROCESSOR_SPSUMMON			62
-#define PROCESSOR_FLIP_SUMMON		63
+#define PROCESSOR_FLIP_SUMMON		63  //arg1: arguments, arg2: arguments
 #define PROCESSOR_MSET				64
 #define PROCESSOR_SSET				65
 #define PROCESSOR_SPSUMMON_STEP		66
