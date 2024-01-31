@@ -37,26 +37,26 @@ bool card_state::is_location(int32 loc) const {
 	return false;
 }
 void card_state::init_state() {
-	code = 0xffffffff;
-	code2 = 0xffffffff;
-	type = 0xffffffff;
-	level = 0xffffffff;
-	rank = 0xffffffff;
-	link = 0xffffffff;
-	lscale = 0xffffffff;
-	rscale = 0xffffffff;
-	attribute = 0xffffffff;
-	race = 0xffffffff;
-	attack = 0xffffffff;
-	defense = 0xffffffff;
-	base_attack = 0xffffffff;
-	base_defense = 0xffffffff;
-	controler = 0xff;
-	location = 0xff;
-	sequence = 0xff;
-	position = 0xff;
-	reason = 0xffffffff;
-	reason_player = 0xff;
+	code = UINT32_MAX;
+	code2 = UINT32_MAX;
+	type = UINT32_MAX;
+	level = UINT32_MAX;
+	rank = UINT32_MAX;
+	link = UINT32_MAX;
+	lscale = UINT32_MAX;
+	rscale = UINT32_MAX;
+	attribute = UINT32_MAX;
+	race = UINT32_MAX;
+	attack = -1;
+	defense = -1;
+	base_attack = -1;
+	base_defense = -1;
+	controler = UINT8_MAX;
+	location = UINT8_MAX;
+	sequence = UINT8_MAX;
+	position = UINT8_MAX;
+	reason = UINT32_MAX;
+	reason_player = UINT8_MAX;
 }
 void query_cache::clear_cache() {
 	info_location = UINT32_MAX;
