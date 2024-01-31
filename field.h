@@ -764,8 +764,8 @@ public:
 #define PROCESSOR_SPSUMMON_STEP		66
 #define PROCESSOR_SSET_G			67
 #define PROCESSOR_DRAW				70
-#define PROCESSOR_DAMAGE			71
-#define PROCESSOR_RECOVER			72
+#define PROCESSOR_DAMAGE			71  //arg1: arguments, arg2: arguments, arg3: arguments
+#define PROCESSOR_RECOVER			72  //arg1: arguments, arg2: arguments, arg3: arguments
 #define PROCESSOR_EQUIP				73
 #define PROCESSOR_GET_CONTROL		74
 #define PROCESSOR_SWAP_CONTROL		75
