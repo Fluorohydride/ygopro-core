@@ -485,12 +485,14 @@ int32 scriptlib::duel_setm(lua_State *L) {
 	if(lua_gettop(L) >= 6)
 		zone = (uint32)lua_tointeger(L, 6);
 	pduel->game_field->core.summon_cancelable = FALSE;
-	pduel->game_field->mset(playerid, pcard, peffect, ignore_count, min_tribute, zone);
 	if(pduel->game_field->core.current_chain.size()) {
+		pduel->game_field->mset(playerid, pcard, peffect, ignore_count, min_tribute, zone, SUMMON_IN_CHAIN);
 		pduel->game_field->core.summon_reserved = pduel->game_field->core.subunits.back();
-		pduel->game_field->core.summon_reserved.arg3 = SUMMON_IN_CHAIN;
 		pduel->game_field->core.subunits.pop_back();
 		pduel->game_field->core.summoning_card = pcard;
+	}
+	else {
+		pduel->game_field->mset(playerid, pcard, peffect, ignore_count, min_tribute, zone, SUMMON_IN_IDLE);
 	}
 	return lua_yield(L, 0);
 }
