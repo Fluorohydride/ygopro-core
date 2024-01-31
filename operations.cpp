@@ -3126,6 +3126,13 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		return FALSE;
 	}
 	case 28: {
+		group * pgroup = core.units.begin()->ptarget;
+		raise_event(&pgroup->container, EVENT_SPSUMMON_SUCCESS_G_P, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
+		process_instant_event();
+		adjust_all();
+		return FALSE;
+	}
+	case 29: {
 		group* pgroup = core.units.begin()->ptarget;
 		pduel->write_buffer8(MSG_SPSUMMONED);
 		set_spsummon_counter(sumplayer);
