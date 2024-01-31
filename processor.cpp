@@ -364,14 +364,14 @@ uint32 field::process() {
 		return pduel->message_buffer.size();
 	}
 	case PROCESSOR_SUMMON_RULE: {
-		if (summon(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff, (it->arg1 >> 24) & 0xff))
+		if (summon(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff, (it->arg1 >> 24) & 0xff, it->arg3))
 			core.units.pop_front();
 		else
 			++it->step;
 		return pduel->message_buffer.size();
 	}
 	case PROCESSOR_SPSUMMON_RULE: {
-		if (special_summon_rule(it->step, it->arg1, (card*)it->ptarget, it->arg2))
+		if (special_summon_rule(it->step, it->arg1, (card*)it->ptarget, it->arg2, it->arg3))
 			core.units.pop_front();
 		else
 			++it->step;
@@ -385,14 +385,14 @@ uint32 field::process() {
 		return pduel->message_buffer.size();
 	}
 	case PROCESSOR_FLIP_SUMMON: {
-		if (flip_summon(it->step, it->arg1, (card*)(it->ptarget)))
+		if (flip_summon(it->step, it->arg1, (card*)(it->ptarget), it->arg3))
 			core.units.pop_front();
 		else
 			++it->step;
 		return pduel->message_buffer.size();
 	}
 	case PROCESSOR_MSET: {
-		if (mset(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff, (it->arg1 >> 24) & 0xff))
+		if (mset(it->step, it->arg1 & 0xff, (card*)it->ptarget, it->peffect, (it->arg1 >> 8) & 0xff, (it->arg1 >> 16) & 0xff, (it->arg1 >> 24) & 0xff, it->arg3))
 			core.units.pop_front();
 		else
 			++it->step;
@@ -3120,7 +3120,7 @@ int32 field::process_battle_command(uint16 step) {
 		process_single_event();
 		process_instant_event();
 		if(core.effect_damage_step) {
-			core.reserved.ptr1 = core.units.begin()->ptarget;
+			core.damage_step_reserved.ptr1 = core.units.begin()->ptarget;
 			return TRUE;
 		}
 		core.units.begin()->step = 32;
@@ -3305,7 +3305,7 @@ int32 field::process_damage_step(uint16 step, uint32 new_attack) {
 		infos.phase = PHASE_DAMAGE_CAL;
 		add_process(PROCESSOR_BATTLE_COMMAND, 26, 0, 0, 0, 0);
 		core.units.begin()->step = 2;
-		core.reserved = core.units.front();
+		core.damage_step_reserved = core.units.front();
 		return TRUE;
 	}
 	case 2: {
@@ -4487,7 +4487,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 			return FALSE;
 		}
 		if(core.summoning_card)
-			core.subunits.push_back(core.reserved);
+			core.subunits.push_back(core.summon_reserved);
 		core.summoning_card = 0;
 		core.units.begin()->step = -1;
 		return FALSE;
@@ -4511,8 +4511,10 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 		core.chain_limit_p.clear();
 		core.effect_count_code_chain.clear();
 		reset_chain();
-		if(core.summoning_card || core.effect_damage_step == 1)
-			core.subunits.push_back(core.reserved);
+		if (core.summoning_card)
+			core.subunits.push_back(core.summon_reserved);
+		if (core.effect_damage_step == 1)
+			core.subunits.push_back(core.damage_step_reserved);
 		core.summoning_card = 0;
 		return FALSE;
 	}
