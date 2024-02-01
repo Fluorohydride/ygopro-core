@@ -299,12 +299,14 @@ int32 scriptlib::duel_summon(lua_State *L) {
 	if(lua_gettop(L) >= 6)
 		zone = (uint32)lua_tointeger(L, 6);
 	pduel->game_field->core.summon_cancelable = FALSE;
-	pduel->game_field->summon(playerid, pcard, peffect, ignore_count, min_tribute, zone);
 	if(pduel->game_field->core.current_chain.size()) {
+		pduel->game_field->summon(playerid, pcard, peffect, ignore_count, min_tribute, zone, SUMMON_IN_CHAIN);
 		pduel->game_field->core.summon_reserved = pduel->game_field->core.subunits.back();
-		pduel->game_field->core.summon_reserved.arg3 = SUMMON_IN_CHAIN;
 		pduel->game_field->core.subunits.pop_back();
 		pduel->game_field->core.summoning_card = pcard;
+	}
+	else {
+		pduel->game_field->summon(playerid, pcard, peffect, ignore_count, min_tribute, zone, SUMMON_IN_IDLE);
 	}
 	return lua_yield(L, 0);
 }
@@ -323,12 +325,14 @@ int32 scriptlib::duel_special_summon_rule(lua_State *L) {
 	if(lua_gettop(L) >= 3)
 		sumtype = (uint32)lua_tointeger(L, 3);
 	pduel->game_field->core.summon_cancelable = FALSE;
-	pduel->game_field->special_summon_rule(playerid, pcard, sumtype);
 	if(pduel->game_field->core.current_chain.size()) {
+		pduel->game_field->special_summon_rule(playerid, pcard, sumtype, SUMMON_IN_CHAIN);
 		pduel->game_field->core.summon_reserved = pduel->game_field->core.subunits.back();
-		pduel->game_field->core.summon_reserved.arg3 = SUMMON_IN_CHAIN;
 		pduel->game_field->core.subunits.pop_back();
 		pduel->game_field->core.summoning_card = pcard;
+	}
+	else {
+		pduel->game_field->special_summon_rule(playerid, pcard, sumtype, SUMMON_IN_IDLE);
 	}
 	return lua_yield(L, 0);
 }
@@ -368,12 +372,14 @@ int32 scriptlib::duel_synchro_summon(lua_State *L) {
 	pduel->game_field->core.limit_syn_minc = minc;
 	pduel->game_field->core.limit_syn_maxc = maxc;
 	pduel->game_field->core.summon_cancelable = FALSE;
-	pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_SYNCHRO);
 	if(pduel->game_field->core.current_chain.size()) {
+		pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_SYNCHRO, SUMMON_IN_CHAIN);
 		pduel->game_field->core.summon_reserved = pduel->game_field->core.subunits.back();
-		pduel->game_field->core.summon_reserved.arg3 = SUMMON_IN_CHAIN;
 		pduel->game_field->core.subunits.pop_back();
 		pduel->game_field->core.summoning_card = pcard;
+	}
+	else {
+		pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_SYNCHRO, SUMMON_IN_IDLE);
 	}
 	return lua_yield(L, 0);
 }
@@ -405,12 +411,14 @@ int32 scriptlib::duel_xyz_summon(lua_State *L) {
 	pduel->game_field->core.limit_xyz_minc = minc;
 	pduel->game_field->core.limit_xyz_maxc = maxc;
 	pduel->game_field->core.summon_cancelable = FALSE;
-	pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_XYZ);
 	if(pduel->game_field->core.current_chain.size()) {
+		pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_XYZ, SUMMON_IN_CHAIN);
 		pduel->game_field->core.summon_reserved = pduel->game_field->core.subunits.back();
-		pduel->game_field->core.summon_reserved.arg3 = SUMMON_IN_CHAIN;
 		pduel->game_field->core.subunits.pop_back();
 		pduel->game_field->core.summoning_card = pcard;
+	}
+	else {
+		pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_XYZ, SUMMON_IN_IDLE);
 	}
 	return lua_yield(L, 0);
 }
@@ -450,12 +458,14 @@ int32 scriptlib::duel_link_summon(lua_State *L) {
 	pduel->game_field->core.limit_link_minc = minc;
 	pduel->game_field->core.limit_link_maxc = maxc;
 	pduel->game_field->core.summon_cancelable = FALSE;
-	pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_LINK);
 	if(pduel->game_field->core.current_chain.size()) {
+		pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_LINK, SUMMON_IN_CHAIN);
 		pduel->game_field->core.summon_reserved = pduel->game_field->core.subunits.back();
-		pduel->game_field->core.summon_reserved.arg3 = SUMMON_IN_CHAIN;
 		pduel->game_field->core.subunits.pop_back();
 		pduel->game_field->core.summoning_card = pcard;
+	}
+	else {
+		pduel->game_field->special_summon_rule(playerid, pcard, SUMMON_TYPE_LINK, SUMMON_IN_IDLE);
 	}
 	return lua_yield(L, 0);
 }
@@ -483,12 +493,14 @@ int32 scriptlib::duel_setm(lua_State *L) {
 	if(lua_gettop(L) >= 6)
 		zone = (uint32)lua_tointeger(L, 6);
 	pduel->game_field->core.summon_cancelable = FALSE;
-	pduel->game_field->mset(playerid, pcard, peffect, ignore_count, min_tribute, zone);
 	if(pduel->game_field->core.current_chain.size()) {
+		pduel->game_field->mset(playerid, pcard, peffect, ignore_count, min_tribute, zone, SUMMON_IN_CHAIN);
 		pduel->game_field->core.summon_reserved = pduel->game_field->core.subunits.back();
-		pduel->game_field->core.summon_reserved.arg3 = SUMMON_IN_CHAIN;
 		pduel->game_field->core.subunits.pop_back();
 		pduel->game_field->core.summoning_card = pcard;
+	}
+	else {
+		pduel->game_field->mset(playerid, pcard, peffect, ignore_count, min_tribute, zone, SUMMON_IN_IDLE);
 	}
 	return lua_yield(L, 0);
 }
