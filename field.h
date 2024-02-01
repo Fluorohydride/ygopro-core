@@ -760,16 +760,16 @@ public:
 #define PROCESSOR_RELEASE_REPLACE	57
 #define PROCESSOR_SENDTO_REPLACE	58
 #define PROCESSOR_SUMMON_RULE		60  //arg1, arg2
-#define PROCESSOR_SPSUMMON_RULE		61  //arg1: arguments, arg2: arguments, arg3: arguments
+#define PROCESSOR_SPSUMMON_RULE		61  //arg1, arg2, arg3
 #define PROCESSOR_SPSUMMON			62
-#define PROCESSOR_FLIP_SUMMON		63  //arg1: arguments, arg2: arguments
+#define PROCESSOR_FLIP_SUMMON		63  //arg1, arg2
 #define PROCESSOR_MSET				64  //arg1, arg2
 #define PROCESSOR_SSET				65
 #define PROCESSOR_SPSUMMON_STEP		66
 #define PROCESSOR_SSET_G			67
 #define PROCESSOR_DRAW				70
-#define PROCESSOR_DAMAGE			71  //arg1: arguments, arg2: arguments, arg3: arguments
-#define PROCESSOR_RECOVER			72  //arg1: arguments, arg2: arguments, arg3: arguments
+#define PROCESSOR_DAMAGE			71  //arg1, arg2, arg3
+#define PROCESSOR_RECOVER			72  //arg1, arg2, arg3
 #define PROCESSOR_EQUIP				73
 #define PROCESSOR_GET_CONTROL		74
 #define PROCESSOR_SWAP_CONTROL		75
