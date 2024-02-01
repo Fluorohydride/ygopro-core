@@ -1094,7 +1094,7 @@ int32 field::swap_control(uint16 step, effect* reason_effect, uint8 reason_playe
 			core.units.begin()->step = 3;
 			return FALSE;
 		}
-		core.units.begin()->arg4 = returns.bvalue[2];
+		core.units.begin()->value1 = returns.bvalue[2];
 		card* pcard1 = *targets1->it;
 		card* pcard2 = *targets2->it;
 		uint8 p2 = pcard2->current.controler;
@@ -1119,7 +1119,7 @@ int32 field::swap_control(uint16 step, effect* reason_effect, uint8 reason_playe
 		card* pcard1 = *targets1->it;
 		card* pcard2 = *targets2->it;
 		uint8 p1 = pcard1->current.controler, p2 = pcard2->current.controler;
-		uint8 new_s1 = (uint8)core.units.begin()->arg4, new_s2 = returns.bvalue[2];
+		uint8 new_s1 = (uint8)core.units.begin()->value1, new_s2 = returns.bvalue[2];
 		swap_card(pcard1, pcard2, new_s1, new_s2);
 		pcard1->reset(RESET_CONTROL, RESET_EVENT);
 		pcard2->reset(RESET_CONTROL, RESET_EVENT);
