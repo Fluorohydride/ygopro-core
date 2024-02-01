@@ -5767,7 +5767,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		}
 		if(acc)
 			return FALSE;
-		core.units.begin()->arg3 = selectable;
+		core.units.begin()->value1 = selectable;
 		core.units.begin()->step = 19;
 		return FALSE;
 	}
@@ -6005,7 +6005,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		int32 pv = 0;
 		card* pcard = core.select_cards[returns.bvalue[1]];
 		core.operated_set.insert(pcard);
-		int32 selectable = core.units.begin()->arg3 & pcard->sum_param;
+		int32 selectable = core.units.begin()->value1 & pcard->sum_param;
 		for(auto iter = core.xmaterial_lst.begin(); iter != core.xmaterial_lst.end();) {
 			if(iter->second == pcard) {
 				pv = iter->first;
@@ -6026,7 +6026,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 		if(pv - (int32)core.operated_set.size() > min)
 			min = pv - (int32)core.operated_set.size();
 		core.units.begin()->arg2 = min + (max << 16);
-		core.units.begin()->arg3 = selectable;
+		core.units.begin()->value1 = selectable;
 		if(min == 0) {
 			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, playerid, 93);
 			return FALSE;
