@@ -4791,7 +4791,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 	case 1: {
 		card_set* to_grave_set = (card_set*)core.units.begin()->ptr1;
 		uint8 playerid = reason_player;
-		if(core.units.begin()->arg3)
+		if(core.units.begin()->value1)
 			playerid = 1 - reason_player;
 		card_set ssets;
 		for(auto& pcard : targets->container) {
@@ -4838,8 +4838,8 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 		return FALSE;
 	}
 	case 3: {
-		if(!core.units.begin()->arg3) {
-			core.units.begin()->arg3 = 1;
+		if(!core.units.begin()->value1) {
+			core.units.begin()->value1 = 1;
 			core.units.begin()->step = 0;
 		}
 		return FALSE;
