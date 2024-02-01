@@ -6489,13 +6489,13 @@ int32 field::rock_paper_scissors(uint16 step, uint8 repeat) {
 		return FALSE;
 	}
 	case 1: {
-		core.units.begin()->arg2 = returns.ivalue[0];
+		core.units.begin()->value1 = returns.ivalue[0];
 		pduel->write_buffer8(MSG_ROCK_PAPER_SCISSORS);
 		pduel->write_buffer8(1);
 		return FALSE;
 	}
 	case 2: {
-		int32 hand0 = (int32)core.units.begin()->arg2;
+		int32 hand0 = core.units.begin()->value1;
 		int32 hand1 = returns.ivalue[0];
 		pduel->write_buffer8(MSG_HAND_RES);
 		pduel->write_buffer8(hand0 + (hand1 << 2));
