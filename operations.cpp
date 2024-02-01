@@ -839,7 +839,7 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 				cancelable = TRUE;
 				min = 0;
 			}
-			core.units.begin()->arg4 = replace_count;
+			core.units.begin()->value1 = replace_count;
 		}
 		core.select_cards.clear();
 		if(pcard) {
@@ -866,7 +866,7 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 		return FALSE;
 	}
 	case 4: {
-		returns.ivalue[0] += (int32)core.units.begin()->arg4;
+		returns.ivalue[0] += core.units.begin()->value1;
 		return TRUE;
 	}
 	}
