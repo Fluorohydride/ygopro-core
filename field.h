@@ -144,10 +144,10 @@ struct processor_unit {
 	uint16 step{ 0 };
 	effect* peffect{ nullptr };
 	group* ptarget{ nullptr };
-	int32 arg1{ 0 };
-	int32 arg2{ 0 };
-	int32 arg3{ 0 };
-	int32 arg4{ 0 };
+	uint32 arg1{ 0 };
+	uint32 arg2{ 0 };
+	uint32 arg3{ 0 };
+	uint32 arg4{ 0 };
 	void* ptr1{ nullptr };
 	void* ptr2{ nullptr };
 	int32 value1{ 0 };
