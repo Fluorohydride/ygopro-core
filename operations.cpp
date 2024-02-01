@@ -1301,7 +1301,7 @@ int32 field::trap_monster_adjust(uint16 step) {
 	case 1: {
 		card_set* to_grave_set = (card_set*)core.units.begin()->ptr1;
 		uint8 check_player = infos.turn_player;
-		if(core.units.begin()->arg1)
+		if(core.units.begin()->value1)
 			check_player = 1 - infos.turn_player;
 		refresh_location_info_instant();
 		int32 fcount = get_useable_count(NULL, check_player, LOCATION_SZONE, check_player, 0);
@@ -1328,7 +1328,7 @@ int32 field::trap_monster_adjust(uint16 step) {
 	case 2: {
 		card_set* to_grave_set = (card_set*)core.units.begin()->ptr1;
 		uint8 check_player = infos.turn_player;
-		if(core.units.begin()->arg1)
+		if(core.units.begin()->value1)
 			check_player = 1 - infos.turn_player;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
@@ -1337,8 +1337,8 @@ int32 field::trap_monster_adjust(uint16 step) {
 		}
 	}
 	case 3: {
-		if(!core.units.begin()->arg1) {
-			core.units.begin()->arg1 = 1;
+		if(!core.units.begin()->value1) {
+			core.units.begin()->value1 = 1;
 			core.units.begin()->step = 0;
 		}
 		return FALSE;
