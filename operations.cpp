@@ -153,7 +153,7 @@ void field::recover(effect* reason_effect, uint32 reason, uint32 reason_player, 
 	add_process(PROCESSOR_RECOVER, 0, reason_effect, 0, reason, (is_step << 4) + (reason_player << 2) + (playerid), amount);
 }
 void field::summon(uint32 sumplayer, card* target, effect* proc, uint32 ignore_count, uint32 min_tribute, uint32 zone, uint32 action_type) {
-	add_process(PROCESSOR_SUMMON_RULE, 0, proc, (group*)target, sumplayer + (ignore_count << 8) + (min_tribute << 16) + (zone << 24), 0, 0, action_type);
+	add_process(PROCESSOR_SUMMON_RULE, 0, proc, (group*)target, sumplayer + (ignore_count << 8) + (min_tribute << 16) + (zone << 24), action_type);
 }
 void field::mset(uint32 setplayer, card* target, effect* proc, uint32 ignore_count, uint32 min_tribute, uint32 zone, uint32 action_type) {
 	add_process(PROCESSOR_MSET, 0, proc, (group*)target, setplayer + (ignore_count << 8) + (min_tribute << 16) + (zone << 24), 0, action_type);
@@ -1579,7 +1579,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 				min_tribute = new_min_tribute;
 			zone &= new_zone;
 			core.units.begin()->arg1 = sumplayer + (ignore_count << 8) + (min_tribute << 16) + (zone << 24);
-			core.units.begin()->arg3 = releasable;
+			core.units.begin()->value1 = releasable;
 		}
 		if(proc) {
 			core.units.begin()->step = 3;
@@ -1609,7 +1609,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 				int32 fcount = get_mzone_limit(sumplayer, sumplayer, LOCATION_REASON_TOFIELD);
 				if(min == 0 && ct > 0 && fcount > 0) {
 					add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, sumplayer, 90);
-					core.units.begin()->arg2 = max;
+					core.units.begin()->value2 = max;
 				} else {
 					if(min < -fcount + 1) {
 						min = -fcount + 1;
@@ -1625,7 +1625,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		if(returns.ivalue[0])
 			returns.bvalue[0] = 0;
 		else {
-			int32 max = (int32)core.units.begin()->arg2;
+			int32 max = core.units.begin()->value2;
 			select_tribute_cards(target, sumplayer, core.summon_cancelable, 1, max, sumplayer, zone);
 		}
 		return FALSE;
@@ -1761,7 +1761,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		target->summon_info = (proc->get_value(target) & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_NORMAL | (LOCATION_HAND << 16);
 		target->current.reason_effect = proc;
 		target->current.reason_player = sumplayer;
-		int32 releasable = (int32)core.units.begin()->arg3;
+		int32 releasable = core.units.begin()->value1;
 		if(proc->operation) {
 			pduel->lua->add_param(target, PARAM_TYPE_CARD);
 			pduel->lua->add_param(min_tribute, PARAM_TYPE_INT);

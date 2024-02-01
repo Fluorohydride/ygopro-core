@@ -150,6 +150,10 @@ struct processor_unit {
 	int32 arg4{ 0 };
 	void* ptr1{ nullptr };
 	void* ptr2{ nullptr };
+	int32 value1{ 0 };
+	int32 value2{ 0 };
+	int32 value3{ 0 };
+	int32 value4{ 0 };
 };
 union return_value {
 	int8 bvalue[64];
@@ -755,7 +759,7 @@ public:
 #define PROCESSOR_DESTROY_REPLACE	56
 #define PROCESSOR_RELEASE_REPLACE	57
 #define PROCESSOR_SENDTO_REPLACE	58
-#define PROCESSOR_SUMMON_RULE		60  //arg1: arguments, arg2: max, arg3: releasable, arg4: arguments
+#define PROCESSOR_SUMMON_RULE		60  //arg1, arg2
 #define PROCESSOR_SPSUMMON_RULE		61  //arg1: arguments, arg2: arguments, arg3: arguments
 #define PROCESSOR_SPSUMMON			62
 #define PROCESSOR_FLIP_SUMMON		63  //arg1: arguments, arg2: arguments
