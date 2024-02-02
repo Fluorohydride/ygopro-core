@@ -2668,6 +2668,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uint32 summon_type, uint32 action_type) {
 	switch(step) {
 	case 0: {
+		core.summon_action_type = action_type;
 		effect_set eset;
 		material_info info;
 		info.limit_tuner = core.limit_tuner;
@@ -2683,8 +2684,10 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		info.limit_link_maxc = core.limit_link_maxc;
 		target->filter_spsummon_procedure(sumplayer, &eset, summon_type, info);
 		target->filter_spsummon_procedure_g(sumplayer, &eset);
-		if(!eset.size())
+		if(!eset.size()) {
+			core.summon_action_type = SUMMON_IN_IDLE;
 			return TRUE;
+		}
 		core.select_effects.clear();
 		core.select_options.clear();
 		for(int32 i = 0; i < eset.size(); ++i) {
@@ -2734,8 +2737,10 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		return FALSE;
 	}
 	case 2: {
-		if(!returns.ivalue[0])
+		if(!returns.ivalue[0]) {
+			core.summon_action_type = SUMMON_IN_IDLE;
 			return TRUE;
+		}
 		effect_set eset;
 		target->filter_effect(EFFECT_SPSUMMON_COST, &eset);
 		if(eset.size()) {
@@ -2954,6 +2959,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			core.hint_timing[sumplayer] |= TIMING_SPSUMMON;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
 		}
+		core.summon_action_type = SUMMON_IN_IDLE;
 		return TRUE;
 	}
 	case 20: {
@@ -2999,8 +3005,10 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 	}
 	case 22: {
 		group* pgroup = core.units.begin()->ptarget;
-		if(pgroup->container.size() == 0)
+		if(pgroup->container.size() == 0) {
+			core.summon_action_type = SUMMON_IN_IDLE;
 			return TRUE;
+		}
 		core.phase_action = TRUE;
 		pgroup->it = pgroup->container.begin();
 		return FALSE;
@@ -3104,6 +3112,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 				core.units.begin()->ptr1 = 0;
 			}
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
+			core.summon_action_type = SUMMON_IN_IDLE;
 			return TRUE;
 		}
 		return FALSE;
@@ -3156,6 +3165,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			core.hint_timing[sumplayer] |= TIMING_SPSUMMON;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
 		}
+		core.summon_action_type = SUMMON_IN_IDLE;
 		return TRUE;
 	}
 	}

@@ -304,6 +304,7 @@ struct processor {
 	uint8 coin_result[MAX_COIN_COUNT]{};
 	int32 coin_count{ 0 };
 	bool is_target_ready{ false };
+	uint32 summon_action_type{ SUMMON_IN_IDLE };
 
 	uint8 to_bp{ FALSE };
 	uint8 to_m2{ FALSE };

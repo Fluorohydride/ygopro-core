@@ -3630,6 +3630,14 @@ int32 scriptlib::duel_remove_overlay_card(lua_State *L) {
 		return 1;
 	});
 }
+int32 scriptlib::duel_is_summon_in_chain(lua_State *L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	if(pduel->game_field->core.summon_action_type == SUMMON_IN_CHAIN)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
 int32 scriptlib::duel_hint(lua_State * L) {
 	check_param_count(L, 3);
 	int32 htype = (int32)lua_tointeger(L, 1);
@@ -4893,6 +4901,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetOverlayCount", scriptlib::duel_get_overlay_count },
 	{ "CheckRemoveOverlayCard", scriptlib::duel_check_remove_overlay_card },
 	{ "RemoveOverlayCard", scriptlib::duel_remove_overlay_card },
+	{ "IsSummonInChain", scriptlib::duel_is_summon_in_chain },
 	{ "Hint", scriptlib::duel_hint },
 	{ "HintSelection", scriptlib::duel_hint_selection },
 	{ "SelectEffectYesNo", scriptlib::duel_select_effect_yesno },
