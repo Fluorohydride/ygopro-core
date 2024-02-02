@@ -293,7 +293,7 @@ struct processor {
 	int32 battle_damage[2]{};
 	int32 summon_count[2]{};
 	uint8 extra_summon[2]{};
-	uint8 extra_pendulum_summon[2]{};
+	uint8 default_pendulum_summon[2]{};
 	int32 spe_effect[2]{};
 	int32 duel_options{ 0 };
 	int32 duel_rule{ CURRENT_RULE };	//current rule: 5, Master Rule 2020
