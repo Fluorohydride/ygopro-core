@@ -3649,6 +3649,16 @@ int32 scriptlib::duel_remove_overlay_card(lua_State *L) {
 		return 1;
 	});
 }
+int32 scriptlib::duel_set_additional_pendulum_summon(lua_State *L) {
+	check_action_permission(L);
+	check_param_count(L, 1);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	pduel->game_field->core.extra_pendulum_summon[playerid] = TRUE;
+	return 0;
+}
 int32 scriptlib::duel_is_summon_in_chain(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	if(pduel->game_field->core.summon_action_type == SUMMON_IN_CHAIN)
@@ -4500,6 +4510,20 @@ int32 scriptlib::duel_is_player_can_additional_summon(lua_State * L) {
 		lua_pushboolean(L, 0);
 	return 1;
 }
+int32 scriptlib::duel_is_player_can_additional_pendulum_summon(lua_State * L) {
+	check_param_count(L, 1);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1) {
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+	duel* pduel = interpreter::get_duel_info(L);
+	if(pduel->game_field->core.extra_pendulum_summon[playerid] == 0)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
 int32 scriptlib::duel_is_chain_negatable(lua_State * L) {
 	check_param_count(L, 1);
 	lua_pushboolean(L, 1);
@@ -4937,6 +4961,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetOverlayCount", scriptlib::duel_get_overlay_count },
 	{ "CheckRemoveOverlayCard", scriptlib::duel_check_remove_overlay_card },
 	{ "RemoveOverlayCard", scriptlib::duel_remove_overlay_card },
+	{ "SetAdditionalPendulumSummon", scriptlib::duel_set_additional_pendulum_summon },
 	{ "IsSummonInChain", scriptlib::duel_is_summon_in_chain },
 	{ "Hint", scriptlib::duel_hint },
 	{ "HintSelection", scriptlib::duel_hint_selection },
@@ -4979,6 +5004,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsPlayerCanSendtoGrave", scriptlib::duel_is_player_can_send_to_grave },
 	{ "IsPlayerCanSendtoDeck", scriptlib::duel_is_player_can_send_to_deck },
 	{ "IsPlayerCanAdditionalSummon", scriptlib::duel_is_player_can_additional_summon },
+	{ "IsPlayerCanAdditionalPendulumSummon", scriptlib::duel_is_player_can_additional_pendulum_summon },
 	{ "IsChainNegatable", scriptlib::duel_is_chain_negatable },
 	{ "IsChainDisablable", scriptlib::duel_is_chain_disablable },
 	{ "IsChainDisabled", scriptlib::duel_is_chain_disabled },
