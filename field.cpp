@@ -3271,6 +3271,14 @@ int32 field::is_player_can_spsummon_count(uint8 playerid, uint32 count) {
 	}
 	return check_spsummon_counter(playerid, count);
 }
+int32 field::is_player_can_pendulum_summon(uint8 playerid, group* mg) {
+	for(uint8 p = 0; p < 2; ++p) {
+		for(auto& pcard : player[p].list_szone)
+			if(pcard && pcard->current.pzone && pcard->is_pendulum_summon(playerid, mg))
+				return TRUE;
+	}
+	return FALSE;
+}
 int32 field::is_player_can_place_counter(uint8 playerid, card * pcard, uint16 countertype, uint16 count) {
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_CANNOT_PLACE_COUNTER, &eset);

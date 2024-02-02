@@ -285,6 +285,7 @@ struct processor {
 	card* limit_link_card{ nullptr };
 	int32 limit_link_minc{ 0 };
 	int32 limit_link_maxc{ 0 };
+	group* limit_pendulum{ nullptr };
 	uint8 not_material{ FALSE };
 	uint8 attack_cancelable{ FALSE };
 	uint8 attack_rollback{ FALSE };
@@ -485,6 +486,7 @@ public:
 	int32 is_player_can_flipsummon(uint8 playerid, card* pcard);
 	int32 is_player_can_spsummon_monster(uint8 playerid, uint8 toplayer, uint8 sumpos, uint32 sumtype, card_data* pdata);
 	int32 is_player_can_spsummon_count(uint8 playerid, uint32 count);
+	int32 is_player_can_pendulum_summon(uint8 playerid, group* mg);
 	int32 is_player_can_release(uint8 playerid, card* pcard, uint32 reason);
 	int32 is_player_can_place_counter(uint8 playerid, card* pcard, uint16 countertype, uint16 count);
 	int32 is_player_can_remove_counter(uint8 playerid, card* pcard, uint8 s, uint8 o, uint16 countertype, uint16 count, uint32 reason);
@@ -595,6 +597,7 @@ public:
 	int32 sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget, uint8 confirm, effect* reason_effect);
 	int32 special_summon_step(uint16 step, group* targets, card* target, uint32 zone);
 	int32 special_summon(uint16 step, effect* reason_effect, uint8 reason_player, group* targets, uint32 zone);
+	int32 pendulum_summon(uint16 step, uint8 playerid, group* mg);
 	int32 destroy_replace(uint16 step, group* targets, card* target, uint8 battle);
 	int32 destroy(uint16 step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player);
 	int32 release_replace(uint16 step, group* targets, card* target);
@@ -764,6 +767,7 @@ public:
 #define PROCESSOR_SSET				65
 #define PROCESSOR_SPSUMMON_STEP		66
 #define PROCESSOR_SSET_G			67
+#define PROCESSOR_PENDULUM_SUMMON	68
 #define PROCESSOR_DRAW				70
 #define PROCESSOR_DAMAGE			71  //arg1: arguments, arg2: arguments, arg3: arguments
 #define PROCESSOR_RECOVER			72  //arg1: arguments, arg2: arguments, arg3: arguments

@@ -419,6 +419,13 @@ uint32 field::process() {
 			++it->step;
 		return pduel->message_buffer.size();
 	}
+	case PROCESSOR_PENDULUM_SUMMON: {
+		if (pendulum_summon(it->step, it->arg1, it->ptarget)) {
+			core.units.pop_front();
+		} else
+			++it->step;
+		return pduel->message_buffer.size();
+	}
 	case PROCESSOR_DRAW	: {
 		if (draw(it->step, it->peffect, it->arg1, (it->arg2 >> 4) & 0xf, (it->arg2) & 0xf, it->arg3))
 			core.units.pop_front();
