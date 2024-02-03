@@ -3649,7 +3649,7 @@ int32 scriptlib::duel_remove_overlay_card(lua_State *L) {
 		return 1;
 	});
 }
-int32 scriptlib::duel_default_pendulum_summoned(lua_State *L) {
+int32 scriptlib::duel_use_default_pendulum_summon(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 1);
 	int32 playerid = (int32)lua_tointeger(L, 1);
@@ -4961,7 +4961,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetOverlayCount", scriptlib::duel_get_overlay_count },
 	{ "CheckRemoveOverlayCard", scriptlib::duel_check_remove_overlay_card },
 	{ "RemoveOverlayCard", scriptlib::duel_remove_overlay_card },
-	{ "DefaultPendulumSummoned", scriptlib::duel_default_pendulum_summoned },
+	{ "UseDefaultPendulumSummon", scriptlib::duel_use_default_pendulum_summon },
 	{ "IsSummonInChain", scriptlib::duel_is_summon_in_chain },
 	{ "Hint", scriptlib::duel_hint },
 	{ "HintSelection", scriptlib::duel_hint_selection },
