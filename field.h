@@ -144,12 +144,16 @@ struct processor_unit {
 	uint16 step{ 0 };
 	effect* peffect{ nullptr };
 	group* ptarget{ nullptr };
-	int32 arg1{ 0 };
-	int32 arg2{ 0 };
-	int32 arg3{ 0 };
-	int32 arg4{ 0 };
+	uint32 arg1{ 0 };
+	uint32 arg2{ 0 };
+	uint32 arg3{ 0 };
+	uint32 arg4{ 0 };
 	void* ptr1{ nullptr };
 	void* ptr2{ nullptr };
+	int32 value1{ 0 };
+	int32 value2{ 0 };
+	int32 value3{ 0 };
+	int32 value4{ 0 };
 };
 union return_value {
 	int8 bvalue[64];
@@ -755,17 +759,17 @@ public:
 #define PROCESSOR_DESTROY_REPLACE	56
 #define PROCESSOR_RELEASE_REPLACE	57
 #define PROCESSOR_SENDTO_REPLACE	58
-#define PROCESSOR_SUMMON_RULE		60  //arg1: arguments, arg2: max, arg3: releasable, arg4: arguments
-#define PROCESSOR_SPSUMMON_RULE		61  //arg1: arguments, arg2: arguments, arg3: arguments
+#define PROCESSOR_SUMMON_RULE		60  //arg1, arg2
+#define PROCESSOR_SPSUMMON_RULE		61  //arg1, arg2, arg3
 #define PROCESSOR_SPSUMMON			62
-#define PROCESSOR_FLIP_SUMMON		63  //arg1: arguments, arg2: arguments
-#define PROCESSOR_MSET				64  //arg1: arguments, arg2: max, arg3: arguments
+#define PROCESSOR_FLIP_SUMMON		63  //arg1, arg2
+#define PROCESSOR_MSET				64  //arg1, arg2
 #define PROCESSOR_SSET				65
 #define PROCESSOR_SPSUMMON_STEP		66
 #define PROCESSOR_SSET_G			67
 #define PROCESSOR_DRAW				70
-#define PROCESSOR_DAMAGE			71  //arg1: arguments, arg2: arguments, arg3: arguments
-#define PROCESSOR_RECOVER			72  //arg1: arguments, arg2: arguments, arg3: arguments
+#define PROCESSOR_DAMAGE			71  //arg1, arg2, arg3
+#define PROCESSOR_RECOVER			72  //arg1, arg2, arg3
 #define PROCESSOR_EQUIP				73
 #define PROCESSOR_GET_CONTROL		74
 #define PROCESSOR_SWAP_CONTROL		75
