@@ -3908,8 +3908,8 @@ int32 card::is_capable_send_to_hand(uint8 playerid) {
 		return FALSE;
 	return TRUE;
 }
-int32 card::is_capable_send_to_deck(uint8 playerid) {
-	if(is_status(STATUS_LEAVE_CONFIRMED))
+int32 card::is_capable_send_to_deck(uint8 playerid, uint8 send_activating) {
+	if(!send_activating && is_status(STATUS_LEAVE_CONFIRMED))
 		return FALSE;
 	if((current.location == LOCATION_EXTRA) && is_extra_deck_monster())
 		return FALSE;

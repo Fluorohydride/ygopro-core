@@ -308,7 +308,7 @@ uint32 field::process() {
 		return pduel->message_buffer.size();
 	}
 	case PROCESSOR_SENDTO: {
-		if (send_to(it->step, it->ptarget, it->peffect, it->arg1, it->arg2))
+		if (send_to(it->step, it->ptarget, it->peffect, it->arg1, it->arg2, it->arg3))
 			core.units.pop_front();
 		else
 			++it->step;
