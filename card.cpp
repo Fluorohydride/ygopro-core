@@ -681,6 +681,8 @@ uint32 card::get_type() {
 		temp.type = type;
 	}
 	temp.type = 0xffffffff;
+	if (data.type & TYPE_TOKEN)
+		type |= TYPE_TOKEN;
 	return type;
 }
 uint32 card::get_fusion_type() {

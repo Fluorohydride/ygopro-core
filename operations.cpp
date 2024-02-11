@@ -1412,10 +1412,7 @@ int32 field::equip(uint16 step, uint8 equip_player, card * equip_card, card * ta
 			peffect->owner = equip_card;
 			peffect->handler = equip_card;
 			peffect->type = EFFECT_TYPE_SINGLE;
-			if (equip_card_type & TYPE_TOKEN) {
-				peffect->code = EFFECT_CHANGE_TYPE;
-				peffect->value = TYPE_EQUIP + TYPE_SPELL + TYPE_TOKEN;
-			} else if (equip_card_type & TYPE_TRAP) {
+			if (equip_card_type & TYPE_TRAP) {
 				peffect->code = EFFECT_ADD_TYPE;
 				peffect->value = TYPE_EQUIP;
 			} else {
