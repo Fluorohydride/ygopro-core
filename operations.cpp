@@ -3903,7 +3903,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 	}
 	case 1: {
 		for(auto& pcard : targets->container) {
-			add_process(PROCESSOR_SENDTO_REPLACE, 0, NULL, targets, 0, 0, 0, 0, pcard);
+			add_process(PROCESSOR_SENDTO_REPLACE, 0, nullptr, targets, 0, 0, 0, 0, pcard);
 		}
 		return FALSE;
 	}
@@ -4806,7 +4806,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 		}
 		if(ssets.size()) {
 			refresh_location_info_instant();
-			int32 fcount = get_useable_count(NULL, playerid, LOCATION_SZONE, playerid, 0);
+			int32 fcount = get_useable_count(nullptr, playerid, LOCATION_SZONE, playerid, 0);
 			if(fcount <= 0) {
 				for(auto& pcard : ssets) {
 					to_grave_set->insert(pcard);
