@@ -4324,7 +4324,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				tograve.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_TO_GRAVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
-			if(nloc == LOCATION_REMOVED || ((pcard->data.type & TYPE_TOKEN) && pcard->sendto_param.location == LOCATION_REMOVED)) {
+			if(nloc == LOCATION_REMOVED) {
 				remove.insert(pcard);
 				raise_single_event(pcard, 0, EVENT_REMOVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
