@@ -3091,7 +3091,7 @@ int32 field::process_battle_command(uint16 step) {
 		if(core.battle_destroy_rep.size())
 			destroy(&core.battle_destroy_rep, 0, REASON_EFFECT | REASON_REPLACE, PLAYER_NONE);
 		if(core.desrep_chain.size())
-			add_process(PROCESSOR_OPERATION_REPLACE, 15, NULL, NULL, 0, 0);
+			add_process(PROCESSOR_OPERATION_REPLACE, 15, nullptr, nullptr, 0, 0);
 		adjust_all();
 		return FALSE;
 	}
