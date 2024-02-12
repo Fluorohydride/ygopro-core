@@ -438,7 +438,7 @@ int32 scriptlib::duel_pendulum_summon(lua_State *L) {
 		pendulum_group = pduel->new_group(pgroup->container);
 		pendulum_group->is_readonly = 1;
 	}
-	pduel->game_field->add_process(PROCESSOR_PENDULUM_SUMMON, 0, NULL, pendulum_group, playerid, 0);
+	pduel->game_field->add_process(PROCESSOR_PENDULUM_SUMMON, 0, nullptr, pendulum_group, playerid, 0);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_link_summon(lua_State *L) {
