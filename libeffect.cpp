@@ -458,13 +458,16 @@ int32 scriptlib::effect_get_active_code(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	lua_pushinteger(L, peffect->get_active_code());
-	uint32 otcode = peffect->get_active_code(TRUE);
-	if(otcode) {
-		lua_pushinteger(L, otcode);
+	uint32 code1 = peffect->get_active_code();
+	uint32 code2 = peffect->get_active_code(true);
+	if (code2) {
+		lua_pushinteger(L, code1);
+		lua_pushinteger(L, code2);
 		return 2;
+	} else {
+		lua_pushinteger(L, code1);
+		return 1;
 	}
-	return 1;
 }
 int32 scriptlib::effect_is_active_type(lua_State *L) {
 	check_param_count(L, 2);
@@ -482,7 +485,7 @@ int32 scriptlib::effect_is_active_code(lua_State *L) {
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	uint32 code1 = peffect->get_active_code();
-	uint32 code2 = peffect->get_active_code(TRUE);
+	uint32 code2 = peffect->get_active_code(true);
 	uint32 count = lua_gettop(L) - 1;
 	uint32 result = FALSE;
 	for(uint32 i = 0; i < count; ++i) {
