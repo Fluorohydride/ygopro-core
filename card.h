@@ -26,7 +26,7 @@ struct chain;
 struct card_state {
 	uint32 code{ 0 };
 	uint32 code2{ 0 };
-	std::vector<uint32> setcode;
+	std::vector<uint16_t> setcode;
 	uint32 type{ 0 };
 	uint32 level{ 0 };
 	uint32 rank{ 0 };
@@ -218,6 +218,7 @@ public:
 	std::tuple<uint32, uint32> get_original_code_rule() const;
 	uint32 get_code();
 	uint32 get_another_code();
+	static bool check_card_setcode(uint32 code, uint32 value);
 	int32 is_set_card(uint32 set_code);
 	int32 is_origin_set_card(uint32 set_code);
 	int32 is_pre_set_card(uint32 set_code);
@@ -433,7 +434,5 @@ constexpr uint32 DEFAULT_SUMMON_TYPE = SUMMON_VALUE_MAIN_TYPE | SUMMON_VALUE_SUB
 #define SUMMON_INFO_DEFENSE			0x100
 #define SUMMON_INFO_REASON_EFFECT	0x200
 #define SUMMON_INFO_REASON_PLAYER	0x400
-
-#define CARD_ARTWORK_VERSIONS_OFFSET	10
 
 #endif /* CARD_H_ */

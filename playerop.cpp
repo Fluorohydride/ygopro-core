@@ -920,15 +920,7 @@ static int32 is_declarable(card_data const& cd, const std::vector<uint32>& opcod
 			if(stack.size() >= 1) {
 				int32 set_code = stack.top();
 				stack.pop();
-				uint64 sc = cd.setcode;
-				bool res = false;
-				uint32 settype = set_code & 0xfff;
-				uint32 setsubtype = set_code & 0xf000;
-				while(sc) {
-					if((sc & 0xfff) == settype && (sc & 0xf000 & setsubtype) == setsubtype)
-						res = true;
-					sc = sc >> 16;
-				}
+				bool res = cd.is_setcode(set_code);
 				stack.push(res);
 			}
 			break;

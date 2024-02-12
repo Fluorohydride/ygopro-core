@@ -4308,8 +4308,10 @@ int32 scriptlib::duel_is_player_can_spsummon_monster(lua_State * L) {
 	::read_card(code, &dat);
 	dat.code = code;
 	dat.alias = 0;
-	if(!lua_isnil(L, 3))
-		dat.setcode = lua_tointeger(L, 3);
+	if(!lua_isnil(L, 3)) {
+		uint64 setcode_list = lua_tointeger(L, 3);
+		dat.set_setcode(setcode_list);
+	}
 	if(!lua_isnil(L, 4))
 		dat.type = (uint32)lua_tointeger(L, 4);
 	if(!lua_isnil(L, 5))
