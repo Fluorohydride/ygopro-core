@@ -26,7 +26,7 @@ struct chain;
 struct card_state {
 	uint32 code{ 0 };
 	uint32 code2{ 0 };
-	std::vector<uint32> setcode;
+	std::vector<uint16_t> setcode;
 	uint32 type{ 0 };
 	uint32 level{ 0 };
 	uint32 rank{ 0 };
@@ -99,6 +99,12 @@ struct material_info {
 };
 const material_info null_info;
 
+constexpr uint32 CARD_MARINE_DOLPHIN = 78734254;
+constexpr uint32 CARD_TWINKLE_MOSS = 13857930;
+constexpr uint32 CARD_TIMAEUS = 1784686;
+constexpr uint32 CARD_CRITIAS = 11082056;
+constexpr uint32 CARD_HERMOS = 46232525;
+
 class card {
 public:
 	struct effect_relation_hash {
@@ -137,6 +143,8 @@ public:
 		uint8 location{ 0 };
 		uint8 sequence{ 0 };
 	};
+	static const std::unordered_map<uint32, uint32> second_code;
+
 	int32 ref_handle;
 	duel* pduel;
 	card_data data;
@@ -206,9 +214,11 @@ public:
 
 	int32 get_infos(byte* buf, uint32 query_flag, int32 use_cache = TRUE);
 	uint32 get_info_location();
-	uint32 second_code(uint32 code);
+	uint32 get_original_code() const;
+	std::tuple<uint32, uint32> get_original_code_rule() const;
 	uint32 get_code();
 	uint32 get_another_code();
+	static bool check_card_setcode(uint32 code, uint32 value);
 	int32 is_set_card(uint32 set_code);
 	int32 is_origin_set_card(uint32 set_code);
 	int32 is_pre_set_card(uint32 set_code);
@@ -376,10 +386,9 @@ public:
 	int32 is_can_be_link_material(card* scard);
 };
 
-//Summon Type
+//Summon Type in summon_info
 #define SUMMON_TYPE_NORMAL		0x10000000
 #define SUMMON_TYPE_ADVANCE		0x11000000
-#define SUMMON_TYPE_DUAL		0x12000000
 #define SUMMON_TYPE_FLIP		0x20000000
 #define SUMMON_TYPE_SPECIAL		0x40000000
 #define SUMMON_TYPE_FUSION		0x43000000
@@ -389,8 +398,15 @@ public:
 #define SUMMON_TYPE_PENDULUM	0x4a000000
 #define SUMMON_TYPE_LINK		0x4c000000
 
-#define SUMMON_TYPE_MAIN		0xf0000000
-#define SUMMON_TYPE_LOCATION	0x00ff0000
+//Gemini Summon
+#define SUMMON_TYPE_DUAL		0x12000000
+
+//bitfield blocks
+#define SUMMON_VALUE_MAIN_TYPE		0xf0000000
+#define SUMMON_VALUE_SUB_TYPE		0x0f000000
+#define SUMMON_VALUE_LOCATION		0x00ff0000
+#define SUMMON_VALUE_CUSTOM_TYPE	0x0000ffff
+constexpr uint32 DEFAULT_SUMMON_TYPE = SUMMON_VALUE_MAIN_TYPE | SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE;
 
 //Counter
 #define COUNTER_WITHOUT_PERMIT	0x1000
@@ -417,11 +433,6 @@ public:
 #define SUMMON_INFO_ATTACK			0x80
 #define SUMMON_INFO_DEFENSE			0x100
 #define SUMMON_INFO_REASON_EFFECT	0x200
-
-//double-name cards
-#define CARD_MARINE_DOLPHIN	78734254
-#define CARD_TWINKLE_MOSS	13857930
-
-#define CARD_ARTWORK_VERSIONS_OFFSET	10
+#define SUMMON_INFO_REASON_PLAYER	0x400
 
 #endif /* CARD_H_ */

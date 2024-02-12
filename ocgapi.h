@@ -22,7 +22,6 @@
 
 class card;
 struct card_data;
-struct card_info;
 class group;
 class effect;
 class interpreter;

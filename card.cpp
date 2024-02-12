@@ -14,6 +14,14 @@
 #include "ocgapi.h"
 #include <algorithm>
 
+const std::unordered_map<uint32, uint32> card::second_code = {
+	{CARD_MARINE_DOLPHIN, 17955766u},
+	{CARD_TWINKLE_MOSS, 17732278u},
+	{CARD_TIMAEUS, 10000050u},
+	{CARD_CRITIAS, 10000060u},
+	{CARD_HERMOS, 10000070u}
+};
+
 bool card_sort::operator()(void* const & p1, void* const & p2) const {
 	card* c1 = (card*)p1;
 	card* c2 = (card*)p2;
@@ -29,26 +37,26 @@ bool card_state::is_location(int32 loc) const {
 	return false;
 }
 void card_state::init_state() {
-	code = 0xffffffff;
-	code2 = 0xffffffff;
-	type = 0xffffffff;
-	level = 0xffffffff;
-	rank = 0xffffffff;
-	link = 0xffffffff;
-	lscale = 0xffffffff;
-	rscale = 0xffffffff;
-	attribute = 0xffffffff;
-	race = 0xffffffff;
-	attack = 0xffffffff;
-	defense = 0xffffffff;
-	base_attack = 0xffffffff;
-	base_defense = 0xffffffff;
-	controler = 0xff;
-	location = 0xff;
-	sequence = 0xff;
-	position = 0xff;
-	reason = 0xffffffff;
-	reason_player = 0xff;
+	code = UINT32_MAX;
+	code2 = UINT32_MAX;
+	type = UINT32_MAX;
+	level = UINT32_MAX;
+	rank = UINT32_MAX;
+	link = UINT32_MAX;
+	lscale = UINT32_MAX;
+	rscale = UINT32_MAX;
+	attribute = UINT32_MAX;
+	race = UINT32_MAX;
+	attack = -1;
+	defense = -1;
+	base_attack = -1;
+	base_defense = -1;
+	controler = UINT8_MAX;
+	location = UINT8_MAX;
+	sequence = UINT8_MAX;
+	position = UINT8_MAX;
+	reason = UINT32_MAX;
+	reason_player = UINT8_MAX;
 }
 void query_cache::clear_cache() {
 	info_location = UINT32_MAX;
@@ -411,147 +419,123 @@ uint32 card::get_info_location() {
 		return c + (l << 8) + (s << 16) + (ss << 24);
 	}
 }
-// mapping of double-name cards
-uint32 card::second_code(uint32 code){
-	switch(code){
-		case CARD_MARINE_DOLPHIN:
-			return 17955766u;
-		case CARD_TWINKLE_MOSS:
-			return 17732278u;
-		default:
-			return 0;
+// get the printed code on card
+uint32 card::get_original_code() const {
+	if (data.is_alternative())
+		return data.alias;
+	else
+		return data.code;
+}
+// get the original code in duel (can be different from printed code)
+std::tuple<uint32, uint32> card::get_original_code_rule() const {
+	auto it = second_code.find(data.code);
+	if (it != second_code.end()) {
+		return std::make_tuple(data.code, it->second);
+	}
+	else {
+		if (data.alias)
+			return std::make_tuple(data.alias, 0);
+		else
+			return std::make_tuple(data.code, 0);
 	}
 }
 // return: the current card name
-// for double-name card, it returns printed name
+// for double-name cards, it returns printed name
 uint32 card::get_code() {
 	if(assume_type == ASSUME_CODE)
 		return assume_value;
 	if (temp.code != 0xffffffff)
 		return temp.code;
 	effect_set effects;
-	uint32 code = data.code;
-	temp.code = data.code;
+	uint32 code = std::get<0>(get_original_code_rule());
+	temp.code = code;
 	filter_effect(EFFECT_CHANGE_CODE, &effects);
 	if (effects.size())
 		code = effects.get_last()->get_value(this);
 	temp.code = 0xffffffff;
-	if (code == data.code) {
-		if(data.alias && !is_affected_by_effect(EFFECT_ADD_CODE))
-			code = data.alias;
-	} else {
-		card_data dat;
-		read_card(code, &dat);
-		if (dat.alias && !second_code(code))
-			code = dat.alias;
-	}
 	return code;
 }
 // return: the current second card name
 // for double-name cards, it returns the name in description
 uint32 card::get_another_code() {
-	uint32 code = get_code();
-	if(code != data.code){
-		return second_code(code);
+	uint32 code1 = get_code();
+	if (is_affected_by_effect(EFFECT_CHANGE_CODE)) {
+		auto it = second_code.find(code1);
+		if (it != second_code.end())
+			return it->second;
+		else
+			return 0;
 	}
+	uint32 code2 = std::get<1>(get_original_code_rule());
 	effect_set eset;
 	filter_effect(EFFECT_ADD_CODE, &eset);
 	if(!eset.size())
-		return 0;
+		return code2;
 	uint32 otcode = eset.get_last()->get_value(this);
-	if(code != otcode)
+	if(code1 != otcode)
 		return otcode;
 	return 0;
 }
+inline bool check_setcode(uint16_t setcode, uint32 value) {
+	uint16_t settype = value & 0x0fff;
+	uint16_t setsubtype = value & 0xf000;
+	return (setcode & 0x0fff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype;
+}
+bool card::check_card_setcode(uint32 code, uint32 value) {
+	card_data dat;
+	::read_card(code, &dat);
+	return dat.is_setcode(value);
+}
 int32 card::is_set_card(uint32 set_code) {
-	uint32 code = get_code();
-	uint64 setcode;
-	if (code == data.code) {
-		setcode = data.setcode;
-	} else {
-		card_data dat;
-		::read_card(code, &dat);
-		setcode = dat.setcode;
-	}
-	uint32 settype = set_code & 0xfff;
-	uint32 setsubtype = set_code & 0xf000;
-	while(setcode) {
-		if ((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
+	uint32 code1 = get_code();
+	card_data dat1;
+	if (code1 == data.code) {
+		if (data.is_setcode(set_code))
 			return TRUE;
-		setcode = setcode >> 16;
 	}
+	else {
+		if (check_card_setcode(code1, set_code))
+			return TRUE;
+	}
+	uint32 code2 = get_another_code();
+	if (code2 && check_card_setcode(code2, set_code))
+		return TRUE;
 	//add set code
 	effect_set eset;
 	filter_effect(EFFECT_ADD_SETCODE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		uint32 value = eset[i]->get_value(this);
-		if ((value & 0xfff) == settype && (value & 0xf000 & setsubtype) == setsubtype)
+		uint16_t new_setcode = value & 0xffff;
+		if (check_setcode(new_setcode, set_code))
 			return TRUE;
-	}
-	//another code
-	uint32 code2 = get_another_code();
-	uint64 setcode2;
-	if (code2 != 0) {
-		card_data dat;
-		::read_card(code2, &dat);
-		setcode2 = dat.setcode;
-	} else {
-		return FALSE;
-	}
-	while(setcode2) {
-		if ((setcode2 & 0xfff) == settype && (setcode2 & 0xf000 & setsubtype) == setsubtype)
-			return TRUE;
-		setcode2 = setcode2 >> 16;
 	}
 	return FALSE;
 }
 int32 card::is_origin_set_card(uint32 set_code) {
-	uint64 setcode = data.setcode;
-	uint32 settype = set_code & 0xfff;
-	uint32 setsubtype = set_code & 0xf000;
-	while(setcode) {
-		if((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
-			return TRUE;
-		setcode = setcode >> 16;
-	}
+	if (data.is_setcode(set_code))
+		return TRUE;
+	uint32 code2 = std::get<1>(get_original_code_rule());
+	if (code2 && check_card_setcode(code2, set_code))
+		return TRUE;
 	return FALSE;
 }
 int32 card::is_pre_set_card(uint32 set_code) {
 	uint32 code = previous.code;
-	uint64 setcode;
 	if (code == data.code) {
-		setcode = data.setcode;
-	} else {
-		card_data dat;
-		::read_card(code, &dat);
-		setcode = dat.setcode;
-	}
-	uint32 settype = set_code & 0xfff;
-	uint32 setsubtype = set_code & 0xf000;
-	while(setcode) {
-		if ((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
+		if (data.is_setcode(set_code))
 			return TRUE;
-		setcode = setcode >> 16;
 	}
+	else {
+		if (check_card_setcode(code, set_code))
+			return TRUE;
+	}
+	uint32 code2 = previous.code2;
+	if (code2 && check_card_setcode(code2, set_code))
+		return TRUE;
 	//add set code
 	for(auto& presetcode : previous.setcode) {
-		if (presetcode && (presetcode & 0xfff) == settype && (presetcode & 0xf000 & setsubtype) == setsubtype)
+		if (check_setcode(presetcode, set_code))
 			return TRUE;
-	}
-	//another code
-	uint32 code2 = previous.code2;
-	uint64 setcode2;
-	if (code2 != 0) {
-		card_data dat;
-		::read_card(code2, &dat);
-		setcode2 = dat.setcode;
-	} else {
-		return FALSE;
-	}
-	while(setcode2) {
-		if ((setcode2 & 0xfff) == settype && (setcode2 & 0xf000 & setsubtype) == setsubtype)
-			return TRUE;
-		setcode2 = setcode2 >> 16;
 	}
 	return FALSE;
 }
@@ -560,26 +544,19 @@ int32 card::is_fusion_set_card(uint32 set_code) {
 		return TRUE;
 	if(pduel->game_field->core.not_material)
 		return FALSE;
-	uint32 settype = set_code & 0xfff;
-	uint32 setsubtype = set_code & 0xf000;
 	effect_set eset;
 	filter_effect(EFFECT_ADD_FUSION_CODE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		uint32 code = eset[i]->get_value(this);
-		card_data dat;
-		::read_card(code, &dat);
-		uint64 setcode = dat.setcode;
-		while(setcode) {
-			if ((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
-				return TRUE;
-			setcode = setcode >> 16;
-		}
+		if (check_card_setcode(code, set_code))
+			return TRUE;
 	}
 	eset.clear();
 	filter_effect(EFFECT_ADD_FUSION_SETCODE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
-		uint32 setcode = eset[i]->get_value(this);
-		if ((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
+		uint32 value = eset[i]->get_value(this);
+		uint16_t new_setcode = value & 0xffff;
+		if (check_setcode(new_setcode, set_code))
 			return TRUE;
 	}
 	return FALSE;
@@ -593,53 +570,22 @@ int32 card::is_link_set_card(uint32 set_code) {
 	filter_effect(EFFECT_ADD_LINK_CODE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
 		uint32 code = eset[i]->get_value(this);
-		card_data dat;
-		::read_card(code, &dat);
-		uint64 setcode = dat.setcode;
-		while(setcode) {
-			if ((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
-				return TRUE;
-			setcode = setcode >> 16;
-		}
+		if (check_card_setcode(code, set_code))
+			return TRUE;
 	}
 	return FALSE;
 }
 int32 card::is_special_summon_set_card(uint32 set_code) {
 	uint32 code = spsummon.code;
-	uint64 setcode;
-	if (code == data.code) {
-		setcode = data.setcode;
-	} else {
-		card_data dat;
-		::read_card(code, &dat);
-		setcode = dat.setcode;
-	}
-	uint32 settype = set_code & 0xfff;
-	uint32 setsubtype = set_code & 0xf000;
-	while(setcode) {
-		if ((setcode & 0xfff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype)
-			return TRUE;
-		setcode = setcode >> 16;
-	}
+	if (check_card_setcode(code, set_code))
+		return TRUE;
+	uint32 code2 = spsummon.code2;
+	if (code2 && check_card_setcode(code2, set_code))
+		return TRUE;
 	//add set code
 	for(auto& spsetcode : spsummon.setcode) {
-		if (spsetcode && (spsetcode & 0xfff) == settype && (spsetcode & 0xf000 & setsubtype) == setsubtype)
+		if (check_setcode(spsetcode, set_code))
 			return TRUE;
-	}
-	//another code
-	uint32 code2 = spsummon.code2;
-	uint64 setcode2;
-	if (code2 != 0) {
-		card_data dat;
-		::read_card(code2, &dat);
-		setcode2 = dat.setcode;
-	} else {
-		return FALSE;
-	}
-	while(setcode2) {
-		if ((setcode2 & 0xfff) == settype && (setcode2 & 0xf000 & setsubtype) == setsubtype)
-			return TRUE;
-		setcode2 = setcode2 >> 16;
 	}
 	return FALSE;
 }
@@ -2578,6 +2524,7 @@ void card::set_special_summon_status(effect* peffect) {
 		spsummon.defense = 0;
 		spsummon.setcode.clear();
 		spsummon.reason_effect = nullptr;
+		spsummon.reason_player = PLAYER_NONE;
 		return;
 	}
 	card* pcard = peffect->get_handler();
@@ -2597,9 +2544,10 @@ void card::set_special_summon_status(effect* peffect) {
 		effect_set eset;
 		pcard->filter_effect(EFFECT_ADD_SETCODE, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
-			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard));
+			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard) & 0xffff);
 		}
 		spsummon.reason_effect = peffect;
+		spsummon.reason_player = peffect->get_handler_player();
 	} else {
 		pcard = cait->triggering_effect->get_handler();
 		spsummon.code = cait->triggering_state.code;
@@ -2615,9 +2563,10 @@ void card::set_special_summon_status(effect* peffect) {
 		effect_set eset;
 		pcard->filter_effect(EFFECT_ADD_SETCODE, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
-			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard));
+			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard) & 0xffff);
 		}
 		spsummon.reason_effect = cait->triggering_effect;
+		spsummon.reason_player = cait->triggering_player;
 	}
 }
 void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {
