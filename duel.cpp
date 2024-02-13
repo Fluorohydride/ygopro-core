@@ -140,7 +140,7 @@ void duel::set_responsei(uint32 resp) {
 	game_field->returns.ivalue[0] = resp;
 }
 void duel::set_responseb(byte* resp) {
-	std::memcpy(game_field->returns.bvalue, resp, 64);
+	std::memcpy(game_field->returns.bvalue, resp, SIZE_RETURN_VALUE);
 }
 int32 duel::get_next_integer(int32 l, int32 h) {
 	if (game_field->core.duel_options & DUEL_OLD_REPLAY) {

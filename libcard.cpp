@@ -2528,9 +2528,9 @@ int32 scriptlib::card_is_chain_attackable(lua_State *L) {
 		lua_pushboolean(L, 0);
 		return 1;
 	}
-	pduel->game_field->core.select_cards.clear();
-	pduel->game_field->get_attack_target(attacker, &pduel->game_field->core.select_cards, TRUE);
-	if(pduel->game_field->core.select_cards.size() == 0 && (monsteronly || attacker->direct_attackable == 0))
+	field::card_vector cv;
+	pduel->game_field->get_attack_target(attacker, &cv, TRUE);
+	if(cv.size() == 0 && (monsteronly || attacker->direct_attackable == 0))
 		lua_pushboolean(L, 0);
 	else
 		lua_pushboolean(L, 1);
