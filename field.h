@@ -155,11 +155,14 @@ struct processor_unit {
 	int32 value3{ 0 };
 	int32 value4{ 0 };
 };
+constexpr int SIZE_SVALUE = SIZE_RETURN_VALUE / 2;
+constexpr int SIZE_IVALUE = SIZE_RETURN_VALUE / 4;
+constexpr int SIZE_LVALUE = SIZE_RETURN_VALUE / 8;
 union return_value {
-	int8 bvalue[64];
-	int16 svalue[32];
-	int32 ivalue[16];
-	int64 lvalue[8];
+	int8 bvalue[SIZE_RETURN_VALUE];
+	int16 svalue[SIZE_SVALUE];
+	int32 ivalue[SIZE_IVALUE];
+	int64 lvalue[SIZE_LVALUE];
 };
 struct processor {
 	using effect_vector = std::vector<effect*>;
