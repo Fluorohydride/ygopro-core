@@ -1321,9 +1321,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				if(tp == core.current_player)
 					core.select_chains.push_back(*clit);
 			} else {
-				peffect->active_type = 0;
-				peffect->active_code = 0;
-				peffect->active_code2 = 0;
+				peffect->clear_active_info();
 				clit = core.new_fchain_s.erase(clit);
 				continue;
 			}
@@ -1386,9 +1384,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				if(tp == core.current_player)
 					core.select_chains.push_back(*clit);
 			} else {
-				peffect->active_type = 0;
-				peffect->active_code = 0;
-				peffect->active_code2 = 0;
+				peffect->clear_active_info();
 				clit = core.new_ochain_s.erase(clit);
 				continue;
 			}
@@ -1415,9 +1411,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 	case 6: {
 		if(returns.ivalue[0] == -1) {
 			for(const auto& ch : core.select_chains) {
-				ch.triggering_effect->active_type = 0;
-				ch.triggering_effect->active_code = 0;
-				ch.triggering_effect->active_code2 = 0;
+				ch.triggering_effect->clear_active_info();
 				core.new_ochain_s.remove_if([chain_id = ch.chain_id](chain ch) { return ch.chain_id == chain_id; });
 			}
 			if(core.new_ochain_s.size()) {
@@ -4472,9 +4466,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 					destroy(fscard, 0, REASON_RULE, 1 - pcard->current.controler);
 			}
 		}
-		peffect->active_type = 0;
-		peffect->active_code = 0;
-		peffect->active_code2 = 0;
+		peffect->clear_active_info();
 		peffect->active_handler = 0;
 		pcard->release_relation(*cait);
 		if(cait->target_cards)

@@ -874,3 +874,9 @@ int32 effect::is_active_setcode(uint32 set_code) {
 	} else
 		return owner->is_set_card(set_code);
 }
+void effect::clear_active_info() {
+	active_type = 0;
+	active_code = 0;
+	active_code2 = 0;
+	active_setcode.clear();
+}

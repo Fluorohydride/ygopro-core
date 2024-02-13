@@ -115,6 +115,7 @@ public:
 	void set_active_code();
 	uint32 get_active_code(bool is_another = false);
 	int32 is_active_setcode(uint32 set_code);
+	void clear_active_info();
 
 	bool is_flag(effect_flag flag) const {
 		return !!(this->flag[0] & flag);
