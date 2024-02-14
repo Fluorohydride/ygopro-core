@@ -1005,6 +1005,8 @@ int32 field::announce_card(int16 step, uint8 playerid) {
 }
 int32 field::announce_number(int16 step, uint8 playerid) {
 	if(step == 0) {
+		if (core.select_options.size() > UINT8_MAX)
+			core.select_options.resize(UINT8_MAX);
 		pduel->write_buffer8(MSG_ANNOUNCE_NUMBER);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer8((uint8)core.select_options.size());
