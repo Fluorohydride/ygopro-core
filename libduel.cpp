@@ -4459,6 +4459,11 @@ int32 scriptlib::duel_is_player_can_additional_summon(lua_State * L) {
 		lua_pushboolean(L, 0);
 	return 1;
 }
+int32 scriptlib::duel_is_chain_solving(lua_State * L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	lua_pushboolean(L, pduel->game_field->core.chain_solving);
+	return 1;
+}
 int32 scriptlib::duel_is_chain_negatable(lua_State * L) {
 	check_param_count(L, 1);
 	lua_pushboolean(L, 1);
@@ -4935,6 +4940,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsPlayerCanSendtoGrave", scriptlib::duel_is_player_can_send_to_grave },
 	{ "IsPlayerCanSendtoDeck", scriptlib::duel_is_player_can_send_to_deck },
 	{ "IsPlayerCanAdditionalSummon", scriptlib::duel_is_player_can_additional_summon },
+	{ "IsChainSolving", scriptlib::duel_is_chain_solving },
 	{ "IsChainNegatable", scriptlib::duel_is_chain_negatable },
 	{ "IsChainDisablable", scriptlib::duel_is_chain_disablable },
 	{ "IsChainDisabled", scriptlib::duel_is_chain_disabled },
