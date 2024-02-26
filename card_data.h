@@ -3,7 +3,7 @@
 
 #include "common.h"
 
-constexpr int CARD_ARTWORK_VERSIONS_OFFSET = 10;
+constexpr int CARD_ARTWORK_VERSIONS_OFFSET = 20;
 constexpr int SIZE_SETCODE = 16;
 constexpr int CARD_BLACK_LUSTER_SOLDIER2 = 5405695;
 
