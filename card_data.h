@@ -5,6 +5,7 @@
 
 constexpr int CARD_ARTWORK_VERSIONS_OFFSET = 10;
 constexpr int SIZE_SETCODE = 16;
+constexpr int CARD_BLACK_LUSTER_SOLDIER2 = 5405695;
 
 struct card_data {
 	uint32 code{};
@@ -49,6 +50,8 @@ struct card_data {
 	}
 
 	bool is_alternative() const {
+		if (code == CARD_BLACK_LUSTER_SOLDIER2)
+			return false;
 		return alias && (alias < code + CARD_ARTWORK_VERSIONS_OFFSET) && (code < alias + CARD_ARTWORK_VERSIONS_OFFSET);
 	}
 
