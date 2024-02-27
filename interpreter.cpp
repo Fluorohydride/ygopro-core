@@ -50,19 +50,20 @@ int32 interpreter::register_card(card *pcard) {
 	//create a card in by userdata
 	luaL_checkstack(lua_state, 1, nullptr);
 	luaL_checkstack(current_state, 1, nullptr);
-	card ** ppcard = (card**) lua_newuserdata(lua_state, sizeof(card*));
+	card ** ppcard = (card**) lua_newuserdata(lua_state, sizeof(card*));	//+1 userdata
 	*ppcard = pcard;
-	pcard->ref_handle = luaL_ref(lua_state, LUA_REGISTRYINDEX);
+	pcard->ref_handle = luaL_ref(lua_state, LUA_REGISTRYINDEX);				//-1
 	//some userdata may be created in script like token so use current_state
-	lua_rawgeti(current_state, LUA_REGISTRYINDEX, pcard->ref_handle);
+	lua_rawgeti(current_state, LUA_REGISTRYINDEX, pcard->ref_handle);	//+1 userdata
 	//load script
 	if(pcard->data.is_alternative())
 		load_card_script(pcard->data.alias);
 	else
 		load_card_script(pcard->data.code);
+	//stack: table cxxx, userdata
 	//set metatable of pointer to base script
-	lua_setmetatable(current_state, -2);
-	lua_pop(current_state, 1);
+	lua_setmetatable(current_state, -2);	//-1
+	lua_pop(current_state, 1);				//-1
 	//Initial
 	if(pcard->data.code && (!(pcard->data.type & TYPE_NORMAL) || (pcard->data.type & TYPE_PENDULUM))) {
 		pcard->set_status(STATUS_INITIALIZING, TRUE);
@@ -144,31 +145,31 @@ int32 interpreter::load_card_script(uint32 code) {
 	char class_name[20];
 	sprintf(class_name, "c%d", code);
 	luaL_checkstack(current_state, 1, nullptr);
-	lua_getglobal(current_state, class_name);
+	lua_getglobal(current_state, class_name);	//+1 table cxxx
 	//if script is not loaded, create and load it
 	if (lua_isnil(current_state, -1)) {
 		luaL_checkstack(current_state, 5, nullptr);
-		lua_pop(current_state, 1);
+		lua_pop(current_state, 1);	//-1
 		//create a table & set metatable
-		lua_createtable(current_state, 0, 0);
-		lua_setglobal(current_state, class_name);
-		lua_getglobal(current_state, class_name);
-		lua_getglobal(current_state, "Card");
-		lua_setmetatable(current_state, -2);
-		lua_pushstring(current_state, "__index");
-		lua_pushvalue(current_state, -2);
-		lua_rawset(current_state, -3);
-		lua_getglobal(current_state, class_name);
-		lua_setglobal(current_state, "self_table");
-		lua_pushinteger(current_state, code);
-		lua_setglobal(current_state, "self_code");
+		lua_createtable(current_state, 0, 0);		//+1, {}
+		lua_setglobal(current_state, class_name);	//-1
+		lua_getglobal(current_state, class_name);	//+1 table cxxx
+		lua_getglobal(current_state, "Card");		//+1 Card, table cxxx
+		lua_setmetatable(current_state, -2);		//-1 table cxxx
+		lua_pushstring(current_state, "__index");	//+1 "__index", table cxxx
+		lua_pushvalue(current_state, -2);			//+1 table cxxx, "__index", table cxxx
+		lua_rawset(current_state, -3);				//-2 table cxxx
+		lua_getglobal(current_state, class_name);	//+1
+		lua_setglobal(current_state, "self_table");	//-1
+		lua_pushinteger(current_state, code);		//+1
+		lua_setglobal(current_state, "self_code");	//-1
 		char script_name[64];
 		sprintf(script_name, "./script/c%d.lua", code);
 		int32 res = load_script(script_name);
-		lua_pushnil(current_state);
-		lua_setglobal(current_state, "self_table");
-		lua_pushnil(current_state);
-		lua_setglobal(current_state, "self_code");
+		lua_pushnil(current_state);					//+1
+		lua_setglobal(current_state, "self_table"); //-1
+		lua_pushnil(current_state);					//+1
+		lua_setglobal(current_state, "self_code");	//-1 table cxxx {__index: cxxx }
 		if(!res) {
 			return OPERATION_FAIL;
 		}
