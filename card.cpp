@@ -113,7 +113,7 @@ bool card::card_operation_sort(card* c1, card* c2) {
 		if(c1_type & TYPE_MONSTER) {
 			// sort monster by level, then code
 			if(c1->data.level != c2->data.level)
-				return c1->data.level > c2->data.level;
+				return c1->data.level < c2->data.level;
 			else
 				return c1->data.code > c2->data.code;
 		} else
