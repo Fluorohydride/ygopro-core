@@ -96,6 +96,29 @@ bool card::card_operation_sort(card* c1, card* c2) {
 			return c1->overlay_target->current.sequence < c2->overlay_target->current.sequence;
 		else
 			return c1->current.sequence < c2->current.sequence;
+	} else if (c1->current.location & LOCATION_DECK && !pduel->game_field->core.select_deck_seq_preserved) {
+		// faceup deck cards should go at the very first
+		if(c1->current.position != c2->current.position) {
+			if(c1->current.position & POS_FACEUP)
+				return true;
+			else
+				return false;
+		}
+		// sort deck as card property
+		auto c1_type = c1->current.type & 0x7;
+		auto c2_type = c2->current.type & 0x7;
+		// monster should go before spell, and then trap
+		if(c1_type != c2_type)
+			return c1_type > c2_type;
+		if(c1_type & TYPE_MONSTER) {
+			// sort monster by level, then code
+			if(c1->data.level != c2->data.level)
+				return c1->data.level > c2->data.level;
+			else
+				return c1->data.code > c2->data.code;
+		} else
+			// spell and trap should go by code
+			return c1->data.code > c2->data.code;
 	} else {
 		if(c1->current.location & (LOCATION_DECK | LOCATION_EXTRA | LOCATION_GRAVE | LOCATION_REMOVED))
 			return c1->current.sequence > c2->current.sequence;
@@ -1506,6 +1529,24 @@ int32 card::is_all_column() {
 	if(cset.size() == full)
 		return TRUE;
 	return FALSE;
+}
+uint8 card::get_select_sequence(uint8 *deck_seq_pointer) {
+	if(current.location == LOCATION_DECK && !pduel->game_field->core.select_deck_seq_preserved) {
+		return deck_seq_pointer[current.controler]++;
+	} else {
+		return current.sequence;
+	}
+}
+uint32 card::get_select_info_location(uint8 *deck_seq_pointer) {
+	if(current.location == LOCATION_DECK) {
+		uint32 c = current.controler;
+		uint32 l = current.location;
+		uint32 s = get_select_sequence(deck_seq_pointer);
+		uint32 ss = current.position;
+		return c + (l << 8) + (s << 16) + (ss << 24);
+	} else {
+		return get_info_location();
+	}
 }
 void card::equip(card* target, uint32 send_msg) {
 	if (equiping_target)
