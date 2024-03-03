@@ -1503,7 +1503,7 @@ void card::set_status(uint32 status, int32 enabled) {
 	else
 		this->status &= ~status;
 }
-// match at least 1 status
+// get match status
 int32 card::get_status(uint32 status) {
 	return this->status & status;
 }

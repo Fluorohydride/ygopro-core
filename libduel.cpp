@@ -1848,7 +1848,7 @@ int32 scriptlib::duel_disable_summon(lua_State *L) {
 			return 0;
 		sumplayer = pcard->summon_player;
 		pcard->set_status(STATUS_FLIP_SUMMONING, FALSE);
-		pcard->set_status(STATUS_SUMMON_DISABLED, TRUE);
+		pcard->set_status(STATUS_FLIP_SUMMON_DISABLED, TRUE);
 	}
 	else {
 		if (pcard) {
