@@ -2671,6 +2671,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uint32 summon_type, uint32 action_type) {
 	switch(step) {
 	case 0: {
+		core.summon_action_type = action_type;
 		effect_set eset;
 		material_info info;
 		info.limit_tuner = core.limit_tuner;
@@ -2685,9 +2686,14 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		info.limit_link_minc = core.limit_link_minc;
 		info.limit_link_maxc = core.limit_link_maxc;
 		target->filter_spsummon_procedure(sumplayer, &eset, summon_type, info);
-		target->filter_spsummon_procedure_g(sumplayer, &eset);
-		if(!eset.size())
+		group* pendulum_group = nullptr;
+		if(core.limit_pendulum)
+			pendulum_group = pduel->new_group(core.limit_pendulum->container);
+		target->filter_spsummon_procedure_g(sumplayer, &eset, pendulum_group);
+		if(!eset.size()) {
+			core.summon_action_type = SUMMON_IN_IDLE;
 			return TRUE;
+		}
 		core.select_effects.clear();
 		core.select_options.clear();
 		for(int32 i = 0; i < eset.size(); ++i) {
@@ -2737,8 +2743,10 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		return FALSE;
 	}
 	case 2: {
-		if(!returns.ivalue[0])
+		if(!returns.ivalue[0]) {
+			core.summon_action_type = SUMMON_IN_IDLE;
 			return TRUE;
+		}
 		effect_set eset;
 		target->filter_effect(EFFECT_SPSUMMON_COST, &eset);
 		if(eset.size()) {
@@ -2957,6 +2965,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			core.hint_timing[sumplayer] |= TIMING_SPSUMMON;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
 		}
+		core.summon_action_type = SUMMON_IN_IDLE;
 		return TRUE;
 	}
 	case 20: {
@@ -2967,12 +2976,19 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			core.sub_solving_event.push_back(nil_event);
 			pduel->lua->add_param(target, PARAM_TYPE_CARD);
 			pduel->lua->add_param(core.units.begin()->ptarget, PARAM_TYPE_GROUP);
+			if(core.limit_pendulum) {
+				pduel->lua->add_param(core.limit_pendulum, PARAM_TYPE_GROUP);
+			}
 			add_process(PROCESSOR_EXECUTE_OPERATION, 0, peffect, 0, sumplayer, 0);
 		}
 		peffect->dec_count(sumplayer);
 		return FALSE;
 	}
 	case 21: {
+		if(core.limit_pendulum) {
+			pduel->delete_group(core.limit_pendulum);
+			core.limit_pendulum = 0;
+		}
 		group* pgroup = core.units.begin()->ptarget;
 		for(auto cit = pgroup->container.begin(); cit != pgroup->container.end(); ) {
 			card* pcard = *cit;
@@ -3002,8 +3018,10 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 	}
 	case 22: {
 		group* pgroup = core.units.begin()->ptarget;
-		if(pgroup->container.size() == 0)
+		if(pgroup->container.size() == 0) {
+			core.summon_action_type = SUMMON_IN_IDLE;
 			return TRUE;
+		}
 		core.phase_action = TRUE;
 		pgroup->it = pgroup->container.begin();
 		return FALSE;
@@ -3107,6 +3125,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 				core.units.begin()->ptr1 = 0;
 			}
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
+			core.summon_action_type = SUMMON_IN_IDLE;
 			return TRUE;
 		}
 		return FALSE;
@@ -3159,6 +3178,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			core.hint_timing[sumplayer] |= TIMING_SPSUMMON;
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
 		}
+		core.summon_action_type = SUMMON_IN_IDLE;
 		return TRUE;
 	}
 	}
@@ -3383,6 +3403,46 @@ int32 field::special_summon(uint16 step, effect* reason_effect, uint8 reason_pla
 		returns.ivalue[0] = (int32)targets->container.size();
 		pduel->delete_group(targets);
 		return TRUE;
+	}
+	}
+	return TRUE;
+}
+int32 field::pendulum_summon(uint16 step, uint8 playerid, group* mg) {
+	switch(step) {
+	case 0: {
+		core.select_cards.clear();
+		for(uint8 p = 0; p < 2; ++p) {
+			for(auto& pcard : player[p].list_szone)
+				if(pcard && pcard->current.pzone && pcard->is_pendulum_summon(playerid, mg))
+					core.select_cards.push_back(pcard);
+		}
+		if(core.select_cards.size() == 0) {
+			return TRUE;
+		} else if(core.select_cards.size() == 1) {
+			returns.bvalue[1] = 0;
+		} else {
+			pduel->write_buffer8(MSG_HINT);
+			pduel->write_buffer8(HINT_SELECTMSG);
+			pduel->write_buffer8(playerid);
+			pduel->write_buffer32(574);
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, 0x10001);
+		}
+		return FALSE;
+	}
+	case 1: {
+		card* pcard = core.select_cards[returns.bvalue[1]];
+		core.limit_pendulum = mg;
+		core.summon_cancelable = FALSE;
+		if(pduel->game_field->core.current_chain.size()) {
+			pduel->game_field->special_summon_rule(playerid, pcard, 0, SUMMON_IN_CHAIN);
+			pduel->game_field->core.summon_reserved = pduel->game_field->core.subunits.back();
+			pduel->game_field->core.subunits.pop_back();
+			pduel->game_field->core.summoning_card = pcard;
+		}
+		else {
+			pduel->game_field->special_summon_rule(playerid, pcard, 0, SUMMON_IN_IDLE);
+		}
+		return FALSE;
 	}
 	}
 	return TRUE;

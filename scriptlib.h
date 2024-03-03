@@ -411,6 +411,7 @@ public:
 	static int32 duel_special_summon_rule(lua_State *L);
 	static int32 duel_synchro_summon(lua_State *L);
 	static int32 duel_xyz_summon(lua_State *L);
+	static int32 duel_pendulum_summon(lua_State *L);
 	static int32 duel_link_summon(lua_State *L);
 	static int32 duel_setm(lua_State *L);
 	static int32 duel_sets(lua_State *L);
@@ -565,6 +566,8 @@ public:
 	static int32 duel_get_overlay_count(lua_State *L);
 	static int32 duel_check_remove_overlay_card(lua_State *L);
 	static int32 duel_remove_overlay_card(lua_State *L);
+	static int32 duel_use_default_pendulum_summon(lua_State *L);
+	static int32 duel_is_summon_in_chain(lua_State *L);
 
 	static int32 duel_hint(lua_State *L);
 	static int32 duel_hint_selection(lua_State *L);
@@ -601,12 +604,14 @@ public:
 	static int32 duel_is_player_can_flipsummon(lua_State *L);
 	static int32 duel_is_player_can_spsummon_monster(lua_State *L);
 	static int32 duel_is_player_can_spsummon_count(lua_State *L);
+	static int32 duel_is_player_can_pendulum_summon(lua_State *L);
 	static int32 duel_is_player_can_release(lua_State *L);
 	static int32 duel_is_player_can_remove(lua_State *L);
 	static int32 duel_is_player_can_send_to_hand(lua_State *L);
 	static int32 duel_is_player_can_send_to_grave(lua_State *L);
 	static int32 duel_is_player_can_send_to_deck(lua_State *L);
 	static int32 duel_is_player_can_additional_summon(lua_State *L);
+	static int32 duel_is_player_default_pendulum_summoned(lua_State *L);
 	static int32 duel_is_chain_negatable(lua_State *L);
 	static int32 duel_is_chain_disablable(lua_State *L);
 	static int32 duel_is_chain_disabled(lua_State *L);

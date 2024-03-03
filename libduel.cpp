@@ -422,6 +422,25 @@ int32 scriptlib::duel_xyz_summon(lua_State *L) {
 	}
 	return lua_yield(L, 0);
 }
+int32 scriptlib::duel_pendulum_summon(lua_State *L) {
+	check_action_permission(L);
+	check_param_count(L, 2);
+	uint32 playerid = (uint32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	if(pduel->game_field->core.effect_damage_step)
+		return 0;
+	group* pendulum_group = nullptr;
+	if(!lua_isnil(L, 2)) {
+		check_param(L, PARAM_TYPE_GROUP, 2);
+		group* pgroup = *(group**)lua_touserdata(L, 2);
+		pendulum_group = pduel->new_group(pgroup->container);
+		pendulum_group->is_readonly = 1;
+	}
+	pduel->game_field->add_process(PROCESSOR_PENDULUM_SUMMON, 0, nullptr, pendulum_group, playerid, 0);
+	return lua_yield(L, 0);
+}
 int32 scriptlib::duel_link_summon(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 3);
@@ -3633,6 +3652,24 @@ int32 scriptlib::duel_remove_overlay_card(lua_State *L) {
 		return 1;
 	});
 }
+int32 scriptlib::duel_use_default_pendulum_summon(lua_State *L) {
+	check_action_permission(L);
+	check_param_count(L, 1);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	pduel->game_field->core.default_pendulum_summon[playerid] = TRUE;
+	return 0;
+}
+int32 scriptlib::duel_is_summon_in_chain(lua_State *L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	if(pduel->game_field->core.summon_action_type == SUMMON_IN_CHAIN)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
 int32 scriptlib::duel_hint(lua_State * L) {
 	check_param_count(L, 3);
 	int32 htype = (int32)lua_tointeger(L, 1);
@@ -4352,6 +4389,22 @@ int32 scriptlib::duel_is_player_can_spsummon_count(lua_State * L) {
 	lua_pushboolean(L, pduel->game_field->is_player_can_spsummon_count(playerid, count));
 	return 1;
 }
+int32 scriptlib::duel_is_player_can_pendulum_summon(lua_State * L) {
+	check_param_count(L, 1);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1) {
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+	group* mg = nullptr;
+	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
+		check_param(L, PARAM_TYPE_GROUP, 2);
+		mg = *(group**) lua_touserdata(L, 2);
+	}
+	duel* pduel = interpreter::get_duel_info(L);
+	lua_pushboolean(L, pduel->game_field->is_player_can_pendulum_summon(playerid, mg));
+	return 1;
+}
 int32 scriptlib::duel_is_player_can_release(lua_State * L) {
 	check_param_count(L, 1);
 	int32 playerid = (int32)lua_tointeger(L, 1);
@@ -4457,6 +4510,20 @@ int32 scriptlib::duel_is_player_can_additional_summon(lua_State * L) {
 	}
 	duel* pduel = interpreter::get_duel_info(L);
 	if(pduel->game_field->core.extra_summon[playerid] == 0)
+		lua_pushboolean(L, 1);
+	else
+		lua_pushboolean(L, 0);
+	return 1;
+}
+int32 scriptlib::duel_is_player_default_pendulum_summoned(lua_State * L) {
+	check_param_count(L, 1);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1) {
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+	duel* pduel = interpreter::get_duel_info(L);
+	if(pduel->game_field->core.default_pendulum_summon[playerid])
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
@@ -4750,6 +4817,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "SpecialSummonRule", scriptlib::duel_special_summon_rule },
 	{ "SynchroSummon", scriptlib::duel_synchro_summon },
 	{ "XyzSummon", scriptlib::duel_xyz_summon },
+	{ "PendulumSummon", scriptlib::duel_pendulum_summon },
 	{ "LinkSummon", scriptlib::duel_link_summon },
 	{ "MSet", scriptlib::duel_setm },
 	{ "SSet", scriptlib::duel_sets },
@@ -4898,6 +4966,8 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetOverlayCount", scriptlib::duel_get_overlay_count },
 	{ "CheckRemoveOverlayCard", scriptlib::duel_check_remove_overlay_card },
 	{ "RemoveOverlayCard", scriptlib::duel_remove_overlay_card },
+	{ "UseDefaultPendulumSummon", scriptlib::duel_use_default_pendulum_summon },
+	{ "IsSummonInChain", scriptlib::duel_is_summon_in_chain },
 	{ "Hint", scriptlib::duel_hint },
 	{ "HintSelection", scriptlib::duel_hint_selection },
 	{ "SelectEffectYesNo", scriptlib::duel_select_effect_yesno },
@@ -4932,12 +5002,14 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsPlayerCanFlipSummon", scriptlib::duel_is_player_can_flipsummon },
 	{ "IsPlayerCanSpecialSummonMonster", scriptlib::duel_is_player_can_spsummon_monster },
 	{ "IsPlayerCanSpecialSummonCount", scriptlib::duel_is_player_can_spsummon_count },
+	{ "IsPlayerCanPendulumSummon", scriptlib::duel_is_player_can_pendulum_summon },
 	{ "IsPlayerCanRelease", scriptlib::duel_is_player_can_release },
 	{ "IsPlayerCanRemove", scriptlib::duel_is_player_can_remove },
 	{ "IsPlayerCanSendtoHand", scriptlib::duel_is_player_can_send_to_hand },
 	{ "IsPlayerCanSendtoGrave", scriptlib::duel_is_player_can_send_to_grave },
 	{ "IsPlayerCanSendtoDeck", scriptlib::duel_is_player_can_send_to_deck },
 	{ "IsPlayerCanAdditionalSummon", scriptlib::duel_is_player_can_additional_summon },
+	{ "IsPlayerDefaultPendulumSummoned", scriptlib::duel_is_player_default_pendulum_summoned },
 	{ "IsChainNegatable", scriptlib::duel_is_chain_negatable },
 	{ "IsChainDisablable", scriptlib::duel_is_chain_disablable },
 	{ "IsChainDisabled", scriptlib::duel_is_chain_disabled },
