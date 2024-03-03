@@ -100,9 +100,9 @@ bool card::card_operation_sort(card* c1, card* c2) {
 		// faceup deck cards should go at the very first
 		if(c1->current.position != c2->current.position) {
 			if(c1->current.position & POS_FACEUP)
-				return true;
-			else
 				return false;
+			else
+				return true;
 		}
 		// sort deck as card property
 		auto c1_type = c1->current.type & 0x7;
