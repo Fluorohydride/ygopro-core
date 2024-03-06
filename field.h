@@ -279,6 +279,8 @@ struct processor {
 	uint8 summon_cancelable{ FALSE };
 	card* attacker{ nullptr };
 	card* attack_target{ nullptr };
+	uint8 attacker_player{ PLAYER_NONE };
+	uint8 attack_target_player{ PLAYER_NONE };
 	uint32 limit_extra_summon_zone{ 0 };
 	uint32 limit_extra_summon_releasable{ 0 };
 	card* limit_tuner{ nullptr };
