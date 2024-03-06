@@ -607,6 +607,7 @@ public:
 	static int32 duel_is_player_can_send_to_grave(lua_State *L);
 	static int32 duel_is_player_can_send_to_deck(lua_State *L);
 	static int32 duel_is_player_can_additional_summon(lua_State *L);
+	static int32 duel_is_chain_solving(lua_State *L);
 	static int32 duel_is_chain_negatable(lua_State *L);
 	static int32 duel_is_chain_disablable(lua_State *L);
 	static int32 duel_is_chain_disabled(lua_State *L);
