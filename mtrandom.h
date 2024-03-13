@@ -15,30 +15,30 @@ public:
 	const unsigned int rand_max;
 
 	mt19937() :
-		rng(), rand_max((rng.max)()) {}
-	explicit mt19937(unsigned int seed) :
-		rng(seed), rand_max((rng.max)()) {}
+		rng(), rand_max(rng.max()) {}
+	explicit mt19937(uint_fast32_t seed) :
+		rng(seed), rand_max(rng.max()) {}
 
 	// mersenne_twister_engine
-	void reset(unsigned int seed) {
+	void reset(uint_fast32_t seed) {
 		rng.seed(seed);
 	}
-	unsigned int rand() {
+	uint_fast32_t rand() {
 		return rng();
 	}
 
 	// uniform_int_distribution
 	int get_random_integer(int l, int h) {
-		unsigned int range = (unsigned int)(h - l + 1);
-		unsigned int secureMax = rand_max - rand_max % range;
-		unsigned int x;
+		uint_fast32_t range = (uint_fast32_t)(h - l + 1);
+		uint_fast32_t secureMax = rng.max() - rng.max() % range;
+		uint_fast32_t x;
 		do {
 			x = rng();
 		} while (x >= secureMax);
-		return (int)(l + x % range);
+		return l + (int)(x % range);
 	}
 	int get_random_integer_old(int l, int h) {
-		int result = (int)((double)rng() / rand_max * ((double)h - l + 1)) + l;
+		int result = (int)((double)rng() / rng.max() * ((double)h - l + 1)) + l;
 		if (result > h)
 			result = h;
 		return result;

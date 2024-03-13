@@ -18,13 +18,14 @@ class duel;
 class group {
 public:
 	using card_set = std::set<card*, card_sort>;
-	int32 ref_handle;
 	duel* pduel;
 	card_set container;
 	card_set::iterator it;
-	uint32 is_readonly;
+	int32 ref_handle{ 0 };
+	uint32 is_readonly{ 0 };
+	bool is_iterator_dirty{ true };
 	
-	inline bool has_card(card* c) {
+	bool has_card(card* c) {
 		return container.find(c) != container.end();
 	}
 	

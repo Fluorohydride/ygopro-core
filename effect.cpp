@@ -27,43 +27,8 @@ bool is_continuous_event(uint32 code) {
 }
 
 effect::effect(duel* pd) {
-	ref_handle = 0;
 	pduel = pd;
-	owner = 0;
-	handler = 0;
-	description = 0;
-	effect_owner = PLAYER_NONE;
-	card_type = 0;
-	active_type = 0;
-	active_location = 0;
-	active_sequence = 0;
-	active_handler = 0;
-	id = 0;
-	code = 0;
-	type = 0;
-	flag[0] = 0;
-	flag[1] = 0;
-	copy_id = 0;
-	range = 0;
-	s_range = 0;
-	o_range = 0;
-	count_limit = 0;
-	count_limit_max = 0;
-	reset_count = 0;
-	reset_flag = 0;
-	count_code = 0;
-	category = 0;
 	label.reserve(4);
-	label_object = 0;
-	hint_timing[0] = 0;
-	hint_timing[1] = 0;
-	status = 0;
-	condition = 0;
-	cost = 0;
-	target = 0;
-	value = 0;
-	operation = 0;
-	cost_checked = FALSE;
 }
 int32 effect::is_disable_related() {
 	if (code == EFFECT_IMMUNE_EFFECT || code == EFFECT_DISABLE || code == EFFECT_CANNOT_DISABLE || code == EFFECT_FORBIDDEN)
@@ -77,8 +42,6 @@ int32 effect::is_self_destroy_related() {
 }
 int32 effect::is_can_be_forbidden() {
 	if (is_flag(EFFECT_FLAG_CANNOT_DISABLE) && !is_flag(EFFECT_FLAG_CANNOT_NEGATE))
-		return FALSE;
-	if (code == EFFECT_CHANGE_CODE)
 		return FALSE;
 	return TRUE;
 }
@@ -136,7 +99,9 @@ int32 effect::is_available(int32 neglect_disabled) {
 				return FALSE;
 			if(!phandler->get_status(STATUS_EFFECT_ENABLED) && !is_flag(EFFECT_FLAG_IMMEDIATELY_APPLY))
 				return FALSE;
-			if((phandler->current.location & LOCATION_ONFIELD) && !phandler->is_position(POS_FACEUP))
+			if (phandler->current.is_location(LOCATION_ONFIELD) && !phandler->is_position(POS_FACEUP))
+				return FALSE;
+			if (phandler->current.is_stzone() && (phandler->data.type & (TYPE_SPELL | TYPE_TRAP)) && phandler->is_affected_by_effect(EFFECT_CHANGE_TYPE))
 				return FALSE;
 			if(is_flag(EFFECT_FLAG_OWNER_RELATE) && is_can_be_forbidden() && powner->is_status(STATUS_FORBIDDEN))
 				return FALSE;
@@ -302,8 +267,6 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			card* phandler = get_handler();
 			if(!(phandler->get_type() & TYPE_MONSTER) && (get_active_type() & TYPE_MONSTER))
 				return FALSE;
-			if((phandler->get_type() & TYPE_CONTINUOUS) && (phandler->get_type() & TYPE_EQUIP))
-				return FALSE;
 			if((type & EFFECT_TYPE_QUICK_O) && is_flag(EFFECT_FLAG_DELAY) && !in_range(phandler))
 				return FALSE;
 			if(!neglect_faceup && (phandler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED))) {
@@ -327,6 +290,8 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				if((type & EFFECT_TYPE_FIELD) && !(range & (LOCATION_DECK | LOCATION_EXTRA)))
 					return FALSE;
 			}
+			if (phandler->current.is_stzone() && (phandler->data.type & (TYPE_SPELL|TYPE_TRAP)) && phandler->is_affected_by_effect(EFFECT_CHANGE_TYPE))
+				return FALSE;
 			if((type & EFFECT_TYPE_FIELD) && (phandler->current.controler != playerid) && !is_flag(EFFECT_FLAG_BOTH_SIDE | EFFECT_FLAG_EVENT_PLAYER))
 				return FALSE;
 			if(phandler->is_status(STATUS_FORBIDDEN))
@@ -337,8 +302,9 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			card* phandler = get_handler();
 			if((type & EFFECT_TYPE_FIELD) && phandler->is_status(STATUS_BATTLE_DESTROYED))
 				return FALSE;
-			if(((type & EFFECT_TYPE_FIELD) || ((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE))) && (phandler->current.location & LOCATION_ONFIELD)
-			        && (!phandler->is_position(POS_FACEUP) || !phandler->is_status(STATUS_EFFECT_ENABLED)))
+			if(((type & EFFECT_TYPE_FIELD) || ((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE)))
+				&& (phandler->current.location & LOCATION_ONFIELD)
+				&& (!phandler->is_position(POS_FACEUP) || !phandler->is_status(STATUS_EFFECT_ENABLED)))
 				return FALSE;
 			if((type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE) && !in_range(phandler))
 				return FALSE;
@@ -640,7 +606,7 @@ int32 effect::reset(uint32 reset_level, uint32 reset_type) {
 		uint8 tp = handler->pduel->game_field->infos.turn_player;
 		if((((reset_flag & RESET_SELF_TURN) && pid == tp) || ((reset_flag & RESET_OPPO_TURN) && pid != tp))
 				&& (reset_level & 0x3ff & reset_flag))
-			reset_count--;
+			--reset_count;
 		if(reset_count == 0)
 			return TRUE;
 		return FALSE;

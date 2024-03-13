@@ -18,8 +18,6 @@ class effect;
 bool effect_sort_id(const effect* e1, const effect* e2);
 
 struct effect_set {
-	effect_set()
-		: count(0), container{ nullptr } {}
 	void add_item(effect* peffect) {
 		if(count >= 64) return;
 		container[count++] = peffect;
@@ -28,12 +26,12 @@ struct effect_set {
 		if(index >= count)
 			return;
 		if(index == count - 1) {
-			count--;
+			--count;
 			return;
 		}
 		for(int i = index; i < count - 1; ++i)
 			container[i] = container[i + 1];
-		count--;
+		--count;
 	}
 	void clear() {
 		count = 0;
@@ -65,12 +63,11 @@ struct effect_set {
 		return container[index];
 	}
 private:
-	std::array<effect*, 64> container;
-	int count;
+	std::array<effect*, 64> container{ nullptr };
+	int count{ 0 };
 };
 
 struct effect_set_v {
-	effect_set_v() {}
 	void add_item(effect* peffect) {
 		container.push_back(peffect);
 	}
