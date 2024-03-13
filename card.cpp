@@ -104,9 +104,16 @@ bool card::card_operation_sort(card* c1, card* c2) {
 			else
 				return true;
 		}
+		// if deck reversed and the card being at the top, it should go first
+		if(pduel->game_field->core.deck_reversed) {
+			if(c1->current.sequence == pduel->game_field->player[cp1].list_main.size() - 1)
+				return false;
+			if(c2->current.sequence == pduel->game_field->player[cp2].list_main.size() - 1)
+				return true;
+		}
 		// sort deck as card property
-		auto c1_type = c1->current.type & 0x7;
-		auto c2_type = c2->current.type & 0x7;
+		auto c1_type = c1->data.type & 0x7;
+		auto c2_type = c2->data.type & 0x7;
 		// monster should go before spell, and then trap
 		if(c1_type != c2_type)
 			return c1_type > c2_type;
