@@ -260,11 +260,13 @@ void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uin
 		return;
 	for(auto& pcard : *targets) {
 		pcard->temp.reason = pcard->current.reason;
-		pcard->temp.reason_effect = pcard->current.reason_effect;
-		pcard->temp.reason_player = pcard->current.reason_player;
 		pcard->current.reason = reason;
-		pcard->current.reason_effect = reason_effect;
-		pcard->current.reason_player = reason_player;
+		if(reason_player != PLAYER_SELFDES) {
+			pcard->temp.reason_effect = pcard->current.reason_effect;
+			pcard->temp.reason_player = pcard->current.reason_player;
+			pcard->current.reason_effect = reason_effect;
+			pcard->current.reason_player = reason_player;
+		}
 		uint32 p = playerid;
 		// send to hand from deck and playerid not given => send to the hand of controler
 		if(p == PLAYER_NONE && (destination & LOCATION_HAND) && (pcard->current.location & LOCATION_DECK) && pcard->current.controler == reason_player)
@@ -1273,7 +1275,7 @@ int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 			pcard->temp.reason_player = pcard->current.reason_player;
 			pcard->current.reason_effect = peffect;
 			pcard->current.reason_player = peffect->get_handler_player();
-			send_to(pcard, 0, REASON_EFFECT, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+			send_to(pcard, 0, REASON_EFFECT, PLAYER_SELFDES, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		}
 		core.self_tograve_set.erase(it);
 		core.units.begin()->step = 19;
