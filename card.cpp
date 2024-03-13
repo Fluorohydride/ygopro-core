@@ -2513,7 +2513,7 @@ void card::clear_card_target() {
 	effect_target_cards.clear();
 }
 void card::set_special_summon_status(effect* peffect) {
-	if((peffect->code == EFFECT_SPSUMMON_PROC || peffect->code == EFFECT_SPSUMMON_PROC_G)
+	if(!peffect || (peffect->code == EFFECT_SPSUMMON_PROC || peffect->code == EFFECT_SPSUMMON_PROC_G)
 		&& peffect->is_flag(EFFECT_FLAG_CANNOT_DISABLE) && peffect->is_flag(EFFECT_FLAG_UNCOPYABLE)) {
 		spsummon.code = 0;
 		spsummon.code2 = 0;
