@@ -216,6 +216,7 @@ public:
 	static int32 card_is_link_summonable(lua_State *L);
 	static int32 card_is_can_be_summoned(lua_State *L);
 	static int32 card_is_can_be_special_summoned(lua_State *L);
+	static int32 card_is_can_be_placed_on_field(lua_State *L);
 	static int32 card_is_able_to_hand(lua_State *L);
 	static int32 card_is_able_to_grave(lua_State *L);
 	static int32 card_is_able_to_deck(lua_State *L);
