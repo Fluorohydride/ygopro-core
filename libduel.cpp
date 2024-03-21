@@ -4765,6 +4765,11 @@ int32 scriptlib::duel_majestic_copy(lua_State *L) {
 	}
 	return 0;
 }
+int32 scriptlib::duel_assume_reset(lua_State *L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	pduel->restore_assumes();
+	return 0;
+}
 
 static const struct luaL_Reg duellib[] = {
 	{ "EnableGlobalFlag", scriptlib::duel_enable_global_flag },
@@ -4993,6 +4998,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsAbleToEnterBP", scriptlib::duel_is_able_to_enter_bp },
 	{ "SwapDeckAndGrave", scriptlib::duel_swap_deck_and_grave },
 	{ "MajesticCopy", scriptlib::duel_majestic_copy },
+	{ "AssumeReset", scriptlib::duel_assume_reset },
 	{ NULL, NULL }
 };
 void scriptlib::open_duellib(lua_State *L) {
