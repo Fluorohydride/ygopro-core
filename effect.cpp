@@ -824,3 +824,59 @@ int32 effect::get_code_type() {
 	else
 		return CODE_VALUE;
 }
+void effect::set_active_code() {
+	card* phandler = get_handler();
+	active_code = phandler->get_code();
+	active_code2 = phandler->get_another_code();
+	active_setcode.clear();
+	effect_set eset;
+	phandler->filter_effect(EFFECT_ADD_SETCODE, &eset);
+	for(int32 i = 0; i < eset.size(); ++i) {
+		active_setcode.push_back((uint32)eset[i]->get_value(phandler) & 0xffff);
+	}
+}
+uint32 effect::get_active_code(bool is_another) {
+	if(is_another) {
+		if(type & 0x7f0) {
+			if(active_code2)
+				return active_code2;
+			else
+				return get_handler()->get_another_code();
+		} else
+			return owner->get_another_code();
+	} else {
+		if(type & 0x7f0) {
+			if(active_code)
+				return active_code;
+			else
+				return get_handler()->get_code();
+		} else
+			return owner->get_code();
+	}
+}
+int32 effect::is_active_setcode(uint32 set_code) {
+	if(type & 0x7f0) {
+		if(active_code) {
+			if (get_handler()->check_card_setcode(active_code, set_code))
+				return TRUE;
+			if (active_code2 && get_handler()->check_card_setcode(active_code2, set_code))
+				return TRUE;
+			//add set code
+			for(auto& actsetcode : active_setcode) {
+				uint16_t settype = actsetcode & 0x0fff;
+				uint16_t setsubtype = actsetcode & 0xf000;
+				if ((actsetcode & 0x0fff) == settype && (actsetcode & 0xf000 & setsubtype) == setsubtype)
+					return TRUE;
+			}
+			return FALSE;
+		} else
+			return get_handler()->is_set_card(set_code);
+	} else
+		return owner->is_set_card(set_code);
+}
+void effect::clear_active_info() {
+	active_type = 0;
+	active_code = 0;
+	active_code2 = 0;
+	active_setcode.clear();
+}

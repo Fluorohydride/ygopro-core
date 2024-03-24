@@ -53,6 +53,9 @@ public:
 	uint16 active_location{ 0 };
 	uint16 active_sequence{ 0 };
 	card* active_handler{ nullptr };
+	uint32 active_code{ 0 };
+	uint32 active_code2{ 0 };
+	std::vector<uint16_t> active_setcode;
 	uint16 status{ 0 };
 	std::vector<uint32> label;
 	int32 label_object{ 0 };
@@ -109,6 +112,10 @@ public:
 	void set_active_type();
 	uint32 get_active_type();
 	int32 get_code_type();
+	void set_active_code();
+	uint32 get_active_code(bool is_another = false);
+	int32 is_active_setcode(uint32 set_code);
+	void clear_active_info();
 
 	bool is_flag(effect_flag flag) const {
 		return !!(this->flag[0] & flag);

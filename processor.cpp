@@ -1321,7 +1321,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				if(tp == core.current_player)
 					core.select_chains.push_back(*clit);
 			} else {
-				peffect->active_type = 0;
+				peffect->clear_active_info();
 				clit = core.new_fchain_s.erase(clit);
 				continue;
 			}
@@ -1384,7 +1384,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				if(tp == core.current_player)
 					core.select_chains.push_back(*clit);
 			} else {
-				peffect->active_type = 0;
+				peffect->clear_active_info();
 				clit = core.new_ochain_s.erase(clit);
 				continue;
 			}
@@ -1411,7 +1411,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 	case 6: {
 		if(returns.ivalue[0] == -1) {
 			for(const auto& ch : core.select_chains) {
-				ch.triggering_effect->active_type = 0;
+				ch.triggering_effect->clear_active_info();
 				core.new_ochain_s.remove_if([chain_id = ch.chain_id](chain ch) { return ch.chain_id == chain_id; });
 			}
 			if(core.new_ochain_s.size()) {
@@ -2038,6 +2038,7 @@ int32 field::process_single_event(effect* peffect, const tevent& e, chain_list& 
 				core.new_fchain.push_back(newchain);
 		}
 		peffect->set_active_type();
+		peffect->set_active_code();
 		phandler->create_relation(newchain);
 		effect* deffect;
 		if(deffect = phandler->is_affected_by_effect(EFFECT_DISABLE_EFFECT)) {
@@ -4077,6 +4078,7 @@ int32 field::add_chain(uint16 step) {
 		if((peffect->card_type & (TYPE_TRAP | TYPE_MONSTER)) == (TYPE_TRAP | TYPE_MONSTER))
 			peffect->card_type -= TYPE_TRAP;
 		peffect->set_active_type();
+		peffect->set_active_code();
 		peffect->active_handler = peffect->handler->overlay_target;
 		clit.chain_count = (uint8)core.current_chain.size() + 1;
 		clit.target_cards = 0;
@@ -4468,7 +4470,7 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 					destroy(fscard, 0, REASON_RULE, 1 - pcard->current.controler);
 			}
 		}
-		peffect->active_type = 0;
+		peffect->clear_active_info();
 		peffect->active_handler = 0;
 		pcard->release_relation(*cait);
 		if(cait->target_cards)
