@@ -3168,9 +3168,18 @@ int32 scriptlib::duel_get_synchro_material(lua_State *L) {
 	int32 playerid = (int32)lua_tointeger(L, 1);
 	if(playerid != 0 && playerid != 1)
 		return 0;
+	uint32 facedown = FALSE;
+	if (lua_gettop(L) >= 2)
+		facedown = lua_toboolean(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
+	group::card_set mats;
+	pduel->game_field->get_synchro_material(playerid, &mats);
 	group* pgroup = pduel->new_group();
-	pduel->game_field->get_synchro_material(playerid, &pgroup->container);
+	for (auto cit = mats.begin(); cit != mats.end(); ++cit) {
+		card* pcard = *cit;
+		if (facedown || (pcard->current.location != LOCATION_MZONE || pcard->is_position(POS_FACEUP)))
+			pgroup->container.insert(*cit);
+	}
 	interpreter::group2value(L, pgroup);
 	return 1;
 }
