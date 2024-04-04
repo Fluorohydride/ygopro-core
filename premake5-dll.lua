@@ -1,4 +1,4 @@
-newoption { trigger = "lua-dir", description = "", value = "PATH", default="./lua" }
+newoption { trigger = "lua-dir", description = "", value = "PATH", default = "./lua" }
 
 function GetParam(param)
     return _OPTIONS[param] or os.getenv(string.upper(string.gsub(param,"-","_")))
@@ -6,7 +6,7 @@ end
 
 LUA_DIR=GetParam("lua-dir")
 if not os.isdir(LUA_DIR) then
-	LUA_DIR="../lua"
+    LUA_DIR="../lua"
 end
 
 workspace "ocgcoredll"
@@ -16,11 +16,11 @@ workspace "ocgcoredll"
     configurations { "Release", "Debug" }
     platforms { "x32", "x64" }
     
-	filter "platforms:x32"
-		architecture "x32"
+    filter "platforms:x32"
+        architecture "x32"
 
-	filter "platforms:x64"
-		architecture "x64"
+    filter "platforms:x64"
+        architecture "x64"
 
     filter "configurations:Release"
         optimize "Speed"
