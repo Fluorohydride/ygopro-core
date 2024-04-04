@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@latest
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -35,7 +35,7 @@ jobs:
         msbuild build\ocgcoredll.sln /t:Build /p:Configuration=Release;Platform=x64
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@latest
+      uses: actions/upload-artifact@v4
       with:
         path: |
           build\bin\x32\Release\ocgcore.dll
