@@ -20,6 +20,7 @@ jobs:
       run: |
         bash -c "curl --retry 5 --connect-timeout 30 --location --remote-header-name --remote-name https://www.lua.org/ftp/lua-5.4.6.tar.gz ; exit 0"
         7z x lua-5.4.6.tar.gz
+        dir
         move lua-5.4.6 lua
 
     - name: Premake
