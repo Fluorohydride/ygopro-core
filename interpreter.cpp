@@ -5,6 +5,7 @@
  *      Author: Argon
  */
 
+#include <cstring>
 #include "duel.h"
 #include "group.h"
 #include "card.h"
@@ -17,32 +18,19 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_state = luaL_newstate();
 	current_state = lua_state;
 	pduel = pd;
-	memcpy(lua_getextraspace(lua_state), &pd, LUA_EXTRASPACE); //set_duel_info
+	std::memcpy(lua_getextraspace(lua_state), &pd, LUA_EXTRASPACE); //set_duel_info
 	no_action = 0;
 	call_depth = 0;
 	//Initial
-	luaL_openlibs(lua_state);
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "io");
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "os");
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "package");
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "debug");
-	lua_pushnil(lua_state);
-	lua_setglobal(lua_state, "coroutine");
-	luaL_getsubtable(lua_state, LUA_REGISTRYINDEX, "_LOADED");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "io");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "os");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "package");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "debug");
-	lua_pushnil(lua_state);
-	lua_setfield(lua_state, -2, "coroutine");
+	luaL_requiref(lua_state, "base", luaopen_base, 0);
+	lua_pop(lua_state, 1);
+	luaL_requiref(lua_state, "string", luaopen_string, 1);
+	lua_pop(lua_state, 1);
+	luaL_requiref(lua_state, "utf8", luaopen_utf8, 1);
+	lua_pop(lua_state, 1);
+	luaL_requiref(lua_state, "table", luaopen_table, 1);
+	lua_pop(lua_state, 1);
+	luaL_requiref(lua_state, "math", luaopen_math, 1);
 	lua_pop(lua_state, 1);
 	//open all libs
 	scriptlib::open_cardlib(lua_state);
@@ -53,27 +41,29 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	//extra scripts
 	load_script("./script/constant.lua");
 	load_script("./script/utility.lua");
+	load_script("./script/procedure.lua");
 }
 interpreter::~interpreter() {
 	lua_close(lua_state);
 }
 int32 interpreter::register_card(card *pcard) {
 	//create a card in by userdata
-	luaL_checkstack(lua_state, 1, NULL);
-	luaL_checkstack(current_state, 1, NULL);
-	card ** ppcard = (card**) lua_newuserdata(lua_state, sizeof(card*));
+	luaL_checkstack(lua_state, 1, nullptr);
+	luaL_checkstack(current_state, 1, nullptr);
+	card ** ppcard = (card**) lua_newuserdata(lua_state, sizeof(card*));	//+1 userdata
 	*ppcard = pcard;
-	pcard->ref_handle = luaL_ref(lua_state, LUA_REGISTRYINDEX);
+	pcard->ref_handle = luaL_ref(lua_state, LUA_REGISTRYINDEX);				//-1
 	//some userdata may be created in script like token so use current_state
-	lua_rawgeti(current_state, LUA_REGISTRYINDEX, pcard->ref_handle);
+	lua_rawgeti(current_state, LUA_REGISTRYINDEX, pcard->ref_handle);	//+1 userdata
 	//load script
-	if(pcard->data.alias && (pcard->data.alias < pcard->data.code + CARD_ARTWORK_VERSIONS_OFFSET) && (pcard->data.code < pcard->data.alias + CARD_ARTWORK_VERSIONS_OFFSET))
+	if(pcard->data.is_alternative())
 		load_card_script(pcard->data.alias);
 	else
 		load_card_script(pcard->data.code);
+	//stack: table cxxx, userdata
 	//set metatable of pointer to base script
-	lua_setmetatable(current_state, -2);
-	lua_pop(current_state, 1);
+	lua_setmetatable(current_state, -2);	//-1
+	lua_pop(current_state, 1);				//-1
 	//Initial
 	if(pcard->data.code && (!(pcard->data.type & TYPE_NORMAL) || (pcard->data.type & TYPE_PENDULUM))) {
 		pcard->set_status(STATUS_INITIALIZING, TRUE);
@@ -88,7 +78,7 @@ void interpreter::register_effect(effect *peffect) {
 	if (!peffect)
 		return;
 	//create a effect in by userdata
-	luaL_checkstack(lua_state, 3, NULL);
+	luaL_checkstack(lua_state, 3, nullptr);
 	effect ** ppeffect = (effect**) lua_newuserdata(lua_state, sizeof(effect*));
 	*ppeffect = peffect;
 	peffect->ref_handle = luaL_ref(lua_state, LUA_REGISTRYINDEX);
@@ -118,7 +108,7 @@ void interpreter::register_group(group *pgroup) {
 	if (!pgroup)
 		return;
 	//create a group in by userdata
-	luaL_checkstack(lua_state, 3, NULL);
+	luaL_checkstack(lua_state, 3, nullptr);
 	group ** ppgroup = (group**) lua_newuserdata(lua_state, sizeof(group*));
 	*ppgroup = pgroup;
 	pgroup->ref_handle = luaL_ref(lua_state, LUA_REGISTRYINDEX);
@@ -139,47 +129,47 @@ int32 interpreter::load_script(const char* script_name) {
 	byte* buffer = read_script(script_name, &len);
 	if (!buffer)
 		return OPERATION_FAIL;
-	no_action++;
+	++no_action;
 	int32 error = luaL_loadbuffer(current_state, (char*)buffer, len, script_name) || lua_pcall(current_state, 0, 0, 0);
 	if (error) {
 		sprintf(pduel->strbuffer, "%s", lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);
-		no_action--;
+		--no_action;
 		return OPERATION_FAIL;
 	}
-	no_action--;
+	--no_action;
 	return OPERATION_SUCCESS;
 }
 int32 interpreter::load_card_script(uint32 code) {
 	char class_name[20];
 	sprintf(class_name, "c%d", code);
-	luaL_checkstack(current_state, 1, NULL);
-	lua_getglobal(current_state, class_name);
+	luaL_checkstack(current_state, 1, nullptr);
+	lua_getglobal(current_state, class_name);	//+1 table cxxx
 	//if script is not loaded, create and load it
 	if (lua_isnil(current_state, -1)) {
-		luaL_checkstack(current_state, 5, NULL);
-		lua_pop(current_state, 1);
+		luaL_checkstack(current_state, 5, nullptr);
+		lua_pop(current_state, 1);	//-1
 		//create a table & set metatable
-		lua_createtable(current_state, 0, 0);
-		lua_setglobal(current_state, class_name);
-		lua_getglobal(current_state, class_name);
-		lua_getglobal(current_state, "Card");
-		lua_setmetatable(current_state, -2);
-		lua_pushstring(current_state, "__index");
-		lua_pushvalue(current_state, -2);
-		lua_rawset(current_state, -3);
-		lua_getglobal(current_state, class_name);
-		lua_setglobal(current_state, "self_table");
-		lua_pushinteger(current_state, code);
-		lua_setglobal(current_state, "self_code");
+		lua_createtable(current_state, 0, 0);		//+1, {}
+		lua_setglobal(current_state, class_name);	//-1
+		lua_getglobal(current_state, class_name);	//+1 table cxxx
+		lua_getglobal(current_state, "Card");		//+1 Card, table cxxx
+		lua_setmetatable(current_state, -2);		//-1 table cxxx
+		lua_pushstring(current_state, "__index");	//+1 "__index", table cxxx
+		lua_pushvalue(current_state, -2);			//+1 table cxxx, "__index", table cxxx
+		lua_rawset(current_state, -3);				//-2 table cxxx
+		lua_getglobal(current_state, class_name);	//+1
+		lua_setglobal(current_state, "self_table");	//-1
+		lua_pushinteger(current_state, code);		//+1
+		lua_setglobal(current_state, "self_code");	//-1
 		char script_name[64];
 		sprintf(script_name, "./script/c%d.lua", code);
 		int32 res = load_script(script_name);
-		lua_pushnil(current_state);
-		lua_setglobal(current_state, "self_table");
-		lua_pushnil(current_state);
-		lua_setglobal(current_state, "self_code");
+		lua_pushnil(current_state);					//+1
+		lua_setglobal(current_state, "self_table"); //-1
+		lua_pushnil(current_state);					//+1
+		lua_setglobal(current_state, "self_code");	//-1 table cxxx {__index: cxxx }
 		if(!res) {
 			return OPERATION_FAIL;
 		}
@@ -201,7 +191,7 @@ void interpreter::add_param(int32 param, int32 type, bool front) {
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	int32 pushed = 0;
 	for (const auto& it : params) {
-		luaL_checkstack(L, 1, NULL);
+		luaL_checkstack(L, 1, nullptr);
 		uint32 type = it.second;
 		switch(type) {
 		case PARAM_TYPE_INT:
@@ -255,7 +245,7 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 			break;
 		}
 		}
-		pushed++;
+		++pushed;
 	}
 	params.clear();
 }
@@ -280,23 +270,23 @@ int32 interpreter::call_function(int32 f, uint32 param_count, int32 ret_count) {
 		params.clear();
 		return OPERATION_FAIL;
 	}
-	no_action++;
-	call_depth++;
+	++no_action;
+	++call_depth;
 	push_param(current_state);
 	if (lua_pcall(current_state, param_count, ret_count, 0)) {
 		sprintf(pduel->strbuffer, "%s", lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);
-		no_action--;
-		call_depth--;
+		--no_action;
+		--call_depth;
 		if(call_depth == 0) {
 			pduel->release_script_group();
 			pduel->restore_assumes();
 		}
 		return OPERATION_FAIL;
 	}
-	no_action--;
-	call_depth--;
+	--no_action;
+	--call_depth;
 	if(call_depth == 0) {
 		pduel->release_script_group();
 		pduel->restore_assumes();
@@ -311,7 +301,7 @@ int32 interpreter::call_card_function(card* pcard, const char* f, uint32 param_c
 		return OPERATION_FAIL;
 	}
 	card2value(current_state, pcard);
-	luaL_checkstack(current_state, 1, NULL);
+	luaL_checkstack(current_state, 1, nullptr);
 	lua_getfield(current_state, -1, f);
 	if (!lua_isfunction(current_state, -1)) {
 		sprintf(pduel->strbuffer, "\"CallCardFunction\"(c%d.%s): attempt to call an error function", pcard->data.code, f);
@@ -320,24 +310,24 @@ int32 interpreter::call_card_function(card* pcard, const char* f, uint32 param_c
 		params.clear();
 		return OPERATION_FAIL;
 	}
-	no_action++;
-	call_depth++;
+	++no_action;
+	++call_depth;
 	lua_remove(current_state, -2);
 	push_param(current_state);
 	if (lua_pcall(current_state, param_count, ret_count, 0)) {
 		sprintf(pduel->strbuffer, "%s", lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);
-		no_action--;
-		call_depth--;
+		--no_action;
+		--call_depth;
 		if(call_depth == 0) {
 			pduel->release_script_group();
 			pduel->restore_assumes();
 		}
 		return OPERATION_FAIL;
 	}
-	no_action--;
-	call_depth--;
+	--no_action;
+	--call_depth;
 	if(call_depth == 0) {
 		pduel->release_script_group();
 		pduel->restore_assumes();
@@ -352,7 +342,7 @@ int32 interpreter::call_code_function(uint32 code, const char* f, uint32 param_c
 		return OPERATION_FAIL;
 	}
 	load_card_script(code);
-	luaL_checkstack(current_state, 1, NULL);
+	luaL_checkstack(current_state, 1, nullptr);
 	lua_getfield(current_state, -1, f);
 	if (!lua_isfunction(current_state, -1)) {
 		sprintf(pduel->strbuffer, "\"CallCodeFunction\": attempt to call an error function");
@@ -362,23 +352,23 @@ int32 interpreter::call_code_function(uint32 code, const char* f, uint32 param_c
 		return OPERATION_FAIL;
 	}
 	lua_remove(current_state, -2);
-	no_action++;
-	call_depth++;
+	++no_action;
+	++call_depth;
 	push_param(current_state);
 	if (lua_pcall(current_state, param_count, ret_count, 0)) {
 		sprintf(pduel->strbuffer, "%s", lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);
-		no_action--;
-		call_depth--;
+		--no_action;
+		--call_depth;
 		if(call_depth == 0) {
 			pduel->release_script_group();
 			pduel->restore_assumes();
 		}
 		return OPERATION_FAIL;
 	}
-	no_action--;
-	call_depth--;
+	--no_action;
+	--call_depth;
 	if(call_depth == 0) {
 		pduel->release_script_group();
 		pduel->restore_assumes();
@@ -390,21 +380,21 @@ int32 interpreter::check_condition(int32 f, uint32 param_count) {
 		params.clear();
 		return TRUE;
 	}
-	no_action++;
-	call_depth++;
+	++no_action;
+	++call_depth;
 	if (call_function(f, param_count, 1)) {
 		int32 result = lua_toboolean(current_state, -1);
 		lua_pop(current_state, 1);
-		no_action--;
-		call_depth--;
+		--no_action;
+		--call_depth;
 		if(call_depth == 0) {
 			pduel->release_script_group();
 			pduel->restore_assumes();
 		}
 		return result;
 	}
-	no_action--;
-	call_depth--;
+	--no_action;
+	--call_depth;
 	if(call_depth == 0) {
 		pduel->release_script_group();
 		pduel->restore_assumes();
@@ -414,9 +404,9 @@ int32 interpreter::check_condition(int32 f, uint32 param_count) {
 int32 interpreter::check_matching(card* pcard, int32 findex, int32 extraargs) {
 	if(!findex || lua_isnil(current_state, findex))
 		return TRUE;
-	no_action++;
-	call_depth++;
-	luaL_checkstack(current_state, 1 + extraargs, NULL);
+	++no_action;
+	++call_depth;
+	luaL_checkstack(current_state, 1 + extraargs, nullptr);
 	lua_pushvalue(current_state, findex);
 	interpreter::card2value(current_state, pcard);
 	for(int32 i = 0; i < extraargs; ++i)
@@ -425,8 +415,8 @@ int32 interpreter::check_matching(card* pcard, int32 findex, int32 extraargs) {
 		sprintf(pduel->strbuffer, "%s", lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);
-		no_action--;
-		call_depth--;
+		--no_action;
+		--call_depth;
 		if(call_depth == 0) {
 			pduel->release_script_group();
 			pduel->restore_assumes();
@@ -435,8 +425,8 @@ int32 interpreter::check_matching(card* pcard, int32 findex, int32 extraargs) {
 	}
 	int32 result = lua_toboolean(current_state, -1);
 	lua_pop(current_state, 1);
-	no_action--;
-	call_depth--;
+	--no_action;
+	--call_depth;
 	if(call_depth == 0) {
 		pduel->release_script_group();
 		pduel->restore_assumes();
@@ -446,9 +436,9 @@ int32 interpreter::check_matching(card* pcard, int32 findex, int32 extraargs) {
 int32 interpreter::get_operation_value(card* pcard, int32 findex, int32 extraargs) {
 	if(!findex || lua_isnil(current_state, findex))
 		return 0;
-	no_action++;
-	call_depth++;
-	luaL_checkstack(current_state, 1 + extraargs, NULL);
+	++no_action;
+	++call_depth;
+	luaL_checkstack(current_state, 1 + extraargs, nullptr);
 	lua_pushvalue(current_state, findex);
 	interpreter::card2value(current_state, pcard);
 	for(int32 i = 0; i < extraargs; ++i)
@@ -457,8 +447,8 @@ int32 interpreter::get_operation_value(card* pcard, int32 findex, int32 extraarg
 		sprintf(pduel->strbuffer, "%s", lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
 		lua_pop(current_state, 1);
-		no_action--;
-		call_depth--;
+		--no_action;
+		--call_depth;
 		if(call_depth == 0) {
 			pduel->release_script_group();
 			pduel->restore_assumes();
@@ -467,8 +457,8 @@ int32 interpreter::get_operation_value(card* pcard, int32 findex, int32 extraarg
 	}
 	int32 result = lua_isinteger(current_state, -1) ? (int32)lua_tointeger(current_state, -1) : (int32)lua_tonumber(current_state, -1);
 	lua_pop(current_state, 1);
-	no_action--;
-	call_depth--;
+	--no_action;
+	--call_depth;
 	if(call_depth == 0) {
 		pduel->release_script_group();
 		pduel->restore_assumes();
@@ -480,8 +470,8 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count) {
 		params.clear();
 		return 0;
 	}
-	no_action++;
-	call_depth++;
+	++no_action;
+	++call_depth;
 	if (call_function(f, param_count, 1)) {
 		int32 result = 0;
 		if(lua_isboolean(current_state, -1))
@@ -491,16 +481,16 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count) {
 		else
 			result = (int32)lua_tonumber(current_state, -1);
 		lua_pop(current_state, 1);
-		no_action--;
-		call_depth--;
+		--no_action;
+		--call_depth;
 		if(call_depth == 0) {
 			pduel->release_script_group();
 			pduel->restore_assumes();
 		}
 		return result;
 	}
-	no_action--;
-	call_depth--;
+	--no_action;
+	--call_depth;
 	if(call_depth == 0) {
 		pduel->release_script_group();
 		pduel->restore_assumes();
@@ -514,8 +504,8 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count, std::vector<i
 		return is_success;
 	}
 	int32 stack_top = lua_gettop(current_state);
-	no_action++;
-	call_depth++;
+	++no_action;
+	++call_depth;
 	if (call_function(f, param_count, LUA_MULTRET)) {
 		int32 stack_newtop = lua_gettop(current_state);
 		for (int32 index = stack_top + 1; index <= stack_newtop; ++index) {
@@ -531,8 +521,8 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count, std::vector<i
 		lua_settop(current_state, stack_top);
 		is_success = OPERATION_SUCCESS;
 	}
-	no_action--;
-	call_depth--;
+	--no_action;
+	--call_depth;
 	if(call_depth == 0) {
 		pduel->release_script_group();
 		pduel->restore_assumes();
@@ -564,7 +554,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 			params.clear();
 			return OPERATION_FAIL;
 		}
-		call_depth++;
+		++call_depth;
 		coroutines.emplace(f, rthread);
 	} else {
 		rthread = it->second;
@@ -572,7 +562,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 			sprintf(pduel->strbuffer, "recursive event trigger detected.");
 			handle_message(pduel, 1);
 			params.clear();
-			call_depth--;
+			--call_depth;
 			if(call_depth == 0) {
 				pduel->release_script_group();
 				pduel->restore_assumes();
@@ -590,7 +580,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	int32 result = lua_resume(rthread, 0, param_count);
 	int32 nresults = lua_gettop(rthread);
 #endif
-	if (result == 0) {
+	if (result == LUA_OK) {
 		coroutines.erase(f);
 		if(yield_value) {
 			if(nresults == 0)
@@ -601,7 +591,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 				*yield_value = (uint32)lua_tointeger(rthread, -1);
 		}
 		current_state = lua_state;
-		call_depth--;
+		--call_depth;
 		if(call_depth == 0) {
 			pduel->release_script_group();
 			pduel->restore_assumes();
@@ -615,7 +605,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 		handle_message(pduel, 1);
 		lua_pop(rthread, 1);
 		current_state = lua_state;
-		call_depth--;
+		--call_depth;
 		if(call_depth == 0) {
 			pduel->release_script_group();
 			pduel->restore_assumes();
@@ -624,7 +614,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	}
 }
 int32 interpreter::clone_function_ref(int32 func_ref) {
-	luaL_checkstack(current_state, 1, NULL);
+	luaL_checkstack(current_state, 1, nullptr);
 	lua_rawgeti(current_state, LUA_REGISTRYINDEX, func_ref);
 	int32 ref = luaL_ref(current_state, LUA_REGISTRYINDEX);
 	return ref;
@@ -632,7 +622,7 @@ int32 interpreter::clone_function_ref(int32 func_ref) {
 void* interpreter::get_ref_object(int32 ref_handler) {
 	if(ref_handler == 0)
 		return nullptr;
-	luaL_checkstack(current_state, 1, NULL);
+	luaL_checkstack(current_state, 1, nullptr);
 	lua_rawgeti(current_state, LUA_REGISTRYINDEX, ref_handler);
 	void* p = *(void**)lua_touserdata(current_state, -1);
 	lua_pop(current_state, 1);
@@ -640,41 +630,41 @@ void* interpreter::get_ref_object(int32 ref_handler) {
 }
 //Convert a pointer to a lua value, +1 -0
 void interpreter::card2value(lua_State* L, card* pcard) {
-	luaL_checkstack(L, 1, NULL);
+	luaL_checkstack(L, 1, nullptr);
 	if (!pcard || pcard->ref_handle == 0)
 		lua_pushnil(L);
 	else
 		lua_rawgeti(L, LUA_REGISTRYINDEX, pcard->ref_handle);
 }
 void interpreter::group2value(lua_State* L, group* pgroup) {
-	luaL_checkstack(L, 1, NULL);
+	luaL_checkstack(L, 1, nullptr);
 	if (!pgroup || pgroup->ref_handle == 0)
 		lua_pushnil(L);
 	else
 		lua_rawgeti(L, LUA_REGISTRYINDEX, pgroup->ref_handle);
 }
 void interpreter::effect2value(lua_State* L, effect* peffect) {
-	luaL_checkstack(L, 1, NULL);
+	luaL_checkstack(L, 1, nullptr);
 	if (!peffect || peffect->ref_handle == 0)
 		lua_pushnil(L);
 	else
 		lua_rawgeti(L, LUA_REGISTRYINDEX, peffect->ref_handle);
 }
 void interpreter::function2value(lua_State* L, int32 func_ref) {
-	luaL_checkstack(L, 1, NULL);
+	luaL_checkstack(L, 1, nullptr);
 	if (!func_ref)
 		lua_pushnil(L);
 	else
 		lua_rawgeti(L, LUA_REGISTRYINDEX, func_ref);
 }
 int32 interpreter::get_function_handle(lua_State* L, int32 index) {
-	luaL_checkstack(L, 1, NULL);
+	luaL_checkstack(L, 1, nullptr);
 	lua_pushvalue(L, index);
 	int32 ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	return ref;
 }
 duel* interpreter::get_duel_info(lua_State * L) {
 	duel* pduel;
-	memcpy(&pduel, lua_getextraspace(L), LUA_EXTRASPACE);
+	std::memcpy(&pduel, lua_getextraspace(L), LUA_EXTRASPACE);
 	return pduel;
 }

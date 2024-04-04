@@ -27,41 +27,41 @@ enum effect_flag2 : uint32;
 
 class effect {
 public:
-	int32 ref_handle;
-	duel* pduel;
-	card* owner;
-	card* handler;
-	uint8 effect_owner;
-	uint32 description;
-	uint32 code;
-	uint32 flag[2];
-	uint32 id;
-	uint16 type;
-	uint16 copy_id;
-	uint16 range;
-	uint16 s_range;
-	uint16 o_range;
-	uint8 count_limit;
-	uint8 count_limit_max;
-	uint16 reset_count;
-	uint32 reset_flag;
-	uint32 count_code;
-	uint32 category;
-	uint32 hint_timing[2];
-	uint32 card_type;
-	uint32 active_type;
-	uint16 active_location;
-	uint16 active_sequence;
-	card* active_handler;
-	uint16 status;
+	int32 ref_handle{ 0 };
+	duel* pduel{ nullptr };
+	card* owner{ nullptr };
+	card* handler{ nullptr };
+	uint8 effect_owner{ PLAYER_NONE };
+	uint32 description{ 0 };
+	uint32 code{ 0 };
+	uint32 flag[2]{};
+	uint32 id{ 0 };
+	uint16 type{ 0 };
+	uint16 copy_id{ 0 };
+	uint16 range{ 0 };
+	uint16 s_range{ 0 };
+	uint16 o_range{ 0 };
+	uint8 count_limit{ 0 };
+	uint8 count_limit_max{ 0 };
+	uint16 reset_count{ 0 };
+	uint32 reset_flag{ 0 };
+	uint32 count_code{ 0 };
+	uint32 category{ 0 };
+	uint32 hint_timing[2]{};
+	uint32 card_type{ 0 };
+	uint32 active_type{ 0 };
+	uint16 active_location{ 0 };
+	uint16 active_sequence{ 0 };
+	card* active_handler{ nullptr };
+	uint16 status{ 0 };
 	std::vector<uint32> label;
-	int32 label_object;
-	int32 condition;
-	int32 cost;
-	int32 target;
-	int32 value;
-	int32 operation;
-	uint8 cost_checked;
+	int32 label_object{ 0 };
+	int32 condition{ 0 };
+	int32 cost{ 0 };
+	int32 target{ 0 };
+	int32 value{ 0 };
+	int32 operation{ 0 };
+	uint8 cost_checked{ FALSE };
 
 	explicit effect(duel* pd);
 	~effect() = default;
@@ -123,8 +123,10 @@ public:
 //#define EFFECT_STATUS_ACTIVATED	0x0002
 #define EFFECT_STATUS_SPSELF	0x0004
 
-#define EFFECT_COUNT_CODE_OATH 0x10000000
-#define EFFECT_COUNT_CODE_DUEL 0x20000000
+#define EFFECT_COUNT_CODE_OATH	0x10000000
+#define EFFECT_COUNT_CODE_DUEL	0x20000000
+#define EFFECT_COUNT_CODE_CHAIN	0x40000000
+#define EFFECT_COUNT_CODE_SINGLE	0x1
 
 //========== Reset ==========
 #define RESET_SELF_TURN		0x10000000
@@ -204,7 +206,7 @@ enum effect_flag : uint32 {
 	EFFECT_FLAG_IMMEDIATELY_APPLY	= 0x80000000,
 };
 enum effect_flag2 : uint32 {
-//	EFFECT_FLAG2_MILLENNIUM_RESTRICT	= 0x0001,
+	EFFECT_FLAG2_REPEAT_UPDATE			= 0x0001,
 	EFFECT_FLAG2_COF					= 0x0002,
 	EFFECT_FLAG2_WICKED					= 0x0004,
 	EFFECT_FLAG2_OPTION					= 0x0008,
@@ -383,7 +385,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_TOSS_DICE_REPLACE		221
 #define EFFECT_FUSION_MATERIAL			230
 #define EFFECT_CHAIN_MATERIAL			231
-#define EFFECT_SYNCHRO_MATERIAL			232
+#define EFFECT_EXTRA_SYNCHRO_MATERIAL	232
 #define EFFECT_XYZ_MATERIAL				233
 #define EFFECT_FUSION_SUBSTITUTE		234
 #define EFFECT_CANNOT_BE_FUSION_MATERIAL	235
@@ -467,6 +469,9 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EFFECT_CHANGE_GRAVE_RACE		366
 #define EFFECT_ACTIVATION_COUNT_LIMIT	367
 #define EFFECT_LIMIT_SPECIAL_SUMMON_POSITION	368
+#define EFFECT_TUNER					369
+#define EFFECT_KAISER_COLOSSEUM			370
+#define EFFECT_REPLACE_DAMAGE			371
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
@@ -493,6 +498,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_DESTROYED			1029
 #define EVENT_MOVE				1030
 #define EVENT_LEAVE_GRAVE		1031
+#define EVENT_LEAVE_DECK		1032
 #define EVENT_ADJUST			1040
 #define EVENT_BREAK_EFFECT		1050
 #define EVENT_SUMMON_SUCCESS		1100
@@ -512,6 +518,7 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_SUMMON_NEGATED		1114
 #define EVENT_FLIP_SUMMON_NEGATED	1115
 #define EVENT_SPSUMMON_NEGATED		1116
+#define EVENT_SPSUMMON_SUCCESS_G_P	1117
 #define EVENT_CONTROL_CHANGED		1120
 #define EVENT_EQUIP					1121
 #define EVENT_ATTACK_ANNOUNCE		1130
@@ -542,16 +549,26 @@ inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
 #define EVENT_REMOVE_COUNTER		0x20000
 #define EVENT_CUSTOM				0x10000000
 
-#define DOUBLE_DAMAGE				0x80000000
-#define HALF_DAMAGE					0x80000001
+constexpr int32 DOUBLE_DAMAGE = 0x80000000;
+constexpr int32 HALF_DAMAGE = 0x80000001;
 
-// The type of event in code
+// flag effect
+#define EFFECT_FLAG_EFFECT	0x20000000
+#define MAX_CARD_ID			0xfffffff
+
+// The type of effect code
 #define CODE_CUSTOM		1	// header + id (28 bits)
 #define CODE_COUNTER	2	// header + counter_id (16 bits)
 #define CODE_PHASE		3	// header + phase_id (12 bits)
 #define CODE_VALUE		4	// numeric value, max = 4095
 
-const std::unordered_set<uint32> continuous_event({ EVENT_ADJUST, EVENT_BREAK_EFFECT, EVENT_TURN_END });
+const std::unordered_set<uint32> continuous_event{
+	EVENT_ADJUST,
+	EVENT_BREAK_EFFECT,
+	EVENT_TURN_END,
+	EVENT_PRE_BATTLE_DAMAGE,
+	EVENT_SPSUMMON_SUCCESS_G_P,
+};
 bool is_continuous_event(uint32 code);
 
 #endif /* EFFECT_H_ */

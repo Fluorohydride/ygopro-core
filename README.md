@@ -5,10 +5,10 @@ The core logic and lua script processor of YGOPro. This library can be made exte
 
 ## Compiling
 ### 1.) Download Fluorohydride/ygopro
-Start by downloading the most parent of the source code. The team developing this project are the defacto edge and experts in our community. The most upto date `ocgcore` is a compiled dll version of the `Fluorohydride/ygopro/ocgcore` folders project.
+Start by downloading the most parent of the source code. The team developing this project are the de facto edge and experts in our community. The most up-to-date `ocgcore` is a compiled dll version of the `Fluorohydride/ygopro/ocgcore` folders project.
 
-### 2.) Install Premake4 and Visual Studio 2010 (or later).
-Download premake4.exe, put it in `c:\windows` or a similar folder that is globally accessible via `cmd` or PowerShell. Install Visual Studio 2010, it is the system used for the guide because other parts of the project use C# and most the development team are Windows users.
+### 2.) Install Premake5 and Visual Studio 2022 (or later).
+Download premake5.exe, put it in `c:\windows` or a similar folder that is globally accessible via `cmd` or PowerShell. Install Visual Studio 2022, it is the system used for the guide because other parts of the project use C# and most the development team are Windows users.
 
 ### 3.) Download dependencies
 Dependencies are absent from the main project. There is information on how to build them but the easiest thing to do is to download the following folders from a [soarqin/ygopro](https://github.com/soarqin/ygopro) fork and simply copy them into the `Fluorohydride/ygopro` folder.
@@ -22,10 +22,9 @@ Dependencies are absent from the main project. There is information on how to bu
 ### 4.) Create the project files
 Run the following commands from the command line in the `Fluorohydride/ygopro` folder.
 
-` premake4 /help `
-` premake4 vs2010 `
+` premake5 vs2022 `
 
-If you are not using Visual Studio 2010 or higher, make the needed adjustments. In the file system open `Fluorohydride/ygopro/build` folder open the `ygo` project.
+If you are not using Visual Studio 2022 or higher, make necessary adjustments. In the file system open `Fluorohydride/ygopro/build` folder open the `ygo` project.
 
 ### 5.) Build the system
 Make sure the code actually compiles. Compile them in the following order one by one:
