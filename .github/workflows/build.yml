@@ -28,8 +28,11 @@ jobs:
         7z x premake-5.0.0-beta2-windows.zip
         move premake\lua.lua lua\premake5.lua
         .\premake5.exe vs2022 --file=premake\dll.lua
- 
-    - name: Build!
+
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build
       run: |
         msbuild build\ocgcoredll.sln /t:Build /p:Configuration=Release;Platform=Win32
         msbuild build\ocgcoredll.sln /t:Build /p:Configuration=Release;Platform=x64
