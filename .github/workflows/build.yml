@@ -34,8 +34,8 @@ jobs:
 
     - name: Build
       run: |
-        msbuild build\ocgcoredll.sln /t:Build /p:Configuration=Release;Platform=Win32
-        msbuild build\ocgcoredll.sln /t:Build /p:Configuration=Release;Platform=x64
+        msbuild build\ocgcoredll.sln /t:Build /p:"Configuration=Release;Platform=Win32"
+        msbuild build\ocgcoredll.sln /t:Build /p:"Configuration=Release;Platform=x64"
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
