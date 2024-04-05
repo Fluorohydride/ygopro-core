@@ -3177,8 +3177,7 @@ int32 scriptlib::duel_get_synchro_material(lua_State *L) {
 	group* pgroup = pduel->new_group();
 	for (auto cit = mats.begin(); cit != mats.end(); ++cit) {
 		card* pcard = *cit;
-		if (pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP)
-			|| pcard->current.location == LOCATION_MZONE && !pcard->is_position(POS_FACEUP) && !facedown)
+		if (pcard->current.location == LOCATION_MZONE && !pcard->is_position(POS_FACEUP) && !facedown)
 			continue;
 		pgroup->container.insert(*cit);
 	}
