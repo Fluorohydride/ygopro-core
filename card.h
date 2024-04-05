@@ -268,6 +268,7 @@ public:
 	uint32 get_column_zone(int32 location);
 	void get_column_cards(card_set* cset);
 	int32 is_all_column();
+	int32 is_treated_as_not_on_field();
 
 	void equip(card* target, uint32 send_msg = TRUE);
 	void unequip();
