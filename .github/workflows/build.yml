@@ -47,7 +47,7 @@ jobs:
 
     - name: GitHub Release
       if: github.event_name == 'push'
-      uses: marvinpinto/action-automatic-releases@latest
+      uses: salix5/action-automatic-releases@node20
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
