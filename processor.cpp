@@ -3996,37 +3996,8 @@ int32 field::add_chain(uint16 step) {
 			}
 		}
 		if(peffect->type & EFFECT_TYPE_ACTIVATE) {
-			int32 ecode = 0;
-			if(phandler->current.location == LOCATION_HAND) {
-				if(phandler->data.type & TYPE_TRAP)
-					ecode = EFFECT_TRAP_ACT_IN_HAND;
-				else if((phandler->data.type & TYPE_SPELL) && (phandler->data.type & TYPE_QUICKPLAY)
-				        && infos.turn_player != phandler->current.controler)
-					ecode = EFFECT_QP_ACT_IN_NTPHAND;
-			} else if(phandler->current.location == LOCATION_SZONE) {
-				if((phandler->data.type & TYPE_TRAP) && phandler->get_status(STATUS_SET_TURN))
-					ecode = EFFECT_TRAP_ACT_IN_SET_TURN;
-				if((phandler->data.type & TYPE_SPELL) && (phandler->data.type & TYPE_QUICKPLAY) && phandler->get_status(STATUS_SET_TURN))
-					ecode = EFFECT_QP_ACT_IN_SET_TURN;
-			}
-			if(ecode) {
-				eset.clear();
-				phandler->filter_effect(ecode, &eset);
-				effect* pactin = nullptr;
-				for(int32 i = 0; i < eset.size(); ++i) {
-					if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
-						pactin = eset[i];
-						break;
-					}
-				}
-				if(!pactin) {
-					for(int32 i = 0; i < eset.size(); ++i) {
-						if(eset[i]->check_count_limit(phandler->current.controler)) {
-							eset[i]->dec_count(phandler->current.controler);
-							break;
-						}
-					}
-				}
+			if(peffect->get_required_handorset_effects(&clit.required_handorset_effects, clit.triggering_player, clit.evt) != 2) {
+				clit.required_handorset_effects.clear();
 			}
 			if(phandler->current.location == LOCATION_HAND) {
 				uint32 zone = 0xff;
@@ -4172,6 +4143,39 @@ int32 field::add_chain(uint16 step) {
 	}
 	case 5: {
 		auto& clit = core.current_chain.back();
+		if (!clit.required_handorset_effects.size()) {
+			core.units.begin()->step = 6;
+			return FALSE;
+		}
+		if(clit.required_handorset_effects.size() == 1) {
+			returns.ivalue[0] = 0;
+			return FALSE;
+		}
+		core.select_options.clear();
+		for(int32 i = 0; i < clit.required_handorset_effects.size(); ++i) {
+			core.select_options.push_back(clit.required_handorset_effects[i]->description);
+		}
+		add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, clit.triggering_player, 0);
+		return FALSE;
+	}
+	case 6: {
+		auto& clit = core.current_chain.back();
+		auto ceffect = clit.required_handorset_effects[returns.ivalue[0]];
+		ceffect->dec_count(clit.triggering_player);
+		if(ceffect->description) {
+			pduel->write_buffer8(MSG_HINT);
+			pduel->write_buffer8(HINT_OPSELECTED);
+			pduel->write_buffer8(clit.triggering_player);
+			pduel->write_buffer32(ceffect->description);
+		}
+		if(ceffect->cost) {
+			core.sub_solving_event.push_back(clit.evt);
+			add_process(PROCESSOR_EXECUTE_COST, 0, ceffect, 0, clit.triggering_player, 0);
+		}
+		return FALSE;
+	}
+	case 7: {
+		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
 		peffect->cost_checked = TRUE;
 		if(peffect->cost) {
@@ -4180,7 +4184,7 @@ int32 field::add_chain(uint16 step) {
 		}
 		return FALSE;
 	}
-	case 6: {
+	case 8: {
 		auto& clit = core.current_chain.back();
 		effect* peffect = clit.triggering_effect;
 		if(peffect->target) {
@@ -4189,7 +4193,7 @@ int32 field::add_chain(uint16 step) {
 		}
 		return FALSE;
 	}
-	case 7: {
+	case 9: {
 		break_effect();
 		core.is_target_ready = true;
 		auto& clit = core.current_chain.back();

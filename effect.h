@@ -62,6 +62,7 @@ public:
 	int32 value{ 0 };
 	int32 operation{ 0 };
 	uint8 cost_checked{ FALSE };
+	effect_set required_handorset_effects;
 
 	explicit effect(duel* pd);
 	~effect() = default;
@@ -73,7 +74,8 @@ public:
 	int32 limit_counter_is_available();
 	int32 is_single_ready();
 	int32 check_count_limit(uint8 playerid);
-	int32 is_activateable(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE, int32 neglect_loc = FALSE, int32 neglect_faceup = FALSE);
+	int32 get_required_handorset_effects(effect_set* eset, uint8 playerid, const tevent& e, int32 neglect_loc = FALSE);
+	int32 is_activateable(uint8 playerid, const tevent &e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE, int32 neglect_loc = FALSE, int32 neglect_faceup = FALSE);
 	int32 is_action_check(uint8 playerid);
 	int32 is_activate_ready(effect* reason_effect, uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
 	int32 is_activate_ready(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
