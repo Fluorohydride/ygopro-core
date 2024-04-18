@@ -18,6 +18,7 @@
 static script_reader sreader = default_script_reader;
 static card_reader creader = default_card_reader;
 static message_handler mhandler = default_message_handler;
+static mention_handler thandler = default_mention_handler;
 static byte buffer[0x20000];
 static std::set<duel*> duel_set;
 
@@ -30,6 +31,9 @@ extern "C" DECL_DLLEXPORT void set_card_reader(card_reader f) {
 extern "C" DECL_DLLEXPORT void set_message_handler(message_handler f) {
 	mhandler = f;
 }
+extern "C" DECL_DLLEXPORT void set_mention_handler(mention_handler f) {
+	thandler = f;
+}
 byte* read_script(const char* script_name, int* len) {
 	return sreader(script_name, len);
 }
@@ -38,6 +42,9 @@ uint32 read_card(uint32 code, card_data* data) {
 }
 uint32 handle_message(void* pduel, uint32 msg_type) {
 	return mhandler((intptr_t)pduel, msg_type);
+}
+bool is_mention(uint32 text_code, uint32 name_code) {
+	return thandler(text_code, name_code);
 }
 byte* default_script_reader(const char* script_name, int* slen) {
 	FILE *fp;
@@ -56,6 +63,9 @@ uint32 default_card_reader(uint32 code, card_data* data) {
 }
 uint32 default_message_handler(intptr_t pduel, uint32 message_type) {
 	return 0;
+}
+bool default_mention_handler(uint32 text_code, uint32 name_code) {
+	return false;
 }
 extern "C" DECL_DLLEXPORT intptr_t create_duel(uint_fast32_t seed) {
 	duel* pduel = new duel();

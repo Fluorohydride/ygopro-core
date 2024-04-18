@@ -29,14 +29,17 @@ class interpreter;
 typedef byte* (*script_reader)(const char*, int*);
 typedef uint32 (*card_reader)(uint32, card_data*);
 typedef uint32 (*message_handler)(intptr_t, uint32);
+typedef bool (*mention_handler)(uint32, uint32);
 
 extern "C" DECL_DLLEXPORT void set_script_reader(script_reader f);
 extern "C" DECL_DLLEXPORT void set_card_reader(card_reader f);
 extern "C" DECL_DLLEXPORT void set_message_handler(message_handler f);
+extern "C" DECL_DLLEXPORT void set_mention_handler(mention_handler f);
 
 byte* read_script(const char* script_name, int* len);
 uint32 read_card(uint32 code, card_data* data);
 uint32 handle_message(void* pduel, uint32 message_type);
+bool is_mention(uint32 text_code, uint32 name_code);
 
 extern "C" DECL_DLLEXPORT intptr_t create_duel(uint_fast32_t seed);
 extern "C" DECL_DLLEXPORT void start_duel(intptr_t pduel, int32 options);
@@ -57,5 +60,6 @@ extern "C" DECL_DLLEXPORT int32 preload_script(intptr_t pduel, const char* scrip
 byte* default_script_reader(const char* script_name, int* len);
 uint32 default_card_reader(uint32 code, card_data* data);
 uint32 default_message_handler(intptr_t pduel, uint32 msg_type);
+bool default_mention_handler(uint32 text_code, uint32 name_code);
 
 #endif /* OCGAPI_H_ */
