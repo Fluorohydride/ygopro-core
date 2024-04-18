@@ -198,6 +198,7 @@ public:
 	card_set effect_target_owner;
 	card_set effect_target_cards;
 	card_vector xyz_materials;
+	int32 xyz_materials_previous_count_onfield;
 	effect_container single_effect;
 	effect_container field_effect;
 	effect_container equip_effect;
