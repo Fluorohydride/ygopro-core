@@ -589,6 +589,12 @@ int32 card::is_special_summon_set_card(uint32 set_code) {
 	}
 	return FALSE;
 }
+int32 card::is_text_mention(uint32 code) {
+	if (::is_mention(data.code, code))
+		return TRUE;
+	else
+		return FALSE;
+}
 uint32 card::get_type() {
 	if(assume_type == ASSUME_TYPE)
 		return assume_value;

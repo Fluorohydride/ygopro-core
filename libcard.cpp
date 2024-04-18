@@ -252,6 +252,14 @@ int32 scriptlib::card_is_special_summon_set_card(lua_State *L) {
 	lua_pushboolean(L, result);
 	return 1;
 }
+int32 scriptlib::card_is_text_mention(lua_State* L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**)lua_touserdata(L, 1);
+	uint32 code = (uint32)lua_tointeger(L, 2);
+	lua_pushboolean(L, pcard->is_text_mention(code));
+	return 1;
+}
 int32 scriptlib::card_get_type(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -3379,6 +3387,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsFusionSetCard", scriptlib::card_is_fusion_set_card },
 	{ "IsLinkSetCard", scriptlib::card_is_link_set_card },
 	{ "IsSpecialSummonSetCard", scriptlib::card_is_special_summon_set_card },
+	{ "IsTextMention", scriptlib::card_is_text_mention },
 	{ "GetType", scriptlib::card_get_type },
 	{ "GetOriginalType", scriptlib::card_get_origin_type },
 	{ "GetFusionType", scriptlib::card_get_fusion_type },

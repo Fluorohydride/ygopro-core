@@ -35,6 +35,7 @@ public:
 	static int32 card_is_fusion_set_card(lua_State *L);
 	static int32 card_is_link_set_card(lua_State *L);
 	static int32 card_is_special_summon_set_card(lua_State *L);
+	static int32 card_is_text_mention(lua_State* L);
 	static int32 card_get_type(lua_State *L);
 	static int32 card_get_origin_type(lua_State *L);
 	static int32 card_get_fusion_type(lua_State *L);
