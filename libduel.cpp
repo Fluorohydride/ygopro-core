@@ -2430,8 +2430,12 @@ int32 scriptlib::duel_disable_attack(lua_State *L) {
 }
 int32 scriptlib::duel_chain_attack(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
+	card* attacker = pduel->game_field->core.attacker;
+	if(!attacker || !attacker->is_affect_by_effect(pduel->game_field->core.reason_effect)) {
+		return 0;
+	}
 	pduel->game_field->core.chain_attack = TRUE;
-	pduel->game_field->core.chain_attacker_id = pduel->game_field->core.attacker->fieldid;
+	pduel->game_field->core.chain_attacker_id = attacker->fieldid;
 	if(lua_gettop(L) > 0) {
 		check_param(L, PARAM_TYPE_CARD, 1);
 		pduel->game_field->core.chain_attack_target = *(card**) lua_touserdata(L, 1);
