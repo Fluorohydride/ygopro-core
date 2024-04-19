@@ -4558,6 +4558,14 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				adjust_all();
 			}
 		} else if(pzone && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM)) {
+			if((zone & zone - 1) == 0) { // zone was selected in field::add_chain
+				for(uint8 seq = 0; seq < 9; seq++) {
+					if((1 << seq) & zone) {
+						returns.bvalue[2] = seq;
+						return FALSE;
+					}
+				}
+			}
 			uint32 flag = 0;
 			if(is_location_useable(playerid, LOCATION_PZONE, 0))
 				flag |= 0x1u << (core.duel_rule >= 4 ? 8 : 14);
