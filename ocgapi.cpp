@@ -13,6 +13,7 @@
 #include "effect.h"
 #include "field.h"
 #include "interpreter.h"
+#include "buffer.h"
 #include <set>
 
 static script_reader sreader = default_script_reader;
@@ -206,8 +207,7 @@ extern "C" DECL_DLLEXPORT int32 query_card(intptr_t pduel, uint8 playerid, uint8
 		return pcard->get_infos(buf, query_flag, use_cache);
 	}
 	else {
-		constexpr int32 len = LEN_EMPTY;
-		std::memcpy(buf, &len, sizeof len);
+		write_byte_buffer(buf, LEN_EMPTY);
 		return LEN_EMPTY;
 	}
 }
@@ -254,9 +254,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(intptr_t pduel, uint8 playerid,
 				int32 clen = pcard->get_infos(p, query_flag, use_cache);
 				p += clen;
 			} else {
-				constexpr int32 len = LEN_EMPTY;
-				std::memcpy(p, &len, sizeof len);
-				p += LEN_EMPTY;
+				write_byte_buffer(p, LEN_EMPTY);
 			}
 		}
 	}
@@ -266,9 +264,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(intptr_t pduel, uint8 playerid,
 				int32 clen = pcard->get_infos(p, query_flag, use_cache);
 				p += clen;
 			} else {
-				constexpr int32 len = LEN_EMPTY;
-				std::memcpy(p, &len, sizeof len);
-				p += LEN_EMPTY;
+				write_byte_buffer(p, LEN_EMPTY);
 			}
 		}
 	}
@@ -300,9 +296,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(intptr_t pduel, byte* buf) {
 	*p++ = ptduel->game_field->core.duel_rule;
 	for(int playerid = 0; playerid < 2; ++playerid) {
 		auto& player = ptduel->game_field->player[playerid];
-		const auto lp = player.lp;
-		std::memcpy(p, &lp, sizeof lp);
-		p += sizeof lp;
+		write_byte_buffer(p, player.lp);
 		for(auto& pcard : player.list_mzone) {
 			if(pcard) {
 				*p++ = 1;
@@ -330,18 +324,12 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(intptr_t pduel, byte* buf) {
 	*p++ = (uint8)ptduel->game_field->core.current_chain.size();
 	for(const auto& ch : ptduel->game_field->core.current_chain) {
 		effect* peffect = ch.triggering_effect;
-		const auto code = peffect->get_handler()->data.code;
-		std::memcpy(p, &code, sizeof code);
-		p += sizeof code;
-		const auto info = peffect->get_handler()->get_info_location();
-		std::memcpy(p, &info, sizeof info);
-		p += sizeof info;
+		write_byte_buffer(p, peffect->get_handler()->data.code);
+		write_byte_buffer(p, peffect->get_handler()->get_info_location());
 		*p++ = ch.triggering_controler;
 		*p++ = (uint8)ch.triggering_location;
 		*p++ = ch.triggering_sequence;
-		const auto desc = peffect->description;
-		std::memcpy(p, &desc, sizeof desc);
-		p += sizeof desc;
+		write_byte_buffer(p, peffect->description);
 	}
 	return (int32)(p - buf);
 }
