@@ -207,7 +207,7 @@ extern "C" DECL_DLLEXPORT int32 query_card(intptr_t pduel, uint8 playerid, uint8
 		return pcard->get_infos(buf, query_flag, use_cache);
 	}
 	else {
-		write_byte_buffer(buf, LEN_EMPTY);
+		Buffer::write(buf, LEN_EMPTY);
 		return LEN_EMPTY;
 	}
 }
@@ -254,7 +254,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(intptr_t pduel, uint8 playerid,
 				int32 clen = pcard->get_infos(p, query_flag, use_cache);
 				p += clen;
 			} else {
-				write_byte_buffer(p, LEN_EMPTY);
+				Buffer::write(p, LEN_EMPTY);
 			}
 		}
 	}
@@ -264,7 +264,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_card(intptr_t pduel, uint8 playerid,
 				int32 clen = pcard->get_infos(p, query_flag, use_cache);
 				p += clen;
 			} else {
-				write_byte_buffer(p, LEN_EMPTY);
+				Buffer::write(p, LEN_EMPTY);
 			}
 		}
 	}
@@ -296,7 +296,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(intptr_t pduel, byte* buf) {
 	*p++ = ptduel->game_field->core.duel_rule;
 	for(int playerid = 0; playerid < 2; ++playerid) {
 		auto& player = ptduel->game_field->player[playerid];
-		write_byte_buffer(p, player.lp);
+		Buffer::write(p, player.lp);
 		for(auto& pcard : player.list_mzone) {
 			if(pcard) {
 				*p++ = 1;
@@ -324,12 +324,12 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(intptr_t pduel, byte* buf) {
 	*p++ = (uint8)ptduel->game_field->core.current_chain.size();
 	for(const auto& ch : ptduel->game_field->core.current_chain) {
 		effect* peffect = ch.triggering_effect;
-		write_byte_buffer(p, peffect->get_handler()->data.code);
-		write_byte_buffer(p, peffect->get_handler()->get_info_location());
+		Buffer::write(p, peffect->get_handler()->data.code);
+		Buffer::write(p, peffect->get_handler()->get_info_location());
 		*p++ = ch.triggering_controler;
 		*p++ = (uint8)ch.triggering_location;
 		*p++ = ch.triggering_sequence;
-		write_byte_buffer(p, peffect->description);
+		Buffer::write(p, peffect->description);
 	}
 	return (int32)(p - buf);
 }
