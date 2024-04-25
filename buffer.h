@@ -6,7 +6,7 @@
 
 template<typename T>
 inline T buffer_read(unsigned char*& p) {
-	T ret = 0;
+	T ret{};
 	std::memcpy(&ret, p, sizeof(T));
 	p += sizeof(T);
 	return ret;
