@@ -115,16 +115,16 @@ void duel::restore_assumes() {
 	assumes.clear();
 }
 void duel::write_buffer(const void* data, int size) {
-	Buffer::write_array(message_buffer, data, size);
+	vector_write_array(message_buffer, data, size);
 }
 void duel::write_buffer32(uint32 value) {
-	Buffer::write(message_buffer, value);
+	vector_write(message_buffer, value);
 }
 void duel::write_buffer16(uint16 value) {
-	Buffer::write(message_buffer, value);
+	vector_write(message_buffer, value);
 }
 void duel::write_buffer8(uint8 value) {
-	Buffer::write(message_buffer, value);
+	vector_write(message_buffer, value);
 }
 void duel::clear_buffer() {
 	message_buffer.clear();
