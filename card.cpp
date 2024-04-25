@@ -1976,7 +1976,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 }
 int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
 	card_data cdata;
-	read_card(code, &cdata);
+	::read_card(code, &cdata);
 	if(cdata.type & TYPE_NORMAL)
 		return -1;
 	set_status(STATUS_COPYING_EFFECT, TRUE);
@@ -2012,7 +2012,7 @@ int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
 }
 int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 	card_data cdata;
-	read_card(code, &cdata);
+	::read_card(code, &cdata);
 	if(cdata.type & TYPE_NORMAL)
 		return -1;
 	if(is_status(STATUS_EFFECT_REPLACED))
@@ -2511,7 +2511,7 @@ void card::set_special_summon_status(effect* peffect) {
 	}
 	card* pcard = peffect->get_handler();
 	auto cait = pduel->game_field->core.current_chain.rbegin();
-	if(!(peffect->type & 0x7f0) || pcard->is_has_relation(*cait)) {
+	if(!(peffect->type & 0x7f0) || (pcard->is_has_relation(*cait) && !(pcard->get_type() & TYPE_TRAPMONSTER))) {
 		spsummon.code = pcard->get_code();
 		spsummon.code2 = pcard->get_another_code();
 		spsummon.type = pcard->get_type();
