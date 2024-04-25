@@ -2,6 +2,7 @@
 #define BUFFER_H
 
 #include <cstring>
+#include <vector>
 
 namespace Buffer {
 	template<typename T>
@@ -23,11 +24,24 @@ namespace Buffer {
 		std::memcpy(p, &value, sizeof(T));
 		p += sizeof(T);
 	}
-	inline void write_array(unsigned char*& p, void* src, int size) {
+	template<typename T>
+	inline void write(std::vector<unsigned char>& buffer, T value) {
+		const auto len = buffer.size();
+		buffer.resize(len + sizeof(T));
+		std::memcpy(&buffer[len], &value, sizeof(T));
+	}
+	inline void write_array(unsigned char*& p, const void* src, int size) {
 		if (size <= 0)
 			return;
 		std::memcpy(p, src, size);
 		p += size;
+	}
+	inline void write_array(std::vector<unsigned char>& buffer, const void* src, int size) {
+		if (size <= 0)
+			return;
+		const auto len = buffer.size();
+		buffer.resize(len + size);
+		std::memcpy(&buffer[len], src, size);
 	}
 }
 
