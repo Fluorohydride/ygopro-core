@@ -13,14 +13,7 @@
 #include "effect.h"
 #include "group.h"
 #include "ocgapi.h"
-
-inline void write_buffer_vector(std::vector<byte>& buffer, const void* data, int size) {
-	if (size > 0) {
-		const auto len = buffer.size();
-		buffer.resize(len + size);
-		std::memcpy(&buffer[len], data, size);
-	}
-}
+#include "buffer.h"
 
 duel::duel() {
 	lua = new interpreter(this);
@@ -122,16 +115,16 @@ void duel::restore_assumes() {
 	assumes.clear();
 }
 void duel::write_buffer(const void* data, int size) {
-	write_buffer_vector(message_buffer, data, size);
+	Buffer::write_array(message_buffer, data, size);
 }
 void duel::write_buffer32(uint32 value) {
-	write_buffer(&value, sizeof(value));
+	Buffer::write(message_buffer, value);
 }
 void duel::write_buffer16(uint16 value) {
-	write_buffer(&value, sizeof(value));
+	Buffer::write(message_buffer, value);
 }
 void duel::write_buffer8(uint8 value) {
-	write_buffer(&value, sizeof(value));
+	Buffer::write(message_buffer, value);
 }
 void duel::clear_buffer() {
 	message_buffer.clear();
