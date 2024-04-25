@@ -118,13 +118,13 @@ void duel::write_buffer(const void* data, int size) {
 	vector_write_array(message_buffer, data, size);
 }
 void duel::write_buffer32(uint32 value) {
-	vector_write(message_buffer, value);
+	vector_write<uint32_t>(message_buffer, value);
 }
 void duel::write_buffer16(uint16 value) {
-	vector_write(message_buffer, value);
+	vector_write<uint16_t>(message_buffer, value);
 }
 void duel::write_buffer8(uint8 value) {
-	vector_write(message_buffer, value);
+	vector_write<unsigned char>(message_buffer, value);
 }
 void duel::clear_buffer() {
 	message_buffer.clear();
