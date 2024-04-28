@@ -5316,7 +5316,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 	case 1: {
 		if(returns.ivalue[0] == -1) {
 			lua_pop(pduel->lua->current_state, 3);
-			pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
+			pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
 			core.limit_tuner = 0;
 			return TRUE;
 		}
@@ -5683,7 +5683,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 	}
 	case 1: {
 		if(returns.ivalue[0] == -1) {
-			pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
+			pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
 			return TRUE;
 		}
 		int32 pv = 0;
@@ -5850,7 +5850,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 	}
 	case 4: {
 		if(returns.ivalue[0] == -1) {
-			pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
+			pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
 			return TRUE;
 		}
 		card* pcard = core.select_cards[returns.bvalue[1]];
@@ -5906,7 +5906,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 	}
 	case 6: {
 		if(returns.ivalue[0] == -1) {
-			pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
+			pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
 			return TRUE;
 		}
 		group* pgroup = pduel->new_group(core.operated_set);
@@ -5930,7 +5930,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 	}
 	case 8: {
 		if(returns.ivalue[0] == -1) {
-			pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
+			pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
 			return TRUE;
 		}
 		int32 pv = 0;
@@ -6036,7 +6036,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 	}
 	case 22: {
 		if(returns.ivalue[0] == -1) {
-			pduel->lua->add_param((void*)0, PARAM_TYPE_GROUP);
+			pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
 			return TRUE;
 		}
 		int32 pv = 0;
