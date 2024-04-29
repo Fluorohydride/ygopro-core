@@ -531,7 +531,7 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count, std::vector<i
 	}
 	return is_success;
 }
-int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32* yield_value, uint16 step) {
+int32 interpreter::call_coroutine(int32 f, uint32 param_count, int32* yield_value, uint16 step) {
 	*yield_value = 0;
 	if (!f) {
 		sprintf(pduel->strbuffer, "\"CallCoroutine\": attempt to call a null function");
@@ -604,7 +604,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32* yield_val
 		else if (lua_isboolean(rthread, -1))
 			*yield_value = lua_toboolean(rthread, -1);
 		else
-			*yield_value = (uint32)lua_tointeger(rthread, -1);
+			*yield_value = (int32)lua_tointeger(rthread, -1);
 	}
 	auto threadref = it->second.second;
 	coroutines.erase(it);
