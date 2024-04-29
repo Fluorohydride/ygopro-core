@@ -3219,6 +3219,7 @@ int32 scriptlib::duel_select_synchro_material(lua_State *L) {
 	lua_pushvalue(L, 3);
 	lua_pushvalue(L, 4);
 	lua_pushvalue(L, 2);
+	lua_xmove(L, pduel->lua->lua_state, 3);
 	return lua_yield(L, 3);
 }
 int32 scriptlib::duel_check_synchro_material(lua_State *L) {
@@ -3278,6 +3279,7 @@ int32 scriptlib::duel_select_tuner_material(lua_State *L) {
 	lua_pushvalue(L, 4);
 	lua_pushvalue(L, 5);
 	lua_pushvalue(L, 2);
+	lua_xmove(L, pduel->lua->lua_state, 3);
 	return lua_yield(L, 3);
 }
 int32 scriptlib::duel_check_tuner_material(lua_State *L) {
