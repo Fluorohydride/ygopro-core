@@ -39,7 +39,7 @@ public:
 		void* ptr;
 		int32 integer;
 	};
-	using coroutine_map = std::unordered_map<int32, lua_State*>;
+	using coroutine_map = std::unordered_map<int32, std::pair<lua_State*, int32>>;
 	using param_list = std::list<std::pair<lua_param, LuaParamType>>;
 	
 	duel* pduel;

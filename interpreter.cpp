@@ -239,9 +239,7 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 			else if(is_coroutine) {
 				//copy value from current_state to new stack
 				lua_pushvalue(current_state, index);
-				int32 ref = luaL_ref(current_state, LUA_REGISTRYINDEX);
-				lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-				luaL_unref(current_state, LUA_REGISTRYINDEX, ref);
+				lua_xmove(current_state, L, 1);
 			} else {
 				//the calling function is pushed before the params, so the actual index is: index - pushed -1
 				lua_pushvalue(L, index - pushed - 1);
@@ -551,18 +549,23 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	lua_State* rthread;
 	if (it == coroutines.end()) {
 		rthread = lua_newthread(lua_state);
+		const auto threadref = luaL_ref(lua_state, LUA_REGISTRYINDEX);
 		function2value(rthread, f);
 		if(!lua_isfunction(rthread, -1)) {
+			luaL_unref(lua_state, LUA_REGISTRYINDEX, threadref);
 			sprintf(pduel->strbuffer, "\"CallCoroutine\": attempt to call an error function");
 			handle_message(pduel, 1);
 			params.clear();
 			return OPERATION_FAIL;
 		}
 		++call_depth;
-		coroutines.emplace(f, rthread);
+		auto ret = coroutines.emplace(f, std::make_pair(rthread, threadref));
+		it = ret.first;
 	} else {
-		rthread = it->second;
 		if(step == 0) {
+			auto threadref = it->second.second;
+			coroutines.erase(it);
+			luaL_unref(lua_state, LUA_REGISTRYINDEX, threadref);
 			sprintf(pduel->strbuffer, "recursive event trigger detected.");
 			handle_message(pduel, 1);
 			params.clear();
@@ -573,6 +576,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 			}
 			return OPERATION_FAIL;
 		}
+		rthread = it->second.first;
 	}
 	push_param(rthread, true);
 	lua_State* prev_state = current_state;
