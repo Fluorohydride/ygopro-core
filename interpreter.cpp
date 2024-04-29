@@ -631,7 +631,7 @@ void* interpreter::get_ref_object(int32 ref_handler) {
 	lua_pop(current_state, 1);
 	return p;
 }
-//Convert a pointer to a lua value, +1 -0
+//push the object onto the stack, +1
 void interpreter::card2value(lua_State* L, card* pcard) {
 	luaL_checkstack(L, 1, nullptr);
 	if (!pcard || pcard->ref_handle == 0)
