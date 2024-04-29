@@ -531,7 +531,7 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count, std::vector<i
 	}
 	return is_success;
 }
-int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_value, uint16 step) {
+int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32* yield_value, uint16 step) {
 	*yield_value = 0;
 	if (!f) {
 		sprintf(pduel->strbuffer, "\"CallCoroutine\": attempt to call a null function");
@@ -579,47 +579,42 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 		rthread = it->second.first;
 	}
 	push_param(rthread, true);
-	lua_State* prev_state = current_state;
-	current_state = rthread;
+	int32 result = 0, nresults = 0;
+	{
+		lua_State* prev_state = current_state;
+		current_state = rthread;
 #if (LUA_VERSION_NUM >= 504)
-	int32 nresults;
-	int32 result = lua_resume(rthread, prev_state, param_count, &nresults);
+		result = lua_resume(rthread, prev_state, param_count, &nresults);
 #else
-	int32 result = lua_resume(rthread, 0, param_count);
-	int32 nresults = lua_gettop(rthread);
+		result = lua_resume(rthread, 0, param_count);
+		nresults = lua_gettop(rthread);
 #endif
-	if (result == LUA_OK) {
-		coroutines.erase(f);
-		if(yield_value) {
-			if(nresults == 0)
-				*yield_value = 0;
-			else if(lua_isboolean(rthread, -1))
-				*yield_value = lua_toboolean(rthread, -1);
-			else
-				*yield_value = (uint32)lua_tointeger(rthread, -1);
-		}
-		current_state = lua_state;
-		--call_depth;
-		if(call_depth == 0) {
-			pduel->release_script_group();
-			pduel->restore_assumes();
-		}
-		return COROUTINE_FINISH;
-	} else if (result == LUA_YIELD) {
+		current_state = prev_state;
+	}
+	if (result == LUA_YIELD)
 		return COROUTINE_YIELD;
-	} else {
-		coroutines.erase(f);
+	if (result != LUA_OK) {
 		sprintf(pduel->strbuffer, "%s", lua_tostring(rthread, -1));
 		handle_message(pduel, 1);
 		lua_pop(rthread, 1);
-		current_state = lua_state;
-		--call_depth;
-		if(call_depth == 0) {
-			pduel->release_script_group();
-			pduel->restore_assumes();
-		}
-		return COROUTINE_ERROR;
 	}
+	else if (yield_value) {
+		if (nresults == 0)
+			*yield_value = 0;
+		else if (lua_isboolean(rthread, -1))
+			*yield_value = lua_toboolean(rthread, -1);
+		else
+			*yield_value = (uint32)lua_tointeger(rthread, -1);
+	}
+	auto threadref = it->second.second;
+	coroutines.erase(it);
+	luaL_unref(lua_state, LUA_REGISTRYINDEX, threadref);
+	--call_depth;
+	if (call_depth == 0) {
+		pduel->release_script_group();
+		pduel->restore_assumes();
+	}
+	return (result == LUA_OK) ? COROUTINE_FINISH : COROUTINE_ERROR;
 }
 int32 interpreter::clone_function_ref(int32 func_ref) {
 	luaL_checkstack(current_state, 1, nullptr);
