@@ -143,6 +143,7 @@ card::card(duel* pd) {
 	assume_type = 0;
 	assume_value = 0;
 	spsummon_code = 0;
+	xyz_materials_previous_count_onfield = 0;
 	current.controler = PLAYER_NONE;
 }
 inline void update_cache(uint32& tdata, uint32& cache, int32*& p, uint32& query_flag, const uint32 flag) {

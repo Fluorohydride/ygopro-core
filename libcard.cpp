@@ -742,6 +742,13 @@ int32 scriptlib::card_get_previous_defense_onfield(lua_State *L) {
 	lua_pushinteger(L, pcard->previous.defense);
 	return 1;
 }
+int32 scriptlib::card_get_previous_overlay_count_onfield(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_pushinteger(L, pcard->xyz_materials_previous_count_onfield);
+	return 1;
+}
 int32 scriptlib::card_get_owner(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -3435,6 +3442,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetPreviousRaceOnField", scriptlib::card_get_previous_race_onfield },
 	{ "GetPreviousAttackOnField", scriptlib::card_get_previous_attack_onfield },
 	{ "GetPreviousDefenseOnField", scriptlib::card_get_previous_defense_onfield },
+	{ "GetPreviousOverlayCountOnField", scriptlib::card_get_previous_overlay_count_onfield },
 	{ "GetOwner", scriptlib::card_get_owner },
 	{ "GetControler", scriptlib::card_get_controler },
 	{ "GetPreviousControler", scriptlib::card_get_previous_controler },
