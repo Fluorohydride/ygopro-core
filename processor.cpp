@@ -4154,6 +4154,30 @@ int32 field::add_chain(uint16 step) {
 		if(clit.required_handorset_effects.size() == 1) {
 			returns.ivalue[0] = 0;
 			return FALSE;
+		} else {
+			// check if there's only one type of ceffects
+			auto peffect = clit.triggering_effect;
+			auto playerid = clit.triggering_player;
+			int32 ceffect_unique_id = 0;
+			for(int32 i = 0; i < clit.required_handorset_effects.size(); ++i) {
+				pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
+				pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+				auto id = clit.required_handorset_effects[i]->get_value(2);
+				if (id) {
+					if(!ceffect_unique_id) {
+						ceffect_unique_id = id;
+					} else if (ceffect_unique_id != id) {
+						// there are more than one types, so we can't skip
+						ceffect_unique_id = 0;
+						break;
+					}
+				}
+			}
+			if (ceffect_unique_id) {
+				// all ceffects are the same type, so skip asking
+				returns.ivalue[0] = 0;
+				return FALSE;
+			}
 		}
 		core.select_options.clear();
 		for(int32 i = 0; i < clit.required_handorset_effects.size(); ++i) {
