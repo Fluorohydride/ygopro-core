@@ -742,6 +742,13 @@ int32 scriptlib::card_get_previous_defense_onfield(lua_State *L) {
 	lua_pushinteger(L, pcard->previous.defense);
 	return 1;
 }
+int32 scriptlib::card_get_previous_overlay_count_onfield(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	lua_pushinteger(L, pcard->xyz_materials_previous_count_onfield);
+	return 1;
+}
 int32 scriptlib::card_get_owner(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -824,7 +831,7 @@ int32 scriptlib::card_get_location(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	if(pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED | STATUS_SPSUMMON_STEP))
+	if(pcard->is_treated_as_not_on_field())
 		lua_pushinteger(L, 0);
 	else
 		lua_pushinteger(L, pcard->current.location);
@@ -2613,8 +2620,7 @@ int32 scriptlib::card_is_onfield(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	if((pcard->current.location & LOCATION_ONFIELD)
-			&& !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED | STATUS_SPSUMMON_STEP))
+	if((pcard->current.location & LOCATION_ONFIELD) && !pcard->is_treated_as_not_on_field())
 		lua_pushboolean(L, 1);
 	else
 		lua_pushboolean(L, 0);
@@ -2625,13 +2631,15 @@ int32 scriptlib::card_is_location(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 loc = (uint32)lua_tointeger(L, 2);
-	if(pcard->current.location == LOCATION_MZONE) {
-		if((loc & LOCATION_MZONE) && !pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
+	if(pcard->is_treated_as_not_on_field()) {
+		lua_pushboolean(L, 0);
+	} else if(pcard->current.location == LOCATION_MZONE) {
+		if(loc & LOCATION_MZONE)
 			lua_pushboolean(L, 1);
 		else
 			lua_pushboolean(L, 0);
 	} else if(pcard->current.location == LOCATION_SZONE) {
-		if(pcard->current.is_location(loc) && !pcard->is_status(STATUS_ACTIVATE_DISABLED))
+		if(pcard->current.is_location(loc))
 			lua_pushboolean(L, 1);
 		else
 			lua_pushboolean(L, 0);
@@ -3434,6 +3442,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "GetPreviousRaceOnField", scriptlib::card_get_previous_race_onfield },
 	{ "GetPreviousAttackOnField", scriptlib::card_get_previous_attack_onfield },
 	{ "GetPreviousDefenseOnField", scriptlib::card_get_previous_defense_onfield },
+	{ "GetPreviousOverlayCountOnField", scriptlib::card_get_previous_overlay_count_onfield },
 	{ "GetOwner", scriptlib::card_get_owner },
 	{ "GetControler", scriptlib::card_get_controler },
 	{ "GetPreviousControler", scriptlib::card_get_previous_controler },

@@ -496,7 +496,7 @@ int32 effect::is_target(card* pcard) {
 			&& !pcard->is_position(POS_FACEUP))
 		return FALSE;
 	if(!is_flag(EFFECT_FLAG_IGNORE_RANGE)) {
-		if(pcard->get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED | STATUS_SPSUMMON_STEP))
+		if(pcard->is_treated_as_not_on_field())
 			return FALSE;
 		if(is_flag(EFFECT_FLAG_SPSUM_PARAM))
 			return FALSE;

@@ -198,6 +198,7 @@ public:
 	card_set effect_target_owner;
 	card_set effect_target_cards;
 	card_vector xyz_materials;
+	int32 xyz_materials_previous_count_onfield;
 	effect_container single_effect;
 	effect_container field_effect;
 	effect_container equip_effect;
@@ -268,6 +269,7 @@ public:
 	uint32 get_column_zone(int32 location);
 	void get_column_cards(card_set* cset);
 	int32 is_all_column();
+	int32 is_treated_as_not_on_field();
 
 	void equip(card* target, uint32 send_msg = TRUE);
 	void unequip();

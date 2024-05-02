@@ -3906,7 +3906,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			uint8 dest = pcard->sendto_param.location;
 			if(!(reason & REASON_RULE) &&
 			        (pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
-			         || (!(pcard->current.reason & (REASON_COST | REASON_SUMMON | REASONS_PROCEDURE)) && !pcard->is_affect_by_effect(pcard->current.reason_effect))
+			         || ((pcard->current.reason & REASON_EFFECT) && !pcard->is_affect_by_effect(pcard->current.reason_effect))
 			         || (dest == LOCATION_HAND && !pcard->is_capable_send_to_hand(core.reason_player))
 			         || (dest == LOCATION_DECK && !pcard->is_capable_send_to_deck(core.reason_player, send_activating))
 			         || (dest == LOCATION_REMOVED && !pcard->is_removeable(core.reason_player, pcard->sendto_param.position, reason))
@@ -3926,6 +3926,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		return FALSE;
 	}
 	case 1: {
+		// the entrance of release, destroy
 		for(auto& pcard : targets->container) {
 			add_process(PROCESSOR_SENDTO_REPLACE, 0, nullptr, targets, 0, 0, 0, 0, pcard);
 		}
@@ -4364,8 +4365,11 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				raise_single_event(pcard, 0, EVENT_DESTROYED, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
 			if(pcard->xyz_materials.size()) {
+				pcard->xyz_materials_previous_count_onfield = pcard->xyz_materials.size();
 				for(auto& mcard : pcard->xyz_materials)
 					overlays.insert(mcard);
+			} else {
+				pcard->xyz_materials_previous_count_onfield = 0;
 			}
 			raise_single_event(pcard, 0, EVENT_MOVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 		}
@@ -4696,7 +4700,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 		target->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
 		pduel->write_buffer32(target->get_info_location());
 		pduel->write_buffer32(target->current.reason);
-		if((target->current.location != LOCATION_MZONE)) {
+		if(target->current.location != LOCATION_MZONE) {
 			if(target->equiping_cards.size()) {
 				destroy(&target->equiping_cards, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
 				for(auto csit = target->equiping_cards.begin(); csit != target->equiping_cards.end();) {
@@ -4705,9 +4709,12 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				}
 			}
 			if(target->xyz_materials.size()) {
+				target->xyz_materials_previous_count_onfield = target->xyz_materials.size();
 				card_set overlays;
 				overlays.insert(target->xyz_materials.begin(), target->xyz_materials.end());
 				send_to(&overlays, 0, REASON_LOST_OVERLAY + REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+			} else {
+				target->xyz_materials_previous_count_onfield = 0;
 			}
 		}
 		if((target->previous.location == LOCATION_SZONE) && target->equiping_target)
