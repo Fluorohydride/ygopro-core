@@ -218,7 +218,8 @@ int32 effect::get_required_handorset_effects(effect_set* eset, uint8 playerid, c
 			pduel->lua->add_param(e.reason, PARAM_TYPE_INT);
 			pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT);
 			pduel->lua->add_param(0, PARAM_TYPE_INT);
-			if(pduel->lua->check_condition(peffect->cost, 9)) {
+			pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
+			if(pduel->lua->check_condition(peffect->cost, 10)) {
 				available = 2;
 				eset->add_item(peffect);
 			}

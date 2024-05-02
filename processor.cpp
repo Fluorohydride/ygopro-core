@@ -4197,6 +4197,7 @@ int32 field::add_chain(uint16 step) {
 			pduel->write_buffer32(ceffect->description);
 		}
 		if(ceffect->cost) {
+			pduel->lua->add_param(clit.triggering_effect, PARAM_TYPE_EFFECT);
 			core.sub_solving_event.push_back(clit.evt);
 			add_process(PROCESSOR_EXECUTE_COST, 0, ceffect, 0, clit.triggering_player, 0);
 		}
