@@ -115,7 +115,7 @@ void duel::restore_assumes() {
 	assumes.clear();
 }
 void duel::write_buffer(const void* data, int size) {
-	vector_write_array(message_buffer, data, size);
+	vector_write_block(message_buffer, data, size);
 }
 void duel::write_buffer32(uint32 value) {
 	vector_write<uint32_t>(message_buffer, value);
