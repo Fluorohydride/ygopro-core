@@ -586,7 +586,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, int32* yield_valu
 #if (LUA_VERSION_NUM >= 504)
 		result = lua_resume(rthread, prev_state, param_count, &nresults);
 #else
-		result = lua_resume(rthread, 0, param_count);
+		result = lua_resume(rthread, prev_state, param_count);
 		nresults = lua_gettop(rthread);
 #endif
 		current_state = prev_state;
