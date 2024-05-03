@@ -6,6 +6,7 @@
  */
 
 #include <cstring>
+#include <utility>
 #include "duel.h"
 #include "group.h"
 #include "card.h"
@@ -581,8 +582,7 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, int32* yield_valu
 	push_param(rthread, true);
 	int32 result = 0, nresults = 0;
 	{
-		lua_State* prev_state = current_state;
-		current_state = rthread;
+		auto prev_state = std::exchange(current_state, rthread);
 #if (LUA_VERSION_NUM >= 504)
 		result = lua_resume(rthread, prev_state, param_count, &nresults);
 #else
