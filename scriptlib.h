@@ -90,6 +90,7 @@ public:
 	static int32 card_get_previous_race_onfield(lua_State *L);
 	static int32 card_get_previous_attack_onfield(lua_State *L);
 	static int32 card_get_previous_defense_onfield(lua_State *L);
+	static int32 card_get_previous_overlay_count_onfield(lua_State *L);
 	static int32 card_get_owner(lua_State *L);
 	static int32 card_get_controler(lua_State *L);
 	static int32 card_get_previous_controler(lua_State *L);
@@ -608,6 +609,7 @@ public:
 	static int32 duel_is_player_can_send_to_grave(lua_State *L);
 	static int32 duel_is_player_can_send_to_deck(lua_State *L);
 	static int32 duel_is_player_can_additional_summon(lua_State *L);
+	static int32 duel_is_chain_solving(lua_State *L);
 	static int32 duel_is_chain_negatable(lua_State *L);
 	static int32 duel_is_chain_disablable(lua_State *L);
 	static int32 duel_is_chain_disabled(lua_State *L);

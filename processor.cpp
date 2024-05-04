@@ -1317,7 +1317,8 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				clit->set_triggering_state(phandler);
 			}
 			uint8 tp = clit->triggering_player;
-			if(check_trigger_effect(*clit) && peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)) {
+			if(check_trigger_effect(*clit) && peffect->is_chainable(tp)
+				&& peffect->is_activateable(tp, clit->evt, !peffect->is_flag(EFFECT_FLAG_ACTIVATE_CONDITION))) {
 				if(tp == core.current_player)
 					core.select_chains.push_back(*clit);
 			} else {
@@ -1378,8 +1379,8 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 				clit->set_triggering_state(phandler);
 			}
 			uint8 tp = clit->triggering_player;
-			if(check_nonpublic_trigger(*clit) && check_trigger_effect(*clit)
-				&& peffect->is_chainable(tp) && peffect->is_activateable(tp, clit->evt, TRUE)
+			if(check_nonpublic_trigger(*clit) && check_trigger_effect(*clit) && peffect->is_chainable(tp)
+				&& peffect->is_activateable(tp, clit->evt, !peffect->is_flag(EFFECT_FLAG_ACTIVATE_CONDITION))
 				&& check_spself_from_hand_trigger(*clit)) {
 				if(tp == core.current_player)
 					core.select_chains.push_back(*clit);
@@ -1723,7 +1724,7 @@ int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priori
 			const tevent& evt = eit->second;
 			++eit;
 			peffect->set_activate_location();
-			if(peffect->is_chainable(priority) && peffect->is_activateable(priority, evt, TRUE, FALSE, FALSE)) {
+			if(peffect->is_chainable(priority) && peffect->is_activateable(priority, evt, TRUE)) {
 				card* phandler = peffect->get_handler();
 				newchain.flag = 0;
 				newchain.chain_id = infos.field_id++;
@@ -1855,7 +1856,9 @@ int32 field::process_instant_event() {
 			effect* peffect = eit->second;
 			++eit;
 			card* phandler = peffect->get_handler();
-			if(!phandler->is_status(STATUS_EFFECT_ENABLED) || !peffect->is_condition_check(phandler->current.controler, ev))
+			if(!phandler->is_status(STATUS_EFFECT_ENABLED))
+				continue;
+			if(!peffect->is_flag(EFFECT_FLAG_ACTIVATE_CONDITION) && !peffect->is_condition_check(phandler->current.controler, ev))
 				continue;
 			peffect->set_activate_location();
 			newchain.flag = 0;
@@ -1875,7 +1878,8 @@ int32 field::process_instant_event() {
 			effect* peffect = eit->second;
 			++eit;
 			card* phandler = peffect->get_handler();
-			bool act = phandler->is_status(STATUS_EFFECT_ENABLED) && peffect->is_condition_check(phandler->current.controler, ev);
+			bool act = phandler->is_status(STATUS_EFFECT_ENABLED)
+				&& (peffect->is_flag(EFFECT_FLAG_ACTIVATE_CONDITION) || peffect->is_condition_check(phandler->current.controler, ev));
 			if(!act && !(peffect->range & LOCATION_HAND))
 				continue;
 			peffect->set_activate_location();
@@ -2009,7 +2013,7 @@ int32 field::process_single_event(effect* peffect, const tevent& e, chain_list& 
 		}
 	} else {
 		card* phandler = peffect->get_handler();
-		if(!peffect->is_condition_check(phandler->current.controler, e))
+		if(!peffect->is_flag(EFFECT_FLAG_ACTIVATE_CONDITION) && !peffect->is_condition_check(phandler->current.controler, e))
 			return FALSE;
 		peffect->set_activate_location();
 		chain newchain;
@@ -2928,6 +2932,8 @@ int32 field::process_battle_command(uint16 step) {
 				core.attacker->set_status(STATUS_OPPO_BATTLE, TRUE);
 				core.attack_target->set_status(STATUS_OPPO_BATTLE, TRUE);
 			}
+			core.attacker_player = pa;
+			core.attack_target_player = pd;
 		}
 		effect* damchange = nullptr;
 		card* reason_card = nullptr;
@@ -3164,16 +3170,16 @@ int32 field::process_battle_command(uint16 step) {
 		card_set ing;
 		card_set ed;
 		if(core.attacker->is_status(STATUS_BATTLE_DESTROYED) && (core.attacker->current.reason & REASON_BATTLE)) {
-			raise_single_event(core.attack_target, 0, EVENT_BATTLE_DESTROYING, 0, core.attacker->current.reason, core.attack_target->current.controler, 0, 1);
-			raise_single_event(core.attacker, 0, EVENT_BATTLE_DESTROYED, 0, core.attacker->current.reason, core.attack_target->current.controler, 0, 0);
-			raise_single_event(core.attacker, 0, EVENT_DESTROYED, 0, core.attacker->current.reason, core.attack_target->current.controler, 0, 0);
+			raise_single_event(core.attack_target, 0, EVENT_BATTLE_DESTROYING, 0, core.attacker->current.reason, core.attack_target_player, 0, 1);
+			raise_single_event(core.attacker, 0, EVENT_BATTLE_DESTROYED, 0, core.attacker->current.reason, core.attack_target_player, 0, 0);
+			raise_single_event(core.attacker, 0, EVENT_DESTROYED, 0, core.attacker->current.reason, core.attack_target_player, 0, 0);
 			ing.insert(core.attack_target);
 			ed.insert(core.attacker);
 		}
 		if(core.attack_target && core.attack_target->is_status(STATUS_BATTLE_DESTROYED) && (core.attack_target->current.reason & REASON_BATTLE)) {
-			raise_single_event(core.attacker, 0, EVENT_BATTLE_DESTROYING, 0, core.attack_target->current.reason, core.attacker->current.controler, 0, 0);
-			raise_single_event(core.attack_target, 0, EVENT_BATTLE_DESTROYED, 0, core.attack_target->current.reason, core.attacker->current.controler, 0, 1);
-			raise_single_event(core.attack_target, 0, EVENT_DESTROYED, 0, core.attack_target->current.reason, core.attacker->current.controler, 0, 1);
+			raise_single_event(core.attacker, 0, EVENT_BATTLE_DESTROYING, 0, core.attack_target->current.reason, core.attacker_player, 0, 0);
+			raise_single_event(core.attack_target, 0, EVENT_BATTLE_DESTROYED, 0, core.attack_target->current.reason, core.attacker_player, 0, 1);
+			raise_single_event(core.attack_target, 0, EVENT_DESTROYED, 0, core.attack_target->current.reason, core.attacker_player, 0, 1);
 			ing.insert(core.attacker);
 			ed.insert(core.attack_target);
 		}
@@ -3212,6 +3218,8 @@ int32 field::process_battle_command(uint16 step) {
 		core.attacker->set_status(STATUS_OPPO_BATTLE, FALSE);
 		if(core.attack_target)
 			core.attack_target->set_status(STATUS_OPPO_BATTLE, FALSE);
+		core.attacker_player = PLAYER_NONE;
+		core.attack_target_player = PLAYER_NONE;
 		core.units.begin()->step = -1;
 		infos.phase = PHASE_BATTLE_STEP;
 		pduel->write_buffer8(MSG_DAMAGE_STEP_END);

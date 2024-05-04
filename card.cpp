@@ -173,6 +173,7 @@ card::card(duel* pd) {
 	assume_type = 0;
 	assume_value = 0;
 	spsummon_code = 0;
+	xyz_materials_previous_count_onfield = 0;
 	current.controler = PLAYER_NONE;
 }
 inline void update_cache(uint32& tdata, uint32& cache, int32*& p, uint32& query_flag, const uint32 flag) {
@@ -1316,8 +1317,7 @@ int32 card::is_link_marker(uint32 dir) {
 	return (int32)(get_link_marker() & dir);
 }
 uint32 card::get_linked_zone() {
-	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE
-		|| get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
+	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE || is_treated_as_not_on_field())
 		return 0;
 	int32 zones = 0;
 	int32 s = current.sequence;
@@ -1373,8 +1373,7 @@ void card::get_linked_cards(card_set* cset) {
 	pduel->game_field->get_cards_in_zone(cset, linked_zone >> 16, 1 - p, LOCATION_MZONE);
 }
 uint32 card::get_mutual_linked_zone() {
-	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE
-		|| get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_SPSUMMON_STEP))
+	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE || is_treated_as_not_on_field())
 		return 0;
 	int32 zones = 0;
 	int32 p = current.controler;
@@ -1468,7 +1467,7 @@ void card::set_status(uint32 status, int32 enabled) {
 	else
 		this->status &= ~status;
 }
-// match at least 1 status
+// get match status
 int32 card::get_status(uint32 status) {
 	return this->status & status;
 }
@@ -1554,6 +1553,9 @@ uint32 card::get_select_info_location(uint8 *deck_seq_pointer) {
 	} else {
 		return get_info_location();
 	}
+}
+int32 card::is_treated_as_not_on_field() {
+	return get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED | STATUS_SPSUMMON_STEP);
 }
 void card::equip(card* target, uint32 send_msg) {
 	if (equiping_target)
@@ -2044,7 +2046,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 }
 int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
 	card_data cdata;
-	read_card(code, &cdata);
+	::read_card(code, &cdata);
 	if(cdata.type & TYPE_NORMAL)
 		return -1;
 	set_status(STATUS_COPYING_EFFECT, TRUE);
@@ -2080,7 +2082,7 @@ int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
 }
 int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 	card_data cdata;
-	read_card(code, &cdata);
+	::read_card(code, &cdata);
 	if(cdata.type & TYPE_NORMAL)
 		return -1;
 	if(is_status(STATUS_EFFECT_REPLACED))
@@ -2579,7 +2581,7 @@ void card::set_special_summon_status(effect* peffect) {
 	}
 	card* pcard = peffect->get_handler();
 	auto cait = pduel->game_field->core.current_chain.rbegin();
-	if(!(peffect->type & 0x7f0) || pcard->is_has_relation(*cait)) {
+	if(!(peffect->type & 0x7f0) || (pcard->is_has_relation(*cait) && !(pcard->get_type() & TYPE_TRAPMONSTER))) {
 		spsummon.code = pcard->get_code();
 		spsummon.code2 = pcard->get_another_code();
 		spsummon.type = pcard->get_type();
@@ -3443,6 +3445,28 @@ int32 card::is_can_be_summoned(uint8 playerid, uint8 ignore_count, effect* peffe
 		}
 	}
 	pduel->game_field->restore_lp_cost();
+	return TRUE;
+}
+int32 card::is_summon_negatable(uint32 sumtype, effect* reason_effect) {
+	uint32 code = 0;
+	if (sumtype & SUMMON_TYPE_NORMAL)
+		code = EFFECT_CANNOT_DISABLE_SUMMON;
+	else if (sumtype & SUMMON_TYPE_FLIP)
+		code = EFFECT_CANNOT_DISABLE_FLIP_SUMMON;
+	else if (sumtype & SUMMON_TYPE_SPECIAL)
+		code = EFFECT_CANNOT_DISABLE_SPSUMMON;
+	else
+		return FALSE;
+	if (is_affected_by_effect(code))
+		return FALSE;
+	if (sumtype == SUMMON_TYPE_DUAL || sumtype & SUMMON_TYPE_FLIP) {
+		if (!is_status(STATUS_FLIP_SUMMONING))
+			return FALSE;
+		if (!is_affect_by_effect(reason_effect))
+			return FALSE;
+		if (sumtype == SUMMON_TYPE_DUAL && (!is_affected_by_effect(EFFECT_DUAL_SUMMONABLE) || is_affected_by_effect(EFFECT_DUAL_STATUS)))
+			return FALSE;
+	}
 	return TRUE;
 }
 int32 card::get_summon_tribute_count() {

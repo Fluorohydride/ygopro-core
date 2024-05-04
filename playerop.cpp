@@ -987,7 +987,7 @@ static int32 is_declarable(card_data const& cd, const std::vector<uint32>& opcod
 	if(stack.size() != 1 || stack.top() == 0)
 		return FALSE;
 	return cd.code == CARD_MARINE_DOLPHIN || cd.code == CARD_TWINKLE_MOSS
-		|| (!cd.alias && (cd.type & (TYPE_MONSTER + TYPE_TOKEN)) != (TYPE_MONSTER + TYPE_TOKEN));
+		|| (!cd.alias && (cd.type & (TYPE_MONSTER | TYPE_TOKEN)) != (TYPE_MONSTER | TYPE_TOKEN));
 }
 int32 field::announce_card(int16 step, uint8 playerid) {
 	if(step == 0) {
@@ -1000,7 +1000,7 @@ int32 field::announce_card(int16 step, uint8 playerid) {
 	} else {
 		int32 code = returns.ivalue[0];
 		card_data data;
-		read_card(code, &data);
+		::read_card(code, &data);
 		if(!data.code) {
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;

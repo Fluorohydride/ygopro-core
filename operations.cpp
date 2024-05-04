@@ -260,11 +260,13 @@ void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uin
 		return;
 	for(auto& pcard : *targets) {
 		pcard->temp.reason = pcard->current.reason;
-		pcard->temp.reason_effect = pcard->current.reason_effect;
-		pcard->temp.reason_player = pcard->current.reason_player;
 		pcard->current.reason = reason;
-		pcard->current.reason_effect = reason_effect;
-		pcard->current.reason_player = reason_player;
+		if(reason_player != PLAYER_SELFDES) {
+			pcard->temp.reason_effect = pcard->current.reason_effect;
+			pcard->temp.reason_player = pcard->current.reason_player;
+			pcard->current.reason_effect = reason_effect;
+			pcard->current.reason_player = reason_player;
+		}
 		uint32 p = playerid;
 		// send to hand from deck and playerid not given => send to the hand of controler
 		if(p == PLAYER_NONE && (destination & LOCATION_HAND) && (pcard->current.location & LOCATION_DECK) && pcard->current.controler == reason_player)
@@ -1273,7 +1275,7 @@ int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 			pcard->temp.reason_player = pcard->current.reason_player;
 			pcard->current.reason_effect = peffect;
 			pcard->current.reason_player = peffect->get_handler_player();
-			send_to(pcard, 0, REASON_EFFECT, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+			send_to(pcard, 0, REASON_EFFECT, PLAYER_SELFDES, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		}
 		core.self_tograve_set.erase(it);
 		core.units.begin()->step = 19;
@@ -1827,6 +1829,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		target->summon_info |= SUMMON_TYPE_NORMAL;
 		target->current.reason_effect = 0;
 		target->current.reason_player = sumplayer;
+		core.is_gemini_summoning = true;
 		effect* deffect = pduel->new_effect();
 		deffect->owner = target;
 		deffect->code = EFFECT_DUAL_STATUS;
@@ -1886,37 +1889,50 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		return FALSE;
 	}
 	case 13: {
-		target->set_status(STATUS_SUMMONING, TRUE);
+		if (core.is_gemini_summoning) {
+			target->set_status(STATUS_SUMMONING, FALSE);
+			target->set_status(STATUS_FLIP_SUMMONING, TRUE);
+		}
+		else {
+			target->set_status(STATUS_SUMMONING, TRUE);
+			target->set_status(STATUS_FLIP_SUMMONING, FALSE);
+		}
 		target->set_status(STATUS_SUMMON_DISABLED, FALSE);
+		target->set_status(STATUS_FLIP_SUMMON_DISABLED, FALSE);
 		raise_event(target, EVENT_SUMMON, proc, 0, sumplayer, sumplayer, 0);
 		process_instant_event();
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x101, TRUE);
 		return FALSE;
 	}
 	case 14: {
-		if(target->is_status(STATUS_SUMMONING)) {
+		if (core.is_gemini_summoning && target->is_status(STATUS_FLIP_SUMMONING) || !core.is_gemini_summoning && target->is_status(STATUS_SUMMONING)) {
 			core.units.begin()->step = 14;
 			return FALSE;
 		}
-		if(proc) {
-			remove_oath_effect(proc);
-			if(proc->is_flag(EFFECT_FLAG_COUNT_LIMIT) && (proc->count_code & EFFECT_COUNT_CODE_OATH)) {
-				dec_effect_code(proc->count_code, sumplayer);
+		if (core.is_summon_negated) {
+			if (proc) {
+				remove_oath_effect(proc);
+				if (proc->is_flag(EFFECT_FLAG_COUNT_LIMIT) && (proc->count_code & EFFECT_COUNT_CODE_OATH)) {
+					dec_effect_code(proc->count_code, sumplayer);
+				}
 			}
+			if (effect_set* peset = (effect_set*)core.units.begin()->ptr2) {
+				for (int32 i = 0; i < peset->size(); ++i)
+					remove_oath_effect(peset->at(i));
+				delete peset;
+				core.units.begin()->ptr2 = 0;
+			}
+			if (target->get_status(STATUS_SUMMON_DISABLED | STATUS_FLIP_SUMMON_DISABLED) && target->current.location == LOCATION_MZONE)
+				send_to(target, 0, REASON_RULE, PLAYER_NONE, sumplayer, LOCATION_GRAVE, 0, 0);
+			adjust_instant();
 		}
-		if(effect_set* peset = (effect_set*)core.units.begin()->ptr2) {
-			for(int32 i = 0; i < peset->size(); ++i)
-				remove_oath_effect(peset->at(i));
-			delete peset;
-			core.units.begin()->ptr2 = 0;
-		}
-		if(target->current.location == LOCATION_MZONE)
-			send_to(target, 0, REASON_RULE, PLAYER_NONE, sumplayer, LOCATION_GRAVE, 0, 0);
-		adjust_instant();
+		core.is_gemini_summoning = false;
+		core.is_summon_negated = false;
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
 		return TRUE;
 	}
 	case 15: {
+		core.is_gemini_summoning = false;
 		if(proc) {
 			release_oath_relation(proc);
 		}
@@ -1927,6 +1943,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 			core.units.begin()->ptr2 = 0;
 		}
 		target->set_status(STATUS_SUMMONING, FALSE);
+		target->set_status(STATUS_FLIP_SUMMONING, FALSE);
 		target->set_status(STATUS_SUMMON_TURN, TRUE);
 		target->enable_field_effect(true);
 		if(target->is_status(STATUS_DISABLED))
@@ -2001,8 +2018,8 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target, uint32 act
 		if(target->is_affected_by_effect(EFFECT_CANNOT_DISABLE_FLIP_SUMMON))
 			core.units.begin()->step = 2;
 		else {
-			target->set_status(STATUS_SUMMONING, TRUE);
-			target->set_status(STATUS_SUMMON_DISABLED, FALSE);
+			target->set_status(STATUS_FLIP_SUMMONING, TRUE);
+			target->set_status(STATUS_FLIP_SUMMON_DISABLED, FALSE);
 			raise_event(target, EVENT_FLIP_SUMMON, 0, 0, sumplayer, sumplayer, 0);
 			process_instant_event();
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, 0x101, TRUE);
@@ -2010,16 +2027,19 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target, uint32 act
 		return FALSE;
 	}
 	case 2: {
-		if(target->is_status(STATUS_SUMMONING))
+		if(target->is_status(STATUS_FLIP_SUMMONING))
 			return FALSE;
-		if(effect_set* peset = (effect_set*)core.units.begin()->ptr1) {
-			for(int32 i = 0; i < peset->size(); ++i)
-				remove_oath_effect(peset->at(i));
-			delete peset;
-			core.units.begin()->ptr1 = 0;
+		if (core.is_summon_negated) {
+			if (effect_set* peset = (effect_set*)core.units.begin()->ptr1) {
+				for (int32 i = 0; i < peset->size(); ++i)
+					remove_oath_effect(peset->at(i));
+				delete peset;
+				core.units.begin()->ptr1 = 0;
+			}
+			if (target->is_status(STATUS_FLIP_SUMMON_DISABLED) && target->current.location == LOCATION_MZONE)
+				send_to(target, 0, REASON_RULE, PLAYER_NONE, sumplayer, LOCATION_GRAVE, 0, 0);
 		}
-		if(target->current.location == LOCATION_MZONE)
-			send_to(target, 0, REASON_RULE, PLAYER_NONE, sumplayer, LOCATION_GRAVE, 0, 0);
+		core.is_summon_negated = false;
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
 		return TRUE;
 	}
@@ -2030,7 +2050,7 @@ int32 field::flip_summon(uint16 step, uint8 sumplayer, card * target, uint32 act
 			delete peset;
 			core.units.begin()->ptr1 = 0;
 		}
-		target->set_status(STATUS_SUMMONING, FALSE);
+		target->set_status(STATUS_FLIP_SUMMONING, FALSE);
 		target->enable_field_effect(true);
 		if(target->is_status(STATUS_DISABLED))
 			target->reset(RESET_DISABLE, RESET_EVENT);
@@ -2900,7 +2920,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			delete peset;
 			core.units.begin()->ptr1 = 0;
 		}
-		if(target->current.location == LOCATION_MZONE)
+		if (target->is_status(STATUS_SUMMON_DISABLED) && target->current.location == LOCATION_MZONE)
 			send_to(target, 0, REASON_RULE, PLAYER_NONE, sumplayer, LOCATION_GRAVE, 0, 0);
 		adjust_instant();
 		add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
@@ -3084,7 +3104,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			card* pcard = *cit;
 			if (!pcard->is_status(STATUS_SUMMONING)) {
 				cit = pgroup->container.erase(cit);
-				if (pcard->current.location == LOCATION_MZONE)
+				if (pcard->is_status(STATUS_SUMMON_DISABLED) && pcard->current.location == LOCATION_MZONE)
 					cset.insert(pcard);
 			}
 			else
@@ -3137,6 +3157,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		return FALSE;
 	}
 	case 29: {
+		effect* peffect = core.units.begin()->peffect;
 		group* pgroup = core.units.begin()->ptarget;
 		pduel->write_buffer8(MSG_SPSUMMONED);
 		set_spsummon_counter(sumplayer);
@@ -3145,14 +3166,14 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 		for(auto& pcard : pgroup->container) {
 			if(pcard->spsummon_code)
 				spsummon_once_set.insert(pcard->spsummon_code);
-			pcard->set_special_summon_status(pcard->current.reason_effect);
+			pcard->set_special_summon_status(peffect);
 		}
 		for(auto& cit : spsummon_once_set)
 			++core.spsummon_once_map[sumplayer][cit];
 		for(auto& pcard : pgroup->container)
-			raise_single_event(pcard, 0, EVENT_SPSUMMON_SUCCESS, pcard->current.reason_effect, 0, pcard->current.reason_player, pcard->summon_player, 0);
+			raise_single_event(pcard, 0, EVENT_SPSUMMON_SUCCESS, peffect, 0, sumplayer, pcard->summon_player, 0);
 		process_single_event();
-		raise_event(&pgroup->container, EVENT_SPSUMMON_SUCCESS, core.units.begin()->peffect, 0, sumplayer, sumplayer, 0);
+		raise_event(&pgroup->container, EVENT_SPSUMMON_SUCCESS, peffect, 0, sumplayer, sumplayer, 0);
 		process_instant_event();
 		if(action_type == SUMMON_IN_IDLE) {
 			adjust_all();
@@ -3348,11 +3369,12 @@ int32 field::special_summon(uint16 step, effect* reason_effect, uint8 reason_pla
 		pduel->write_buffer8(MSG_SPSUMMONED);
 		for(auto& pcard : targets->container) {
 			check_card_counter(pcard, ACTIVITY_SPSUMMON, pcard->summon_player);
-			pcard->set_special_summon_status(pcard->current.reason_effect);
+			pcard->set_special_summon_status(reason_effect);
 			if(!(pcard->current.position & POS_FACEDOWN))
-				raise_single_event(pcard, 0, EVENT_SPSUMMON_SUCCESS, pcard->current.reason_effect, 0, pcard->current.reason_player, pcard->summon_player, 0);
+				raise_single_event(pcard, 0, EVENT_SPSUMMON_SUCCESS, reason_effect, 0, reason_player, pcard->summon_player, 0);
 			int32 summontype = pcard->summon_info & (SUMMON_VALUE_MAIN_TYPE | SUMMON_VALUE_SUB_TYPE);
-			if(summontype && pcard->material_cards.size() && !pcard->is_status(STATUS_FUTURE_FUSION)) {
+			int32 custom_type = pcard->summon_info & SUMMON_VALUE_CUSTOM_TYPE;
+			if(summontype && pcard->material_cards.size() && custom_type != SUMMON_VALUE_FUTURE_FUSION) {
 				int32 matreason = 0;
 				if(summontype == SUMMON_TYPE_FUSION)
 					matreason = REASON_FUSION;
@@ -3363,10 +3385,9 @@ int32 field::special_summon(uint16 step, effect* reason_effect, uint8 reason_pla
 				else if(summontype == SUMMON_TYPE_LINK)
 					matreason = REASON_LINK;
 				for(auto& mcard : pcard->material_cards)
-					raise_single_event(mcard, &targets->container, EVENT_BE_MATERIAL, pcard->current.reason_effect, matreason, pcard->current.reason_player, pcard->summon_player, 0);
+					raise_single_event(mcard, &targets->container, EVENT_BE_MATERIAL, reason_effect, matreason, reason_player, pcard->summon_player, 0);
 				raise_event(&(pcard->material_cards), EVENT_BE_MATERIAL, reason_effect, matreason, reason_player, pcard->summon_player, 0);
 			}
-			pcard->set_status(STATUS_FUTURE_FUSION, FALSE);
 		}
 		process_single_event();
 		process_instant_event();
@@ -3885,7 +3906,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 			uint8 dest = pcard->sendto_param.location;
 			if(!(reason & REASON_RULE) &&
 			        (pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
-			         || (!(pcard->current.reason & (REASON_COST | REASON_SUMMON | REASONS_PROCEDURE)) && !pcard->is_affect_by_effect(pcard->current.reason_effect))
+			         || ((pcard->current.reason & REASON_EFFECT) && !pcard->is_affect_by_effect(pcard->current.reason_effect))
 			         || (dest == LOCATION_HAND && !pcard->is_capable_send_to_hand(core.reason_player))
 			         || (dest == LOCATION_DECK && !pcard->is_capable_send_to_deck(core.reason_player, send_activating))
 			         || (dest == LOCATION_REMOVED && !pcard->is_removeable(core.reason_player, pcard->sendto_param.position, reason))
@@ -3905,6 +3926,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		return FALSE;
 	}
 	case 1: {
+		// the entrance of release, destroy
 		for(auto& pcard : targets->container) {
 			add_process(PROCESSOR_SENDTO_REPLACE, 0, nullptr, targets, 0, 0, 0, 0, pcard);
 		}
@@ -4139,6 +4161,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		if((core.deck_reversed && pcard->current.location == LOCATION_DECK) || (pcard->current.position == POS_FACEUP_DEFENSE))
 			param->show_decktop[pcard->current.controler] = true;
 		pcard->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
+		pcard->set_status(STATUS_FLIP_SUMMONING, FALSE);
+		pcard->set_status(STATUS_FLIP_SUMMON_DISABLED, FALSE);
 		if(pcard->status & (STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED)) {
 			pcard->set_status(STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED, FALSE);
 			pcard->previous.location = 0;
@@ -4187,6 +4211,8 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		pduel->write_buffer32(pcard->get_info_location());
 		pduel->write_buffer32(pcard->current.reason);
 		pcard->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
+		pcard->set_status(STATUS_FLIP_SUMMONING, FALSE);
+		pcard->set_status(STATUS_FLIP_SUMMON_DISABLED, FALSE);
 		if(pcard->status & (STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED)) {
 			pcard->set_status(STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED, FALSE);
 			pcard->previous.location = 0;
@@ -4339,8 +4365,11 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				raise_single_event(pcard, 0, EVENT_DESTROYED, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
 			if(pcard->xyz_materials.size()) {
+				pcard->xyz_materials_previous_count_onfield = pcard->xyz_materials.size();
 				for(auto& mcard : pcard->xyz_materials)
 					overlays.insert(mcard);
+			} else {
+				pcard->xyz_materials_previous_count_onfield = 0;
 			}
 			raise_single_event(pcard, 0, EVENT_MOVE, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 		}
@@ -4671,7 +4700,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 		target->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
 		pduel->write_buffer32(target->get_info_location());
 		pduel->write_buffer32(target->current.reason);
-		if((target->current.location != LOCATION_MZONE)) {
+		if(target->current.location != LOCATION_MZONE) {
 			if(target->equiping_cards.size()) {
 				destroy(&target->equiping_cards, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
 				for(auto csit = target->equiping_cards.begin(); csit != target->equiping_cards.end();) {
@@ -4680,9 +4709,12 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				}
 			}
 			if(target->xyz_materials.size()) {
+				target->xyz_materials_previous_count_onfield = target->xyz_materials.size();
 				card_set overlays;
 				overlays.insert(target->xyz_materials.begin(), target->xyz_materials.end());
 				send_to(&overlays, 0, REASON_LOST_OVERLAY + REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+			} else {
+				target->xyz_materials_previous_count_onfield = 0;
 			}
 		}
 		if((target->previous.location == LOCATION_SZONE) && target->equiping_target)
@@ -4900,6 +4932,8 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 					trapmonster = true;
 				if(pcard->status & (STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED))
 					pcard->set_status(STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED, FALSE);
+				pcard->set_status(STATUS_FLIP_SUMMONING, FALSE);
+				pcard->set_status(STATUS_FLIP_SUMMON_DISABLED, FALSE);
 				pcard->reset(RESET_TURN_SET, RESET_EVENT);
 				pcard->clear_card_target();
 				pcard->set_status(STATUS_SET_TURN, TRUE);

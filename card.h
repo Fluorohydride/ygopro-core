@@ -198,6 +198,7 @@ public:
 	card_set effect_target_owner;
 	card_set effect_target_cards;
 	card_vector xyz_materials;
+	int32 xyz_materials_previous_count_onfield;
 	effect_container single_effect;
 	effect_container field_effect;
 	effect_container equip_effect;
@@ -267,9 +268,10 @@ public:
 	int32 is_status(uint32 status);
 	uint32 get_column_zone(int32 location);
 	void get_column_cards(card_set* cset);
-	int32 is_all_column();
+	int32 is_all_column();k
 	uint8 get_select_sequence(uint8 *deck_seq_pointer);
 	uint32 get_select_info_location(uint8 *deck_seq_pointer);
+	int32 is_treated_as_not_on_field();
 
 	void equip(card* target, uint32 send_msg = TRUE);
 	void unequip();
@@ -344,6 +346,7 @@ public:
 	int32 is_spsummonable(effect* proc, material_info info = null_info);
 	int32 is_summonable(effect* proc, uint8 min_tribute, uint32 zone = 0x1f, uint32 releasable = 0xff00ff);
 	int32 is_can_be_summoned(uint8 playerid, uint8 ingore_count, effect* peffect, uint8 min_tribute, uint32 zone = 0x1f);
+	int32 is_summon_negatable(uint32 sumtype, effect* reason_effect);
 	int32 get_summon_tribute_count();
 	int32 get_set_tribute_count();
 	int32 is_can_be_flip_summoned(uint8 playerid);
@@ -409,6 +412,8 @@ public:
 #define SUMMON_VALUE_LOCATION		0x00ff0000
 #define SUMMON_VALUE_CUSTOM_TYPE	0x0000ffff
 constexpr uint32 DEFAULT_SUMMON_TYPE = SUMMON_VALUE_MAIN_TYPE | SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE;
+
+#define SUMMON_VALUE_FUTURE_FUSION	0x18
 
 //Counter
 #define COUNTER_WITHOUT_PERMIT	0x1000
