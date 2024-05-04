@@ -9,6 +9,7 @@
 #define COMMON_H_
 
 #include <stdint.h>
+#include <assert.h>
 typedef unsigned long long uint64;
 typedef unsigned int uint32;
 typedef unsigned short uint16;

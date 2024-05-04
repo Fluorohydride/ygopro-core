@@ -27,6 +27,9 @@ duel::duel() {
 	game_field = new field(this);
 	game_field->temp_card = new_card(0);
 	message_buffer.reserve(SIZE_MESSAGE_BUFFER);
+#ifdef _WIN32
+	_set_error_mode(_OUT_TO_MSGBOX);
+#endif // _WIN32
 }
 duel::~duel() {
 	for(auto& pcard : cards)
