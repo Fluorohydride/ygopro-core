@@ -1546,6 +1546,14 @@ int32 scriptlib::duel_disable_self_destroy_check(lua_State* L) {
 	pduel->game_field->core.selfdes_disabled = disable;
 	return 0;
 }
+int32 scriptlib::duel_preserve_select_deck_seq(lua_State* L) {
+	duel* pduel = interpreter::get_duel_info(L);
+	uint8 preserve = TRUE;
+	if(lua_gettop(L) > 0)
+		preserve = lua_toboolean(L, 1);
+	pduel->game_field->core.select_deck_seq_preserved = preserve;
+	return 0;
+}
 int32 scriptlib::duel_shuffle_deck(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 playerid = (uint32)lua_tointeger(L, 1);
@@ -4850,6 +4858,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "DiscardHand", scriptlib::duel_discard_hand },
 	{ "DisableShuffleCheck", scriptlib::duel_disable_shuffle_check },
 	{ "DisableSelfDestroyCheck", scriptlib::duel_disable_self_destroy_check },
+	{ "PreserveSelectDeckSequence", scriptlib::duel_preserve_select_deck_seq },
 	{ "ShuffleDeck", scriptlib::duel_shuffle_deck },
 	{ "ShuffleExtra", scriptlib::duel_shuffle_extra },
 	{ "ShuffleHand", scriptlib::duel_shuffle_hand },

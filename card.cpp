@@ -96,6 +96,36 @@ bool card::card_operation_sort(card* c1, card* c2) {
 			return c1->overlay_target->current.sequence < c2->overlay_target->current.sequence;
 		else
 			return c1->current.sequence < c2->current.sequence;
+	} else if (c1->current.location & LOCATION_DECK && !pduel->game_field->core.select_deck_seq_preserved) {
+		// faceup deck cards should go at the very first
+		if(c1->current.position != c2->current.position) {
+			if(c1->current.position & POS_FACEUP)
+				return false;
+			else
+				return true;
+		}
+		// if deck reversed and the card being at the top, it should go first
+		if(pduel->game_field->core.deck_reversed) {
+			if(c1->current.sequence == pduel->game_field->player[cp1].list_main.size() - 1)
+				return false;
+			if(c2->current.sequence == pduel->game_field->player[cp2].list_main.size() - 1)
+				return true;
+		}
+		// sort deck as card property
+		auto c1_type = c1->data.type & 0x7;
+		auto c2_type = c2->data.type & 0x7;
+		// monster should go before spell, and then trap
+		if(c1_type != c2_type)
+			return c1_type > c2_type;
+		if(c1_type & TYPE_MONSTER) {
+			// sort monster by level, then code
+			if(c1->data.level != c2->data.level)
+				return c1->data.level < c2->data.level;
+			else
+				return c1->data.code > c2->data.code;
+		} else
+			// spell and trap should go by code
+			return c1->data.code > c2->data.code;
 	} else {
 		if(c1->current.location & (LOCATION_DECK | LOCATION_EXTRA | LOCATION_GRAVE | LOCATION_REMOVED))
 			return c1->current.sequence > c2->current.sequence;
@@ -1506,10 +1536,27 @@ int32 card::is_all_column() {
 		return TRUE;
 	return FALSE;
 }
+uint8 card::get_select_sequence(uint8 *deck_seq_pointer) {
+	if(current.location == LOCATION_DECK && !pduel->game_field->core.select_deck_seq_preserved) {
+		return deck_seq_pointer[current.controler]++;
+	} else {
+		return current.sequence;
+	}
+}
+uint32 card::get_select_info_location(uint8 *deck_seq_pointer) {
+	if(current.location == LOCATION_DECK) {
+		uint32 c = current.controler;
+		uint32 l = current.location;
+		uint32 s = get_select_sequence(deck_seq_pointer);
+		uint32 ss = current.position;
+		return c + (l << 8) + (s << 16) + (ss << 24);
+	} else {
+		return get_info_location();
+	}
+}
 int32 card::is_treated_as_not_on_field() {
 	return get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED | STATUS_SPSUMMON_STEP);
 }
-
 void card::equip(card* target, uint32 send_msg) {
 	if (equiping_target)
 		return;
