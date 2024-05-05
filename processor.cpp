@@ -4163,14 +4163,12 @@ int32 field::add_chain(uint16 step) {
 				pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 				pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 				auto id = clit.required_handorset_effects[i]->get_value(2);
-				if (id) {
-					if(!ceffect_unique_id) {
-						ceffect_unique_id = id;
-					} else if (ceffect_unique_id != id) {
-						// there are more than one types, so we can't skip
-						ceffect_unique_id = 0;
-						break;
-					}
+				if (!id || ceffect_unique_id != id) {
+					ceffect_unique_id = 0;
+					break;
+				}
+				if (!ceffect_unique_id) {
+					ceffect_unique_id = id;
 				}
 			}
 			if (ceffect_unique_id) {
