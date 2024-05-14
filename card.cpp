@@ -106,11 +106,13 @@ bool card::card_operation_sort(card* c1, card* c2) {
 				return true;
 		}
 		// faceup deck cards should go at the very first
-		if(c1->current.position != c2->current.position) {
-			if(c1->current.position & POS_FACEUP)
-				return false;
+		auto c1_faceup = c1->current.position & POS_FACEUP;
+		auto c2_faceup = c2->current.position & POS_FACEUP;
+		if(c1_faceup || c2_faceup) {
+			if(c1_faceup && c2_faceup)
+				return c1->current.sequence > c2->current.sequence;
 			else
-				return true;
+				return c2_faceup;
 		}
 		// sort deck as card property
 		auto c1_type = c1->data.type & 0x7;
@@ -120,7 +122,7 @@ bool card::card_operation_sort(card* c1, card* c2) {
 			return c1_type > c2_type;
 		if(c1_type & TYPE_MONSTER) {
 			if (c1->data.level != c2->data.level)
-				return c1->data.level > c2->data.level;
+				return c1->data.level < c2->data.level;
 			// TODO: more sorts here
 		}
 		if(c1->data.code != c2->data.code)
