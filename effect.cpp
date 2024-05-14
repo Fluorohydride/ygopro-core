@@ -206,9 +206,16 @@ int32 effect::get_required_handorset_effects(effect_set* eset, uint8 playerid, c
 	int32 available = 0;
 	effect_set tmp_eset;
 	handler->filter_effect(ecode, &tmp_eset);
+	if(!tmp_eset.size())
+		return available;
+	effect* oreason = pduel->game_field->core.reason_effect;
+	uint8 op = pduel->game_field->core.reason_player;
+	pduel->game_field->core.reason_player = playerid;
+	pduel->game_field->save_lp_cost();
 	for(int32 i = 0; i < tmp_eset.size(); ++i) {
 		auto peffect = tmp_eset[i];
 		if(peffect->check_count_limit(playerid)) {
+			pduel->game_field->core.reason_effect = oreason;
 			pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 			pduel->lua->add_param(e.event_cards , PARAM_TYPE_GROUP);
@@ -225,6 +232,9 @@ int32 effect::get_required_handorset_effects(effect_set* eset, uint8 playerid, c
 			}
 		}
 	}
+	pduel->game_field->core.reason_effect = oreason;
+	pduel->game_field->core.reason_player = op;
+	pduel->game_field->restore_lp_cost();
 	return available;
 }
 // check if an EFFECT_TYPE_ACTIONS effect can be activated
