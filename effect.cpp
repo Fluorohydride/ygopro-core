@@ -215,7 +215,7 @@ int32 effect::get_required_handorset_effects(effect_set* eset, uint8 playerid, c
 	for(int32 i = 0; i < tmp_eset.size(); ++i) {
 		auto peffect = tmp_eset[i];
 		if(peffect->check_count_limit(playerid)) {
-			pduel->game_field->core.reason_effect = oreason;
+			pduel->game_field->core.reason_effect = peffect;
 			pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 			pduel->lua->add_param(e.event_cards , PARAM_TYPE_GROUP);
