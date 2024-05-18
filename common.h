@@ -80,6 +80,10 @@ struct card_sort {
 //Flip effect flags
 #define NO_FLIP_EFFECT			0x10000
 
+//Move to field flags
+#define RETURN_TEMP_REMOVE_TO_FIELD		1
+#define RETURN_TRAP_MONSTER_TO_SZONE	2
+
 //Types
 #define TYPE_MONSTER		0x1			//
 #define TYPE_SPELL			0x2			//

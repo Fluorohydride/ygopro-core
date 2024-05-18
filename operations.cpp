@@ -1352,7 +1352,7 @@ int32 field::trap_monster_adjust(uint16 step) {
 				pcard->reset(RESET_TURN_SET, RESET_EVENT);
 				if(core.duel_rule <= 4)
 					refresh_location_info_instant();
-				move_to_field(pcard, tp, tp, LOCATION_SZONE, pcard->current.position, FALSE, 2);
+				move_to_field(pcard, tp, tp, LOCATION_SZONE, pcard->current.position, FALSE, RETURN_TRAP_MONSTER_TO_SZONE);
 			}
 			tp = 1 - tp;
 		}
@@ -4550,7 +4550,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 	switch(step) {
 	case 0: {
 		returns.ivalue[0] = FALSE;
-		if((ret == 1) && (!(target->current.reason & REASON_TEMPORARY) || (target->current.reason_effect->owner != core.reason_effect->owner)))
+		if((ret == RETURN_TEMP_REMOVE_TO_FIELD) && (!(target->current.reason & REASON_TEMPORARY) || (target->current.reason_effect->owner != core.reason_effect->owner)))
 			return TRUE;
 		if(location == LOCATION_SZONE && zone == 0x1 << 5 && (target->data.type & TYPE_FIELD) && (target->data.type & TYPE_SPELL)) {
 			card* pcard = get_field_card(playerid, LOCATION_SZONE, 5);
@@ -4585,7 +4585,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			uint32 flag;
 			uint32 lreason = (target->current.location == LOCATION_MZONE) ? LOCATION_REASON_CONTROL : LOCATION_REASON_TOFIELD;
 			int32 ct = get_useable_count(target, playerid, location, move_player, lreason, zone, &flag);
-			if((ret == 1) && (ct <= 0 || target->is_status(STATUS_FORBIDDEN) || !(positions & POS_FACEDOWN) && check_unique_onfield(target, playerid, location))) {
+			if((ret == RETURN_TEMP_REMOVE_TO_FIELD) && (ct <= 0 || target->is_status(STATUS_FORBIDDEN) || !(positions & POS_FACEDOWN) && check_unique_onfield(target, playerid, location))) {
 				core.units.begin()->step = 3;
 				send_to(target, core.reason_effect, REASON_RULE, core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
 				return FALSE;
@@ -4604,7 +4604,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 					}
 				}
 			}
-			if(ret == 2 && core.duel_rule <= 4) {
+			if(ret == RETURN_TRAP_MONSTER_TO_SZONE && core.duel_rule <= 4) {
 				returns.bvalue[2] = target->previous.sequence;
 				return FALSE;
 			}
@@ -4632,7 +4632,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 		uint32 seq = returns.bvalue[2];
 		if(location == LOCATION_SZONE && zone == 0x1 << 5 && (target->data.type & TYPE_FIELD) && (target->data.type & TYPE_SPELL))
 			seq = 5;
-		if(ret != 1) {
+		if(ret != RETURN_TEMP_REMOVE_TO_FIELD) {
 			if(location != target->current.location) {
 				uint32 resetflag = 0;
 				if(location & LOCATION_ONFIELD)
@@ -4649,10 +4649,10 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 		}
 		if(!(target->current.location & LOCATION_ONFIELD))
 			target->clear_relate_effect();
-		if(ret == 1)
+		if(ret == RETURN_TEMP_REMOVE_TO_FIELD)
 			target->current.reason &= ~REASON_TEMPORARY;
 		if(ret == 0 && location != target->current.location
-			|| ret == 1 && target->turnid != infos.turn_id) {
+			|| ret == RETURN_TEMP_REMOVE_TO_FIELD && target->turnid != infos.turn_id) {
 			target->set_status(STATUS_SUMMON_TURN, FALSE);
 			target->set_status(STATUS_FLIP_SUMMON_TURN, FALSE);
 			target->set_status(STATUS_SPSUMMON_TURN, FALSE);
@@ -4770,9 +4770,9 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				}
 			}
 		}
-		if(enable || ((ret == 1) && target->is_position(POS_FACEUP)))
+		if(enable || ((ret == RETURN_TEMP_REMOVE_TO_FIELD) && target->is_position(POS_FACEUP)))
 			target->enable_field_effect(true);
-		if(ret == 1 && target->current.location == LOCATION_MZONE && !(target->data.type & TYPE_MONSTER))
+		if(ret == RETURN_TEMP_REMOVE_TO_FIELD && target->current.location == LOCATION_MZONE && !(target->data.type & TYPE_MONSTER))
 			send_to(target, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, 0);
 		else {
 			if(target->previous.location == LOCATION_GRAVE) {
@@ -4955,7 +4955,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 				pcard->unequip();
 			if(trapmonster) {
 				refresh_location_info_instant();
-				move_to_field(pcard, pcard->current.controler, pcard->current.controler, LOCATION_SZONE, POS_FACEDOWN, FALSE, 2);
+				move_to_field(pcard, pcard->current.controler, pcard->current.controler, LOCATION_SZONE, POS_FACEDOWN, FALSE, RETURN_TRAP_MONSTER_TO_SZONE);
 				raise_single_event(pcard, 0, EVENT_SSET, reason_effect, 0, reason_player, 0, 0);
 				ssets.insert(pcard);
 			}
