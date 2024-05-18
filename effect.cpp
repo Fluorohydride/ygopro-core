@@ -18,9 +18,9 @@ bool effect_sort_id(const effect* e1, const effect* e2) {
 bool is_continuous_event(uint32 code) {
 	if (code & EVENT_CUSTOM)
 		return false;
-	else if (code & 0xf0000)
+	else if (code & 0xf0000) // EVENT_ADD_COUNTER, EVENT_REMOVE_COUNTER
 		return false;
-	else if (code & 0xf000)
+	else if (code & 0xf000) // EVENT_PHASE_START must be continuous, but other EVENT_PHASE must not be
 		return !!(code & EVENT_PHASE_START);
 	else
 		return continuous_event.find(code) != continuous_event.end();
