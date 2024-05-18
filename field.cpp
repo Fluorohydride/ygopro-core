@@ -2536,9 +2536,9 @@ int32 field::check_must_material(group* mg, uint8 playerid, uint32 limit) {
 			return FALSE;
 	return TRUE;
 }
-void field::get_synchro_material(uint8 playerid, card_set* material, effect* ptuner) {
-	if(ptuner && ptuner->value) {
-		int32 location = ptuner->value;
+void field::get_synchro_material(uint8 playerid, card_set* material, effect* tuner_limit) {
+	if(tuner_limit && tuner_limit->value) {
+		int32 location = tuner_limit->value;
 		if(location & LOCATION_MZONE) {
 			for(auto& pcard : player[playerid].list_mzone) {
 				if(pcard && !pcard->is_treated_as_not_on_field())
@@ -2629,15 +2629,15 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 			++ct;
 	}
 	int32 location = LOCATION_MZONE;
-	effect* ptuner = tuner->is_affected_by_effect(EFFECT_TUNER_MATERIAL_LIMIT);
-	if(ptuner) {
-		if(ptuner->value)
-			location = ptuner->value;
-		if(ptuner->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
-			if(ptuner->s_range && ptuner->s_range > min)
-				min = ptuner->s_range;
-			if(ptuner->o_range && ptuner->o_range < max)
-				max = ptuner->o_range;
+	effect* tuner_limit = tuner->is_affected_by_effect(EFFECT_TUNER_MATERIAL_LIMIT);
+	if(tuner_limit) {
+		if(tuner_limit->value)
+			location = tuner_limit->value;
+		if(tuner_limit->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
+			if(tuner_limit->s_range && tuner_limit->s_range > min)
+				min = tuner_limit->s_range;
+			if(tuner_limit->o_range && tuner_limit->o_range < max)
+				max = tuner_limit->o_range;
 		}
 		if(min > max) {
 			pduel->restore_assumes();
@@ -2670,16 +2670,16 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 			pduel->restore_assumes();
 			return FALSE;
 		}
-		if(ptuner) {
-			if(ptuner->target) {
-				pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+		if(tuner_limit) {
+			if(tuner_limit->target) {
+				pduel->lua->add_param(tuner_limit, PARAM_TYPE_EFFECT);
 				pduel->lua->add_param(smat, PARAM_TYPE_CARD);
-				if(!pduel->lua->get_function_value(ptuner->target, 2)) {
+				if(!pduel->lua->get_function_value(tuner_limit->target, 2)) {
 					pduel->restore_assumes();
 					return FALSE;
 				}
 			}
-			if(ptuner->value && !(smat->current.location & location)) {
+			if(tuner_limit->value && !(smat->current.location & location)) {
 				pduel->restore_assumes();
 				return FALSE;
 			}
@@ -2721,16 +2721,16 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 				pduel->restore_assumes();
 				return FALSE;
 			}
-			if(ptuner) {
-				if(ptuner->target) {
-					pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+			if(tuner_limit) {
+				if(tuner_limit->target) {
+					pduel->lua->add_param(tuner_limit, PARAM_TYPE_EFFECT);
 					pduel->lua->add_param(mcard, PARAM_TYPE_CARD);
-					if(!pduel->lua->get_function_value(ptuner->target, 2)) {
+					if(!pduel->lua->get_function_value(tuner_limit->target, 2)) {
 						pduel->restore_assumes();
 						return FALSE;
 					}
 				}
-				if(ptuner->value && !(mcard->current.location & location)) {
+				if(tuner_limit->value && !(mcard->current.location & location)) {
 					pduel->restore_assumes();
 					return FALSE;
 				}
@@ -2746,14 +2746,14 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		for(auto& pm : mg->container) {
 			if(pm == tuner || pm == smat || must_list.find(pm) != must_list.end() || !pm->is_can_be_synchro_material(pcard, tuner))
 				continue;
-			if(ptuner) {
-				if(ptuner->target) {
-					pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+			if(tuner_limit) {
+				if(tuner_limit->target) {
+					pduel->lua->add_param(tuner_limit, PARAM_TYPE_EFFECT);
 					pduel->lua->add_param(pm, PARAM_TYPE_CARD);
-					if(!pduel->lua->get_function_value(ptuner->target, 2))
+					if(!pduel->lua->get_function_value(tuner_limit->target, 2))
 						continue;
 				}
-				if(ptuner->value && !(pm->current.location & location))
+				if(tuner_limit->value && !(pm->current.location & location))
 					continue;
 			}
 			if(pcheck)
@@ -2767,14 +2767,14 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		}
 	} else {
 		card_set cv;
-		get_synchro_material(playerid, &cv, ptuner);
+		get_synchro_material(playerid, &cv, tuner_limit);
 		for(auto& pm : cv) {
 			if(!pm || pm == tuner || pm == smat || must_list.find(pm) != must_list.end() || !pm->is_can_be_synchro_material(pcard, tuner))
 				continue;
-			if(ptuner && ptuner->target) {
-				pduel->lua->add_param(ptuner, PARAM_TYPE_EFFECT);
+			if(tuner_limit && tuner_limit->target) {
+				pduel->lua->add_param(tuner_limit, PARAM_TYPE_EFFECT);
 				pduel->lua->add_param(pm, PARAM_TYPE_CARD);
-				if(!pduel->lua->get_function_value(ptuner->target, 2))
+				if(!pduel->lua->get_function_value(tuner_limit->target, 2))
 					continue;
 			}
 			if(pcheck)
