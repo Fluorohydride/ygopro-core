@@ -61,8 +61,8 @@ field::field(duel* pduel) {
 	infos.phase = 0;
 	infos.turn_player = 0;
 	for (int32 i = 0; i < 2; ++i) {
-		//cost[i].count = 0;
-		//cost[i].amount = 0;
+		cost[i].count = 0;
+		cost[i].amount = 0;
 		player[i].lp = 8000;
 		player[i].start_count = 5;
 		player[i].draw_count = 1;
@@ -2341,12 +2341,11 @@ int32 field::check_lp_cost(uint8 playerid, uint32 lp, uint32 must_pay) {
 		if(effect_replace_check(EFFECT_LPCOST_REPLACE, e))
 			return TRUE;
 	}
-	//cost[playerid].amount += val;
-	if(val <= player[playerid].lp)
+	cost[playerid].amount += val;
+	if(cost[playerid].amount <= player[playerid].lp)
 		return TRUE;
 	return FALSE;
 }
-/*
 void field::save_lp_cost() {
 	for(uint8 playerid = 0; playerid < 2; ++playerid) {
 		if(cost[playerid].count < 8)
@@ -2361,7 +2360,6 @@ void field::restore_lp_cost() {
 			cost[playerid].amount = cost[playerid].lpstack[cost[playerid].count];
 	}
 }
-*/
 uint32 field::get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype) {
 	uint8 c = s;
 	uint32 count = 0;
@@ -2603,12 +2601,11 @@ int32 field::check_tuner_material(card* pcard, card* tuner, int32 findex1, int32
 		pduel->lua->add_param(findex2, PARAM_TYPE_INDEX);
 		pduel->lua->add_param(min, PARAM_TYPE_INT);
 		pduel->lua->add_param(max, PARAM_TYPE_INT);
-		if(pduel->lua->check_condition(pcustom->target, 5)) {
-			pduel->restore_assumes();
-			return TRUE;
-		}
+		pduel->game_field->save_lp_cost();
+		int32 res = pduel->lua->check_condition(pcustom->target, 5);
+		pduel->game_field->restore_lp_cost();
 		pduel->restore_assumes();
-		return FALSE;
+		return res;
 	}
 	int32 playerid = pcard->current.controler;
 	card_set must_list;
