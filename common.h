@@ -42,9 +42,6 @@ typedef signed char int8;
 #ifndef NULL
 #define NULL 0
 #endif
-struct card_sort {
-	bool operator()(void* const & c1, void* const & c2) const;
-};
 
 #define CURRENT_RULE	5
 

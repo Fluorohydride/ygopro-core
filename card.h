@@ -11,6 +11,7 @@
 #include "common.h"
 #include "effectset.h"
 #include "card_data.h"
+#include "sort.h"
 #include <set>
 #include <map>
 #include <unordered_set>
