@@ -1519,7 +1519,7 @@ int32 card::is_all_column() {
 }
 uint8 card::get_select_sequence(uint8 *deck_seq_pointer) {
 	if(current.location == LOCATION_DECK && current.controler == pduel->game_field->core.selecting_player && !pduel->game_field->core.select_deck_seq_preserved) {
-		return *deck_seq_pointer++;
+		return (*deck_seq_pointer)++;
 	} else {
 		return current.sequence;
 	}
