@@ -23,9 +23,7 @@ const std::unordered_map<uint32, uint32> card::second_code = {
 	{CARD_HERMOS, 10000070u}
 };
 
-bool card_sort::operator()(void* const & p1, void* const & p2) const {
-	card* c1 = (card*)p1;
-	card* c2 = (card*)p2;
+bool card_sort::operator()(card* const& c1, card* const& c2) const {
 	return c1->cardid < c2->cardid;
 }
 bool card_state::is_location(int32 loc) const {

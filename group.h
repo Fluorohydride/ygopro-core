@@ -9,6 +9,7 @@
 #define GROUP_H_
 
 #include "common.h"
+#include "sort.h"
 #include <set>
 #include <list>
 

@@ -9,6 +9,7 @@
 #define DUEL_H_
 
 #include "common.h"
+#include "sort.h"
 #include "mtrandom.h"
 #include <set>
 #include <unordered_set>
