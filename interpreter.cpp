@@ -6,6 +6,7 @@
  */
 
 #include <cstring>
+#include <utility>
 #include "duel.h"
 #include "group.h"
 #include "card.h"
@@ -176,68 +177,70 @@ int32 interpreter::load_card_script(uint32 code) {
 	}
 	return OPERATION_SUCCESS;
 }
-void interpreter::add_param(void *param, int32 type, bool front) {
+void interpreter::add_param(void* param, LuaParamType type, bool front) {
+	lua_param p;
+	p.ptr = param;
 	if(front)
-		params.emplace_front(param, type);
+		params.emplace_front(p, type);
 	else
-		params.emplace_back(param, type);
+		params.emplace_back(p, type);
 }
-void interpreter::add_param(int32 param, int32 type, bool front) {
+void interpreter::add_param(int32 param, LuaParamType type, bool front) {
+	lua_param p;
+	p.integer = param;
 	if(front)
-		params.emplace_front((void*)(intptr_t)param, type);
+		params.emplace_front(p, type);
 	else
-		params.emplace_back((void*)(intptr_t)param, type);
+		params.emplace_back(p, type);
 }
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	int32 pushed = 0;
 	for (const auto& it : params) {
 		luaL_checkstack(L, 1, nullptr);
-		uint32 type = it.second;
+		auto type = it.second;
 		switch(type) {
 		case PARAM_TYPE_INT:
-			lua_pushinteger(L, (lua_Integer)it.first);
+			lua_pushinteger(L, it.first.integer);
 			break;
 		case PARAM_TYPE_STRING:
-			lua_pushstring(L, (const char *)it.first);
+			lua_pushstring(L, (const char*)it.first.ptr);
 			break;
 		case PARAM_TYPE_BOOLEAN:
-			lua_pushboolean(L, (int32)(intptr_t)it.first);
+			lua_pushboolean(L, it.first.integer);
 			break;
 		case PARAM_TYPE_CARD: {
-			if (it.first)
-				lua_rawgeti(L, LUA_REGISTRYINDEX, ((card*)it.first)->ref_handle);
+			if (it.first.ptr)
+				lua_rawgeti(L, LUA_REGISTRYINDEX, ((card*)it.first.ptr)->ref_handle);
 			else
 				lua_pushnil(L);
 			break;
 		}
 		case PARAM_TYPE_EFFECT: {
-			if (it.first)
-				lua_rawgeti(L, LUA_REGISTRYINDEX, ((effect*)it.first)->ref_handle);
+			if (it.first.ptr)
+				lua_rawgeti(L, LUA_REGISTRYINDEX, ((effect*)it.first.ptr)->ref_handle);
 			else
 				lua_pushnil(L);
 			break;
 		}
 		case PARAM_TYPE_GROUP: {
-			if (it.first)
-				lua_rawgeti(L, LUA_REGISTRYINDEX, ((group*)it.first)->ref_handle);
+			if (it.first.ptr)
+				lua_rawgeti(L, LUA_REGISTRYINDEX, ((group*)it.first.ptr)->ref_handle);
 			else
 				lua_pushnil(L);
 			break;
 		}
 		case PARAM_TYPE_FUNCTION: {
-			function2value(L, (int32)(intptr_t)it.first);
+			function2value(L, it.first.integer);
 			break;
 		}
 		case PARAM_TYPE_INDEX: {
-			int32 index = (int32)(intptr_t)it.first;
+			int32 index = it.first.integer;
 			if(index > 0)
 				lua_pushvalue(L, index);
 			else if(is_coroutine) {
 				//copy value from current_state to new stack
 				lua_pushvalue(current_state, index);
-				int32 ref = luaL_ref(current_state, LUA_REGISTRYINDEX);
-				lua_rawgeti(L, LUA_REGISTRYINDEX, ref);
-				luaL_unref(current_state, LUA_REGISTRYINDEX, ref);
+				lua_xmove(current_state, L, 1);
 			} else {
 				//the calling function is pushed before the params, so the actual index is: index - pushed -1
 				lua_pushvalue(L, index - pushed - 1);
@@ -529,7 +532,7 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count, std::vector<i
 	}
 	return is_success;
 }
-int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_value, uint16 step) {
+int32 interpreter::call_coroutine(int32 f, uint32 param_count, int32* yield_value, uint16 step) {
 	*yield_value = 0;
 	if (!f) {
 		sprintf(pduel->strbuffer, "\"CallCoroutine\": attempt to call a null function");
@@ -547,18 +550,23 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 	lua_State* rthread;
 	if (it == coroutines.end()) {
 		rthread = lua_newthread(lua_state);
+		const auto threadref = luaL_ref(lua_state, LUA_REGISTRYINDEX);
 		function2value(rthread, f);
 		if(!lua_isfunction(rthread, -1)) {
+			luaL_unref(lua_state, LUA_REGISTRYINDEX, threadref);
 			sprintf(pduel->strbuffer, "\"CallCoroutine\": attempt to call an error function");
 			handle_message(pduel, 1);
 			params.clear();
 			return OPERATION_FAIL;
 		}
 		++call_depth;
-		coroutines.emplace(f, rthread);
+		auto ret = coroutines.emplace(f, std::make_pair(rthread, threadref));
+		it = ret.first;
 	} else {
-		rthread = it->second;
 		if(step == 0) {
+			auto threadref = it->second.second;
+			coroutines.erase(it);
+			luaL_unref(lua_state, LUA_REGISTRYINDEX, threadref);
 			sprintf(pduel->strbuffer, "recursive event trigger detected.");
 			handle_message(pduel, 1);
 			params.clear();
@@ -569,49 +577,44 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, uint32 * yield_va
 			}
 			return OPERATION_FAIL;
 		}
+		rthread = it->second.first;
 	}
 	push_param(rthread, true);
-	lua_State* prev_state = current_state;
-	current_state = rthread;
+	int32 result = 0, nresults = 0;
+	{
+		auto prev_state = std::exchange(current_state, rthread);
 #if (LUA_VERSION_NUM >= 504)
-	int32 nresults;
-	int32 result = lua_resume(rthread, prev_state, param_count, &nresults);
+		result = lua_resume(rthread, prev_state, param_count, &nresults);
 #else
-	int32 result = lua_resume(rthread, 0, param_count);
-	int32 nresults = lua_gettop(rthread);
+		result = lua_resume(rthread, prev_state, param_count);
+		nresults = lua_gettop(rthread);
 #endif
-	if (result == LUA_OK) {
-		coroutines.erase(f);
-		if(yield_value) {
-			if(nresults == 0)
-				*yield_value = 0;
-			else if(lua_isboolean(rthread, -1))
-				*yield_value = lua_toboolean(rthread, -1);
-			else
-				*yield_value = (uint32)lua_tointeger(rthread, -1);
-		}
-		current_state = lua_state;
-		--call_depth;
-		if(call_depth == 0) {
-			pduel->release_script_group();
-			pduel->restore_assumes();
-		}
-		return COROUTINE_FINISH;
-	} else if (result == LUA_YIELD) {
+		current_state = prev_state;
+	}
+	if (result == LUA_YIELD)
 		return COROUTINE_YIELD;
-	} else {
-		coroutines.erase(f);
+	if (result != LUA_OK) {
 		sprintf(pduel->strbuffer, "%s", lua_tostring(rthread, -1));
 		handle_message(pduel, 1);
 		lua_pop(rthread, 1);
-		current_state = lua_state;
-		--call_depth;
-		if(call_depth == 0) {
-			pduel->release_script_group();
-			pduel->restore_assumes();
-		}
-		return COROUTINE_ERROR;
 	}
+	else if (yield_value) {
+		if (nresults == 0)
+			*yield_value = 0;
+		else if (lua_isboolean(rthread, -1))
+			*yield_value = lua_toboolean(rthread, -1);
+		else
+			*yield_value = (int32)lua_tointeger(rthread, -1);
+	}
+	auto threadref = it->second.second;
+	coroutines.erase(it);
+	luaL_unref(lua_state, LUA_REGISTRYINDEX, threadref);
+	--call_depth;
+	if (call_depth == 0) {
+		pduel->release_script_group();
+		pduel->restore_assumes();
+	}
+	return (result == LUA_OK) ? COROUTINE_FINISH : COROUTINE_ERROR;
 }
 int32 interpreter::clone_function_ref(int32 func_ref) {
 	luaL_checkstack(current_state, 1, nullptr);
@@ -628,7 +631,7 @@ void* interpreter::get_ref_object(int32 ref_handler) {
 	lua_pop(current_state, 1);
 	return p;
 }
-//Convert a pointer to a lua value, +1 -0
+//push the object onto the stack, +1
 void interpreter::card2value(lua_State* L, card* pcard) {
 	luaL_checkstack(L, 1, nullptr);
 	if (!pcard || pcard->ref_handle == 0)

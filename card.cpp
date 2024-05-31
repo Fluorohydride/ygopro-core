@@ -3282,8 +3282,8 @@ int32 card::is_spsummonable_card() {
 		pduel->lua->add_param(pduel->game_field->core.reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(pduel->game_field->core.reason_player, PARAM_TYPE_INT);
 		pduel->lua->add_param(SUMMON_TYPE_SPECIAL, PARAM_TYPE_INT);
-		pduel->lua->add_param((void*)0, PARAM_TYPE_INT);
-		pduel->lua->add_param((void*)0, PARAM_TYPE_INT);
+		pduel->lua->add_param(0, PARAM_TYPE_INT);
+		pduel->lua->add_param(0, PARAM_TYPE_INT);
 		if(!eset[i]->check_value_condition(5))
 			return FALSE;
 	}
@@ -3301,8 +3301,8 @@ int32 card::is_fusion_summonable_card(uint32 summon_type) {
 		pduel->lua->add_param(pduel->game_field->core.reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(pduel->game_field->core.reason_player, PARAM_TYPE_INT);
 		pduel->lua->add_param(summon_type, PARAM_TYPE_INT);
-		pduel->lua->add_param((void*)0, PARAM_TYPE_INT);
-		pduel->lua->add_param((void*)0, PARAM_TYPE_INT);
+		pduel->lua->add_param(0, PARAM_TYPE_INT);
+		pduel->lua->add_param(0, PARAM_TYPE_INT);
 		if(!eset[i]->check_value_condition(5))
 			return FALSE;
 	}

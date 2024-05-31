@@ -758,7 +758,7 @@ int32 field::execute_cost(uint16 step, effect * triggering_effect, uint8 trigger
 	core.reason_effect = triggering_effect;
 	core.reason_player = triggering_player;
 	uint32 count = (uint32)pduel->lua->params.size();
-	uint32 yield_value = 0;
+	int32 yield_value = 0;
 	int32 result = pduel->lua->call_coroutine(triggering_effect->cost, count, &yield_value, step);
 	returns.ivalue[0] = yield_value;
 	if (result == COROUTINE_FINISH || result == COROUTINE_ERROR || result == OPERATION_FAIL) {
@@ -810,7 +810,7 @@ int32 field::execute_operation(uint16 step, effect * triggering_effect, uint8 tr
 	core.reason_effect = triggering_effect;
 	core.reason_player = triggering_player;
 	uint32 count = (uint32)pduel->lua->params.size();
-	uint32 yield_value = 0;
+	int32 yield_value = 0;
 	int32 result = pduel->lua->call_coroutine(triggering_effect->operation, count, &yield_value, step);
 	returns.ivalue[0] = yield_value;
 	if (result == COROUTINE_FINISH || result == COROUTINE_ERROR || result == OPERATION_FAIL) {
@@ -867,7 +867,7 @@ int32 field::execute_target(uint16 step, effect * triggering_effect, uint8 trigg
 	core.reason_effect = triggering_effect;
 	core.reason_player = triggering_player;
 	uint32 count = (uint32)pduel->lua->params.size();
-	uint32 yield_value = 0;
+	int32 yield_value = 0;
 	int32 result = pduel->lua->call_coroutine(triggering_effect->target, count, &yield_value, step);
 	returns.ivalue[0] = yield_value;
 	if (result == COROUTINE_FINISH || result == COROUTINE_ERROR || result == OPERATION_FAIL) {
