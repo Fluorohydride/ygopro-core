@@ -303,6 +303,7 @@ struct processor {
 	int32 summon_count[2]{};
 	uint8 extra_summon[2]{};
 	int32 spe_effect[2]{};
+	int32 last_select_hint[2]{ 0 };
 	int32 duel_options{ 0 };
 	int32 duel_rule{ CURRENT_RULE };	//current rule: 5, Master Rule 2020
 	uint32 copy_reset{ 0 };
