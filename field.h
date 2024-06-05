@@ -161,7 +161,7 @@ constexpr int SIZE_IVALUE = SIZE_RETURN_VALUE / 4;
 constexpr int SIZE_LVALUE = SIZE_RETURN_VALUE / 8;
 union return_value {
 	int8 bvalue[SIZE_RETURN_VALUE];
-	int16 svalue[SIZE_SVALUE];
+	uint16 svalue[SIZE_SVALUE];
 	int32 ivalue[SIZE_IVALUE];
 	int64 lvalue[SIZE_LVALUE];
 };

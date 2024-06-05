@@ -710,7 +710,7 @@ int32 field::remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplay
 		core.select_effects.clear();
 		if((pcard && pcard->get_counter(countertype) >= count) || (!pcard && get_field_counter(rplayer, s, o, countertype))) {
 			core.select_options.push_back(10);
-			core.select_effects.push_back(0);
+			core.select_effects.push_back(nullptr);
 		}
 		auto pr = effects.continuous_effect.equal_range(EFFECT_RCOUNTER_REPLACE + countertype);
 		tevent e;
@@ -733,7 +733,7 @@ int32 field::remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplay
 			return TRUE;
 		if(core.select_options.size() == 1)
 			returns.ivalue[0] = 0;
-		else if(core.select_effects[0] == 0 && core.select_effects.size() == 2)
+		else if(core.select_effects[0] == nullptr && core.select_effects.size() == 2)
 			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.select_effects[1]->handler, rplayer, 220);
 		else
 			add_process(PROCESSOR_SELECT_OPTION, 0, 0, 0, rplayer, 0);

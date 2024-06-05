@@ -606,7 +606,7 @@ int32 field::select_counter(uint16 step, uint8 playerid, uint16 countertype, uin
 		}
 		return FALSE;
 	} else {
-		uint16 ct = 0;
+		int32 ct = 0;
 		for(int32 i = 0; i < (int32)core.select_cards.size(); ++i) {
 			if(core.select_cards[i]->get_counter(countertype) < returns.svalue[i]) {
 				pduel->write_buffer8(MSG_RETRY);
