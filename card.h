@@ -119,7 +119,7 @@ public:
 	using effect_indexer = std::unordered_map<effect*, effect_container::iterator>;
 	using effect_relation = std::unordered_set<std::pair<effect*, uint16>, effect_relation_hash>;
 	using relation_map = std::unordered_map<card*, uint32>;
-	using counter_map = std::map<uint16, std::array<uint16, 2>>;
+	using counter_map = std::map<uint16, uint16>;
 	using effect_count = std::map<uint32, int32>;
 	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32>> {
 	public:

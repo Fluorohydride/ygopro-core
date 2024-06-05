@@ -350,8 +350,8 @@ int32 card::get_infos(byte* buf, uint32 query_flag, int32 use_cache) {
 	if(query_flag & QUERY_COUNTERS) {
 		buffer_write<int32_t>(p, (int32_t)counters.size());
 		for (const auto& cmit : counters) {
-			int32 tdata = cmit.first + ((cmit.second[0] + cmit.second[1]) << 16);
-			buffer_write<int32_t>(p, tdata);
+			uint32 tdata = cmit.first + ((uint32)cmit.second << 16);
+			buffer_write<uint32_t>(p, tdata);
 		}
 	}
 	if (query_flag & QUERY_OWNER) {
@@ -2006,7 +2006,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			pduel->write_buffer8(current.controler);
 			pduel->write_buffer8(current.location);
 			pduel->write_buffer8(current.sequence);
-			pduel->write_buffer16(cmit->second[0] + cmit->second[1]);
+			pduel->write_buffer16(cmit->second);
 			counters.erase(cmit);
 		}
 	}
@@ -2156,18 +2156,18 @@ void card::reset(uint32 id, uint32 reset_type) {
 		}
 		if(id & RESET_DISABLE) {
 			for(auto cmit = counters.begin(); cmit != counters.end();) {
-				if(cmit->second[1] > 0) {
+				if ((uint32)cmit->first & COUNTER_WITHOUT_PERMIT) {
+					++cmit;
+					continue;
+				}
+				if(cmit->second > 0) {
 					pduel->write_buffer8(MSG_REMOVE_COUNTER);
 					pduel->write_buffer16(cmit->first);
 					pduel->write_buffer8(current.controler);
 					pduel->write_buffer8(current.location);
 					pduel->write_buffer8(current.sequence);
-					pduel->write_buffer16(cmit->second[1]);
-					cmit->second[1] = 0;
-					if(cmit->second[0] == 0)
-						cmit = counters.erase(cmit);
-					else
-						++cmit;
+					pduel->write_buffer16(cmit->second);
+					cmit = counters.erase(cmit);
 				}
 				else
 					++cmit;
@@ -2355,35 +2355,26 @@ int32 card::destination_redirect(uint8 destination, uint32 reason) {
 	}
 	return 0;
 }
-// cmit->second[0]: permanent
-// cmit->second[1]: reset while negated
 int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly) {
 	if(!is_can_add_counter(playerid, countertype, count, singly, 0))
 		return FALSE;
 	uint16 cttype = countertype;
-	auto pr = counters.emplace(cttype, counter_map::mapped_type());
+	auto pr = counters.emplace(cttype, 0);
 	auto cmit = pr.first;
-	if(pr.second) {
-		cmit->second[0] = 0;
-		cmit->second[1] = 0;
-	}
-	uint16 pcount = count;
+	int32 pcount = count;
 	if(singly) {
 		effect_set eset;
-		uint16 limit = 0;
+		int32 limit = 0;
 		filter_effect(EFFECT_COUNTER_LIMIT + cttype, &eset);
-		for(int32 i = 0; i < eset.size(); ++i)
-			limit = eset[i]->get_value();
+		if (eset.size())
+			limit = eset.get_last()->get_value();
 		if(limit) {
-			uint16 mcount = limit - get_counter(cttype);
-			if(pcount > mcount)
+			int32 mcount = limit - get_counter(cttype);
+			if (mcount > 0 && pcount > mcount)
 				pcount = mcount;
 		}
 	}
-	if(countertype & COUNTER_WITHOUT_PERMIT)
-		cmit->second[0] += pcount;
-	else
-		cmit->second[1] += pcount;
+	cmit->second += pcount;
 	pduel->write_buffer8(MSG_ADD_COUNTER);
 	pduel->write_buffer16(cttype);
 	pduel->write_buffer8(current.controler);
@@ -2398,22 +2389,20 @@ int32 card::remove_counter(uint16 countertype, uint16 count) {
 	auto cmit = counters.find(countertype);
 	if(cmit == counters.end())
 		return FALSE;
-	if(cmit->second[1] <= count) {
-		uint16 remains = count;
-		remains -= cmit->second[1];
-		cmit->second[1] = 0;
-		if(cmit->second[0] <= remains)
-			counters.erase(cmit);
-		else cmit->second[0] -= remains;
-	} else {
-		cmit->second[1] -= count;
+	int32 remove_count = count;
+	if (cmit->second <= count) {
+		remove_count = cmit->second;
+		counters.erase(cmit);
+	}
+	else {
+		cmit->second -= count;
 	}
 	pduel->write_buffer8(MSG_REMOVE_COUNTER);
 	pduel->write_buffer16(countertype);
 	pduel->write_buffer8(current.controler);
 	pduel->write_buffer8(current.location);
 	pduel->write_buffer8(current.sequence);
-	pduel->write_buffer16(count);
+	pduel->write_buffer16(remove_count);
 	return TRUE;
 }
 // return: the player can put a counter on this or not
@@ -2423,9 +2412,9 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 		return FALSE;
 	if (!loc && (!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)))
 		return FALSE;
-	uint32 check = countertype & COUNTER_WITHOUT_PERMIT;
+	uint32 check = (uint32)countertype & COUNTER_WITHOUT_PERMIT;
 	if(!check) {
-		filter_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff), &eset);
+		filter_effect(EFFECT_COUNTER_PERMIT + countertype, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
 			uint32 prange = eset[i]->range;
 			if(loc)
@@ -2439,15 +2428,14 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 	}
 	if(!check)
 		return FALSE;
-	uint16 cttype = countertype;
 	int32 limit = -1;
 	int32 cur = 0;
-	auto cmit = counters.find(cttype);
-	if(cmit != counters.end())
-		cur = cmit->second[0] + cmit->second[1];
-	filter_effect(EFFECT_COUNTER_LIMIT + cttype, &eset);
-	for(int32 i = 0; i < eset.size(); ++i)
-		limit = eset[i]->get_value();
+	auto cmit = counters.find(countertype);
+	if (cmit != counters.end())
+		cur = cmit->second;
+	filter_effect(EFFECT_COUNTER_LIMIT + countertype, &eset);
+	if (eset.size())
+		limit = eset.get_last()->get_value();
 	if(limit > 0 && (cur + (singly ? 1 : count) > limit))
 		return FALSE;
 	return TRUE;
@@ -2458,7 +2446,7 @@ int32 card::is_can_have_counter(uint16 countertype) {
 	if (countertype & COUNTER_WITHOUT_PERMIT)
 		return FALSE;
 	else {
-		filter_self_effect(EFFECT_COUNTER_PERMIT + (countertype & 0xffff), &eset);
+		filter_self_effect(EFFECT_COUNTER_PERMIT + countertype, &eset);
 		if (current.is_location(LOCATION_ONFIELD)) {
 			for (int32 i = 0; i < eset.size(); ++i) {
 				if (eset[i]->is_single_ready())
@@ -2477,7 +2465,7 @@ int32 card::get_counter(uint16 countertype) {
 	auto cmit = counters.find(countertype);
 	if(cmit == counters.end())
 		return 0;
-	return cmit->second[0] + cmit->second[1];
+	return cmit->second;
 }
 void card::set_material(card_set* materials) {
 	if(!materials) {
