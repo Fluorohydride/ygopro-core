@@ -160,7 +160,7 @@ constexpr int SIZE_SVALUE = SIZE_RETURN_VALUE / 2;
 constexpr int SIZE_IVALUE = SIZE_RETURN_VALUE / 4;
 constexpr int SIZE_LVALUE = SIZE_RETURN_VALUE / 8;
 union return_value {
-	int8 bvalue[SIZE_RETURN_VALUE];
+	uint8 bvalue[SIZE_RETURN_VALUE];
 	int16 svalue[SIZE_SVALUE];
 	int32 ivalue[SIZE_IVALUE];
 	int64 lvalue[SIZE_LVALUE];
@@ -628,6 +628,7 @@ public:
 	int32 toss_dice(uint16 step, effect* reason_effect, uint8 reason_player, uint8 playerid, uint8 count1, uint8 count2);
 	int32 rock_paper_scissors(uint16 step, uint8 repeat);
 
+	bool check_response(int32 vector_size, int32 min_len, int32 max_len) const;
 	int32 select_battle_command(uint16 step, uint8 playerid);
 	int32 select_idle_command(uint16 step, uint8 playerid);
 	int32 select_effect_yes_no(uint16 step, uint8 playerid, uint32 description, card* pcard);

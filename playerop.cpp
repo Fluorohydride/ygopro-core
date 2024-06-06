@@ -14,6 +14,20 @@
 #include <algorithm>
 #include <stack>
 
+bool field::check_response(int32 vector_size, int32 min_len, int32 max_len) const {
+	const int32 len = returns.bvalue[0];
+	if (len < min_len || len > max_len)
+		return false;
+	std::set<uint8> index_set;
+	for (int32 i = 0; i < len; ++i) {
+		uint8 index = returns.bvalue[1 + i];
+		if (index >=vector_size  || index_set.count(index)) {
+			return false;
+		}
+		index_set.insert(index);
+	}
+	return true;
+}
 int32 field::select_battle_command(uint16 step, uint8 playerid) {
 	if(step == 0) {
 		pduel->write_buffer8(MSG_SELECT_BATTLECMD);
@@ -256,21 +270,15 @@ int32 field::select_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 mi
 		}
 		return FALSE;
 	} else {
-		if(cancelable && returns.ivalue[0] == -1)
-			return TRUE;
-		if(returns.bvalue[0] < min || returns.bvalue[0] > max) {
+		if (returns.ivalue[0] == -1) {
+			if (cancelable)
+				return TRUE;
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
-		std::set<int8> c;
-		uint8 m = (uint8)core.select_cards.size();
-		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-			int8 v = returns.bvalue[i + 1];
-			if(v < 0 || v >= m || c.count(v)) {
-				pduel->write_buffer8(MSG_RETRY);
-				return FALSE;
-			}
-			c.insert(v);
+		if (!check_response(core.select_cards.size(), min, max)) {
+			pduel->write_buffer8(MSG_RETRY);
+			return FALSE;
 		}
 		return TRUE;
 	}
@@ -317,13 +325,7 @@ int32 field::select_unselect_card(uint16 step, uint8 playerid, uint8 cancelable,
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
-		if(returns.bvalue[0] == 0 || returns.bvalue[0] > 1) {
-			pduel->write_buffer8(MSG_RETRY);
-			return FALSE;
-		}
-		int32 m = core.select_cards.size() + core.unselect_cards.size();
-		uint8 v = returns.bvalue[1];
-		if(v < 0 || v >= m) {
+		if (!check_response(core.select_cards.size() + core.unselect_cards.size(), 1, 1)) {
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
@@ -373,8 +375,12 @@ int32 field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 fo
 		}
 		return FALSE;
 	} else {
-		if(!forced && returns.ivalue[0] == -1)
-			return TRUE;
+		if (returns.ivalue[0] == -1) {
+			if (!forced)
+				return TRUE;
+			pduel->write_buffer8(MSG_RETRY);
+			return FALSE;
+		}
 		if(returns.ivalue[0] < 0 || returns.ivalue[0] >= (int32)core.select_chains.size()) {
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
@@ -536,17 +542,21 @@ int32 field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8
 		}
 		return FALSE;
 	} else {
-		if(cancelable && returns.ivalue[0] == -1)
-			return TRUE;
+		if (returns.ivalue[0] == -1) {
+			if (cancelable)
+				return TRUE;
+			pduel->write_buffer8(MSG_RETRY);
+			return FALSE;
+		}
 		if(returns.bvalue[0] > max) {
 			pduel->write_buffer8(MSG_RETRY);
 			return FALSE;
 		}
-		std::set<int8> c;
-		uint8 m = (uint8)core.select_cards.size(), tt = 0;
+		std::set<uint8> c;
+		int32 m = (int32)core.select_cards.size(), tt = 0;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i) {
-			int8 v = returns.bvalue[i + 1];
-			if(v < 0 || v >= m || c.count(v)) {
+			uint8 v = returns.bvalue[i + 1];
+			if(v >= m || c.count(v)) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
 			}
@@ -742,7 +752,7 @@ int32 field::sort_card(int16 step, uint8 playerid) {
 	if(step == 0) {
 		returns.bvalue[0] = 0;
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
-			returns.bvalue[0] = -1;
+			returns.bvalue[0] = 0xff;
 			return TRUE;
 		}
 		if(core.select_cards.empty())
@@ -760,13 +770,13 @@ int32 field::sort_card(int16 step, uint8 playerid) {
 		}
 		return FALSE;
 	} else {
-		if(returns.bvalue[0] == -1)
+		if(returns.bvalue[0] == 0xff)
 			return TRUE;
-		std::set<int8> c;
-		uint8 m = (uint8)core.select_cards.size();
-		for(uint8 i = 0; i < m; ++i) {
-			int8 v = returns.bvalue[i];
-			if(v < 0 || v >= m || c.count(v)) {
+		std::set<uint8> c;
+		int32 m = (int32)core.select_cards.size();
+		for(int32 i = 0; i < m; ++i) {
+			uint8 v = returns.bvalue[i];
+			if(v >= m || c.count(v)) {
 				pduel->write_buffer8(MSG_RETRY);
 				return FALSE;
 			}
