@@ -494,8 +494,8 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 		min = 0;
 	if(max < min)
 		max = min;
-	if(max > 127)
-		return luaL_error(L, "Parameter \"max\" exceeded 127.");
+	if(max > UINT8_MAX)
+		return luaL_error(L, "Parameter \"max\" exceeded 255.");
 	int32 extraargs = lua_gettop(L) - 6;
 	pduel->game_field->core.select_cards.assign(pgroup->container.begin(), pgroup->container.end());
 	for(auto& pcard : pduel->game_field->core.must_select_cards) {

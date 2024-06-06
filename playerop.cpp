@@ -244,8 +244,6 @@ int32 field::select_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 mi
 		std::sort(core.select_cards.begin(), core.select_cards.end(), card::card_operation_sort);
 		if (core.select_cards.size() > UINT8_MAX)
 			core.select_cards.resize(UINT8_MAX);
-		if (max > SIZE_RETURN_VALUE - 1)
-			max = SIZE_RETURN_VALUE - 1;
 		if(max > core.select_cards.size())
 			max = (uint8)core.select_cards.size();
 		if(min > max)
