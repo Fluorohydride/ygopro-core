@@ -5589,7 +5589,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(512);
-		add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, lv, playerid + (min << 16) + (max << 24));
+		add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, lv, playerid, min, max);
 		return FALSE;
 	}
 	case 8: {
@@ -5644,7 +5644,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(512);
-		add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, lv, playerid + (min << 16) + (max << 24));
+		add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, lv, playerid, min, max);
 		core.units.begin()->step = 7;
 		return FALSE;
 	}

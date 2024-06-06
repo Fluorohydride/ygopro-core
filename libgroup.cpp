@@ -513,7 +513,7 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 		interpreter::group2value(L, empty_group);
 		return 1;
 	}
-	pduel->game_field->add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, acc, playerid + (min << 16) + (max << 24));
+	pduel->game_field->add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, acc, playerid, min, max);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		group* pgroup = pduel->new_group();

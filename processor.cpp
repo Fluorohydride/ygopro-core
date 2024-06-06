@@ -175,7 +175,7 @@ uint32 field::process() {
 		}
 	}
 	case PROCESSOR_SELECT_SUM: {
-		if (select_with_sum_limit(it->step, it->arg2 & 0xffff, it->arg1, (it->arg2 >> 16) & 0xff, (it->arg2 >> 24) & 0xff)) {
+		if (select_with_sum_limit(it->step, it->arg2, it->arg1, it->arg3, it->arg4)) {
 			core.units.pop_front();
 			return pduel->message_buffer.size();
 		} else {
