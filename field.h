@@ -407,7 +407,6 @@ public:
 	int32 get_szone_limit(uint8 playerid, uint8 uplayer, uint32 reason);
 	int32 get_kaiser_limit(uint8 playerid, card_set* using_cards);
 	int32 get_kaiser_limit(uint8 playerid, card* using_card);
-	
 	uint32 get_linked_zone(int32 playerid);
 	uint32 get_rule_zone_fromex(int32 playerid, card* pcard);
 	void filter_must_use_mzone(uint8 playerid, uint8 uplayer, uint32 reason, card* pcard, uint32* flag);
