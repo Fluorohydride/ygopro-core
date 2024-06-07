@@ -2011,7 +2011,7 @@ int32 scriptlib::duel_get_mzone_count(lua_State *L) {
 	uint32 list = 0;
 	auto count = pduel->game_field->get_useable_count(nullptr, playerid, LOCATION_MZONE, uplayer, reason, zone, &list);
 	if(uplayer == playerid && reason == LOCATION_REASON_TOFIELD) {
-		uint32 kaiser_limit = 0xff;
+		int32 kaiser_limit = 0xff;
 		if(mcard) {
 			kaiser_limit = pduel->game_field->get_kaiser_limit(playerid, mcard);
 		} else if (mgroup) {
@@ -2092,7 +2092,7 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 	uint32 list = 0;
 	auto count = pduel->game_field->get_useable_count_fromex(scard, playerid, uplayer, zone, &list);
 	if(uplayer == playerid) {
-		uint32 kaiser_limit = 0xff;
+		int32 kaiser_limit = 0xff;
 		if(mcard) {
 			kaiser_limit = pduel->game_field->get_kaiser_limit(playerid, mcard);
 		} else if (mgroup) {
