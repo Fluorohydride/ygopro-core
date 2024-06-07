@@ -2091,7 +2091,7 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 		zone = (uint32)lua_tointeger(L, 5);
 	uint32 list = 0;
 	auto count = pduel->game_field->get_useable_count_fromex(scard, playerid, uplayer, zone, &list);
-	if(uplayer == playerid && reason == LOCATION_REASON_TOFIELD) {
+	if(uplayer == playerid) {
 		uint32 kaiser_limit = 0xff;
 		if(mcard) {
 			kaiser_limit = pduel->game_field->get_kaiser_limit(playerid, mcard);
