@@ -2009,7 +2009,18 @@ int32 scriptlib::duel_get_mzone_count(lua_State *L) {
 	if(lua_gettop(L) >= 5)
 		zone = (uint32)lua_tointeger(L, 5);
 	uint32 list = 0;
-	lua_pushinteger(L, pduel->game_field->get_useable_count(nullptr, playerid, LOCATION_MZONE, uplayer, reason, zone, &list));
+	auto count = pduel->game_field->get_useable_count(nullptr, playerid, LOCATION_MZONE, uplayer, reason, zone, &list);
+	if(uplayer == playerid && reason == LOCATION_REASON_TOFIELD) {
+		uint32 kaiser_limit = 0xff;
+		if(mcard) {
+			kaiser_limit = pduel->game_field->get_kaiser_limit(playerid, mcard);
+		} else if (mgroup) {
+			kaiser_limit = pduel->game_field->get_kaiser_limit(playerid, &mgroup->container);
+		}
+		if (kaiser_limit < count)
+			count = kaiser_limit;
+	}
+	lua_pushinteger(L, count);
 	lua_pushinteger(L, list);
 	if(swapped) {
 		pduel->game_field->player[0].used_location = used_location[0];
@@ -2079,7 +2090,18 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 	if(lua_gettop(L) >= 5)
 		zone = (uint32)lua_tointeger(L, 5);
 	uint32 list = 0;
-	lua_pushinteger(L, pduel->game_field->get_useable_count_fromex(scard, playerid, uplayer, zone, &list));
+	auto count = pduel->game_field->get_useable_count_fromex(scard, playerid, uplayer, zone, &list);
+	if(uplayer == playerid && reason == LOCATION_REASON_TOFIELD) {
+		uint32 kaiser_limit = 0xff;
+		if(mcard) {
+			kaiser_limit = pduel->game_field->get_kaiser_limit(playerid, mcard);
+		} else if (mgroup) {
+			kaiser_limit = pduel->game_field->get_kaiser_limit(playerid, &mgroup->container);
+		}
+		if (kaiser_limit < count)
+			count = kaiser_limit;
+	}
+	lua_pushinteger(L, count);
 	lua_pushinteger(L, list);
 	if(swapped) {
 		pduel->game_field->player[0].used_location = used_location[0];
