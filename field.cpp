@@ -828,7 +828,7 @@ int32 field::get_kaiser_limit(uint8 playerid, card_set* using_cards) {
 	}
 	auto limit = oppo_monsters.size() - self_monsters.size();
 	for(auto& pcard : *using_cards) {
-		if(pcard->is_location(LOCATION_MZONE)) {
+		if(pcard->current.is_location(LOCATION_MZONE)) {
 			if(pcard->current.controler == playerid)
 				++limit;
 			else
