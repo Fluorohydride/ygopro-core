@@ -814,19 +814,10 @@ int32 field::get_szone_limit(uint8 playerid, uint8 uplayer, uint32 reason) {
 int32 field::get_kaiser_limit(uint8 playerid, card_set* using_cards) {
 	if(!is_player_affected_by_effect(playerid, EFFECT_KAISER_COLOSSEUM))
 		return 0xff;
-	card_set oppo_monsters;
-	for(auto& pcard : player[1 - playerid].list_mzone) {
-		if(pcard)
-			oppo_monsters.insert(pcard);
-	}
-	if(!oppo_monsters.size())
+	auto oppo_monster_count = filter_field_card(playerid, 0, LOCATION_MZONE, 0);
+	if(!oppo_monster_count)
 		return 0xff;
-	card_set self_monsters;
-	for(auto& pcard : player[playerid].list_mzone) {
-		if(pcard)
-			self_monsters.insert(pcard);
-	}
-	auto limit = oppo_monsters.size() - self_monsters.size();
+	auto limit = oppo_monster_count - filter_field_card(playerid, LOCATION_MZONE, 0, 0);
 	for(auto& pcard : *using_cards) {
 		if(pcard->current.is_location(LOCATION_MZONE)) {
 			if(pcard->current.controler == playerid)
