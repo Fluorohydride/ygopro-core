@@ -613,19 +613,19 @@ int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequen
 	return TRUE;
 }
 /**
-* Return usable count in zone of playerid's MZONE or SZONE(0~4) when uplayer moves pcard to playerid's field (can be negative).
-* for LOCATION_MZONE, "usable" means not used, not disabled, satisfying EFFECT_MUST_USE_MZONE, satisfying EFFECT_MAX_MZONE
-* for LOCATION_SZONE, "usable" means not used, not disabled, satisfying EFFECT_MAX_SZONE
+* Return usable count in `zone` when `uplayer` moves `pcard` to the MZONE or SZONE(0~4) of `playerid` (can be negative).
+* For LOCATION_MZONE, "usable" means not used, not disabled, satisfying EFFECT_MUST_USE_MZONE, satisfying EFFECT_MAX_MZONE.
+* For LOCATION_SZONE, "usable" means not used, not disabled, satisfying EFFECT_MAX_SZONE.
 *
-* @param pcard		the card about to move
-* @param playerid	the target player
-* @param location	LOCATION_MZONE or LOCATION_SZONE
-* @param uplayer	the request player, PLAYER_NONE means ignoring EFFECT_MUST_USE_MZONE of uplayer, ignoring EFFECT_MAX_MZONE, EFFECT_MAX_SZONE of playerid
-* @param reason		location reason
-* @param zone		specified zones, 0xff by default
-* @param list		storing unavailable or unspecified zones
+* @param pcard the card about to move
+* @param playerid target player
+* @param location LOCATION_MZONE or LOCATION_SZONE
+* @param uplayer request player, PLAYER_NONE means ignoring EFFECT_MUST_USE_MZONE of uplayer, ignoring EFFECT_MAX_MZONE, EFFECT_MAX_SZONE of playerid
+* @param reason location reason
+* @param zone specified zones, default: 0xff 
+* @param list storing unavailable or unspecified zones
 *
-* @return usable count in zone of playerid's MZONE or SZONE(0~4) (can be negative)
+* @return usable count in the MZONE or SZONE(0~4) of `playerid` (can be negative)
 */
 int32 field::get_useable_count(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone, uint32* list) {
 	if(location == LOCATION_MZONE && pcard && pcard->current.location == LOCATION_EXTRA)
@@ -634,8 +634,8 @@ int32 field::get_useable_count(card* pcard, uint8 playerid, uint8 location, uint
 		return get_useable_count_other(pcard, playerid, location, uplayer, reason, zone, list);
 }
 /**
-* @param pcard	the card about to move from Extra Deck (nullptr means any card in Extra Deck)
-* @return usable count in zone of playerid's MZONE for pcard
+* @param pcard the card about to move from Extra Deck (nullptr means any card in Extra Deck)
+* @return usable count in the MZONE of `playerid`
 */
 int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone, uint32* list) {
 	bool use_temp_card = false;
@@ -654,8 +654,8 @@ int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer
 	return useable_count;
 }
 /**
-* @return the number of available grids in zone of playerid's MZONE for pcard sp_summoned by playerid
-* for LOCATION_MZONE, "available" means not used, not disabled, satisfying EFFECT_MUST_USE_MZONE
+* @return the number of available slots in `zone` when `pcard` is sp_summoned to the MZONE of `playerid`
+* For LOCATION_MZONE, "available" means not used, not disabled, satisfying EFFECT_MUST_USE_MZONE.
 */
 int32 field::get_spsummonable_count(card* pcard, uint8 playerid, uint32 zone, uint32* list) {
 	if(pcard->current.location == LOCATION_EXTRA)
@@ -664,8 +664,8 @@ int32 field::get_spsummonable_count(card* pcard, uint8 playerid, uint32 zone, ui
 		return get_tofield_count(pcard, playerid, LOCATION_MZONE, playerid, LOCATION_REASON_TOFIELD, zone, list);
 }
 /**
-* @param pcard	the card about to move from Extra Deck (nullptr means any card in Extra Deck)
-* @return the number of available grids in zone of playerid's MZONE for pcard
+* @param pcard the card about to move from Extra Deck (nullptr means any card in Extra Deck)
+* @return the number of available slots in `zone` when `pcard` is sp_summoned to the MZONE of `playerid` by `uplayer`
 */
 int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer, uint32 zone, uint32* list) {
 	bool use_temp_card = false;
@@ -684,7 +684,7 @@ int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 up
 	return spsummonable_count;
 }
 /**
-* @return usable count in zone of Main MZONE or SZONE(0~4)
+* @return usable count in `zone` of Main MZONE or SZONE(0~4)
 */
 int32 field::get_useable_count_other(card* pcard, uint8 playerid, uint8 location, uint8 uplayer, uint32 reason, uint32 zone, uint32* list) {
 	int32 count = get_tofield_count(pcard, playerid, location, uplayer, reason, zone, list);
@@ -698,7 +698,7 @@ int32 field::get_useable_count_other(card* pcard, uint8 playerid, uint8 location
 	return count;
 }
 /**
-* @return the number of available grids in zone of Main MZONE or SZONE(0~4)
+* @return the number of available slots in `zone` of Main MZONE or SZONE(0~4)
 * for LOCATION_MZONE, "available" means not used, not disabled, satisfying EFFECT_MUST_USE_MZONE
 * for LOCATION_SZONE, "available" means not used, not disabled
 */
@@ -754,11 +754,11 @@ int32 field::get_spsummonable_count_fromex_rule4(card* pcard, uint8 playerid, ui
 	return count;
 }
 /**
-* @param playerid	the target player
-* @param uplayer	the request player, PLAYER_NONE means ignoring EFFECT_MAX_MZONE
-* @param reason		location reason
+* @param playerid target player
+* @param uplayer request player, PLAYER_NONE means ignoring EFFECT_MAX_MZONE
+* @param reason location reason
 *
-* @return the remaining count in playerid's MZONE after applying EFFECT_MAX_MZONE (can be negative).
+* @return the remaining count in the MZONE of `playerid` after applying EFFECT_MAX_MZONE (can be negative).
 */
 int32 field::get_mzone_limit(uint8 playerid, uint8 uplayer, uint32 reason) {
 	uint32 used_flag = player[playerid].used_location;
@@ -787,11 +787,11 @@ int32 field::get_mzone_limit(uint8 playerid, uint8 uplayer, uint32 reason) {
 	return limit;
 }
 /**
-* @param playerid	the target player
-* @param uplayer	the request player, PLAYER_NONE means ignoring EFFECT_MAX_SZONE
-* @param reason		location reason
+* @param playerid target player
+* @param uplayer request player, PLAYER_NONE means ignoring EFFECT_MAX_SZONE
+* @param reason location reason
 *
-* @return the remaining count in playerid's SZONE(0~4) after applying EFFECT_MAX_SZONE.
+* @return the remaining count in the SZONE(0~4) of `playerid` after applying EFFECT_MAX_SZONE.
 */
 int32 field::get_szone_limit(uint8 playerid, uint8 uplayer, uint32 reason) {
 	uint32 used_flag = player[playerid].used_location;
@@ -835,11 +835,11 @@ uint32 field::get_rule_zone_fromex(int32 playerid, card* pcard) {
 	}
 }
 /**
-* @param playerid	the target player
-* @param uplayer	the request player, PLAYER_NONE means ignoring EFFECT_MUST_USE_MZONE of uplayer
-* @param reason		location reason
-* @param pcard		the card about to move
-* @param flag		storing the zones in MZONE blocked by EFFECT_MUST_USE_MZONE
+* @param playerid target player
+* @param uplayer request player, PLAYER_NONE means ignoring EFFECT_MUST_USE_MZONE of uplayer
+* @param reason location reason
+* @param pcard the card about to move
+* @param flag storing the zones in MZONE blocked by EFFECT_MUST_USE_MZONE
 */
 void field::filter_must_use_mzone(uint8 playerid, uint8 uplayer, uint32 reason, card* pcard, uint32* flag) {
 	effect_set eset;
