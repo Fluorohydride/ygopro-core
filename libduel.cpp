@@ -2094,7 +2094,7 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 	}
 	return 2;
 }
-// Return the number of available grids in playerid's Main MZONE and Extra MZONE
+// Return the number of available slots in the Main MZONE and Extra MZONE of `playerid`.
 int32 scriptlib::duel_get_usable_mzone_count(lua_State *L) {
 	check_param_count(L, 1);
 	uint32 playerid = (uint32)lua_tointeger(L, 1);
