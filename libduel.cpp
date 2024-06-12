@@ -1269,6 +1269,9 @@ int32 scriptlib::duel_win(lua_State *L) {
 	if(pduel->game_field->core.win_player == 5) {
 		pduel->game_field->core.win_player = playerid;
 		pduel->game_field->core.win_reason = reason;
+	} else if((pduel->game_field->core.win_player == 0 && playerid == 1) || (pduel->game_field->core.win_player == 1 && playerid == 0)) {
+		pduel->game_field->core.win_player = 2;
+		pduel->game_field->core.win_reason = reason;
 	}
 	return 0;
 }
