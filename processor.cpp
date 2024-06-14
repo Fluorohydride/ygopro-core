@@ -175,7 +175,7 @@ uint32 field::process() {
 		}
 	}
 	case PROCESSOR_SELECT_SUM: {
-		if (select_with_sum_limit(it->step, it->arg2 & 0xffff, it->arg1, (it->arg2 >> 16) & 0xff, (it->arg2 >> 24) & 0xff)) {
+		if (select_with_sum_limit(it->step, it->arg2, it->arg1, it->arg3, it->arg4)) {
 			core.units.pop_front();
 			return pduel->message_buffer.size();
 		} else {
@@ -674,12 +674,12 @@ uint32 field::process() {
 			add_process(PROCESSOR_SORT_CARD, 0, 0, 0, sort_player, 0);
 			++it->step;
 		} else {
-			if(returns.bvalue[0] != -1) {
+			if(returns.bvalue[0] != 0xff) {
 				card* tc[16];
 				for(i = 0; i < count; ++i)
 					player[target_player].list_main.pop_back();
 				for(i = 0; i < count; ++i)
-					tc[(uint8)returns.bvalue[i]] = core.select_cards[i];
+					tc[returns.bvalue[i]] = core.select_cards[i];
 				for(i = 0; i < count; ++i) {
 					player[target_player].list_main.push_back(tc[count - i - 1]);
 					tc[count - i - 1]->current.sequence = (uint8)player[target_player].list_main.size() - 1;

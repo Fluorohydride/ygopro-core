@@ -328,14 +328,15 @@ int32 scriptlib::group_select_unselect(lua_State *L) {
 	pduel->game_field->add_process(PROCESSOR_SELECT_UNSELECT_CARD, 0, 0, 0, playerid + (cancelable << 16), min + (max << 16), finishable);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
-		if(pduel->game_field->returns.bvalue[0] == -1) {
+		if(pduel->game_field->returns.ivalue[0] == -1) {
 			lua_pushnil(L);
 		} else {
 			card* pcard;
-			if((size_t)pduel->game_field->returns.bvalue[1] < pduel->game_field->core.select_cards.size())
-				pcard = pduel->game_field->core.select_cards[pduel->game_field->returns.bvalue[1]];
+			const int32 index = pduel->game_field->returns.bvalue[1];
+			if(index < (int32)pduel->game_field->core.select_cards.size())
+				pcard = pduel->game_field->core.select_cards[index];
 			else
-				pcard = pduel->game_field->core.unselect_cards[pduel->game_field->returns.bvalue[1] - pduel->game_field->core.select_cards.size()];
+				pcard = pduel->game_field->core.unselect_cards[index - pduel->game_field->core.select_cards.size()];
 			interpreter::card2value(L, pcard);
 		}
 		return 1;
@@ -401,7 +402,7 @@ int32 scriptlib::group_cancelable_select(lua_State *L) {
 	pduel->game_field->add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + 0x10000, min + (max << 16));
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
-		if(pduel->game_field->returns.bvalue[0] == -1) {
+		if(pduel->game_field->returns.ivalue[0] == -1) {
 			lua_pushnil(L);
 		} else {
 			group* pgroup = pduel->new_group();
@@ -493,8 +494,8 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 		min = 0;
 	if(max < min)
 		max = min;
-	if(max > 127)
-		return luaL_error(L, "Parameter \"max\" exceeded 127.");
+	if(max > UINT8_MAX)
+		return luaL_error(L, "Parameter \"max\" exceeded 255.");
 	int32 extraargs = lua_gettop(L) - 6;
 	pduel->game_field->core.select_cards.assign(pgroup->container.begin(), pgroup->container.end());
 	for(auto& pcard : pduel->game_field->core.must_select_cards) {
@@ -512,7 +513,7 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 		interpreter::group2value(L, empty_group);
 		return 1;
 	}
-	pduel->game_field->add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, acc, playerid + (min << 16) + (max << 24));
+	pduel->game_field->add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, acc, playerid, min, max);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		group* pgroup = pduel->new_group();

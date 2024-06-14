@@ -19,11 +19,12 @@ bool effect_sort_id(const effect* e1, const effect* e2);
 
 struct effect_set {
 	void add_item(effect* peffect) {
-		if(count >= 64) return;
+		if (count >= 64)
+			return;
 		container[count++] = peffect;
 	}
 	void remove_item(int index) {
-		if(index >= count)
+		if (index < 0 || index >= count)
 			return;
 		if(index == count - 1) {
 			--count;
@@ -45,9 +46,11 @@ struct effect_set {
 		std::sort(container.begin(), container.begin() + count, effect_sort_id);
 	}
 	effect* const& get_last() const {
+		assert(count);
 		return container[count - 1];
 	}
 	effect*& get_last() {
+		assert(count);
 		return container[count - 1];
 	}
 	effect* const& operator[] (int index) const {
@@ -72,7 +75,7 @@ struct effect_set_v {
 		container.push_back(peffect);
 	}
 	void remove_item(int index) {
-		if(index >= (int)container.size())
+		if (index < 0 || index >= (int)container.size())
 			return;
 		container.erase(container.begin() + index);
 	}
@@ -89,9 +92,11 @@ struct effect_set_v {
 		std::sort(container.begin(), container.begin() + count, effect_sort_id);
 	}
 	effect* const& get_last() const {
+		assert(container.size());
 		return container.back();
 	}
 	effect*& get_last() {
+		assert(container.size());
 		return container.back();
 	}
 	effect* const& operator[] (int index) const {
