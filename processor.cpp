@@ -491,7 +491,7 @@ uint32 field::process() {
 		return pduel->message_buffer.size();
 	}
 	case PROCESSOR_PAY_LPCOST: {
-		if (pay_lp_cost(it->step, it->arg1, it->arg2, it->arg3))
+		if (pay_lp_cost(it->step, it->arg1, it->arg2, it->arg3, it->arg4))
 			core.units.pop_front();
 		else
 			++it->step;
