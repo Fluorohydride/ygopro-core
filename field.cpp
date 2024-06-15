@@ -1447,7 +1447,7 @@ void field::filter_player_effect(uint8 playerid, uint32 code, effect_set* eset, 
 int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, uint32 location2, group* pgroup, card* pexception, group* pexgroup, uint32 extraargs, card** pret, int32 fcount, int32 is_target) {
 	if(self != 0 && self != 1)
 		return FALSE;
-	int32 count = 0;
+	card_set result;
 	uint32 location = location1;
 	for(uint32 p = 0; p < 2; ++p) {
 		if(location & LOCATION_MZONE) {
@@ -1460,12 +1460,9 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 						*pret = pcard;
 						return TRUE;
 					}
-					++count;
-					if(fcount && count >= fcount)
+					result.insert(pcard);
+					if(fcount && (int32)result.size() >= fcount)
 						return TRUE;
-					if(pgroup) {
-						pgroup->container.insert(pcard);
-					}
 				}
 			}
 		}
@@ -1479,12 +1476,9 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 						*pret = pcard;
 						return TRUE;
 					}
-					++count;
-					if(fcount && count >= fcount)
+					result.insert(pcard);
+					if(fcount && (int32)result.size() >= fcount)
 						return TRUE;
-					if(pgroup) {
-						pgroup->container.insert(pcard);
-					}
 				}
 			}
 		}
@@ -1498,12 +1492,9 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 					*pret = pcard;
 					return TRUE;
 				}
-				++count;
-				if(fcount && count >= fcount)
+				result.insert(pcard);
+				if (fcount && (int32)result.size() >= fcount)
 					return TRUE;
-				if(pgroup) {
-					pgroup->container.insert(pcard);
-				}
 			}
 		}
 		if(location & LOCATION_PZONE) {
@@ -1517,12 +1508,9 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 						*pret = pcard;
 						return TRUE;
 					}
-					++count;
-					if(fcount && count >= fcount)
+					result.insert(pcard);
+					if(fcount && (int32)result.size() >= fcount)
 						return TRUE;
-					if(pgroup) {
-						pgroup->container.insert(pcard);
-					}
 				}
 			}
 		}
@@ -1535,12 +1523,9 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 						*pret = *cit;
 						return TRUE;
 					}
-					++count;
-					if(fcount && count >= fcount)
+					result.insert(*cit);
+					if(fcount && (int32)result.size() >= fcount)
 						return TRUE;
-					if(pgroup) {
-						pgroup->container.insert(*cit);
-					}
 				}
 			}
 		}
@@ -1553,12 +1538,9 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 						*pret = *cit;
 						return TRUE;
 					}
-					++count;
-					if(fcount && count >= fcount)
+					result.insert(*cit);
+					if(fcount && (int32)result.size() >= fcount)
 						return TRUE;
-					if(pgroup) {
-						pgroup->container.insert(*cit);
-					}
 				}
 			}
 		}
@@ -1571,12 +1553,9 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 						*pret = pcard;
 						return TRUE;
 					}
-					++count;
-					if(fcount && count >= fcount)
+					result.insert(pcard);
+					if(fcount &&  (int32)result.size() >= fcount)
 						return TRUE;
-					if(pgroup) {
-						pgroup->container.insert(pcard);
-					}
 				}
 			}
 		}
@@ -1589,12 +1568,9 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 						*pret = *cit;
 						return TRUE;
 					}
-					++count;
-					if(fcount && count >= fcount)
+					result.insert(*cit);
+					if(fcount && (int32)result.size() >= fcount)
 						return TRUE;
-					if(pgroup) {
-						pgroup->container.insert(*cit);
-					}
 				}
 			}
 		}
@@ -1607,18 +1583,17 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 						*pret = *cit;
 						return TRUE;
 					}
-					++count;
-					if(fcount && count >= fcount)
+					result.insert(*cit);
+					if(fcount && (int32)result.size() >= fcount)
 						return TRUE;
-					if(pgroup) {
-						pgroup->container.insert(*cit);
-					}
 				}
 			}
 		}
 		location = location2;
 		self = 1 - self;
 	}
+	if (pgroup)
+		pgroup->container.insert(result.begin(), result.end());
 	return FALSE;
 }
 // Duel.GetFieldGroup(), Duel.GetFieldGroupCount()
@@ -1626,73 +1601,57 @@ int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, g
 	if(self != 0 && self != 1)
 		return 0;
 	uint32 location = location1;
-	uint32 count = 0;
+	card_set result;
 	for(uint32 p = 0; p < 2; ++p) {
 		if(location & LOCATION_MZONE) {
 			for(auto& pcard : player[self].list_mzone) {
 				if(pcard && !pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)) {
-					if(pgroup)
-						pgroup->container.insert(pcard);
-					++count;
+					result.insert(pcard);
 				}
 			}
 		}
 		if(location & LOCATION_SZONE) {
 			for(auto& pcard : player[self].list_szone) {
 				if(pcard) {
-					if(pgroup)
-						pgroup->container.insert(pcard);
-					++count;
+					result.insert(pcard);
 				}
 			}
 		}
 		if(location & LOCATION_FZONE) {
 			card* pcard = player[self].list_szone[5];
 			if(pcard) {
-				if(pgroup)
-					pgroup->container.insert(pcard);
-				++count;
+				result.insert(pcard);
 			}
 		}
 		if(location & LOCATION_PZONE) {
 			for(int32 i = 0; i < 2; ++i) {
 				card* pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
 				if(pcard && pcard->current.pzone) {
-					if(pgroup)
-						pgroup->container.insert(pcard);
-					++count;
+					result.insert(pcard);
 				}
 			}
 		}
 		if(location & LOCATION_HAND) {
-			if(pgroup)
-				pgroup->container.insert(player[self].list_hand.begin(), player[self].list_hand.end());
-			count += (uint32)player[self].list_hand.size();
+			result.insert(player[self].list_hand.begin(), player[self].list_hand.end());
 		}
 		if(location & LOCATION_DECK) {
-			if(pgroup)
-				pgroup->container.insert(player[self].list_main.rbegin(), player[self].list_main.rend());
-			count += (uint32)player[self].list_main.size();
+			result.insert(player[self].list_main.rbegin(), player[self].list_main.rend());
 		}
 		if(location & LOCATION_EXTRA) {
-			if(pgroup)
-				pgroup->container.insert(player[self].list_extra.rbegin(), player[self].list_extra.rend());
-			count += (uint32)player[self].list_extra.size();
+			result.insert(player[self].list_extra.rbegin(), player[self].list_extra.rend());
 		}
 		if(location & LOCATION_GRAVE) {
-			if(pgroup)
-				pgroup->container.insert(player[self].list_grave.rbegin(), player[self].list_grave.rend());
-			count += (uint32)player[self].list_grave.size();
+			result.insert(player[self].list_grave.rbegin(), player[self].list_grave.rend());
 		}
 		if(location & LOCATION_REMOVED) {
-			if(pgroup)
-				pgroup->container.insert(player[self].list_remove.rbegin(), player[self].list_remove.rend());
-			count += (uint32)player[self].list_remove.size();
+			result.insert(player[self].list_remove.rbegin(), player[self].list_remove.rend());
 		}
 		location = location2;
 		self = 1 - self;
 	}
-	return count;
+	if (pgroup)
+		pgroup->container.insert(result.begin(), result.end());
+	return result.size();
 }
 effect* field::is_player_affected_by_effect(uint8 playerid, uint32 code) {
 	auto rg = effects.aura_effect.equal_range(code);
