@@ -2160,17 +2160,13 @@ void card::reset(uint32 id, uint32 reset_type) {
 					++cmit;
 					continue;
 				}
-				if(cmit->second > 0) {
-					pduel->write_buffer8(MSG_REMOVE_COUNTER);
-					pduel->write_buffer16(cmit->first);
-					pduel->write_buffer8(current.controler);
-					pduel->write_buffer8(current.location);
-					pduel->write_buffer8(current.sequence);
-					pduel->write_buffer16(cmit->second);
-					cmit = counters.erase(cmit);
-				}
-				else
-					++cmit;
+				pduel->write_buffer8(MSG_REMOVE_COUNTER);
+				pduel->write_buffer16(cmit->first);
+				pduel->write_buffer8(current.controler);
+				pduel->write_buffer8(current.location);
+				pduel->write_buffer8(current.sequence);
+				pduel->write_buffer16(cmit->second);
+				cmit = counters.erase(cmit);
 			}
 		}
 		if(id & RESET_TURN_SET) {
