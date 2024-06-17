@@ -1998,7 +1998,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		pduel->game_field->effects.cheff.erase(peffect);
 	if(peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 		pduel->game_field->effects.rechargeable.erase(peffect);
-	if(((peffect->code & 0xf0000) == EFFECT_COUNTER_PERMIT) && (peffect->type & EFFECT_TYPE_SINGLE)) {
+	if(peffect->get_code_type() == CODE_COUNTER && (peffect->code & 0xf0000) == EFFECT_COUNTER_PERMIT && (peffect->type & EFFECT_TYPE_SINGLE)) {
 		auto cmit = counters.find(peffect->code & 0xffff);
 		if(cmit != counters.end()) {
 			pduel->write_buffer8(MSG_REMOVE_COUNTER);
@@ -2370,7 +2370,9 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 
 			limit = eset.get_last()->get_value();
 		if(limit) {
 			int32 mcount = limit - get_counter(cttype);
-			if (mcount > 0 && pcount > mcount)
+			if (mcount < 0)
+				mcount = 0;
+			if (pcount > mcount)
 				pcount = mcount;
 		}
 	}
