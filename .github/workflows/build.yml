@@ -18,7 +18,7 @@ jobs:
 
     - name: Install lua
       run: |
-        bash -c "curl --retry 5 --connect-timeout 30 --location --remote-header-name --remote-name https://www.lua.org/ftp/lua-5.4.6.tar.gz ; exit 0"
+        bash -c "curl --retry 5 --connect-timeout 30 --location --remote-header-name --remote-name https://github.com/lua/lua/archive/refs/tags/v5.4.6.tar.gz ; exit 0"
         tar xzf lua-5.4.6.tar.gz
         move lua-5.4.6 lua
 
