@@ -3623,18 +3623,24 @@ int32 scriptlib::duel_overlay(lua_State *L) {
 		pgroup = *(group**) lua_touserdata(L, 2);
 	} else
 		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
-	if(pcard) {
-		card::card_set cset;
+	card::card_set cset;
+	if(pcard)
 		cset.insert(pcard);
-		target->xyz_overlay(&cset);
-	} else
-		target->xyz_overlay(&pgroup->container);
+	else
+		cset.insert(pgroup->container.begin(), pgroup->container.end());
+	card::card_set oset;
+	for(auto& pcard : cset)
+		oset.insert(pcard->xyz_materials.begin(), pcard->xyz_materials.end());
+	target->xyz_overlay(&cset);
+	duel* pduel = interpreter::get_duel_info(L);
+	if(oset.size())
+		pduel->game_field->send_to(&oset, pduel->game_field->core.reason_effect, REASON_LOST_OVERLAY + REASON_RULE, pduel->game_field->core.reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 	uint32 adjust = TRUE;
 	if(lua_gettop(L) > 2) {
 		adjust = lua_toboolean(L, 3);
 	}
 	if(adjust)
-		target->pduel->game_field->adjust_all();
+		pduel->game_field->adjust_all();
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_get_overlay_group(lua_State *L) {

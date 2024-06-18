@@ -416,6 +416,13 @@ int32 card::get_infos(byte* buf, uint32 query_flag, int32 use_cache) {
 }
 uint32 card::get_info_location() {
 	if(overlay_target) {
+		if(overlay_target->overlay_target) {
+			uint32 c = overlay_target->overlay_target->current.controler | 0x10;
+			uint32 l = overlay_target->overlay_target->current.location | LOCATION_OVERLAY;
+			uint32 s = overlay_target->overlay_target->current.sequence;
+			uint32 ss = overlay_target->current.sequence;
+			return c + (l << 8) + (s << 16) + (ss << 24);
+		}
 		uint32 c = overlay_target->current.controler;
 		uint32 l = overlay_target->current.location | LOCATION_OVERLAY;
 		uint32 s = overlay_target->current.sequence;
