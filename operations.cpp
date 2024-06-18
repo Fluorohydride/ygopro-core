@@ -5589,7 +5589,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(512);
-		add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, lv, playerid + (min << 16) + (max << 24));
+		add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, lv, playerid, min, max);
 		return FALSE;
 	}
 	case 8: {
@@ -5644,7 +5644,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(512);
-		add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, lv, playerid + (min << 16) + (max << 24));
+		add_process(PROCESSOR_SELECT_SUM, 0, 0, 0, lv, playerid, min, max);
 		core.units.begin()->step = 7;
 		return FALSE;
 	}
@@ -6173,7 +6173,7 @@ int32 field::select_release_cards(int16 step, uint8 playerid, uint8 cancelable, 
 	}
 	case 7: {
 		core.select_cards.clear();
-		returns.bvalue[0] = (int8)core.operated_set.size();
+		returns.bvalue[0] = (uint8)core.operated_set.size();
 		int32 i = 0;
 		for(auto cit = core.operated_set.begin(); cit != core.operated_set.end(); ++cit, ++i) {
 			core.select_cards.push_back(*cit);
@@ -6374,7 +6374,7 @@ int32 field::select_tribute_cards(int16 step, card* target, uint8 playerid, uint
 	}
 	case 9: {
 		core.select_cards.clear();
-		returns.bvalue[0] = (int8)core.operated_set.size();
+		returns.bvalue[0] = (uint8)core.operated_set.size();
 		int32 i = 0;
 		for(auto cit = core.operated_set.begin(); cit != core.operated_set.end(); ++cit, ++i) {
 			core.select_cards.push_back(*cit);
