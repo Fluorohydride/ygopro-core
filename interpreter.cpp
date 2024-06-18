@@ -6,7 +6,6 @@
  */
 
 #include <cstring>
-#include <utility>
 #include "duel.h"
 #include "group.h"
 #include "card.h"
@@ -56,7 +55,6 @@ int32 interpreter::register_card(card *pcard) {
 	pcard->ref_handle = luaL_ref(lua_state, LUA_REGISTRYINDEX);				//-1
 	//some userdata may be created in script like token so use current_state
 	lua_rawgeti(current_state, LUA_REGISTRYINDEX, pcard->ref_handle);	//+1 userdata
-	//load script
 	if(pcard->data.is_alternative())
 		load_card_script(pcard->data.alias);
 	else
@@ -78,7 +76,7 @@ int32 interpreter::register_card(card *pcard) {
 void interpreter::register_effect(effect *peffect) {
 	if (!peffect)
 		return;
-	//create a effect in by userdata
+	//create a effect in userdata
 	luaL_checkstack(lua_state, 3, nullptr);
 	effect ** ppeffect = (effect**) lua_newuserdata(lua_state, sizeof(effect*));
 	*ppeffect = peffect;
@@ -127,7 +125,7 @@ void interpreter::unregister_group(group *pgroup) {
 }
 int32 interpreter::load_script(const char* script_name) {
 	int32 len = 0;
-	byte* buffer = read_script(script_name, &len);
+	byte* buffer = ::read_script(script_name, &len);
 	if (!buffer)
 		return OPERATION_FAIL;
 	++no_action;
@@ -142,6 +140,7 @@ int32 interpreter::load_script(const char* script_name) {
 	--no_action;
 	return OPERATION_SUCCESS;
 }
+//push table cxxx onto the stack of current_state 
 int32 interpreter::load_card_script(uint32 code) {
 	char class_name[20];
 	sprintf(class_name, "c%d", code);
@@ -582,7 +581,8 @@ int32 interpreter::call_coroutine(int32 f, uint32 param_count, int32* yield_valu
 	push_param(rthread, true);
 	int32 result = 0, nresults = 0;
 	{
-		auto prev_state = std::exchange(current_state, rthread);
+		auto prev_state = current_state;
+		current_state = rthread;
 #if (LUA_VERSION_NUM >= 504)
 		result = lua_resume(rthread, prev_state, param_count, &nresults);
 #else
@@ -631,7 +631,7 @@ void* interpreter::get_ref_object(int32 ref_handler) {
 	lua_pop(current_state, 1);
 	return p;
 }
-//push the object onto the stack, +1
+//push the object onto the stack of L, +1
 void interpreter::card2value(lua_State* L, card* pcard) {
 	luaL_checkstack(L, 1, nullptr);
 	if (!pcard || pcard->ref_handle == 0)
