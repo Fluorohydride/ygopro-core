@@ -110,7 +110,7 @@ public:
 	void set_activate_location();
 	void set_active_type();
 	uint32 get_active_type();
-	int32 get_code_type();
+	int32 get_code_type() const;
 
 	bool is_flag(effect_flag flag) const {
 		return !!(this->flag[0] & flag);
