@@ -128,16 +128,9 @@ int32 scriptlib::debug_pre_add_counter(lua_State *L) {
 	uint32 countertype = (uint32)lua_tointeger(L, 2);
 	uint32 count = (uint32)lua_tointeger(L, 3);
 	uint16 cttype = countertype;
-	auto pr = pcard->counters.emplace(cttype, card::counter_map::mapped_type());
+	auto pr = pcard->counters.emplace(cttype, 0);
 	auto cmit = pr.first;
-	if(pr.second) {
-		cmit->second[0] = 0;
-		cmit->second[1] = 0;
-	}
-	if(countertype & COUNTER_WITHOUT_PERMIT)
-		cmit->second[0] += count;
-	else
-		cmit->second[1] += count;
+	cmit->second += count;
 	return 0;
 }
 int32 scriptlib::debug_reload_field_begin(lua_State *L) {
