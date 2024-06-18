@@ -54,4 +54,4 @@ project "ocgcore"
     files { "*.cpp", "*.h" }
     links { "lua" }
     
-    includedirs { LUA_DIR .. "/src" }
+    includedirs { LUA_DIR }
