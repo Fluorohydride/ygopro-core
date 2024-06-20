@@ -431,10 +431,7 @@ uint32 card::get_info_location() {
 }
 // get the printed code on card
 uint32 card::get_original_code() const {
-	if (data.is_alternative())
-		return data.alias;
-	else
-		return data.code;
+	return data.get_original_code();
 }
 // get the original code in duel (can be different from printed code)
 std::tuple<uint32, uint32> card::get_original_code_rule() const {

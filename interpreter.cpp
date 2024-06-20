@@ -55,10 +55,7 @@ int32 interpreter::register_card(card *pcard) {
 	pcard->ref_handle = luaL_ref(lua_state, LUA_REGISTRYINDEX);				//-1
 	//some userdata may be created in script like token so use current_state
 	lua_rawgeti(current_state, LUA_REGISTRYINDEX, pcard->ref_handle);	//+1 userdata
-	if(pcard->data.is_alternative())
-		load_card_script(pcard->data.alias);
-	else
-		load_card_script(pcard->data.code);
+	load_card_script(pcard->data.get_original_code());
 	//stack: table cxxx, userdata
 	//set metatable of pointer to base script
 	lua_setmetatable(current_state, -2);	//-1
@@ -297,7 +294,7 @@ int32 interpreter::call_function(int32 f, uint32 param_count, int32 ret_count) {
 }
 int32 interpreter::call_card_function(card* pcard, const char* f, uint32 param_count, int32 ret_count) {
 	if (param_count != params.size()) {
-		sprintf(pduel->strbuffer, "\"CallCardFunction\"(c%d.%s): incorrect parameter count", pcard->data.code, f);
+		sprintf(pduel->strbuffer, "\"CallCardFunction\"(c%d.%s): incorrect parameter count", pcard->data.get_original_code(), f);
 		handle_message(pduel, 1);
 		params.clear();
 		return OPERATION_FAIL;
@@ -306,7 +303,7 @@ int32 interpreter::call_card_function(card* pcard, const char* f, uint32 param_c
 	luaL_checkstack(current_state, 1, nullptr);
 	lua_getfield(current_state, -1, f);
 	if (!lua_isfunction(current_state, -1)) {
-		sprintf(pduel->strbuffer, "\"CallCardFunction\"(c%d.%s): attempt to call an error function", pcard->data.code, f);
+		sprintf(pduel->strbuffer, "\"CallCardFunction\"(c%d.%s): attempt to call an error function", pcard->data.get_original_code(), f);
 		handle_message(pduel, 1);
 		lua_pop(current_state, 2);
 		params.clear();
