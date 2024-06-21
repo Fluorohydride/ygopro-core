@@ -2704,7 +2704,7 @@ int32 scriptlib::duel_get_release_group(lua_State *L) {
 		reason = (uint32)lua_tointeger(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = pduel->new_group();
-	pduel->game_field->get_release_list(playerid, &pgroup->container, &pgroup->container, &pgroup->container, FALSE, hand, 0, 0, nullptr, nullptr, reason);
+	pduel->game_field->get_release_list(L, playerid, &pgroup->container, &pgroup->container, &pgroup->container, FALSE, hand, 0, 0, nullptr, nullptr, reason);
 	interpreter::group2value(L, pgroup);
 	return 1;
 }
@@ -2725,7 +2725,7 @@ int32 scriptlib::duel_get_release_group_count(lua_State *L) {
 	if (lua_gettop(L) >= 3)
 		reason = (uint32)lua_tointeger(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
-	lua_pushinteger(L, pduel->game_field->get_release_list(playerid, nullptr, nullptr, FALSE, FALSE, hand, 0, 0, nullptr, nullptr, reason));
+	lua_pushinteger(L, pduel->game_field->get_release_list(L, playerid, nullptr, nullptr, nullptr, FALSE, hand, 0, 0, nullptr, nullptr, reason));
 	return 1;
 }
 int32 scriptlib::duel_check_release_group(lua_State *L) {
@@ -2748,7 +2748,7 @@ int32 scriptlib::duel_check_release_group(lua_State *L) {
 		pexgroup = *(group**) lua_touserdata(L, 4);
 	uint32 extraargs = lua_gettop(L) - must_param;
 	duel* pduel = interpreter::get_duel_info(L);
-	int32 result = pduel->game_field->check_release_list(playerid, fcount, use_con, FALSE, 2, extraargs, pexception, pexgroup, REASON_COST);
+	int32 result = pduel->game_field->check_release_list(L, playerid, fcount, use_con, FALSE, 2, extraargs, pexception, pexgroup, REASON_COST);
 	pduel->game_field->core.must_select_cards.clear();
 	lua_pushboolean(L, result);
 	return 1;
@@ -2778,7 +2778,7 @@ int32 scriptlib::duel_select_release_group(lua_State *L) {
 	pduel->game_field->core.release_cards.clear();
 	pduel->game_field->core.release_cards_ex.clear();
 	pduel->game_field->core.release_cards_ex_oneof.clear();
-	pduel->game_field->get_release_list(playerid, &pduel->game_field->core.release_cards, &pduel->game_field->core.release_cards_ex, &pduel->game_field->core.release_cards_ex_oneof, use_con, FALSE, 2, extraargs, pexception, pexgroup, REASON_COST);
+	pduel->game_field->get_release_list(L, playerid, &pduel->game_field->core.release_cards, &pduel->game_field->core.release_cards_ex, &pduel->game_field->core.release_cards_ex_oneof, use_con, FALSE, 2, extraargs, pexception, pexgroup, REASON_COST);
 	pduel->game_field->add_process(PROCESSOR_SELECT_RELEASE, 0, 0, 0, playerid, (max << 16) + min);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
@@ -2813,7 +2813,7 @@ int32 scriptlib::duel_check_release_group_ex(lua_State *L) {
 		pexgroup = *(group**) lua_touserdata(L, 6);
 	uint32 extraargs = lua_gettop(L) - must_param;
 	duel* pduel = interpreter::get_duel_info(L);
-	int32 result = pduel->game_field->check_release_list(playerid, fcount, use_con, use_hand, 2, extraargs, pexception, pexgroup, reason);
+	int32 result = pduel->game_field->check_release_list(L, playerid, fcount, use_con, use_hand, 2, extraargs, pexception, pexgroup, reason);
 	pduel->game_field->core.must_select_cards.clear();
 	lua_pushboolean(L, result);
 	return 1;
@@ -2845,7 +2845,7 @@ int32 scriptlib::duel_select_release_group_ex(lua_State *L) {
 	pduel->game_field->core.release_cards.clear();
 	pduel->game_field->core.release_cards_ex.clear();
 	pduel->game_field->core.release_cards_ex_oneof.clear();
-	pduel->game_field->get_release_list(playerid, &pduel->game_field->core.release_cards, &pduel->game_field->core.release_cards_ex, &pduel->game_field->core.release_cards_ex_oneof, use_con, use_hand, 2, extraargs, pexception, pexgroup, reason);
+	pduel->game_field->get_release_list(L, playerid, &pduel->game_field->core.release_cards, &pduel->game_field->core.release_cards_ex, &pduel->game_field->core.release_cards_ex_oneof, use_con, use_hand, 2, extraargs, pexception, pexgroup, reason);
 	pduel->game_field->add_process(PROCESSOR_SELECT_RELEASE, 0, 0, 0, playerid, (max << 16) + min);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
