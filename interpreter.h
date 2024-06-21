@@ -70,6 +70,7 @@ public:
 	int32 call_card_function(card* pcard, const char* f, uint32 param_count, int32 ret_count);
 	int32 call_code_function(uint32 code, const char* f, uint32 param_count, int32 ret_count);
 	int32 check_condition(int32 f, uint32 param_count);
+	int32 check_filter(lua_State* L, card* pcard, int32 findex, int32 extraargs);
 	int32 check_matching(card* pcard, int32 findex, int32 extraargs);
 	int32 get_operation_value(card* pcard, int32 findex, int32 extraargs);
 	int32 get_function_value(int32 f, uint32 param_count);

@@ -167,7 +167,7 @@ int32 scriptlib::group_filter(lua_State *L) {
 	group* new_group = pduel->new_group();
 	uint32 extraargs = lua_gettop(L) - 3;
 	for(auto& pcard : cset) {
-		if(pduel->lua->check_matching(pcard, 2, extraargs)) {
+		if(pduel->lua->check_filter(L, pcard, 2, extraargs)) {
 			new_group->container.insert(pcard);
 		}
 	}
@@ -192,7 +192,7 @@ int32 scriptlib::group_filter_count(lua_State *L) {
 	uint32 extraargs = lua_gettop(L) - 3;
 	uint32 count = 0;
 	for (auto& pcard : cset) {
-		if(pduel->lua->check_matching(pcard, 2, extraargs))
+		if(pduel->lua->check_filter(L, pcard, 2, extraargs))
 			++count;
 	}
 	lua_pushinteger(L, count);
@@ -222,7 +222,7 @@ int32 scriptlib::group_filter_select(lua_State *L) {
 	uint32 extraargs = lua_gettop(L) - 6;
 	pduel->game_field->core.select_cards.clear();
 	for (auto& pcard : cset) {
-		if(pduel->lua->check_matching(pcard, 3, extraargs))
+		if(pduel->lua->check_filter(L, pcard, 3, extraargs))
 			pduel->game_field->core.select_cards.push_back(pcard);
 	}
 	pduel->game_field->add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, min + (max << 16));
@@ -439,7 +439,7 @@ int32 scriptlib::group_is_exists(lua_State *L) {
 		return 1;
 	}
 	for (auto& pcard : cset) {
-		if(pduel->lua->check_matching(pcard, 2, extraargs)) {
+		if(pduel->lua->check_filter(L, pcard, 2, extraargs)) {
 			++fcount;
 			if(fcount >= count) {
 				result = TRUE;
@@ -692,7 +692,7 @@ int32 scriptlib::group_remove(lua_State *L) {
 		return 0;
 	pgroup->is_iterator_dirty = true;
 	for (auto cit = pgroup->container.begin(); cit != pgroup->container.end();) {
-		if((*cit) != pexception && pduel->lua->check_matching(*cit, 2, extraargs)) {
+		if((*cit) != pexception && pduel->lua->check_filter(L, *cit, 2, extraargs)) {
 			cit = pgroup->container.erase(cit);
 		}
 		else
@@ -767,7 +767,7 @@ int32 scriptlib::group_search_card(lua_State *L) {
 	duel* pduel = pgroup->pduel;
 	uint32 extraargs = lua_gettop(L) - 2;
 	for (auto& pcard : pgroup->container) {
-		if (pduel->lua->check_matching(pcard, 2, extraargs)) {
+		if (pduel->lua->check_filter(L, pcard, 2, extraargs)) {
 			interpreter::card2value(L, pcard);
 			return 1;
 		}
