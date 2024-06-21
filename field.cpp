@@ -1444,7 +1444,7 @@ void field::filter_player_effect(uint8 playerid, uint32 code, effect_set* eset, 
 	if(sort)
 		eset->sort();
 }
-int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, uint32 location2, group* pgroup, card* pexception, group* pexgroup, uint32 extraargs, card** pret, int32 fcount, int32 is_target) {
+int32 field::filter_matching_card(lua_State* L, int32 findex, uint8 self, uint32 location1, uint32 location2, group* pgroup, card* pexception, group* pexgroup, uint32 extraargs, card** pret, int32 fcount, int32 is_target) {
 	if(self != 0 && self != 1)
 		return FALSE;
 	card_set result;
@@ -1454,7 +1454,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 			for(auto& pcard : player[self].list_mzone) {
 				if(pcard && !pcard->is_treated_as_not_on_field()
 						&& pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
-						&& pduel->lua->check_matching(pcard, findex, extraargs)
+						&& pduel->lua->check_filter(L, pcard, findex, extraargs)
 						&& (!is_target || pcard->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = pcard;
@@ -1470,7 +1470,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 			for(auto& pcard : player[self].list_szone) {
 				if(pcard && !pcard->is_treated_as_not_on_field()
 				        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
-				        && pduel->lua->check_matching(pcard, findex, extraargs)
+				        && pduel->lua->check_filter(L, pcard, findex, extraargs)
 				        && (!is_target || pcard->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = pcard;
@@ -1486,7 +1486,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 			card* pcard = player[self].list_szone[5];
 			if(pcard && !pcard->is_treated_as_not_on_field()
 			        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
-			        && pduel->lua->check_matching(pcard, findex, extraargs)
+			        && pduel->lua->check_filter(L, pcard, findex, extraargs)
 			        && (!is_target || pcard->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 				if(pret) {
 					*pret = pcard;
@@ -1502,7 +1502,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 				card* pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
 				if(pcard && pcard->current.pzone && !pcard->is_treated_as_not_on_field()
 				        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
-				        && pduel->lua->check_matching(pcard, findex, extraargs)
+				        && pduel->lua->check_filter(L, pcard, findex, extraargs)
 				        && (!is_target || pcard->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = pcard;
@@ -1517,7 +1517,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		if(location & LOCATION_DECK) {
 			for(auto cit = player[self].list_main.rbegin(); cit != player[self].list_main.rend(); ++cit) {
 				if(*cit != pexception && !(pexgroup && pexgroup->has_card(*cit))
-				        && pduel->lua->check_matching(*cit, findex, extraargs)
+				        && pduel->lua->check_filter(L, *cit, findex, extraargs)
 				        && (!is_target || (*cit)->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = *cit;
@@ -1532,7 +1532,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		if(location & LOCATION_EXTRA) {
 			for(auto cit = player[self].list_extra.rbegin(); cit != player[self].list_extra.rend(); ++cit) {
 				if(*cit != pexception && !(pexgroup && pexgroup->has_card(*cit))
-				        && pduel->lua->check_matching(*cit, findex, extraargs)
+				        && pduel->lua->check_filter(L, *cit, findex, extraargs)
 				        && (!is_target || (*cit)->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = *cit;
@@ -1547,7 +1547,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		if(location & LOCATION_HAND) {
 			for(auto& pcard : player[self].list_hand) {
 				if(pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
-				        && pduel->lua->check_matching(pcard, findex, extraargs)
+				        && pduel->lua->check_filter(L, pcard, findex, extraargs)
 				        && (!is_target || pcard->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = pcard;
@@ -1562,7 +1562,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		if(location & LOCATION_GRAVE) {
 			for(auto cit = player[self].list_grave.rbegin(); cit != player[self].list_grave.rend(); ++cit) {
 				if(*cit != pexception && !(pexgroup && pexgroup->has_card(*cit))
-				        && pduel->lua->check_matching(*cit, findex, extraargs)
+				        && pduel->lua->check_filter(L, *cit, findex, extraargs)
 				        && (!is_target || (*cit)->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = *cit;
@@ -1577,7 +1577,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		if(location & LOCATION_REMOVED) {
 			for(auto cit = player[self].list_remove.rbegin(); cit != player[self].list_remove.rend(); ++cit) {
 				if(*cit != pexception && !(pexgroup && pexgroup->has_card(*cit))
-				        && pduel->lua->check_matching(*cit, findex, extraargs)
+				        && pduel->lua->check_filter(L, *cit, findex, extraargs)
 				        && (!is_target || (*cit)->is_capable_be_effect_target(core.reason_effect, core.reason_player))) {
 					if(pret) {
 						*pret = *cit;

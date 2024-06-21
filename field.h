@@ -11,6 +11,7 @@
 #include "common.h"
 #include "card.h"
 #include "effectset.h"
+#include "interpreter.h"
 #include <vector>
 #include <set>
 #include <map>
@@ -432,7 +433,7 @@ public:
 	void filter_affected_cards(effect* peffect, card_set* cset);
 	void filter_inrange_cards(effect* peffect, card_set* cset);
 	void filter_player_effect(uint8 playerid, uint32 code, effect_set* eset, uint8 sort = TRUE);
-	int32 filter_matching_card(int32 findex, uint8 self, uint32 location1, uint32 location2, group* pgroup, card* pexception, group* pexgroup, uint32 extraargs, card** pret = nullptr, int32 fcount = 0, int32 is_target = FALSE);
+	int32 filter_matching_card(lua_State* L, int32 findex, uint8 self, uint32 location1, uint32 location2, group* pgroup, card* pexception, group* pexgroup, uint32 extraargs, card** pret = nullptr, int32 fcount = 0, int32 is_target = FALSE);
 	int32 filter_field_card(uint8 self, uint32 location, uint32 location2, group* pgroup);
 	effect* is_player_affected_by_effect(uint8 playerid, uint32 code);
 
