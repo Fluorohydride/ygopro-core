@@ -1932,13 +1932,13 @@ void field::ritual_release(card_set* material) {
 	release(&rel, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player);
 	send_to(&rem, core.reason_effect, REASON_RITUAL + REASON_EFFECT + REASON_MATERIAL, core.reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, POS_FACEUP);
 }
-void field::get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc, group* mg) {
+void field::get_xyz_material(lua_State* L, card* scard, int32 findex, uint32 lv, int32 maxc, group* mg) {
 	core.xmaterial_lst.clear();
 	uint32 xyz_level;
 	if(mg) {
 		for (auto& pcard : mg->container) {
 			if(pcard->is_can_be_xyz_material(scard) && (xyz_level = pcard->check_xyz_level(scard, lv))
-					&& (findex == 0 || pduel->lua->check_matching(pcard, findex, 0)))
+					&& (findex == 0 || pduel->lua->check_filter(L, pcard, findex, 0)))
 				core.xmaterial_lst.emplace((xyz_level >> 12) & 0xf, pcard);
 		}
 	} else {
@@ -1946,13 +1946,13 @@ void field::get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc, g
 		for(auto& pcard : player[playerid].list_mzone) {
 			if(pcard && pcard->is_position(POS_FACEUP) && !pcard->is_treated_as_not_on_field()
 					&& pcard->is_can_be_xyz_material(scard) && (xyz_level = pcard->check_xyz_level(scard, lv))
-					&& (findex == 0 || pduel->lua->check_matching(pcard, findex, 0)))
+					&& (findex == 0 || pduel->lua->check_filter(L, pcard, findex, 0)))
 				core.xmaterial_lst.emplace((xyz_level >> 12) & 0xf, pcard);
 		}
 		for(auto& pcard : player[1 - playerid].list_mzone) {
 			if(pcard && pcard->is_position(POS_FACEUP) && !pcard->is_treated_as_not_on_field()
 					&& pcard->is_can_be_xyz_material(scard) && (xyz_level = pcard->check_xyz_level(scard, lv))
-			        && pcard->is_affected_by_effect(EFFECT_XYZ_MATERIAL) && (findex == 0 || pduel->lua->check_matching(pcard, findex, 0)))
+			        && pcard->is_affected_by_effect(EFFECT_XYZ_MATERIAL) && (findex == 0 || pduel->lua->check_filter(L, pcard, findex, 0)))
 				core.xmaterial_lst.emplace((xyz_level >> 12) & 0xf, pcard);
 		}
 	}
@@ -2916,8 +2916,8 @@ int32 field::check_with_sum_greater_limit_m(const card_vector& mats, int32 acc, 
 		return TRUE;
 	return FALSE;
 }
-int32 field::check_xyz_material(card* scard, int32 findex, int32 lv, int32 min, int32 max, group* mg) {
-	get_xyz_material(scard, findex, lv, max, mg);
+int32 field::check_xyz_material(lua_State* L, card* scard, int32 findex, int32 lv, int32 min, int32 max, group* mg) {
+	get_xyz_material(L, scard, findex, lv, max, mg);
 	int32 playerid = scard->current.controler;
 	int32 ct = get_spsummonable_count(scard, playerid);
 	card_set handover_zone_cards;

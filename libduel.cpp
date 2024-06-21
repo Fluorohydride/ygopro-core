@@ -3581,7 +3581,7 @@ int32 scriptlib::duel_check_xyz_material(lua_State *L) {
 		check_param(L, PARAM_TYPE_GROUP, 6);
 		mg = *(group**) lua_touserdata(L, 6);
 	}
-	lua_pushboolean(L, scard->pduel->game_field->check_xyz_material(scard, findex, lv, minc, maxc, mg));
+	lua_pushboolean(L, scard->pduel->game_field->check_xyz_material(L, scard, findex, lv, minc, maxc, mg));
 	return 1;
 }
 int32 scriptlib::duel_select_xyz_material(lua_State *L) {
@@ -3604,9 +3604,9 @@ int32 scriptlib::duel_select_xyz_material(lua_State *L) {
 		mg = *(group**) lua_touserdata(L, 7);
 	}
 	duel* pduel = scard->pduel;
-	if(!pduel->game_field->check_xyz_material(scard, findex, lv, minc, maxc, mg))
+	if(!pduel->game_field->check_xyz_material(L, scard, findex, lv, minc, maxc, mg))
 		return 0;
-	pduel->game_field->get_xyz_material(scard, findex, lv, maxc, mg);
+	pduel->game_field->get_xyz_material(L, scard, findex, lv, maxc, mg);
 	scard->pduel->game_field->add_process(PROCESSOR_SELECT_XMATERIAL, 0, 0, (group*)scard, playerid + (lv << 16), minc + (maxc << 16));
 	return lua_yield(L, 0);
 }

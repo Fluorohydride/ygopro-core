@@ -445,7 +445,7 @@ public:
 	void get_ritual_material(uint8 playerid, effect* peffect, card_set* material, uint8 no_level = FALSE);
 	void get_fusion_material(uint8 playerid, card_set* material_all, card_set* material_base, uint32 location);
 	void ritual_release(card_set* material);
-	void get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc, group* mg);
+	void get_xyz_material(lua_State* L, card* scard, int32 findex, uint32 lv, int32 maxc, group* mg);
 	void get_overlay_group(uint8 self, uint8 s, uint8 o, card_set* pset);
 	int32 get_overlay_count(uint8 self, uint8 s, uint8 o);
 	void update_disable_check_list(effect* peffect);
@@ -485,7 +485,7 @@ public:
 	static int32 check_with_sum_limit_m(const card_vector& mats, int32 acc, int32 index, int32 min, int32 max, int32 opmin, int32 must_count);
 	static int32 check_with_sum_greater_limit(const card_vector& mats, int32 acc, int32 index, int32 opmin);
 	static int32 check_with_sum_greater_limit_m(const card_vector& mats, int32 acc, int32 index, int32 opmin, int32 must_count);
-	int32 check_xyz_material(card* pcard, int32 findex, int32 lv, int32 min, int32 max, group* mg);
+	int32 check_xyz_material(lua_State* L, card* pcard, int32 findex, int32 lv, int32 min, int32 max, group* mg);
 
 	int32 is_player_can_draw(uint8 playerid);
 	int32 is_player_can_discard_deck(uint8 playerid, int32 count);
