@@ -61,7 +61,7 @@ int32 interpreter::register_card(card *pcard) {
 	lua_setmetatable(current_state, -2);	//-1
 	lua_pop(current_state, 1);				//-1
 	//Initial
-	if(pcard->data.code && (!(pcard->data.type & TYPE_NORMAL) || (pcard->data.type & TYPE_PENDULUM))) {
+	if(pcard->data.code && is_load_script(pcard->data)) {
 		pcard->set_status(STATUS_INITIALIZING, TRUE);
 		add_param(pcard, PARAM_TYPE_CARD);
 		call_card_function(pcard, "initial_effect", 1, 0);
@@ -156,17 +156,22 @@ int32 interpreter::load_card_script(uint32 code) {
 		lua_pushstring(current_state, "__index");	//+1 "__index", table cxxx
 		lua_pushvalue(current_state, -2);			//+1 table cxxx, "__index", table cxxx
 		lua_rawset(current_state, -3);				//-2 table cxxx
-		lua_getglobal(current_state, class_name);	//+1
-		lua_setglobal(current_state, "self_table");	//-1
-		lua_pushinteger(current_state, code);		//+1
-		lua_setglobal(current_state, "self_code");	//-1
-		char script_name[64];
-		sprintf(script_name, "./script/c%d.lua", code);
-		int32 res = load_script(script_name);
-		lua_pushnil(current_state);					//+1
-		lua_setglobal(current_state, "self_table"); //-1
-		lua_pushnil(current_state);					//+1
-		lua_setglobal(current_state, "self_code");	//-1 table cxxx {__index: cxxx }
+		card_data cdata;
+		int32 res = OPERATION_SUCCESS;
+		::read_card(code, &cdata);
+		if (is_load_script(cdata)) {
+			lua_getglobal(current_state, class_name);	//+1
+			lua_setglobal(current_state, "self_table");	//-1
+			lua_pushinteger(current_state, code);		//+1
+			lua_setglobal(current_state, "self_code");	//-1
+			char script_name[64];
+			sprintf(script_name, "./script/c%d.lua", code);
+			res = load_script(script_name);
+			lua_pushnil(current_state);					//+1
+			lua_setglobal(current_state, "self_table"); //-1
+			lua_pushnil(current_state);					//+1
+			lua_setglobal(current_state, "self_code");	//-1 table cxxx {__index: cxxx }
+		}
 		if(!res) {
 			return OPERATION_FAIL;
 		}
@@ -667,4 +672,7 @@ duel* interpreter::get_duel_info(lua_State * L) {
 	duel* pduel;
 	std::memcpy(&pduel, lua_getextraspace(L), LUA_EXTRASPACE);
 	return pduel;
+}
+inline bool interpreter::is_load_script(card_data data) {
+	return !(data.type & TYPE_NORMAL) || (data.type & TYPE_PENDULUM);
 }

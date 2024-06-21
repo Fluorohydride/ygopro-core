@@ -1979,7 +1979,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 	}
 	if (peffect->is_flag(EFFECT_FLAG_INITIAL) && peffect->copy_id && is_status(STATUS_EFFECT_REPLACED)) {
 		set_status(STATUS_EFFECT_REPLACED, FALSE);
-		if (!(data.type & TYPE_NORMAL) || (data.type & TYPE_PENDULUM)) {
+		if (interpreter::is_load_script(data)) {
 			set_status(STATUS_INITIALIZING, TRUE);
 			pduel->lua->add_param(this, PARAM_TYPE_CARD);
 			pduel->lua->call_card_function(this, "initial_effect", 1, 0);
