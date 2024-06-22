@@ -477,8 +477,10 @@ public:
 	int32 get_must_material_list(uint8 playerid, uint32 limit, card_set* must_list);
 	int32 check_must_material(group* mg, uint8 playerid, uint32 limit);
 	void get_synchro_material(uint8 playerid, card_set* material, effect* tuner_limit = nullptr);
-	int32 check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
-	int32 check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
+	
+	//check material
+	int32 check_synchro_material(lua_State* L, card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
+	int32 check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
 	int32 check_other_synchro_material(const card_vector& nsyn, int32 lv, int32 min, int32 max, int32 mcount);
 	int32 check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer, uint32 zone = 0x1f, uint32 releasable = 0xff00ff, uint32 pos = 0x1);
 	static int32 check_with_sum_limit(const card_vector& mats, int32 acc, int32 index, int32 count, int32 min, int32 max, int32 opmin);
