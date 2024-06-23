@@ -150,12 +150,14 @@ struct processor_unit {
 	uint32 arg2{ 0 };
 	uint32 arg3{ 0 };
 	uint32 arg4{ 0 };
-	void* ptr1{ nullptr };
-	void* ptr2{ nullptr };
 	int32 value1{ 0 };
 	int32 value2{ 0 };
 	int32 value3{ 0 };
 	int32 value4{ 0 };
+	void* ptr1{ nullptr };
+	void* ptr2{ nullptr };
+	void* ptr3{ nullptr };
+	void* ptr4{ nullptr };
 };
 constexpr int SIZE_SVALUE = SIZE_RETURN_VALUE / 2;
 constexpr int SIZE_IVALUE = SIZE_RETURN_VALUE / 4;

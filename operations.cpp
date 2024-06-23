@@ -5516,8 +5516,8 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 		select_cards->swap(core.select_cards);
 		card_vector* must_select_cards = new card_vector;
 		must_select_cards->swap(core.must_select_cards);
-		core.units.begin()->ptr1 = select_cards;
-		core.units.begin()->ptr2 = must_select_cards;
+		core.units.begin()->ptr3 = select_cards;
+		core.units.begin()->ptr4 = must_select_cards;
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
@@ -5527,10 +5527,10 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 	}
 	case 6: {
 		card* pcard = core.select_cards[returns.bvalue[1]];
-		card_vector* select_cards = (card_vector*)core.units.begin()->ptr1;
+		card_vector* select_cards = (card_vector*)core.units.begin()->ptr3;
 		auto it = std::find(select_cards->begin(), select_cards->end(), pcard);
 		select_cards->erase(it);
-		card_vector* must_select_cards = (card_vector*)core.units.begin()->ptr2;
+		card_vector* must_select_cards = (card_vector*)core.units.begin()->ptr4;
 		must_select_cards->push_back(pcard);
 		select_cards->swap(core.select_cards);
 		must_select_cards->swap(core.must_select_cards);
