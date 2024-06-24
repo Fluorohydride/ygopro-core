@@ -5287,7 +5287,7 @@ int32 field::activate_effect(uint16 step, effect* peffect) {
 	}
 	return TRUE;
 }
-int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, int32 min, int32 max, card* smat, group* mg) {
+int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, int32 min, int32 max, card* smat, group* mg, int32 filter1, int32 filter2) {
 	switch(step) {
 	case 0: {
 		core.select_cards.clear();

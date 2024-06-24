@@ -609,10 +609,10 @@ uint32 field::process() {
 	}
 	case PROCESSOR_SELECT_SYNCHRO: {
 		int32 ret = TRUE;
-		if(!(it->arg1 >> 16))
-			ret = select_synchro_material(it->step, it->arg1 & 0xffff, (card*)it->ptr1, it->arg2 & 0xffff, it->arg2 >> 16, nullptr, (group*)it->ptr2);
+		if (!(it->arg1 >> 16))
+			ret = select_synchro_material(it->step, it->arg1 & 0xffff, (card*)it->ptr1, it->arg2 & 0xffff, it->arg2 >> 16, nullptr, (group*)it->ptr2, it->arg3, it->arg4);
 		else
-			ret = select_synchro_material(it->step, it->arg1 & 0xffff, (card*)it->ptr1, it->arg2 & 0xffff, it->arg2 >> 16, (card*)it->ptr2, nullptr);
+			ret = select_synchro_material(it->step, it->arg1 & 0xffff, (card*)it->ptr1, it->arg2 & 0xffff, it->arg2 >> 16, (card*)it->ptr2, nullptr, it->arg3, it->arg4);
 		if(ret)
 			core.units.pop_front();
 		else
