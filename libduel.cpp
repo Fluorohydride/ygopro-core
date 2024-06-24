@@ -3251,7 +3251,6 @@ int32 scriptlib::duel_check_synchro_material(lua_State *L) {
 		check_param(L, PARAM_TYPE_GROUP, 7);
 		mg = *(group**) lua_touserdata(L, 7);
 	}
-	lua_pushvalue(L, 1);
 	lua_pushboolean(L, pduel->game_field->check_synchro_material(L, pcard, 2, 3, min, max, smat, mg));
 	return 1;
 }
@@ -3276,10 +3275,8 @@ int32 scriptlib::duel_select_tuner_material(lua_State *L) {
 		check_param(L, PARAM_TYPE_GROUP, 8);
 		mg = *(group**) lua_touserdata(L, 8);
 	}
-	lua_pushvalue(L, 2);
 	if(!pduel->game_field->check_tuner_material(L, pcard, tuner, 4, 5, min, max, 0, mg))
 		return 0;
-	lua_pop(L, 1);
 	pduel->game_field->core.select_cards.clear();
 	pduel->game_field->core.select_cards.push_back(tuner);
 	pduel->game_field->returns.bvalue[1] = 0;
@@ -3308,7 +3305,6 @@ int32 scriptlib::duel_check_tuner_material(lua_State *L) {
 		check_param(L, PARAM_TYPE_GROUP, 7);
 		mg = *(group**) lua_touserdata(L, 7);
 	}
-	lua_pushvalue(L, 1);
 	lua_pushboolean(L, pduel->game_field->check_tuner_material(L, pcard, tuner, 3, 4, min, max, 0, mg));
 	return 1;
 }

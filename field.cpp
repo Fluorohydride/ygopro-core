@@ -2625,9 +2625,14 @@ int32 field::check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 
 	if(smat) {
 		if(pcheck)
 			pcheck->get_value(smat);
-		if((smat->current.location == LOCATION_MZONE && !smat->is_position(POS_FACEUP)) 
-			|| !smat->is_can_be_synchro_material(pcard, tuner) 
-			|| !pduel->lua->check_filter(L, smat, findex2, 1)) {
+		if((smat->current.location == LOCATION_MZONE && !smat->is_position(POS_FACEUP)) || !smat->is_can_be_synchro_material(pcard, tuner)) {
+			pduel->restore_assumes();
+			return FALSE;
+		}
+		interpreter::card2value(L, pcard);
+		auto res = pduel->lua->check_filter(L, smat, findex2, 1);
+		lua_pop(L, 1);
+		if (!res) {
 			pduel->restore_assumes();
 			return FALSE;
 		}
@@ -2678,9 +2683,14 @@ int32 field::check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 
 				continue;
 			if(pcheck)
 				pcheck->get_value(mcard);
-			if((mcard->current.location == LOCATION_MZONE && !mcard->is_position(POS_FACEUP)) 
-				|| !mcard->is_can_be_synchro_material(pcard, tuner) 
-				|| !pduel->lua->check_filter(L, mcard, findex2, 1)) {
+			if((mcard->current.location == LOCATION_MZONE && !mcard->is_position(POS_FACEUP)) || !mcard->is_can_be_synchro_material(pcard, tuner)) {
+				pduel->restore_assumes();
+				return FALSE;
+			}
+			interpreter::card2value(L, pcard);
+			auto res = pduel->lua->check_filter(L, mcard, findex2, 1);
+			lua_pop(L, 1);
+			if (!res) {
 				pduel->restore_assumes();
 				return FALSE;
 			}
@@ -2723,7 +2733,10 @@ int32 field::check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 
 				pcheck->get_value(pm);
 			if(pm->current.location == LOCATION_MZONE && !pm->is_position(POS_FACEUP))
 				continue;
-			if(!pduel->lua->check_filter(L, pm, findex2, 1))
+			interpreter::card2value(L, pcard);
+			auto res = pduel->lua->check_filter(L, pm, findex2, 1);
+			lua_pop(L, 1);
+			if (!res)
 				continue;
 			nsyn.push_back(pm);
 			pm->sum_param = pm->get_synchro_level(pcard);
@@ -2744,7 +2757,10 @@ int32 field::check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 
 				pcheck->get_value(pm);
 			if(pm->current.location == LOCATION_MZONE && !pm->is_position(POS_FACEUP))
 				continue;
-			if(!pduel->lua->check_filter(L, pm, findex2, 1))
+			interpreter::card2value(L, pcard);
+			auto res = pduel->lua->check_filter(L, pm, findex2, 1);
+			lua_pop(L, 1);
+			if (!res)
 				continue;
 			nsyn.push_back(pm);
 			pm->sum_param = pm->get_synchro_level(pcard);
