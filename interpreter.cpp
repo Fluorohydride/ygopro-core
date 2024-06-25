@@ -436,9 +436,6 @@ int32 interpreter::check_filter(lua_State* L, card* pcard, int32 findex, int32 e
 	}
 	return result;
 }
-int32 interpreter::check_matching(card* pcard, int32 findex, int32 extraargs) {
-	return check_filter(current_state, pcard, findex, extraargs);
-}
 int32 interpreter::get_operation_value(card* pcard, int32 findex, int32 extraargs) {
 	if(!findex || lua_isnil(current_state, findex))
 		return 0;
