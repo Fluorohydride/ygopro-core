@@ -3220,14 +3220,25 @@ int32 scriptlib::duel_select_synchro_material(lua_State *L) {
 		check_param(L, PARAM_TYPE_GROUP, 8);
 		mg = *(group**) lua_touserdata(L, 8);
 	}
-	if (mg)
-		pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 0, nullptr, nullptr, playerid, min + (max << 16), 0, 0, pcard, mg);
-	else
-		pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 0, nullptr, nullptr, playerid + 0x10000, min + (max << 16), 0, 0, pcard, smat);
-	lua_pushvalue(L, 3);
-	lua_pushvalue(L, 4);
-	lua_pushvalue(L, 2);
-	lua_xmove(L, pduel->lua->lua_state, 3);
+	auto filter1 = interpreter::get_function_handle(L, 3);
+	auto filter2 = interpreter::get_function_handle(L, 4);
+	pduel->game_field->core.select_cards.clear();
+	if (mg) {
+		for (auto& pm : mg->container) {
+			if (pduel->game_field->check_tuner_material(L, pcard, pm, 3, 4, min, max, nullptr, mg))
+				pduel->game_field->core.select_cards.push_back(pm);
+		}
+		pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 0, nullptr, nullptr, playerid, min + (max << 16), filter1, filter2, pcard, mg);
+	}
+	else {
+		field::card_set material;
+		pduel->game_field->get_synchro_material(playerid, &material);
+		for (auto& tuner : material) {
+			if (pduel->game_field->check_tuner_material(L, pcard, tuner, 3, 4, min, max, smat, nullptr))
+				pduel->game_field->core.select_cards.push_back(tuner);
+		}
+		pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 0, nullptr, nullptr, playerid + 0x10000, min + (max << 16), filter1, filter2, pcard, smat);
+	}
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_check_synchro_material(lua_State *L) {
@@ -3280,11 +3291,9 @@ int32 scriptlib::duel_select_tuner_material(lua_State *L) {
 	pduel->game_field->core.select_cards.clear();
 	pduel->game_field->core.select_cards.push_back(tuner);
 	pduel->game_field->returns.bvalue[1] = 0;
-	pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 1, nullptr, nullptr, playerid, min + (max << 16), 0, 0, pcard, mg);
-	lua_pushvalue(L, 4);
-	lua_pushvalue(L, 5);
-	lua_pushvalue(L, 2);
-	lua_xmove(L, pduel->lua->lua_state, 3);
+	auto filter1 = interpreter::get_function_handle(L, 4);
+	auto filter2 = interpreter::get_function_handle(L, 5);
+	pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 1, nullptr, nullptr, playerid, min + (max << 16), filter1, filter2, pcard, mg);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_check_tuner_material(lua_State *L) {
