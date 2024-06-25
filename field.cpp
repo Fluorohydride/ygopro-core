@@ -2528,14 +2528,14 @@ void field::get_synchro_material(uint8 playerid, card_set* material, effect* tun
 int32 field::check_synchro_material(lua_State* L, card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg) {
 	if(mg) {
 		for(auto& tuner : mg->container) {
-			if(check_tuner_material(L, pcard, tuner, findex1, findex2, min, max, smat, mg))
+			if(check_tuner_material(L, pcard, tuner, findex1, findex2, min, max, nullptr, mg))
 				return TRUE;
 		}
 	} else {
 		card_set material;
 		get_synchro_material(pcard->current.controler, &material);
 		for(auto& tuner : material) {
-			if(check_tuner_material(L, pcard, tuner, findex1, findex2, min, max, smat, mg))
+			if(check_tuner_material(L, pcard, tuner, findex1, findex2, min, max, smat, nullptr))
 				return TRUE;
 		}
 	}

@@ -3305,7 +3305,7 @@ int32 scriptlib::duel_check_tuner_material(lua_State *L) {
 		check_param(L, PARAM_TYPE_GROUP, 7);
 		mg = *(group**) lua_touserdata(L, 7);
 	}
-	lua_pushboolean(L, pduel->game_field->check_tuner_material(L, pcard, tuner, 3, 4, min, max, 0, mg));
+	lua_pushboolean(L, pduel->game_field->check_tuner_material(L, pcard, tuner, 3, 4, min, max, nullptr, mg));
 	return 1;
 }
 int32 scriptlib::duel_get_ritual_material(lua_State *L) {
