@@ -365,7 +365,6 @@ public:
 	static int32 group_get_next(lua_State *L);
 	static int32 group_get_first(lua_State *L);
 	static int32 group_get_count(lua_State *L);
-	static int32 group_for_each(lua_State *L);
 	static int32 group_filter(lua_State *L);
 	static int32 group_filter_count(lua_State *L);
 	static int32 group_filter_select(lua_State *L);
