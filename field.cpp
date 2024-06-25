@@ -2571,27 +2571,23 @@ int32 field::check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 
 	}
 	int32 playerid = pcard->current.controler;
 	card_set must_list;
-	int32 mct = get_must_material_list(playerid, EFFECT_MUST_BE_SMATERIAL, &must_list);
-	auto tit = must_list.find(tuner);
-	if(tit != must_list.end()) {
-		--mct;
-		must_list.erase(tit);
-	}
-	int32 ct = get_spsummonable_count(pcard, playerid);
+	get_must_material_list(playerid, EFFECT_MUST_BE_SMATERIAL, &must_list);
+	must_list.erase(tuner);
+	int32 location_count = get_spsummonable_count(pcard, playerid);
 	card_set handover_zone_cards;
-	if(ct <= 0) {
+	if(location_count <= 0) {
 		uint32 must_use_zone_flag = 0;
 		filter_must_use_mzone(playerid, playerid, LOCATION_REASON_TOFIELD, pcard, &must_use_zone_flag);
 		uint32 handover_zone = get_rule_zone_fromex(playerid, pcard) & ~must_use_zone_flag;
 		get_cards_in_zone(&handover_zone_cards, handover_zone, playerid, LOCATION_MZONE);
 		if(handover_zone_cards.find(tuner) != handover_zone_cards.end())
-			++ct;
+			++location_count;
 	}
 	int32 location = LOCATION_MZONE;
 	effect* tuner_limit = tuner->is_affected_by_effect(EFFECT_TUNER_MATERIAL_LIMIT);
 	if(tuner_limit) {
-		if(tuner_limit->value)
-			location = tuner_limit->value;
+		if(tuner_limit->get_integer_value())
+			location = tuner_limit->get_integer_value();
 		if(tuner_limit->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
 			if(tuner_limit->s_range && tuner_limit->s_range > min)
 				min = tuner_limit->s_range;
@@ -2645,7 +2641,7 @@ int32 field::check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 
 					return FALSE;
 				}
 			}
-			if(tuner_limit->value && !(smat->current.location & location)) {
+			if(tuner_limit->get_integer_value() && !((uint32)smat->current.location & tuner_limit->get_integer_value())) {
 				pduel->restore_assumes();
 				return FALSE;
 			}
@@ -2655,19 +2651,13 @@ int32 field::check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 
 		nsyn.push_back(smat);
 		smat->sum_param = smat->get_synchro_level(pcard);
 		++mcount;
-		if(mct > 0) {
-			auto sit = must_list.find(smat);
-			if(sit != must_list.end()) {
-				--mct;
-				must_list.erase(sit);
-			}
-		}
-		if(ct <= 0) {
+		must_list.erase(smat);
+		if(location_count <= 0) {
 			if(handover_zone_cards.find(smat) != handover_zone_cards.end())
-				++ct;
+				++location_count;
 		}
 		if(min == 0) {
-			if(ct > 0 && check_with_sum_limit_m(nsyn, lv, 0, 0, 0, 0xffff, 2)) {
+			if(location_count > 0 && check_with_sum_limit_m(nsyn, lv, 0, 0, 0, 0xffff, 2)) {
 				pduel->restore_assumes();
 				return TRUE;
 			}
@@ -2677,10 +2667,8 @@ int32 field::check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 
 			}
 		}
 	}
-	if(mct > 0) {
+	if(must_list.size()) {
 		for(auto& mcard : must_list) {
-			if(mcard == tuner || mcard == smat)
-				continue;
 			if(pcheck)
 				pcheck->get_value(mcard);
 			if((mcard->current.location == LOCATION_MZONE && !mcard->is_position(POS_FACEUP)) || !mcard->is_can_be_synchro_material(pcard, tuner)) {
@@ -2726,7 +2714,7 @@ int32 field::check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 
 					if(!pduel->lua->get_function_value(tuner_limit->target, 2))
 						continue;
 				}
-				if(tuner_limit->value && !(pm->current.location & location))
+				if(tuner_limit->get_integer_value() && !((uint32)pm->current.location & tuner_limit->get_integer_value()))
 					continue;
 			}
 			if(pcheck)
@@ -2742,9 +2730,9 @@ int32 field::check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 
 			pm->sum_param = pm->get_synchro_level(pcard);
 		}
 	} else {
-		card_set cv;
-		get_synchro_material(playerid, &cv, tuner_limit);
-		for(auto& pm : cv) {
+		card_set material_set;
+		get_synchro_material(playerid, &material_set, tuner_limit);
+		for(auto& pm : material_set) {
 			if(!pm || pm == tuner || pm == smat || must_list.find(pm) != must_list.end() || !pm->is_can_be_synchro_material(pcard, tuner))
 				continue;
 			if(tuner_limit && tuner_limit->target) {
@@ -2766,7 +2754,7 @@ int32 field::check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 
 			pm->sum_param = pm->get_synchro_level(pcard);
 		}
 	}
-	if(ct > 0) {
+	if(location_count > 0) {
 		int32 ret = check_other_synchro_material(nsyn, lv, min, max, mcount);
 		pduel->restore_assumes();
 		return ret;
