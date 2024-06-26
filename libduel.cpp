@@ -3222,12 +3222,13 @@ int32 scriptlib::duel_select_synchro_material(lua_State *L) {
 	}
 	auto filter1 = interpreter::get_function_handle(L, 3);
 	auto filter2 = interpreter::get_function_handle(L, 4);
-	pduel->game_field->core.select_cards.clear();
+	field::card_set select_cards;
 	if (mg) {
 		for (auto& pm : mg->container) {
 			if (pduel->game_field->check_tuner_material(L, pcard, pm, 3, 4, min, max, nullptr, mg))
-				pduel->game_field->core.select_cards.push_back(pm);
+				select_cards.insert(pm);
 		}
+		pduel->game_field->core.select_cards.assign(select_cards.begin(), select_cards.end());
 		pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 0, nullptr, nullptr, playerid, min + (max << 16), filter1, filter2, pcard, mg);
 	}
 	else {
@@ -3235,8 +3236,9 @@ int32 scriptlib::duel_select_synchro_material(lua_State *L) {
 		pduel->game_field->get_synchro_material(playerid, &material);
 		for (auto& tuner : material) {
 			if (pduel->game_field->check_tuner_material(L, pcard, tuner, 3, 4, min, max, smat, nullptr))
-				pduel->game_field->core.select_cards.push_back(tuner);
+				select_cards.insert(tuner);
 		}
+		pduel->game_field->core.select_cards.assign(select_cards.begin(), select_cards.end());
 		pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 0, nullptr, nullptr, playerid + 0x10000, min + (max << 16), filter1, filter2, pcard, smat);
 	}
 	return lua_yield(L, 0);
@@ -3286,7 +3288,7 @@ int32 scriptlib::duel_select_tuner_material(lua_State *L) {
 		check_param(L, PARAM_TYPE_GROUP, 8);
 		mg = *(group**) lua_touserdata(L, 8);
 	}
-	if(!pduel->game_field->check_tuner_material(L, pcard, tuner, 4, 5, min, max, 0, mg))
+	if(!pduel->game_field->check_tuner_material(L, pcard, tuner, 4, 5, min, max, nullptr, mg))
 		return 0;
 	pduel->game_field->core.select_cards.clear();
 	pduel->game_field->core.select_cards.push_back(tuner);
