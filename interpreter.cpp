@@ -49,11 +49,11 @@ interpreter::~interpreter() {
 int32 interpreter::register_card(card *pcard) {
 	//create a card in by userdata
 	luaL_checkstack(lua_state, 1, nullptr);
-	luaL_checkstack(current_state, 1, nullptr);
 	card ** ppcard = (card**) lua_newuserdata(lua_state, sizeof(card*));	//+1 userdata
 	*ppcard = pcard;
 	pcard->ref_handle = luaL_ref(lua_state, LUA_REGISTRYINDEX);				//-1
 	//some userdata may be created in script like token so use current_state
+	luaL_checkstack(current_state, 1, nullptr);
 	lua_rawgeti(current_state, LUA_REGISTRYINDEX, pcard->ref_handle);	//+1 userdata
 	load_card_script(pcard->data.get_original_code());
 	//stack: table cxxx, userdata
@@ -126,7 +126,8 @@ int32 interpreter::load_script(const char* script_name) {
 	if (!buffer)
 		return OPERATION_FAIL;
 	++no_action;
-	int32 error = luaL_loadbuffer(current_state, (char*)buffer, len, script_name) || lua_pcall(current_state, 0, 0, 0);
+	luaL_checkstack(current_state, 2, nullptr);
+	int32 error = luaL_loadbuffer(current_state, (const char*)buffer, len, script_name) || lua_pcall(current_state, 0, 0, 0);
 	if (error) {
 		sprintf(pduel->strbuffer, "%s", lua_tostring(current_state, -1));
 		handle_message(pduel, 1);
@@ -143,7 +144,6 @@ int32 interpreter::load_card_script(uint32 code) {
 	sprintf(class_name, "c%d", code);
 	luaL_checkstack(current_state, 1, nullptr);
 	lua_getglobal(current_state, class_name);	//+1 table cxxx
-	//if script is not loaded, create and load it
 	if (lua_isnil(current_state, -1)) {
 		luaL_checkstack(current_state, 5, nullptr);
 		lua_pop(current_state, 1);	//-1
