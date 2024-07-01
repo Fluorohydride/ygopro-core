@@ -23,7 +23,7 @@ class effect;
 class group;
 class duel;
 
-enum LuaParamType {
+enum LuaParamType : int32 {
 	PARAM_TYPE_INT = 0x01,
 	PARAM_TYPE_STRING = 0x02,
 	PARAM_TYPE_CARD = 0x04,
