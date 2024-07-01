@@ -178,7 +178,6 @@ struct processor {
 	using instant_f_list = std::map<effect*, chain>;
 	using chain_array = std::vector<chain>;
 	using processor_list = std::list<processor_unit>;
-	using card_set = std::set<card*, card_sort>;
 	using delayed_effect_collection = std::set<std::pair<effect*, tevent>>;
 	struct chain_limit_t {
 		chain_limit_t(int32 f, int32 p): function(f), player(p) {}
@@ -365,7 +364,6 @@ struct processor {
 class field {
 public:
 	using effect_container = std::multimap<uint32, effect*>;
-	using card_set = std::set<card*, card_sort>;
 	using effect_vector = std::vector<effect*>;
 	using card_vector = std::vector<card*>;
 	using card_list = std::list<card*>;

@@ -138,7 +138,7 @@ int32 scriptlib::group_filter(lua_State *L) {
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	check_param(L, PARAM_TYPE_FUNCTION, 2);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	field::card_set cset(pgroup->container);
+	card_set cset(pgroup->container);
 	if(check_param(L, PARAM_TYPE_CARD, 3, TRUE)) {
 		card* pexception = *(card**) lua_touserdata(L, 3);
 		cset.erase(pexception);
@@ -163,7 +163,7 @@ int32 scriptlib::group_filter_count(lua_State *L) {
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	check_param(L, PARAM_TYPE_FUNCTION, 2);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	field::card_set cset(pgroup->container);
+	card_set cset(pgroup->container);
 	if(check_param(L, PARAM_TYPE_CARD, 3, TRUE)) {
 		card* pexception = *(card**) lua_touserdata(L, 3);
 		cset.erase(pexception);
@@ -188,7 +188,7 @@ int32 scriptlib::group_filter_select(lua_State *L) {
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	check_param(L, PARAM_TYPE_FUNCTION, 3);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	field::card_set cset(pgroup->container);
+	card_set cset(pgroup->container);
 	if(check_param(L, PARAM_TYPE_CARD, 6, TRUE)) {
 		card* pexception = *(card**) lua_touserdata(L, 6);
 		cset.erase(pexception);
@@ -226,7 +226,7 @@ int32 scriptlib::group_select(lua_State *L) {
 	check_param_count(L, 5);
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	field::card_set cset(pgroup->container);
+	card_set cset(pgroup->container);
 	if(check_param(L, PARAM_TYPE_CARD, 5, TRUE)) {
 		card* pexception = *(card**) lua_touserdata(L, 5);
 		cset.erase(pexception);
@@ -364,7 +364,7 @@ int32 scriptlib::group_cancelable_select(lua_State *L) {
 	check_param_count(L, 5);
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	field::card_set cset(pgroup->container);
+	card_set cset(pgroup->container);
 	if(check_param(L, PARAM_TYPE_CARD, 5, TRUE)) {
 		card* pexception = *(card**) lua_touserdata(L, 5);
 		cset.erase(pexception);
@@ -404,7 +404,7 @@ int32 scriptlib::group_is_exists(lua_State *L) {
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	check_param(L, PARAM_TYPE_FUNCTION, 2);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	field::card_set cset(pgroup->container);
+	card_set cset(pgroup->container);
 	if(check_param(L, PARAM_TYPE_CARD, 4, TRUE)) {
 		card* pexception = *(card**) lua_touserdata(L, 4);
 		cset.erase(pexception);
@@ -839,7 +839,7 @@ int32 scriptlib::group_meta_band(lua_State* L) {
 		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = pduel->new_group();
-	field::card_set check_set;
+	card_set check_set;
 	if(check_param(L, PARAM_TYPE_CARD, 1, TRUE)) {
 		card* ccard = *(card**) lua_touserdata(L, 1);
 		check_set.insert(ccard);

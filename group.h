@@ -16,9 +16,10 @@
 class card;
 class duel;
 
+using card_set = std::set<card*, card_sort>;
+
 class group {
 public:
-	using card_set = std::set<card*, card_sort>;
 	duel* pduel;
 	card_set container;
 	card_set::iterator it;

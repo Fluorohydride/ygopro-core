@@ -577,7 +577,7 @@ int32 scriptlib::duel_special_summon(lua_State *L) {
 	if(lua_gettop(L) >= 8)
 		zone = (uint32)lua_tointeger(L, 8);
 	if(pcard) {
-		field::card_set cset;
+		card_set cset;
 		cset.insert(pcard);
 		pduel->game_field->special_summon(&cset, sumtype, sumplayer, playerid, nocheck, nolimit, positions, zone);
 	} else
@@ -807,7 +807,7 @@ int32 scriptlib::duel_change_form(lua_State *L) {
 	if(top > 4) dd = (uint32)lua_tointeger(L, 5);
 	if(top > 5 && lua_toboolean(L, 6)) flag |= NO_FLIP_EFFECT;
 	if(pcard) {
-		field::card_set cset;
+		card_set cset;
 		cset.insert(pcard);
 		pduel->game_field->change_position(&cset, pduel->game_field->core.reason_effect, pduel->game_field->core.reason_player, au, ad, du, dd, flag, TRUE);
 	} else
@@ -934,7 +934,7 @@ int32 scriptlib::duel_swap_sequence(lua_State *L) {
 		&& pcard1->is_affect_by_effect(pduel->game_field->core.reason_effect)
 		&& pcard2->is_affect_by_effect(pduel->game_field->core.reason_effect)) {
 		pduel->game_field->swap_card(pcard1, pcard2);
-		field::card_set swapped;
+		card_set swapped;
 		swapped.insert(pcard1);
 		swapped.insert(pcard2);
 		pduel->game_field->raise_single_event(pcard1, 0, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, player, 0);
@@ -1363,7 +1363,7 @@ int32 scriptlib::duel_equip(lua_State *L) {
 }
 int32 scriptlib::duel_equip_complete(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
-	field::card_set etargets;
+	card_set etargets;
 	for(auto& equip_card : pduel->game_field->core.equiping_cards) {
 		if(equip_card->is_position(POS_FACEUP))
 			equip_card->enable_field_effect(true);
@@ -1865,7 +1865,7 @@ int32 scriptlib::duel_disable_summon(lua_State *L) {
 	}
 	uint8 sumplayer = PLAYER_NONE;
 	effect* reason_effect = pduel->game_field->core.reason_effect;
-	field::card_set negated_cards;
+	card_set negated_cards;
 	if (sumtype == SUMMON_TYPE_DUAL || sumtype & SUMMON_TYPE_FLIP) {
 		if (!pcard->is_summon_negatable(sumtype, reason_effect))
 			return 0;
@@ -2124,7 +2124,7 @@ int32 scriptlib::duel_get_linked_group(lua_State *L) {
 	uint32 s = (uint32)lua_tointeger(L, 2);
 	uint32 o = (uint32)lua_tointeger(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
-	field::card_set cset;
+	card_set cset;
 	pduel->game_field->get_linked_cards(rplayer, s, o, &cset);
 	group* pgroup = pduel->new_group(cset);
 	interpreter::group2value(L, pgroup);
@@ -2138,7 +2138,7 @@ int32 scriptlib::duel_get_linked_group_count(lua_State *L) {
 	uint32 s = (uint32)lua_tointeger(L, 2);
 	uint32 o = (uint32)lua_tointeger(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
-	field::card_set cset;
+	card_set cset;
 	pduel->game_field->get_linked_cards(rplayer, s, o, &cset);
 	lua_pushinteger(L, cset.size());
 	return 1;
@@ -3184,7 +3184,7 @@ int32 scriptlib::duel_get_synchro_material(lua_State *L) {
 	if (lua_gettop(L) >= 2)
 		facedown = lua_toboolean(L, 2);
 	duel* pduel = interpreter::get_duel_info(L);
-	group::card_set mats;
+	card_set mats;
 	pduel->game_field->get_synchro_material(playerid, &mats);
 	group* pgroup = pduel->new_group();
 	for (auto cit = mats.begin(); cit != mats.end(); ++cit) {
@@ -3222,7 +3222,7 @@ int32 scriptlib::duel_select_synchro_material(lua_State *L) {
 	}
 	auto filter1 = interpreter::get_function_handle(L, 3);
 	auto filter2 = interpreter::get_function_handle(L, 4);
-	field::card_set select_cards;
+	card_set select_cards;
 	if (mg) {
 		for (auto& pm : mg->container) {
 			if (pduel->game_field->check_tuner_material(L, pcard, pm, 3, 4, min, max, nullptr, mg))
@@ -3232,7 +3232,7 @@ int32 scriptlib::duel_select_synchro_material(lua_State *L) {
 		pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 0, nullptr, nullptr, playerid, min + (max << 16), filter1, filter2, pcard, mg);
 	}
 	else {
-		field::card_set material;
+		card_set material;
 		pduel->game_field->get_synchro_material(playerid, &material);
 		for (auto& tuner : material) {
 			if (pduel->game_field->check_tuner_material(L, pcard, tuner, 3, 4, min, max, smat, nullptr))
@@ -3631,7 +3631,7 @@ int32 scriptlib::duel_overlay(lua_State *L) {
 	} else
 		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
 	if(pcard) {
-		card::card_set cset;
+		card_set cset;
 		cset.insert(pcard);
 		target->xyz_overlay(&cset);
 	} else
