@@ -97,6 +97,7 @@ public:
 	void get_value(uint32 extraargs, std::vector<int32>* result);
 	void get_value(card* pcard, uint32 extraargs, std::vector<int32>* result);
 	void get_value(effect* peffect, uint32 extraargs, std::vector<int32>* result);
+	int32 get_integer_value();
 	int32 check_value_condition(uint32 extraargs = 0);
 	void* get_label_object();
 	int32 get_speed();

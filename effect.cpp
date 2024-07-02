@@ -738,6 +738,9 @@ void effect::get_value(effect* peffect, uint32 extraargs, std::vector<int32>* re
 		result->push_back((int32)value);
 	}
 }
+int32 effect::get_integer_value() {
+	return is_flag(EFFECT_FLAG_FUNC_VALUE) ? 0 : value;
+}
 int32 effect::check_value_condition(uint32 extraargs) {
 	if(is_flag(EFFECT_FLAG_FUNC_VALUE)) {
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT, TRUE);
