@@ -1674,7 +1674,7 @@ int32 scriptlib::duel_change_attack_target(lua_State *L) {
 		lua_pushboolean(L, 0);
 		return 1;
 	}
-	field::card_vector cv;
+	card_vector cv;
 	pduel->game_field->get_attack_target(attacker, &cv, pduel->game_field->core.chain_attack);
 	if(target && std::find(cv.begin(), cv.end(), target) != cv.end()
 		|| !target && !attacker->is_affected_by_effect(EFFECT_CANNOT_DIRECT_ATTACK)) {
@@ -1975,7 +1975,7 @@ int32 scriptlib::duel_get_mzone_count(lua_State *L) {
 	card* mcard = nullptr;
 	group* mgroup = nullptr;
 	uint32 used_location[2] = { 0, 0 };
-	player_info::card_vector list_mzone[2];
+	card_vector list_mzone[2];
 	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
 		if(check_param(L, PARAM_TYPE_CARD, 2, TRUE)) {
 			mcard = *(card**)lua_touserdata(L, 2);
@@ -2034,7 +2034,7 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 	card* mcard = nullptr;
 	group* mgroup = nullptr;
 	uint32 used_location[2] = {0, 0};
-	player_info::card_vector list_mzone[2];
+	card_vector list_mzone[2];
 	if(lua_gettop(L) >= 3 && !lua_isnil(L, 3)) {
 		if(check_param(L, PARAM_TYPE_CARD, 3, TRUE)) {
 			mcard = *(card**) lua_touserdata(L, 3);

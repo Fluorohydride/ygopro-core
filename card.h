@@ -25,6 +25,7 @@ class group;
 struct chain;
 
 using card_set = std::set<card*, card_sort>;
+using card_vector = std::vector<card*>;
 
 struct card_state {
 	uint32 code{ 0 };
@@ -115,7 +116,6 @@ public:
 			return std::hash<uint16>()(v.second);
 		}
 	};
-	using card_vector = std::vector<card*>;
 	using effect_container = std::multimap<uint32, effect*>;
 	using effect_indexer = std::unordered_map<effect*, effect_container::iterator>;
 	using effect_relation = std::unordered_set<std::pair<effect*, uint16>, effect_relation_hash>;

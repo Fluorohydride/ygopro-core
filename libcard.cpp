@@ -2535,7 +2535,7 @@ int32 scriptlib::card_is_chain_attackable(lua_State *L) {
 		lua_pushboolean(L, 0);
 		return 1;
 	}
-	field::card_vector cv;
+	card_vector cv;
 	pduel->game_field->get_attack_target(attacker, &cv, TRUE);
 	if(cv.size() == 0 && (monsteronly || attacker->direct_attackable == 0))
 		lua_pushboolean(L, 0);
@@ -3260,7 +3260,7 @@ int32 scriptlib::card_get_attackable_target(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	duel* pduel = pcard->pduel;
-	field::card_vector targets;
+	card_vector targets;
 	uint8 chain_attack = FALSE;
 	if(pduel->game_field->core.chain_attacker_id == pcard->fieldid)
 		chain_attack = TRUE;

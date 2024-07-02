@@ -448,7 +448,7 @@ int32 scriptlib::group_check_with_sum_equal(lua_State *L) {
 	if(max < min)
 		max = min;
 	int32 extraargs = lua_gettop(L) - 5;
-	field::card_vector cv(pduel->game_field->core.must_select_cards);
+	card_vector cv(pduel->game_field->core.must_select_cards);
 	int32 mcount = (int32)cv.size();
 	for(auto& pcard : pgroup->container) {
 		auto it = std::find(pduel->game_field->core.must_select_cards.begin(), pduel->game_field->core.must_select_cards.end(), pcard);
@@ -486,7 +486,7 @@ int32 scriptlib::group_select_with_sum_equal(lua_State *L) {
 		auto it = std::remove(pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end(), pcard);
 		pduel->game_field->core.select_cards.erase(it, pduel->game_field->core.select_cards.end());
 	}
-	field::card_vector cv(pduel->game_field->core.must_select_cards);
+	card_vector cv(pduel->game_field->core.must_select_cards);
 	int32 mcount = (int32)cv.size();
 	cv.insert(cv.end(), pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end());
 	for(auto& pcard : cv)
@@ -519,7 +519,7 @@ int32 scriptlib::group_check_with_sum_greater(lua_State *L) {
 	duel* pduel = pgroup->pduel;
 	int32 acc = (int32)lua_tointeger(L, 3);
 	int32 extraargs = lua_gettop(L) - 3;
-	field::card_vector cv(pduel->game_field->core.must_select_cards);
+	card_vector cv(pduel->game_field->core.must_select_cards);
 	int32 mcount = (int32)cv.size();
 	for(auto& pcard : pgroup->container) {
 		auto it = std::find(pduel->game_field->core.must_select_cards.begin(), pduel->game_field->core.must_select_cards.end(), pcard);
@@ -549,7 +549,7 @@ int32 scriptlib::group_select_with_sum_greater(lua_State *L) {
 		auto it = std::remove(pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end(), pcard);
 		pduel->game_field->core.select_cards.erase(it, pduel->game_field->core.select_cards.end());
 	}
-	field::card_vector cv(pduel->game_field->core.must_select_cards);
+	card_vector cv(pduel->game_field->core.must_select_cards);
 	int32 mcount = (int32)cv.size();
 	cv.insert(cv.end(), pduel->game_field->core.select_cards.begin(), pduel->game_field->core.select_cards.end());
 	for(auto& pcard : cv)

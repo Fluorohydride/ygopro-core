@@ -78,7 +78,6 @@ struct chain {
 };
 
 struct player_info {
-	using card_vector = std::vector<card*>;
 	int32 lp{ 0 };
 	int32 start_count{ 0 };
 	int32 draw_count{ 0 };
@@ -170,7 +169,6 @@ union return_value {
 };
 struct processor {
 	using effect_vector = std::vector<effect*>;
-	using card_vector = std::vector<card*>;
 	using option_vector = std::vector<uint32>;
 	using card_list = std::list<card*>;
 	using event_list = std::list<tevent>;
@@ -365,7 +363,6 @@ class field {
 public:
 	using effect_container = std::multimap<uint32, effect*>;
 	using effect_vector = std::vector<effect*>;
-	using card_vector = std::vector<card*>;
 	using card_list = std::list<card*>;
 	using event_list = std::list<tevent>;
 	using chain_list = std::list<chain>;
