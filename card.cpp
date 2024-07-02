@@ -350,7 +350,7 @@ int32 card::get_infos(byte* buf, uint32 query_flag, int32 use_cache) {
 	if(query_flag & QUERY_COUNTERS) {
 		buffer_write<int32_t>(p, (int32_t)counters.size());
 		for (const auto& cmit : counters) {
-			uint32 tdata = cmit.first + ((uint32)cmit.second << 16);
+			uint32 tdata = cmit.first | ((uint32)cmit.second << 16);
 			buffer_write<uint32_t>(p, tdata);
 		}
 	}
@@ -2156,7 +2156,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 		}
 		if(id & RESET_DISABLE) {
 			for(auto cmit = counters.begin(); cmit != counters.end();) {
-				if ((uint32)cmit->first & COUNTER_WITHOUT_PERMIT) {
+				if (cmit->first & COUNTER_WITHOUT_PERMIT) {
 					++cmit;
 					continue;
 				}
@@ -2410,7 +2410,7 @@ int32 card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count,
 		return FALSE;
 	if (!loc && (!(current.location & LOCATION_ONFIELD) || !is_position(POS_FACEUP)))
 		return FALSE;
-	uint32 check = (uint32)countertype & COUNTER_WITHOUT_PERMIT;
+	uint32 check = countertype & COUNTER_WITHOUT_PERMIT;
 	if(!check) {
 		filter_effect(EFFECT_COUNTER_PERMIT + countertype, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
@@ -2561,7 +2561,7 @@ void card::set_special_summon_status(effect* peffect) {
 		effect_set eset;
 		pcard->filter_effect(EFFECT_ADD_SETCODE, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
-			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard) & 0xffff);
+			spsummon.setcode.push_back(eset[i]->get_value(pcard) & 0xffffU);
 		}
 		spsummon.reason_effect = peffect;
 		spsummon.reason_player = peffect->get_handler_player();
@@ -2580,7 +2580,7 @@ void card::set_special_summon_status(effect* peffect) {
 		effect_set eset;
 		pcard->filter_effect(EFFECT_ADD_SETCODE, &eset);
 		for(int32 i = 0; i < eset.size(); ++i) {
-			spsummon.setcode.push_back((uint32)eset[i]->get_value(pcard) & 0xffff);
+			spsummon.setcode.push_back(eset[i]->get_value(pcard) & 0xffffU);
 		}
 		spsummon.reason_effect = cait->triggering_effect;
 		spsummon.reason_player = cait->triggering_player;

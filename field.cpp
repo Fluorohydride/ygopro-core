@@ -1978,12 +1978,12 @@ void field::get_overlay_group(uint8 self, uint8 s, uint8 o, card_set* pset) {
 }
 int32 field::get_overlay_count(uint8 self, uint8 s, uint8 o) {
 	uint8 c = s;
-	uint32 count = 0;
+	int32 count = 0;
 	for(int32 p = 0; p < 2; ++p) {
 		if(c) {
 			for(auto& pcard : player[self].list_mzone) {
 				if(pcard && !pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP))
-					count += (uint32)pcard->xyz_materials.size();
+					count += (int32)pcard->xyz_materials.size();
 			}
 		}
 		self = 1 - self;
@@ -3034,12 +3034,12 @@ int32 field::is_player_can_draw(uint8 playerid) {
 	return !is_player_affected_by_effect(playerid, EFFECT_CANNOT_DRAW);
 }
 int32 field::is_player_can_discard_deck(uint8 playerid, int32 count) {
-	if(player[playerid].list_main.size() < (uint32)count)
+	if(count < 0 || (int32)player[playerid].list_main.size() < count)
 		return FALSE;
 	return !is_player_affected_by_effect(playerid, EFFECT_CANNOT_DISCARD_DECK);
 }
 int32 field::is_player_can_discard_deck_as_cost(uint8 playerid, int32 count) {
-	if(player[playerid].list_main.size() < (uint32)count)
+	if(count < 0 || (int32)player[playerid].list_main.size() < count)
 		return FALSE;
 	if(is_player_affected_by_effect(playerid, EFFECT_CANNOT_DISCARD_DECK))
 		return FALSE;
