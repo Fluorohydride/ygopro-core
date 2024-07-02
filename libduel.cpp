@@ -4248,8 +4248,7 @@ int32 scriptlib::duel_is_player_can_draw(lua_State * L) {
 	if(count == 0)
 		lua_pushboolean(L, pduel->game_field->is_player_can_draw(playerid));
 	else
-		lua_pushboolean(L, pduel->game_field->is_player_can_draw(playerid)
-		                && (pduel->game_field->player[playerid].list_main.size() >= count));
+		lua_pushboolean(L, (int)(pduel->game_field->is_player_can_draw(playerid) && (pduel->game_field->player[playerid].list_main.size() >= count)));
 	return 1;
 }
 int32 scriptlib::duel_is_player_can_discard_deck(lua_State * L) {

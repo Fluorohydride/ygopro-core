@@ -67,6 +67,10 @@ struct card_data {
 		for (int i = ctr; i < SIZE_SETCODE; ++i)
 			setcode[i] = 0;
 	}
+
+	uint32 get_original_code() const {
+		return is_alternative() ? alias : code;
+	}
 };
 
 #endif /* CARD_DATA_H_ */

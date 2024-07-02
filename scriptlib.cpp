@@ -8,6 +8,7 @@
 #include "duel.h"
 
 static int32 check_data_type(lua_State* L, int32 index, const char* tname) {
+	luaL_checkstack(L, 2, nullptr);
 	int32 result = FALSE;
 	if(lua_getmetatable(L, index)) {
 		lua_getglobal(L, tname);
@@ -20,6 +21,7 @@ static int32 check_data_type(lua_State* L, int32 index, const char* tname) {
 int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 retfalse) {
 	switch (param_type) {
 	case PARAM_TYPE_CARD: {
+		luaL_checkstack(L, 1, nullptr);
 		int32 result = FALSE;
 		if(lua_isuserdata(L, index) && lua_getmetatable(L, index)) {
 			result = check_data_type(L, -1, "Card");
