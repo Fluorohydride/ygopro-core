@@ -138,7 +138,6 @@ int32 effect::is_single_ready() {
 		return FALSE;
 	if((type & (EFFECT_TYPE_SINGLE | EFFECT_TYPE_XMATERIAL)) && !(type & EFFECT_TYPE_FIELD)) {
 		card* phandler = get_handler();
-		card* powner = get_owner();
 		if(phandler->current.controler == PLAYER_NONE)
 			return FALSE;
 		if(is_flag(EFFECT_FLAG_SINGLE_RANGE) && !in_range(phandler))
@@ -164,10 +163,11 @@ int32 effect::check_count_limit(uint8 playerid) {
 		if(count_limit == 0)
 			return FALSE;
 		if(count_code) {
-			uint32 code = count_code & MAX_CARD_ID;
+			uint32 limit_code = count_code & MAX_CARD_ID;
+			uint32 limit_type = count_code & 0xf0000000;
 			uint32 count = count_limit_max;
-			if(code == EFFECT_COUNT_CODE_SINGLE) {
-				if(pduel->game_field->get_effect_code((count_code & 0xf0000000) | get_handler()->fieldid, PLAYER_NONE) >= count)
+			if(limit_code == EFFECT_COUNT_CODE_SINGLE) {
+				if(pduel->game_field->get_effect_code(limit_type | get_handler()->fieldid, PLAYER_NONE) >= count)
 					return FALSE;
 			} else {
 				if(pduel->game_field->get_effect_code(count_code, playerid) >= count)
@@ -665,9 +665,10 @@ void effect::dec_count(uint32 playerid) {
 	if(count_code == 0 || is_flag(EFFECT_FLAG_NO_TURN_RESET))
 		count_limit -= 1;
 	if(count_code) {
-		uint32 code = count_code & MAX_CARD_ID;
-		if(code == EFFECT_COUNT_CODE_SINGLE)
-			pduel->game_field->add_effect_code((count_code & 0xf0000000) | get_handler()->fieldid, PLAYER_NONE);
+		uint32 limit_code = count_code & MAX_CARD_ID;
+		uint32 limit_type = count_code & 0xf0000000;
+		if(limit_code == EFFECT_COUNT_CODE_SINGLE)
+			pduel->game_field->add_effect_code(limit_type | get_handler()->fieldid, PLAYER_NONE);
 		else
 			pduel->game_field->add_effect_code(count_code, playerid);
 	}
