@@ -112,11 +112,11 @@ public:
 	uint32 get_active_type();
 	int32 get_code_type() const;
 
-	bool is_flag(effect_flag flag) const {
-		return !!(this->flag[0] & flag);
+	bool is_flag(effect_flag x) const {
+		return !!(flag[0] & x);
 	}
-	bool is_flag(effect_flag2 flag) const {
-		return !!(this->flag[1] & flag);
+	bool is_flag(effect_flag2 x) const {
+		return !!(flag[1] & x);
 	}
 };
 
