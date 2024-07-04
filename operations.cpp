@@ -1182,29 +1182,29 @@ int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 			ucard->unique_fieldid = (*cit)->fieldid;
 		} else {
 			core.select_cards.clear();
-			uint8 player = p;
+			uint8 select_player = p;
 			for(auto& pcard : cset) {
-				if(pcard->current.controler == player && pcard->unique_fieldid != UINT_MAX)
+				if(pcard->current.controler == select_player && pcard->unique_fieldid != UINT_MAX)
 					core.select_cards.push_back(pcard);
 			}
 			if(core.select_cards.size() == 0) {
-				player = 1 - p;
+				select_player = 1 - p;
 				for(auto& pcard : cset) {
-					if(pcard->current.controler == player && pcard->unique_fieldid != UINT_MAX)
+					if(pcard->current.controler == select_player && pcard->unique_fieldid != UINT_MAX)
 						core.select_cards.push_back(pcard);
 				}
 			}
 			if(core.select_cards.size() == 0) {
-				player = p;
+				select_player = p;
 				for(auto& pcard : cset) {
-					if(pcard->current.controler == player)
+					if(pcard->current.controler == select_player)
 						core.select_cards.push_back(pcard);
 				}
 			}
 			if(core.select_cards.size() == 0) {
-				player = 1 - p;
+				select_player = 1 - p;
 				for(auto& pcard : cset) {
-					if(pcard->current.controler == player)
+					if(pcard->current.controler == select_player)
 						core.select_cards.push_back(pcard);
 				}
 			}
@@ -1214,9 +1214,9 @@ int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 			else {
 				pduel->write_buffer8(MSG_HINT);
 				pduel->write_buffer8(HINT_SELECTMSG);
-				pduel->write_buffer8(player);
+				pduel->write_buffer8(select_player);
 				pduel->write_buffer32(534);
-				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, player, 0x10001);
+				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, select_player, 0x10001);
 			}
 			return FALSE;
 		}
@@ -2433,7 +2433,7 @@ int32 field::sset(uint16 step, uint8 setplayer, uint8 toplayer, card * target, e
 			return TRUE;
 		uint32 flag = 0;
 		if(target->data.type & TYPE_FIELD) {
-			flag = ~(0x1 << 13);
+			flag = ~(0x1U << 13);
 		} else {
 			get_useable_count(target, setplayer, LOCATION_SZONE, toplayer, LOCATION_REASON_TOFIELD, 0xff, &flag);
 			flag = ((flag & 0xff) << 8) | 0xffff00ff;
@@ -2654,11 +2654,11 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		pduel->write_buffer8(MSG_SHUFFLE_SET_CARD);
 		pduel->write_buffer8(LOCATION_SZONE);
 		pduel->write_buffer8(ct);
-		uint8 i = 0;
+		uint8 index = 0;
 		for(auto cit = core.operated_set.begin(); cit != core.operated_set.end(); ++cit) {
 			card* pcard = *cit;
-			uint8 seq = core.set_group_seq[i];
-			++i;
+			uint8 seq = core.set_group_seq[index];
+			++index;
 			if(pcard->data.type & TYPE_FIELD)
 				continue;
 			pduel->write_buffer32(pcard->get_info_location());

@@ -2038,14 +2038,14 @@ void field::adjust_disable_check_list() {
 void field::adjust_self_destroy_set() {
 	if(core.selfdes_disabled || !core.unique_destroy_set.empty() || !core.self_destroy_set.empty() || !core.self_tograve_set.empty())
 		return;
-	int32 p = infos.turn_player;
-	for(int32 p1 = 0; p1 < 2; ++p1) {
+	int32 check_player = infos.turn_player;
+	for(int32 i = 0; i < 2; ++i) {
 		std::vector<card*> uniq_set;
-		for(auto& ucard : core.unique_cards[p]) {
+		for(auto& ucard : core.unique_cards[check_player]) {
 			if(ucard->is_position(POS_FACEUP) && ucard->get_status(STATUS_EFFECT_ENABLED)
 					&& !ucard->get_status(STATUS_DISABLED | STATUS_FORBIDDEN)) {
 				card_set cset;
-				ucard->get_unique_target(&cset, p);
+				ucard->get_unique_target(&cset, check_player);
 				if(cset.size() == 0)
 					ucard->unique_fieldid = 0;
 				else if(cset.size() == 1) {
@@ -2057,13 +2057,13 @@ void field::adjust_self_destroy_set() {
 		}
 		std::sort(uniq_set.begin(), uniq_set.end(), [](card* lhs, card* rhs) { return lhs->fieldid < rhs->fieldid; });
 		for(auto& pcard : uniq_set) {
-			add_process(PROCESSOR_SELF_DESTROY, 0, 0, 0, p, 0, 0, 0, pcard);
+			add_process(PROCESSOR_SELF_DESTROY, 0, 0, 0, check_player, 0, 0, 0, pcard);
 			core.unique_destroy_set.insert(pcard);
 		}
-		p = 1 - p;
+		check_player = 1 - check_player;
 	}
 	card_set cset;
-	for(uint8 p = 0; p < 2; ++p) {
+	for(int32 p = 0; p < 2; ++p) {
 		for(auto& pcard : player[p].list_mzone) {
 			if(pcard && pcard->is_position(POS_FACEUP) && !pcard->is_status(STATUS_BATTLE_DESTROYED))
 				cset.insert(pcard);
@@ -2837,10 +2837,10 @@ int32 field::check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 t
 	int32 ct = get_tofield_count(pcard, toplayer, LOCATION_MZONE, sumplayer, LOCATION_REASON_TOFIELD, zone);
 	if(ct <= 0 && max <= 0)
 		return FALSE;
-	for(auto& pcard : release_list) {
-		if(pcard->current.location == LOCATION_MZONE && pcard->current.controler == toplayer) {
+	for(auto& release_card : release_list) {
+		if(release_card->current.location == LOCATION_MZONE && release_card->current.controler == toplayer) {
 			++s;
-			if((zone >> pcard->current.sequence) & 1)
+			if((zone >> release_card->current.sequence) & 1)
 				++ct;
 		}
 	}
@@ -3468,7 +3468,7 @@ int32 field::get_cteffect(effect* peffect, int32 playerid, int32 store) {
 		if(!feffect->in_range(phandler))
 			continue;
 		uint32 code = efit.first;
-		if(code == EVENT_FREE_CHAIN || code == EVENT_PHASE + infos.phase) {
+		if(code == EVENT_FREE_CHAIN || code == (EVENT_PHASE | infos.phase)) {
 			tevent test_event;
 			test_event.event_code = code;
 			if(get_cteffect_evt(feffect, playerid, test_event, store) && !store)
