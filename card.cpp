@@ -410,7 +410,7 @@ int32 card::get_infos(byte* buf, uint32 query_flag, int32 use_cache) {
 		}
 	}
 	byte* finalize = buf;
-	buffer_write<int32_t>(finalize, p - buf);
+	buffer_write<int32_t>(finalize, (int32_t)(p - buf));
 	buffer_write<uint32_t>(finalize, query_flag);
 	return (int32)(p - buf);
 }
@@ -487,9 +487,9 @@ uint32 card::get_another_code() {
 	return 0;
 }
 inline bool check_setcode(uint16_t setcode, uint32 value) {
-	uint16_t settype = value & 0x0fff;
-	uint16_t setsubtype = value & 0xf000;
-	return (setcode & 0x0fff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype;
+	uint32 settype = value & 0x0fffU;
+	uint32 setsubtype = value & 0xf000U;
+	return (setcode & 0x0fffU) == settype && (setcode & 0xf000U & setsubtype) == setsubtype;
 }
 bool card::check_card_setcode(uint32 code, uint32 value) {
 	card_data dat;
@@ -574,8 +574,6 @@ int32 card::is_fusion_set_card(uint32 set_code) {
 int32 card::is_link_set_card(uint32 set_code) {
 	if(is_set_card(set_code))
 		return TRUE;
-	uint32 settype = set_code & 0xfff;
-	uint32 setsubtype = set_code & 0xf000;
 	effect_set eset;
 	filter_effect(EFFECT_ADD_LINK_CODE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
@@ -1440,19 +1438,19 @@ int32 card::is_extra_link_state() {
 int32 card::is_position(int32 pos) {
 	return current.position & pos;
 }
-void card::set_status(uint32 status, int32 enabled) {
+void card::set_status(uint32 x, int32 enabled) {
 	if (enabled)
-		this->status |= status;
+		status |= x;
 	else
-		this->status &= ~status;
+		status &= ~x;
 }
 // get match status
-int32 card::get_status(uint32 status) {
-	return this->status & status;
+int32 card::get_status(uint32 x) const {
+	return status & x;
 }
 // match all status
-int32 card::is_status(uint32 status) {
-	if ((this->status & status) == status)
+int32 card::is_status(uint32 x) const {
+	if ((status & x) == x)
 		return TRUE;
 	return FALSE;
 }
@@ -2779,11 +2777,11 @@ int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ign
 		return FALSE;
 	if(!ignore_count && !pduel->game_field->core.extra_summon[playerid]
 			&& pduel->game_field->core.summon_count[playerid] >= pduel->game_field->get_summon_count_limit(playerid)) {
-		effect_set eset;
-		filter_effect(EFFECT_EXTRA_SUMMON_COUNT, &eset);
-		for(int32 i = 0; i < eset.size(); ++i) {
+		effect_set extra_count;
+		filter_effect(EFFECT_EXTRA_SUMMON_COUNT, &extra_count);
+		for(int32 i = 0; i < extra_count.size(); ++i) {
 			std::vector<int32> retval;
-			eset[i]->get_value(this, 0, &retval);
+			extra_count[i]->get_value(this, 0, &retval);
 			int32 new_min = retval.size() > 0 ? retval[0] : 0;
 			int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
 			int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
@@ -2862,11 +2860,11 @@ int32 card::filter_set_procedure(uint8 playerid, effect_set* peset, uint8 ignore
 		return FALSE;
 	if(!ignore_count && !pduel->game_field->core.extra_summon[playerid]
 			&& pduel->game_field->core.summon_count[playerid] >= pduel->game_field->get_summon_count_limit(playerid)) {
-		effect_set eset;
-		filter_effect(EFFECT_EXTRA_SET_COUNT, &eset);
-		for(int32 i = 0; i < eset.size(); ++i) {
+		effect_set extra_count;
+		filter_effect(EFFECT_EXTRA_SET_COUNT, &extra_count);
+		for(int32 i = 0; i < extra_count.size(); ++i) {
 			std::vector<int32> retval;
-			eset[i]->get_value(this, 0, &retval);
+			extra_count[i]->get_value(this, 0, &retval);
 			int32 new_min = retval.size() > 0 ? retval[0] : 0;
 			int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
 			int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
@@ -3767,8 +3765,8 @@ int32 card::is_destructable_by_effect(effect* reason_effect, uint8 playerid) {
 			pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
 			pduel->lua->add_param(REASON_EFFECT, PARAM_TYPE_INT);
 			pduel->lua->add_param(playerid, PARAM_TYPE_INT);
-			int32 ct;
-			if(ct = eset[i]->get_value(3)) {
+			int32 ct = eset[i]->get_value(3);
+			if(ct) {
 				auto it = indestructable_effects.emplace(eset[i]->id, 0);
 				if(it.first->second + 1 <= ct) {
 					return FALSE;

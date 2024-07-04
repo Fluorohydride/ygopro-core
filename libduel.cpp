@@ -1069,11 +1069,11 @@ int32 scriptlib::duel_confirm_cards(lua_State *L) {
 		pduel->write_buffer8(pcard->current.sequence);
 	} else {
 		pduel->write_buffer8((uint8)pgroup->container.size());
-		for(auto& pcard : pgroup->container) {
-			pduel->write_buffer32(pcard->data.code);
-			pduel->write_buffer8(pcard->current.controler);
-			pduel->write_buffer8(pcard->current.location);
-			pduel->write_buffer8(pcard->current.sequence);
+		for(auto& group_card : pgroup->container) {
+			pduel->write_buffer32(group_card->data.code);
+			pduel->write_buffer8(group_card->current.controler);
+			pduel->write_buffer8(group_card->current.location);
+			pduel->write_buffer8(group_card->current.sequence);
 		}
 	}
 	pduel->game_field->add_process(PROCESSOR_WAIT, 0, 0, 0, 0, 0);
@@ -1883,14 +1883,14 @@ int32 scriptlib::duel_disable_summon(lua_State *L) {
 			pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
 		}
 		else {
-			for (auto& pcard : pgroup->container) {
-				if (!pcard->is_summon_negatable(sumtype, reason_effect))
+			for (auto& group_card : pgroup->container) {
+				if (!group_card->is_summon_negatable(sumtype, reason_effect))
 					continue;
-				sumplayer = pcard->summon_player;
-				pcard->set_status(STATUS_SUMMONING, FALSE);
-				pcard->set_status(STATUS_SUMMON_DISABLED, TRUE);
-				pcard->set_status(STATUS_PROC_COMPLETE, FALSE);
-				negated_cards.insert(pcard);
+				sumplayer = group_card->summon_player;
+				group_card->set_status(STATUS_SUMMONING, FALSE);
+				group_card->set_status(STATUS_SUMMON_DISABLED, TRUE);
+				group_card->set_status(STATUS_PROC_COMPLETE, FALSE);
+				negated_cards.insert(group_card);
 			}
 			if (!negated_cards.size())
 				return 0;
@@ -3421,8 +3421,8 @@ int32 scriptlib::duel_set_target_card(lua_State *L) {
 			pcard->create_relation(*ch);
 		} else {
 			targets->container.insert(pgroup->container.begin(), pgroup->container.end());
-			for(auto& pcard : pgroup->container)
-				pcard->create_relation(*ch);
+			for(auto& group_card : pgroup->container)
+				group_card->create_relation(*ch);
 		}
 		if(peffect->is_flag(EFFECT_FLAG_CARD_TARGET)) {
 			if(pcard) {
@@ -3430,10 +3430,10 @@ int32 scriptlib::duel_set_target_card(lua_State *L) {
 				pduel->write_buffer8(1);
 				pduel->write_buffer32(pcard->get_info_location());
 			} else {
-				for(auto& pcard : pgroup->container) {
+				for(auto& group_card : pgroup->container) {
 					pduel->write_buffer8(MSG_BECOME_TARGET);
 					pduel->write_buffer8(1);
-					pduel->write_buffer32(pcard->get_info_location());
+					pduel->write_buffer32(group_card->get_info_location());
 				}
 			}
 		}
@@ -3904,13 +3904,13 @@ int32 scriptlib::duel_select_field(lua_State* L) {
 		flag &= 0xffffff80;
 	}
 	if(location1 & LOCATION_SZONE) {
-		flag &= pduel->game_field->core.duel_rule == 3 ? 0xffff00ff : 0xffffc0ff;
+		flag &= (pduel->game_field->core.duel_rule == 3) ? 0xffff00ff : 0xffffc0ff;
 	}
 	if(location2 & LOCATION_MZONE) {
 		flag &= 0xff80ffff;
 	}
 	if(location2 & LOCATION_SZONE) {
-		flag &= pduel->game_field->core.duel_rule == 3 ? 0x00ffffff : 0xc0ffffff;
+		flag &= (pduel->game_field->core.duel_rule == 3) ? 0x00ffffff : 0xc0ffffff;
 	}
 	if((location1 & LOCATION_MZONE) && (location2 & LOCATION_MZONE) && pduel->game_field->core.duel_rule >= 4) {
 		flag &= 0xffffff9f;
