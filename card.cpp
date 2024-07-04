@@ -410,7 +410,7 @@ int32 card::get_infos(byte* buf, uint32 query_flag, int32 use_cache) {
 		}
 	}
 	byte* finalize = buf;
-	buffer_write<int32_t>(finalize, p - buf);
+	buffer_write<int32_t>(finalize, (int32_t)(p - buf));
 	buffer_write<uint32_t>(finalize, query_flag);
 	return (int32)(p - buf);
 }
