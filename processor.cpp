@@ -2043,8 +2043,8 @@ int32 field::process_single_event(effect* peffect, const tevent& e, chain_list& 
 		}
 		peffect->set_active_type();
 		phandler->create_relation(newchain);
-		effect* deffect;
-		if(deffect = phandler->is_affected_by_effect(EFFECT_DISABLE_EFFECT)) {
+		effect* deffect = phandler->is_affected_by_effect(EFFECT_DISABLE_EFFECT);
+		if(deffect) {
 			effect* negeff = pduel->new_effect();
 			negeff->owner = deffect->owner;
 			negeff->type = EFFECT_TYPE_SINGLE;
@@ -4313,7 +4313,6 @@ int32 field::solve_continuous(uint16 step) {
 	case 3: {
 		auto& clit = core.solving_continuous.front();
 		effect* peffect = clit.triggering_effect;
-		uint8 triggering_player = clit.triggering_player;
 		core.reason_effect = (effect*)core.units.begin()->ptarget;
 		core.reason_player = (uint8)core.units.begin()->arg2;
 		if(core.continuous_chain.back().target_cards)
