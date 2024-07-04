@@ -487,9 +487,9 @@ uint32 card::get_another_code() {
 	return 0;
 }
 inline bool check_setcode(uint16_t setcode, uint32 value) {
-	uint16_t settype = value & 0x0fff;
-	uint16_t setsubtype = value & 0xf000;
-	return (setcode & 0x0fff) == settype && (setcode & 0xf000 & setsubtype) == setsubtype;
+	uint32 settype = value & 0x0fffU;
+	uint32 setsubtype = value & 0xf000U;
+	return (setcode & 0x0fffU) == settype && (setcode & 0xf000U & setsubtype) == setsubtype;
 }
 bool card::check_card_setcode(uint32 code, uint32 value) {
 	card_data dat;
@@ -574,8 +574,6 @@ int32 card::is_fusion_set_card(uint32 set_code) {
 int32 card::is_link_set_card(uint32 set_code) {
 	if(is_set_card(set_code))
 		return TRUE;
-	uint32 settype = set_code & 0xfff;
-	uint32 setsubtype = set_code & 0xf000;
 	effect_set eset;
 	filter_effect(EFFECT_ADD_LINK_CODE, &eset);
 	for(int32 i = 0; i < eset.size(); ++i) {
