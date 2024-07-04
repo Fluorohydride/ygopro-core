@@ -1440,19 +1440,19 @@ int32 card::is_extra_link_state() {
 int32 card::is_position(int32 pos) {
 	return current.position & pos;
 }
-void card::set_status(uint32 status, int32 enabled) {
+void card::set_status(uint32 x, int32 enabled) {
 	if (enabled)
-		this->status |= status;
+		status |= x;
 	else
-		this->status &= ~status;
+		status &= ~x;
 }
 // get match status
-int32 card::get_status(uint32 status) {
-	return this->status & status;
+int32 card::get_status(uint32 x) const {
+	return status & x;
 }
 // match all status
-int32 card::is_status(uint32 status) {
-	if ((this->status & status) == status)
+int32 card::is_status(uint32 x) const {
+	if ((status & x) == x)
 		return TRUE;
 	return FALSE;
 }
@@ -2779,11 +2779,11 @@ int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ign
 		return FALSE;
 	if(!ignore_count && !pduel->game_field->core.extra_summon[playerid]
 			&& pduel->game_field->core.summon_count[playerid] >= pduel->game_field->get_summon_count_limit(playerid)) {
-		effect_set eset;
-		filter_effect(EFFECT_EXTRA_SUMMON_COUNT, &eset);
-		for(int32 i = 0; i < eset.size(); ++i) {
+		effect_set extra_count;
+		filter_effect(EFFECT_EXTRA_SUMMON_COUNT, &extra_count);
+		for(int32 i = 0; i < extra_count.size(); ++i) {
 			std::vector<int32> retval;
-			eset[i]->get_value(this, 0, &retval);
+			extra_count[i]->get_value(this, 0, &retval);
 			int32 new_min = retval.size() > 0 ? retval[0] : 0;
 			int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
 			int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
@@ -2862,11 +2862,11 @@ int32 card::filter_set_procedure(uint8 playerid, effect_set* peset, uint8 ignore
 		return FALSE;
 	if(!ignore_count && !pduel->game_field->core.extra_summon[playerid]
 			&& pduel->game_field->core.summon_count[playerid] >= pduel->game_field->get_summon_count_limit(playerid)) {
-		effect_set eset;
-		filter_effect(EFFECT_EXTRA_SET_COUNT, &eset);
-		for(int32 i = 0; i < eset.size(); ++i) {
+		effect_set extra_count;
+		filter_effect(EFFECT_EXTRA_SET_COUNT, &extra_count);
+		for(int32 i = 0; i < extra_count.size(); ++i) {
 			std::vector<int32> retval;
-			eset[i]->get_value(this, 0, &retval);
+			extra_count[i]->get_value(this, 0, &retval);
 			int32 new_min = retval.size() > 0 ? retval[0] : 0;
 			int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
 			int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;

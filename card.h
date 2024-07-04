@@ -265,8 +265,8 @@ public:
 	int32 is_extra_link_state();
 	int32 is_position(int32 pos);
 	void set_status(uint32 status, int32 enabled);
-	int32 get_status(uint32 status);
-	int32 is_status(uint32 status);
+	int32 get_status(uint32 status) const;
+	int32 is_status(uint32 status) const;
 	uint32 get_column_zone(int32 location);
 	void get_column_cards(card_set* cset);
 	int32 is_all_column();
