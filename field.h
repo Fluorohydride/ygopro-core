@@ -307,7 +307,7 @@ struct processor {
 	int32 duel_options{ 0 };
 	int32 duel_rule{ CURRENT_RULE };
 	uint32 copy_reset{ 0 };
-	uint8 copy_reset_count{ 0 };
+	int32 copy_reset_count{ 0 };
 	uint32 last_control_changed_id{ 0 };
 	uint32 set_group_used_zones{ 0 };
 	uint8 set_group_seq[7]{};

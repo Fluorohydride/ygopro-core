@@ -293,7 +293,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_info(intptr_t pduel, byte* buf) {
 	duel* ptduel = (duel*)pduel;
 	byte* p = buf;
 	*p++ = MSG_RELOAD_FIELD;
-	*p++ = ptduel->game_field->core.duel_rule;
+	*p++ = (uint8)ptduel->game_field->core.duel_rule;
 	for(int playerid = 0; playerid < 2; ++playerid) {
 		auto& player = ptduel->game_field->player[playerid];
 		buffer_write<int32_t>(p, player.lp);

@@ -121,7 +121,7 @@ public:
 	using relation_map = std::unordered_map<card*, uint32>;
 	using counter_map = std::map<uint16, uint16>;
 	using effect_count = std::map<uint32, int32>;
-	class attacker_map : public std::unordered_map<uint16, std::pair<card*, uint32>> {
+	class attacker_map : public std::unordered_map<uint32, std::pair<card*, uint32>> {
 	public:
 		void addcard(card* pcard);
 		uint32 findcard(card* pcard);
@@ -287,8 +287,8 @@ public:
 	int32 add_effect(effect* peffect);
 	void remove_effect(effect* peffect);
 	void remove_effect(effect* peffect, effect_container::iterator it);
-	int32 copy_effect(uint32 code, uint32 reset, uint32 count);
-	int32 replace_effect(uint32 code, uint32 reset, uint32 count);
+	int32 copy_effect(uint32 code, uint32 reset, int32 count);
+	int32 replace_effect(uint32 code, uint32 reset, int32 count);
 	void reset(uint32 id, uint32 reset_type);
 	void reset_effect_count();
 	void refresh_disable_status();
