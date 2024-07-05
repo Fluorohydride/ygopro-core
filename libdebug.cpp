@@ -126,7 +126,7 @@ int32 scriptlib::debug_pre_add_counter(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32 countertype = (uint32)lua_tointeger(L, 2);
-	uint32 count = (uint32)lua_tointeger(L, 3);
+	uint16 count = (uint16)lua_tointeger(L, 3);
 	uint16 cttype = countertype;
 	auto pr = pcard->counters.emplace(cttype, 0);
 	auto cmit = pr.first;

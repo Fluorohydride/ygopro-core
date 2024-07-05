@@ -2355,7 +2355,7 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 
 	uint16 cttype = countertype;
 	auto pr = counters.emplace(cttype, 0);
 	auto cmit = pr.first;
-	int32 pcount = count;
+	auto pcount = count;
 	if(singly) {
 		effect_set eset;
 		int32 limit = 0;
@@ -2367,7 +2367,7 @@ int32 card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 
 			if (mcount < 0)
 				mcount = 0;
 			if (pcount > mcount)
-				pcount = mcount;
+				pcount = (uint16)mcount;
 		}
 	}
 	cmit->second += pcount;
@@ -2385,7 +2385,7 @@ int32 card::remove_counter(uint16 countertype, uint16 count) {
 	auto cmit = counters.find(countertype);
 	if(cmit == counters.end())
 		return FALSE;
-	int32 remove_count = count;
+	auto remove_count = count;
 	if (cmit->second <= count) {
 		remove_count = cmit->second;
 		counters.erase(cmit);
@@ -3917,9 +3917,11 @@ int32 card::is_capable_cost_to_grave(uint8 playerid) {
 	sendto_param.location = dest;
 	if(current.location & LOCATION_ONFIELD)
 		redirect = leave_field_redirect(REASON_COST) & 0xffff;
-	if(redirect) dest = redirect;
+	if(redirect)
+		dest = redirect;
 	redirect = destination_redirect(dest, REASON_COST) & 0xffff;
-	if(redirect) dest = redirect;
+	if(redirect)
+		dest = redirect;
 	sendto_param = op_param;
 	if(dest != LOCATION_GRAVE)
 		return FALSE;
@@ -3940,9 +3942,11 @@ int32 card::is_capable_cost_to_hand(uint8 playerid) {
 	sendto_param.location = dest;
 	if(current.location & LOCATION_ONFIELD)
 		redirect = leave_field_redirect(REASON_COST) & 0xffff;
-	if(redirect) dest = redirect;
+	if(redirect)
+		dest = redirect;
 	redirect = destination_redirect(dest, REASON_COST) & 0xffff;
-	if(redirect) dest = redirect;
+	if(redirect)
+		dest = redirect;
 	sendto_param = op_param;
 	if(dest != LOCATION_HAND)
 		return FALSE;
@@ -3963,9 +3967,11 @@ int32 card::is_capable_cost_to_deck(uint8 playerid) {
 	sendto_param.location = dest;
 	if(current.location & LOCATION_ONFIELD)
 		redirect = leave_field_redirect(REASON_COST) & 0xffff;
-	if(redirect) dest = redirect;
+	if(redirect)
+		dest = redirect;
 	redirect = destination_redirect(dest, REASON_COST) & 0xffff;
-	if(redirect) dest = redirect;
+	if(redirect)
+		dest = redirect;
 	sendto_param = op_param;
 	if(dest != LOCATION_DECK)
 		return FALSE;
@@ -3986,9 +3992,11 @@ int32 card::is_capable_cost_to_extra(uint8 playerid) {
 	sendto_param.location = dest;
 	if(current.location & LOCATION_ONFIELD)
 		redirect = leave_field_redirect(REASON_COST) & 0xffff;
-	if(redirect) dest = redirect;
+	if(redirect)
+		dest = redirect;
 	redirect = destination_redirect(dest, REASON_COST) & 0xffff;
-	if(redirect) dest = redirect;
+	if(redirect)
+		dest = redirect;
 	sendto_param = op_param;
 	if(dest != LOCATION_DECK)
 		return FALSE;
