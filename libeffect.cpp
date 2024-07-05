@@ -133,7 +133,7 @@ int32 scriptlib::effect_set_reset(lua_State *L) {
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	uint32 v = (uint32)lua_tointeger(L, 2);
-	uint32 c = (uint32)lua_tointeger(L, 3);
+	int32 c = (int32)lua_tointeger(L, 3);
 	if(c == 0)
 		c = 1;
 	if(v & (RESET_PHASE) && !(v & (RESET_SELF_TURN | RESET_OPPO_TURN)))

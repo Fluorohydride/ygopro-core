@@ -1914,7 +1914,7 @@ int32 card::add_effect(effect* peffect) {
 	if(peffect->reset_flag & RESET_PHASE) {
 		pduel->game_field->effects.pheff.insert(peffect);
 		if(peffect->reset_count == 0)
-			peffect->reset_count += 1;
+			peffect->reset_count = 1;
 	}
 	if(peffect->reset_flag & RESET_CHAIN)
 		pduel->game_field->effects.cheff.insert(peffect);
@@ -2021,14 +2021,14 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 	}
 	pduel->game_field->core.reseted_effects.insert(peffect);
 }
-int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
+int32 card::copy_effect(uint32 code, uint32 reset, int32 count) {
 	card_data cdata;
 	::read_card(code, &cdata);
 	if(cdata.type & TYPE_NORMAL)
 		return -1;
 	set_status(STATUS_COPYING_EFFECT, TRUE);
-	uint32 cr = pduel->game_field->core.copy_reset;
-	uint8 crc = pduel->game_field->core.copy_reset_count;
+	auto cr = pduel->game_field->core.copy_reset;
+	auto crc = pduel->game_field->core.copy_reset_count;
 	pduel->game_field->core.copy_reset = reset;
 	pduel->game_field->core.copy_reset_count = count;
 	pduel->lua->add_param(this, PARAM_TYPE_CARD);
@@ -2057,7 +2057,7 @@ int32 card::copy_effect(uint32 code, uint32 reset, uint32 count) {
 	}
 	return pduel->game_field->infos.copy_id - 1;
 }
-int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
+int32 card::replace_effect(uint32 code, uint32 reset, int32 count) {
 	card_data cdata;
 	::read_card(code, &cdata);
 	if(cdata.type & TYPE_NORMAL)
@@ -2071,8 +2071,8 @@ int32 card::replace_effect(uint32 code, uint32 reset, uint32 count) {
 		if (peffect->is_flag(EFFECT_FLAG_INITIAL | EFFECT_FLAG_COPY_INHERIT))
 			remove_effect(peffect, it);
 	}
-	uint32 cr = pduel->game_field->core.copy_reset;
-	uint8 crc = pduel->game_field->core.copy_reset_count;
+	auto cr = pduel->game_field->core.copy_reset;
+	auto crc = pduel->game_field->core.copy_reset_count;
 	pduel->game_field->core.copy_reset = reset;
 	pduel->game_field->core.copy_reset_count = count;
 	set_status(STATUS_INITIALIZING | STATUS_COPYING_EFFECT, TRUE);

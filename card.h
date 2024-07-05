@@ -287,8 +287,8 @@ public:
 	int32 add_effect(effect* peffect);
 	void remove_effect(effect* peffect);
 	void remove_effect(effect* peffect, effect_container::iterator it);
-	int32 copy_effect(uint32 code, uint32 reset, uint32 count);
-	int32 replace_effect(uint32 code, uint32 reset, uint32 count);
+	int32 copy_effect(uint32 code, uint32 reset, int32 count);
+	int32 replace_effect(uint32 code, uint32 reset, int32 count);
 	void reset(uint32 id, uint32 reset_type);
 	void reset_effect_count();
 	void refresh_disable_status();

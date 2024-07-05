@@ -97,7 +97,7 @@ int32 scriptlib::duel_register_flag_effect(lua_State *L) {
 		return 0;
 	int32 code = (lua_tointeger(L, 2) & MAX_CARD_ID) | EFFECT_FLAG_EFFECT;
 	int32 reset = (int32)lua_tointeger(L, 3);
-	int32 flag = (int32)lua_tointeger(L, 4);
+	uint32 flag = (uint32)lua_tointeger(L, 4);
 	int32 count = (int32)lua_tointeger(L, 5);
 	int32 lab = 0;
 	if(lua_gettop(L) >= 6)
@@ -2358,8 +2358,8 @@ int32 scriptlib::duel_skip_phase(lua_State *L) {
 		return 0;
 	uint32 phase = (uint32)lua_tointeger(L, 2);
 	uint32 reset = (uint32)lua_tointeger(L, 3);
-	uint32 count = (uint32)lua_tointeger(L, 4);
-	uint32 value = (uint32)lua_tointeger(L, 5);
+	int32 count = (int32)lua_tointeger(L, 4);
+	int32 value = (int32)lua_tointeger(L, 5);
 	if(count <= 0)
 		count = 1;
 	duel* pduel = interpreter::get_duel_info(L);

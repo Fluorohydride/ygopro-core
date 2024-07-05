@@ -43,7 +43,7 @@ public:
 	uint16 o_range{ 0 };
 	uint8 count_limit{ 0 };
 	uint8 count_limit_max{ 0 };
-	uint16 reset_count{ 0 };
+	int32 reset_count{ 0 };
 	uint32 reset_flag{ 0 };
 	uint32 count_code{ 0 };
 	uint32 category{ 0 };
