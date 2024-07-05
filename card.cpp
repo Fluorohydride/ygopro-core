@@ -134,12 +134,12 @@ bool card::card_operation_sort(card* c1, card* c2) {
 	}
 }
 void card::attacker_map::addcard(card* pcard) {
-	uint16 fid = pcard ? pcard->fieldid_r : 0;
+	auto fid = pcard ? pcard->fieldid_r : 0;
 	auto pr = emplace(fid, std::make_pair(pcard, 0));
 	++pr.first->second.second;
 }
 uint32 card::attacker_map::findcard(card* pcard) {
-	uint16 fid = pcard ? pcard->fieldid_r : 0;
+	auto fid = pcard ? pcard->fieldid_r : 0;
 	auto it = find(fid);
 	if(it == end())
 		return 0;
