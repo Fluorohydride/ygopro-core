@@ -213,10 +213,10 @@ enum effect_flag2 : uint32 {
 	EFFECT_FLAG2_WICKED					= 0x0004,
 	EFFECT_FLAG2_OPTION					= 0x0008,
 };
-inline effect_flag operator|(effect_flag flag1, effect_flag flag2)
-{
+constexpr effect_flag operator|(effect_flag flag1, effect_flag flag2) {
 	return static_cast<effect_flag>(static_cast<uint32>(flag1) | static_cast<uint32>(flag2));
 }
+constexpr uint32 INTERNAL_FLAGS = EFFECT_FLAG_INITIAL | EFFECT_FLAG_FUNC_VALUE | EFFECT_FLAG_COUNT_LIMIT | EFFECT_FLAG_FIELD_ONLY | EFFECT_FLAG_ABSOLUTE_TARGET;
 //========== Codes ==========
 #define EFFECT_IMMUNE_EFFECT			1	//
 #define EFFECT_DISABLE					2	//

@@ -431,10 +431,7 @@ uint32 card::get_info_location() {
 }
 // get the printed code on card
 uint32 card::get_original_code() const {
-	if (data.is_alternative())
-		return data.alias;
-	else
-		return data.code;
+	return data.get_original_code();
 }
 // get the original code in duel (can be different from printed code)
 std::tuple<uint32, uint32> card::get_original_code_rule() const {
@@ -1980,7 +1977,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 	}
 	if (peffect->is_flag(EFFECT_FLAG_INITIAL) && peffect->copy_id && is_status(STATUS_EFFECT_REPLACED)) {
 		set_status(STATUS_EFFECT_REPLACED, FALSE);
-		if (!(data.type & TYPE_NORMAL) || (data.type & TYPE_PENDULUM)) {
+		if (interpreter::is_load_script(data)) {
 			set_status(STATUS_INITIALIZING, TRUE);
 			pduel->lua->add_param(this, PARAM_TYPE_CARD);
 			pduel->lua->call_card_function(this, "initial_effect", 1, 0);

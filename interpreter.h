@@ -18,11 +18,12 @@
 #include <cstdio>
 
 class card;
+struct card_data;
 class effect;
 class group;
 class duel;
 
-enum LuaParamType {
+enum LuaParamType : int32 {
 	PARAM_TYPE_INT = 0x01,
 	PARAM_TYPE_STRING = 0x02,
 	PARAM_TYPE_CARD = 0x04,
@@ -84,6 +85,7 @@ public:
 	static void function2value(lua_State* L, int32 func_ref);
 	static int32 get_function_handle(lua_State* L, int32 index);
 	static duel* get_duel_info(lua_State* L);
+	static bool is_load_script(card_data data);
 
 	template <size_t N, typename... TR>
 	static int sprintf(char (&buffer)[N], const char* format, TR... args) {
