@@ -72,10 +72,10 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 int32 scriptlib::debug_set_player_info(lua_State *L) {
 	check_param_count(L, 4);
 	duel* pduel = interpreter::get_duel_info(L);
-	uint32 playerid = (uint32)lua_tointeger(L, 1);
-	uint32 lp = (uint32)lua_tointeger(L, 2);
-	uint32 startcount = (uint32)lua_tointeger(L, 3);
-	uint32 drawcount = (uint32)lua_tointeger(L, 4);
+	int32 playerid = (int32)lua_tointeger(L, 1);
+	int32 lp = (int32)lua_tointeger(L, 2);
+	int32 startcount = (int32)lua_tointeger(L, 3);
+	int32 drawcount = (int32)lua_tointeger(L, 4);
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	pduel->game_field->player[playerid].lp = lp;

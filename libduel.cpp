@@ -1588,8 +1588,8 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 	if(pgroup->container.size() <= 1)
 		return 0;
 	duel* pduel = pgroup->pduel;
-	card* ms[5];
-	uint8 seq[5];
+	card* ms[5]{};
+	uint8 seq[5]{};
 	uint8 tp = 2;
 	uint8 loc = 0;
 	uint8 ct = 0;

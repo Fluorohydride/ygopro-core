@@ -1016,7 +1016,7 @@ void field::shuffle(uint8 playerid, uint8 location) {
 void field::reset_sequence(uint8 playerid, uint8 location) {
 	if(location & (LOCATION_ONFIELD))
 		return;
-	uint32 i = 0;
+	int32 i = 0;
 	switch(location) {
 	case LOCATION_DECK:
 		for(auto& pcard : player[playerid].list_main)
