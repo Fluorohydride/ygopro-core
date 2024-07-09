@@ -673,6 +673,6 @@ duel* interpreter::get_duel_info(lua_State * L) {
 	std::memcpy(&pduel, lua_getextraspace(L), LUA_EXTRASPACE);
 	return pduel;
 }
-inline bool interpreter::is_load_script(card_data data) {
+bool interpreter::is_load_script(card_data data) {
 	return !(data.type & TYPE_NORMAL) || (data.type & TYPE_PENDULUM);
 }
