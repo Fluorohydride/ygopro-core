@@ -97,7 +97,7 @@ int32 scriptlib::effect_set_absolute_range(lua_State *L) {
 	check_param_count(L, 4);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 playerid = (uint32)lua_tointeger(L, 2);
+	int32 playerid = (int32)lua_tointeger(L, 2);
 	uint32 s = (uint32)lua_tointeger(L, 3);
 	uint32 o = (uint32)lua_tointeger(L, 4);
 	if(playerid == 0) {
@@ -292,7 +292,7 @@ int32 scriptlib::effect_set_owner_player(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 p = (uint32)lua_tointeger(L, 2);
+	int32 p = (int32)lua_tointeger(L, 2);
 	if(p != 0 && p != 1)
 		return 0;
 	peffect->effect_owner = p;
@@ -502,7 +502,7 @@ int32 scriptlib::effect_is_has_type(lua_State *L) {
 int32 scriptlib::effect_is_activatable(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
-	uint32 playerid = (uint32)lua_tointeger(L, 2);
+	int32 playerid = (int32)lua_tointeger(L, 2);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	uint32 neglect_loc = 0;
 	uint32 neglect_target = 0;
@@ -554,7 +554,7 @@ int32 scriptlib::effect_check_count_limit(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 p = (uint32)lua_tointeger(L, 2);
+	int32 p = (int32)lua_tointeger(L, 2);
 	lua_pushboolean(L, peffect->check_count_limit(p));
 	return 1;
 }
@@ -562,12 +562,12 @@ int32 scriptlib::effect_use_count_limit(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 p = (uint32)lua_tointeger(L, 2);
-	uint32 count = 1;
-	uint32 oath_only = 0;
+	int32 p = (int32)lua_tointeger(L, 2);
+	int32 count = 1;
+	int32 oath_only = 0;
 	uint32 code = peffect->count_code;
 	if(lua_gettop(L) > 2) {
-		count = (uint32)lua_tointeger(L, 3);
+		count = (int32)lua_tointeger(L, 3);
 		if (lua_gettop(L) > 3)
 			oath_only = lua_toboolean(L, 4);
 	}
