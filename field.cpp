@@ -513,8 +513,8 @@ void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 r
 	pcard->current.controler = playerid;
 }
 
-card* field::get_field_card(uint32 playerid, uint32 location, uint32 sequence) {
-	switch(location) {
+card* field::get_field_card(uint8 playerid, uint32 general_location, uint8 sequence) {
+	switch(general_location) {
 	case LOCATION_MZONE: {
 		if(sequence < player[playerid].list_mzone.size())
 			return player[playerid].list_mzone[sequence];
@@ -585,9 +585,9 @@ card* field::get_field_card(uint32 playerid, uint32 location, uint32 sequence) {
 	}
 	return nullptr;
 }
-int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequence) {
+int32 field::is_location_useable(uint8 playerid, uint32 general_location, uint8 sequence) {
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
-	if (location == LOCATION_MZONE) {
+	if (general_location == LOCATION_MZONE) {
 		if(flag & (0x1u << sequence))
 			return FALSE;
 		if(sequence >= 5) {
@@ -595,13 +595,13 @@ int32 field::is_location_useable(uint32 playerid, uint32 location, uint32 sequen
 			if(oppo & (0x1u << (11 - sequence)))
 				return FALSE;
 		}
-	} else if (location == LOCATION_SZONE) {
+	} else if (general_location == LOCATION_SZONE) {
 		if(flag & (0x100u << sequence))
 			return FALSE;
-	} else if (location == LOCATION_FZONE) {
+	} else if (general_location == LOCATION_FZONE) {
 		if(flag & (0x100u << (5 + sequence)))
 			return FALSE;
-	} else if (location == LOCATION_PZONE) {
+	} else if (general_location == LOCATION_PZONE) {
 		if(core.duel_rule >= 4) {
 			if(flag & (0x100u << (sequence * 4)))
 				return FALSE;
@@ -1016,7 +1016,7 @@ void field::shuffle(uint8 playerid, uint8 location) {
 void field::reset_sequence(uint8 playerid, uint8 location) {
 	if(location & (LOCATION_ONFIELD))
 		return;
-	uint32 i = 0;
+	int32 i = 0;
 	switch(location) {
 	case LOCATION_DECK:
 		for(auto& pcard : player[playerid].list_main)

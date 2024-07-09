@@ -8,7 +8,6 @@
 #ifndef EFFECTSET_H_
 #define EFFECTSET_H_
 
-#include <stdlib.h>
 #include <array>
 #include <vector>
 #include <algorithm>

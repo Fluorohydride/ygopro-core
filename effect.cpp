@@ -657,7 +657,7 @@ int32 effect::reset(uint32 reset_level, uint32 reset_type) {
 	}
 	return FALSE;
 }
-void effect::dec_count(uint32 playerid) {
+void effect::dec_count(uint8 playerid) {
 	if(!is_flag(EFFECT_FLAG_COUNT_LIMIT))
 		return;
 	if(count_limit == 0)

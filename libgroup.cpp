@@ -214,7 +214,7 @@ int32 scriptlib::group_filter_select(lua_State *L) {
 			cset.erase(pcard);
 	}
 	duel* pduel = pgroup->pduel;
-	uint32 playerid = (uint32)lua_tointeger(L, 2);
+	int32 playerid = (int32)lua_tointeger(L, 2);
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	uint32 min = (uint32)lua_tointeger(L, 4);
@@ -252,7 +252,7 @@ int32 scriptlib::group_select(lua_State *L) {
 			cset.erase(pcard);
 	}
 	duel* pduel = pgroup->pduel;
-	uint32 playerid = (uint32)lua_tointeger(L, 2);
+	int32 playerid = (int32)lua_tointeger(L, 2);
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	uint32 min = (uint32)lua_tointeger(L, 3);
@@ -282,7 +282,7 @@ int32 scriptlib::group_select_unselect(lua_State *L) {
 	if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE))
 		unselect_group = *(group**)lua_touserdata(L, 2);
 	duel* pduel = select_group->pduel;
-	uint32 playerid = (uint32)lua_tointeger(L, 3);
+	int32 playerid = (int32)lua_tointeger(L, 3);
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	if(select_group->container.size() == 0 && (!unselect_group || unselect_group->container.size() == 0))
@@ -390,7 +390,7 @@ int32 scriptlib::group_cancelable_select(lua_State *L) {
 			cset.erase(pcard);
 	}
 	duel* pduel = pgroup->pduel;
-	uint32 playerid = (uint32)lua_tointeger(L, 2);
+	int32 playerid = (int32)lua_tointeger(L, 2);
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	uint32 min = (uint32)lua_tointeger(L, 3);
