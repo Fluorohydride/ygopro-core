@@ -2559,7 +2559,10 @@ void card::set_special_summon_status(effect* peffect) {
 			spsummon.setcode.push_back(eset[i]->get_value(pcard) & 0xffffU);
 		}
 		spsummon.reason_effect = peffect;
-		spsummon.reason_player = cait->triggering_player;
+		if(pduel->game_field->core.current_chain.size())
+			spsummon.reason_player = cait->triggering_player;
+		else
+			spsummon.reason_player = summon_player;
 	} else {
 		pcard = cait->triggering_effect->get_handler();
 		spsummon.code = cait->triggering_state.code;
