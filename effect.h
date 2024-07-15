@@ -109,7 +109,7 @@ public:
 	int32 in_range(const chain& ch);
 	void set_activate_location();
 	void set_active_type();
-	uint32 get_active_type();
+	uint32 get_active_type(uint8 uselast = TRUE);
 	int32 get_code_type() const;
 
 	bool is_flag(effect_flag x) const {

@@ -299,7 +299,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 				return FALSE;
 		} else if(!(type & EFFECT_TYPE_CONTINUOUS)) {
 			card* phandler = get_handler();
-			if(!(phandler->get_type() & TYPE_MONSTER) && (get_active_type() & TYPE_MONSTER))
+			if(!(phandler->get_type() & TYPE_MONSTER) && (get_active_type(FALSE) & TYPE_MONSTER))
 				return FALSE;
 			if((type & EFFECT_TYPE_QUICK_O) && is_flag(EFFECT_FLAG_DELAY) && !in_range(phandler))
 				return FALSE;
@@ -837,9 +837,9 @@ void effect::set_active_type() {
 	if(active_type & TYPE_TRAPMONSTER)
 		active_type &= ~TYPE_TRAP;
 }
-uint32 effect::get_active_type() {
+uint32 effect::get_active_type(uint8 uselast) {
 	if(type & 0x7f0) {
-		if(active_type)
+		if(active_type && uselast)
 			return active_type;
 		else if((type & EFFECT_TYPE_ACTIVATE) && (get_handler()->data.type & TYPE_PENDULUM))
 			return TYPE_PENDULUM + TYPE_SPELL;
