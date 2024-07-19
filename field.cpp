@@ -13,6 +13,10 @@
 #include "interpreter.h"
 #include <cstring>
 
+bool check_playerid(int32 playerid) {
+	return playerid >= 0 && playerid <= 1;
+}
+
 int32 field::field_used_count[32] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5};
 
 bool chain::chain_operation_sort(const chain& c1, const chain& c2) {
@@ -514,6 +518,8 @@ void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 r
 }
 
 card* field::get_field_card(uint8 playerid, uint32 general_location, uint8 sequence) {
+	if (!check_playerid(playerid))
+		return nullptr;
 	switch(general_location) {
 	case LOCATION_MZONE: {
 		if(sequence < player[playerid].list_mzone.size())
@@ -585,9 +591,13 @@ card* field::get_field_card(uint8 playerid, uint32 general_location, uint8 seque
 	}
 	return nullptr;
 }
-int32 field::is_location_useable(uint8 playerid, uint32 general_location, uint8 sequence) {
+int32 field::is_location_useable(uint8 playerid, uint32 general_location, uint8 sequence) const {
+	if (!check_playerid(playerid))
+		return FALSE;
 	uint32 flag = player[playerid].disabled_location | player[playerid].used_location;
 	if (general_location == LOCATION_MZONE) {
+		if (sequence >= (int32)player[0].list_mzone.size())
+			return FALSE;
 		if(flag & (0x1u << sequence))
 			return FALSE;
 		if(sequence >= 5) {
@@ -596,12 +606,18 @@ int32 field::is_location_useable(uint8 playerid, uint32 general_location, uint8 
 				return FALSE;
 		}
 	} else if (general_location == LOCATION_SZONE) {
+		if (sequence >= (int32)player[0].list_szone.size())
+			return FALSE;
 		if(flag & (0x100u << sequence))
 			return FALSE;
 	} else if (general_location == LOCATION_FZONE) {
+		if (sequence >= 1)
+			return FALSE;
 		if(flag & (0x100u << (5 + sequence)))
 			return FALSE;
 	} else if (general_location == LOCATION_PZONE) {
+		if (sequence >= 2)
+			return FALSE;
 		if(core.duel_rule >= NEW_MASTER_RULE) {
 			if(flag & (0x100u << (sequence * 4)))
 				return FALSE;
