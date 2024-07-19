@@ -418,6 +418,7 @@ public:
 	void reset_sequence(uint8 playerid, uint8 location);
 	void swap_deck_and_grave(uint8 playerid);
 	void reverse_deck(uint8 playerid);
+	void refresh_player_info(uint8 playerid);
 	void tag_swap(uint8 playerid);
 
 	void add_effect(effect* peffect, uint8 owner_player = 2);
