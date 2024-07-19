@@ -112,6 +112,8 @@ extern "C" DECL_DLLEXPORT void end_duel(intptr_t pduel) {
 	}
 }
 extern "C" DECL_DLLEXPORT void set_player_info(intptr_t pduel, int32 playerid, int32 lp, int32 startcount, int32 drawcount) {
+	if (!check_playerid(playerid))
+		return;
 	duel* pd = (duel*)pduel;
 	if(lp > 0)
 		pd->game_field->player[playerid].lp = lp;
@@ -137,6 +139,8 @@ extern "C" DECL_DLLEXPORT uint32 process(intptr_t pduel) {
 	return result;
 }
 extern "C" DECL_DLLEXPORT void new_card(intptr_t pduel, uint32 code, uint8 owner, uint8 playerid, uint8 location, uint8 sequence, uint8 position) {
+	if (!check_playerid(owner) || !check_playerid(playerid))
+		return;
 	duel* ptduel = (duel*)pduel;
 	if(ptduel->game_field->is_location_useable(playerid, location, sequence)) {
 		card* pcard = ptduel->new_card(code);
@@ -177,7 +181,7 @@ extern "C" DECL_DLLEXPORT void new_tag_card(intptr_t pduel, uint32 code, uint8 o
 	}
 }
 extern "C" DECL_DLLEXPORT int32 query_card(intptr_t pduel, uint8 playerid, uint8 location, uint8 sequence, int32 query_flag, byte* buf, int32 use_cache) {
-	if(playerid != 0 && playerid != 1)
+	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
 	card* pcard = nullptr;
@@ -213,7 +217,7 @@ extern "C" DECL_DLLEXPORT int32 query_card(intptr_t pduel, uint8 playerid, uint8
 }
 extern "C" DECL_DLLEXPORT int32 query_field_count(intptr_t pduel, uint8 playerid, uint8 location) {
 	duel* ptduel = (duel*)pduel;
-	if(playerid != 0 && playerid != 1)
+	if (!check_playerid(playerid))
 		return 0;
 	auto& player = ptduel->game_field->player[playerid];
 	if(location == LOCATION_HAND)
@@ -243,7 +247,7 @@ extern "C" DECL_DLLEXPORT int32 query_field_count(intptr_t pduel, uint8 playerid
 	return 0;
 }
 extern "C" DECL_DLLEXPORT int32 query_field_card(intptr_t pduel, uint8 playerid, uint8 location, uint32 query_flag, byte* buf, int32 use_cache) {
-	if(playerid != 0 && playerid != 1)
+	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
 	auto& player = ptduel->game_field->player[playerid];
