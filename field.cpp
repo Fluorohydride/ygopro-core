@@ -538,10 +538,10 @@ card* field::get_field_card(uint8 playerid, uint32 general_location, uint8 seque
 	}
 	case LOCATION_PZONE: {
 		if(sequence == 0) {
-			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? 0 : 6];
+			card* pcard = player[playerid].list_szone[core.duel_rule >= NEW_MASTER_RULE ? 0 : 6];
 			return (pcard && pcard->current.pzone) ? pcard : 0;
 		} else if(sequence == 1) {
-			card* pcard = player[playerid].list_szone[core.duel_rule >= 4 ? 4 : 7];
+			card* pcard = player[playerid].list_szone[core.duel_rule >= NEW_MASTER_RULE ? 4 : 7];
 			return (pcard && pcard->current.pzone) ? pcard : 0;
 		} else
 			return nullptr;
@@ -602,7 +602,7 @@ int32 field::is_location_useable(uint8 playerid, uint32 general_location, uint8 
 		if(flag & (0x100u << (5 + sequence)))
 			return FALSE;
 	} else if (general_location == LOCATION_PZONE) {
-		if(core.duel_rule >= 4) {
+		if(core.duel_rule >= NEW_MASTER_RULE) {
 			if(flag & (0x100u << (sequence * 4)))
 				return FALSE;
 		} else {
@@ -645,7 +645,7 @@ int32 field::get_useable_count_fromex(card* pcard, uint8 playerid, uint8 uplayer
 		pcard->current.location = LOCATION_EXTRA;
 	}
 	int32 useable_count = 0;
-	if(core.duel_rule >= 4)
+	if(core.duel_rule >= NEW_MASTER_RULE)
 		useable_count = get_useable_count_fromex_rule4(pcard, playerid, uplayer, zone, list);
 	else
 		useable_count = get_useable_count_other(pcard, playerid, LOCATION_MZONE, uplayer, LOCATION_REASON_TOFIELD, zone, list);
@@ -675,7 +675,7 @@ int32 field::get_spsummonable_count_fromex(card* pcard, uint8 playerid, uint8 up
 		pcard->current.location = LOCATION_EXTRA;
 	}
 	int32 spsummonable_count = 0;
-	if(core.duel_rule >= 4)
+	if(core.duel_rule >= NEW_MASTER_RULE)
 		spsummonable_count = get_spsummonable_count_fromex_rule4(pcard, playerid, uplayer, zone, list);
 	else
 		spsummonable_count = get_tofield_count(pcard, playerid, LOCATION_MZONE, uplayer, LOCATION_REASON_TOFIELD, zone, list);
@@ -765,7 +765,7 @@ int32 field::get_mzone_limit(uint8 playerid, uint8 uplayer, uint32 reason) {
 	used_flag = used_flag & 0x1f;
 	int32 max = 5;
 	int32 used_count = field_used_count[used_flag];
-	if(core.duel_rule >= 4) {
+	if(core.duel_rule >= NEW_MASTER_RULE) {
 		max = 7;
 		if(player[playerid].list_mzone[5])
 			++used_count;
@@ -824,8 +824,8 @@ uint32 field::get_linked_zone(int32 playerid) {
 	return zones;
 }
 uint32 field::get_rule_zone_fromex(int32 playerid, card* pcard) {
-	if(core.duel_rule >= 4) {
-		if(core.duel_rule >= 5 && pcard && (pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ))
+	if(core.duel_rule >= NEW_MASTER_RULE) {
+		if(core.duel_rule >= MASTER_RULE_2020 && pcard && (pcard->data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ))
 			&& (pcard->is_position(POS_FACEDOWN) || !(pcard->data.type & TYPE_PENDULUM)))
 			return 0x7f;
 		else
@@ -1499,7 +1499,7 @@ int32 field::filter_matching_card(int32 findex, uint8 self, uint32 location1, ui
 		}
 		if(location & LOCATION_PZONE) {
 			for(int32 i = 0; i < 2; ++i) {
-				card* pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
+				card* pcard = player[self].list_szone[core.duel_rule >= NEW_MASTER_RULE ? i * 4 : i + 6];
 				if(pcard && pcard->current.pzone && !pcard->is_treated_as_not_on_field()
 				        && pcard != pexception && !(pexgroup && pexgroup->has_card(pcard))
 				        && pduel->lua->check_matching(pcard, findex, extraargs)
@@ -1625,7 +1625,7 @@ int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, g
 		}
 		if(location & LOCATION_PZONE) {
 			for(int32 i = 0; i < 2; ++i) {
-				card* pcard = player[self].list_szone[core.duel_rule >= 4 ? i * 4 : i + 6];
+				card* pcard = player[self].list_szone[core.duel_rule >= NEW_MASTER_RULE ? i * 4 : i + 6];
 				if(pcard && pcard->current.pzone) {
 					result.insert(pcard);
 				}
@@ -3561,7 +3561,7 @@ int32 field::check_nonpublic_trigger(chain& ch) {
 int32 field::check_trigger_effect(const chain& ch) const {
 	effect* peffect = ch.triggering_effect;
 	card* phandler = peffect->get_handler();
-	if(core.duel_rule >= 5)
+	if(core.duel_rule >= MASTER_RULE_2020)
 		return phandler->is_has_relation(ch);
 	else {
 		if(peffect->type & EFFECT_TYPE_FIELD)

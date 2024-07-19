@@ -31,7 +31,7 @@ int32 field::negate_chain(uint8 chaincount) {
 		pduel->write_buffer8(MSG_CHAIN_NEGATED);
 		pduel->write_buffer8(chaincount);
 		if(pchain.triggering_location == LOCATION_DECK
-			|| core.duel_rule >= 5 && pchain.triggering_location == LOCATION_EXTRA && (pchain.triggering_position & POS_FACEDOWN))
+			|| core.duel_rule >= MASTER_RULE_2020 && pchain.triggering_location == LOCATION_EXTRA && (pchain.triggering_position & POS_FACEDOWN))
 			phandler->release_relation(pchain);
 		return TRUE;
 	}
@@ -53,7 +53,7 @@ int32 field::disable_chain(uint8 chaincount, uint8 forced) {
 		pduel->write_buffer8(MSG_CHAIN_DISABLED);
 		pduel->write_buffer8(chaincount);
 		if(pchain.triggering_location == LOCATION_DECK
-			|| core.duel_rule >= 5 && pchain.triggering_location == LOCATION_EXTRA && (pchain.triggering_position & POS_FACEDOWN))
+			|| core.duel_rule >= MASTER_RULE_2020 && pchain.triggering_location == LOCATION_EXTRA && (pchain.triggering_position & POS_FACEDOWN))
 			phandler->release_relation(pchain);
 		return TRUE;
 	}
@@ -3251,7 +3251,7 @@ int32 field::special_summon_step(uint16 step, group* targets, card* target, uint
 		if(!targets)
 			core.special_summoning.insert(target);
 		target->enable_field_effect(false);
-		if(targets && core.duel_rule >= 4) {
+		if(targets && core.duel_rule >= NEW_MASTER_RULE) {
 			uint32 flag1, flag2;
 			int32 ct1 = get_tofield_count(target, playerid, LOCATION_MZONE, target->summon_player, LOCATION_REASON_TOFIELD, zone, &flag1);
 			int32 ct2 = get_spsummonable_count_fromex(target, playerid, target->summon_player, zone, &flag2);
@@ -4564,9 +4564,9 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 		} else if(pzone && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM)) {
 			uint32 flag = 0;
 			if(is_location_useable(playerid, LOCATION_PZONE, 0))
-				flag |= 0x1u << (core.duel_rule >= 4 ? 8 : 14);
+				flag |= 0x1u << (core.duel_rule >= NEW_MASTER_RULE ? 8 : 14);
 			if(is_location_useable(playerid, LOCATION_PZONE, 1))
-				flag |= 0x1u << (core.duel_rule >= 4 ? 12 : 15);
+				flag |= 0x1u << (core.duel_rule >= NEW_MASTER_RULE ? 12 : 15);
 			if(!flag) {
 				core.units.begin()->step = 3;
 				if(target->current.location != LOCATION_GRAVE)

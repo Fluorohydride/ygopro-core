@@ -3837,7 +3837,7 @@ int32 scriptlib::duel_select_disable_field(lua_State * L) {
 		ct4 = pduel->game_field->get_useable_count(nullptr, 1 - playerid, LOCATION_SZONE, PLAYER_NONE, 0, 0xff, &plist);
 		flag = (flag & 0xffffff) | (plist << 24);
 	}
-	if((location1 & LOCATION_MZONE) && (location2 & LOCATION_MZONE) && pduel->game_field->core.duel_rule >= 4) {
+	if((location1 & LOCATION_MZONE) && (location2 & LOCATION_MZONE) && pduel->game_field->core.duel_rule >= NEW_MASTER_RULE) {
 		if(pduel->game_field->is_location_useable(playerid, LOCATION_MZONE, 5)) {
 			flag &= ~(0x1 << 5);
 			ct1 += 1;
@@ -3912,7 +3912,7 @@ int32 scriptlib::duel_select_field(lua_State* L) {
 	if(location2 & LOCATION_SZONE) {
 		flag &= (pduel->game_field->core.duel_rule == 3) ? 0x00ffffff : 0xc0ffffff;
 	}
-	if((location1 & LOCATION_MZONE) && (location2 & LOCATION_MZONE) && pduel->game_field->core.duel_rule >= 4) {
+	if((location1 & LOCATION_MZONE) && (location2 & LOCATION_MZONE) && pduel->game_field->core.duel_rule >= NEW_MASTER_RULE) {
 		flag &= 0xffffff9f;
 	}
 	flag |= filter | 0x00800080;

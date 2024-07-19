@@ -393,7 +393,7 @@ int32 scriptlib::card_get_current_scale(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**)lua_touserdata(L, 1);
-	if(pcard->current.pzone && pcard->current.sequence == (pcard->pduel->game_field->core.duel_rule >= 4 ? 0 : 6))
+	if(pcard->current.pzone && pcard->current.sequence == (pcard->pduel->game_field->core.duel_rule >= NEW_MASTER_RULE ? 0 : 6))
 		lua_pushinteger(L, pcard->get_lscale());
 	else
 		lua_pushinteger(L, pcard->get_rscale());
