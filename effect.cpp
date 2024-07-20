@@ -318,7 +318,7 @@ int32 effect::is_activateable(uint8 playerid, const tevent& e, int32 neglect_con
 			if(phandler->current.location == LOCATION_OVERLAY)
 				return FALSE;
 			if(phandler->current.location == LOCATION_DECK
-				|| pduel->game_field->core.duel_rule >= 5 && phandler->current.location == LOCATION_EXTRA && (phandler->current.position & POS_FACEDOWN)) {
+				|| pduel->game_field->core.duel_rule >= MASTER_RULE_2020 && phandler->current.location == LOCATION_EXTRA && (phandler->current.position & POS_FACEDOWN)) {
 				if((type & EFFECT_TYPE_SINGLE) && code != EVENT_TO_DECK)
 					return FALSE;
 				if((type & EFFECT_TYPE_FIELD) && !(range & (LOCATION_DECK | LOCATION_EXTRA)))

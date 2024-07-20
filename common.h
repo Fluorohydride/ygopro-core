@@ -43,7 +43,9 @@ typedef signed char int8;
 #define NULL 0
 #endif
 
-#define CURRENT_RULE	5	//current rule: 5, Master Rule 2020
+#define NEW_MASTER_RULE		4	//New Master Rule (2017)
+#define MASTER_RULE_2020	5	//Master Rule 2020
+#define CURRENT_RULE		5
 
 //Locations
 #define LOCATION_DECK		0x01		//

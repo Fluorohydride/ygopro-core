@@ -32,9 +32,9 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 	int32 sequence = (int32)lua_tointeger(L, 5);
 	int32 position = (int32)lua_tointeger(L, 6);
 	int32 proc = lua_toboolean(L, 7);
-	if(owner != 0 && owner != 1)
+	if (!check_playerid(owner))
 		return 0;
-	if(playerid != 0 && playerid != 1)
+	if (!check_playerid(playerid))
 		return 0;
 	if(pduel->game_field->is_location_useable(playerid, location, sequence)) {
 		card* pcard = pduel->new_card(code);
@@ -43,7 +43,7 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 			position = POS_FACEDOWN_DEFENSE;
 		pcard->sendto_param.position = position;
 		if(location == LOCATION_PZONE) {
-			int32 seq = pduel->game_field->core.duel_rule >= 4 ? sequence * 4 : sequence + 6;
+			int32 seq = pduel->game_field->core.duel_rule >= NEW_MASTER_RULE ? sequence * 4 : sequence + 6;
 			pduel->game_field->add_card(playerid, pcard, LOCATION_SZONE, seq, TRUE);
 		} else {
 			pduel->game_field->add_card(playerid, pcard, location, sequence);
@@ -58,9 +58,11 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 		interpreter::card2value(L, pcard);
 		return 1;
 	} else if(location == LOCATION_MZONE) {
+		card* fcard = pduel->game_field->get_field_card(playerid, location, sequence);
+		if (!fcard || !(fcard->data.type & TYPE_XYZ))
+			return 0;
 		card* pcard = pduel->new_card(code);
 		pcard->owner = owner;
-		card* fcard = pduel->game_field->get_field_card(playerid, location, sequence);
 		fcard->xyz_add(pcard);
 		if(proc)
 			pcard->set_status(STATUS_PROC_COMPLETE, TRUE);

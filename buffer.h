@@ -1,5 +1,5 @@
-#ifndef BUFFER_H
-#define BUFFER_H
+#ifndef CORE_BUFFER_H
+#define CORE_BUFFER_H
 
 #include <cstring>
 #include <vector>
@@ -34,4 +34,4 @@ inline void vector_write(std::vector<unsigned char>& buffer, T value) {
 	vector_write_block(buffer, &value, sizeof(T));
 }
 
-#endif //BUFFER_H
+#endif // !CORE_BUFFER_H
