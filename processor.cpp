@@ -4497,7 +4497,8 @@ int32 field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2
 					destroy(fscard, 0, REASON_RULE, 1 - pcard->current.controler);
 			}
 		}
-		peffect->active_type = 0;
+		// keep last active_type until the next activate, for the using in script
+		// peffect->active_type = 0;
 		peffect->active_handler = 0;
 		pcard->release_relation(*cait);
 		if(cait->target_cards)
