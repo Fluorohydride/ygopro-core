@@ -110,6 +110,8 @@ typedef signed char int8;
 #define TYPE_SPSUMMON		0x2000000	//
 #define TYPE_LINK			0x4000000	//
 
+#define TYPES_EXTRA_DECK	(TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK)
+
 //Attributes
 #define ATTRIBUTE_ALL		0x7f		//
 #define ATTRIBUTE_EARTH		0x01		//

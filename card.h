@@ -212,7 +212,7 @@ public:
 	explicit card(duel* pd);
 	~card() = default;
 	static bool card_operation_sort(card* c1, card* c2);
-	const bool is_extra_deck_monster() { return !!(data.type & (TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK)); }
+	bool is_extra_deck_monster() const { return !!(data.type & TYPES_EXTRA_DECK); }
 
 	int32 get_infos(byte* buf, uint32 query_flag, int32 use_cache = TRUE);
 	uint32 get_info_location();
@@ -341,7 +341,7 @@ public:
 	void get_unique_target(card_set* cset, int32 controler, card* icard = nullptr);
 	int32 check_cost_condition(int32 ecode, int32 playerid);
 	int32 check_cost_condition(int32 ecode, int32 playerid, int32 sumtype);
-	int32 is_summonable_card();
+	int32 is_summonable_card() const;
 	int32 is_spsummonable_card();
 	int32 is_fusion_summonable_card(uint32 summon_type);
 	int32 is_spsummonable(effect* proc, material_info info = null_info);

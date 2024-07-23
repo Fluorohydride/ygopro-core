@@ -3244,12 +3244,12 @@ int32 card::check_cost_condition(int32 ecode, int32 playerid, int32 sumtype) {
 	pduel->game_field->core.reason_player = op;
 	return res;
 }
-int32 card::is_summonable_card() {
+int32 card::is_summonable_card() const {
 	if(!(data.type & TYPE_MONSTER))
 		return FALSE;
-	return !(data.type & (TYPE_RITUAL | TYPE_SPSUMMON
-		| TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK
-		| TYPE_TOKEN | TYPE_TRAPMONSTER));
+	if (data.type & TYPES_EXTRA_DECK)
+		return FALSE;
+	return !(data.type & (TYPE_RITUAL | TYPE_SPSUMMON | TYPE_TOKEN));
 }
 int32 card::is_spsummonable_card() {
 	if(!(data.type & TYPE_MONSTER))
