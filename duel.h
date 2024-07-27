@@ -20,9 +20,10 @@ class effect;
 class field;
 class interpreter;
 
+using card_set = std::set<card*, card_sort>;
+
 class duel {
 public:
-	using card_set = std::set<card*, card_sort>;
 	char strbuffer[256];
 	std::vector<byte> message_buffer;
 	interpreter* lua;

@@ -11,6 +11,7 @@
 #include "common.h"
 #include "card.h"
 #include "effectset.h"
+#include "interpreter.h"
 #include <vector>
 #include <set>
 #include <map>
@@ -79,7 +80,6 @@ struct chain {
 };
 
 struct player_info {
-	using card_vector = std::vector<card*>;
 	int32 lp{ 0 };
 	int32 start_count{ 0 };
 	int32 draw_count{ 0 };
@@ -151,12 +151,14 @@ struct processor_unit {
 	uint32 arg2{ 0 };
 	uint32 arg3{ 0 };
 	uint32 arg4{ 0 };
-	void* ptr1{ nullptr };
-	void* ptr2{ nullptr };
 	int32 value1{ 0 };
 	int32 value2{ 0 };
 	int32 value3{ 0 };
 	int32 value4{ 0 };
+	void* ptr1{ nullptr };
+	void* ptr2{ nullptr };
+	void* ptr3{ nullptr };
+	void* ptr4{ nullptr };
 };
 constexpr int SIZE_SVALUE = SIZE_RETURN_VALUE / 2;
 constexpr int SIZE_IVALUE = SIZE_RETURN_VALUE / 4;
@@ -169,7 +171,6 @@ union return_value {
 };
 struct processor {
 	using effect_vector = std::vector<effect*>;
-	using card_vector = std::vector<card*>;
 	using option_vector = std::vector<uint32>;
 	using card_list = std::list<card*>;
 	using event_list = std::list<tevent>;
@@ -177,7 +178,6 @@ struct processor {
 	using instant_f_list = std::map<effect*, chain>;
 	using chain_array = std::vector<chain>;
 	using processor_list = std::list<processor_unit>;
-	using card_set = std::set<card*, card_sort>;
 	using delayed_effect_collection = std::set<std::pair<effect*, tevent>>;
 	struct chain_limit_t {
 		chain_limit_t(int32 f, int32 p): function(f), player(p) {}
@@ -364,9 +364,7 @@ struct processor {
 class field {
 public:
 	using effect_container = std::multimap<uint32, effect*>;
-	using card_set = std::set<card*, card_sort>;
 	using effect_vector = std::vector<effect*>;
-	using card_vector = std::vector<card*>;
 	using card_list = std::list<card*>;
 	using event_list = std::list<tevent>;
 	using chain_list = std::list<chain>;
@@ -435,19 +433,19 @@ public:
 	void filter_affected_cards(effect* peffect, card_set* cset);
 	void filter_inrange_cards(effect* peffect, card_set* cset);
 	void filter_player_effect(uint8 playerid, uint32 code, effect_set* eset, uint8 sort = TRUE);
-	int32 filter_matching_card(int32 findex, uint8 self, uint32 location1, uint32 location2, group* pgroup, card* pexception, group* pexgroup, uint32 extraargs, card** pret = nullptr, int32 fcount = 0, int32 is_target = FALSE);
+	int32 filter_matching_card(lua_State* L, int32 findex, uint8 self, uint32 location1, uint32 location2, group* pgroup, card* pexception, group* pexgroup, uint32 extraargs, card** pret = nullptr, int32 fcount = 0, int32 is_target = FALSE);
 	int32 filter_field_card(uint8 self, uint32 location, uint32 location2, group* pgroup);
 	effect* is_player_affected_by_effect(uint8 playerid, uint32 code);
 
-	int32 get_release_list(uint8 playerid, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg, uint32 reason);
-	int32 check_release_list(uint8 playerid, int32 count, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg, uint32 reason);
+	int32 get_release_list(lua_State* L, uint8 playerid, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg, uint32 reason);
+	int32 check_release_list(lua_State* L, uint8 playerid, int32 count, int32 use_con, int32 use_hand, int32 fun, int32 exarg, card* exc, group* exg, uint32 reason);
 	int32 get_summon_release_list(card* target, card_set* release_list, card_set* ex_list, card_set* ex_list_oneof, group* mg = nullptr, uint32 ex = 0, uint32 releasable = 0xff00ff, uint32 pos = 0x1);
 	int32 get_summon_count_limit(uint8 playerid);
 	int32 get_draw_count(uint8 playerid);
 	void get_ritual_material(uint8 playerid, effect* peffect, card_set* material, uint8 no_level = FALSE);
 	void get_fusion_material(uint8 playerid, card_set* material_all, card_set* material_base, uint32 location);
 	void ritual_release(card_set* material);
-	void get_xyz_material(card* scard, int32 findex, uint32 lv, int32 maxc, group* mg);
+	void get_xyz_material(lua_State* L, card* scard, int32 findex, uint32 lv, int32 maxc, group* mg);
 	void get_overlay_group(uint8 self, uint8 s, uint8 o, card_set* pset);
 	int32 get_overlay_count(uint8 self, uint8 s, uint8 o);
 	void update_disable_check_list(effect* peffect);
@@ -479,15 +477,17 @@ public:
 	int32 get_must_material_list(uint8 playerid, uint32 limit, card_set* must_list);
 	int32 check_must_material(group* mg, uint8 playerid, uint32 limit);
 	void get_synchro_material(uint8 playerid, card_set* material, effect* tuner_limit = nullptr);
-	int32 check_synchro_material(card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
-	int32 check_tuner_material(card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
+	
+	//check material
+	int32 check_synchro_material(lua_State* L, card* pcard, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
+	int32 check_tuner_material(lua_State* L, card* pcard, card* tuner, int32 findex1, int32 findex2, int32 min, int32 max, card* smat, group* mg);
 	int32 check_other_synchro_material(const card_vector& nsyn, int32 lv, int32 min, int32 max, int32 mcount);
 	int32 check_tribute(card* pcard, int32 min, int32 max, group* mg, uint8 toplayer, uint32 zone = 0x1f, uint32 releasable = 0xff00ff, uint32 pos = 0x1);
 	static int32 check_with_sum_limit(const card_vector& mats, int32 acc, int32 index, int32 count, int32 min, int32 max, int32 opmin);
 	static int32 check_with_sum_limit_m(const card_vector& mats, int32 acc, int32 index, int32 min, int32 max, int32 opmin, int32 must_count);
 	static int32 check_with_sum_greater_limit(const card_vector& mats, int32 acc, int32 index, int32 opmin);
 	static int32 check_with_sum_greater_limit_m(const card_vector& mats, int32 acc, int32 index, int32 opmin, int32 must_count);
-	int32 check_xyz_material(card* pcard, int32 findex, int32 lv, int32 min, int32 max, group* mg);
+	int32 check_xyz_material(lua_State* L, card* pcard, int32 findex, int32 lv, int32 min, int32 max, group* mg);
 
 	int32 is_player_can_draw(uint8 playerid);
 	int32 is_player_can_discard_deck(uint8 playerid, int32 count);
@@ -623,7 +623,7 @@ public:
 	int32 change_position(uint16 step, group* targets, effect* reason_effect, uint8 reason_player, uint32 enable);
 	int32 operation_replace(uint16 step, effect* replace_effect, group* targets, card* target, int32 is_destroy);
 	int32 activate_effect(uint16 step, effect* peffect);
-	int32 select_synchro_material(int16 step, uint8 playerid, card* pcard, int32 min, int32 max, card* smat, group* mg);
+	int32 select_synchro_material(int16 step, uint8 playerid, card* pcard, int32 min, int32 max, card* smat, group* mg, int32 filter1, int32 filter2);
 	int32 select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* pcard, int32 min, int32 max);
 	int32 select_release_cards(int16 step, uint8 playerid, uint8 cancelable, int32 min, int32 max);
 	int32 select_tribute_cards(int16 step, card* target, uint8 playerid, uint8 cancelable, int32 min, int32 max, uint8 toplayer, uint32 zone);

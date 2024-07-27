@@ -411,7 +411,7 @@ int32 scriptlib::card_get_linked_group(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	card::card_set cset;
+	card_set cset;
 	pcard->get_linked_cards(&cset);
 	group* pgroup = pcard->pduel->new_group(cset);
 	interpreter::group2value(L, pgroup);
@@ -421,7 +421,7 @@ int32 scriptlib::card_get_linked_group_count(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	card::card_set cset;
+	card_set cset;
 	pcard->get_linked_cards(&cset);
 	lua_pushinteger(L, cset.size());
 	return 1;
@@ -444,7 +444,7 @@ int32 scriptlib::card_get_mutual_linked_group(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**)lua_touserdata(L, 1);
-	card::card_set cset;
+	card_set cset;
 	pcard->get_mutual_linked_cards(&cset);
 	group* pgroup = pcard->pduel->new_group(cset);
 	interpreter::group2value(L, pgroup);
@@ -454,7 +454,7 @@ int32 scriptlib::card_get_mutual_linked_group_count(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**)lua_touserdata(L, 1);
-	card::card_set cset;
+	card_set cset;
 	pcard->get_mutual_linked_cards(&cset);
 	lua_pushinteger(L, cset.size());
 	return 1;
@@ -491,7 +491,7 @@ int32 scriptlib::card_get_column_group(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	card::card_set cset;
+	card_set cset;
 	pcard->get_column_cards(&cset);
 	group* pgroup = pcard->pduel->new_group(cset);
 	interpreter::group2value(L, pgroup);
@@ -501,7 +501,7 @@ int32 scriptlib::card_get_column_group_count(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	card::card_set cset;
+	card_set cset;
 	pcard->get_column_cards(&cset);
 	lua_pushinteger(L, cset.size());
 	return 1;
@@ -2556,7 +2556,7 @@ int32 scriptlib::card_is_chain_attackable(lua_State *L) {
 		lua_pushboolean(L, 0);
 		return 1;
 	}
-	field::card_vector cv;
+	card_vector cv;
 	pduel->game_field->get_attack_target(attacker, &cv, TRUE);
 	if(cv.size() == 0 && (monsteronly || attacker->direct_attackable == 0))
 		lua_pushboolean(L, 0);
@@ -3281,7 +3281,7 @@ int32 scriptlib::card_get_attackable_target(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	duel* pduel = pcard->pduel;
-	field::card_vector targets;
+	card_vector targets;
 	uint8 chain_attack = FALSE;
 	if(pduel->game_field->core.chain_attacker_id == pcard->fieldid)
 		chain_attack = TRUE;

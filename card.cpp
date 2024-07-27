@@ -1579,7 +1579,7 @@ void card::xyz_overlay(card_set* materials) {
 	if(materials->size() == 0)
 		return;
 	card_set des, leave_grave, leave_deck;
-	field::card_vector cv;
+	card_vector cv;
 	for(auto& pcard : *materials)
 		cv.push_back(pcard);
 	std::sort(cv.begin(), cv.end(), card::card_operation_sort);
