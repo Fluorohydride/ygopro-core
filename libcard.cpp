@@ -2330,6 +2330,27 @@ int32 scriptlib::card_is_can_be_special_summoned(lua_State *L) {
 		lua_pushboolean(L, 0);
 	return 1;
 }
+int32 scriptlib::card_is_can_be_placed_on_field(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	uint32 toplayer = pcard->pduel->game_field->core.reason_player;
+	if(lua_gettop(L) >= 2)
+		toplayer = (uint32)lua_tointeger(L, 2);
+	if(toplayer != 0 && toplayer != 1) {
+		lua_pushboolean(L, 0);
+		return 1;
+	}
+	uint32 tolocation = LOCATION_SZONE;
+	if(lua_gettop(L) >= 3)
+		tolocation = (uint32)lua_tointeger(L, 3);
+	if(pcard->is_status(STATUS_FORBIDDEN)
+		|| pcard->pduel->game_field->check_unique_onfield(pcard, toplayer, tolocation, NULL))
+		lua_pushboolean(L, 0);
+	else
+		lua_pushboolean(L, 1);
+	return 1;
+}
 int32 scriptlib::card_is_able_to_hand(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
@@ -3569,6 +3590,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsMSetable", scriptlib::card_is_msetable },
 	{ "IsSSetable", scriptlib::card_is_ssetable },
 	{ "IsCanBeSpecialSummoned", scriptlib::card_is_can_be_special_summoned },
+	{ "IsCanBePlacedOnField", scriptlib::card_is_can_be_placed_on_field },
 	{ "IsAbleToHand", scriptlib::card_is_able_to_hand },
 	{ "IsAbleToDeck", scriptlib::card_is_able_to_deck },
 	{ "IsAbleToExtra", scriptlib::card_is_able_to_extra },
