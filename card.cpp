@@ -95,7 +95,7 @@ bool card::card_operation_sort(card* c1, card* c2) {
 			return c1->overlay_target->current.sequence < c2->overlay_target->current.sequence;
 		else
 			return c1->current.sequence < c2->current.sequence;
-	} else if (c1->current.location & LOCATION_DECK && cp1 == pduel->game_field->core.selecting_player && !pduel->game_field->core.select_deck_seq_preserved) {
+	} else if (c1->current.location & LOCATION_DECK && pduel->game_field->is_select_hide_deck_sequence(cp1)) {
 		// if deck reversed and the card being at the top, it should go first
 		if(pduel->game_field->core.deck_reversed) {
 			if(c1->current.sequence == pduel->game_field->player[cp1].list_main.size() - 1)
@@ -1511,7 +1511,7 @@ int32 card::is_all_column() {
 	return FALSE;
 }
 uint8 card::get_select_sequence(uint8 *deck_seq_pointer) {
-	if(current.location == LOCATION_DECK && current.controler == pduel->game_field->core.selecting_player && !pduel->game_field->core.select_deck_seq_preserved) {
+	if(current.location == LOCATION_DECK && pduel->game_field->is_select_hide_deck_sequence(current.controler)) {
 		return (*deck_seq_pointer)++;
 	} else {
 		return current.sequence;

@@ -418,6 +418,7 @@ typedef signed char int8;
 #define DUEL_TAG_MODE			0x20
 #define DUEL_SIMPLE_AI			0x40
 #define DUEL_RETURN_DECK_TOP	0x80
+#define DUEL_REVEAL_DECK_SEQ	0x100
 
 //Activity
 #define ACTIVITY_SUMMON			1
