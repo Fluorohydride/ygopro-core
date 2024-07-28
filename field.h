@@ -350,7 +350,7 @@ struct processor {
 	uint32 hint_timing[2]{};
 	uint8 current_player{ PLAYER_NONE };
 	uint8 conti_player{ PLAYER_NONE };
-	uint8 select_deck_seq_preserved{ FALSE };
+	uint8 select_deck_sequence_revealed{ FALSE };
 	uint8 selecting_player{ PLAYER_NONE };
 	std::unordered_map<uint32, std::pair<uint32, uint32>> summon_counter;
 	std::unordered_map<uint32, std::pair<uint32, uint32>> normalsummon_counter;
