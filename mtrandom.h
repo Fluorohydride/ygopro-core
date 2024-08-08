@@ -9,6 +9,8 @@
 #define MTRANDOM_H_
 
 #include <random>
+#include <vector>
+#include <utility>
 
 class mt19937 {
 public:
