@@ -43,6 +43,7 @@ typedef signed char int8;
 #define NULL 0
 #endif
 
+#define MASTER_RULE3		3	//Master Rule 3 (2014)
 #define NEW_MASTER_RULE		4	//New Master Rule (2017)
 #define MASTER_RULE_2020	5	//Master Rule 2020
 #define CURRENT_RULE		5
