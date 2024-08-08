@@ -55,25 +55,7 @@ bool tevent::operator< (const tevent& v) const {
 }
 field::field(duel* pduel) {
 	this->pduel = pduel;
-	infos.field_id = 1;
-	infos.copy_id = 1;
-	infos.can_shuffle = TRUE;
-	infos.turn_id = 0;
-	infos.turn_id_by_player[0] = 0;
-	infos.turn_id_by_player[1] = 0;
-	infos.card_id = 1;
-	infos.phase = 0;
-	infos.turn_player = 0;
 	for (int32 i = 0; i < 2; ++i) {
-		//cost[i].count = 0;
-		//cost[i].amount = 0;
-		player[i].lp = 8000;
-		player[i].start_count = 5;
-		player[i].draw_count = 1;
-		player[i].disabled_location = 0;
-		player[i].used_location = 0;
-		player[i].extra_p_count = 0;
-		player[i].tag_extra_p_count = 0;
 		player[i].list_mzone.resize(7, 0);
 		player[i].list_szone.resize(8, 0);
 		player[i].list_main.reserve(60);
@@ -82,8 +64,6 @@ field::field(duel* pduel) {
 		player[i].list_remove.reserve(75);
 		player[i].list_extra.reserve(30);
 	}
-	returns = { 0 };
-	temp_card = nullptr;
 }
 void field::reload_field_info() {
 	pduel->write_buffer8(MSG_RELOAD_FIELD);
