@@ -176,7 +176,7 @@ card::card(duel* pd) {
 	xyz_materials_previous_count_onfield = 0;
 	current.controler = PLAYER_NONE;
 }
-inline void update_cache(uint32& tdata, uint32& cache, byte*& p, uint32& query_flag, const uint32 flag) {
+inline void update_cache(uint32 tdata, uint32& cache, byte*& p, uint32& query_flag, uint32 flag) {
 	if (tdata != cache) {
 		cache = tdata;
 		buffer_write<uint32_t>(p, tdata);
