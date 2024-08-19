@@ -1108,17 +1108,14 @@ uint32 card::get_attribute() {
 	temp.attribute = data.attribute;
 	filter_effect(EFFECT_ADD_ATTRIBUTE, &effects, FALSE);
 	filter_effect(EFFECT_REMOVE_ATTRIBUTE, &effects);
+	filter_effect(EFFECT_CHANGE_ATTRIBUTE, &effects);
 	for (int32 i = 0; i < effects.size(); ++i) {
 		if (effects[i]->code == EFFECT_ADD_ATTRIBUTE)
 			attribute |= effects[i]->get_value(this);
-		else
+		else if (effects[i]->code == EFFECT_REMOVE_ATTRIBUTE)
 			attribute &= ~(effects[i]->get_value(this));
-		temp.attribute = attribute;
-	}
-	effects.clear();
-	filter_effect(EFFECT_CHANGE_ATTRIBUTE, &effects);
-	for (int32 i = 0; i < effects.size(); ++i) {
-		attribute = effects[i]->get_value(this);
+		else if (effects[i]->code == EFFECT_CHANGE_ATTRIBUTE)
+			attribute = effects[i]->get_value(this);
 		temp.attribute = attribute;
 	}
 	temp.attribute = UINT32_MAX;
