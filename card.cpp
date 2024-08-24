@@ -1171,21 +1171,18 @@ uint32 card::get_race() {
 	if(temp.race != UINT32_MAX) // prevent recursion, return the former value
 		return temp.race;
 	effect_set effects;
-	int32 race = data.race;
+	auto race = data.race;
 	temp.race = data.race;
 	filter_effect(EFFECT_ADD_RACE, &effects, FALSE);
-	filter_effect(EFFECT_REMOVE_RACE, &effects);
+	filter_effect(EFFECT_REMOVE_RACE, &effects, FALSE);
+	filter_effect(EFFECT_CHANGE_RACE, &effects);
 	for (int32 i = 0; i < effects.size(); ++i) {
 		if (effects[i]->code == EFFECT_ADD_RACE)
 			race |= effects[i]->get_value(this);
-		else
+		else if (effects[i]->code == EFFECT_REMOVE_RACE)
 			race &= ~(effects[i]->get_value(this));
-		temp.race = race;
-	}
-	effects.clear();
-	filter_effect(EFFECT_CHANGE_RACE, &effects);
-	for (int32 i = 0; i < effects.size(); ++i) {
-		race = effects[i]->get_value(this);
+		else if (effects[i]->code == EFFECT_CHANGE_RACE)
+			race = effects[i]->get_value(this);
 		temp.race = race;
 	}
 	temp.race = UINT32_MAX;
