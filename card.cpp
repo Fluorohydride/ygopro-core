@@ -1104,10 +1104,10 @@ uint32 card::get_attribute() {
 	if(temp.attribute != UINT32_MAX) // prevent recursion, return the former value
 		return temp.attribute;
 	effect_set effects;
-	int32 attribute = data.attribute;
+	auto attribute = data.attribute;
 	temp.attribute = data.attribute;
 	filter_effect(EFFECT_ADD_ATTRIBUTE, &effects, FALSE);
-	filter_effect(EFFECT_REMOVE_ATTRIBUTE, &effects);
+	filter_effect(EFFECT_REMOVE_ATTRIBUTE, &effects, FALSE);
 	filter_effect(EFFECT_CHANGE_ATTRIBUTE, &effects);
 	for (int32 i = 0; i < effects.size(); ++i) {
 		if (effects[i]->code == EFFECT_ADD_ATTRIBUTE)
