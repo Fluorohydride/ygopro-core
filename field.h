@@ -350,7 +350,7 @@ struct processor {
 	uint32 hint_timing[2]{};
 	uint8 current_player{ PLAYER_NONE };
 	uint8 conti_player{ PLAYER_NONE };
-	uint8 select_deck_seq_preserved{ FALSE };
+	uint8 select_deck_sequence_revealed{ FALSE };
 	uint8 selecting_player{ PLAYER_NONE };
 	std::unordered_map<uint32, std::pair<uint32, uint32>> summon_counter;
 	std::unordered_map<uint32, std::pair<uint32, uint32>> normalsummon_counter;
@@ -463,6 +463,7 @@ public:
 	void check_chain_counter(effect* peffect, int32 playerid, int32 chainid, bool cancel = false);
 	void set_spsummon_counter(uint8 playerid);
 	int32 check_spsummon_counter(uint8 playerid, uint8 ct = 1);
+	bool is_select_hide_deck_sequence(uint8 playerid);
 
 	int32 check_lp_cost(uint8 playerid, uint32 cost, uint32 must_pay);
 	void save_lp_cost() {}

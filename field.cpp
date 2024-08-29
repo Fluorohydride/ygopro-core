@@ -2293,6 +2293,9 @@ int32 field::check_spsummon_counter(uint8 playerid, uint8 ct) {
 	}
 	return TRUE;
 }
+bool field::is_select_hide_deck_sequence(uint8 playerid) {
+	return !core.select_deck_sequence_revealed && !(core.duel_options & DUEL_REVEAL_DECK_SEQ) && playerid == core.selecting_player;
+}
 int32 field::check_lp_cost(uint8 playerid, uint32 lp, uint32 must_pay) {
 	effect_set eset;
 	int32 val = lp;
