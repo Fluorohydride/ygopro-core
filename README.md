@@ -4,31 +4,8 @@
 The core logic and lua script processor of YGOPro. This library can be made external of the project and used to power server technologies. It maintains a state engine that is manipulated by Lua scripts using manipulation functions it exposes.
 
 ## Compiling
-See [ygopro wiki](https://github.com/Fluorohydride/ygopro/wiki).
-
-### 1.) Download Fluorohydride/ygopro
-Start by downloading the most parent of the source code. The team developing this project are the de facto edge and experts in our community. The most up-to-date `ocgcore` is a compiled dll version of the `Fluorohydride/ygopro/ocgcore` folders project.
-
-### 2.) Install Premake5 and Visual Studio 2022 (or later).
-Download premake5.exe, put it in `c:\windows` or a similar folder that is globally accessible via `cmd` or PowerShell. Install Visual Studio 2022, it is the system used for the guide because other parts of the project use C# and most the development team are Windows users.
-
-### 3.) Download dependencies
-* lua
-
-### 4.) Create the project files
-Run the following commands from the command line in the `Fluorohydride/ygopro` folder.
-
-`premake5 vs2022`
-
-If you are not using Visual Studio 2022 or higher, make necessary adjustments. In the file system open `Fluorohydride/ygopro/build` folder open the `ygopro` project.
-
-### 5.) Build the system
-Make sure the code actually compiles. Compile them in the following order one by one:
-
-* lua
-* ocgcore
-
-This should provide you with `ocgcore.lib` in the build output folder. `YGOCore` requires a `*.dll`; in `ocgcore` project properties change it to a dynamically linked library. Recompile, it should fail with an error indicating missing dependencies. Right click the project, add an existing file. Add `lua.lib` from the build folder to the project. It should now compile.
+In most cases, what you want to compile is the main program of YGOPro. You should refer to the main YGOPro project's [wiki](https://github.com/Fluorohydride/ygopro/wiki).
+If you want to compile the dynamic link library of this repository (ocgcore.dll), you can refer to [this script](https://github.com/Fluorohydride/ygopro-core/blob/master/.github/workflows/build.yml).
 
 ## Exposed Functions
 
