@@ -2164,9 +2164,6 @@ void card::reset(uint32 id, uint32 reset_type) {
 				cmit = counters.erase(cmit);
 			}
 		}
-		if(id & RESET_TURN_SET) {
-			refresh_control_status();
-		}
 	}
 	for (auto i = indexer.begin(); i != indexer.end();) {
 		auto rm = i++;
