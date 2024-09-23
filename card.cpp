@@ -2164,21 +2164,6 @@ void card::reset(uint32 id, uint32 reset_type) {
 				cmit = counters.erase(cmit);
 			}
 		}
-		if(id & RESET_TURN_SET) {
-			effect* peffect = std::get<effect*>(refresh_control_status());
-			if(peffect && (!(peffect->type & EFFECT_TYPE_SINGLE) || peffect->condition)) {
-				effect* new_effect = pduel->new_effect();
-				new_effect->id = peffect->id;
-				new_effect->owner = this;
-				new_effect->handler = this;
-				new_effect->type = EFFECT_TYPE_SINGLE;
-				new_effect->code = EFFECT_SET_CONTROL;
-				new_effect->value = current.controler;
-				new_effect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
-				new_effect->reset_flag = RESET_EVENT | 0xec0000;
-				this->add_effect(new_effect);
-			}
-		}
 	}
 	for (auto i = indexer.begin(); i != indexer.end();) {
 		auto rm = i++;
