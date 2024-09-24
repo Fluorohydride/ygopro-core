@@ -12,6 +12,10 @@
 #include "interpreter.h"
 
 bool effect_sort_id(const effect* e1, const effect* e2) {
+	int32 is_single1 = e1->is_iniital_single();
+	int32 is_single2 = e2->is_iniital_single();
+	if (is_single1 != is_single2)
+		return is_single1 > is_single2;
 	return e1->id < e2->id;
 }
 // return: code is an event reserved for EFFECT_TYPE_CONTINUOUS or not
@@ -614,6 +618,9 @@ int32 effect::is_chainable(uint8 tp) {
 }
 int32 effect::is_hand_trigger() {
 	return (range & LOCATION_HAND) && (type & EFFECT_TYPE_TRIGGER_O) && get_code_type() != CODE_PHASE;
+}
+int32 effect::is_iniital_single() const {
+	return (type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE) && is_flag(EFFECT_FLAG_INITIAL);
 }
 //return: this can be reset by reset_level or not
 //RESET_DISABLE is valid only when owner == handler
