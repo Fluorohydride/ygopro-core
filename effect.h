@@ -36,7 +36,7 @@ public:
 	uint32 code{ 0 };
 	uint32 flag[2]{};
 	uint32 id{ 0 };
-	uint16 type{ 0 };
+	uint32 type{ 0 };
 	uint16 copy_id{ 0 };
 	uint16 range{ 0 };
 	uint16 s_range{ 0 };
