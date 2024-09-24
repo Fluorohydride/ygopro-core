@@ -4783,8 +4783,10 @@ int32 scriptlib::duel_majestic_copy(lua_State *L) {
 				break;
 		}
 		effect* peffect = eit->second;
-		if(!(peffect->type & 0x7c)) continue;
-		if(!peffect->is_flag(EFFECT_FLAG_INITIAL)) continue;
+		if (!(peffect->type & 0x7c))
+			continue;
+		if (!peffect->is_flag(EFFECT_FLAG_INITIAL))
+			continue;
 		effect* ceffect = peffect->clone();
 		ceffect->owner = pcard;
 		ceffect->flag[0] &= ~EFFECT_FLAG_INITIAL;
