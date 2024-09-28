@@ -67,9 +67,9 @@ public:
 	explicit effect(duel* pd);
 	~effect() = default;
 
-	int32 is_disable_related();
-	int32 is_self_destroy_related();
-	int32 is_can_be_forbidden();
+	int32 is_disable_related() const;
+	int32 is_self_destroy_related() const;
+	int32 is_can_be_forbidden() const;
 	int32 is_available(int32 neglect_disabled = FALSE);
 	int32 limit_counter_is_available();
 	int32 is_single_ready();
@@ -87,7 +87,7 @@ public:
 	int32 is_player_effect_target(card* pcard);
 	int32 is_immuned(card* pcard);
 	int32 is_chainable(uint8 tp);
-	int32 is_hand_trigger();
+	int32 is_hand_trigger() const;
 	int32 reset(uint32 reset_level, uint32 reset_type);
 	void dec_count(uint8 playerid = PLAYER_NONE);
 	void recharge();
@@ -103,11 +103,11 @@ public:
 	int32 get_speed();
 	effect* clone();
 	card* get_owner() const;
-	uint8 get_owner_player();
+	uint8 get_owner_player() const;
 	card* get_handler() const;
-	uint8 get_handler_player();
-	int32 in_range(card* pcard);
-	int32 in_range(const chain& ch);
+	uint8 get_handler_player() const;
+	int32 in_range(card* pcard) const;
+	int32 in_range(const chain& ch) const;
 	void set_activate_location();
 	void set_active_type();
 	uint32 get_active_type(uint8 uselast = TRUE);
