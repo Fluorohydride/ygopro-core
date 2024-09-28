@@ -23,7 +23,7 @@ These functions create the game itself and then manipulate it.
 - `intptr_t create_duel(uint_fast32_t seed);`  
 Create a the instance of the duel with a PRNG seed.
 
-- `void start_duel(intptr_t pduel, int32 options);`  
+- `void start_duel(intptr_t pduel, uint32 options);`  
 Start the duel.
 
 - `void end_duel(intptr_t pduel);`  
