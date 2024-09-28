@@ -841,7 +841,7 @@ void effect::set_active_type() {
 		active_type &= ~TYPE_TRAP;
 }
 uint32 effect::get_active_type(uint8 uselast) {
-	if(type & 0x7f0) {
+	if(type & EFFECT_TYPES_CHAIN_LINK) {
 		if(active_type && uselast)
 			return active_type;
 		else if((type & EFFECT_TYPE_ACTIVATE) && (get_handler()->data.type & TYPE_PENDULUM))

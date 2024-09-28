@@ -147,7 +147,7 @@ int32 scriptlib::effect_set_type(lua_State *L) {
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	uint32 v = (uint32)lua_tointeger(L, 2);
-	if (v & 0x0ff0)
+	if (v & (EFFECT_TYPES_CHAIN_LINK | EFFECT_TYPE_CONTINUOUS))
 		v |= EFFECT_TYPE_ACTIONS;
 	else
 		v &= ~EFFECT_TYPE_ACTIONS;
@@ -518,7 +518,7 @@ int32 scriptlib::effect_is_activated(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	lua_pushboolean(L, (peffect->type & 0x7f0));
+	lua_pushboolean(L, (peffect->type & EFFECT_TYPES_CHAIN_LINK));
 	return 1;
 }
 int32 scriptlib::effect_is_cost_checked(lua_State *L) {
