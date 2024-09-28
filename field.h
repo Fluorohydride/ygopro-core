@@ -33,6 +33,8 @@ class duel;
 class group;
 class effect;
 
+using effect_vector = std::vector<effect*>;
+
 bool check_playerid(int32 playerid);
 
 struct tevent {
@@ -169,7 +171,6 @@ union return_value {
 	int64 lvalue[SIZE_LVALUE];
 };
 struct processor {
-	using effect_vector = std::vector<effect*>;
 	using option_vector = std::vector<uint32>;
 	using card_list = std::list<card*>;
 	using event_list = std::list<tevent>;
@@ -362,7 +363,6 @@ struct processor {
 };
 class field {
 public:
-	using effect_vector = std::vector<effect*>;
 	using card_list = std::list<card*>;
 	using event_list = std::list<tevent>;
 	using chain_list = std::list<chain>;
