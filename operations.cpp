@@ -4915,7 +4915,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 					flips.insert(pcard);
 				}
 				if(enable) {
-					if(!reason_effect || !(reason_effect->type & 0x7f0) || pcard->current.location != LOCATION_MZONE)
+					if(!reason_effect || !(reason_effect->type & EFFECT_TYPES_CHAIN_LINK) || pcard->current.location != LOCATION_MZONE)
 						pcard->enable_field_effect(true);
 					else
 						core.delayed_enable_set.insert(pcard);
