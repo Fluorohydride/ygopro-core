@@ -100,8 +100,6 @@ struct player_info {
 	card_vector tag_list_extra;
 };
 struct field_effect {
-	using effect_container = std::multimap<uint32, effect*>;
-	using effect_indexer = std::unordered_map<effect*, effect_container::iterator>;
 	using oath_effects = std::unordered_map<effect*, effect*>;
 	using effect_collection = std::unordered_set<effect*>;
 	using gain_effects = std::unordered_map<card*, effect*>;
@@ -364,7 +362,6 @@ struct processor {
 };
 class field {
 public:
-	using effect_container = std::multimap<uint32, effect*>;
 	using effect_vector = std::vector<effect*>;
 	using card_list = std::list<card*>;
 	using event_list = std::list<tevent>;
