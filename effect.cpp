@@ -34,17 +34,17 @@ effect::effect(duel* pd) {
 	pduel = pd;
 	label.reserve(4);
 }
-int32 effect::is_disable_related() {
+int32 effect::is_disable_related() const {
 	if (code == EFFECT_IMMUNE_EFFECT || code == EFFECT_DISABLE || code == EFFECT_CANNOT_DISABLE || code == EFFECT_FORBIDDEN)
 		return TRUE;
 	return FALSE;
 }
-int32 effect::is_self_destroy_related() {
+int32 effect::is_self_destroy_related() const {
 	if(code == EFFECT_UNIQUE_CHECK || code == EFFECT_SELF_DESTROY || code == EFFECT_SELF_TOGRAVE)
 		return TRUE;
 	return FALSE;
 }
-int32 effect::is_can_be_forbidden() {
+int32 effect::is_can_be_forbidden() const {
 	if (is_flag(EFFECT_FLAG_CANNOT_DISABLE) && !is_flag(EFFECT_FLAG_CANNOT_NEGATE))
 		return FALSE;
 	return TRUE;
@@ -616,7 +616,7 @@ int32 effect::is_chainable(uint8 tp) {
 	}
 	return TRUE;
 }
-int32 effect::is_hand_trigger() {
+int32 effect::is_hand_trigger() const {
 	return (range & LOCATION_HAND) && (type & EFFECT_TYPE_TRIGGER_O) && get_code_type() != CODE_PHASE;
 }
 int32 effect::is_iniital_single() const {
@@ -809,7 +809,7 @@ card* effect::get_owner() const {
 		return handler->overlay_target;
 	return owner;
 }
-uint8 effect::get_owner_player() {
+uint8 effect::get_owner_player() const {
 	if(effect_owner != PLAYER_NONE)
 		return effect_owner;
 	return get_owner()->current.controler;
@@ -821,17 +821,17 @@ card* effect::get_handler() const {
 		return handler->overlay_target;
 	return handler;
 }
-uint8 effect::get_handler_player() {
+uint8 effect::get_handler_player() const {
 	if(is_flag(EFFECT_FLAG_FIELD_ONLY))
 		return effect_owner;
 	return get_handler()->current.controler;
 }
-int32 effect::in_range(card* pcard) {
+int32 effect::in_range(card* pcard) const {
 	if(type & EFFECT_TYPE_XMATERIAL)
 		return handler->overlay_target ? TRUE : FALSE;
 	return pcard->current.is_location(range);
 }
-int32 effect::in_range(const chain& ch) {
+int32 effect::in_range(const chain& ch) const {
 	if(type & EFFECT_TYPE_XMATERIAL)
 		return handler->overlay_target ? TRUE : FALSE;
 	return range & ch.triggering_location;
@@ -848,7 +848,7 @@ void effect::set_active_type() {
 		active_type &= ~TYPE_TRAP;
 }
 uint32 effect::get_active_type(uint8 uselast) {
-	if(type & 0x7f0) {
+	if(type & EFFECT_TYPES_CHAIN_LINK) {
 		if(active_type && uselast)
 			return active_type;
 		else if((type & EFFECT_TYPE_ACTIVATE) && (get_handler()->data.type & TYPE_PENDULUM))

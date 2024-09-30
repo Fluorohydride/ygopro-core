@@ -67,9 +67,9 @@ public:
 	explicit effect(duel* pd);
 	~effect() = default;
 
-	int32 is_disable_related();
-	int32 is_self_destroy_related();
-	int32 is_can_be_forbidden();
+	int32 is_disable_related() const;
+	int32 is_self_destroy_related() const;
+	int32 is_can_be_forbidden() const;
 	int32 is_available(int32 neglect_disabled = FALSE);
 	int32 limit_counter_is_available();
 	int32 is_single_ready();
@@ -87,7 +87,7 @@ public:
 	int32 is_player_effect_target(card* pcard);
 	int32 is_immuned(card* pcard);
 	int32 is_chainable(uint8 tp);
-	int32 is_hand_trigger();
+	int32 is_hand_trigger() const;
 	int32 is_iniital_single() const;
 	int32 reset(uint32 reset_level, uint32 reset_type);
 	void dec_count(uint8 playerid = PLAYER_NONE);
@@ -104,11 +104,11 @@ public:
 	int32 get_speed();
 	effect* clone();
 	card* get_owner() const;
-	uint8 get_owner_player();
+	uint8 get_owner_player() const;
 	card* get_handler() const;
-	uint8 get_handler_player();
-	int32 in_range(card* pcard);
-	int32 in_range(const chain& ch);
+	uint8 get_handler_player() const;
+	int32 in_range(card* pcard) const;
+	int32 in_range(const chain& ch) const;
 	void set_activate_location();
 	void set_active_type();
 	uint32 get_active_type(uint8 uselast = TRUE);
@@ -172,7 +172,8 @@ public:
 #define EFFECT_TYPE_GRANT			0x2000	//
 #define EFFECT_TYPE_TARGET			0x4000	//
 
-#define EFFECT_TYPES_TRIGGER_LIKE	(EFFECT_TYPE_ACTIVATE | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F)
+constexpr uint32 EFFECT_TYPES_TRIGGER_LIKE = EFFECT_TYPE_ACTIVATE | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F;
+constexpr uint32 EFFECT_TYPES_CHAIN_LINK = EFFECT_TYPES_TRIGGER_LIKE | EFFECT_TYPE_FLIP | EFFECT_TYPE_IGNITION;
 
 //========== Flags ==========
 enum effect_flag : uint32 {
