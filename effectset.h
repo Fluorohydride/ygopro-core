@@ -16,6 +16,7 @@ class effect;
 
 bool effect_sort_id(const effect* e1, const effect* e2);
 
+// std::array<effect*, 64>
 struct effect_set {
 	void add_item(effect* peffect) {
 		if (count >= 64)
