@@ -36,7 +36,7 @@ public:
 	uint32 code{ 0 };
 	uint32 flag[2]{};
 	uint32 id{ 0 };
-	uint16 type{ 0 };
+	uint32 type{ 0 };
 	uint16 copy_id{ 0 };
 	uint16 range{ 0 };
 	uint16 s_range{ 0 };
@@ -88,6 +88,7 @@ public:
 	int32 is_immuned(card* pcard);
 	int32 is_chainable(uint8 tp);
 	int32 is_hand_trigger() const;
+	int32 is_iniital_single() const;
 	int32 reset(uint32 reset_level, uint32 reset_type);
 	void dec_count(uint8 playerid = PLAYER_NONE);
 	void recharge();
