@@ -1404,11 +1404,11 @@ void field::filter_inrange_cards(effect* peffect, card_set* cset) {
 	if(peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET | EFFECT_FLAG_SPSUM_PARAM))
 		return;
 	uint8 self = peffect->get_handler_player();
-	if(self == PLAYER_NONE)
+	if (!check_playerid(self))
 		return;
 	uint16 range = peffect->s_range;
 	std::vector<card_vector*> cvec;
-	for(uint32 p = 0; p < 2; ++p) {
+	for(int32 p = 0; p < 2; ++p) {
 		if(range & LOCATION_MZONE)
 			cvec.push_back(&player[self].list_mzone);
 		if(range & LOCATION_SZONE)
@@ -1428,7 +1428,7 @@ void field::filter_inrange_cards(effect* peffect, card_set* cset) {
 	}
 	for(auto& cvit : cvec) {
 		for(auto& pcard : *cvit) {
-			if(pcard && peffect->is_fit_target_function(pcard))
+			if (pcard && (!(pcard->current.location & LOCATION_ONFIELD) || !pcard->is_treated_as_not_on_field()) && peffect->is_fit_target_function(pcard))
 				cset->insert(pcard);
 		}
 	}
