@@ -192,7 +192,7 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 	refresh_player_info(playerid);
 }
 void field::remove_card(card* pcard) {
-	if (pcard->current.controler == PLAYER_NONE || pcard->current.location == 0)
+	if (!check_playerid(pcard->current.controler) || pcard->current.location == 0)
 		return;
 	uint8 playerid = pcard->current.controler;
 	switch (pcard->current.location) {
@@ -1371,7 +1371,7 @@ void field::filter_affected_cards(effect* peffect, card_set* cset) {
 		|| peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET | EFFECT_FLAG_SPSUM_PARAM))
 		return;
 	uint8 self = peffect->get_handler_player();
-	if(self == PLAYER_NONE)
+	if (!check_playerid(self))
 		return;
 	std::vector<card_vector*> cvec;
 	uint16 range = peffect->s_range;
@@ -2144,7 +2144,7 @@ void field::add_unique_card(card* pcard) {
 }
 void field::remove_unique_card(card* pcard) {
 	uint8 con = pcard->current.controler;
-	if(con == PLAYER_NONE)
+	if (!check_playerid(con))
 		return;
 	if(pcard->unique_pos[0])
 		core.unique_cards[con].erase(pcard);
