@@ -1489,13 +1489,15 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 				core.select_effects.clear();
 				core.select_options.clear();
 				if(res > 0) {
-					core.select_effects.push_back(0);
+					core.select_effects.push_back(nullptr);
 					core.select_options.push_back(1);
 				}
 				for(int32 i = 0; i < eset.size(); ++i) {
 					core.select_effects.push_back(eset[i]);
 					core.select_options.push_back(eset[i]->description);
 				}
+				if (core.select_options.empty())
+					return TRUE;
 				if(core.select_options.size() == 1)
 					returns.ivalue[0] = 0;
 				else
