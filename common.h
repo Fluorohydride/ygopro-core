@@ -114,6 +114,7 @@ typedef signed char int8;
 #define TYPES_EXTRA_DECK	(TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK)
 
 //Attributes
+#define ATTRIBUTES_COUNT	7
 #define ATTRIBUTE_ALL		0x7f		//
 #define ATTRIBUTE_EARTH		0x01		//
 #define ATTRIBUTE_WATER		0x02		//
