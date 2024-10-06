@@ -2943,14 +2943,14 @@ void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset) {
 effect* card::is_affected_by_effect(int32 code) {
 	auto rg = single_effect.equal_range(code);
 	for (auto it = rg.first; it != rg.second; ++it) {
-		auto peffect = it->second;
+		const auto& peffect = it->second;
 		if (peffect->is_available() && (!peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE) || is_affect_by_effect(peffect)))
 			return peffect;
 	}
 	for (auto& pcard : equiping_cards) {
 		rg = pcard->equip_effect.equal_range(code);
 		for (auto it = rg.first; it != rg.second; ++it) {
-			auto peffect = it->second;
+			const auto& peffect = it->second;
 			if (peffect->is_available() && is_affect_by_effect(peffect))
 				return peffect;
 		}
@@ -2958,7 +2958,7 @@ effect* card::is_affected_by_effect(int32 code) {
 	for (auto& pcard : effect_target_owner) {
 		rg = pcard->target_effect.equal_range(code);
 		for (auto it = rg.first; it != rg.second; ++it) {
-			auto peffect = it->second;
+			const auto& peffect = it->second;
 			if (peffect->is_available() && peffect->is_target(this) && is_affect_by_effect(peffect))
 				return peffect;
 		}
@@ -2966,7 +2966,7 @@ effect* card::is_affected_by_effect(int32 code) {
 	for (auto& pcard : xyz_materials) {
 		rg = pcard->xmaterial_effect.equal_range(code);
 		for (auto it = rg.first; it != rg.second; ++it) {
-			auto peffect = it->second;
+			const auto& peffect = it->second;
 			if (peffect->type & EFFECT_TYPE_FIELD)
 				continue;
 			if (peffect->is_available() && is_affect_by_effect(peffect))
@@ -2975,7 +2975,7 @@ effect* card::is_affected_by_effect(int32 code) {
 	}
 	rg = pduel->game_field->effects.aura_effect.equal_range(code);
 	for (auto it = rg.first; it != rg.second; ++it) {
-		auto peffect = it->second;
+		const auto& peffect = it->second;
 		if (!peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET) && peffect->is_target(this)
 			&& peffect->is_available() && is_affect_by_effect(peffect))
 			return peffect;
@@ -2985,7 +2985,7 @@ effect* card::is_affected_by_effect(int32 code) {
 effect* card::is_affected_by_effect(int32 code, card* target) {
 	auto rg = single_effect.equal_range(code);
 	for (auto it = rg.first; it != rg.second; ++it) {
-		auto peffect = it->second;
+		const auto& peffect = it->second;
 		if (peffect->is_available() && (!peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE) || is_affect_by_effect(peffect))
 			&& peffect->get_value(target))
 			return peffect;
@@ -2993,7 +2993,7 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 	for (auto& pcard : equiping_cards) {
 		rg = pcard->equip_effect.equal_range(code);
 		for (auto it = rg.first; it != rg.second; ++it) {
-			auto peffect = it->second;
+			const auto& peffect = it->second;
 			if (peffect->is_available() && is_affect_by_effect(peffect) && peffect->get_value(target))
 				return peffect;
 		}
@@ -3001,7 +3001,7 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 	for (auto& pcard : effect_target_owner) {
 		rg = pcard->target_effect.equal_range(code);
 		for (auto it = rg.first; it != rg.second; ++it) {
-			auto peffect = it->second;
+			const auto& peffect = it->second;
 			if (peffect->is_available() && peffect->is_target(this) && is_affect_by_effect(peffect) && peffect->get_value(target))
 				return peffect;
 		}
@@ -3009,7 +3009,7 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 	for (auto& pcard : xyz_materials) {
 		rg = pcard->xmaterial_effect.equal_range(code);
 		for (auto it = rg.first; it != rg.second; ++it) {
-			auto peffect = it->second;
+			const auto& peffect = it->second;
 			if (peffect->type & EFFECT_TYPE_FIELD)
 				continue;
 			if (peffect->is_available() && is_affect_by_effect(peffect) && peffect->get_value(target))
@@ -3018,7 +3018,7 @@ effect* card::is_affected_by_effect(int32 code, card* target) {
 	}
 	rg = pduel->game_field->effects.aura_effect.equal_range(code);
 	for (auto it = rg.first; it != rg.second; ++it) {
-		auto peffect = it->second;
+		const auto& peffect = it->second;
 		if (!peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET) && peffect->is_available()
 			&& peffect->is_target(this) && is_affect_by_effect(peffect) && peffect->get_value(target))
 			return peffect;
