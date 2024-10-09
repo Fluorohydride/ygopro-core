@@ -121,7 +121,7 @@ void interpreter::unregister_group(group *pgroup) {
 	pgroup->ref_handle = 0;
 }
 int32 interpreter::load_script(const char* script_name) {
-	int32 len = 0;
+	int len = 0;
 	byte* buffer = ::read_script(script_name, &len);
 	if (!buffer)
 		return OPERATION_FAIL;

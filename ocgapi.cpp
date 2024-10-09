@@ -44,12 +44,12 @@ byte* default_script_reader(const char* script_name, int* slen) {
 	FILE *fp;
 	fp = std::fopen(script_name, "rb");
 	if (!fp)
-		return 0;
-	int len = (int)fread(buffer, 1, sizeof(buffer), fp);
+		return nullptr;
+	size_t len = std::fread(buffer, 1, sizeof buffer, fp);
 	std::fclose(fp);
-	if(len >= sizeof(buffer))
-		return 0;
-	*slen = len;
+	if (len >= sizeof buffer)
+		return nullptr;
+	*slen = (int)len;
 	return buffer;
 }
 uint32 default_card_reader(uint32 code, card_data* data) {
