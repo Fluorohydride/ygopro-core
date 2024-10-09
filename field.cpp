@@ -192,7 +192,7 @@ void field::add_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence
 	refresh_player_info(playerid);
 }
 void field::remove_card(card* pcard) {
-	if (pcard->current.controler == PLAYER_NONE || pcard->current.location == 0)
+	if (!check_playerid(pcard->current.controler) || pcard->current.location == 0)
 		return;
 	uint8 playerid = pcard->current.controler;
 	switch (pcard->current.location) {
@@ -1371,7 +1371,7 @@ void field::filter_affected_cards(effect* peffect, card_set* cset) {
 		|| peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET | EFFECT_FLAG_SPSUM_PARAM))
 		return;
 	uint8 self = peffect->get_handler_player();
-	if(self == PLAYER_NONE)
+	if (!check_playerid(self))
 		return;
 	std::vector<card_vector*> cvec;
 	uint16 range = peffect->s_range;
@@ -1404,11 +1404,11 @@ void field::filter_inrange_cards(effect* peffect, card_set* cset) {
 	if(peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET | EFFECT_FLAG_SPSUM_PARAM))
 		return;
 	uint8 self = peffect->get_handler_player();
-	if(self == PLAYER_NONE)
+	if (!check_playerid(self))
 		return;
 	uint16 range = peffect->s_range;
 	std::vector<card_vector*> cvec;
-	for(uint32 p = 0; p < 2; ++p) {
+	for(int32 p = 0; p < 2; ++p) {
 		if(range & LOCATION_MZONE)
 			cvec.push_back(&player[self].list_mzone);
 		if(range & LOCATION_SZONE)
@@ -1428,7 +1428,7 @@ void field::filter_inrange_cards(effect* peffect, card_set* cset) {
 	}
 	for(auto& cvit : cvec) {
 		for(auto& pcard : *cvit) {
-			if(pcard && peffect->is_fit_target_function(pcard))
+			if (pcard && (!(pcard->current.location & LOCATION_ONFIELD) || !pcard->is_treated_as_not_on_field()) && peffect->is_fit_target_function(pcard))
 				cset->insert(pcard);
 		}
 	}
@@ -2144,7 +2144,7 @@ void field::add_unique_card(card* pcard) {
 }
 void field::remove_unique_card(card* pcard) {
 	uint8 con = pcard->current.controler;
-	if(con == PLAYER_NONE)
+	if (!check_playerid(con))
 		return;
 	if(pcard->unique_pos[0])
 		core.unique_cards[con].erase(pcard);

@@ -2720,8 +2720,8 @@ void card::filter_disable_related_cards() {
 // return value:
 // -2 = this has a EFFECT_LIMIT_SUMMON_PROC, 0 available
 // -1 = this has a EFFECT_LIMIT_SUMMON_PROC, at least 1 available
-// 0 = no EFFECT_LIMIT_SUMMON_PROC, and ordinary summon ia not available
-// 1 = no EFFECT_LIMIT_SUMMON_PROC, and ordinary summon ia available
+// 0 = no EFFECT_LIMIT_SUMMON_PROC, and ordinary summon is not available
+// 1 = no EFFECT_LIMIT_SUMMON_PROC, and ordinary summon is available
 int32 card::filter_summon_procedure(uint8 playerid, effect_set* peset, uint8 ignore_count, uint8 min_tribute, uint32 zone) {
 	effect_set eset;
 	filter_effect(EFFECT_LIMIT_SUMMON_PROC, &eset);
