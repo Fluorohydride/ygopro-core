@@ -104,7 +104,7 @@ int32 duel::read_buffer(byte* buf) {
 }
 void duel::release_script_group() {
 	for(auto& pgroup : sgroups) {
-		if(pgroup->is_readonly == 0) {
+		if(pgroup->is_readonly == GTYPE_DEFAULT) {
 			lua->unregister_group(pgroup);
 			groups.erase(pgroup);
 			delete pgroup;

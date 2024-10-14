@@ -2058,7 +2058,7 @@ int32 card::replace_effect(uint32 code, uint32 reset, int32 count) {
 	for(auto i = indexer.begin(); i != indexer.end();) {
 		auto rm = i++;
 		effect* peffect = rm->first;
-		auto it = rm->second;
+		auto& it = rm->second;
 		if (peffect->is_flag(EFFECT_FLAG_INITIAL | EFFECT_FLAG_COPY_INHERIT))
 			remove_effect(peffect, it);
 	}
@@ -2162,7 +2162,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 	for (auto i = indexer.begin(); i != indexer.end();) {
 		auto rm = i++;
 		effect* peffect = rm->first;
-		auto it = rm->second;
+		auto& it = rm->second;
 		if (peffect->reset(id, reset_type))
 			remove_effect(peffect, it);
 	}
