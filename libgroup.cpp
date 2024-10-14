@@ -44,10 +44,10 @@ int32 scriptlib::group_delete(lua_State *L) {
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	if(pgroup->is_readonly != 2)
+	if(pgroup->is_readonly != GTYPE_KEEP_ALIVE)
 		return 0;
 	pgroup->is_iterator_dirty = true;
-	pgroup->is_readonly = 0;
+	pgroup->is_readonly = GTYPE_DEFAULT;
 	pduel->sgroups.insert(pgroup);
 	return 0;
 }
@@ -56,9 +56,9 @@ int32 scriptlib::group_keep_alive(lua_State *L) {
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	duel* pduel = interpreter::get_duel_info(L);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	if(pgroup->is_readonly == 1)
+	if(pgroup->is_readonly == GTYPE_READ_ONLY)
 		return 0;
-	pgroup->is_readonly = 2;
+	pgroup->is_readonly = GTYPE_KEEP_ALIVE;
 	pduel->sgroups.erase(pgroup);
 	return 0;
 }
@@ -66,7 +66,7 @@ int32 scriptlib::group_clear(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	if (pgroup->is_readonly != 1) {
+	if (pgroup->is_readonly != GTYPE_READ_ONLY) {
 		pgroup->is_iterator_dirty = true;
 		pgroup->container.clear();
 	}
@@ -78,7 +78,7 @@ int32 scriptlib::group_add_card(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 2);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	card* pcard = *(card**) lua_touserdata(L, 2);
-	if (pgroup->is_readonly != 1) {
+	if (pgroup->is_readonly != GTYPE_READ_ONLY) {
 		pgroup->is_iterator_dirty = true;
 		pgroup->container.insert(pcard);
 	}
@@ -90,7 +90,7 @@ int32 scriptlib::group_remove_card(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 2);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	card* pcard = *(card**) lua_touserdata(L, 2);
-	if (pgroup->is_readonly != 1) {
+	if (pgroup->is_readonly != GTYPE_READ_ONLY) {
 		pgroup->is_iterator_dirty = true;
 		pgroup->container.erase(pcard);
 	}
@@ -672,7 +672,7 @@ int32 scriptlib::group_remove(lua_State *L) {
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	duel* pduel = pgroup->pduel;
 	uint32 extraargs = lua_gettop(L) - 3;
-	if(pgroup->is_readonly == 1)
+	if(pgroup->is_readonly == GTYPE_READ_ONLY)
 		return 0;
 	pgroup->is_iterator_dirty = true;
 	for (auto cit = pgroup->container.begin(); cit != pgroup->container.end();) {
@@ -690,7 +690,7 @@ int32 scriptlib::group_merge(lua_State *L) {
 	check_param(L, PARAM_TYPE_GROUP, 2);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	group* mgroup = *(group**) lua_touserdata(L, 2);
-	if(pgroup->is_readonly == 1)
+	if(pgroup->is_readonly == GTYPE_READ_ONLY)
 		return 0;
 	pgroup->is_iterator_dirty = true;
 	pgroup->container.insert(mgroup->container.begin(), mgroup->container.end());
@@ -702,7 +702,7 @@ int32 scriptlib::group_sub(lua_State *L) {
 	check_param(L, PARAM_TYPE_GROUP, 2);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	group* sgroup = *(group**) lua_touserdata(L, 2);
-	if(pgroup->is_readonly == 1)
+	if(pgroup->is_readonly == GTYPE_READ_ONLY)
 		return 0;
 	pgroup->is_iterator_dirty = true;
 	for (auto& pcard : sgroup->container) {

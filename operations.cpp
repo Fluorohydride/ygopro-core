@@ -114,7 +114,7 @@ void field::remove_overlay_card(uint32 reason, card* pcard, uint32 rplayer, uint
 }
 void field::get_control(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 playerid, uint32 reset_phase, uint32 reset_count, uint32 zone) {
 	group* ng = pduel->new_group(*targets);
-	ng->is_readonly = 1;
+	ng->is_readonly = GTYPE_READ_ONLY;
 	add_process(PROCESSOR_GET_CONTROL, 0, reason_effect, ng, 0, (reason_player << 28) + (playerid << 24) + (reset_phase << 8) + reset_count, zone);
 }
 void field::get_control(card* target, effect* reason_effect, uint32 reason_player, uint32 playerid, uint32 reset_phase, uint32 reset_count, uint32 zone) {
@@ -124,9 +124,9 @@ void field::get_control(card* target, effect* reason_effect, uint32 reason_playe
 }
 void field::swap_control(effect* reason_effect, uint32 reason_player, card_set* targets1, card_set* targets2, uint32 reset_phase, uint32 reset_count) {
 	group* ng1 = pduel->new_group(*targets1);
-	ng1->is_readonly = 1;
+	ng1->is_readonly = GTYPE_READ_ONLY;
 	group* ng2 = pduel->new_group(*targets2);
-	ng2->is_readonly = 1;
+	ng2->is_readonly = GTYPE_READ_ONLY;
 	add_process(PROCESSOR_SWAP_CONTROL, 0, reason_effect, ng1, reason_player, reset_phase, reset_count, 0, ng2);
 }
 void field::swap_control(effect* reason_effect, uint32 reason_player, card* pcard1, card* pcard2, uint32 reset_phase, uint32 reset_count) {
@@ -176,7 +176,7 @@ void field::special_summon(card_set* target, uint32 sumtype, uint32 sumplayer, u
 		pcard->spsummon_param = (playerid << 24) + (nocheck << 16) + (nolimit << 8) + positions;
 	}
 	group* pgroup = pduel->new_group(*target);
-	pgroup->is_readonly = 1;
+	pgroup->is_readonly = GTYPE_READ_ONLY;
 	add_process(PROCESSOR_SPSUMMON, 0, core.reason_effect, pgroup, core.reason_player, zone);
 }
 void field::special_summon_step(card* target, uint32 sumtype, uint32 sumplayer, uint32 playerid, uint32 nocheck, uint32 nolimit, uint32 positions, uint32 zone) {
@@ -196,7 +196,7 @@ void field::special_summon_step(card* target, uint32 sumtype, uint32 sumplayer, 
 void field::special_summon_complete(effect* reason_effect, uint8 reason_player) {
 	group* ng = pduel->new_group();
 	ng->container.swap(core.special_summoning);
-	ng->is_readonly = 1;
+	ng->is_readonly = GTYPE_READ_ONLY;
 	core.hint_timing[reason_player] |= TIMING_SPSUMMON;
 	add_process(PROCESSOR_SPSUMMON, 1, reason_effect, ng, reason_player, 0);
 }
@@ -228,7 +228,7 @@ void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uin
 		++cit;
 	}
 	group* ng = pduel->new_group(*targets);
-	ng->is_readonly = 1;
+	ng->is_readonly = GTYPE_READ_ONLY;
 	add_process(PROCESSOR_DESTROY, 0, reason_effect, ng, reason, reason_player);
 }
 void field::destroy(card* target, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence) {
@@ -247,7 +247,7 @@ void field::release(card_set* targets, effect* reason_effect, uint32 reason, uin
 		pcard->sendto_param.set(pcard->owner, POS_FACEUP, LOCATION_GRAVE);
 	}
 	group* ng = pduel->new_group(*targets);
-	ng->is_readonly = 1;
+	ng->is_readonly = GTYPE_READ_ONLY;
 	add_process(PROCESSOR_RELEASE, 0, reason_effect, ng, reason, reason_player);
 }
 void field::release(card* target, effect* reason_effect, uint32 reason, uint32 reason_player) {
@@ -283,7 +283,7 @@ void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uin
 		pcard->sendto_param.set(p, pos, destination, sequence);
 	}
 	group* ng = pduel->new_group(*targets);
-	ng->is_readonly = 1;
+	ng->is_readonly = GTYPE_READ_ONLY;
 	add_process(PROCESSOR_SENDTO, 0, reason_effect, ng, reason, reason_player, send_activating);
 }
 void field::send_to(card* target, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence, uint32 position, uint8 send_activating) {
@@ -301,7 +301,7 @@ void field::move_to_field(card* target, uint32 move_player, uint32 playerid, uin
 }
 void field::change_position(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 au, uint32 ad, uint32 du, uint32 dd, uint32 flag, uint32 enable) {
 	group* ng = pduel->new_group(*targets);
-	ng->is_readonly = 1;
+	ng->is_readonly = GTYPE_READ_ONLY;
 	for(auto& pcard : *targets) {
 		if(pcard->current.position == POS_FACEUP_ATTACK)
 			pcard->position_param = au;
@@ -317,7 +317,7 @@ void field::change_position(card_set* targets, effect* reason_effect, uint32 rea
 }
 void field::change_position(card* target, effect* reason_effect, uint32 reason_player, uint32 npos, uint32 flag, uint32 enable) {
 	group* ng = pduel->new_group(target);
-	ng->is_readonly = 1;
+	ng->is_readonly = GTYPE_READ_ONLY;
 	target->position_param = npos;
 	target->position_param |= flag;
 	add_process(PROCESSOR_CHANGEPOS, 0, reason_effect, ng, reason_player, enable);
@@ -3627,7 +3627,7 @@ int32 field::destroy(uint16 step, group * targets, effect * reason_effect, uint3
 	}
 	case 4: {
 		group* sendtargets = pduel->new_group(targets->container);
-		sendtargets->is_readonly = 1;
+		sendtargets->is_readonly = GTYPE_READ_ONLY;
 		for(auto& pcard : sendtargets->container) {
 			pcard->set_status(STATUS_DESTROY_CONFIRMED, FALSE);
 			uint32 dest = pcard->sendto_param.location;
@@ -3855,7 +3855,7 @@ int32 field::release(uint16 step, group * targets, effect * reason_effect, uint3
 	}
 	case 3: {
 		group* sendtargets = pduel->new_group(targets->container);
-		sendtargets->is_readonly = 1;
+		sendtargets->is_readonly = GTYPE_READ_ONLY;
 		operation_replace(EFFECT_SEND_REPLACE, 5, sendtargets);
 		add_process(PROCESSOR_SENDTO, 1, reason_effect, sendtargets, reason | REASON_RELEASE, reason_player);
 		return FALSE;
