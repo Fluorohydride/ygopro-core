@@ -1228,7 +1228,7 @@ void field::remove_effect(effect* peffect) {
 	auto eit = effects.indexer.find(peffect);
 	if (eit == effects.indexer.end())
 		return;
-	auto it = eit->second;
+	auto& it = eit->second;
 	if (!(peffect->type & EFFECT_TYPE_ACTIONS)) {
 		effects.aura_effect.erase(it);
 		if(peffect->code == EFFECT_SPSUMMON_COUNT_LIMIT)
@@ -1309,7 +1309,7 @@ void field::reset_phase(uint32 phase) {
 		auto rm = eit++;
 		if((*rm)->reset(phase, RESET_PHASE)) {
 			if((*rm)->is_flag(EFFECT_FLAG_FIELD_ONLY))
-				remove_effect((*rm));
+				remove_effect(*rm);
 			else
 				(*rm)->handler->remove_effect((*rm));
 		}
@@ -1319,7 +1319,7 @@ void field::reset_chain() {
 	for(auto eit = effects.cheff.begin(); eit != effects.cheff.end();) {
 		auto rm = eit++;
 		if((*rm)->is_flag(EFFECT_FLAG_FIELD_ONLY))
-			remove_effect((*rm));
+			remove_effect(*rm);
 		else
 			(*rm)->handler->remove_effect((*rm));
 	}

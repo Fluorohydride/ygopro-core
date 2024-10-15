@@ -416,7 +416,7 @@ public:
 	void refresh_player_info(uint8 playerid);
 	void tag_swap(uint8 playerid);
 
-	void add_effect(effect* peffect, uint8 owner_player = 2);
+	void add_effect(effect* peffect, uint8 owner_player = PLAYER_NONE);
 	void remove_effect(effect* peffect);
 	void remove_oath_effect(effect* reason_effect);
 	void release_oath_relation(effect* reason_effect);
