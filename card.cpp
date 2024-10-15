@@ -1881,12 +1881,6 @@ int32 card::add_effect(effect* peffect) {
 		peffect->reset_count = pduel->game_field->core.copy_reset_count;
 	}
 	effect* reason_effect = pduel->game_field->core.reason_effect;
-	if(peffect->is_flag(EFFECT_FLAG_COPY_INHERIT) && reason_effect && reason_effect->copy_id) {
-		peffect->copy_id = reason_effect->copy_id;
-		peffect->reset_flag |= reason_effect->reset_flag;
-		if(peffect->reset_count > reason_effect->reset_count)
-			peffect->reset_count = reason_effect->reset_count;
-	}
 	indexer.emplace(peffect, eit);
 	peffect->handler = this;
 	if((peffect->type & EFFECT_TYPE_FIELD)) {
@@ -2059,7 +2053,7 @@ int32 card::replace_effect(uint32 code, uint32 reset, int32 count) {
 		auto rm = i++;
 		effect* peffect = rm->first;
 		auto& it = rm->second;
-		if (peffect->is_flag(EFFECT_FLAG_INITIAL | EFFECT_FLAG_COPY_INHERIT))
+		if (peffect->is_flag(EFFECT_FLAG_INITIAL))
 			remove_effect(peffect, it);
 	}
 	auto cr = pduel->game_field->core.copy_reset;
