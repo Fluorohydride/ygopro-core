@@ -414,7 +414,7 @@ int32 card::get_infos(byte* buf, uint32 query_flag, int32 use_cache) {
 	buffer_write<uint32_t>(finalize, query_flag);
 	return (int32)(p - buf);
 }
-uint32 card::get_info_location() {
+uint32 card::get_info_location() const {
 	if(overlay_target) {
 		uint32 c = overlay_target->current.controler;
 		uint32 l = overlay_target->current.location | LOCATION_OVERLAY;
@@ -2153,6 +2153,10 @@ void card::reset(uint32 id, uint32 reset_type) {
 			}
 		}
 	}
+	else if (reset_type == RESET_COPY) {
+		delete_card_target(true);
+		effect_target_cards.clear();
+	}
 	for (auto i = indexer.begin(); i != indexer.end();) {
 		auto rm = i++;
 		effect* peffect = rm->first;
@@ -2471,6 +2475,26 @@ void card::cancel_card_target(card* pcard) {
 		pduel->write_buffer32(pcard->get_info_location());
 	}
 }
+void card::delete_card_target(bool send_msg) {
+	for (auto& pcard : effect_target_cards) {
+		pcard->effect_target_owner.erase(this);
+		for (auto& it : target_effect) {
+			if (it.second->is_disable_related())
+				pduel->game_field->add_to_disable_check_list(pcard);
+		}
+		for (auto it = pcard->single_effect.begin(); it != pcard->single_effect.end();) {
+			auto rm = it++;
+			effect* const& peffect = rm->second;
+			if ((peffect->owner == this) && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE))
+				pcard->remove_effect(peffect, rm);
+		}
+		if (send_msg) {
+			pduel->write_buffer8(MSG_CANCEL_TARGET);
+			pduel->write_buffer32(get_info_location());
+			pduel->write_buffer32(pcard->get_info_location());
+		}
+	}
+}
 void card::clear_card_target() {
 	for(auto& pcard : effect_target_owner) {
 		pcard->effect_target_cards.erase(this);
@@ -2479,19 +2503,7 @@ void card::clear_card_target() {
 				pduel->game_field->add_to_disable_check_list(this);
 		}
 	}
-	for(auto& pcard : effect_target_cards) {
-		pcard->effect_target_owner.erase(this);
-		for(auto& it : target_effect) {
-			if(it.second->is_disable_related())
-				pduel->game_field->add_to_disable_check_list(pcard);
-		}
-		for(auto it = pcard->single_effect.begin(); it != pcard->single_effect.end();) {
-			auto rm = it++;
-			effect* peffect = rm->second;
-			if((peffect->owner == this) && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE))
-				pcard->remove_effect(peffect, rm);
-		}
-	}
+	delete_card_target(false);
 	effect_target_owner.clear();
 	effect_target_cards.clear();
 }
