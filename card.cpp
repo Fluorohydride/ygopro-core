@@ -1920,13 +1920,11 @@ int32 card::add_effect(effect* peffect) {
 	}
 	return peffect->id;
 }
-void card::remove_effect(effect* peffect) {
-	auto it = indexer.find(peffect);
-	if (it == indexer.end())
-		return;
-	remove_effect(peffect, it->second);
-}
-void card::remove_effect(effect* peffect, effect_container::iterator it) {
+effect_indexer::iterator card::remove_effect(effect* peffect) {
+	auto index = indexer.find(peffect);
+	if (index == indexer.end())
+		return index;
+	auto& it = index->second;
 	card_set check_target = { this };
 	if (peffect->type & EFFECT_TYPE_SINGLE) {
 		single_effect.erase(it);
@@ -1944,6 +1942,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			check_target.clear();
 	} else if (peffect->type & EFFECT_TYPE_XMATERIAL) {
 		xmaterial_effect.erase(it);
+		pduel->game_field->remove_effect(peffect);
 		if (overlay_target)
 			check_target = { overlay_target };
 		else
@@ -1954,8 +1953,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			pduel->game_field->update_disable_check_list(peffect);
 		}
 		field_effect.erase(it);
-		if(peffect->in_range(this) || current.controler != PLAYER_NONE && peffect->is_hand_trigger())
-			pduel->game_field->remove_effect(peffect);
+		pduel->game_field->remove_effect(peffect);
 	}
 	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && !check_target.empty()) {
 		if (peffect->is_disable_related()) {
@@ -1972,7 +1970,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 			set_status(STATUS_INITIALIZING, FALSE);
 		}
 	}
-	indexer.erase(peffect);
+	auto ret = indexer.erase(index);
 	if(peffect->is_flag(EFFECT_FLAG_OATH))
 		pduel->game_field->effects.oath.erase(peffect);
 	if(peffect->reset_flag & RESET_PHASE)
@@ -2005,6 +2003,7 @@ void card::remove_effect(effect* peffect, effect_container::iterator it) {
 		unique_code = 0;
 	}
 	pduel->game_field->core.reseted_effects.insert(peffect);
+	return ret;
 }
 int32 card::copy_effect(uint32 code, uint32 reset, int32 count) {
 	card_data cdata;
@@ -2049,12 +2048,12 @@ int32 card::replace_effect(uint32 code, uint32 reset, int32 count) {
 		return -1;
 	if(is_status(STATUS_EFFECT_REPLACED))
 		set_status(STATUS_EFFECT_REPLACED, FALSE);
-	for(auto i = indexer.begin(); i != indexer.end();) {
-		auto rm = i++;
-		effect* peffect = rm->first;
-		auto& it = rm->second;
+	for(auto it = indexer.begin(); it != indexer.end();) {
+		effect* const& peffect = it->first;
 		if (peffect->is_flag(EFFECT_FLAG_INITIAL))
-			remove_effect(peffect, it);
+			it = remove_effect(peffect);
+		else
+			++it;
 	}
 	auto cr = pduel->game_field->core.copy_reset;
 	auto crc = pduel->game_field->core.copy_reset_count;
@@ -2157,17 +2156,17 @@ void card::reset(uint32 id, uint32 reset_type) {
 		delete_card_target(true);
 		effect_target_cards.clear();
 	}
-	for (auto i = indexer.begin(); i != indexer.end();) {
-		auto rm = i++;
-		effect* peffect = rm->first;
-		auto& it = rm->second;
+	for (auto it = indexer.begin(); it != indexer.end();) {
+		effect* const& peffect = it->first;
 		if (peffect->reset(id, reset_type))
-			remove_effect(peffect, it);
+			it = remove_effect(peffect);
+		else
+			++it;
 	}
 }
 void card::reset_effect_count() {
 	for (auto& i : indexer) {
-		effect* peffect = i.first;
+		effect* const& peffect = i.first;
 		if (peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 			peffect->recharge();
 	}
@@ -2486,7 +2485,7 @@ void card::delete_card_target(bool send_msg) {
 			auto rm = it++;
 			effect* const& peffect = rm->second;
 			if ((peffect->owner == this) && peffect->is_flag(EFFECT_FLAG_OWNER_RELATE))
-				pcard->remove_effect(peffect, rm);
+				pcard->remove_effect(peffect);
 		}
 		if (send_msg) {
 			pduel->write_buffer8(MSG_CANCEL_TARGET);
@@ -2708,7 +2707,7 @@ void card::filter_immune_effect() {
 // 4. Insert continuous target of this into it.
 void card::filter_disable_related_cards() {
 	for (auto& it : indexer) {
-		effect* peffect = it.first;
+		effect* const& peffect = it.first;
 		if (peffect->is_disable_related()) {
 			if (peffect->type & EFFECT_TYPE_FIELD)
 				pduel->game_field->update_disable_check_list(peffect);

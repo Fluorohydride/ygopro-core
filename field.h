@@ -103,7 +103,6 @@ struct player_info {
 };
 struct field_effect {
 	using oath_effects = std::unordered_map<effect*, effect*>;
-	using effect_collection = std::unordered_set<effect*>;
 	using gain_effects = std::unordered_map<card*, effect*>;
 	using grant_effect_container = std::unordered_map<effect*, gain_effects>;
 

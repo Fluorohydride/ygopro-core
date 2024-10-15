@@ -28,6 +28,7 @@ using card_set = std::set<card*, card_sort>;
 using card_vector = std::vector<card*>;
 using effect_container = std::multimap<uint32, effect*>;
 using effect_indexer = std::unordered_map<effect*, effect_container::iterator>;
+using effect_collection = std::unordered_set<effect*>;
 
 struct card_state {
 	uint32 code{ 0 };
@@ -286,8 +287,7 @@ public:
 	void cancel_field_effect();
 	void enable_field_effect(bool enabled);
 	int32 add_effect(effect* peffect);
-	void remove_effect(effect* peffect);
-	void remove_effect(effect* peffect, effect_container::iterator it);
+	effect_indexer::iterator remove_effect(effect* peffect);
 	int32 copy_effect(uint32 code, uint32 reset, int32 count);
 	int32 replace_effect(uint32 code, uint32 reset, int32 count);
 	void reset(uint32 id, uint32 reset_type);
