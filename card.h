@@ -316,7 +316,7 @@ public:
 	void set_material(card_set* materials);
 	void add_card_target(card* pcard);
 	void cancel_card_target(card* pcard);
-	void delete_card_target(bool send_msg);
+	void delete_card_target(uint32 send_msg);
 	void clear_card_target();
 	void set_special_summon_status(effect* peffect);
 

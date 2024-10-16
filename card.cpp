@@ -2144,7 +2144,7 @@ void card::reset(uint32 id, uint32 reset_type) {
 		}
 	}
 	else if (reset_type == RESET_COPY) {
-		delete_card_target(true);
+		delete_card_target(TRUE);
 		effect_target_cards.clear();
 	}
 	bool reload = false;
@@ -2478,7 +2478,7 @@ void card::cancel_card_target(card* pcard) {
 		pduel->write_buffer32(pcard->get_info_location());
 	}
 }
-void card::delete_card_target(bool send_msg) {
+void card::delete_card_target(uint32 send_msg) {
 	for (auto& pcard : effect_target_cards) {
 		pcard->effect_target_owner.erase(this);
 		for (auto& it : target_effect) {
@@ -2506,7 +2506,7 @@ void card::clear_card_target() {
 				pduel->game_field->add_to_disable_check_list(this);
 		}
 	}
-	delete_card_target(false);
+	delete_card_target(FALSE);
 	effect_target_owner.clear();
 	effect_target_cards.clear();
 }
