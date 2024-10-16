@@ -1161,13 +1161,8 @@ void field::tag_swap(uint8 playerid) {
 		pduel->write_buffer32(pcard->data.code | (pcard->is_position(POS_FACEUP) ? 0x80000000 : 0));
 }
 void field::add_effect(effect* peffect, uint8 owner_player) {
-	if (!peffect->handler) {
-		peffect->flag[0] |= EFFECT_FLAG_FIELD_ONLY;
-		peffect->handler = peffect->owner;
-		peffect->effect_owner = owner_player;
-		peffect->id = infos.field_id++;
-	}
-	peffect->card_type = peffect->owner->data.type;
+	if (effects.indexer.find(peffect) != effects.indexer.end())
+		return;
 	effect_container::iterator it;
 	if (!(peffect->type & EFFECT_TYPE_ACTIONS)) {
 		it = effects.aura_effect.emplace(peffect->code, peffect);
@@ -1178,9 +1173,9 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 	} else {
 		if (peffect->type & EFFECT_TYPE_IGNITION)
 			it = effects.ignition_effect.emplace(peffect->code, peffect);
-		else if (peffect->type & EFFECT_TYPE_TRIGGER_O && peffect->type & EFFECT_TYPE_FIELD)
+		else if (peffect->type & EFFECT_TYPE_TRIGGER_O)
 			it = effects.trigger_o_effect.emplace(peffect->code, peffect);
-		else if (peffect->type & EFFECT_TYPE_TRIGGER_F && peffect->type & EFFECT_TYPE_FIELD)
+		else if (peffect->type & EFFECT_TYPE_TRIGGER_F)
 			it = effects.trigger_f_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_QUICK_O)
 			it = effects.quick_o_effect.emplace(peffect->code, peffect);
@@ -1190,7 +1185,16 @@ void field::add_effect(effect* peffect, uint8 owner_player) {
 			it = effects.activate_effect.emplace(peffect->code, peffect);
 		else if (peffect->type & EFFECT_TYPE_CONTINUOUS)
 			it = effects.continuous_effect.emplace(peffect->code, peffect);
+		else
+			return;
 	}
+	if (!peffect->handler) {
+		peffect->flag[0] |= EFFECT_FLAG_FIELD_ONLY;
+		peffect->handler = peffect->owner;
+		peffect->effect_owner = owner_player;
+		peffect->id = infos.field_id++;
+	}
+	peffect->card_type = peffect->owner->data.type;
 	effects.indexer.emplace(peffect, it);
 	if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY)) {
 		if(peffect->is_disable_related())
