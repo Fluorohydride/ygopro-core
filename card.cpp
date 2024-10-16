@@ -1570,12 +1570,11 @@ int32 card::get_old_union_count() {
 	return count;
 }
 void card::xyz_overlay(card_set* materials) {
-	if(materials->size() == 0)
+	if(materials->empty())
 		return;
 	card_set des, leave_grave, leave_deck;
 	card_vector cv;
-	for(auto& pcard : *materials)
-		cv.push_back(pcard);
+	cv.assign(materials->begin(), materials->end());
 	std::sort(cv.begin(), cv.end(), card::card_operation_sort);
 	if(pduel->game_field->core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
 		int32 d0 = (int32)pduel->game_field->player[0].list_main.size() - 1, s0 = d0;
@@ -1622,9 +1621,9 @@ void card::xyz_overlay(card_set* materials) {
 			pduel->game_field->remove_unique_card(pcard);
 		if(pcard->equiping_target)
 			pcard->unequip();
+		des.insert(pcard->equiping_cards.begin(), pcard->equiping_cards.end());
 		for(auto cit = pcard->equiping_cards.begin(); cit != pcard->equiping_cards.end();) {
 			card* equipc = *cit++;
-			des.insert(equipc);
 			equipc->unequip();
 		}
 		pcard->clear_card_target();
@@ -1681,7 +1680,9 @@ void card::xyz_add(card* mat) {
 void card::xyz_remove(card* mat) {
 	if(mat->overlay_target != this)
 		return;
-	xyz_materials.erase(xyz_materials.begin() + mat->current.sequence);
+	if (std::find(xyz_materials.begin(), xyz_materials.end(), mat) == xyz_materials.end())
+		return;
+	xyz_materials.erase(std::remove(xyz_materials.begin(), xyz_materials.end(), mat), xyz_materials.end());
 	mat->previous.controler = mat->current.controler;
 	mat->previous.location = mat->current.location;
 	mat->previous.sequence = mat->current.sequence;
