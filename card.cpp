@@ -1961,15 +1961,6 @@ effect_indexer::iterator card::remove_effect(effect* peffect) {
 				pduel->game_field->add_to_disable_check_list(target);
 		}
 	}
-	if (peffect->is_flag(EFFECT_FLAG_INITIAL) && peffect->copy_id && is_status(STATUS_EFFECT_REPLACED)) {
-		set_status(STATUS_EFFECT_REPLACED, FALSE);
-		if (interpreter::is_load_script(data)) {
-			set_status(STATUS_INITIALIZING, TRUE);
-			pduel->lua->add_param(this, PARAM_TYPE_CARD);
-			pduel->lua->call_card_function(this, "initial_effect", 1, 0);
-			set_status(STATUS_INITIALIZING, FALSE);
-		}
-	}
 	auto ret = indexer.erase(index);
 	if(peffect->is_flag(EFFECT_FLAG_OATH))
 		pduel->game_field->effects.oath.erase(peffect);
@@ -2156,12 +2147,25 @@ void card::reset(uint32 id, uint32 reset_type) {
 		delete_card_target(true);
 		effect_target_cards.clear();
 	}
+	bool reload = false;
 	for (auto it = indexer.begin(); it != indexer.end();) {
 		effect* const& peffect = it->first;
-		if (peffect->reset(id, reset_type))
+		if (peffect->reset(id, reset_type)) {
+			if (is_status(STATUS_EFFECT_REPLACED) && peffect->is_flag(EFFECT_FLAG_INITIAL) && peffect->copy_id)
+				reload = true;
 			it = remove_effect(peffect);
+		}
 		else
 			++it;
+	}
+	if (reload) {
+		set_status(STATUS_EFFECT_REPLACED, FALSE);
+		if (interpreter::is_load_script(data)) {
+			set_status(STATUS_INITIALIZING, TRUE);
+			pduel->lua->add_param(this, PARAM_TYPE_CARD);
+			pduel->lua->call_card_function(this, "initial_effect", 1, 0);
+			set_status(STATUS_INITIALIZING, FALSE);
+		}
 	}
 }
 void card::reset_effect_count() {
