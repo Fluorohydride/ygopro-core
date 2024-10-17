@@ -1291,16 +1291,14 @@ void field::remove_effect(effect* peffect) {
 }
 void field::remove_oath_effect(effect* reason_effect) {
 	for(auto oeit = effects.oath.begin(); oeit != effects.oath.end();) {
-		if(oeit->second == reason_effect) {
-			effect* peffect = oeit->first;
-			oeit = effects.oath.erase(oeit);
+		auto rm = oeit++;
+		if(rm->second == reason_effect) {
+			effect* peffect = rm->first;
 			if(peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 				remove_effect(peffect);
 			else
 				peffect->handler->remove_effect(peffect);
 		}
-		else
-			++oeit;
 	}
 }
 void field::release_oath_relation(effect* reason_effect) {
@@ -2097,6 +2095,8 @@ void field::adjust_self_destroy_set() {
 }
 void field::erase_grant_effect(effect* peffect) {
 	auto eit = effects.grant_effect.find(peffect);
+	if (eit == effects.grant_effect.end())
+		return;
 	for(auto& it : eit->second)
 		it.first->remove_effect(it.second);
 	effects.grant_effect.erase(eit);
