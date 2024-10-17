@@ -1610,7 +1610,7 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 	pduel->write_buffer8(MSG_SHUFFLE_SET_CARD);
 	pduel->write_buffer8(loc);
 	pduel->write_buffer8(ct);
-	for(uint32 i = 0; i < ct; ++i) {
+	for(int32 i = 0; i < ct; ++i) {
 		card* pcard = ms[i];
 		pduel->write_buffer32(pcard->get_info_location());
 		if(loc == LOCATION_MZONE)
@@ -1623,7 +1623,7 @@ int32 scriptlib::duel_shuffle_setcard(lua_State *L) {
 	pduel->game_field->raise_event(&pgroup->container, EVENT_MOVE, pduel->game_field->core.reason_effect, 0, pduel->game_field->core.reason_player, tp, 0);
 	pduel->game_field->process_single_event();
 	pduel->game_field->process_instant_event();
-	for(uint32 i = 0; i < ct; ++i) {
+	for(int32 i = 0; i < ct; ++i) {
 		if(ms[i]->xyz_materials.size())
 			pduel->write_buffer32(ms[i]->get_info_location());
 		else

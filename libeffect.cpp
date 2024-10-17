@@ -190,17 +190,21 @@ int32 scriptlib::effect_set_label_object(lua_State *L) {
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	if(lua_isnil(L, 2)) {
 		peffect->label_object = 0;
+		peffect->object_type = PARAM_TYPE_INT;
 		return 0;
 	}
 	if(check_param(L, PARAM_TYPE_CARD, 2, TRUE)) {
 		card* p = *(card**)lua_touserdata(L, 2);
 		peffect->label_object = p->ref_handle;
+		peffect->object_type = PARAM_TYPE_CARD;
 	} else if(check_param(L, PARAM_TYPE_EFFECT, 2, TRUE)) {
 		effect* p = *(effect**)lua_touserdata(L, 2);
 		peffect->label_object = p->ref_handle;
+		peffect->object_type = PARAM_TYPE_EFFECT;
 	} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
 		group* p = *(group**)lua_touserdata(L, 2);
 		peffect->label_object = p->ref_handle;
+		peffect->object_type = PARAM_TYPE_GROUP;
 	} else
 		return luaL_error(L, "Parameter 2 should be \"Card\" or \"Effect\" or \"Group\".");
 	return 0;
