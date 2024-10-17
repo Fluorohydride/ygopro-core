@@ -1715,9 +1715,7 @@ void card::cancel_field_effect() {
 	if (current.controler == PLAYER_NONE)
 		return;
 	for (auto& it : field_effect) {
-		if (it.second->in_range(this) || it.second->is_hand_trigger()) {
-			pduel->game_field->remove_effect(it.second);
-		}
+		pduel->game_field->remove_effect(it.second);
 	}
 	if(unique_code && (current.location & unique_location))
 		pduel->game_field->remove_unique_card(this);
@@ -1943,7 +1941,6 @@ effect_indexer::iterator card::remove_effect(effect* peffect) {
 			check_target.clear();
 	} else if (peffect->type & EFFECT_TYPE_XMATERIAL) {
 		xmaterial_effect.erase(it);
-		pduel->game_field->remove_effect(peffect);
 		if (overlay_target)
 			check_target = { overlay_target };
 		else
@@ -1954,7 +1951,6 @@ effect_indexer::iterator card::remove_effect(effect* peffect) {
 			pduel->game_field->update_disable_check_list(peffect);
 		}
 		field_effect.erase(it);
-		pduel->game_field->remove_effect(peffect);
 	}
 	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && !check_target.empty()) {
 		if (peffect->is_disable_related()) {
@@ -1994,6 +1990,7 @@ effect_indexer::iterator card::remove_effect(effect* peffect) {
 		unique_pos[0] = unique_pos[1] = 0;
 		unique_code = 0;
 	}
+	pduel->game_field->remove_effect(peffect);
 	pduel->game_field->core.reseted_effects.insert(peffect);
 	return ret;
 }
