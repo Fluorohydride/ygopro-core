@@ -63,6 +63,7 @@ public:
 	int32 operation{ 0 };
 	uint8 cost_checked{ FALSE };
 	effect_set required_handorset_effects;
+	LuaParamType object_type{ PARAM_TYPE_INT };
 
 	explicit effect(duel* pd);
 	~effect() = default;
