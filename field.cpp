@@ -2107,7 +2107,10 @@ int32 field::adjust_grant_effect() {
 	int32 adjusted = FALSE;
 	for(auto& eit : effects.grant_effect) {
 		effect* peffect = eit.first;
-		if(!peffect->label_object)
+		if (peffect->object_type != PARAM_TYPE_EFFECT)
+			continue;
+		effect* geffect = (effect*)peffect->get_label_object();
+		if (geffect->type & EFFECT_TYPE_GRANT)
 			continue;
 		card_set cset;
 		if(peffect->is_available())
@@ -2127,7 +2130,6 @@ int32 field::adjust_grant_effect() {
 		if (!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
 			add_set.erase(peffect->handler);
 		for(auto& pcard : add_set) {
-			effect* geffect = (effect*)peffect->get_label_object();
 			effect* ceffect = geffect->clone();
 			ceffect->owner = pcard;
 			pcard->add_effect(ceffect);
