@@ -63,6 +63,7 @@ public:
 	int32 operation{ 0 };
 	uint8 cost_checked{ FALSE };
 	effect_set required_handorset_effects;
+	LuaParamType object_type{ PARAM_TYPE_INT };
 
 	explicit effect(duel* pd);
 	~effect() = default;
@@ -190,7 +191,7 @@ enum effect_flag : uint32 {
 	EFFECT_FLAG_CANNOT_DISABLE		= 0x0400,
 	EFFECT_FLAG_PLAYER_TARGET		= 0x0800,
 	EFFECT_FLAG_BOTH_SIDE			= 0x1000,
-	EFFECT_FLAG_COPY_INHERIT		= 0x2000,
+//	EFFECT_FLAG_COPY_INHERIT		= 0x2000,
 	EFFECT_FLAG_DAMAGE_STEP			= 0x4000,
 	EFFECT_FLAG_DAMAGE_CAL			= 0x8000,
 	EFFECT_FLAG_DELAY				= 0x10000,
