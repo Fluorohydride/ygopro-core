@@ -60,7 +60,7 @@ Get all cards in some location.
 
 - `void set_responseb(intptr_t pduel, byte* buf);`
 
-- `int32 preload_script(intptr_t pduel, const char* script, int32 len);`
+- `int32 preload_script(intptr_t pduel, const char* script_name);`
 
 
 # Lua functions
