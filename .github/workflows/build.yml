@@ -19,16 +19,16 @@ jobs:
     - name: Install lua
       run: |
         curl --retry 5 --connect-timeout 30 --output-dir "temp" --location --remote-header-name --remote-name https://www.lua.org/ftp/lua-5.4.7.tar.gz
-        tar -xzf ./temp/lua-5.4.7.tar.gz
+        tar -xzf temp\lua-5.4.7.tar.gz
         move lua-5.4.7 lua
 
     - name: Premake
       run: |
         curl --retry 5 --connect-timeout 30 --output-dir "temp" --location --remote-header-name --remote-name https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip
-        7z x ./temp/premake-5.0.0-beta2-windows.zip -opremake5
-        move premake/lua.lua lua/premake5.lua
-        move premake/dll.lua dll.lua
-        ./premake5/premake5.exe vs2022 --file=dll.lua
+        7z x temp\premake-5.0.0-beta2-windows.zip -opremake5
+        move premake\lua.lua lua\premake5.lua
+        move premake\dll.lua dll.lua
+        .\premake5\premake5.exe vs2022 --file=dll.lua
 
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v2
