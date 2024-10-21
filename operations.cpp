@@ -784,7 +784,7 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 	case 0: {
 		core.select_options.clear();
 		core.select_effects.clear();
-		if((pcard && pcard->xyz_materials.size() >= min) || (!pcard && get_overlay_count(rplayer, s, o) >= min)) {
+		if((pcard && (int32)pcard->xyz_materials.size() >= min) || (!pcard && get_overlay_count(rplayer, s, o) >= min)) {
 			core.select_options.push_back(12);
 			core.select_effects.push_back(0);
 		}
@@ -845,13 +845,11 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 		}
 		core.select_cards.clear();
 		if(pcard) {
-			for(auto& mcard : pcard->xyz_materials)
-				core.select_cards.push_back(mcard);
+			core.select_cards.assign(pcard->xyz_materials.begin(), pcard->xyz_materials.end());
 		} else {
 			card_set cset;
 			get_overlay_group(rplayer, s, o, &cset);
-			for(auto& xcard : cset)
-				core.select_cards.push_back(xcard);
+			core.select_cards.assign(cset.begin(), cset.end());
 		}
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
