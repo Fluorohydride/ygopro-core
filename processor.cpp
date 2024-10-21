@@ -1039,7 +1039,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 			++cn_count;
 		}
 		//all effects taking control non-permanently are only until End Phase, not until Turn end
-		for(auto* peffect : effects.pheff) {
+		for(auto& peffect : effects.pheff) {
 			if(peffect->code != EFFECT_SET_CONTROL)
 				continue;
 			if(!(peffect->reset_flag & phase))
