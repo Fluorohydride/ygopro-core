@@ -103,7 +103,6 @@ struct player_info {
 };
 struct field_effect {
 	using oath_effects = std::unordered_map<effect*, effect*>;
-	using effect_collection = std::unordered_set<effect*>;
 	using gain_effects = std::unordered_map<card*, effect*>;
 	using grant_effect_container = std::unordered_map<effect*, gain_effects>;
 
@@ -417,7 +416,7 @@ public:
 	void refresh_player_info(uint8 playerid);
 	void tag_swap(uint8 playerid);
 
-	void add_effect(effect* peffect, uint8 owner_player = 2);
+	void add_effect(effect* peffect, uint8 owner_player = PLAYER_NONE);
 	void remove_effect(effect* peffect);
 	void remove_oath_effect(effect* reason_effect);
 	void release_oath_relation(effect* reason_effect);
