@@ -30,6 +30,8 @@ using effect_container = std::multimap<uint32, effect*>;
 using effect_indexer = std::unordered_map<effect*, effect_container::iterator>;
 using effect_collection = std::unordered_set<effect*>;
 
+using effect_filter = bool(*)(card* self, effect* peffect);
+
 struct card_state {
 	uint32 code{ 0 };
 	uint32 code2{ 0 };
@@ -322,9 +324,10 @@ public:
 	void clear_card_target();
 	void set_special_summon_status(effect* peffect);
 
-	void filter_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
-	void filter_single_continuous_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
-	void filter_self_effect(int32 code, effect_set* eset, uint8 sort = TRUE);
+	void filter_effect_container(const effect_container& container, uint32 code, effect_filter f, effect_set& eset);
+	void filter_effect(uint32 code, effect_set* eset, uint8 sort = TRUE);
+	void filter_single_continuous_effect(uint32 code, effect_set* eset, uint8 sort = TRUE);
+	void filter_self_effect(uint32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_immune_effect();
 	void filter_disable_related_cards();
 	int32 filter_summon_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute, uint32 zone);

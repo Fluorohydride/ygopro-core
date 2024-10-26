@@ -2584,95 +2584,70 @@ void card::set_special_summon_status(effect* peffect) {
 		spsummon.reason_player = cait->triggering_player;
 	}
 }
-void card::filter_effect(int32 code, effect_set* eset, uint8 sort) {
-	effect* peffect;
-	auto rg = single_effect.equal_range(code);
-	for (; rg.first != rg.second; ++rg.first) {
-		peffect = rg.first->second;
-		if (peffect->is_available() && (!peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE) || is_affect_by_effect(peffect)))
-			eset->add_item(peffect);
+auto default_single_filter = [](card* c, effect* peffect) -> bool {
+	return peffect->is_available() && (!peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE) || c->is_affect_by_effect(peffect));
+};
+auto default_equip_filter = [](card* c, effect* peffect) -> bool {
+	return peffect->is_available() && c->is_affect_by_effect(peffect);
+};
+auto default_target_filter = [](card* c, effect* peffect) -> bool {
+	return peffect->is_available() && peffect->is_target(c) && c->is_affect_by_effect(peffect);
+};
+auto default_xmaterial_filter = [](card* c, effect* peffect) -> bool {
+	return !(peffect->type & EFFECT_TYPE_FIELD) && peffect->is_available() && c->is_affect_by_effect(peffect);
+};
+auto default_aura_filter = [](card* c, effect* peffect) -> bool {
+	return !peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET) && peffect->is_available() && peffect->is_target(c) && c->is_affect_by_effect(peffect);
+};
+auto accept_filter = [](card* c, effect* peffect) -> bool {
+	return true;
+};
+void card::filter_effect_container(const effect_container& container, uint32 code, effect_filter f, effect_set& eset) {
+	auto rg = container.equal_range(code);
+	for (auto it = rg.first; it != rg.second; ++it) {
+		if (f(this, it->second))
+			eset.add_item(it->second);
 	}
-	for (auto& pcard : equiping_cards) {
-		rg = pcard->equip_effect.equal_range(code);
-		for (; rg.first != rg.second; ++rg.first) {
-			peffect = rg.first->second;
-			if (peffect->is_available() && is_affect_by_effect(peffect))
-				eset->add_item(peffect);
-		}
-	}
-	for(auto& pcard : effect_target_owner) {
-		rg = pcard->target_effect.equal_range(code);
-		for(; rg.first != rg.second; ++rg.first) {
-			peffect = rg.first->second;
-			if(peffect->is_available() && peffect->is_target(this) && is_affect_by_effect(peffect))
-				eset->add_item(peffect);
-		}
-	}
-	for (auto& pcard : xyz_materials) {
-		rg = pcard->xmaterial_effect.equal_range(code);
-		for (; rg.first != rg.second; ++rg.first) {
-			peffect = rg.first->second;
-			if (peffect->type & EFFECT_TYPE_FIELD)
-				continue;
-			if (peffect->is_available() && is_affect_by_effect(peffect))
-				eset->add_item(peffect);
-		}
-	}
-	rg = pduel->game_field->effects.aura_effect.equal_range(code);
-	for (; rg.first != rg.second; ++rg.first) {
-		peffect = rg.first->second;
-		if (!peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET) && peffect->is_available()
-		        && peffect->is_target(this) && is_affect_by_effect(peffect))
-			eset->add_item(peffect);
-	}
+}
+void card::filter_effect(uint32 code, effect_set* eset, uint8 sort) {
+	filter_effect_container(single_effect, code, default_single_filter, *eset);
+	for (const auto& pcard : equiping_cards)
+		filter_effect_container(pcard->equip_effect, code, default_equip_filter, *eset);
+	for (const auto& pcard : effect_target_owner)
+		filter_effect_container(pcard->target_effect, code, default_target_filter, *eset);
+	for (const auto& pcard : xyz_materials)
+		filter_effect_container(pcard->xmaterial_effect, code, default_xmaterial_filter, *eset);
+	filter_effect_container(pduel->game_field->effects.aura_effect, code, default_aura_filter, *eset);
 	if(sort)
 		eset->sort();
 }
-void card::filter_single_continuous_effect(int32 code, effect_set* eset, uint8 sort) {
-	auto rg = single_effect.equal_range(code);
-	for (; rg.first != rg.second; ++rg.first)
-		eset->add_item(rg.first->second);
-	for (auto& pcard : equiping_cards) {
-		rg = pcard->equip_effect.equal_range(code);
-		for (; rg.first != rg.second; ++rg.first)
-			eset->add_item(rg.first->second);
-	}
-	for(auto& pcard : effect_target_owner) {
-		rg = pcard->target_effect.equal_range(code);
-		for(; rg.first != rg.second; ++rg.first) {
-			effect* peffect = rg.first->second;
-			if(peffect->is_target(pcard))
-				eset->add_item(peffect);
-		}
-	}
-	for (auto& pcard : xyz_materials) {
-		rg = pcard->xmaterial_effect.equal_range(code);
-		for (; rg.first != rg.second; ++rg.first) {
-			effect* peffect = rg.first->second;
-			if (peffect->type & EFFECT_TYPE_FIELD)
-				continue;
-			eset->add_item(peffect);
-		}
-	}
+void card::filter_single_continuous_effect(uint32 code, effect_set* eset, uint8 sort) {
+	filter_effect_container(single_effect, code, accept_filter, *eset);
+	for (const auto& pcard : equiping_cards)
+		filter_effect_container(pcard->equip_effect, code, accept_filter, *eset);
+	auto target_filter = [](card* c, effect* peffect) -> bool {
+		return peffect->is_target(c);
+	};
+	for (const auto& pcard : effect_target_owner)
+		filter_effect_container(pcard->target_effect, code, target_filter, *eset);
+	auto xmaterial_filter = [](card* c, effect* peffect) -> bool {
+		return !(peffect->type & EFFECT_TYPE_FIELD);
+	};
+	for (const auto& pcard : xyz_materials)
+		filter_effect_container(pcard->xmaterial_effect, code, xmaterial_filter, *eset);
 	if(sort)
 		eset->sort();
 }
-void card::filter_self_effect(int32 code, effect_set* eset, uint8 sort) {
-	auto rg = single_effect.equal_range(code);
-	for (; rg.first != rg.second; ++rg.first) {
-		effect* peffect = rg.first->second;
-		if(peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE))
-			eset->add_item(rg.first->second);
-	}
-	for (auto& pcard : xyz_materials) {
-		rg = pcard->xmaterial_effect.equal_range(code);
-		for (; rg.first != rg.second; ++rg.first) {
-			effect* peffect = rg.first->second;
-			if (peffect->type & EFFECT_TYPE_FIELD)
-				continue;
-			eset->add_item(peffect);
-		}
-	}
+void card::filter_self_effect(uint32 code, effect_set* eset, uint8 sort) {
+	auto single_filter = [](card* c, effect* peffect) -> bool {
+		return peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE);
+	};
+	filter_effect_container(single_effect, code, single_filter, *eset);
+	auto xmaterial_filter = [](card* c, effect* peffect) -> bool {
+		return !(peffect->type & EFFECT_TYPE_FIELD);
+	};
+	for (const auto& pcard : xyz_materials)
+		filter_effect_container(pcard->xmaterial_effect, code, xmaterial_filter, *eset);
 	if (sort)
 		eset->sort();
 }
