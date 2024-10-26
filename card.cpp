@@ -1768,8 +1768,8 @@ int32 card::add_effect(effect* peffect) {
 	if (peffect->type & EFFECT_TYPES_TRIGGER_LIKE && is_continuous_event(peffect->code))
 		return 0;
 	// the trigger effect in phase is "once per turn" by default
-	if (peffect->get_code_type() == CODE_PHASE && peffect->code & (PHASE_DRAW | PHASE_STANDBY | PHASE_END) && peffect->type & (EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F)
-		&& !peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
+	if (peffect->get_code_type() == CODE_PHASE && peffect->code & (PHASE_DRAW | PHASE_STANDBY | PHASE_END)
+		&& peffect->type & (EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F) && !peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
 		peffect->flag[0] |= EFFECT_FLAG_COUNT_LIMIT;
 		peffect->count_limit = 1;
 		peffect->count_limit_max = 1;
@@ -1872,8 +1872,10 @@ int32 card::add_effect(effect* peffect) {
 		return 0;
 	peffect->id = pduel->game_field->infos.field_id++;
 	peffect->card_type = data.type;
-	if(get_status(STATUS_INITIALIZING))
+	if (get_status(STATUS_INITIALIZING))
 		peffect->flag[0] |= EFFECT_FLAG_INITIAL;
+	else if (get_status(STATUS_COPYING_EFFECT))
+		peffect->flag[0] |= EFFECT_FLAG_COPY;
 	if (get_status(STATUS_COPYING_EFFECT)) {
 		peffect->copy_id = pduel->game_field->infos.copy_id;
 		peffect->reset_flag |= pduel->game_field->core.copy_reset;
@@ -1882,6 +1884,10 @@ int32 card::add_effect(effect* peffect) {
 	effect* reason_effect = pduel->game_field->core.reason_effect;
 	indexer.emplace(peffect, eit);
 	peffect->handler = this;
+	if (peffect->is_flag(EFFECT_FLAG_INITIAL))
+		initial_effect.insert(peffect);
+	else if (peffect->is_flag(EFFECT_FLAG_COPY))
+		owning_effect.insert(peffect);
 	if((peffect->type & EFFECT_TYPE_FIELD)) {
 		if(peffect->in_range(this) || current.controler != PLAYER_NONE && peffect->is_hand_trigger())
 			pduel->game_field->add_effect(peffect);
@@ -1959,6 +1965,10 @@ effect_indexer::iterator card::remove_effect(effect* peffect) {
 		}
 	}
 	auto ret = indexer.erase(index);
+	if (peffect->is_flag(EFFECT_FLAG_INITIAL))
+		initial_effect.erase(peffect);
+	else if (peffect->is_flag(EFFECT_FLAG_COPY))
+		owning_effect.erase(peffect);
 	if(peffect->is_flag(EFFECT_FLAG_OATH))
 		pduel->game_field->effects.oath.erase(peffect);
 	if(peffect->reset_flag & RESET_PHASE)
@@ -1999,6 +2009,8 @@ int32 card::copy_effect(uint32 code, uint32 reset, int32 count) {
 	::read_card(code, &cdata);
 	if(cdata.type & TYPE_NORMAL)
 		return -1;
+	if (!reset)
+		reset = RESETS_STANDARD;
 	set_status(STATUS_COPYING_EFFECT, TRUE);
 	auto cr = pduel->game_field->core.copy_reset;
 	auto crc = pduel->game_field->core.copy_reset_count;
@@ -2035,6 +2047,8 @@ int32 card::replace_effect(uint32 code, uint32 reset, int32 count) {
 	::read_card(code, &cdata);
 	if(cdata.type & TYPE_NORMAL)
 		return -1;
+	if (!reset)
+		reset = RESETS_STANDARD;
 	if(is_status(STATUS_EFFECT_REPLACED))
 		set_status(STATUS_EFFECT_REPLACED, FALSE);
 	for(auto it = indexer.begin(); it != indexer.end();) {

@@ -4792,7 +4792,7 @@ int32 scriptlib::duel_majestic_copy(lua_State *L) {
 		ceffect->flag[0] &= ~EFFECT_FLAG_INITIAL;
 		ceffect->effect_owner = PLAYER_NONE;
 		ceffect->reset_flag = RESET_EVENT + 0x1fe0000 + RESET_PHASE + PHASE_END + RESET_SELF_TURN + RESET_OPPO_TURN;
-		ceffect->reset_count = 0x1;
+		ceffect->reset_count = 1;
 		ceffect->recharge();
 		if(ceffect->type & EFFECT_TYPE_TRIGGER_F) {
 			ceffect->type &= ~EFFECT_TYPE_TRIGGER_F;

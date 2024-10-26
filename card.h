@@ -210,6 +210,8 @@ public:
 	effect_indexer indexer;
 	effect_relation relate_effect;
 	effect_set_v immune_effect;
+	effect_collection initial_effect;
+	effect_collection owning_effect;
 
 	explicit card(duel* pd);
 	~card() = default;
