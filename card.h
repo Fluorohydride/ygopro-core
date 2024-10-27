@@ -325,7 +325,8 @@ public:
 	void clear_card_target();
 	void set_special_summon_status(effect* peffect);
 
-	void filter_effect_container(const effect_container& container, uint32 code, effect_filter f, effect_set& eset);
+	template<typename T>
+	void filter_effect_container(const effect_container& container, uint32 code, effect_filter f, T& eset);
 	void filter_effect(uint32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_single_continuous_effect(uint32 code, effect_set* eset, uint8 sort = TRUE);
 	void filter_self_effect(uint32 code, effect_set* eset, uint8 sort = TRUE);

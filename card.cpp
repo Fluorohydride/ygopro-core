@@ -2602,7 +2602,8 @@ auto default_aura_filter = [](card* c, effect* peffect) -> bool {
 auto accept_filter = [](card* c, effect* peffect) -> bool {
 	return true;
 };
-void card::filter_effect_container(const effect_container& container, uint32 code, effect_filter f, effect_set& eset) {
+template<typename T>
+void card::filter_effect_container(const effect_container& container, uint32 code, effect_filter f, T& eset) {
 	auto rg = container.equal_range(code);
 	for (auto it = rg.first; it != rg.second; ++it) {
 		if (f(this, it->second))
@@ -2654,41 +2655,20 @@ void card::filter_self_effect(uint32 code, effect_set* eset, uint8 sort) {
 // refresh this->immune_effect
 void card::filter_immune_effect() {
 	immune_effect.clear();
-	auto rg = single_effect.equal_range(EFFECT_IMMUNE_EFFECT);
-	for (; rg.first != rg.second; ++rg.first) {
-		effect* peffect = rg.first->second;
-		immune_effect.add_item(peffect);
-	}
-	for (auto& pcard : equiping_cards) {
-		rg = pcard->equip_effect.equal_range(EFFECT_IMMUNE_EFFECT);
-		for (; rg.first != rg.second; ++rg.first) {
-			effect* peffect = rg.first->second;
-			immune_effect.add_item(peffect);
-		}
-	}
-	for (auto& pcard : effect_target_owner) {
-		rg = pcard->target_effect.equal_range(EFFECT_IMMUNE_EFFECT);
-		for (; rg.first != rg.second; ++rg.first) {
-			effect* peffect = rg.first->second;
-			if(peffect->is_target(this))
-				immune_effect.add_item(peffect);
-		}
-	}
-	for (auto& pcard : xyz_materials) {
-		rg = pcard->xmaterial_effect.equal_range(EFFECT_IMMUNE_EFFECT);
-		for (; rg.first != rg.second; ++rg.first) {
-			effect* peffect = rg.first->second;
-			if (peffect->type & EFFECT_TYPE_FIELD)
-				continue;
-			immune_effect.add_item(peffect);
-		}
-	}
-	rg = pduel->game_field->effects.aura_effect.equal_range(EFFECT_IMMUNE_EFFECT);
-	for (; rg.first != rg.second; ++rg.first) {
-		effect* peffect = rg.first->second;
-		if (peffect->is_target(this))
-			immune_effect.add_item(peffect);
-	}
+	filter_effect_container(single_effect, EFFECT_IMMUNE_EFFECT, accept_filter, immune_effect);
+	for (const auto& pcard : equiping_cards)
+		filter_effect_container(pcard->equip_effect, EFFECT_IMMUNE_EFFECT, accept_filter, immune_effect);
+	auto target_filter = [](card* c, effect* peffect) -> bool {
+		return peffect->is_target(c);
+	};
+	for (const auto& pcard : effect_target_owner)
+		filter_effect_container(pcard->target_effect, EFFECT_IMMUNE_EFFECT, target_filter, immune_effect);
+	auto xmaterial_filter = [](card* c, effect* peffect) -> bool {
+		return !(peffect->type & EFFECT_TYPE_FIELD);
+	};
+	for (const auto& pcard : xyz_materials)
+		filter_effect_container(pcard->xmaterial_effect, EFFECT_IMMUNE_EFFECT, xmaterial_filter, immune_effect);
+	filter_effect_container(pduel->game_field->effects.aura_effect, EFFECT_IMMUNE_EFFECT, target_filter, immune_effect);
 	immune_effect.sort();
 }
 // for all disable-related peffect of this,
