@@ -31,6 +31,7 @@ using effect_indexer = std::unordered_map<effect*, effect_container::iterator>;
 using effect_collection = std::unordered_set<effect*>;
 
 using effect_filter = bool(*)(card* self, effect* peffect);
+using effect_filter_target = bool(*)(card* self, effect* peffect, card* target);
 
 struct card_state {
 	uint32 code{ 0 };
@@ -336,7 +337,8 @@ public:
 	int32 check_set_procedure(effect* proc, uint8 playerid, uint8 ignore_count, uint8 min_tribute, uint32 zone);
 	void filter_spsummon_procedure(uint8 playerid, effect_set* eset, uint32 summon_type, material_info info = null_info);
 	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset);
-	effect* is_affected_by_effect(int32 code);
+	effect* find_effect(const effect_container& container, uint32 code, effect_filter f);
+	effect* is_affected_by_effect(uint32 code);
 	effect* is_affected_by_effect(int32 code, card* target);
 	int32 fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_material);
 	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf, uint8 not_material);
