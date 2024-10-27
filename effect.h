@@ -11,9 +11,7 @@
 #include "common.h"
 #include "field.h"
 #include "effectset.h"
-#include <stdlib.h>
 #include <vector>
-#include <map>
 
 class card;
 class duel;
