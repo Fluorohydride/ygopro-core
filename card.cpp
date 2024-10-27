@@ -4157,3 +4157,14 @@ int32 card::is_can_be_link_material(card* scard) {
 			return FALSE;
 	return TRUE;
 }
+int32 card::is_effect_property(const std::function<bool(effect*)>& filter) {
+	for (const auto& peffect : initial_effect) {
+		if (filter(peffect))
+			return TRUE;
+	}
+	for (const auto& peffect : owning_effect) {
+		if (filter(peffect))
+			return TRUE;
+	}
+	return FALSE;
+}

@@ -17,6 +17,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <tuple>
+#include <functional>
 
 class card;
 class duel;
@@ -401,6 +402,7 @@ public:
 	int32 is_can_be_ritual_material(card* scard);
 	int32 is_can_be_xyz_material(card* scard);
 	int32 is_can_be_link_material(card* scard);
+	int32 is_effect_property(const std::function<bool(effect*)>& filter);
 };
 
 //Summon Type in summon_info
