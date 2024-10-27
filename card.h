@@ -338,6 +338,7 @@ public:
 	void filter_spsummon_procedure(uint8 playerid, effect_set* eset, uint32 summon_type, material_info info = null_info);
 	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset);
 	effect* find_effect(const effect_container& container, uint32 code, effect_filter f);
+	effect* find_effect_with_target(const effect_container& container, uint32 code, effect_filter_target f, card* target);
 	effect* is_affected_by_effect(uint32 code);
 	effect* is_affected_by_effect(int32 code, card* target);
 	int32 fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_material);

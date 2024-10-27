@@ -2943,6 +2943,14 @@ effect* card::find_effect(const effect_container& container, uint32 code, effect
 	}
 	return nullptr;
 }
+effect* card::find_effect_with_target(const effect_container& container, uint32 code, effect_filter_target f, card* target) {
+	auto rg = container.equal_range(code);
+	for (auto it = rg.first; it != rg.second; ++it) {
+		if (f(this, it->second, target))
+			return it->second;
+	}
+	return nullptr;
+}
 // find an effect with code which affects this
 effect* card::is_affected_by_effect(uint32 code) {
 	effect* peffect = find_effect(single_effect, code, default_single_filter);
@@ -2969,46 +2977,42 @@ effect* card::is_affected_by_effect(uint32 code) {
 	return nullptr;
 }
 effect* card::is_affected_by_effect(int32 code, card* target) {
-	auto rg = single_effect.equal_range(code);
-	for (auto it = rg.first; it != rg.second; ++it) {
-		effect* const& peffect = it->second;
-		if (peffect->is_available() && (!peffect->is_flag(EFFECT_FLAG_SINGLE_RANGE) || is_affect_by_effect(peffect))
-			&& peffect->get_value(target))
+	auto single_filter = [](card* c, effect* peffect, card* target) -> bool {
+		return default_single_filter(c, peffect) && peffect->get_value(target);
+	};
+	effect* peffect = find_effect_with_target(single_effect, code, single_filter, target);
+	if (peffect)
+		return peffect;
+	auto equip_filter = [](card* c, effect* peffect, card* target) -> bool {
+		return default_equip_filter(c, peffect) && peffect->get_value(target);
+	};
+	for (const auto& pcard : equiping_cards) {
+		peffect = find_effect_with_target(pcard->equip_effect, code, equip_filter, target);
+		if (peffect)
 			return peffect;
 	}
-	for (auto& pcard : equiping_cards) {
-		rg = pcard->equip_effect.equal_range(code);
-		for (auto it = rg.first; it != rg.second; ++it) {
-			effect* const& peffect = it->second;
-			if (peffect->is_available() && is_affect_by_effect(peffect) && peffect->get_value(target))
-				return peffect;
-		}
-	}
-	for (auto& pcard : effect_target_owner) {
-		rg = pcard->target_effect.equal_range(code);
-		for (auto it = rg.first; it != rg.second; ++it) {
-			effect* const& peffect = it->second;
-			if (peffect->is_available() && peffect->is_target(this) && is_affect_by_effect(peffect) && peffect->get_value(target))
-				return peffect;
-		}
-	}
-	for (auto& pcard : xyz_materials) {
-		rg = pcard->xmaterial_effect.equal_range(code);
-		for (auto it = rg.first; it != rg.second; ++it) {
-			effect* const& peffect = it->second;
-			if (peffect->type & EFFECT_TYPE_FIELD)
-				continue;
-			if (peffect->is_available() && is_affect_by_effect(peffect) && peffect->get_value(target))
-				return peffect;
-		}
-	}
-	rg = pduel->game_field->effects.aura_effect.equal_range(code);
-	for (auto it = rg.first; it != rg.second; ++it) {
-		effect* const& peffect = it->second;
-		if (!peffect->is_flag(EFFECT_FLAG_PLAYER_TARGET) && peffect->is_available()
-			&& peffect->is_target(this) && is_affect_by_effect(peffect) && peffect->get_value(target))
+	auto target_filter = [](card* c, effect* peffect, card* target) -> bool {
+		return default_target_filter(c, peffect) && peffect->get_value(target);
+	};
+	for (const auto& pcard : effect_target_owner) {
+		peffect = find_effect_with_target(pcard->target_effect, code, target_filter, target);
+		if (peffect)
 			return peffect;
 	}
+	auto xmaterial_filter = [](card* c, effect* peffect, card* target) -> bool {
+		return default_xmaterial_filter(c, peffect) && peffect->get_value(target);
+	};
+	for (const auto& pcard : xyz_materials) {
+		peffect = find_effect_with_target(pcard->xmaterial_effect, code, xmaterial_filter, target);
+		if (peffect)
+			return peffect;
+	}
+	auto aura_filter = [](card* c, effect* peffect, card* target) -> bool {
+		return default_aura_filter(c, peffect) && peffect->get_value(target);
+	};
+	peffect = find_effect_with_target(pduel->game_field->effects.aura_effect, code, aura_filter, target);
+	if (peffect)
+		return peffect;
 	return nullptr;
 }
 int32 card::fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_material) {
