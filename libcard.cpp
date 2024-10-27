@@ -1345,25 +1345,21 @@ int32 scriptlib::card_is_tuner(lua_State* L) {
 	lua_pushboolean(L, pcard->is_tuner(scard));
 	return 1;
 }
-int32 scriptlib::card_is_effect_code(lua_State* L) {
+int32 scriptlib::card_is_original_effect_property(lua_State* L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
+	check_param(L, PARAM_TYPE_FUNCTION, 2);
 	card* pcard = *(card**)lua_touserdata(L, 1);
-	uint32 code = (uint32)lua_tointeger(L, 2);
-	auto filter = [code](effect* peffect) -> bool {
-		return peffect->code == code;
-	};
-	lua_pushboolean(L, pcard->is_effect_property(filter));
+	int32 filter = interpreter::get_function_handle(L, 2);
+	lua_pushboolean(L, pcard->is_original_effect_property(filter));
 	return 1;
 }
-int32 scriptlib::card_is_effect_category(lua_State* L) {
+int32 scriptlib::card_is_effect_property(lua_State* L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
+	check_param(L, PARAM_TYPE_FUNCTION, 2);
 	card* pcard = *(card**)lua_touserdata(L, 1);
-	uint32 category = (uint32)lua_tointeger(L, 2);
-	auto filter = [category](effect* peffect) -> bool {
-		return peffect->category & category;
-	};
+	int32 filter = interpreter::get_function_handle(L, 2);
 	lua_pushboolean(L, pcard->is_effect_property(filter));
 	return 1;
 }
@@ -3537,8 +3533,8 @@ static const struct luaL_Reg cardlib[] = {
 	{ "IsStatus", scriptlib::card_is_status },
 	{ "IsNotTuner", scriptlib::card_is_not_tuner },
 	{ "IsTuner", scriptlib::card_is_tuner },
-	{ "IsEffectCode", scriptlib::card_is_effect_code },
-	{ "IsEffectCategory", scriptlib::card_is_effect_category },
+	{ "IsOriginalEffectProperty", scriptlib::card_is_original_effect_property },
+	{ "IsEffectProperty", scriptlib::card_is_effect_property },
 	{ "SetStatus", scriptlib::card_set_status },
 	{ "IsDualState", scriptlib::card_is_dual_state },
 	{ "EnableDualState", scriptlib::card_enable_dual_state },

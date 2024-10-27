@@ -4157,13 +4157,23 @@ int32 card::is_can_be_link_material(card* scard) {
 			return FALSE;
 	return TRUE;
 }
-int32 card::is_effect_property(const std::function<bool(effect*)>& filter) {
+int32 card::is_original_effect_property(int32 filter) {
 	for (const auto& peffect : initial_effect) {
-		if (filter(peffect))
+		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
+		if (pduel->lua->check_condition(filter, 1))
+			return TRUE;
+	}
+	return FALSE;
+}
+int32 card::is_effect_property(int32 filter) {
+	for (const auto& peffect : initial_effect) {
+		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
+		if(pduel->lua->check_condition(filter, 1))
 			return TRUE;
 	}
 	for (const auto& peffect : owning_effect) {
-		if (filter(peffect))
+		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
+		if (pduel->lua->check_condition(filter, 1))
 			return TRUE;
 	}
 	return FALSE;
