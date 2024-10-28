@@ -17,6 +17,14 @@ constexpr bool match_all(uint32 x, uint32 y) {
 
 class scriptlib {
 public:
+	enum effect_member : int32 {
+		MEMBER_CATEGORY,
+		MEMBER_CODE,
+		MEMBER_DESCRIPTION,
+		MEMBER_ID,
+		MEMBER_RANGE,
+		MEMBER_TYPE,
+	};
 	static int32 check_param(lua_State* L, int32 param_type, int32 index, int32 retfalse = FALSE);
 	static int32 check_param_count(lua_State* L, int32 count);
 	static int32 check_action_permission(lua_State* L);
@@ -299,6 +307,8 @@ public:
 	static void open_cardlib(lua_State *L);
 
 	//Effect functions
+	static int32 get_effect_property(lua_State* L, effect_member type);
+	static int32 is_effect_property(lua_State* L, effect_member type);
 	static int32 effect_new(lua_State *L);
 	static int32 effect_newex(lua_State *L);
 	static int32 effect_clone(lua_State *L);
@@ -330,6 +340,7 @@ public:
 	static int32 effect_get_label(lua_State *L);
 	static int32 effect_get_label_object(lua_State *L);
 	static int32 effect_get_category(lua_State *L);
+	static int32 effect_get_range(lua_State* L);
 	static int32 effect_get_owner(lua_State *L);
 	static int32 effect_get_handler(lua_State *L);
 	static int32 effect_get_owner_player(lua_State *L);
@@ -343,6 +354,7 @@ public:
 	static int32 effect_is_active_type(lua_State *L);
 	static int32 effect_is_has_property(lua_State *L);
 	static int32 effect_is_has_category(lua_State *L);
+	static int32 effect_is_has_range(lua_State* L);
 	static int32 effect_is_has_type(lua_State *L);
 	static int32 effect_is_activatable(lua_State *L);
 	static int32 effect_is_activated(lua_State *L);
