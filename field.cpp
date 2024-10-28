@@ -1161,6 +1161,8 @@ void field::tag_swap(uint8 playerid) {
 		pduel->write_buffer32(pcard->data.code | (pcard->is_position(POS_FACEUP) ? 0x80000000 : 0));
 }
 void field::add_effect(effect* peffect, uint8 owner_player) {
+	if (!peffect)
+		return;
 	if (effects.indexer.find(peffect) != effects.indexer.end())
 		return;
 	effect_container::iterator it;

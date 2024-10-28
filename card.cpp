@@ -1756,6 +1756,8 @@ void card::enable_field_effect(bool enabled) {
 	filter_disable_related_cards();
 }
 int32 card::add_effect(effect* peffect) {
+	if (!peffect)
+		return 0;
 	if (get_status(STATUS_COPYING_EFFECT) && peffect->is_flag(EFFECT_FLAG_UNCOPYABLE)) {
 		pduel->uncopy.insert(peffect);
 		return 0;
