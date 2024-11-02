@@ -201,19 +201,27 @@ int32 scriptlib::effect_set_type(lua_State *L) {
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	uint32 v = (uint32)lua_tointeger(L, 2);
+	if (v & EFFECT_TYPE_ACTIVATE) {
+		v = EFFECT_TYPE_FIELD | EFFECT_TYPE_ACTIVATE;
+		peffect->range = LOCATION_SZONE + LOCATION_FZONE + LOCATION_HAND;
+	}
+	else if(v & EFFECT_TYPE_FLIP) {
+		peffect->code = EVENT_FLIP;
+		if (v & EFFECT_TYPE_TRIGGER_O) {
+			v = EFFECT_TYPE_SINGLE | EFFECT_TYPE_FLIP | EFFECT_TYPE_TRIGGER_O;
+			peffect->flag[0] |= EFFECT_FLAG_DELAY;
+		}
+		else {
+			v = EFFECT_TYPE_SINGLE | EFFECT_TYPE_FLIP | EFFECT_TYPE_TRIGGER_F;
+		}
+	}
+	else if (v & (EFFECT_TYPE_IGNITION | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F)) {
+			v |= EFFECT_TYPE_FIELD;
+	}
 	if (v & (EFFECT_TYPES_CHAIN_LINK | EFFECT_TYPE_CONTINUOUS))
 		v |= EFFECT_TYPE_ACTIONS;
 	else
 		v &= ~EFFECT_TYPE_ACTIONS;
-	if(v & (EFFECT_TYPE_ACTIVATE | EFFECT_TYPE_IGNITION | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F))
-		v |= EFFECT_TYPE_FIELD;
-	if(v & EFFECT_TYPE_ACTIVATE)
-		peffect->range = LOCATION_SZONE + LOCATION_FZONE + LOCATION_HAND;
-	if(v & EFFECT_TYPE_FLIP) {
-		peffect->code = EVENT_FLIP;
-		if(!(v & EFFECT_TYPE_TRIGGER_O))
-			v |= EFFECT_TYPE_TRIGGER_F;
-	}
 	peffect->type = v;
 	return 0;
 }
