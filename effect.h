@@ -88,6 +88,7 @@ public:
 	int32 is_chainable(uint8 tp);
 	int32 is_hand_trigger() const;
 	int32 is_initial_single() const;
+	int32 is_monster_effect() const;
 	int32 reset(uint32 reset_level, uint32 reset_type);
 	void dec_count(uint8 playerid = PLAYER_NONE);
 	void recharge();
