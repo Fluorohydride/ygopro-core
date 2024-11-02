@@ -56,7 +56,7 @@ struct card_state {
 	uint8 reason_player{ PLAYER_NONE };
 	effect* reason_effect{ nullptr };
 
-	bool is_location(int32 loc) const;
+	bool is_location(uint32 loc) const;
 	bool is_main_mzone() const {
 		return location == LOCATION_MZONE && sequence >= 0 && sequence <= 4;
 	}
