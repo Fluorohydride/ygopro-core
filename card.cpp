@@ -4157,6 +4157,9 @@ int32 card::is_can_be_link_material(card* scard) {
 			return FALSE;
 	return TRUE;
 }
+/**
+* @param filter Lua function filter(e)
+*/
 int32 card::is_original_effect_property(int32 filter) {
 	for (const auto& peffect : initial_effect) {
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
@@ -4165,13 +4168,20 @@ int32 card::is_original_effect_property(int32 filter) {
 	}
 	return FALSE;
 }
+/**
+* @param filter Lua function filter(e)
+*/
 int32 card::is_effect_property(int32 filter) {
 	for (const auto& peffect : initial_effect) {
+		if (current.is_location(LOCATION_ONFIELD) && !peffect->in_range(this))
+			continue;
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		if(pduel->lua->check_condition(filter, 1))
 			return TRUE;
 	}
 	for (const auto& peffect : owning_effect) {
+		if (current.is_location(LOCATION_ONFIELD) && !peffect->in_range(this))
+			continue;
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		if (pduel->lua->check_condition(filter, 1))
 			return TRUE;
