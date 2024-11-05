@@ -46,7 +46,7 @@ int32 scriptlib::is_effect_property(lua_State* L, effect_member type) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**)lua_touserdata(L, 1);
-	uint32 value{};
+	uint64 value{};
 	if (peffect) {
 		switch (type) {
 		case MEMBER_CATEGORY:
@@ -63,7 +63,7 @@ int32 scriptlib::is_effect_property(lua_State* L, effect_member type) {
 			break;
 		}
 	}
-	uint32 x = (uint32)lua_tointeger(L, 2);
+	uint64 x = lua_tointeger(L, 2);
 	if (value & x)
 		lua_pushboolean(L, 1);
 	else
