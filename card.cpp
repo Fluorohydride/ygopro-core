@@ -420,13 +420,13 @@ uint32 card::get_info_location() const {
 		uint32 l = overlay_target->current.location | LOCATION_OVERLAY;
 		uint32 s = overlay_target->current.sequence;
 		uint32 ss = current.sequence;
-		return c + (l << 8) + (s << 16) + (ss << 24);
+		return c | (l << 8) | (s << 16) | (ss << 24);
 	} else {
 		uint32 c = current.controler;
 		uint32 l = current.location;
 		uint32 s = current.sequence;
 		uint32 ss = current.position;
-		return c + (l << 8) + (s << 16) + (ss << 24);
+		return c | (l << 8) | (s << 16) | (ss << 24);
 	}
 }
 // get the printed code on card
@@ -1347,8 +1347,8 @@ uint32 card::get_mutual_linked_zone() {
 	int32 p = current.controler;
 	int32 s = current.sequence;
 	uint32 linked_zone = get_linked_zone();
-	uint32 icheck = 0x1;
-	for(uint32 i = 0; i < 7; ++i, icheck <<= 1) {
+	uint32 icheck = 0x1U;
+	for(int32 i = 0; i < 7; ++i, icheck <<= 1) {
 		if(icheck & linked_zone) {
 			card* pcard = pduel->game_field->player[p].list_mzone[i];
 			if(pcard && (pcard->get_linked_zone() & (1u << s)))

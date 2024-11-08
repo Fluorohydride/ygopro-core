@@ -4019,7 +4019,7 @@ int32 field::add_chain(uint16 step) {
 				phandler->enable_field_effect(false);
 				phandler->set_status(STATUS_ACT_FROM_HAND, TRUE);
 				if(phandler->data.type & TYPE_FIELD)
-					zone = 0x1 << 5;
+					zone = 0x1U << 5;
 				move_to_field(phandler, phandler->current.controler, phandler->current.controler, LOCATION_SZONE, POS_FACEUP, FALSE, 0, (phandler->data.type & TYPE_PENDULUM) ? TRUE : FALSE, zone);
 			} else {
 				phandler->set_status(STATUS_ACT_FROM_HAND, FALSE);
