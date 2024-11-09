@@ -13,6 +13,7 @@
 #include "mtrandom.h"
 #include <set>
 #include <unordered_set>
+#include <vector>
 
 class card;
 class group;
@@ -40,6 +41,9 @@ public:
 	~duel();
 	void clear();
 	
+	uint32 buffer_size() const {
+		return (uint32)message_buffer.size() & PROCESSOR_BUFFER_LEN;
+	}
 	card* new_card(uint32 code);
 	group* new_group();
 	group* new_group(card* pcard);
