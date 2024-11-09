@@ -3875,7 +3875,7 @@ int32 scriptlib::duel_select_disable_field(lua_State * L) {
 		}
 		if(dfflag & (0x1U << 5))
 			dfflag |= 0x1U << (16 + 6);
-		if(dfflag & (0x1 << 6))
+		if(dfflag & (0x1U << 6))
 			dfflag |= 0x1U << (16 + 5);
 		lua_pushinteger(L, dfflag);
 		return 1;
