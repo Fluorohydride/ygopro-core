@@ -627,7 +627,7 @@ public:
 	int32 toss_dice(uint16 step, effect* reason_effect, uint8 reason_player, uint8 playerid, uint8 count1, uint8 count2);
 	int32 rock_paper_scissors(uint16 step, uint8 repeat);
 
-	bool check_response(int32 vector_size, int32 min_len, int32 max_len) const;
+	bool check_response(size_t vector_size, int32 min_len, int32 max_len) const;
 	int32 select_battle_command(uint16 step, uint8 playerid);
 	int32 select_idle_command(uint16 step, uint8 playerid);
 	int32 select_effect_yes_no(uint16 step, uint8 playerid, uint32 description, card* pcard);

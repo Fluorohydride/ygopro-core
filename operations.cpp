@@ -4367,7 +4367,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 				raise_single_event(pcard, 0, EVENT_DESTROYED, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 			}
 			if(pcard->xyz_materials.size()) {
-				pcard->xyz_materials_previous_count_onfield = pcard->xyz_materials.size();
+				pcard->xyz_materials_previous_count_onfield = (int32)pcard->xyz_materials.size();
 				for(auto& mcard : pcard->xyz_materials)
 					overlays.insert(mcard);
 			} else {
@@ -4711,7 +4711,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				}
 			}
 			if(target->xyz_materials.size()) {
-				target->xyz_materials_previous_count_onfield = target->xyz_materials.size();
+				target->xyz_materials_previous_count_onfield = (int32)target->xyz_materials.size();
 				card_set overlays;
 				overlays.insert(target->xyz_materials.begin(), target->xyz_materials.end());
 				send_to(&overlays, 0, REASON_LOST_OVERLAY + REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);

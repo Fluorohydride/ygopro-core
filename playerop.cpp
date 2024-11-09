@@ -14,14 +14,14 @@
 #include <algorithm>
 #include <stack>
 
-bool field::check_response(int32 vector_size, int32 min_len, int32 max_len) const {
+bool field::check_response(size_t vector_size, int32 min_len, int32 max_len) const {
 	const int32 len = returns.bvalue[0];
 	if (len < min_len || len > max_len)
 		return false;
 	std::set<uint8> index_set;
 	for (int32 i = 0; i < len; ++i) {
 		uint8 index = returns.bvalue[1 + i];
-		if (index >=vector_size  || index_set.count(index)) {
+		if (index >= (int32)vector_size  || index_set.count(index)) {
 			return false;
 		}
 		index_set.insert(index);
