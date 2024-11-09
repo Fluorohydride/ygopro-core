@@ -4632,7 +4632,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 	}
 	case 1: {
 		uint32 seq = returns.bvalue[2];
-		if(location == LOCATION_SZONE && zone == 0x1 << 5 && (target->data.type & TYPE_FIELD) && (target->data.type & TYPE_SPELL))
+		if(location == LOCATION_SZONE && zone == 0x1U << 5 && (target->data.type & TYPE_FIELD) && (target->data.type & TYPE_SPELL))
 			seq = 5;
 		if(ret != RETURN_TEMP_REMOVE_TO_FIELD) {
 			if(location != target->current.location) {
@@ -4742,7 +4742,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				}
 				if(peffect->get_handler_player() != target->current.controler)
 					value = value >> 16;
-				if(value & (0x1 << target->current.sequence)) {
+				if(value & (0x1U << target->current.sequence)) {
 					peffect->dec_count();
 				}
 			}
