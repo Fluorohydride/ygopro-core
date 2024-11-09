@@ -1079,9 +1079,9 @@ int32 field::swap_control(uint16 step, effect* reason_effect, uint8 reason_playe
 		uint32 flag;
 		get_useable_count(nullptr, p1, LOCATION_MZONE, reason_player, LOCATION_REASON_CONTROL, 0xff, &flag);
 		if(reason_player == p1)
-			flag = (flag & ~(1 << s1) & 0xff) | ~0x1f;
+			flag = (flag & ~(0x1U << s1) & 0xff) | ~0x1f;
 		else
-			flag = ((flag & ~(1 << s1)) << 16 & 0xff0000) | ~0x1f0000;
+			flag = ((flag & ~(0x1U << s1)) << 16 & 0xff0000) | ~0x1f0000;
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(reason_player);
@@ -1102,9 +1102,9 @@ int32 field::swap_control(uint16 step, effect* reason_effect, uint8 reason_playe
 		uint32 flag;
 		get_useable_count(nullptr, p2, LOCATION_MZONE, reason_player, LOCATION_REASON_CONTROL, 0xff, &flag);
 		if(reason_player == p2)
-			flag = (flag & ~(1 << s2) & 0xff) | ~0x1f;
+			flag = (flag & ~(0x1U << s2) & 0xff) | ~0x1f;
 		else
-			flag = ((flag & ~(1 << s2)) << 16 & 0xff0000) | ~0x1f0000;
+			flag = ((flag & ~(0x1U << s2)) << 16 & 0xff0000) | ~0x1f0000;
 		pduel->write_buffer8(MSG_HINT);
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(reason_player);
@@ -2465,7 +2465,7 @@ int32 field::sset(uint16 step, uint8 setplayer, uint8 toplayer, card * target, e
 	}
 	case 2: {
 		target->enable_field_effect(false);
-		move_to_field(target, setplayer, toplayer, LOCATION_SZONE, POS_FACEDOWN, FALSE, 0, FALSE, 0x1 << target->to_field_param);
+		move_to_field(target, setplayer, toplayer, LOCATION_SZONE, POS_FACEDOWN, FALSE, 0, FALSE, 0x1U << target->to_field_param);
 		return FALSE;
 	}
 	case 3: {
@@ -2568,7 +2568,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		uint32 seq = returns.bvalue[2];
 		core.set_group_seq[core.set_group_pre_set.size()] = seq;
 		core.set_group_pre_set.insert(target);
-		core.set_group_used_zones |= (1 << seq);
+		core.set_group_used_zones |= (0x1U << seq);
 		set_cards->erase(target);
 		if(!set_cards->empty())
 			core.units.begin()->step = 0;
@@ -2582,10 +2582,10 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 		target->enable_field_effect(false);
 		uint32 zone;
 		if(target->data.type & TYPE_FIELD) {
-			zone = 1 << 5;
+			zone = 0x1U << 5;
 		} else {
-			for(uint32 i = 0; i < 7; i++) {
-				zone = 1 << i;
+			for(int32 i = 0; i < 7; i++) {
+				zone = 0x1U << i;
 				if(core.set_group_used_zones & zone) {
 					core.set_group_used_zones &= ~zone;
 					break;
@@ -2649,7 +2649,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 			core.operated_set.insert(pcard);
 		}
 		uint8 ct = (uint8)core.operated_set.size();
-		if(core.set_group_used_zones & (1 << 5))
+		if(core.set_group_used_zones & (0x1U << 5))
 			--ct;
 		if(ct <= 1)
 			return FALSE;
@@ -4554,7 +4554,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 		returns.ivalue[0] = FALSE;
 		if((ret == RETURN_TEMP_REMOVE_TO_FIELD) && (!(target->current.reason & REASON_TEMPORARY) || (target->current.reason_effect->owner != core.reason_effect->owner)))
 			return TRUE;
-		if(location == LOCATION_SZONE && zone == 0x1 << 5 && (target->data.type & TYPE_FIELD) && (target->data.type & TYPE_SPELL)) {
+		if(location == LOCATION_SZONE && zone == 0x1U << 5 && (target->data.type & TYPE_FIELD) && (target->data.type & TYPE_SPELL)) {
 			card* pcard = get_field_card(playerid, LOCATION_SZONE, 5);
 			if(pcard) {
 				if(core.duel_rule >= 3)
@@ -4599,8 +4599,8 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 				return FALSE;
 			}
 			if((zone & zone - 1) == 0) {
-				for(uint8 seq = 0; seq < 8; seq++) {
-					if((1 << seq) & zone) {
+				for(uint8 seq = 0; seq < 8; ++seq) {
+					if((0x1U << seq) & zone) {
 						returns.bvalue[2] = seq;
 						return FALSE;
 					}
