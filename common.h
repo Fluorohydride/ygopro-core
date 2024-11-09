@@ -49,17 +49,17 @@ typedef signed char int8;
 #define CURRENT_RULE		5
 
 //Locations
-#define LOCATION_DECK		0x01		//
-#define LOCATION_HAND		0x02		//
-#define LOCATION_MZONE		0x04		//
-#define LOCATION_SZONE		0x08		//
-#define LOCATION_GRAVE		0x10		//
-#define LOCATION_REMOVED	0x20		//
-#define LOCATION_EXTRA		0x40		//
-#define LOCATION_OVERLAY	0x80		//
-#define LOCATION_ONFIELD	0x0c		//
-#define LOCATION_FZONE		0x100		//
-#define LOCATION_PZONE		0x200		//
+#define LOCATION_DECK		0x01U
+#define LOCATION_HAND		0x02U
+#define LOCATION_MZONE		0x04U
+#define LOCATION_SZONE		0x08U
+#define LOCATION_GRAVE		0x10U
+#define LOCATION_REMOVED	0x20U
+#define LOCATION_EXTRA		0x40U
+#define LOCATION_OVERLAY	0x80U
+#define LOCATION_ONFIELD	(LOCATION_MZONE | LOCATION_SZONE)
+#define LOCATION_FZONE		0x100U
+#define LOCATION_PZONE		0x200U
 //For redirect
 #define LOCATION_DECKBOT	0x10001		//Return to deck bottom
 #define LOCATION_DECKSHF	0x20001		//Return to deck and shuffle
