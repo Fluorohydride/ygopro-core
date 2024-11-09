@@ -393,10 +393,14 @@ int32 scriptlib::card_get_current_scale(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**)lua_touserdata(L, 1);
-	if(pcard->current.pzone && pcard->current.sequence == (pcard->pduel->game_field->core.duel_rule >= NEW_MASTER_RULE ? 0 : 6))
-		lua_pushinteger(L, pcard->get_lscale());
+	if (pcard->current.pzone) {
+		if (pcard->current.sequence == pcard->pduel->game_field->get_pzone_sequence(0))
+			lua_pushinteger(L, pcard->get_lscale());
+		else
+			lua_pushinteger(L, pcard->get_rscale());
+	}
 	else
-		lua_pushinteger(L, pcard->get_rscale());
+		lua_pushinteger(L, pcard->data.lscale);
 	return 1;
 }
 int32 scriptlib::card_is_link_marker(lua_State *L) {

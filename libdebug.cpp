@@ -43,7 +43,7 @@ int32 scriptlib::debug_add_card(lua_State *L) {
 			position = POS_FACEDOWN_DEFENSE;
 		pcard->sendto_param.position = position;
 		if(location == LOCATION_PZONE) {
-			int32 seq = pduel->game_field->core.duel_rule >= NEW_MASTER_RULE ? sequence * 4 : sequence + 6;
+			int32 seq = pduel->game_field->get_pzone_sequence(sequence);
 			pduel->game_field->add_card(playerid, pcard, LOCATION_SZONE, seq, TRUE);
 		} else {
 			pduel->game_field->add_card(playerid, pcard, location, sequence);
