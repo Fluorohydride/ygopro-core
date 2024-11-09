@@ -622,6 +622,11 @@ int32 effect::is_hand_trigger() const {
 int32 effect::is_initial_single() const {
 	return (type & EFFECT_TYPE_SINGLE) && is_flag(EFFECT_FLAG_SINGLE_RANGE) && is_flag(EFFECT_FLAG_INITIAL);
 }
+int32 effect::is_monster_effect() const {
+	if (range & (LOCATION_SZONE | LOCATION_FZONE | LOCATION_PZONE))
+		return FALSE;
+	return TRUE;
+}
 //return: this can be reset by reset_level or not
 //RESET_DISABLE is valid only when owner == handler
 int32 effect::reset(uint32 reset_level, uint32 reset_type) {

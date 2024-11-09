@@ -26,10 +26,6 @@ struct effect_set {
 	void remove_item(int index) {
 		if (index < 0 || index >= count)
 			return;
-		if(index == count - 1) {
-			--count;
-			return;
-		}
 		for(int i = index; i < count - 1; ++i)
 			container[i] = container[i + 1];
 		--count;
@@ -86,10 +82,7 @@ struct effect_set_v {
 		return (int)container.size();
 	}
 	void sort() {
-		int count = (int)container.size();
-		if(count < 2)
-			return;
-		std::sort(container.begin(), container.begin() + count, effect_sort_id);
+		std::sort(container.begin(), container.end(), effect_sort_id);
 	}
 	effect* const& get_last() const {
 		assert(container.size());

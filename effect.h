@@ -11,9 +11,7 @@
 #include "common.h"
 #include "field.h"
 #include "effectset.h"
-#include <stdlib.h>
 #include <vector>
-#include <map>
 
 class card;
 class duel;
@@ -90,6 +88,7 @@ public:
 	int32 is_chainable(uint8 tp);
 	int32 is_hand_trigger() const;
 	int32 is_initial_single() const;
+	int32 is_monster_effect() const;
 	int32 reset(uint32 reset_level, uint32 reset_type);
 	void dec_count(uint8 playerid = PLAYER_NONE);
 	void recharge();
@@ -156,6 +155,8 @@ public:
 #define RESET_OVERLAY		0x04000000
 #define RESET_MSCHANGE		0x08000000
 
+constexpr uint32 RESETS_STANDARD = RESET_TOFIELD | RESET_LEAVE | RESET_TODECK | RESET_TOHAND | RESET_TEMP_REMOVE | RESET_REMOVE | RESET_TOGRAVE | RESET_TURN_SET;
+
 //========== Types ==========
 #define EFFECT_TYPE_SINGLE			0x0001	//
 #define EFFECT_TYPE_FIELD			0x0002	//
@@ -191,7 +192,7 @@ enum effect_flag : uint32 {
 	EFFECT_FLAG_CANNOT_DISABLE		= 0x0400,
 	EFFECT_FLAG_PLAYER_TARGET		= 0x0800,
 	EFFECT_FLAG_BOTH_SIDE			= 0x1000,
-//	EFFECT_FLAG_COPY_INHERIT		= 0x2000,
+	EFFECT_FLAG_COPY				= 0x2000,
 	EFFECT_FLAG_DAMAGE_STEP			= 0x4000,
 	EFFECT_FLAG_DAMAGE_CAL			= 0x8000,
 	EFFECT_FLAG_DELAY				= 0x10000,
@@ -220,7 +221,7 @@ enum effect_flag2 : uint32 {
 constexpr effect_flag operator|(effect_flag flag1, effect_flag flag2) {
 	return static_cast<effect_flag>(static_cast<uint32>(flag1) | static_cast<uint32>(flag2));
 }
-constexpr uint32 INTERNAL_FLAGS = EFFECT_FLAG_INITIAL | EFFECT_FLAG_FUNC_VALUE | EFFECT_FLAG_COUNT_LIMIT | EFFECT_FLAG_FIELD_ONLY | EFFECT_FLAG_ABSOLUTE_TARGET;
+constexpr uint32 INTERNAL_FLAGS = EFFECT_FLAG_INITIAL | EFFECT_FLAG_COPY | EFFECT_FLAG_FUNC_VALUE | EFFECT_FLAG_COUNT_LIMIT | EFFECT_FLAG_FIELD_ONLY | EFFECT_FLAG_ABSOLUTE_TARGET;
 //========== Codes ==========
 #define EFFECT_IMMUNE_EFFECT			1	//
 #define EFFECT_DISABLE					2	//

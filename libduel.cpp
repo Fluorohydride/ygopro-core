@@ -863,7 +863,7 @@ int32 scriptlib::duel_move_to_field(lua_State *L) {
 		zone = (uint32)lua_tointeger(L, 7);
 	if(destination == LOCATION_FZONE) {
 		destination = LOCATION_SZONE;
-		zone = 0x1 << 5;
+		zone = 0x1U << 5;
 	}
 	uint32 pzone = FALSE;
 	if(destination == LOCATION_PZONE) {
@@ -1984,7 +1984,7 @@ int32 scriptlib::duel_get_mzone_count(lua_State *L) {
 		} else
 			return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
 		for(int32 p = 0; p < 2; p++) {
-			uint32 digit = 1;
+			uint32 digit = 0x1U;
 			for(auto& pcard : pduel->game_field->player[p].list_mzone) {
 				if(pcard && pcard != mcard && !(mgroup && mgroup->container.find(pcard) != mgroup->container.end())) {
 					used_location[p] |= digit;
@@ -3846,11 +3846,11 @@ int32 scriptlib::duel_select_disable_field(lua_State * L) {
 	}
 	if((location1 & LOCATION_MZONE) && (location2 & LOCATION_MZONE) && pduel->game_field->core.duel_rule >= NEW_MASTER_RULE) {
 		if(pduel->game_field->is_location_useable(playerid, LOCATION_MZONE, 5)) {
-			flag &= ~(0x1 << 5);
+			flag &= ~(0x1U << 5);
 			ct1 += 1;
 		}
 		if(pduel->game_field->is_location_useable(playerid, LOCATION_MZONE, 6)) {
-			flag &= ~(0x1 << 6);
+			flag &= ~(0x1U << 6);
 			ct1 += 1;
 		}
 	}
@@ -3870,13 +3870,13 @@ int32 scriptlib::duel_select_disable_field(lua_State * L) {
 			uint8 p = pduel->game_field->returns.bvalue[pa];
 			uint8 l = pduel->game_field->returns.bvalue[pa + 1];
 			uint8 s = pduel->game_field->returns.bvalue[pa + 2];
-			dfflag |= 0x1u << (s + (p == playerid ? 0 : 16) + (l == LOCATION_MZONE ? 0 : 8));
+			dfflag |= 0x1U << (s + (p == playerid ? 0 : 16) + (l == LOCATION_MZONE ? 0 : 8));
 			pa += 3;
 		}
-		if(dfflag & (0x1 << 5))
-			dfflag |= 0x1 << (16 + 6);
+		if(dfflag & (0x1U << 5))
+			dfflag |= 0x1U << (16 + 6);
 		if(dfflag & (0x1 << 6))
-			dfflag |= 0x1 << (16 + 5);
+			dfflag |= 0x1U << (16 + 5);
 		lua_pushinteger(L, dfflag);
 		return 1;
 	});
@@ -3937,10 +3937,10 @@ int32 scriptlib::duel_select_field(lua_State* L) {
 			dfflag |= 0x1u << (s + (p == playerid ? 0 : 16) + (l == LOCATION_MZONE ? 0 : 8));
 			pa += 3;
 		}
-		if(dfflag & (0x1 << 5))
-			dfflag |= 0x1 << (16 + 6);
-		if(dfflag & (0x1 << 6))
-			dfflag |= 0x1 << (16 + 5);
+		if(dfflag & (0x1U << 5))
+			dfflag |= 0x1U << (16 + 6);
+		if(dfflag & (0x1U << 6))
+			dfflag |= 0x1U << (16 + 5);
 		lua_pushinteger(L, dfflag);
 		return 1;
 		});
@@ -4792,7 +4792,7 @@ int32 scriptlib::duel_majestic_copy(lua_State *L) {
 		ceffect->flag[0] &= ~EFFECT_FLAG_INITIAL;
 		ceffect->effect_owner = PLAYER_NONE;
 		ceffect->reset_flag = RESET_EVENT + 0x1fe0000 + RESET_PHASE + PHASE_END + RESET_SELF_TURN + RESET_OPPO_TURN;
-		ceffect->reset_count = 0x1;
+		ceffect->reset_count = 1;
 		ceffect->recharge();
 		if(ceffect->type & EFFECT_TYPE_TRIGGER_F) {
 			ceffect->type &= ~EFFECT_TYPE_TRIGGER_F;

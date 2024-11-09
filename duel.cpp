@@ -98,9 +98,10 @@ void duel::delete_effect(effect* peffect) {
 	delete peffect;
 }
 int32 duel::read_buffer(byte* buf) {
-	if(message_buffer.size())
-		std::memcpy(buf, message_buffer.data(), message_buffer.size());
-	return (int32)message_buffer.size();
+	auto size = buffer_size();
+	if (size)
+		std::memcpy(buf, message_buffer.data(), size);
+	return (int32)size;
 }
 void duel::release_script_group() {
 	for(auto& pgroup : sgroups) {

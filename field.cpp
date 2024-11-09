@@ -567,31 +567,31 @@ int32 field::is_location_useable(uint8 playerid, uint32 general_location, uint8 
 	if (general_location == LOCATION_MZONE) {
 		if (sequence >= (int32)player[playerid].list_mzone.size())
 			return FALSE;
-		if(flag & (0x1u << sequence))
+		if(flag & (0x1U << sequence))
 			return FALSE;
 		if(sequence >= 5) {
 			uint32 oppo = player[1 - playerid].disabled_location | player[1 - playerid].used_location;
-			if(oppo & (0x1u << (11 - sequence)))
+			if(oppo & (0x1U << (11 - sequence)))
 				return FALSE;
 		}
 	} else if (general_location == LOCATION_SZONE) {
 		if (sequence >= player[playerid].szone_size)
 			return FALSE;
-		if(flag & (0x100u << sequence))
+		if(flag & (0x100U << sequence))
 			return FALSE;
 	} else if (general_location == LOCATION_FZONE) {
 		if (sequence >= 1)
 			return FALSE;
-		if(flag & (0x100u << (5 + sequence)))
+		if(flag & (0x100U << (5 + sequence)))
 			return FALSE;
 	} else if (general_location == LOCATION_PZONE) {
 		if (sequence >= 2)
 			return FALSE;
 		if(core.duel_rule >= NEW_MASTER_RULE) {
-			if(flag & (0x100u << (sequence * 4)))
+			if(flag & (0x100U << (sequence * 4)))
 				return FALSE;
 		} else {
-			if(flag & (0x100u << (6 + sequence)))
+			if(flag & (0x100U << (6 + sequence)))
 				return FALSE;
 		}
 	}
@@ -1161,6 +1161,8 @@ void field::tag_swap(uint8 playerid) {
 		pduel->write_buffer32(pcard->data.code | (pcard->is_position(POS_FACEUP) ? 0x80000000 : 0));
 }
 void field::add_effect(effect* peffect, uint8 owner_player) {
+	if (!peffect)
+		return;
 	if (effects.indexer.find(peffect) != effects.indexer.end())
 		return;
 	effect_container::iterator it;
@@ -1332,7 +1334,7 @@ void field::add_effect_code(uint32 code, uint32 playerid) {
 		count_map = &core.effect_count_code_duel;
 	else if(code & EFFECT_COUNT_CODE_CHAIN)
 		count_map = &core.effect_count_code_chain;
-	++(*count_map)[code + (playerid << 30)];
+	(*count_map)[code + (playerid << 30)]++;
 }
 uint32 field::get_effect_code(uint32 code, uint32 playerid) {
 	auto* count_map = &core.effect_count_code;
