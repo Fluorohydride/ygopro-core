@@ -310,7 +310,7 @@ public:
 
 	//Effect functions
 	static int32 get_effect_property(lua_State* L, effect_member type);
-	static int32 is_effect_property(lua_State* L, effect_member type);
+	static int32 is_effect_has_property(lua_State* L, effect_member type);
 	static int32 effect_new(lua_State *L);
 	static int32 effect_newex(lua_State *L);
 	static int32 effect_clone(lua_State *L);
