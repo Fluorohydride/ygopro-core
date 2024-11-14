@@ -42,7 +42,7 @@ int32 scriptlib::get_effect_property(lua_State* L, effect_member type) {
 	lua_pushinteger(L, value);
 	return 1;
 }
-int32 scriptlib::is_effect_property(lua_State* L, effect_member type) {
+int32 scriptlib::is_effect_has_property(lua_State* L, effect_member type) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**)lua_touserdata(L, 1);
@@ -51,9 +51,6 @@ int32 scriptlib::is_effect_property(lua_State* L, effect_member type) {
 		switch (type) {
 		case MEMBER_CATEGORY:
 			value = peffect->category;
-			break;
-		case MEMBER_CODE:
-			value = peffect->code;
 			break;
 		case MEMBER_RANGE:
 			value = peffect->range;
@@ -519,13 +516,13 @@ int32 scriptlib::effect_is_has_property(lua_State *L) {
 	return 1;
 }
 int32 scriptlib::effect_is_has_category(lua_State *L) {
-	return is_effect_property(L, MEMBER_CATEGORY);
+	return is_effect_has_property(L, MEMBER_CATEGORY);
 }
 int32 scriptlib::effect_is_has_type(lua_State *L) {
-	return is_effect_property(L, MEMBER_TYPE);
+	return is_effect_has_property(L, MEMBER_TYPE);
 }
 int32 scriptlib::effect_is_has_range(lua_State* L) {
-	return is_effect_property(L, MEMBER_RANGE);
+	return is_effect_has_property(L, MEMBER_RANGE);
 }
 int32 scriptlib::effect_is_activatable(lua_State *L) {
 	check_param_count(L, 2);
