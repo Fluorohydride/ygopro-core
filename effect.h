@@ -44,7 +44,7 @@ public:
 	int32 reset_count{ 0 };
 	uint32 reset_flag{ 0 };
 	uint32 count_code{ 0 };
-	uint32 category{ 0 };
+	uint64 category{ 0 };
 	uint32 hint_timing[2]{};
 	uint32 card_type{ 0 };
 	uint32 active_type{ 0 };
