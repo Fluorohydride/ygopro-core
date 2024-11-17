@@ -133,6 +133,11 @@ bool card::card_operation_sort(card* c1, card* c2) {
 			return c1->current.sequence < c2->current.sequence;
 	}
 }
+bool card::check_card_setcode(uint32 code, uint32 value) {
+	card_data dat;
+	::read_card(code, &dat);
+	return dat.is_setcode(value);
+}
 void card::attacker_map::addcard(card* pcard) {
 	auto fid = pcard ? pcard->fieldid_r : 0;
 	auto pr = emplace(fid, std::make_pair(pcard, 0));
@@ -487,11 +492,6 @@ inline bool check_setcode(uint16_t setcode, uint32 value) {
 	uint32 settype = value & 0x0fffU;
 	uint32 setsubtype = value & 0xf000U;
 	return (setcode & 0x0fffU) == settype && (setcode & 0xf000U & setsubtype) == setsubtype;
-}
-bool card::check_card_setcode(uint32 code, uint32 value) {
-	card_data dat;
-	::read_card(code, &dat);
-	return dat.is_setcode(value);
 }
 int32 card::is_set_card(uint32 set_code) {
 	uint32 code1 = get_code();
