@@ -219,6 +219,7 @@ public:
 	explicit card(duel* pd);
 	~card() = default;
 	static bool card_operation_sort(card* c1, card* c2);
+	static bool check_card_setcode(uint32 code, uint32 value);
 	bool is_extra_deck_monster() const { return !!(data.type & TYPES_EXTRA_DECK); }
 
 	int32 get_infos(byte* buf, uint32 query_flag, int32 use_cache = TRUE);
@@ -227,7 +228,6 @@ public:
 	std::tuple<uint32, uint32> get_original_code_rule() const;
 	uint32 get_code();
 	uint32 get_another_code();
-	static bool check_card_setcode(uint32 code, uint32 value);
 	int32 is_set_card(uint32 set_code);
 	int32 is_origin_set_card(uint32 set_code);
 	int32 is_pre_set_card(uint32 set_code);
