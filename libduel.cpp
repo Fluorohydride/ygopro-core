@@ -4772,23 +4772,19 @@ int32 scriptlib::duel_majestic_copy(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	check_param(L, PARAM_TYPE_CARD, 2);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	card* ccard = *(card**) lua_touserdata(L, 2);
-	for(auto eit = ccard->single_effect.begin(); eit != ccard->field_effect.end(); ++eit) {
-		if(eit == ccard->single_effect.end()) {
-			eit = ccard->field_effect.begin();
-			if(eit == ccard->field_effect.end())
-				break;
-		}
-		effect* peffect = eit->second;
-		if (!(peffect->type & 0x7c))
+	card* copy_target = *(card**) lua_touserdata(L, 2);
+	for(auto& peffect: copy_target->initial_effect) {
+		if (!(peffect->type & (EFFECT_TYPES_CHAIN_LINK & ~EFFECT_TYPE_ACTIVATE)))
 			continue;
-		if (!peffect->is_flag(EFFECT_FLAG_INITIAL))
+		if (peffect->type & EFFECT_TYPE_XMATERIAL)
+			continue;
+		if (!peffect->is_monster_effect())
 			continue;
 		effect* ceffect = peffect->clone();
 		ceffect->owner = pcard;
 		ceffect->flag[0] &= ~EFFECT_FLAG_INITIAL;
 		ceffect->effect_owner = PLAYER_NONE;
-		ceffect->reset_flag = RESET_EVENT + 0x1fe0000 + RESET_PHASE + PHASE_END + RESET_SELF_TURN + RESET_OPPO_TURN;
+		ceffect->reset_flag = RESET_EVENT | RESETS_STANDARD | RESET_PHASE | PHASE_END | RESET_SELF_TURN | RESET_OPPO_TURN;
 		ceffect->reset_count = 1;
 		ceffect->recharge();
 		if(ceffect->type & EFFECT_TYPE_TRIGGER_F) {
