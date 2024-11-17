@@ -1990,7 +1990,7 @@ int32 scriptlib::duel_get_mzone_count(lua_State *L) {
 					used_location[p] |= digit;
 					list_mzone[p].push_back(pcard);
 				} else
-					list_mzone[p].push_back(0);
+					list_mzone[p].push_back(nullptr);
 				digit <<= 1;
 			}
 			used_location[p] |= pduel->game_field->player[p].used_location & 0xff00;
@@ -2049,7 +2049,7 @@ int32 scriptlib::duel_get_location_count_fromex(lua_State *L) {
 					used_location[p] |= digit;
 					list_mzone[p].push_back(pcard);
 				} else
-					list_mzone[p].push_back(0);
+					list_mzone[p].push_back(nullptr);
 				digit <<= 1;
 			}
 			used_location[p] |= pduel->game_field->player[p].used_location & 0xff00;
