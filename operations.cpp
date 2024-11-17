@@ -641,7 +641,7 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_p
 		core.select_effects.clear();
 		if(val <= player[playerid].lp) {
 			core.select_options.push_back(11);
-			core.select_effects.push_back(0);
+			core.select_effects.push_back(nullptr);
 		}
 		if(must_pay) {
 			if(core.select_options.size() == 0)
@@ -786,7 +786,7 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 		core.select_effects.clear();
 		if((pcard && (int32)pcard->xyz_materials.size() >= min) || (!pcard && get_overlay_count(rplayer, s, o) >= min)) {
 			core.select_options.push_back(12);
-			core.select_effects.push_back(0);
+			core.select_effects.push_back(nullptr);
 		}
 		auto pr = effects.continuous_effect.equal_range(EFFECT_OVERLAY_REMOVE_REPLACE);
 		tevent e;
@@ -1529,7 +1529,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		core.select_effects.clear();
 		core.select_options.clear();
 		if(ignore_count || core.summon_count[sumplayer] < get_summon_count_limit(sumplayer)) {
-			core.select_effects.push_back(0);
+			core.select_effects.push_back(nullptr);
 			core.select_options.push_back(1);
 		}
 		if(!ignore_count && !core.extra_summon[sumplayer]) {
@@ -2104,7 +2104,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 			core.select_effects.clear();
 			core.select_options.clear();
 			if(res > 0) {
-				core.select_effects.push_back(0);
+				core.select_effects.push_back(nullptr);
 				core.select_options.push_back(1);
 			}
 			for(int32 i = 0; i < eset.size(); ++i) {
@@ -2129,7 +2129,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 		core.select_effects.clear();
 		core.select_options.clear();
 		if(ignore_count || core.summon_count[setplayer] < get_summon_count_limit(setplayer)) {
-			core.select_effects.push_back(0);
+			core.select_effects.push_back(nullptr);
 			core.select_options.push_back(1);
 		}
 		if(!ignore_count && !core.extra_summon[setplayer]) {
