@@ -3636,7 +3636,7 @@ int32 card::is_setable_szone(uint8 playerid, uint8 ignore_fd) {
 }
 int32 card::is_affect_by_effect(effect* reason_effect) {
 	if (is_status(STATUS_SUMMONING))
-		return reason_effect && (reason_effect->code == EFFECT_CANNOT_DISABLE_SUMMON || reason_effect->code == EFFECT_CANNOT_DISABLE_SPSUMMON);
+		return reason_effect && affect_summoning_effect.find(reason_effect->code) != affect_summoning_effect.end();
 	if(!reason_effect || reason_effect->is_flag(EFFECT_FLAG_IGNORE_IMMUNE))
 		return TRUE;
 	if(reason_effect->is_immuned(this))

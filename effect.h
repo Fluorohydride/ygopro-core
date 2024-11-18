@@ -578,4 +578,10 @@ const std::unordered_set<uint32> continuous_event{
 };
 bool is_continuous_event(uint32 code);
 
+const std::unordered_set<uint32> affect_summoning_effect{
+	EFFECT_CANNOT_DISABLE_SUMMON,
+	EFFECT_CANNOT_DISABLE_SPSUMMON,
+	EVENT_BE_PRE_MATERIAL,
+};
+
 #endif /* EFFECT_H_ */
