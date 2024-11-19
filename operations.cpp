@@ -4565,9 +4565,12 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			}
 		} else if(pzone && location == LOCATION_SZONE && (target->data.type & TYPE_PENDULUM)) {
 			uint32 flag = 0;
-			if(is_location_useable(playerid, LOCATION_PZONE, 0))
+			zone &= 0x3;
+			if (!zone)
+				zone = 0x3;
+			if (is_location_useable(playerid, LOCATION_PZONE, 0) && (zone & 0x1))
 				flag |= 0x100U << get_pzone_sequence(0);
-			if(is_location_useable(playerid, LOCATION_PZONE, 1))
+			if (is_location_useable(playerid, LOCATION_PZONE, 1) && (zone & 0x2))
 				flag |= 0x100U << get_pzone_sequence(1);
 			if(!flag) {
 				core.units.begin()->step = 3;
