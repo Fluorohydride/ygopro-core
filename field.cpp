@@ -804,11 +804,11 @@ int32 field::get_szone_limit(uint8 playerid, uint8 uplayer, uint32 reason) {
 }
 uint32 field::get_linked_zone(int32 playerid) {
 	uint32 zones = 0;
-	for(auto& pcard : player[playerid].list_mzone) {
+	for(const auto& pcard : player[playerid].list_mzone) {
 		if(pcard)
-			zones |= pcard->get_linked_zone() & 0xff;
+			zones |= pcard->get_linked_zone() & 0xffff;
 	}
-	for(auto& pcard : player[1 - playerid].list_mzone) {
+	for(const auto& pcard : player[1 - playerid].list_mzone) {
 		if(pcard)
 			zones |= pcard->get_linked_zone() >> 16;
 	}
@@ -872,19 +872,19 @@ int32 field::check_extra_link(int32 playerid) {
 	if(!player[playerid].list_mzone[5] || !player[playerid].list_mzone[6])
 		return FALSE;
 	card* pcard = player[playerid].list_mzone[5];
-	uint32 checked = 1u << 5;
+	uint32 checked = 0x1u << 5;
 	uint32 linked_zone = pcard->get_mutual_linked_zone();
 	while(true) {
-		if((linked_zone >> 6) & 1)
+		if((linked_zone >> 6) & 0x1U)
 			return TRUE;
-		int32 checking = (int32)(linked_zone & ~checked);
+		uint32 checking = linked_zone & ~checked;
 		if(!checking)
 			return FALSE;
-		int32 rightmost = checking & (-checking);
-		checked |= (uint32)rightmost;
-		if(rightmost < 0x10000) {
+		uint32 rightmost = checking & (-checking);
+		checked |= rightmost;
+		if(rightmost < 0x10000U) {
 			for(int32 i = 0; i < 7; ++i) {
-				if(rightmost & 1) {
+				if(rightmost & 0x1U) {
 					pcard = player[playerid].list_mzone[i];
 					linked_zone |= pcard->get_mutual_linked_zone();
 					break;
@@ -894,7 +894,7 @@ int32 field::check_extra_link(int32 playerid) {
 		} else {
 			rightmost >>= 16;
 			for(int32 i = 0; i < 7; ++i) {
-				if(rightmost & 1) {
+				if(rightmost & 0x1U) {
 					pcard = player[1 - playerid].list_mzone[i];
 					uint32 zone = pcard->get_mutual_linked_zone();
 					linked_zone |= (zone << 16) | (zone >> 16);
