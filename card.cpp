@@ -1276,18 +1276,18 @@ uint32 card::get_rscale() {
 	temp.rscale = UINT32_MAX;
 	return rscale;
 }
-uint32 card::get_link_marker() {
+uint32 card::get_link_marker() const {
 	if(!(data.type & TYPE_LINK))
 		return 0;
 	return data.link_marker;
 }
-int32 card::is_link_marker(uint32 dir) {
-	return (int32)(get_link_marker() & dir);
+uint32 card::is_link_marker(uint32 dir) const {
+	return get_link_marker() & dir;
 }
-uint32 card::get_linked_zone() {
+uint32 card::get_linked_zone() const {
 	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE || is_treated_as_not_on_field())
 		return 0;
-	int32 zones = 0;
+	uint32 zones = 0;
 	int32 s = current.sequence;
 	if(s > 0 && s <= 4 && is_link_marker(LINK_MARKER_LEFT))
 		zones |= 1u << (s - 1);
@@ -1340,10 +1340,10 @@ void card::get_linked_cards(card_set* cset) {
 	pduel->game_field->get_cards_in_zone(cset, linked_zone, p, LOCATION_MZONE);
 	pduel->game_field->get_cards_in_zone(cset, linked_zone >> 16, 1 - p, LOCATION_MZONE);
 }
-uint32 card::get_mutual_linked_zone() {
+uint32 card::get_mutual_linked_zone() const {
 	if(!(data.type & TYPE_LINK) || current.location != LOCATION_MZONE || is_treated_as_not_on_field())
 		return 0;
-	int32 zones = 0;
+	uint32 zones = 0;
 	int32 p = current.controler;
 	int32 s = current.sequence;
 	uint32 linked_zone = get_linked_zone();
@@ -1351,15 +1351,15 @@ uint32 card::get_mutual_linked_zone() {
 	for(int32 i = 0; i < 7; ++i, icheck <<= 1) {
 		if(icheck & linked_zone) {
 			card* pcard = pduel->game_field->player[p].list_mzone[i];
-			if(pcard && (pcard->get_linked_zone() & (1u << s)))
+			if(pcard && (pcard->get_linked_zone() & (0x1u << s)))
 				zones |= icheck;
 		}
 	}
-	icheck = 0x10000;
+	icheck = 0x10000U;
 	for(uint32 i = 0; i < 7; ++i, icheck <<= 1) {
 		if(icheck & linked_zone) {
 			card* pcard = pduel->game_field->player[1 - p].list_mzone[i];
-			if(pcard && (pcard->get_linked_zone() & (1u << (s + 16))))
+			if(pcard && (pcard->get_linked_zone() & (0x1u << (s + 16))))
 				zones |= icheck;
 		}
 	}
@@ -1383,28 +1383,28 @@ int32 card::is_link_state() {
 		return TRUE;
 	int32 p = current.controler;
 	uint32 linked_zone = pduel->game_field->get_linked_zone(p);
-	if((linked_zone >> current.sequence) & 1)
+	if((linked_zone >> current.sequence) & 0x1U)
 		return TRUE;
 	return FALSE;
 }
 int32 card::is_extra_link_state() {
 	if(current.location != LOCATION_MZONE)
 		return FALSE;
-	uint32 checked = 1u << current.sequence;
+	uint32 checked = 0x1U << current.sequence;
 	uint32 linked_zone = get_mutual_linked_zone();
 	const auto& list_mzone0 = pduel->game_field->player[current.controler].list_mzone;
 	const auto& list_mzone1 = pduel->game_field->player[1 - current.controler].list_mzone;
 	while(true) {
-		if(((linked_zone >> 5) | (linked_zone >> (16 + 6))) & ((linked_zone >> 6) | (linked_zone >> (16 + 5))) & 1)
+		if(((linked_zone >> 5) | (linked_zone >> (16 + 6))) & ((linked_zone >> 6) | (linked_zone >> (16 + 5))) & 0x1U)
 			return TRUE;
-		int32 checking = (int32)(linked_zone & ~checked);
+		uint32 checking = linked_zone & ~checked;
 		if(!checking)
 			return FALSE;
-		int32 rightmost = checking & (-checking);
-		checked |= (uint32)rightmost;
-		if(rightmost < 0x10000) {
+		uint32 rightmost = checking & (-checking);
+		checked |= rightmost;
+		if(rightmost < 0x10000U) {
 			for(int32 i = 0; i < 7; ++i) {
-				if(rightmost & 1) {
+				if(rightmost & 0x1U) {
 					card* pcard = list_mzone0[i];
 					linked_zone |= pcard->get_mutual_linked_zone();
 					break;
@@ -1414,7 +1414,7 @@ int32 card::is_extra_link_state() {
 		} else {
 			rightmost >>= 16;
 			for(int32 i = 0; i < 7; ++i) {
-				if(rightmost & 1) {
+				if(rightmost & 0x1U) {
 					card* pcard = list_mzone1[i];
 					uint32 zone = pcard->get_mutual_linked_zone();
 					linked_zone |= (zone << 16) | (zone >> 16);
@@ -1426,7 +1426,7 @@ int32 card::is_extra_link_state() {
 	}
 	return FALSE;
 }
-int32 card::is_position(int32 pos) {
+int32 card::is_position(uint32 pos) const {
 	return current.position & pos;
 }
 void card::set_status(uint32 x, int32 enabled) {
@@ -1522,7 +1522,7 @@ uint32 card::get_select_info_location(uint8 *deck_seq_pointer) {
 		return get_info_location();
 	}
 }
-int32 card::is_treated_as_not_on_field() {
+int32 card::is_treated_as_not_on_field() const {
 	return get_status(STATUS_SUMMONING | STATUS_SUMMON_DISABLED | STATUS_ACTIVATE_DISABLED | STATUS_SPSUMMON_STEP);
 }
 void card::equip(card* target, uint32 send_msg) {
