@@ -37,7 +37,7 @@ workspace "ocgcoredll"
     filter { "configurations:Release", "action:vs*" }
         flags { "LinkTimeOptimization" }
         staticruntime "On"
-        disablewarnings { "4267", "4334" }
+        disablewarnings { "4334" }
 
     filter "action:vs*"
         buildoptions { "/utf-8" }
