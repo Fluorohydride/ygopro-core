@@ -1426,7 +1426,7 @@ int32 card::is_extra_link_state() {
 	}
 	return FALSE;
 }
-int32 card::is_position(int32 pos) {
+int32 card::is_position(uint32 pos) const {
 	return current.position & pos;
 }
 void card::set_status(uint32 x, int32 enabled) {

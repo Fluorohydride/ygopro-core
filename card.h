@@ -270,7 +270,7 @@ public:
 	void get_mutual_linked_cards(card_set * cset);
 	int32 is_link_state();
 	int32 is_extra_link_state();
-	int32 is_position(int32 pos);
+	int32 is_position(uint32 pos) const;
 	void set_status(uint32 status, int32 enabled);
 	int32 get_status(uint32 status) const;
 	int32 is_status(uint32 status) const;
