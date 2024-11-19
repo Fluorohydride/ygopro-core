@@ -1662,7 +1662,7 @@ int32 field::filter_field_card(uint8 self, uint32 location1, uint32 location2, g
 	}
 	if (pgroup)
 		pgroup->container.insert(result.begin(), result.end());
-	return result.size();
+	return (int32)result.size();
 }
 effect* field::is_player_affected_by_effect(uint8 playerid, uint32 code) {
 	auto rg = effects.aura_effect.equal_range(code);
