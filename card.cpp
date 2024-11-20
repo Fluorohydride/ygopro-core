@@ -1959,6 +1959,7 @@ effect_indexer::iterator card::remove_effect(effect* peffect) {
 			pduel->game_field->update_disable_check_list(peffect);
 		}
 		field_effect.erase(it);
+		pduel->game_field->remove_effect(peffect);
 	}
 	if ((current.controler != PLAYER_NONE) && !get_status(STATUS_DISABLED | STATUS_FORBIDDEN) && !check_target.empty()) {
 		if (peffect->is_disable_related()) {
@@ -2002,7 +2003,6 @@ effect_indexer::iterator card::remove_effect(effect* peffect) {
 		unique_pos[0] = unique_pos[1] = 0;
 		unique_code = 0;
 	}
-	pduel->game_field->remove_effect(peffect);
 	pduel->game_field->core.reseted_effects.insert(peffect);
 	return ret;
 }

@@ -2124,6 +2124,8 @@ int32 field::adjust_grant_effect() {
 		effect* geffect = (effect*)peffect->get_label_object();
 		if (geffect->type & EFFECT_TYPE_GRANT)
 			continue;
+		if (geffect->code == EFFECT_UNIQUE_CHECK)
+			continue;
 		card_set cset;
 		if(peffect->is_available())
 			filter_affected_cards(peffect, &cset);
@@ -2138,9 +2140,6 @@ int32 field::adjust_grant_effect() {
 			if(!pcard->is_affect_by_effect(peffect) || !cset.count(pcard))
 				remove_set.insert(pcard);
 		}
-		//X gains an effect from itself will break card::remove_effect
-		if (!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
-			add_set.erase(peffect->handler);
 		for(auto& pcard : add_set) {
 			effect* ceffect = geffect->clone();
 			ceffect->owner = pcard;
