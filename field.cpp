@@ -2138,9 +2138,6 @@ int32 field::adjust_grant_effect() {
 			if(!pcard->is_affect_by_effect(peffect) || !cset.count(pcard))
 				remove_set.insert(pcard);
 		}
-		//X gains an effect from itself will break card::remove_effect
-		if (!peffect->is_flag(EFFECT_FLAG_FIELD_ONLY))
-			add_set.erase(peffect->handler);
 		for(auto& pcard : add_set) {
 			effect* ceffect = geffect->clone();
 			ceffect->owner = pcard;
