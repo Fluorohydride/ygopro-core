@@ -2124,6 +2124,8 @@ int32 field::adjust_grant_effect() {
 		effect* geffect = (effect*)peffect->get_label_object();
 		if (geffect->type & EFFECT_TYPE_GRANT)
 			continue;
+		if (geffect->code == EFFECT_UNIQUE_CHECK)
+			continue;
 		card_set cset;
 		if(peffect->is_available())
 			filter_affected_cards(peffect, &cset);
