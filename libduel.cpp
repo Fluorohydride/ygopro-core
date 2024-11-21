@@ -1778,7 +1778,7 @@ int32 scriptlib::duel_break_effect(lua_State *L) {
 	check_action_permission(L);
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->game_field->break_effect();
-	pduel->game_field->raise_event((card*)0, EVENT_BREAK_EFFECT, 0, 0, PLAYER_NONE, PLAYER_NONE, 0);
+	pduel->game_field->raise_event(nullptr, EVENT_BREAK_EFFECT, 0, 0, PLAYER_NONE, PLAYER_NONE, 0);
 	pduel->game_field->process_instant_event();
 	return lua_yield(L, 0);
 }

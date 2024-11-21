@@ -600,7 +600,7 @@ int32 field::recover(uint16 step, effect* reason_effect, uint32 reason, uint8 re
 		pduel->write_buffer8(MSG_RECOVER);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(val);
-		raise_event((card*)0, EVENT_RECOVER, reason_effect, reason, reason_player, playerid, amount);
+		raise_event(nullptr, EVENT_RECOVER, reason_effect, reason, reason_player, playerid, amount);
 		process_instant_event();
 		return FALSE;
 	}
@@ -679,7 +679,7 @@ int32 field::pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_p
 			pduel->write_buffer8(MSG_PAY_LPCOST);
 			pduel->write_buffer8(playerid);
 			pduel->write_buffer32(cost);
-			raise_event((card*)0, EVENT_PAY_LPCOST, core.reason_effect, 0, playerid, playerid, cost);
+			raise_event(nullptr, EVENT_PAY_LPCOST, core.reason_effect, 0, playerid, playerid, cost);
 			process_instant_event();
 			return TRUE;
 		}
@@ -765,7 +765,7 @@ int32 field::remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplay
 		return FALSE;
 	}
 	case 3: {
-		raise_event((card*)0, EVENT_REMOVE_COUNTER + countertype, core.reason_effect, reason, rplayer, rplayer, count);
+		raise_event(nullptr, EVENT_REMOVE_COUNTER + countertype, core.reason_effect, reason, rplayer, rplayer, count);
 		process_instant_event();
 		return FALSE;
 	}
@@ -6432,7 +6432,7 @@ int32 field::toss_coin(uint16 step, effect * reason_effect, uint8 reason_player,
 					pduel->write_buffer8(core.coin_result[i]);
 				}
 			}
-			raise_event((card*)0, EVENT_TOSS_COIN_NEGATE, reason_effect, 0, reason_player, playerid, count);
+			raise_event(nullptr, EVENT_TOSS_COIN_NEGATE, reason_effect, 0, reason_player, playerid, count);
 			process_instant_event();
 		} else {
 			solve_continuous(peffect->get_handler_player(), peffect, e);
@@ -6442,7 +6442,7 @@ int32 field::toss_coin(uint16 step, effect * reason_effect, uint8 reason_player,
 		return FALSE;
 	}
 	case 1: {
-		raise_event((card*)0, EVENT_TOSS_COIN, reason_effect, 0, reason_player, playerid, core.coin_count);
+		raise_event(nullptr, EVENT_TOSS_COIN, reason_effect, 0, reason_player, playerid, core.coin_count);
 		process_instant_event();
 		return TRUE;
 	}
@@ -6489,7 +6489,7 @@ int32 field::toss_dice(uint16 step, effect * reason_effect, uint8 reason_player,
 					pduel->write_buffer8(core.dice_result[count1 + i]);
 				}
 			}
-			raise_event((card*)0, EVENT_TOSS_DICE_NEGATE, reason_effect, 0, reason_player, playerid, count1 + (count2 << 16));
+			raise_event(nullptr, EVENT_TOSS_DICE_NEGATE, reason_effect, 0, reason_player, playerid, count1 + (count2 << 16));
 			process_instant_event();
 		} else {
 			solve_continuous(peffect->get_handler_player(), peffect, e);
@@ -6499,7 +6499,7 @@ int32 field::toss_dice(uint16 step, effect * reason_effect, uint8 reason_player,
 		return FALSE;
 	}
 	case 1: {
-		raise_event((card*)0, EVENT_TOSS_DICE, reason_effect, 0, reason_player, playerid, count1 + (count2 << 16));
+		raise_event(nullptr, EVENT_TOSS_DICE, reason_effect, 0, reason_player, playerid, count1 + (count2 << 16));
 		process_instant_event();
 		return TRUE;
 	}
