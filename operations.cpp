@@ -344,7 +344,6 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 	switch(step) {
 	case 0: {
 		card_vector cv;
-		uint32 drawed = 0;
 		uint32 public_count = 0;
 		if(!(reason & REASON_RULE) && !is_player_can_draw(playerid)) {
 			returns.ivalue[0] = 0;
@@ -352,11 +351,10 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 		}
 		core.overdraw[playerid] = FALSE;
 		for(int32 i = 0; i < count; ++i) {
-			if(player[playerid].list_main.size() == 0) {
+			if(player[playerid].list_main.empty()) {
 				core.overdraw[playerid] = TRUE;
 				break;
 			}
-			++drawed;
 			card* pcard = player[playerid].list_main.back();
 			pcard->enable_field_effect(false);
 			pcard->cancel_field_effect();
@@ -384,18 +382,17 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 		adjust_instant();
 		if(core.overdraw[playerid] && (reason & REASON_RULE))
 			adjust_all();
-		core.units.begin()->arg2 = (core.units.begin()->arg2 & 0xff000000) + drawed;
-		card_set* drawed_set = new card_set;
-		core.units.begin()->ptarget = (group*)drawed_set;
-		drawed_set->insert(cv.begin(), cv.end());
-		if(drawed) {
+		core.units.begin()->arg2 = (core.units.begin()->arg2 & 0xff000000) | (uint32)cv.size();
+		card_set* drawed_set = new card_set(cv.begin(), cv.end());
+		core.units.begin()->ptr1 = drawed_set;
+		if(cv.size()) {
 			if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
 				if(player[playerid].list_main.size()) {
 					card* ptop = player[playerid].list_main.back();
 					if(core.deck_reversed || (ptop->current.position == POS_FACEUP_DEFENSE)) {
 						pduel->write_buffer8(MSG_DECK_TOP);
 						pduel->write_buffer8(playerid);
-						pduel->write_buffer8(drawed);
+						pduel->write_buffer8((uint8)cv.size());
 						if(ptop->current.position != POS_FACEUP_DEFENSE)
 							pduel->write_buffer32(ptop->data.code);
 						else
@@ -405,14 +402,14 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 			}
 			pduel->write_buffer8(MSG_DRAW);
 			pduel->write_buffer8(playerid);
-			pduel->write_buffer8(drawed);
-			for(uint32 i = 0; i < drawed; ++i)
-				pduel->write_buffer32(cv[i]->data.code | (cv[i]->is_position(POS_FACEUP) ? 0x80000000 : 0));
-			if(core.deck_reversed && (public_count < drawed)) {
+			pduel->write_buffer8((uint8)cv.size());
+			for (const auto& pcard : cv)
+				pduel->write_buffer32(pcard->data.code | (pcard->is_position(POS_FACEUP) ? 0x80000000 : 0));
+			if(core.deck_reversed && (public_count < cv.size())) {
 				pduel->write_buffer8(MSG_CONFIRM_CARDS);
 				pduel->write_buffer8(1 - playerid);
 				pduel->write_buffer8((uint8)drawed_set->size());
-				for(auto& pcard : *drawed_set) {
+				for(const auto& pcard : *drawed_set) {
 					pduel->write_buffer32(pcard->data.code);
 					pduel->write_buffer8(pcard->current.controler);
 					pduel->write_buffer8(pcard->current.location);
@@ -436,15 +433,15 @@ int32 field::draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reaso
 				raise_single_event(pcard, 0, EVENT_MOVE, reason_effect, reason, reason_player, playerid, 0);
 			}
 			process_single_event();
-			raise_event(drawed_set, EVENT_DRAW, reason_effect, reason, reason_player, playerid, drawed);
-			raise_event(drawed_set, EVENT_TO_HAND, reason_effect, reason, reason_player, playerid, drawed);
-			raise_event(drawed_set, EVENT_MOVE, reason_effect, reason, reason_player, playerid, drawed);
+			raise_event(drawed_set, EVENT_DRAW, reason_effect, reason, reason_player, playerid, (uint32)cv.size());
+			raise_event(drawed_set, EVENT_TO_HAND, reason_effect, reason, reason_player, playerid, (uint32)cv.size());
+			raise_event(drawed_set, EVENT_MOVE, reason_effect, reason, reason_player, playerid, (uint32)cv.size());
 			process_instant_event();
 		}
 		return FALSE;
 	}
 	case 1: {
-		card_set* drawed_set = (card_set*)core.units.begin()->ptarget;
+		card_set* drawed_set = (card_set*)core.units.begin()->ptr1;
 		core.operated_set.swap(*drawed_set);
 		delete drawed_set;
 		returns.ivalue[0] = (int32)core.operated_set.size();
