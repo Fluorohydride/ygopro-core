@@ -99,9 +99,9 @@ int32 scriptlib::duel_register_flag_effect(lua_State *L) {
 	int32 reset = (int32)lua_tointeger(L, 3);
 	uint32 flag = (uint32)lua_tointeger(L, 4);
 	int32 count = (int32)lua_tointeger(L, 5);
-	int32 lab = 0;
+	lua_Integer lab = 0;
 	if(lua_gettop(L) >= 6)
-		lab = (int32)lua_tointeger(L, 6);
+		lab = lua_tointeger(L, 6);
 	if(count == 0)
 		count = 1;
 	if(reset & (RESET_PHASE) && !(reset & (RESET_SELF_TURN | RESET_OPPO_TURN)))
@@ -157,7 +157,7 @@ int32 scriptlib::duel_set_flag_effect_label(lua_State *L) {
 	if(playerid != 0 && playerid != 1)
 		return 0;
 	uint32 code = (lua_tointeger(L, 2) & MAX_CARD_ID) | EFFECT_FLAG_EFFECT;
-	int32 lab = (int32)lua_tointeger(L, 3);
+	auto lab = lua_tointeger(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, code, &eset);

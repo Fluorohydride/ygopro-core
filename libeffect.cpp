@@ -238,8 +238,7 @@ int32 scriptlib::effect_set_label(lua_State *L) {
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
 	peffect->label.clear();
 	for(int32 i = 2; i <= lua_gettop(L); ++i) {
-		uint32 v = (uint32)lua_tointeger(L, i);
-		peffect->label.push_back(v);
+		peffect->label.push_back(lua_tointeger(L, i));
 	}
 	return 0;
 }
