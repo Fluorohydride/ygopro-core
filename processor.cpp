@@ -897,7 +897,7 @@ void field::raise_event(card* event_card, uint32 event_code, effect* reason_effe
 		pgroup->is_readonly = GTYPE_READ_ONLY;
 		new_event.event_cards = pgroup;
 	} else
-		new_event.event_cards = 0;
+		new_event.event_cards = nullptr;
 	new_event.event_code = event_code;
 	new_event.reason_effect = reason_effect;
 	new_event.reason = reason;
@@ -906,15 +906,12 @@ void field::raise_event(card* event_card, uint32 event_code, effect* reason_effe
 	new_event.event_value = event_value;
 	core.queue_event.push_back(new_event);
 }
-void field::raise_event(card_set* event_cards, uint32 event_code, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 event_player, uint32 event_value) {
+void field::raise_event(const card_set& event_cards, uint32 event_code, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 event_player, uint32 event_value) {
 	tevent new_event;
 	new_event.trigger_card = 0;
-	if (event_cards) {
-		group* pgroup = pduel->new_group(*event_cards);
-		pgroup->is_readonly = GTYPE_READ_ONLY;
-		new_event.event_cards = pgroup;
-	} else
-		new_event.event_cards = 0;
+	group* pgroup = pduel->new_group(event_cards);
+	pgroup->is_readonly = GTYPE_READ_ONLY;
+	new_event.event_cards = pgroup;
 	new_event.event_code = event_code;
 	new_event.reason_effect = reason_effect;
 	new_event.reason = reason;
@@ -931,7 +928,7 @@ void field::raise_single_event(card* trigger_card, card_set* event_cards, uint32
 		pgroup->is_readonly = GTYPE_READ_ONLY;
 		new_event.event_cards = pgroup;
 	} else
-		new_event.event_cards = 0;
+		new_event.event_cards = nullptr;
 	new_event.event_code = event_code;
 	new_event.reason_effect = reason_effect;
 	new_event.reason = reason;
@@ -3183,10 +3180,10 @@ int32 field::process_battle_command(uint16 step) {
 			ed.insert(core.attack_target);
 		}
 		if(ing.size())
-			raise_event(&ing, EVENT_BATTLE_DESTROYING, 0, 0, 0, 0, 0);
+			raise_event(ing, EVENT_BATTLE_DESTROYING, 0, 0, 0, 0, 0);
 		if(ed.size()) {
-			raise_event(&ed, EVENT_BATTLE_DESTROYED, 0, 0, 0, 0, 0);
-			raise_event(&ed, EVENT_DESTROYED, 0, 0, 0, 0, 0);
+			raise_event(ed, EVENT_BATTLE_DESTROYED, 0, 0, 0, 0, 0);
+			raise_event(ed, EVENT_DESTROYED, 0, 0, 0, 0, 0);
 		}
 		raise_single_event(core.attacker, 0, EVENT_DAMAGE_STEP_END, 0, 0, 0, 0, 0);
 		if(core.attack_target)
@@ -4232,7 +4229,7 @@ int32 field::add_chain(uint16 step) {
 					raise_single_event(pcard, 0, EVENT_BECOME_TARGET, peffect, 0, clit.triggering_player, 0, clit.chain_count);
 				process_single_event();
 				if(clit.target_cards->container.size())
-					raise_event(&clit.target_cards->container, EVENT_BECOME_TARGET, peffect, 0, clit.triggering_player, clit.triggering_player, clit.chain_count);
+					raise_event(clit.target_cards->container, EVENT_BECOME_TARGET, peffect, 0, clit.triggering_player, clit.triggering_player, clit.chain_count);
 			}
 		}
 		if(peffect->type & EFFECT_TYPE_ACTIVATE) {

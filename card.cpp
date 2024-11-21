@@ -1650,10 +1650,10 @@ void card::xyz_overlay(card_set* materials) {
 	}
 	if(leave_grave.size() || leave_deck.size()) {
 		if(leave_grave.size()) {
-			pduel->game_field->raise_event(&leave_grave, EVENT_LEAVE_GRAVE, pduel->game_field->core.reason_effect, REASON_XYZ + REASON_MATERIAL, pduel->game_field->core.reason_player, 0, 0);
+			pduel->game_field->raise_event(leave_grave, EVENT_LEAVE_GRAVE, pduel->game_field->core.reason_effect, REASON_XYZ + REASON_MATERIAL, pduel->game_field->core.reason_player, 0, 0);
 		}
 		if(leave_deck.size()) {
-			pduel->game_field->raise_event(&leave_deck, EVENT_LEAVE_DECK, pduel->game_field->core.reason_effect, REASON_XYZ + REASON_MATERIAL, pduel->game_field->core.reason_player, 0, 0);
+			pduel->game_field->raise_event(leave_deck, EVENT_LEAVE_DECK, pduel->game_field->core.reason_effect, REASON_XYZ + REASON_MATERIAL, pduel->game_field->core.reason_player, 0, 0);
 		}
 		pduel->game_field->process_single_event();
 		pduel->game_field->process_instant_event();
