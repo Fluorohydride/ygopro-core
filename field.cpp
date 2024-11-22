@@ -1927,11 +1927,11 @@ void field::get_fusion_material(uint8 playerid, card_set* material_all, card_set
 	}
 	material_all->insert(material_base->begin(), material_base->end());
 }
-void field::ritual_release(card_set* material) {
+void field::ritual_release(const card_set& material) {
 	card_set rel;
 	card_set rem;
 	card_set tgy;
-	for(auto& pcard : *material) {
+	for(const auto& pcard : material) {
 		if(pcard->current.location == LOCATION_GRAVE)
 			rem.insert(pcard);
 		else if(pcard->current.location == LOCATION_OVERLAY || pcard->current.location == LOCATION_EXTRA)

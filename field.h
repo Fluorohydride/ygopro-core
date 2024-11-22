@@ -441,7 +441,7 @@ public:
 	int32 get_draw_count(uint8 playerid);
 	void get_ritual_material(uint8 playerid, effect* peffect, card_set* material, uint8 no_level = FALSE);
 	void get_fusion_material(uint8 playerid, card_set* material_all, card_set* material_base, uint32 location);
-	void ritual_release(card_set* material);
+	void ritual_release(const card_set& material);
 	void get_xyz_material(lua_State* L, card* scard, int32 findex, uint32 lv, int32 maxc, group* mg);
 	void get_overlay_group(uint8 self, uint8 s, uint8 o, card_set* pset);
 	int32 get_overlay_count(uint8 self, uint8 s, uint8 o);

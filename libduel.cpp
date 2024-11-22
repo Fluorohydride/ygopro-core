@@ -3346,7 +3346,7 @@ int32 scriptlib::duel_release_ritual_material(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
-	pgroup->pduel->game_field->ritual_release(&pgroup->container);
+	pgroup->pduel->game_field->ritual_release(pgroup->container);
 	return lua_yield(L, 0);
 }
 int32 scriptlib::duel_get_fusion_material(lua_State *L) {
