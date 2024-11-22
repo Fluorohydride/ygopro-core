@@ -294,10 +294,10 @@ void field::move_to_field(card* target, uint32 move_player, uint32 playerid, uin
 	target->to_field_param = (move_player << 24) + (playerid << 16) + (destination << 8) + positions;
 	add_process(PROCESSOR_MOVETOFIELD, 0, 0, (group*)target, enable, ret + (pzone << 8), zone);
 }
-void field::change_position(card_set* targets, effect* reason_effect, uint32 reason_player, uint32 au, uint32 ad, uint32 du, uint32 dd, uint32 flag, uint32 enable) {
-	group* ng = pduel->new_group(*targets);
+void field::change_position(const card_set& targets, effect* reason_effect, uint32 reason_player, uint32 au, uint32 ad, uint32 du, uint32 dd, uint32 flag, uint32 enable) {
+	group* ng = pduel->new_group(targets);
 	ng->is_readonly = GTYPE_READ_ONLY;
-	for(auto& pcard : *targets) {
+	for(auto& pcard : targets) {
 		if(pcard->current.position == POS_FACEUP_ATTACK)
 			pcard->position_param = au;
 		else if(pcard->current.position == POS_FACEDOWN_DEFENSE)
