@@ -121,19 +121,17 @@ void field::get_control(card* target, effect* reason_effect, uint32 reason_playe
 	card_set tset{ target };
 	get_control(tset, reason_effect, reason_player, playerid, reset_phase, reset_count, zone);
 }
-void field::swap_control(effect* reason_effect, uint32 reason_player, card_set* targets1, card_set* targets2, uint32 reset_phase, uint32 reset_count) {
-	group* ng1 = pduel->new_group(*targets1);
+void field::swap_control(effect* reason_effect, uint32 reason_player, const card_set& targets1, const card_set& targets2, uint32 reset_phase, uint32 reset_count) {
+	group* ng1 = pduel->new_group(targets1);
 	ng1->is_readonly = GTYPE_READ_ONLY;
-	group* ng2 = pduel->new_group(*targets2);
+	group* ng2 = pduel->new_group(targets2);
 	ng2->is_readonly = GTYPE_READ_ONLY;
 	add_process(PROCESSOR_SWAP_CONTROL, 0, reason_effect, ng1, reason_player, reset_phase, reset_count, 0, ng2);
 }
 void field::swap_control(effect* reason_effect, uint32 reason_player, card* pcard1, card* pcard2, uint32 reset_phase, uint32 reset_count) {
-	card_set tset1;
-	tset1.insert(pcard1);
-	card_set tset2;
-	tset2.insert(pcard2);
-	swap_control(reason_effect, reason_player, &tset1, &tset2, reset_phase, reset_count);
+	card_set tset1{ pcard1 };
+	card_set tset2{ pcard2 };
+	swap_control(reason_effect, reason_player, tset1, tset2, reset_phase, reset_count);
 }
 void field::equip(uint32 equip_player, card* equip_card, card* target, uint32 up, uint32 is_step) {
 	add_process(PROCESSOR_EQUIP, 0, nullptr, (group*)target, 0, equip_player + (up << 16) + (is_step << 24), 0, 0, equip_card);
