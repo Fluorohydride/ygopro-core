@@ -197,11 +197,11 @@ void field::special_summon_complete(effect* reason_effect, uint8 reason_player) 
 	core.hint_timing[reason_player] |= TIMING_SPSUMMON;
 	add_process(PROCESSOR_SPSUMMON, 1, reason_effect, ng, reason_player, 0);
 }
-void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence) {
-	for(auto cit = targets->begin(); cit != targets->end();) {
+void field::destroy(card_set& targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence) {
+	for(auto cit = targets.begin(); cit != targets.end();) {
 		card* pcard = *cit;
 		if(pcard->is_status(STATUS_DESTROY_CONFIRMED) && core.destroy_canceled.find(pcard) == core.destroy_canceled.end()) {
-			cit = targets->erase(cit);
+			cit = targets.erase(cit);
 			continue;
 		}
 		pcard->temp.reason = pcard->current.reason;
@@ -224,14 +224,13 @@ void field::destroy(card_set* targets, effect* reason_effect, uint32 reason, uin
 		pcard->sendto_param.set(p, POS_FACEUP, destination, sequence);
 		++cit;
 	}
-	group* ng = pduel->new_group(*targets);
+	group* ng = pduel->new_group(targets);
 	ng->is_readonly = GTYPE_READ_ONLY;
 	add_process(PROCESSOR_DESTROY, 0, reason_effect, ng, reason, reason_player);
 }
 void field::destroy(card* target, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence) {
-	card_set tset;
-	tset.insert(target);
-	destroy(&tset, reason_effect, reason, reason_player, playerid, destination, sequence);
+	card_set tset{ target };
+	destroy(tset, reason_effect, reason, reason_player, playerid, destination, sequence);
 }
 void field::release(const card_set& targets, effect* reason_effect, uint32 reason, uint32 reason_player) {
 	for(auto& pcard : targets) {
@@ -976,7 +975,7 @@ int32 field::get_control(uint16 step, effect* reason_effect, uint8 reason_player
 	case 6: {
 		card_set* destroy_set = (card_set*)core.units.begin()->ptr1;
 		if(destroy_set->size())
-			destroy(destroy_set, 0, REASON_RULE, PLAYER_NONE);
+			destroy(*destroy_set, 0, REASON_RULE, PLAYER_NONE);
 		delete destroy_set;
 		return FALSE;
 	}
@@ -1225,7 +1224,7 @@ int32 field::self_destroy(uint16 step, card* ucard, int32 p) {
 			pcard->current.reason_effect = ucard->unique_effect;
 			pcard->current.reason_player = ucard->current.controler;
 		}
-		destroy(&cset, 0, REASON_RULE, PLAYER_SELFDES);
+		destroy(cset, 0, REASON_RULE, PLAYER_SELFDES);
 		return FALSE;
 	}
 	case 2: {
@@ -4385,7 +4384,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		process_single_event();
 		process_instant_event();
 		if(equipings.size())
-			destroy(&equipings, 0, REASON_RULE + REASON_LOST_TARGET, PLAYER_NONE);
+			destroy(equipings, 0, REASON_RULE + REASON_LOST_TARGET, PLAYER_NONE);
 		if(overlays.size())
 			send_to(overlays, 0, REASON_RULE + REASON_LOST_OVERLAY, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		adjust_instant();
@@ -4699,7 +4698,7 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 		pduel->write_buffer32(target->current.reason);
 		if(target->current.location != LOCATION_MZONE) {
 			if(target->equiping_cards.size()) {
-				destroy(&target->equiping_cards, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
+				destroy(target->equiping_cards, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
 				for(auto csit = target->equiping_cards.begin(); csit != target->equiping_cards.end();) {
 					auto rm = csit++;
 					(*rm)->unequip();
@@ -4966,7 +4965,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 			raise_event(pos_changed, EVENT_CHANGE_POS, reason_effect, 0, reason_player, 0, 0);
 		process_instant_event();
 		if(equipings.size())
-			destroy(&equipings, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
+			destroy(equipings, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
 		card_set* to_grave_set = (card_set*)core.units.begin()->ptr1;
 		if(to_grave_set->size()) {
 			send_to(*to_grave_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
