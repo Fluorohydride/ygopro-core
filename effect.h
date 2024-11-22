@@ -22,6 +22,9 @@ struct effect_set;
 struct effect_set_v;
 enum effect_flag : uint64;
 enum effect_flag2 : uint64;
+enum code_type : int32;
+
+bool is_continuous_event(uint32 code);
 
 class effect {
 public:
@@ -112,7 +115,7 @@ public:
 	void set_activate_location();
 	void set_active_type();
 	uint32 get_active_type(uint8 uselast = TRUE);
-	int32 get_code_type() const;
+	code_type get_code_type() const;
 
 	bool is_flag(effect_flag x) const {
 		return !!(flag[0] & x);
@@ -564,10 +567,12 @@ constexpr int32 HALF_DAMAGE = 0x80000001;
 #define MAX_CARD_ID			0xfffffff
 
 // The type of effect code
-#define CODE_CUSTOM		1	// header + id (28 bits)
-#define CODE_COUNTER	2	// header + counter_id (16 bits)
-#define CODE_PHASE		3	// header + phase_id (12 bits)
-#define CODE_VALUE		4	// numeric value, max = 4095
+enum code_type : int32 {
+	CODE_CUSTOM = 1,	// header + id (28 bits)
+	CODE_COUNTER,		// header + counter_id (16 bits)
+	CODE_PHASE,			// header + phase_id (12 bits)
+	CODE_VALUE,			// numeric value, max = 4095
+};
 
 const std::unordered_set<uint32> continuous_event{
 	EVENT_ADJUST,
@@ -576,7 +581,6 @@ const std::unordered_set<uint32> continuous_event{
 	EVENT_PRE_BATTLE_DAMAGE,
 	EVENT_SPSUMMON_SUCCESS_G_P,
 };
-bool is_continuous_event(uint32 code);
 
 const std::unordered_set<uint32> affect_summoning_effect{
 	EFFECT_CANNOT_DISABLE_SUMMON,
