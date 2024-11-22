@@ -506,8 +506,8 @@ int32 scriptlib::effect_is_has_property(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32 tflag1 = (uint32)lua_tointeger(L, 2);
-	uint32 tflag2 = (uint32)lua_tointeger(L, 3);
+	uint64 tflag1 = lua_tointeger(L, 2);
+	uint64 tflag2 = lua_tointeger(L, 3);
 	if (peffect && (!tflag1 || (peffect->flag[0] & tflag1)) && (!tflag2 || (peffect->flag[1] & tflag2)))
 		lua_pushboolean(L, 1);
 	else

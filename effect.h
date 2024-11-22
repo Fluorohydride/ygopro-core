@@ -20,8 +20,8 @@ class effect;
 struct tevent;
 struct effect_set;
 struct effect_set_v;
-enum effect_flag : uint32;
-enum effect_flag2 : uint32;
+enum effect_flag : uint64;
+enum effect_flag2 : uint64;
 
 class effect {
 public:
@@ -32,7 +32,6 @@ public:
 	uint8 effect_owner{ PLAYER_NONE };
 	uint32 description{ 0 };
 	uint32 code{ 0 };
-	uint32 flag[2]{};
 	uint32 id{ 0 };
 	uint32 type{ 0 };
 	uint16 copy_id{ 0 };
@@ -41,17 +40,18 @@ public:
 	uint16 o_range{ 0 };
 	uint8 count_limit{ 0 };
 	uint8 count_limit_max{ 0 };
+	uint16 status{ 0 };
 	int32 reset_count{ 0 };
 	uint32 reset_flag{ 0 };
 	uint32 count_code{ 0 };
 	uint64 category{ 0 };
+	uint64 flag[2]{};
 	uint32 hint_timing[2]{};
 	uint32 card_type{ 0 };
 	uint32 active_type{ 0 };
 	uint16 active_location{ 0 };
 	uint16 active_sequence{ 0 };
 	card* active_handler{ nullptr };
-	uint16 status{ 0 };
 	std::vector<lua_Integer> label;
 	int32 label_object{ 0 };
 	int32 condition{ 0 };
@@ -178,7 +178,7 @@ constexpr uint32 EFFECT_TYPES_TRIGGER_LIKE = EFFECT_TYPE_ACTIVATE | EFFECT_TYPE_
 constexpr uint32 EFFECT_TYPES_CHAIN_LINK = EFFECT_TYPES_TRIGGER_LIKE | EFFECT_TYPE_FLIP | EFFECT_TYPE_IGNITION;
 
 //========== Flags ==========
-enum effect_flag : uint32 {
+enum effect_flag : uint64 {
 	EFFECT_FLAG_INITIAL				= 0x0001,
 	EFFECT_FLAG_FUNC_VALUE			= 0x0002,
 	EFFECT_FLAG_COUNT_LIMIT			= 0x0004,
@@ -212,7 +212,7 @@ enum effect_flag : uint32 {
 //	EFFECT_FLAG_CVAL_CHECK			= 0x40000000,
 	EFFECT_FLAG_IMMEDIATELY_APPLY	= 0x80000000,
 };
-enum effect_flag2 : uint32 {
+enum effect_flag2 : uint64 {
 	EFFECT_FLAG2_REPEAT_UPDATE			= 0x0001,
 	EFFECT_FLAG2_COF					= 0x0002,
 	EFFECT_FLAG2_WICKED					= 0x0004,
