@@ -52,7 +52,7 @@ public:
 	uint16 active_sequence{ 0 };
 	card* active_handler{ nullptr };
 	uint16 status{ 0 };
-	std::vector<uint64> label;
+	std::vector<lua_Integer> label;
 	int32 label_object{ 0 };
 	int32 condition{ 0 };
 	int32 cost{ 0 };
