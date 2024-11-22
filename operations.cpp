@@ -251,10 +251,10 @@ void field::release(card* target, effect* reason_effect, uint32 reason, uint32 r
 	card_set tset{ target };
 	release(tset, reason_effect, reason, reason_player);
 }
-void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence, uint32 position, uint8 send_activating) {
+void field::send_to(const card_set& targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence, uint32 position, uint8 send_activating) {
 	if(destination & LOCATION_ONFIELD)
 		return;
-	for(auto& pcard : *targets) {
+	for(auto& pcard : targets) {
 		pcard->temp.reason = pcard->current.reason;
 		pcard->current.reason = reason;
 		if(reason_player != PLAYER_SELFDES) {
@@ -278,14 +278,13 @@ void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uin
 			pos = pcard->current.position;
 		pcard->sendto_param.set(p, pos, destination, sequence);
 	}
-	group* ng = pduel->new_group(*targets);
+	group* ng = pduel->new_group(targets);
 	ng->is_readonly = GTYPE_READ_ONLY;
 	add_process(PROCESSOR_SENDTO, 0, reason_effect, ng, reason, reason_player, send_activating);
 }
 void field::send_to(card* target, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence, uint32 position, uint8 send_activating) {
-	card_set tset;
-	tset.insert(target);
-	send_to(&tset, reason_effect, reason, reason_player, playerid, destination, sequence, position, send_activating);
+	card_set tset{ target };
+	send_to(tset, reason_effect, reason, reason_player, playerid, destination, sequence, position, send_activating);
 }
 void field::move_to_field(card* target, uint32 move_player, uint32 playerid, uint32 destination, uint32 positions, uint32 enable, uint32 ret, uint32 pzone, uint32 zone) {
 	if(!(destination & LOCATION_ONFIELD) || !positions)
@@ -855,7 +854,7 @@ int32 field::remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 
 		card_set cset;
 		for(int32 i = 0; i < returns.bvalue[0]; ++i)
 			cset.insert(core.select_cards[returns.bvalue[i + 1]]);
-		send_to(&cset, core.reason_effect, reason, rplayer, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+		send_to(cset, core.reason_effect, reason, rplayer, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		return FALSE;
 	}
 	case 4: {
@@ -1349,7 +1348,7 @@ int32 field::trap_monster_adjust(uint16 step) {
 		}
 		if(card_set* to_grave_set = (card_set*)core.units.begin()->ptr1) {
 			if(to_grave_set->size())
-				send_to(to_grave_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+				send_to(*to_grave_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 			delete to_grave_set;
 		}
 		return TRUE;
@@ -2614,7 +2613,7 @@ int32 field::sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget
 	}
 	case 5: {
 		if(core.unable_tofield_set.size())
-			send_to(&core.unable_tofield_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+			send_to(core.unable_tofield_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		return FALSE;
 	}
 	case 6: {
@@ -3106,7 +3105,7 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 				++cit;
 		}
 		if(cset.size()) {
-			send_to(&cset, 0, REASON_RULE, PLAYER_NONE, sumplayer, LOCATION_GRAVE, 0, 0);
+			send_to(cset, 0, REASON_RULE, PLAYER_NONE, sumplayer, LOCATION_GRAVE, 0, 0);
 			adjust_instant();
 		}
 		if(pgroup->container.size() == 0) {
@@ -3322,7 +3321,7 @@ int32 field::special_summon(uint16 step, effect* reason_effect, uint8 reason_pla
 	}
 	case 1: {
 		if(core.unable_tofield_set.size())
-			send_to(&core.unable_tofield_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+			send_to(core.unable_tofield_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		return FALSE;
 	}
 	case 2: {
@@ -4388,7 +4387,7 @@ int32 field::send_to(uint16 step, group * targets, effect * reason_effect, uint3
 		if(equipings.size())
 			destroy(&equipings, 0, REASON_RULE + REASON_LOST_TARGET, PLAYER_NONE);
 		if(overlays.size())
-			send_to(&overlays, 0, REASON_RULE + REASON_LOST_OVERLAY, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+			send_to(overlays, 0, REASON_RULE + REASON_LOST_OVERLAY, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		adjust_instant();
 		return FALSE;
 	}
@@ -4708,9 +4707,8 @@ int32 field::move_to_field(uint16 step, card* target, uint32 enable, uint32 ret,
 			}
 			if(target->xyz_materials.size()) {
 				target->xyz_materials_previous_count_onfield = (int32)target->xyz_materials.size();
-				card_set overlays;
-				overlays.insert(target->xyz_materials.begin(), target->xyz_materials.end());
-				send_to(&overlays, 0, REASON_LOST_OVERLAY + REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+				card_set overlays(target->xyz_materials.begin(), target->xyz_materials.end());
+				send_to(overlays, 0, REASON_LOST_OVERLAY + REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 			} else {
 				target->xyz_materials_previous_count_onfield = 0;
 			}
@@ -4971,7 +4969,7 @@ int32 field::change_position(uint16 step, group * targets, effect * reason_effec
 			destroy(&equipings, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
 		card_set* to_grave_set = (card_set*)core.units.begin()->ptr1;
 		if(to_grave_set->size()) {
-			send_to(to_grave_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+			send_to(*to_grave_set, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 		}
 		delete to_grave_set;
 		return FALSE;

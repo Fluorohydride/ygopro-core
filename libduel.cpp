@@ -240,7 +240,7 @@ int32 scriptlib::duel_remove(lua_State *L) {
 	if(pcard)
 		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, pos);
 	else
-		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, pos);
+		pduel->game_field->send_to(pgroup->container, pduel->game_field->core.reason_effect, reason, reason_player, PLAYER_NONE, LOCATION_REMOVED, 0, pos);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
@@ -268,7 +268,7 @@ int32 scriptlib::duel_sendto_grave(lua_State *L) {
 	if(pcard)
 		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 	else
-		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+		pduel->game_field->send_to(pgroup->container, pduel->game_field->core.reason_effect, reason, reason_player, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
@@ -643,7 +643,7 @@ int32 scriptlib::duel_sendto_hand(lua_State *L) {
 	if(pcard)
 		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, reason_player, playerid, LOCATION_HAND, 0, POS_FACEUP);
 	else
-		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, reason_player, playerid, LOCATION_HAND, 0, POS_FACEUP);
+		pduel->game_field->send_to(pgroup->container, pduel->game_field->core.reason_effect, reason, reason_player, playerid, LOCATION_HAND, 0, POS_FACEUP);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
@@ -678,7 +678,7 @@ int32 scriptlib::duel_sendto_deck(lua_State *L) {
 	if (pcard)
 		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, reason_player, playerid, LOCATION_DECK, sequence, POS_FACEUP, send_activating);
 	else
-		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, reason_player, playerid, LOCATION_DECK, sequence, POS_FACEUP, send_activating);
+		pduel->game_field->send_to(pgroup->container, pduel->game_field->core.reason_effect, reason, reason_player, playerid, LOCATION_DECK, sequence, POS_FACEUP, send_activating);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
@@ -706,7 +706,7 @@ int32 scriptlib::duel_sendto_extra(lua_State *L) {
 	if(pcard)
 		pduel->game_field->send_to(pcard, pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, playerid, LOCATION_EXTRA, 0, POS_FACEUP);
 	else
-		pduel->game_field->send_to(&(pgroup->container), pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, playerid, LOCATION_EXTRA, 0, POS_FACEUP);
+		pduel->game_field->send_to(pgroup->container, pduel->game_field->core.reason_effect, reason, pduel->game_field->core.reason_player, playerid, LOCATION_EXTRA, 0, POS_FACEUP);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32 status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
