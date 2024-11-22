@@ -863,7 +863,7 @@ uint32 effect::get_active_type(uint8 uselast) {
 	} else
 		return owner->get_type();
 }
-int32 effect::get_code_type() const {
+code_type effect::get_code_type() const {
 	// start from the highest bit
 	if (code & 0xf0000000)
 		return CODE_CUSTOM;
