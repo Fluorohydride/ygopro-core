@@ -233,8 +233,8 @@ void field::destroy(card* target, effect* reason_effect, uint32 reason, uint32 r
 	tset.insert(target);
 	destroy(&tset, reason_effect, reason, reason_player, playerid, destination, sequence);
 }
-void field::release(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player) {
-	for(auto& pcard : *targets) {
+void field::release(const card_set& targets, effect* reason_effect, uint32 reason, uint32 reason_player) {
+	for(auto& pcard : targets) {
 		pcard->temp.reason = pcard->current.reason;
 		pcard->temp.reason_effect = pcard->current.reason_effect;
 		pcard->temp.reason_player = pcard->current.reason_player;
@@ -243,14 +243,13 @@ void field::release(card_set* targets, effect* reason_effect, uint32 reason, uin
 		pcard->current.reason_player = reason_player;
 		pcard->sendto_param.set(pcard->owner, POS_FACEUP, LOCATION_GRAVE);
 	}
-	group* ng = pduel->new_group(*targets);
+	group* ng = pduel->new_group(targets);
 	ng->is_readonly = GTYPE_READ_ONLY;
 	add_process(PROCESSOR_RELEASE, 0, reason_effect, ng, reason, reason_player);
 }
 void field::release(card* target, effect* reason_effect, uint32 reason, uint32 reason_player) {
-	card_set tset;
-	tset.insert(target);
-	release(&tset, reason_effect, reason, reason_player);
+	card_set tset{ target };
+	release(tset, reason_effect, reason, reason_player);
 }
 void field::send_to(card_set* targets, effect* reason_effect, uint32 reason, uint32 reason_player, uint32 playerid, uint32 destination, uint32 sequence, uint32 position, uint8 send_activating) {
 	if(destination & LOCATION_ONFIELD)
@@ -1744,7 +1743,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 			for(auto& pcard : *tributes)
 				pcard->current.reason_card = target;
 			target->set_material(tributes);
-			release(tributes, 0, REASON_SUMMON | REASON_MATERIAL, sumplayer);
+			release(*tributes, 0, REASON_SUMMON | REASON_MATERIAL, sumplayer);
 			target->summon_info = SUMMON_TYPE_NORMAL | SUMMON_TYPE_ADVANCE | (LOCATION_HAND << 16);
 			delete tributes;
 			core.units.begin()->peffect = 0;
@@ -2335,7 +2334,7 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 			for(auto& pcard : *tributes)
 				pcard->current.reason_card = target;
 			target->set_material(tributes);
-			release(tributes, 0, REASON_SUMMON | REASON_MATERIAL, setplayer);
+			release(*tributes, 0, REASON_SUMMON | REASON_MATERIAL, setplayer);
 			target->summon_info = SUMMON_TYPE_NORMAL | SUMMON_TYPE_ADVANCE | (LOCATION_HAND << 16);
 			delete tributes;
 			core.units.begin()->peffect = 0;
