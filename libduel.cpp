@@ -3631,11 +3631,10 @@ int32 scriptlib::duel_overlay(lua_State *L) {
 	} else
 		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
 	if(pcard) {
-		card_set cset;
-		cset.insert(pcard);
-		target->xyz_overlay(&cset);
+		card_set cset{ pcard };
+		target->xyz_overlay(cset);
 	} else
-		target->xyz_overlay(&pgroup->container);
+		target->xyz_overlay(pgroup->container);
 	uint32 adjust = TRUE;
 	if(lua_gettop(L) > 2) {
 		adjust = lua_toboolean(L, 3);

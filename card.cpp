@@ -1569,12 +1569,11 @@ int32 card::get_old_union_count() {
 	}
 	return count;
 }
-void card::xyz_overlay(card_set* materials) {
-	if(materials->empty())
+void card::xyz_overlay(const card_set& materials) {
+	if(materials.empty())
 		return;
 	card_set des, leave_grave, leave_deck;
-	card_vector cv;
-	cv.assign(materials->begin(), materials->end());
+	card_vector cv(materials.begin(), materials.end());
 	std::sort(cv.begin(), cv.end(), card::card_operation_sort);
 	if(pduel->game_field->core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
 		int32 d0 = (int32)pduel->game_field->player[0].list_main.size() - 1, s0 = d0;
