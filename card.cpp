@@ -1658,7 +1658,7 @@ void card::xyz_overlay(const card_set& materials) {
 		pduel->game_field->process_instant_event();
 	}
 	if(des.size())
-		pduel->game_field->destroy(&des, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
+		pduel->game_field->destroy(des, 0, REASON_LOST_TARGET + REASON_RULE, PLAYER_NONE);
 	else
 		pduel->game_field->adjust_instant();
 }
