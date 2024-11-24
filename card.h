@@ -262,7 +262,7 @@ public:
 	uint32 get_grave_race(uint8 playerid);
 	uint32 get_lscale();
 	uint32 get_rscale();
-	uint32 get_link_marker() const;
+	uint32 get_link_marker();
 	uint32 is_link_marker(uint32 dir) const;
 	uint32 get_linked_zone() const;
 	void get_linked_cards(card_set* cset);
