@@ -1276,7 +1276,7 @@ uint32 card::get_rscale() {
 	temp.rscale = UINT32_MAX;
 	return rscale;
 }
-uint32 card::get_link_marker() const {
+uint32 card::get_link_marker() {
 	if(!(data.type & TYPE_LINK))
 		return 0;
 	return data.link_marker;
