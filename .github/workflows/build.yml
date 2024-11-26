@@ -47,11 +47,10 @@ jobs:
 
     - name: GitHub Release
       if: github.event_name == 'push'
-      uses: salix5/action-automatic-releases@node20
+      uses: softprops/action-gh-release@v2.1.0
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
+        tag_name: "latest"
         prerelease: true
-        title: "Development Build"
+        name: "Development Build"
         files: |
           build/bin/x64/Release/ocgcore.dll
