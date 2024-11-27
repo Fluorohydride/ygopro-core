@@ -1828,6 +1828,10 @@ int32 scriptlib::card_register_effect(lua_State *L) {
 		pduel->game_field->core.reseted_effects.insert(peffect);
 		return 0;
 	}
+	for (auto& entry : category_checklist) {
+		if (peffect->category & entry.first)
+			peffect->flag[0] |= entry.second;
+	}
 	int32 id;
 	if (peffect->handler)
 		id = -1;
