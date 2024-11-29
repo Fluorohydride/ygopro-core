@@ -21,7 +21,7 @@ inline void buffer_write_block(unsigned char*& p, const void* src, size_t size) 
 }
 template<typename T>
 inline void buffer_write(unsigned char*& p, T value) {
-	buffer_write_block(p, &value,sizeof(T));
+	buffer_write_block(p, &value, sizeof(T));
 }
 
 inline void vector_write_block(std::vector<unsigned char>& buffer, const void* src, size_t size) {
