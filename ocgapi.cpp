@@ -127,7 +127,9 @@ extern "C" DECL_DLLEXPORT void set_player_info(intptr_t pduel, int32 playerid, i
 		pd->game_field->player[playerid].draw_count = drawcount;
 }
 extern "C" DECL_DLLEXPORT void get_log_message(intptr_t pduel, char* buf) {
-	std::strcpy(buf, ((duel*)pduel)->strbuffer);
+	duel* pd = (duel*)pduel;
+	buf[0] = '\0';
+	std::strncat(buf, pd->strbuffer, sizeof pd->strbuffer - 1);
 }
 extern "C" DECL_DLLEXPORT int32 get_message(intptr_t pduel, byte* buf) {
 	int32 len = ((duel*)pduel)->read_buffer(buf);
