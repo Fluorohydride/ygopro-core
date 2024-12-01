@@ -109,12 +109,6 @@ struct material_info {
 };
 const material_info null_info;
 
-constexpr uint32 CARD_MARINE_DOLPHIN = 78734254;
-constexpr uint32 CARD_TWINKLE_MOSS = 13857930;
-constexpr uint32 CARD_TIMAEUS = 1784686;
-constexpr uint32 CARD_CRITIAS = 11082056;
-constexpr uint32 CARD_HERMOS = 46232525;
-
 class card {
 public:
 	struct effect_relation_hash {
