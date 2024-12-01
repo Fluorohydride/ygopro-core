@@ -46,7 +46,9 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 interpreter::~interpreter() {
 	lua_close(lua_state);
 }
-int32 interpreter::register_card(card *pcard) {
+void interpreter::register_card(card *pcard) {
+	if (!pcard)
+		return;
 	//create a card in by userdata
 	luaL_checkstack(lua_state, 1, nullptr);
 	card ** ppcard = (card**) lua_newuserdata(lua_state, sizeof(card*));	//+1 userdata
@@ -68,7 +70,6 @@ int32 interpreter::register_card(card *pcard) {
 		pcard->set_status(STATUS_INITIALIZING, FALSE);
 	}
 	pcard->cardid = pduel->game_field->infos.card_id++;
-	return OPERATION_SUCCESS;
 }
 void interpreter::register_effect(effect *peffect) {
 	if (!peffect)
@@ -501,7 +502,7 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count) {
 	}
 	return OPERATION_FAIL;
 }
-int32 interpreter::get_function_value(int32 f, uint32 param_count, std::vector<int32>* result) {
+int32 interpreter::get_function_value(int32 f, uint32 param_count, std::vector<lua_Integer>& result) {
 	int32 is_success = OPERATION_FAIL;
 	if(!f) {
 		params.clear();
@@ -513,14 +514,14 @@ int32 interpreter::get_function_value(int32 f, uint32 param_count, std::vector<i
 	if (call_function(f, param_count, LUA_MULTRET)) {
 		int32 stack_newtop = lua_gettop(current_state);
 		for (int32 index = stack_top + 1; index <= stack_newtop; ++index) {
-			int32 return_value = 0;
+			lua_Integer return_value = 0;
 			if(lua_isboolean(current_state, index))
 				return_value = lua_toboolean(current_state, index);
 			else if(lua_isinteger(current_state, index))
-				return_value = (int32)lua_tointeger(current_state, index);
+				return_value = lua_tointeger(current_state, index);
 			else
-				return_value = (int32)lua_tonumber(current_state, index);
-			result->push_back(return_value);
+				return_value = static_cast<lua_Integer>(lua_tonumber(current_state, index));
+			result.push_back(return_value);
 		}
 		lua_settop(current_state, stack_top);
 		is_success = OPERATION_SUCCESS;

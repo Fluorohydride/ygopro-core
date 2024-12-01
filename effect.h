@@ -98,9 +98,9 @@ public:
 	int32 get_value(uint32 extraargs = 0);
 	int32 get_value(card* pcard, uint32 extraargs = 0);
 	int32 get_value(effect* peffect, uint32 extraargs = 0);
-	void get_value(uint32 extraargs, std::vector<int32>* result);
-	void get_value(card* pcard, uint32 extraargs, std::vector<int32>* result);
-	void get_value(effect* peffect, uint32 extraargs, std::vector<int32>* result);
+	void get_value(uint32 extraargs, std::vector<lua_Integer>& result);
+	void get_value(card* pcard, uint32 extraargs, std::vector<lua_Integer>& result);
+	void get_value(effect* peffect, uint32 extraargs, std::vector<lua_Integer>& result);
 	int32 get_integer_value();
 	int32 check_value_condition(uint32 extraargs = 0);
 	void* get_label_object();
