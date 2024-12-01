@@ -2611,6 +2611,13 @@ void card::filter_effect_container(const effect_container& container, uint32 cod
 			eset.add_item(it->second);
 	}
 }
+void card::filter_effect_container(const effect_container& container, uint32 code, effect_filter f, effect_collection& eset) {
+	auto rg = container.equal_range(code);
+	for (auto it = rg.first; it != rg.second; ++it) {
+		if (f(this, it->second))
+			eset.insert(it->second);
+	}
+}
 void card::filter_effect(uint32 code, effect_set* eset, uint8 sort) {
 	filter_effect_container(single_effect, code, default_single_filter, *eset);
 	for (const auto& pcard : equiping_cards)
@@ -2865,12 +2872,11 @@ int32 card::check_set_procedure(effect* proc, uint8 playerid, uint8 ignore_count
 	return FALSE;
 }
 void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 summon_type, material_info info) {
-	auto pr = field_effect.equal_range(EFFECT_SPSUMMON_PROC);
-	uint8 toplayer;
-	uint8 topos;
-	for(auto eit = pr.first; eit != pr.second;) {
-		effect* peffect = eit->second;
-		++eit;
+	effect_collection proc_set;
+	filter_effect_container(field_effect, EFFECT_SPSUMMON_PROC, accept_filter, proc_set);
+	for (auto& peffect : proc_set) {
+		uint8 toplayer{};
+		uint8 topos{};
 		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
 			topos = (uint8)peffect->s_range;
 			if(peffect->o_range == 0)
@@ -2894,10 +2900,9 @@ void card::filter_spsummon_procedure(uint8 playerid, effect_set* peset, uint32 s
 	}
 }
 void card::filter_spsummon_procedure_g(uint8 playerid, effect_set* peset) {
-	auto pr = field_effect.equal_range(EFFECT_SPSUMMON_PROC_G);
-	for(auto eit = pr.first; eit != pr.second;) {
-		effect* peffect = eit->second;
-		++eit;
+	effect_collection proc_set;
+	filter_effect_container(field_effect, EFFECT_SPSUMMON_PROC_G, accept_filter, proc_set);
+	for (auto& peffect : proc_set) {
 		if(!peffect->is_available() || !peffect->check_count_limit(playerid))
 			continue;
 		if(current.controler != playerid && !peffect->is_flag(EFFECT_FLAG_BOTH_SIDE))
