@@ -56,7 +56,7 @@ public:
 	explicit interpreter(duel* pd);
 	~interpreter();
 
-	int32 register_card(card* pcard);
+	void register_card(card* pcard);
 	void register_effect(effect* peffect);
 	void unregister_effect(effect* peffect);
 	void register_group(group* pgroup);

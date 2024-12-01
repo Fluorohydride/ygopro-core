@@ -46,7 +46,9 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 interpreter::~interpreter() {
 	lua_close(lua_state);
 }
-int32 interpreter::register_card(card *pcard) {
+void interpreter::register_card(card *pcard) {
+	if (!pcard)
+		return;
 	//create a card in by userdata
 	luaL_checkstack(lua_state, 1, nullptr);
 	card ** ppcard = (card**) lua_newuserdata(lua_state, sizeof(card*));	//+1 userdata
@@ -68,7 +70,6 @@ int32 interpreter::register_card(card *pcard) {
 		pcard->set_status(STATUS_INITIALIZING, FALSE);
 	}
 	pcard->cardid = pduel->game_field->infos.card_id++;
-	return OPERATION_SUCCESS;
 }
 void interpreter::register_effect(effect *peffect) {
 	if (!peffect)
