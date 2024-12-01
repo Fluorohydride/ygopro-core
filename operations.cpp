@@ -1525,14 +1525,14 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		}
 		if(!ignore_count && !core.extra_summon[sumplayer]) {
 			for(int32 i = 0; i < eset.size(); ++i) {
-				std::vector<int32> retval;
-				eset[i]->get_value(target, 0, &retval);
-				int32 new_min_tribute = retval.size() > 0 ? retval[0] : 0;
-				int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
-				int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
+				std::vector<lua_Integer> retval;
+				eset[i]->get_value(target, 0, retval);
+				int32 new_min_tribute = retval.size() > 0 ? static_cast<int32>(retval[0]) : 0;
+				uint32 new_zone = retval.size() > 1 ? static_cast<uint32>(retval[1]) : 0x1f;
+				int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + static_cast<int32>(retval[2]) : static_cast<int32>(retval[2])) : 0xff00ff;
 				new_zone &= zone;
 				if(proc) {
-					if(new_min_tribute < (int32)min_tribute)
+					if(new_min_tribute < min_tribute)
 						new_min_tribute = min_tribute;
 					if(!target->is_summonable(proc, new_min_tribute, new_zone, releasable))
 						continue;
@@ -1542,7 +1542,7 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 					int32 max = (rcount >> 16) & 0xffff;
 					if(!is_player_can_summon(SUMMON_TYPE_ADVANCE, sumplayer, target, sumplayer))
 						max = 0;
-					if(min < (int32)min_tribute)
+					if(min < min_tribute)
 						min = min_tribute;
 					if(max < min)
 						continue;
@@ -1566,13 +1566,13 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 		core.units.begin()->ptr1 = pextra;
 		int32 releasable = 0xff00ff;
 		if(pextra) {
-			std::vector<int32> retval;
-			pextra->get_value(target, 0, &retval);
-			int32 new_min_tribute = retval.size() > 0 ? retval[0] : 0;
-			int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
-			releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
-			if((int32)min_tribute < new_min_tribute)
-				min_tribute = new_min_tribute;
+			std::vector<lua_Integer> retval;
+			pextra->get_value(target, 0, retval);
+			int32 new_min_tribute = retval.size() > 0 ? static_cast<int32>(retval[0]) : 0;
+			uint32 new_zone = retval.size() > 1 ? static_cast<uint32>(retval[1]) : 0x1f;
+			releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + static_cast<int32>(retval[2]) : static_cast<int32>(retval[2])) : 0xff00ff;
+			if (min_tribute < new_min_tribute)
+				min_tribute = static_cast<uint8>(new_min_tribute);
 			zone &= new_zone;
 			core.units.begin()->arg1 = sumplayer + (ignore_count << 8) + (min_tribute << 16) + (zone << 24);
 			core.units.begin()->value1 = releasable;
@@ -1677,10 +1677,10 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 			for(int32 i = 0; i < eset.size(); ++i) {
 				if(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 					continue;
-				std::vector<int32> retval;
-				eset[i]->get_value(target, 0, &retval);
-				int32 dec = retval.size() > 0 ? retval[0] : 0;
-				int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+				std::vector<lua_Integer> retval;
+				eset[i]->get_value(target, 0, retval);
+				int32 dec = retval.size() > 0 ? static_cast<int32>(retval[0]) : 0;
+				int32 effect_code = retval.size() > 1 ? static_cast<int32>(retval[1]) : 0;
 				if(effect_code > 0) {
 					auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
 					if(it == duplicate.end())
@@ -1697,10 +1697,10 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 			for(int32 i = 0; i < eset.size() && min > 0; ++i) {
 				if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT) || eset[i]->count_limit == 0 || !eset[i]->target)
 					continue;
-				std::vector<int32> retval;
-				eset[i]->get_value(target, 0, &retval);
-				int32 dec = retval.size() > 0 ? retval[0] : 0;
-				int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+				std::vector<lua_Integer> retval;
+				eset[i]->get_value(target, 0, retval);
+				int32 dec = retval.size() > 0 ? static_cast<int32>(retval[0]) : 0;
+				int32 effect_code = retval.size() > 1 ? static_cast<int32>(retval[1]) : 0;
 				if(effect_code > 0) {
 					auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
 					if(it == duplicate.end())
@@ -1718,10 +1718,10 @@ int32 field::summon(uint16 step, uint8 sumplayer, card* target, effect* proc, ui
 			for(int32 i = 0; i < eset.size() && min > 0; ++i) {
 				if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT) || eset[i]->count_limit == 0 || eset[i]->target)
 					continue;
-				std::vector<int32> retval;
-				eset[i]->get_value(target, 0, &retval);
-				int32 dec = retval.size() > 0 ? retval[0] : 0;
-				int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+				std::vector<lua_Integer> retval;
+				eset[i]->get_value(target, 0, retval);
+				int32 dec = retval.size() > 0 ? static_cast<int32>(retval[0]) : 0;
+				int32 effect_code = retval.size() > 1 ? static_cast<int32>(retval[1]) : 0;
 				if(effect_code > 0) {
 					auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
 					if(it == duplicate.end())
@@ -2125,11 +2125,11 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 		}
 		if(!ignore_count && !core.extra_summon[setplayer]) {
 			for(int32 i = 0; i < eset.size(); ++i) {
-				std::vector<int32> retval;
-				eset[i]->get_value(target, 0, &retval);
-				int32 new_min_tribute = retval.size() > 0 ? retval[0] : 0;
-				int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
-				int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
+				std::vector<lua_Integer> retval;
+				eset[i]->get_value(target, 0, retval);
+				int32 new_min_tribute = retval.size() > 0 ? static_cast<int32>(retval[0]) : 0;
+				uint32 new_zone = retval.size() > 1 ? static_cast<uint32>(retval[1]) : 0x1f;
+				int32 releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + static_cast<int32>(retval[2]) : static_cast<int32>(retval[2])) : 0xff00ff;
 				new_zone &= zone;
 				if(proc) {
 					if(new_min_tribute < (int32)min_tribute)
@@ -2166,13 +2166,13 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 		core.units.begin()->ptr1 = pextra;
 		int32 releasable = 0xff00ff;
 		if(pextra) {
-			std::vector<int32> retval;
-			pextra->get_value(target, 0, &retval);
-			int32 new_min_tribute = retval.size() > 0 ? retval[0] : 0;
-			int32 new_zone = retval.size() > 1 ? retval[1] : 0x1f;
-			releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + retval[2] : retval[2]) : 0xff00ff;
-			if((int32)min_tribute < new_min_tribute)
-				min_tribute = new_min_tribute;
+			std::vector<lua_Integer> retval;
+			pextra->get_value(target, 0, retval);
+			int32 new_min_tribute = retval.size() > 0 ? static_cast<int32>(retval[0]) : 0;
+			uint32 new_zone = retval.size() > 1 ? static_cast<uint32>(retval[1]) : 0x1f;
+			releasable = retval.size() > 2 ? (retval[2] < 0 ? 0xff00ff + static_cast<int32>(retval[2]) : static_cast<int32>(retval[2])) : 0xff00ff;
+			if(min_tribute < new_min_tribute)
+				min_tribute = static_cast<uint8>(new_min_tribute);
 			zone &= new_zone;
 			core.units.begin()->arg1 = setplayer + (ignore_count << 8) + (min_tribute << 16) + (zone << 24);
 		}
@@ -2268,10 +2268,10 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 			for(int32 i = 0; i < eset.size(); ++i) {
 				if(eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT))
 					continue;
-				std::vector<int32> retval;
-				eset[i]->get_value(target, 0, &retval);
-				int32 dec = retval.size() > 0 ? retval[0] : 0;
-				int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+				std::vector<lua_Integer> retval;
+				eset[i]->get_value(target, 0, retval);
+				int32 dec = retval.size() > 0 ? static_cast<int32>(retval[0]) : 0;
+				int32 effect_code = retval.size() > 1 ? static_cast<int32>(retval[1]) : 0;
 				if(effect_code > 0) {
 					auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
 					if(it == duplicate.end())
@@ -2288,10 +2288,10 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 			for(int32 i = 0; i < eset.size() && min > 0; ++i) {
 				if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT) || eset[i]->count_limit == 0 || !eset[i]->target)
 					continue;
-				std::vector<int32> retval;
-				eset[i]->get_value(target, 0, &retval);
-				int32 dec = retval.size() > 0 ? retval[0] : 0;
-				int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+				std::vector<lua_Integer> retval;
+				eset[i]->get_value(target, 0, retval);
+				int32 dec = retval.size() > 0 ? static_cast<int32>(retval[0]) : 0;
+				int32 effect_code = retval.size() > 1 ? static_cast<int32>(retval[1]) : 0;
 				if(effect_code > 0) {
 					auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
 					if(it == duplicate.end())
@@ -2309,10 +2309,10 @@ int32 field::mset(uint16 step, uint8 setplayer, card* target, effect* proc, uint
 			for(int32 i = 0; i < eset.size() && min > 0; ++i) {
 				if(!eset[i]->is_flag(EFFECT_FLAG_COUNT_LIMIT) || eset[i]->count_limit == 0 || eset[i]->target)
 					continue;
-				std::vector<int32> retval;
-				eset[i]->get_value(target, 0, &retval);
-				int32 dec = retval.size() > 0 ? retval[0] : 0;
-				int32 effect_code = retval.size() > 1 ? retval[1] : 0;
+				std::vector<lua_Integer> retval;
+				eset[i]->get_value(target, 0, retval);
+				int32 dec = retval.size() > 0 ? static_cast<int32>(retval[0]) : 0;
+				int32 effect_code = retval.size() > 1 ? static_cast<int32>(retval[1]) : 0;
 				if(effect_code > 0) {
 					auto it = std::find(duplicate.begin(), duplicate.end(), effect_code);
 					if(it == duplicate.end())
@@ -2832,13 +2832,13 @@ int32 field::special_summon_rule(uint16 step, uint8 sumplayer, card* target, uin
 			else
 				targetplayer = 1 - sumplayer;
 		}
-		std::vector<int32> retval;
-		peffect->get_value(target, 0, &retval);
-		uint32 summon_info = retval.size() > 0 ? retval[0] : 0;
+		std::vector<lua_Integer> retval;
+		peffect->get_value(target, 0, retval);
+		uint32 summon_info = retval.size() > 0 ? static_cast<uint32>(retval[0]) : 0;
 		positions = target->get_spsummonable_position(peffect, ((summon_info & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_SPECIAL), positions, sumplayer, targetplayer);
 		if(positions == 0)
 			positions = POS_FACEUP_ATTACK;
-		uint32 zone = retval.size() > 1 ? retval[1] : 0xff;
+		uint32 zone = retval.size() > 1 ? static_cast<uint32>(retval[1]) : 0xff;
 		target->summon_info = (summon_info & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_SPECIAL | ((uint32)target->current.location << 16);
 		target->enable_field_effect(false);
 		move_to_field(target, sumplayer, targetplayer, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
