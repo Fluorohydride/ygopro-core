@@ -167,15 +167,16 @@ union return_value {
 	int32_t ivalue[SIZE_IVALUE];
 	int64_t lvalue[SIZE_LVALUE];
 };
+
+using option_vector = std::vector<uint32_t>;
+using card_list = std::list<card*>;
+using event_list = std::list<tevent>;
+using chain_list = std::list<chain>;
+using instant_f_list = std::map<effect*, chain>;
+using chain_array = std::vector<chain>;
+using processor_list = std::list<processor_unit>;
+using delayed_effect_collection = std::set<std::pair<effect*, tevent>>;
 struct processor {
-	using option_vector = std::vector<uint32_t>;
-	using card_list = std::list<card*>;
-	using event_list = std::list<tevent>;
-	using chain_list = std::list<chain>;
-	using instant_f_list = std::map<effect*, chain>;
-	using chain_array = std::vector<chain>;
-	using processor_list = std::list<processor_unit>;
-	using delayed_effect_collection = std::set<std::pair<effect*, tevent>>;
 	struct chain_limit_t {
 		chain_limit_t(int32_t f, int32_t p): function(f), player(p) {}
 		int32_t function{ 0 };
@@ -360,13 +361,6 @@ struct processor {
 };
 class field {
 public:
-	using card_list = std::list<card*>;
-	using event_list = std::list<tevent>;
-	using chain_list = std::list<chain>;
-	using instant_f_list = std::map<effect*, chain>;
-	using chain_array = std::vector<chain>;
-	using processor_list = std::list<processor_unit>;
-
 	duel* pduel;
 	player_info player[2];
 	card* temp_card{};

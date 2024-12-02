@@ -562,7 +562,7 @@ int32_t interpreter::call_coroutine(int32_t f, uint32_t param_count, int32_t* yi
 			return OPERATION_FAIL;
 		}
 		++call_depth;
-		auto ret = coroutines.emplace(f, std::make_pair(rthread, threadref));
+		auto ret = coroutines.emplace(f, coroutine_map::mapped_type(rthread, threadref));
 		it = ret.first;
 	} else {
 		if(step == 0) {

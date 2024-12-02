@@ -1783,7 +1783,7 @@ int32_t field::process_quick_effect(int16_t step, int32_t skip_freechain, uint8_
 			chain newchain = core.select_chains[returns.ivalue[0]];
 			core.new_chains.push_back(newchain);
 			effect* peffect = newchain.triggering_effect;
-			core.delayed_quick.erase(std::make_pair(peffect, newchain.evt));
+			core.delayed_quick.erase(delayed_effect_collection::value_type(peffect, newchain.evt));
 			peffect->get_handler()->set_status(STATUS_CHAINING, TRUE);
 			peffect->dec_count(priority);
 			add_process(PROCESSOR_ADD_CHAIN, 0, 0, 0, 0, 0);
