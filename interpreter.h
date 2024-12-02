@@ -85,7 +85,7 @@ public:
 	static void function2value(lua_State* L, int32 func_ref);
 	static int32 get_function_handle(lua_State* L, int32 index);
 	static duel* get_duel_info(lua_State* L);
-	static bool is_load_script(card_data data);
+	static bool is_load_script(const card_data& data);
 
 	template <size_t N, typename... TR>
 	static int sprintf(char (&buffer)[N], const char* format, TR... args) {

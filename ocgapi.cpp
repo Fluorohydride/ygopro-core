@@ -6,6 +6,7 @@
  */
 #include <cstdio>
 #include <cstring>
+#include <set>
 #include "ocgapi.h"
 #include "duel.h"
 #include "card.h"
@@ -14,7 +15,6 @@
 #include "field.h"
 #include "interpreter.h"
 #include "buffer.h"
-#include <set>
 
 static script_reader sreader = default_script_reader;
 static card_reader creader = default_card_reader;
@@ -35,6 +35,10 @@ byte* read_script(const char* script_name, int* len) {
 	return sreader(script_name, len);
 }
 uint32 read_card(uint32 code, card_data* data) {
+	if (code == TEMP_CARD_ID) {
+		data->clear();
+		return 0;
+	}
 	return creader(code, data);
 }
 uint32 handle_message(void* pduel, uint32 msg_type) {

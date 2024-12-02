@@ -51,7 +51,7 @@ void duel::clear() {
 card* duel::new_card(uint32 code) {
 	card* pcard = new card(this);
 	cards.insert(pcard);
-	if(code)
+	if (code != TEMP_CARD_ID)
 		::read_card(code, &(pcard->data));
 	pcard->data.code = code;
 	lua->register_card(pcard);
