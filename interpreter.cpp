@@ -63,7 +63,7 @@ void interpreter::register_card(card *pcard) {
 	lua_setmetatable(current_state, -2);	//-1
 	lua_pop(current_state, 1);				//-1
 	//Initial
-	if(pcard->data.code && is_load_script(pcard->data)) {
+	if(is_load_script(pcard->data)) {
 		pcard->set_status(STATUS_INITIALIZING, TRUE);
 		add_param(pcard, PARAM_TYPE_CARD);
 		call_card_function(pcard, "initial_effect", 1, 0);
@@ -669,11 +669,13 @@ int32 interpreter::get_function_handle(lua_State* L, int32 index) {
 	int32 ref = luaL_ref(L, LUA_REGISTRYINDEX);
 	return ref;
 }
-duel* interpreter::get_duel_info(lua_State * L) {
+duel* interpreter::get_duel_info(lua_State* L) {
 	duel* pduel;
 	std::memcpy(&pduel, lua_getextraspace(L), LUA_EXTRASPACE);
 	return pduel;
 }
-bool interpreter::is_load_script(card_data data) {
+bool interpreter::is_load_script(const card_data& data) {
+	if(data.code == TEMP_CARD_ID)
+		return false;
 	return !(data.type & TYPE_NORMAL) || (data.type & TYPE_PENDULUM);
 }

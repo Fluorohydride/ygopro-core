@@ -19,6 +19,7 @@
 #define LEN_FAIL	0
 #define LEN_EMPTY	4
 #define LEN_HEADER	8
+#define TEMP_CARD_ID	0
 
 class card;
 struct card_data;
