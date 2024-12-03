@@ -697,7 +697,7 @@ int32 effect::get_value(uint32 extraargs) {
 		return res;
 	} else {
 		pduel->lua->params.clear();
-		return (int32)value;
+		return value;
 	}
 }
 int32 effect::get_value(card* pcard, uint32 extraargs) {
@@ -708,7 +708,7 @@ int32 effect::get_value(card* pcard, uint32 extraargs) {
 		return res;
 	} else {
 		pduel->lua->params.clear();
-		return (int32)value;
+		return value;
 	}
 }
 int32 effect::get_value(effect* peffect, uint32 extraargs) {
@@ -719,7 +719,7 @@ int32 effect::get_value(effect* peffect, uint32 extraargs) {
 		return res;
 	} else {
 		pduel->lua->params.clear();
-		return (int32)value;
+		return value;
 	}
 }
 void effect::get_value(uint32 extraargs, std::vector<lua_Integer>& result) {
@@ -748,7 +748,7 @@ void effect::get_value(effect* peffect, uint32 extraargs, std::vector<lua_Intege
 		pduel->lua->get_function_value(value, 2 + extraargs, result);
 	} else {
 		pduel->lua->params.clear();
-		result.push_back((int32)value);
+		result.push_back(value);
 	}
 }
 int32 effect::get_integer_value() {
@@ -761,7 +761,7 @@ int32 effect::check_value_condition(uint32 extraargs) {
 		return res;
 	} else {
 		pduel->lua->params.clear();
-		return (int32)value;
+		return value;
 	}
 }
 void* effect::get_label_object() {
