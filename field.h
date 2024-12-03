@@ -176,6 +176,7 @@ using instant_f_list = std::map<effect*, chain>;
 using chain_array = std::vector<chain>;
 using processor_list = std::list<processor_unit>;
 using delayed_effect_collection = std::set<std::pair<effect*, tevent>>;
+using activity_map = std::unordered_map<int32_t, std::pair<int32_t, uint32_t>>;	// (counter_id, (counter_filter, count[1]|count[0]))
 struct processor {
 	struct chain_limit_t {
 		chain_limit_t(int32_t f, int32_t p): function(f), player(p) {}
@@ -350,12 +351,12 @@ struct processor {
 	uint8_t conti_player{ PLAYER_NONE };
 	uint8_t select_deck_sequence_revealed{ FALSE };
 	uint8_t selecting_player{ PLAYER_NONE };
-	std::unordered_map<uint32_t, std::pair<uint32_t, uint32_t>> summon_counter;
-	std::unordered_map<uint32_t, std::pair<uint32_t, uint32_t>> normalsummon_counter;
-	std::unordered_map<uint32_t, std::pair<uint32_t, uint32_t>> spsummon_counter;
-	std::unordered_map<uint32_t, std::pair<uint32_t, uint32_t>> flipsummon_counter;
-	std::unordered_map<uint32_t, std::pair<uint32_t, uint32_t>> attack_counter;
-	std::unordered_map<uint32_t, std::pair<uint32_t, uint32_t>> chain_counter;
+	activity_map summon_counter;
+	activity_map normalsummon_counter;
+	activity_map spsummon_counter;
+	activity_map flipsummon_counter;
+	activity_map attack_counter;
+	activity_map chain_counter;
 	processor_list recover_damage_reserve;
 	effect_vector dec_count_reserve;
 };
