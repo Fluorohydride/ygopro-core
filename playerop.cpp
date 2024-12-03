@@ -913,7 +913,7 @@ static int32 is_declarable(card_data const& cd, const std::vector<uint32>& opcod
 				stack.pop();
 				int32 lhs = stack.top();
 				stack.pop();
-				stack.push(lhs && rhs);
+				stack.push(static_cast<int32>(lhs && rhs));
 			}
 			break;
 		}
@@ -923,7 +923,7 @@ static int32 is_declarable(card_data const& cd, const std::vector<uint32>& opcod
 				stack.pop();
 				int32 lhs = stack.top();
 				stack.pop();
-				stack.push(lhs || rhs);
+				stack.push(static_cast<int32>(lhs || rhs));
 			}
 			break;
 		}
@@ -939,7 +939,7 @@ static int32 is_declarable(card_data const& cd, const std::vector<uint32>& opcod
 			if(stack.size() >= 1) {
 				int32 val = stack.top();
 				stack.pop();
-				stack.push(!val);
+				stack.push(static_cast<int32>(!val));
 			}
 			break;
 		}

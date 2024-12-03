@@ -1,11 +1,27 @@
 #ifndef CARD_DATA_H_
 #define CARD_DATA_H_
 
+#include <unordered_map>
 #include "common.h"
 
 constexpr int CARD_ARTWORK_VERSIONS_OFFSET = 20;
 constexpr int SIZE_SETCODE = 16;
-constexpr int CARD_BLACK_LUSTER_SOLDIER2 = 5405695;
+constexpr uint32 CARD_BLACK_LUSTER_SOLDIER2 = 5405695;
+
+//double name
+constexpr uint32 CARD_MARINE_DOLPHIN = 78734254;
+constexpr uint32 CARD_TWINKLE_MOSS = 13857930;
+constexpr uint32 CARD_TIMAEUS = 1784686;
+constexpr uint32 CARD_CRITIAS = 11082056;
+constexpr uint32 CARD_HERMOS = 46232525;
+
+const std::unordered_map<uint32, uint32> second_code = {
+	{CARD_MARINE_DOLPHIN, 17955766u},
+	{CARD_TWINKLE_MOSS, 17732278u},
+	{CARD_TIMAEUS, 10000050u},
+	{CARD_CRITIAS, 10000060u},
+	{CARD_HERMOS, 10000070u},
+};
 
 struct card_data {
 	uint32 code{};

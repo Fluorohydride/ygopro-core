@@ -15,14 +15,6 @@
 #include "buffer.h"
 #include <algorithm>
 
-const std::unordered_map<uint32, uint32> card::second_code = {
-	{CARD_MARINE_DOLPHIN, 17955766u},
-	{CARD_TWINKLE_MOSS, 17732278u},
-	{CARD_TIMAEUS, 10000050u},
-	{CARD_CRITIAS, 10000060u},
-	{CARD_HERMOS, 10000070u}
-};
-
 bool card_sort::operator()(card* const& c1, card* const& c2) const {
 	return c1->cardid < c2->cardid;
 }
