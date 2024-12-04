@@ -26,7 +26,7 @@ struct chain;
 
 using card_set = std::set<card*, card_sort>;
 using card_vector = std::vector<card*>;
-using effect_container = std::multimap<uint32, effect*>;
+using effect_container = std::multimap<uint32_t, effect*>;
 using effect_indexer = std::unordered_map<effect*, effect_container::iterator>;
 using effect_collection = std::unordered_set<effect*>;
 
@@ -34,17 +34,17 @@ using effect_filter = bool(*)(card* self, effect* peffect);
 using effect_filter_target = bool(*)(card* self, effect* peffect, card* target);
 
 struct card_state {
-	uint32 code{ 0 };
-	uint32 code2{ 0 };
+	uint32_t code{ 0 };
+	uint32_t code2{ 0 };
 	std::vector<uint16_t> setcode;
-	uint32 type{ 0 };
-	uint32 level{ 0 };
-	uint32 rank{ 0 };
-	uint32 link{ 0 };
-	uint32 lscale{ 0 };
-	uint32 rscale{ 0 };
-	uint32 attribute{ 0 };
-	uint32 race{ 0 };
+	uint32_t type{ 0 };
+	uint32_t level{ 0 };
+	uint32_t rank{ 0 };
+	uint32_t link{ 0 };
+	uint32_t lscale{ 0 };
+	uint32_t rscale{ 0 };
+	uint32_t attribute{ 0 };
+	uint32_t race{ 0 };
 	int32_t attack{ 0 };
 	int32_t defense{ 0 };
 	int32_t base_attack{ 0 };
@@ -53,13 +53,13 @@ struct card_state {
 	uint8 location{ 0 };
 	uint8 sequence{ 0 };
 	uint8 position{ 0 };
-	uint32 reason{ 0 };
+	uint32_t reason{ 0 };
 	bool pzone{ false };
 	card* reason_card{ nullptr };
 	uint8 reason_player{ PLAYER_NONE };
 	effect* reason_effect{ nullptr };
 
-	bool is_location(uint32 loc) const;
+	bool is_location(uint32_t loc) const;
 	bool is_main_mzone() const {
 		return location == LOCATION_MZONE && sequence >= 0 && sequence <= 4;
 	}
@@ -70,23 +70,23 @@ struct card_state {
 };
 
 struct query_cache {
-	uint32 info_location{ UINT32_MAX };
-	uint32 current_code{ UINT32_MAX };
-	uint32 type{ UINT32_MAX };
-	uint32 level{ UINT32_MAX };
-	uint32 rank{ UINT32_MAX };
-	uint32 link{ UINT32_MAX };
-	uint32 attribute{ UINT32_MAX };
-	uint32 race{ UINT32_MAX };
+	uint32_t info_location{ UINT32_MAX };
+	uint32_t current_code{ UINT32_MAX };
+	uint32_t type{ UINT32_MAX };
+	uint32_t level{ UINT32_MAX };
+	uint32_t rank{ UINT32_MAX };
+	uint32_t link{ UINT32_MAX };
+	uint32_t attribute{ UINT32_MAX };
+	uint32_t race{ UINT32_MAX };
 	int32_t attack{ -1 };
 	int32_t defense{ -1 };
 	int32_t base_attack{ -1 };
 	int32_t base_defense{ -1 };
-	uint32 reason{ UINT32_MAX };
-	uint32 status{ UINT32_MAX };
-	uint32 lscale{ UINT32_MAX };
-	uint32 rscale{ UINT32_MAX };
-	uint32 link_marker{ UINT32_MAX };
+	uint32_t reason{ UINT32_MAX };
+	uint32_t status{ UINT32_MAX };
+	uint32_t lscale{ UINT32_MAX };
+	uint32_t rscale{ UINT32_MAX };
+	uint32_t link_marker{ UINT32_MAX };
 
 	void clear_cache();
 };
@@ -117,13 +117,13 @@ public:
 		}
 	};
 	using effect_relation = std::unordered_set<std::pair<effect*, uint16_t>, effect_relation_hash>;
-	using relation_map = std::unordered_map<card*, uint32>;
+	using relation_map = std::unordered_map<card*, uint32_t>;
 	using counter_map = std::map<uint16_t, uint16_t>;
-	using effect_count = std::map<uint32, int32_t>;
-	class attacker_map : public std::unordered_map<uint32, std::pair<card*, uint32>> {
+	using effect_count = std::map<uint32_t, int32_t>;
+	class attacker_map : public std::unordered_map<uint32_t, std::pair<card*, uint32_t>> {
 	public:
 		void addcard(card* pcard);
-		uint32 findcard(card* pcard);
+		uint32_t findcard(card* pcard);
 	};
 	struct sendto_param_t {
 		void set(uint8 p, uint8 pos, uint8 loc, uint8 seq = 0) {
@@ -154,14 +154,14 @@ public:
 	query_cache q_cache;
 	uint8 owner;
 	uint8 summon_player;
-	uint32 summon_info;
-	uint32 status;
+	uint32_t summon_info;
+	uint32_t status;
 	sendto_param_t sendto_param;
-	uint32 release_param;
-	uint32 sum_param;
-	uint32 position_param;
-	uint32 spsummon_param;
-	uint32 to_field_param;
+	uint32_t release_param;
+	uint32_t sum_param;
+	uint32_t position_param;
+	uint32_t spsummon_param;
+	uint32_t to_field_param;
 	uint8 attack_announce_count;
 	uint8 direct_attackable;
 	uint8 announce_count;
@@ -169,20 +169,20 @@ public:
 	uint8 attack_all_target;
 	uint8 attack_controler;
 	uint16_t cardid;
-	uint32 fieldid;
-	uint32 fieldid_r;
+	uint32_t fieldid;
+	uint32_t fieldid_r;
 	uint16_t turnid;
 	uint16_t turn_counter;
 	uint8 unique_pos[2];
-	uint32 unique_fieldid;
-	uint32 unique_code;
-	uint32 unique_location;
+	uint32_t unique_fieldid;
+	uint32_t unique_code;
+	uint32_t unique_location;
 	int32_t unique_function;
 	effect* unique_effect;
-	uint32 spsummon_code;
+	uint32_t spsummon_code;
 	uint16_t spsummon_counter[2];
 	uint8 assume_type;
-	uint32 assume_value;
+	uint32_t assume_value;
 	card* equiping_target;
 	card* pre_equip_target;
 	card* overlay_target;
@@ -212,26 +212,26 @@ public:
 	explicit card(duel* pd);
 	~card() = default;
 	static bool card_operation_sort(card* c1, card* c2);
-	static bool check_card_setcode(uint32 code, uint32 value);
+	static bool check_card_setcode(uint32_t code, uint32_t value);
 	bool is_extra_deck_monster() const { return !!(data.type & TYPES_EXTRA_DECK); }
 
-	int32_t get_infos(byte* buf, uint32 query_flag, int32_t use_cache = TRUE);
-	uint32 get_info_location() const;
-	uint32 get_original_code() const;
-	std::tuple<uint32, uint32> get_original_code_rule() const;
-	uint32 get_code();
-	uint32 get_another_code();
-	int32_t is_set_card(uint32 set_code);
-	int32_t is_origin_set_card(uint32 set_code);
-	int32_t is_pre_set_card(uint32 set_code);
-	int32_t is_fusion_set_card(uint32 set_code);
-	int32_t is_link_set_card(uint32 set_code);
-	int32_t is_special_summon_set_card(uint32 set_code);
-	uint32 get_type();
-	uint32 get_fusion_type();
-	uint32 get_synchro_type();
-	uint32 get_xyz_type();
-	uint32 get_link_type();
+	int32_t get_infos(byte* buf, uint32_t query_flag, int32_t use_cache = TRUE);
+	uint32_t get_info_location() const;
+	uint32_t get_original_code() const;
+	std::tuple<uint32_t, uint32_t> get_original_code_rule() const;
+	uint32_t get_code();
+	uint32_t get_another_code();
+	int32_t is_set_card(uint32_t set_code);
+	int32_t is_origin_set_card(uint32_t set_code);
+	int32_t is_pre_set_card(uint32_t set_code);
+	int32_t is_fusion_set_card(uint32_t set_code);
+	int32_t is_link_set_card(uint32_t set_code);
+	int32_t is_special_summon_set_card(uint32_t set_code);
+	uint32_t get_type();
+	uint32_t get_fusion_type();
+	uint32_t get_synchro_type();
+	uint32_t get_xyz_type();
+	uint32_t get_link_type();
 	std::pair<int32_t, int32_t> get_base_atk_def();
 	std::pair<int32_t, int32_t> get_atk_def();
 	int32_t get_base_attack();
@@ -240,41 +240,41 @@ public:
 	int32_t get_defense();
 	int32_t get_battle_attack();
 	int32_t get_battle_defense();
-	uint32 get_level();
-	uint32 get_rank();
-	uint32 get_link();
-	uint32 get_synchro_level(card* pcard);
-	uint32 get_ritual_level(card* pcard);
-	uint32 check_xyz_level(card* pcard, uint32 lv);
-	uint32 get_attribute();
-	uint32 get_fusion_attribute(uint8 playerid);
-	uint32 get_link_attribute(uint8 playerid);
-	uint32 get_grave_attribute(uint8 playerid);
-	uint32 get_race();
-	uint32 get_link_race(uint8 playerid);
-	uint32 get_grave_race(uint8 playerid);
-	uint32 get_lscale();
-	uint32 get_rscale();
-	uint32 get_link_marker();
-	uint32 is_link_marker(uint32 dir);
-	uint32 get_linked_zone();
+	uint32_t get_level();
+	uint32_t get_rank();
+	uint32_t get_link();
+	uint32_t get_synchro_level(card* pcard);
+	uint32_t get_ritual_level(card* pcard);
+	uint32_t check_xyz_level(card* pcard, uint32_t lv);
+	uint32_t get_attribute();
+	uint32_t get_fusion_attribute(uint8 playerid);
+	uint32_t get_link_attribute(uint8 playerid);
+	uint32_t get_grave_attribute(uint8 playerid);
+	uint32_t get_race();
+	uint32_t get_link_race(uint8 playerid);
+	uint32_t get_grave_race(uint8 playerid);
+	uint32_t get_lscale();
+	uint32_t get_rscale();
+	uint32_t get_link_marker();
+	uint32_t is_link_marker(uint32_t dir);
+	uint32_t get_linked_zone();
 	void get_linked_cards(card_set* cset);
-	uint32 get_mutual_linked_zone();
+	uint32_t get_mutual_linked_zone();
 	void get_mutual_linked_cards(card_set * cset);
 	int32_t is_link_state();
 	int32_t is_extra_link_state();
-	int32_t is_position(uint32 pos) const;
-	void set_status(uint32 status, int32_t enabled);
-	int32_t get_status(uint32 status) const;
-	int32_t is_status(uint32 status) const;
-	uint32 get_column_zone(int32_t location);
+	int32_t is_position(uint32_t pos) const;
+	void set_status(uint32_t status, int32_t enabled);
+	int32_t get_status(uint32_t status) const;
+	int32_t is_status(uint32_t status) const;
+	uint32_t get_column_zone(int32_t location);
 	void get_column_cards(card_set* cset);
 	int32_t is_all_column();
 	uint8 get_select_sequence(uint8 *deck_seq_pointer);
-	uint32 get_select_info_location(uint8 *deck_seq_pointer);
+	uint32_t get_select_info_location(uint8 *deck_seq_pointer);
 	int32_t is_treated_as_not_on_field() const;
 
-	void equip(card* target, uint32 send_msg = TRUE);
+	void equip(card* target, uint32_t send_msg = TRUE);
 	void unequip();
 	int32_t get_union_count();
 	int32_t get_old_union_count();
@@ -286,15 +286,15 @@ public:
 	void enable_field_effect(bool enabled);
 	int32_t add_effect(effect* peffect);
 	effect_indexer::iterator remove_effect(effect* peffect);
-	int32_t copy_effect(uint32 code, uint32 reset, int32_t count);
-	int32_t replace_effect(uint32 code, uint32 reset, int32_t count);
-	void reset(uint32 id, uint32 reset_type);
+	int32_t copy_effect(uint32_t code, uint32_t reset, int32_t count);
+	int32_t replace_effect(uint32_t code, uint32_t reset, int32_t count);
+	void reset(uint32_t id, uint32_t reset_type);
 	void reset_effect_count();
 	void refresh_disable_status();
 	std::tuple<uint8, effect*> refresh_control_status();
 
 	void count_turn(uint16_t ct);
-	void create_relation(card* target, uint32 reset);
+	void create_relation(card* target, uint32_t reset);
 	int32_t is_has_relation(card* target);
 	void release_relation(card* target);
 	void create_relation(const chain& ch);
@@ -304,40 +304,40 @@ public:
 	void create_relation(effect* peffect);
 	int32_t is_has_relation(effect* peffect);
 	void release_relation(effect* peffect);
-	int32_t leave_field_redirect(uint32 reason);
-	int32_t destination_redirect(uint8 destination, uint32 reason);
+	int32_t leave_field_redirect(uint32_t reason);
+	int32_t destination_redirect(uint8 destination, uint32_t reason);
 	int32_t add_counter(uint8 playerid, uint16_t countertype, uint16_t count, uint8 singly);
 	int32_t remove_counter(uint16_t countertype, uint16_t count);
-	int32_t is_can_add_counter(uint8 playerid, uint16_t countertype, uint16_t count, uint8 singly, uint32 loc);
+	int32_t is_can_add_counter(uint8 playerid, uint16_t countertype, uint16_t count, uint8 singly, uint32_t loc);
 	int32_t is_can_have_counter(uint16_t countertype);
 	int32_t get_counter(uint16_t countertype);
 	void set_material(card_set* materials);
 	void add_card_target(card* pcard);
 	void cancel_card_target(card* pcard);
-	void delete_card_target(uint32 send_msg);
+	void delete_card_target(uint32_t send_msg);
 	void clear_card_target();
 	void set_special_summon_status(effect* peffect);
 
 	template<typename T>
-	void filter_effect_container(const effect_container& container, uint32 code, effect_filter f, T& eset);
-	void filter_effect_container(const effect_container& container, uint32 code, effect_filter f, effect_collection& eset);
-	void filter_effect(uint32 code, effect_set* eset, uint8 sort = TRUE);
-	void filter_single_continuous_effect(uint32 code, effect_set* eset, uint8 sort = TRUE);
-	void filter_self_effect(uint32 code, effect_set* eset, uint8 sort = TRUE);
+	void filter_effect_container(const effect_container& container, uint32_t code, effect_filter f, T& eset);
+	void filter_effect_container(const effect_container& container, uint32_t code, effect_filter f, effect_collection& eset);
+	void filter_effect(uint32_t code, effect_set* eset, uint8 sort = TRUE);
+	void filter_single_continuous_effect(uint32_t code, effect_set* eset, uint8 sort = TRUE);
+	void filter_self_effect(uint32_t code, effect_set* eset, uint8 sort = TRUE);
 	void filter_immune_effect();
 	void filter_disable_related_cards();
-	int32_t filter_summon_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute, uint32 zone);
-	int32_t check_summon_procedure(effect* proc, uint8 playerid, uint8 ignore_count, uint8 min_tribute, uint32 zone);
-	int32_t filter_set_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute, uint32 zone);
-	int32_t check_set_procedure(effect* proc, uint8 playerid, uint8 ignore_count, uint8 min_tribute, uint32 zone);
-	void filter_spsummon_procedure(uint8 playerid, effect_set* eset, uint32 summon_type, material_info info = null_info);
+	int32_t filter_summon_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute, uint32_t zone);
+	int32_t check_summon_procedure(effect* proc, uint8 playerid, uint8 ignore_count, uint8 min_tribute, uint32_t zone);
+	int32_t filter_set_procedure(uint8 playerid, effect_set* eset, uint8 ignore_count, uint8 min_tribute, uint32_t zone);
+	int32_t check_set_procedure(effect* proc, uint8 playerid, uint8 ignore_count, uint8 min_tribute, uint32_t zone);
+	void filter_spsummon_procedure(uint8 playerid, effect_set* eset, uint32_t summon_type, material_info info = null_info);
 	void filter_spsummon_procedure_g(uint8 playerid, effect_set* eset);
-	effect* find_effect(const effect_container& container, uint32 code, effect_filter f);
-	effect* find_effect_with_target(const effect_container& container, uint32 code, effect_filter_target f, card* target);
-	effect* is_affected_by_effect(uint32 code);
+	effect* find_effect(const effect_container& container, uint32_t code, effect_filter f);
+	effect* find_effect_with_target(const effect_container& container, uint32_t code, effect_filter_target f, card* target);
+	effect* is_affected_by_effect(uint32_t code);
 	effect* is_affected_by_effect(int32_t code, card* target);
-	int32_t fusion_check(group* fusion_m, card* cg, uint32 chkf, uint8 not_material);
-	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32 chkf, uint8 not_material);
+	int32_t fusion_check(group* fusion_m, card* cg, uint32_t chkf, uint8 not_material);
+	void fusion_select(uint8 playerid, group* fusion_m, card* cg, uint32_t chkf, uint8 not_material);
 	int32_t check_fusion_substitute(card* fcard);
 	int32_t is_not_tuner(card* scard);
 	int32_t is_tuner(card* scard);
@@ -348,18 +348,18 @@ public:
 	int32_t check_cost_condition(int32_t ecode, int32_t playerid, int32_t sumtype);
 	int32_t is_summonable_card() const;
 	int32_t is_spsummonable_card();
-	int32_t is_fusion_summonable_card(uint32 summon_type);
+	int32_t is_fusion_summonable_card(uint32_t summon_type);
 	int32_t is_spsummonable(effect* proc, material_info info = null_info);
-	int32_t is_summonable(effect* proc, uint8 min_tribute, uint32 zone = 0x1f, uint32 releasable = 0xff00ff);
-	int32_t is_can_be_summoned(uint8 playerid, uint8 ingore_count, effect* peffect, uint8 min_tribute, uint32 zone = 0x1f);
-	int32_t is_summon_negatable(uint32 sumtype, effect* reason_effect);
+	int32_t is_summonable(effect* proc, uint8 min_tribute, uint32_t zone = 0x1f, uint32_t releasable = 0xff00ff);
+	int32_t is_can_be_summoned(uint8 playerid, uint8 ingore_count, effect* peffect, uint8 min_tribute, uint32_t zone = 0x1f);
+	int32_t is_summon_negatable(uint32_t sumtype, effect* reason_effect);
 	int32_t get_summon_tribute_count();
 	int32_t get_set_tribute_count();
 	int32_t is_can_be_flip_summoned(uint8 playerid);
-	int32_t is_special_summonable(uint8 playerid, uint32 summon_type, material_info info = null_info);
-	int32_t is_can_be_special_summoned(effect* reason_effect, uint32 sumtype, uint8 sumpos, uint8 sumplayer, uint8 toplayer, uint8 nocheck, uint8 nolimit, uint32 zone);
-	uint8 get_spsummonable_position(effect* reason_effect, uint32 sumtype, uint8 sumpos, uint8 sumplayer, uint8 toplayer);
-	int32_t is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect, uint8 min_tribute, uint32 zone = 0x1f);
+	int32_t is_special_summonable(uint8 playerid, uint32_t summon_type, material_info info = null_info);
+	int32_t is_can_be_special_summoned(effect* reason_effect, uint32_t sumtype, uint8 sumpos, uint8 sumplayer, uint8 toplayer, uint8 nocheck, uint8 nolimit, uint32_t zone);
+	uint8 get_spsummonable_position(effect* reason_effect, uint32_t sumtype, uint8 sumpos, uint8 sumplayer, uint8 toplayer);
+	int32_t is_setable_mzone(uint8 playerid, uint8 ignore_count, effect* peffect, uint8 min_tribute, uint32_t zone = 0x1f);
 	int32_t is_setable_szone(uint8 playerid, uint8 ignore_fd = 0);
 	int32_t is_affect_by_effect(effect* reason_effect);
 	int32_t is_can_be_disabled_by_effect(effect* reason_effect, bool is_monster_effect);
@@ -367,10 +367,10 @@ public:
 	int32_t is_destructable_by_battle(card* pcard);
 	effect* check_indestructable_by_effect(effect* reason_effect, uint8 playerid);
 	int32_t is_destructable_by_effect(effect* reason_effect, uint8 playerid);
-	int32_t is_removeable(uint8 playerid, uint8 pos, uint32 reason);
+	int32_t is_removeable(uint8 playerid, uint8 pos, uint32_t reason);
 	int32_t is_removeable_as_cost(uint8 playerid, uint8 pos);
 	int32_t is_releasable_by_summon(uint8 playerid, card* pcard);
-	int32_t is_releasable_by_nonsummon(uint8 playerid, uint32 reason);
+	int32_t is_releasable_by_nonsummon(uint8 playerid, uint32_t reason);
 	int32_t is_releasable_by_effect(uint8 playerid, effect* reason_effect);
 	int32_t is_capable_send_to_grave(uint8 playerid);
 	int32_t is_capable_send_to_hand(uint8 playerid);
@@ -386,11 +386,11 @@ public:
 	int32_t is_capable_change_position_by_effect(uint8 playerid);
 	int32_t is_capable_turn_set(uint8 playerid);
 	int32_t is_capable_change_control();
-	int32_t is_control_can_be_changed(int32_t ignore_mzone, uint32 zone);
+	int32_t is_control_can_be_changed(int32_t ignore_mzone, uint32_t zone);
 	int32_t is_capable_be_battle_target(card* pcard);
 	int32_t is_capable_be_effect_target(effect* reason_effect, uint8 playerid);
 	int32_t is_capable_overlay(uint8 playerid);
-	int32_t is_can_be_fusion_material(card* fcard, uint32 summon_type);
+	int32_t is_can_be_fusion_material(card* fcard, uint32_t summon_type);
 	int32_t is_can_be_synchro_material(card* scard, card* tuner = nullptr);
 	int32_t is_can_be_ritual_material(card* scard);
 	int32_t is_can_be_xyz_material(card* scard);
@@ -419,7 +419,7 @@ public:
 #define SUMMON_VALUE_SUB_TYPE		0x0f000000U
 #define SUMMON_VALUE_LOCATION		0x00ff0000U
 #define SUMMON_VALUE_CUSTOM_TYPE	0x0000ffffU
-constexpr uint32 DEFAULT_SUMMON_TYPE = SUMMON_VALUE_MAIN_TYPE | SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE;
+constexpr uint32_t DEFAULT_SUMMON_TYPE = SUMMON_VALUE_MAIN_TYPE | SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE;
 
 #define SUMMON_VALUE_FUTURE_FUSION	0x18
 

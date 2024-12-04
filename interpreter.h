@@ -63,19 +63,19 @@ public:
 	void unregister_group(group* pgroup);
 
 	int32_t load_script(const char* script_name);
-	int32_t load_card_script(uint32 code);
+	int32_t load_card_script(uint32_t code);
 	void add_param(void* param, LuaParamType type, bool front = false);
 	void add_param(int32_t param, LuaParamType type, bool front = false);
 	void push_param(lua_State* L, bool is_coroutine = false);
-	int32_t call_function(int32_t f, uint32 param_count, int32_t ret_count);
-	int32_t call_card_function(card* pcard, const char* f, uint32 param_count, int32_t ret_count);
-	int32_t call_code_function(uint32 code, const char* f, uint32 param_count, int32_t ret_count);
-	int32_t check_condition(int32_t f, uint32 param_count);
+	int32_t call_function(int32_t f, uint32_t param_count, int32_t ret_count);
+	int32_t call_card_function(card* pcard, const char* f, uint32_t param_count, int32_t ret_count);
+	int32_t call_code_function(uint32_t code, const char* f, uint32_t param_count, int32_t ret_count);
+	int32_t check_condition(int32_t f, uint32_t param_count);
 	int32_t check_filter(lua_State* L, card* pcard, int32_t findex, int32_t extraargs);
 	int32_t get_operation_value(card* pcard, int32_t findex, int32_t extraargs);
-	int32_t get_function_value(int32_t f, uint32 param_count);
-	int32_t get_function_value(int32_t f, uint32 param_count, std::vector<lua_Integer>& result);
-	int32_t call_coroutine(int32_t f, uint32 param_count, int32_t* yield_value, uint16_t step);
+	int32_t get_function_value(int32_t f, uint32_t param_count);
+	int32_t get_function_value(int32_t f, uint32_t param_count, std::vector<lua_Integer>& result);
+	int32_t call_coroutine(int32_t f, uint32_t param_count, int32_t* yield_value, uint16_t step);
 	int32_t clone_function_ref(int32_t func_ref);
 	void* get_ref_object(int32_t ref_handler);
 

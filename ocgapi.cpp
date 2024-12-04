@@ -34,14 +34,14 @@ extern "C" DECL_DLLEXPORT void set_message_handler(message_handler f) {
 byte* read_script(const char* script_name, int* len) {
 	return sreader(script_name, len);
 }
-uint32 read_card(uint32 code, card_data* data) {
+uint32_t read_card(uint32_t code, card_data* data) {
 	if (code == TEMP_CARD_ID) {
 		data->clear();
 		return 0;
 	}
 	return creader(code, data);
 }
-uint32 handle_message(void* pduel, uint32 msg_type) {
+uint32_t handle_message(void* pduel, uint32_t msg_type) {
 	return mhandler((intptr_t)pduel, msg_type);
 }
 byte* default_script_reader(const char* script_name, int* slen) {
@@ -56,10 +56,10 @@ byte* default_script_reader(const char* script_name, int* slen) {
 	*slen = (int)len;
 	return buffer;
 }
-uint32 default_card_reader(uint32 code, card_data* data) {
+uint32_t default_card_reader(uint32_t code, card_data* data) {
 	return 0;
 }
-uint32 default_message_handler(intptr_t pduel, uint32 message_type) {
+uint32_t default_message_handler(intptr_t pduel, uint32_t message_type) {
 	return 0;
 }
 extern "C" DECL_DLLEXPORT intptr_t create_duel(uint_fast32_t seed) {
@@ -68,7 +68,7 @@ extern "C" DECL_DLLEXPORT intptr_t create_duel(uint_fast32_t seed) {
 	pduel->random.reset(seed);
 	return (intptr_t)pduel;
 }
-extern "C" DECL_DLLEXPORT void start_duel(intptr_t pduel, uint32 options) {
+extern "C" DECL_DLLEXPORT void start_duel(intptr_t pduel, uint32_t options) {
 	duel* pd = (duel*)pduel;
 	pd->game_field->core.duel_options |= options & 0xffff;
 	int32_t duel_rule = options >> 16;
@@ -140,15 +140,15 @@ extern "C" DECL_DLLEXPORT int32_t get_message(intptr_t pduel, byte* buf) {
 	((duel*)pduel)->clear_buffer();
 	return len;
 }
-extern "C" DECL_DLLEXPORT uint32 process(intptr_t pduel) {
+extern "C" DECL_DLLEXPORT uint32_t process(intptr_t pduel) {
 	duel* pd = (duel*)pduel;
-	uint32 result = 0; 
+	uint32_t result = 0; 
 	do {
 		result = pd->game_field->process();
 	} while ((result & PROCESSOR_BUFFER_LEN) == 0 && (result & PROCESSOR_FLAG) == 0);
 	return result;
 }
-extern "C" DECL_DLLEXPORT void new_card(intptr_t pduel, uint32 code, uint8 owner, uint8 playerid, uint8 location, uint8 sequence, uint8 position) {
+extern "C" DECL_DLLEXPORT void new_card(intptr_t pduel, uint32_t code, uint8 owner, uint8 playerid, uint8 location, uint8 sequence, uint8 position) {
 	if (!check_playerid(owner) || !check_playerid(playerid))
 		return;
 	duel* ptduel = (duel*)pduel;
@@ -166,7 +166,7 @@ extern "C" DECL_DLLEXPORT void new_card(intptr_t pduel, uint32 code, uint8 owner
 		}
 	}
 }
-extern "C" DECL_DLLEXPORT void new_tag_card(intptr_t pduel, uint32 code, uint8 owner, uint8 location) {
+extern "C" DECL_DLLEXPORT void new_tag_card(intptr_t pduel, uint32_t code, uint8 owner, uint8 location) {
 	duel* ptduel = (duel*)pduel;
 	if(owner > 1 || !(location & (LOCATION_DECK | LOCATION_EXTRA)))
 		return;
@@ -256,7 +256,7 @@ extern "C" DECL_DLLEXPORT int32_t query_field_count(intptr_t pduel, uint8 player
 	}
 	return 0;
 }
-extern "C" DECL_DLLEXPORT int32_t query_field_card(intptr_t pduel, uint8 playerid, uint8 location, uint32 query_flag, byte* buf, int32_t use_cache) {
+extern "C" DECL_DLLEXPORT int32_t query_field_card(intptr_t pduel, uint8 playerid, uint8 location, uint32_t query_flag, byte* buf, int32_t use_cache) {
 	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;

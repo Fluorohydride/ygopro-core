@@ -11,7 +11,7 @@
 #include "common.h"
 #include "interpreter.h"
 
-constexpr bool match_all(uint32 x, uint32 y) {
+constexpr bool match_all(uint32_t x, uint32_t y) {
 	return (x & y) == y;
 }
 

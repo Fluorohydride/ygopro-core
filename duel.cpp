@@ -48,7 +48,7 @@ void duel::clear() {
 	game_field = new field(this);
 	game_field->temp_card = new_card(0);
 }
-card* duel::new_card(uint32 code) {
+card* duel::new_card(uint32_t code) {
 	card* pcard = new card(this);
 	cards.insert(pcard);
 	if (code != TEMP_CARD_ID)
@@ -121,7 +121,7 @@ void duel::restore_assumes() {
 void duel::write_buffer(const void* data, int size) {
 	vector_write_block(message_buffer, data, size);
 }
-void duel::write_buffer32(uint32 value) {
+void duel::write_buffer32(uint32_t value) {
 	vector_write<uint32_t>(message_buffer, value);
 }
 void duel::write_buffer16(uint16_t value) {
@@ -133,7 +133,7 @@ void duel::write_buffer8(uint8 value) {
 void duel::clear_buffer() {
 	message_buffer.clear();
 }
-void duel::set_responsei(uint32 resp) {
+void duel::set_responsei(uint32_t resp) {
 	game_field->returns.ivalue[0] = resp;
 }
 void duel::set_responseb(byte* resp) {

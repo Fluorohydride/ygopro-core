@@ -19,7 +19,7 @@ bool effect_sort_id(const effect* e1, const effect* e2) {
 	return e1->id < e2->id;
 }
 // return: code is an event reserved for EFFECT_TYPE_CONTINUOUS or not
-bool is_continuous_event(uint32 code) {
+bool is_continuous_event(uint32_t code) {
 	if (code & EVENT_CUSTOM)
 		return false;
 	else if (code & 0xf0000) // EVENT_ADD_COUNTER, EVENT_REMOVE_COUNTER
@@ -167,9 +167,9 @@ int32_t effect::check_count_limit(uint8 playerid) {
 		if(count_limit == 0)
 			return FALSE;
 		if(count_code) {
-			uint32 limit_code = count_code & MAX_CARD_ID;
-			uint32 limit_type = count_code & 0xf0000000;
-			uint32 count = count_limit_max;
+			uint32_t limit_code = count_code & MAX_CARD_ID;
+			uint32_t limit_type = count_code & 0xf0000000;
+			uint32_t count = count_limit_max;
 			if(limit_code == EFFECT_COUNT_CODE_SINGLE) {
 				if(pduel->game_field->get_effect_code(limit_type | get_handler()->fieldid, PLAYER_NONE) >= count)
 					return FALSE;
@@ -262,7 +262,7 @@ int32_t effect::is_activateable(uint8 playerid, const tevent& e, int32_t neglect
 					&& !pduel->game_field->get_cteffect(this, playerid, FALSE))
 					return FALSE;
 			}
-			uint32 zone = 0xff;
+			uint32_t zone = 0xff;
 			if(!(handler->data.type & (TYPE_FIELD | TYPE_PENDULUM)) && is_flag(EFFECT_FLAG_LIMIT_ZONE)) {
 				pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 				pduel->lua->add_param(e.event_cards , PARAM_TYPE_GROUP);
@@ -629,7 +629,7 @@ int32_t effect::is_monster_effect() const {
 }
 //return: this can be reset by reset_level or not
 //RESET_DISABLE is valid only when owner == handler
-int32_t effect::reset(uint32 reset_level, uint32 reset_type) {
+int32_t effect::reset(uint32_t reset_level, uint32_t reset_type) {
 	switch (reset_type) {
 	case RESET_EVENT: {
 		if(!(reset_flag & RESET_EVENT))
@@ -677,8 +677,8 @@ void effect::dec_count(uint8 playerid) {
 	if(count_code == 0 || is_flag(EFFECT_FLAG_NO_TURN_RESET))
 		count_limit -= 1;
 	if(count_code) {
-		uint32 limit_code = count_code & MAX_CARD_ID;
-		uint32 limit_type = count_code & 0xf0000000;
+		uint32_t limit_code = count_code & MAX_CARD_ID;
+		uint32_t limit_type = count_code & 0xf0000000;
 		if(limit_code == EFFECT_COUNT_CODE_SINGLE)
 			pduel->game_field->add_effect_code(limit_type | get_handler()->fieldid, PLAYER_NONE);
 		else
@@ -690,7 +690,7 @@ void effect::recharge() {
 		count_limit = count_limit_max;
 	}
 }
-int32_t effect::get_value(uint32 extraargs) {
+int32_t effect::get_value(uint32_t extraargs) {
 	if(is_flag(EFFECT_FLAG_FUNC_VALUE)) {
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT, TRUE);
 		int32_t res = pduel->lua->get_function_value(value, 1 + extraargs);
@@ -700,7 +700,7 @@ int32_t effect::get_value(uint32 extraargs) {
 		return value;
 	}
 }
-int32_t effect::get_value(card* pcard, uint32 extraargs) {
+int32_t effect::get_value(card* pcard, uint32_t extraargs) {
 	if(is_flag(EFFECT_FLAG_FUNC_VALUE)) {
 		pduel->lua->add_param(pcard, PARAM_TYPE_CARD, TRUE);
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT, TRUE);
@@ -711,7 +711,7 @@ int32_t effect::get_value(card* pcard, uint32 extraargs) {
 		return value;
 	}
 }
-int32_t effect::get_value(effect* peffect, uint32 extraargs) {
+int32_t effect::get_value(effect* peffect, uint32_t extraargs) {
 	if(is_flag(EFFECT_FLAG_FUNC_VALUE)) {
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT, TRUE);
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT, TRUE);
@@ -722,7 +722,7 @@ int32_t effect::get_value(effect* peffect, uint32 extraargs) {
 		return value;
 	}
 }
-void effect::get_value(uint32 extraargs, std::vector<lua_Integer>& result) {
+void effect::get_value(uint32_t extraargs, std::vector<lua_Integer>& result) {
 	if(is_flag(EFFECT_FLAG_FUNC_VALUE)) {
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT, TRUE);
 		pduel->lua->get_function_value(value, 1 + extraargs, result);
@@ -731,7 +731,7 @@ void effect::get_value(uint32 extraargs, std::vector<lua_Integer>& result) {
 		result.push_back(value);
 	}
 }
-void effect::get_value(card* pcard, uint32 extraargs, std::vector<lua_Integer>& result) {
+void effect::get_value(card* pcard, uint32_t extraargs, std::vector<lua_Integer>& result) {
 	if(is_flag(EFFECT_FLAG_FUNC_VALUE)) {
 		pduel->lua->add_param(pcard, PARAM_TYPE_CARD, TRUE);
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT, TRUE);
@@ -741,7 +741,7 @@ void effect::get_value(card* pcard, uint32 extraargs, std::vector<lua_Integer>& 
 		result.push_back(value);
 	}
 }
-void effect::get_value(effect* peffect, uint32 extraargs, std::vector<lua_Integer>& result) {
+void effect::get_value(effect* peffect, uint32_t extraargs, std::vector<lua_Integer>& result) {
 	if(is_flag(EFFECT_FLAG_FUNC_VALUE)) {
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT, TRUE);
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT, TRUE);
@@ -754,7 +754,7 @@ void effect::get_value(effect* peffect, uint32 extraargs, std::vector<lua_Intege
 int32_t effect::get_integer_value() {
 	return is_flag(EFFECT_FLAG_FUNC_VALUE) ? 0 : value;
 }
-int32_t effect::check_value_condition(uint32 extraargs) {
+int32_t effect::check_value_condition(uint32_t extraargs) {
 	if(is_flag(EFFECT_FLAG_FUNC_VALUE)) {
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT, TRUE);
 		int32_t res = pduel->lua->check_condition(value, 1 + extraargs);
@@ -852,7 +852,7 @@ void effect::set_active_type() {
 	if(active_type & TYPE_TRAPMONSTER)
 		active_type &= ~TYPE_TRAP;
 }
-uint32 effect::get_active_type(uint8 uselast) {
+uint32_t effect::get_active_type(uint8 uselast) {
 	if(type & EFFECT_TYPES_CHAIN_LINK) {
 		if(active_type && uselast)
 			return active_type;

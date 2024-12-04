@@ -89,7 +89,7 @@ int32_t scriptlib::debug_pre_summon(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint32 summon_type = (uint32)lua_tointeger(L, 2);
+	uint32_t summon_type = (uint32_t)lua_tointeger(L, 2);
 	uint8 summon_location = 0;
 	if(lua_gettop(L) > 2)
 		summon_location = (uint8)lua_tointeger(L, 3);
@@ -127,7 +127,7 @@ int32_t scriptlib::debug_pre_add_counter(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint32 countertype = (uint32)lua_tointeger(L, 2);
+	uint32_t countertype = (uint32_t)lua_tointeger(L, 2);
 	uint16_t count = (uint16_t)lua_tointeger(L, 3);
 	uint16_t cttype = countertype;
 	auto pr = pcard->counters.emplace(cttype, 0);
@@ -138,7 +138,7 @@ int32_t scriptlib::debug_pre_add_counter(lua_State *L) {
 int32_t scriptlib::debug_reload_field_begin(lua_State *L) {
 	check_param_count(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
-	uint32 flag = (uint32)lua_tointeger(L, 1);
+	uint32_t flag = (uint32_t)lua_tointeger(L, 1);
 	int32_t rule = (int32_t)lua_tointeger(L, 2);
 	pduel->clear();
 	pduel->game_field->core.duel_options |= flag;

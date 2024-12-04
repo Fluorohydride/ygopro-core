@@ -25,7 +25,7 @@ enum effect_flag2 : uint64;
 enum effect_category :uint64;
 enum code_type : int32_t;
 
-bool is_continuous_event(uint32 code);
+bool is_continuous_event(uint32_t code);
 
 class effect {
 public:
@@ -34,10 +34,10 @@ public:
 	card* owner{ nullptr };
 	card* handler{ nullptr };
 	uint8 effect_owner{ PLAYER_NONE };
-	uint32 description{ 0 };
-	uint32 code{ 0 };
-	uint32 id{ 0 };
-	uint32 type{ 0 };
+	uint32_t description{ 0 };
+	uint32_t code{ 0 };
+	uint32_t id{ 0 };
+	uint32_t type{ 0 };
 	uint16_t copy_id{ 0 };
 	uint16_t range{ 0 };
 	uint16_t s_range{ 0 };
@@ -46,13 +46,13 @@ public:
 	uint8 count_limit_max{ 0 };
 	uint16_t status{ 0 };
 	int32_t reset_count{ 0 };
-	uint32 reset_flag{ 0 };
-	uint32 count_code{ 0 };
+	uint32_t reset_flag{ 0 };
+	uint32_t count_code{ 0 };
 	uint64 category{ 0 };
 	uint64 flag[2]{};
-	uint32 hint_timing[2]{};
-	uint32 card_type{ 0 };
-	uint32 active_type{ 0 };
+	uint32_t hint_timing[2]{};
+	uint32_t card_type{ 0 };
+	uint32_t active_type{ 0 };
 	uint16_t active_location{ 0 };
 	uint16_t active_sequence{ 0 };
 	card* active_handler{ nullptr };
@@ -93,17 +93,17 @@ public:
 	int32_t is_hand_trigger() const;
 	int32_t is_initial_single() const;
 	int32_t is_monster_effect() const;
-	int32_t reset(uint32 reset_level, uint32 reset_type);
+	int32_t reset(uint32_t reset_level, uint32_t reset_type);
 	void dec_count(uint8 playerid = PLAYER_NONE);
 	void recharge();
-	int32_t get_value(uint32 extraargs = 0);
-	int32_t get_value(card* pcard, uint32 extraargs = 0);
-	int32_t get_value(effect* peffect, uint32 extraargs = 0);
-	void get_value(uint32 extraargs, std::vector<lua_Integer>& result);
-	void get_value(card* pcard, uint32 extraargs, std::vector<lua_Integer>& result);
-	void get_value(effect* peffect, uint32 extraargs, std::vector<lua_Integer>& result);
+	int32_t get_value(uint32_t extraargs = 0);
+	int32_t get_value(card* pcard, uint32_t extraargs = 0);
+	int32_t get_value(effect* peffect, uint32_t extraargs = 0);
+	void get_value(uint32_t extraargs, std::vector<lua_Integer>& result);
+	void get_value(card* pcard, uint32_t extraargs, std::vector<lua_Integer>& result);
+	void get_value(effect* peffect, uint32_t extraargs, std::vector<lua_Integer>& result);
 	int32_t get_integer_value();
-	int32_t check_value_condition(uint32 extraargs = 0);
+	int32_t check_value_condition(uint32_t extraargs = 0);
 	void* get_label_object();
 	int32_t get_speed();
 	effect* clone();
@@ -115,7 +115,7 @@ public:
 	int32_t in_range(const chain& ch) const;
 	void set_activate_location();
 	void set_active_type();
-	uint32 get_active_type(uint8 uselast = TRUE);
+	uint32_t get_active_type(uint8 uselast = TRUE);
 	code_type get_code_type() const;
 
 	bool is_flag(effect_flag x) const {
@@ -159,7 +159,7 @@ public:
 #define RESET_OVERLAY		0x04000000
 #define RESET_MSCHANGE		0x08000000
 
-constexpr uint32 RESETS_STANDARD = RESET_TOFIELD | RESET_LEAVE | RESET_TODECK | RESET_TOHAND | RESET_TEMP_REMOVE | RESET_REMOVE | RESET_TOGRAVE | RESET_TURN_SET;
+constexpr uint32_t RESETS_STANDARD = RESET_TOFIELD | RESET_LEAVE | RESET_TODECK | RESET_TOHAND | RESET_TEMP_REMOVE | RESET_REMOVE | RESET_TOGRAVE | RESET_TURN_SET;
 
 //========== Types ==========
 #define EFFECT_TYPE_SINGLE			0x0001	//
@@ -178,8 +178,8 @@ constexpr uint32 RESETS_STANDARD = RESET_TOFIELD | RESET_LEAVE | RESET_TODECK | 
 #define EFFECT_TYPE_GRANT			0x2000	//
 #define EFFECT_TYPE_TARGET			0x4000	//
 
-constexpr uint32 EFFECT_TYPES_TRIGGER_LIKE = EFFECT_TYPE_ACTIVATE | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F;
-constexpr uint32 EFFECT_TYPES_CHAIN_LINK = EFFECT_TYPES_TRIGGER_LIKE | EFFECT_TYPE_FLIP | EFFECT_TYPE_IGNITION;
+constexpr uint32_t EFFECT_TYPES_TRIGGER_LIKE = EFFECT_TYPE_ACTIVATE | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F;
+constexpr uint32_t EFFECT_TYPES_CHAIN_LINK = EFFECT_TYPES_TRIGGER_LIKE | EFFECT_TYPE_FLIP | EFFECT_TYPE_IGNITION;
 
 //========== Flags ==========
 enum effect_flag : uint64 {
@@ -621,7 +621,7 @@ enum code_type : int32_t {
 	CODE_VALUE,			// numeric value, max = 4095
 };
 
-const std::unordered_set<uint32> continuous_event{
+const std::unordered_set<uint32_t> continuous_event{
 	EVENT_ADJUST,
 	EVENT_BREAK_EFFECT,
 	EVENT_TURN_END,
@@ -629,7 +629,7 @@ const std::unordered_set<uint32> continuous_event{
 	EVENT_SPSUMMON_SUCCESS_G_P,
 };
 
-const std::unordered_set<uint32> affect_summoning_effect{
+const std::unordered_set<uint32_t> affect_summoning_effect{
 	EFFECT_CANNOT_DISABLE_SUMMON,
 	EFFECT_CANNOT_DISABLE_SPSUMMON,
 	EVENT_BE_PRE_MATERIAL,

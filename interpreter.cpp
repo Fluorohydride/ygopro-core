@@ -140,7 +140,7 @@ int32_t interpreter::load_script(const char* script_name) {
 	return OPERATION_SUCCESS;
 }
 //push table cxxx onto the stack of current_state 
-int32_t interpreter::load_card_script(uint32 code) {
+int32_t interpreter::load_card_script(uint32_t code) {
 	char class_name[20];
 	sprintf(class_name, "c%d", code);
 	luaL_checkstack(current_state, 1, nullptr);
@@ -254,7 +254,7 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	}
 	params.clear();
 }
-int32_t interpreter::call_function(int32_t f, uint32 param_count, int32_t ret_count) {
+int32_t interpreter::call_function(int32_t f, uint32_t param_count, int32_t ret_count) {
 	if (!f) {
 		sprintf(pduel->strbuffer, "\"CallFunction\": attempt to call a null function.");
 		handle_message(pduel, 1);
@@ -298,7 +298,7 @@ int32_t interpreter::call_function(int32_t f, uint32 param_count, int32_t ret_co
 	}
 	return OPERATION_SUCCESS;
 }
-int32_t interpreter::call_card_function(card* pcard, const char* f, uint32 param_count, int32_t ret_count) {
+int32_t interpreter::call_card_function(card* pcard, const char* f, uint32_t param_count, int32_t ret_count) {
 	if (param_count != params.size()) {
 		sprintf(pduel->strbuffer, "\"CallCardFunction\"(c%d.%s): incorrect parameter count", pcard->data.get_original_code(), f);
 		handle_message(pduel, 1);
@@ -339,7 +339,7 @@ int32_t interpreter::call_card_function(card* pcard, const char* f, uint32 param
 	}
 	return OPERATION_SUCCESS;
 }
-int32_t interpreter::call_code_function(uint32 code, const char* f, uint32 param_count, int32_t ret_count) {
+int32_t interpreter::call_code_function(uint32_t code, const char* f, uint32_t param_count, int32_t ret_count) {
 	if (param_count != params.size()) {
 		sprintf(pduel->strbuffer, "\"CallCodeFunction\": incorrect parameter count");
 		handle_message(pduel, 1);
@@ -380,7 +380,7 @@ int32_t interpreter::call_code_function(uint32 code, const char* f, uint32 param
 	}
 	return OPERATION_SUCCESS;
 }
-int32_t interpreter::check_condition(int32_t f, uint32 param_count) {
+int32_t interpreter::check_condition(int32_t f, uint32_t param_count) {
 	if(!f) {
 		params.clear();
 		return TRUE;
@@ -470,7 +470,7 @@ int32_t interpreter::get_operation_value(card* pcard, int32_t findex, int32_t ex
 	}
 	return result;
 }
-int32_t interpreter::get_function_value(int32_t f, uint32 param_count) {
+int32_t interpreter::get_function_value(int32_t f, uint32_t param_count) {
 	if(!f) {
 		params.clear();
 		return 0;
@@ -502,7 +502,7 @@ int32_t interpreter::get_function_value(int32_t f, uint32 param_count) {
 	}
 	return OPERATION_FAIL;
 }
-int32_t interpreter::get_function_value(int32_t f, uint32 param_count, std::vector<lua_Integer>& result) {
+int32_t interpreter::get_function_value(int32_t f, uint32_t param_count, std::vector<lua_Integer>& result) {
 	int32_t is_success = OPERATION_FAIL;
 	if(!f) {
 		params.clear();
@@ -534,7 +534,7 @@ int32_t interpreter::get_function_value(int32_t f, uint32 param_count, std::vect
 	}
 	return is_success;
 }
-int32_t interpreter::call_coroutine(int32_t f, uint32 param_count, int32_t* yield_value, uint16_t step) {
+int32_t interpreter::call_coroutine(int32_t f, uint32_t param_count, int32_t* yield_value, uint16_t step) {
 	*yield_value = 0;
 	if (!f) {
 		sprintf(pduel->strbuffer, "\"CallCoroutine\": attempt to call a null function");
