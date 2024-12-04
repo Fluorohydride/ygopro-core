@@ -97,11 +97,11 @@ void duel::delete_effect(effect* peffect) {
 	effects.erase(peffect);
 	delete peffect;
 }
-int32 duel::read_buffer(byte* buf) {
+int32_t duel::read_buffer(byte* buf) {
 	auto size = buffer_size();
 	if (size)
 		std::memcpy(buf, message_buffer.data(), size);
-	return (int32)size;
+	return (int32_t)size;
 }
 void duel::release_script_group() {
 	for(auto& pgroup : sgroups) {
@@ -139,7 +139,7 @@ void duel::set_responsei(uint32 resp) {
 void duel::set_responseb(byte* resp) {
 	std::memcpy(game_field->returns.bvalue, resp, SIZE_RETURN_VALUE);
 }
-int32 duel::get_next_integer(int32 l, int32 h) {
+int32_t duel::get_next_integer(int32_t l, int32_t h) {
 	if (game_field->core.duel_options & DUEL_OLD_REPLAY) {
 		return random.get_random_integer_old(l, h);
 	}

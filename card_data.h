@@ -31,8 +31,8 @@ struct card_data {
 	uint32 level{};
 	uint32 attribute{};
 	uint32 race{};
-	int32 attack{};
-	int32 defense{};
+	int32_t attack{};
+	int32_t defense{};
 	uint32 lscale{};
 	uint32 rscale{};
 	uint32 link_marker{};

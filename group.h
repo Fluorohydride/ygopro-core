@@ -27,7 +27,7 @@ public:
 	duel* pduel;
 	card_set container;
 	card_set::iterator it;
-	int32 ref_handle{ 0 };
+	int32_t ref_handle{ 0 };
 	uint32 is_readonly{ GTYPE_DEFAULT };
 	bool is_iterator_dirty{ true };
 	

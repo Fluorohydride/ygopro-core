@@ -23,13 +23,13 @@ struct effect_set_v;
 enum effect_flag : uint64;
 enum effect_flag2 : uint64;
 enum effect_category :uint64;
-enum code_type : int32;
+enum code_type : int32_t;
 
 bool is_continuous_event(uint32 code);
 
 class effect {
 public:
-	int32 ref_handle{ 0 };
+	int32_t ref_handle{ 0 };
 	duel* pduel{ nullptr };
 	card* owner{ nullptr };
 	card* handler{ nullptr };
@@ -45,7 +45,7 @@ public:
 	uint8 count_limit{ 0 };
 	uint8 count_limit_max{ 0 };
 	uint16 status{ 0 };
-	int32 reset_count{ 0 };
+	int32_t reset_count{ 0 };
 	uint32 reset_flag{ 0 };
 	uint32 count_code{ 0 };
 	uint64 category{ 0 };
@@ -57,12 +57,12 @@ public:
 	uint16 active_sequence{ 0 };
 	card* active_handler{ nullptr };
 	std::vector<lua_Integer> label;
-	int32 label_object{ 0 };
-	int32 condition{ 0 };
-	int32 cost{ 0 };
-	int32 target{ 0 };
-	int32 value{ 0 };
-	int32 operation{ 0 };
+	int32_t label_object{ 0 };
+	int32_t condition{ 0 };
+	int32_t cost{ 0 };
+	int32_t target{ 0 };
+	int32_t value{ 0 };
+	int32_t operation{ 0 };
 	uint8 cost_checked{ FALSE };
 	effect_set required_handorset_effects;
 	LuaParamType object_type{ PARAM_TYPE_INT };
@@ -70,49 +70,49 @@ public:
 	explicit effect(duel* pd);
 	~effect() = default;
 
-	int32 is_disable_related() const;
-	int32 is_self_destroy_related() const;
-	int32 is_can_be_forbidden() const;
-	int32 is_available(int32 neglect_disabled = FALSE);
-	int32 limit_counter_is_available();
-	int32 is_single_ready();
-	int32 check_count_limit(uint8 playerid);
-	int32 get_required_handorset_effects(effect_set* eset, uint8 playerid, const tevent& e, int32 neglect_loc = FALSE);
-	int32 is_activateable(uint8 playerid, const tevent &e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE, int32 neglect_loc = FALSE, int32 neglect_faceup = FALSE);
-	int32 is_action_check(uint8 playerid);
-	int32 is_activate_ready(effect* reason_effect, uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
-	int32 is_activate_ready(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
-	int32 is_condition_check(uint8 playerid, const tevent& e);
-	int32 is_activate_check(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
-	int32 is_target(card* pcard);
-	int32 is_fit_target_function(card* pcard);
-	int32 is_target_player(uint8 playerid);
-	int32 is_player_effect_target(card* pcard);
-	int32 is_immuned(card* pcard);
-	int32 is_chainable(uint8 tp);
-	int32 is_hand_trigger() const;
-	int32 is_initial_single() const;
-	int32 is_monster_effect() const;
-	int32 reset(uint32 reset_level, uint32 reset_type);
+	int32_t is_disable_related() const;
+	int32_t is_self_destroy_related() const;
+	int32_t is_can_be_forbidden() const;
+	int32_t is_available(int32_t neglect_disabled = FALSE);
+	int32_t limit_counter_is_available();
+	int32_t is_single_ready();
+	int32_t check_count_limit(uint8 playerid);
+	int32_t get_required_handorset_effects(effect_set* eset, uint8 playerid, const tevent& e, int32_t neglect_loc = FALSE);
+	int32_t is_activateable(uint8 playerid, const tevent &e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE, int32_t neglect_loc = FALSE, int32_t neglect_faceup = FALSE);
+	int32_t is_action_check(uint8 playerid);
+	int32_t is_activate_ready(effect* reason_effect, uint8 playerid, const tevent& e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE);
+	int32_t is_activate_ready(uint8 playerid, const tevent& e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE);
+	int32_t is_condition_check(uint8 playerid, const tevent& e);
+	int32_t is_activate_check(uint8 playerid, const tevent& e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE);
+	int32_t is_target(card* pcard);
+	int32_t is_fit_target_function(card* pcard);
+	int32_t is_target_player(uint8 playerid);
+	int32_t is_player_effect_target(card* pcard);
+	int32_t is_immuned(card* pcard);
+	int32_t is_chainable(uint8 tp);
+	int32_t is_hand_trigger() const;
+	int32_t is_initial_single() const;
+	int32_t is_monster_effect() const;
+	int32_t reset(uint32 reset_level, uint32 reset_type);
 	void dec_count(uint8 playerid = PLAYER_NONE);
 	void recharge();
-	int32 get_value(uint32 extraargs = 0);
-	int32 get_value(card* pcard, uint32 extraargs = 0);
-	int32 get_value(effect* peffect, uint32 extraargs = 0);
+	int32_t get_value(uint32 extraargs = 0);
+	int32_t get_value(card* pcard, uint32 extraargs = 0);
+	int32_t get_value(effect* peffect, uint32 extraargs = 0);
 	void get_value(uint32 extraargs, std::vector<lua_Integer>& result);
 	void get_value(card* pcard, uint32 extraargs, std::vector<lua_Integer>& result);
 	void get_value(effect* peffect, uint32 extraargs, std::vector<lua_Integer>& result);
-	int32 get_integer_value();
-	int32 check_value_condition(uint32 extraargs = 0);
+	int32_t get_integer_value();
+	int32_t check_value_condition(uint32 extraargs = 0);
 	void* get_label_object();
-	int32 get_speed();
+	int32_t get_speed();
 	effect* clone();
 	card* get_owner() const;
 	uint8 get_owner_player() const;
 	card* get_handler() const;
 	uint8 get_handler_player() const;
-	int32 in_range(card* pcard) const;
-	int32 in_range(const chain& ch) const;
+	int32_t in_range(card* pcard) const;
+	int32_t in_range(const chain& ch) const;
 	void set_activate_location();
 	void set_active_type();
 	uint32 get_active_type(uint8 uselast = TRUE);
@@ -606,15 +606,15 @@ const std::map<uint64, uint64> category_checklist{
 #define EVENT_REMOVE_COUNTER		0x20000
 #define EVENT_CUSTOM				0x10000000
 
-constexpr int32 DOUBLE_DAMAGE = 0x80000000;
-constexpr int32 HALF_DAMAGE = 0x80000001;
+constexpr int32_t DOUBLE_DAMAGE = 0x80000000;
+constexpr int32_t HALF_DAMAGE = 0x80000001;
 
 // flag effect
 #define EFFECT_FLAG_EFFECT	0x20000000
 #define MAX_CARD_ID			0xfffffff
 
 // The type of effect code
-enum code_type : int32 {
+enum code_type : int32_t {
 	CODE_CUSTOM = 1,	// header + id (28 bits)
 	CODE_COUNTER,		// header + counter_id (16 bits)
 	CODE_PHASE,			// header + phase_id (12 bits)
