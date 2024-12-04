@@ -97,7 +97,7 @@ int32_t scriptlib::duel_register_flag_effect(lua_State *L) {
 		return 0;
 	int32_t code = (lua_tointeger(L, 2) & MAX_CARD_ID) | EFFECT_FLAG_EFFECT;
 	int32_t reset = (int32_t)lua_tointeger(L, 3);
-	uint64 flag = lua_tointeger(L, 4);
+	uint64_t flag = lua_tointeger(L, 4);
 	int32_t count = (int32_t)lua_tointeger(L, 5);
 	lua_Integer lab = 0;
 	if(lua_gettop(L) >= 6)
@@ -4387,7 +4387,7 @@ int32_t scriptlib::duel_is_player_can_spsummon_monster(lua_State * L) {
 	dat.code = code;
 	dat.alias = 0;
 	if(lua_gettop(L) >= 3 && !lua_isnil(L, 3))
-		dat.set_setcode((uint64)lua_tointeger(L, 3));
+		dat.set_setcode((uint64_t)lua_tointeger(L, 3));
 	if(lua_gettop(L) >= 4 && !lua_isnil(L, 4))
 		dat.type = (uint32_t)lua_tointeger(L, 4);
 	if(lua_gettop(L) >= 5 && !lua_isnil(L, 5))

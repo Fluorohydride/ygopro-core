@@ -1895,7 +1895,7 @@ int32_t scriptlib::card_register_flag_effect(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	int32_t code = (lua_tointeger(L, 2) & MAX_CARD_ID) | EFFECT_FLAG_EFFECT;
 	int32_t reset = (int32_t)lua_tointeger(L, 3);
-	uint64 flag = lua_tointeger(L, 4);
+	uint64_t flag = lua_tointeger(L, 4);
 	int32_t count = (int32_t)lua_tointeger(L, 5);
 	lua_Integer lab = 0;
 	int32_t desc = 0;

@@ -46,7 +46,7 @@ int32_t scriptlib::is_effect_has_property(lua_State* L, effect_member type) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**)lua_touserdata(L, 1);
-	uint64 value{};
+	uint64_t value{};
 	if (peffect) {
 		switch (type) {
 		case MEMBER_CATEGORY:
@@ -60,7 +60,7 @@ int32_t scriptlib::is_effect_has_property(lua_State* L, effect_member type) {
 			break;
 		}
 	}
-	uint64 x = lua_tointeger(L, 2);
+	uint64_t x = lua_tointeger(L, 2);
 	if (value & x)
 		lua_pushboolean(L, 1);
 	else
@@ -226,8 +226,8 @@ int32_t scriptlib::effect_set_property(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint64 v1 = lua_tointeger(L, 2);
-	uint64 v2 = lua_tointeger(L, 3);
+	uint64_t v1 = lua_tointeger(L, 2);
+	uint64_t v2 = lua_tointeger(L, 3);
 	peffect->flag[0] = (peffect->flag[0] & INTERNAL_FLAGS) | (v1 & ~INTERNAL_FLAGS);
 	peffect->flag[1] = v2;
 	return 0;
@@ -506,8 +506,8 @@ int32_t scriptlib::effect_is_has_property(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint64 tflag1 = lua_tointeger(L, 2);
-	uint64 tflag2 = lua_tointeger(L, 3);
+	uint64_t tflag1 = lua_tointeger(L, 2);
+	uint64_t tflag2 = lua_tointeger(L, 3);
 	if (peffect && (!tflag1 || (peffect->flag[0] & tflag1)) && (!tflag2 || (peffect->flag[1] & tflag2)))
 		lua_pushboolean(L, 1);
 	else

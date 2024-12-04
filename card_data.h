@@ -71,7 +71,7 @@ struct card_data {
 		return alias && (alias < code + CARD_ARTWORK_VERSIONS_OFFSET) && (code < alias + CARD_ARTWORK_VERSIONS_OFFSET);
 	}
 
-	void set_setcode(uint64 value) {
+	void set_setcode(uint64_t value) {
 		int ctr = 0;
 		while (value) {
 			if (value & 0xffff) {

@@ -20,9 +20,9 @@ class effect;
 struct tevent;
 struct effect_set;
 struct effect_set_v;
-enum effect_flag : uint64;
-enum effect_flag2 : uint64;
-enum effect_category :uint64;
+enum effect_flag : uint64_t;
+enum effect_flag2 : uint64_t;
+enum effect_category :uint64_t;
 enum code_type : int32_t;
 
 bool is_continuous_event(uint32_t code);
@@ -48,8 +48,8 @@ public:
 	int32_t reset_count{ 0 };
 	uint32_t reset_flag{ 0 };
 	uint32_t count_code{ 0 };
-	uint64 category{ 0 };
-	uint64 flag[2]{};
+	uint64_t category{ 0 };
+	uint64_t flag[2]{};
 	uint32_t hint_timing[2]{};
 	uint32_t card_type{ 0 };
 	uint32_t active_type{ 0 };
@@ -182,7 +182,7 @@ constexpr uint32_t EFFECT_TYPES_TRIGGER_LIKE = EFFECT_TYPE_ACTIVATE | EFFECT_TYP
 constexpr uint32_t EFFECT_TYPES_CHAIN_LINK = EFFECT_TYPES_TRIGGER_LIKE | EFFECT_TYPE_FLIP | EFFECT_TYPE_IGNITION;
 
 //========== Flags ==========
-enum effect_flag : uint64 {
+enum effect_flag : uint64_t {
 	EFFECT_FLAG_INITIAL				= 0x0001,
 	EFFECT_FLAG_FUNC_VALUE			= 0x0002,
 	EFFECT_FLAG_COUNT_LIMIT			= 0x0004,
@@ -219,19 +219,19 @@ enum effect_flag : uint64 {
 	EFFECT_FLAG_DICE				= 0x200000000,
 	EFFECT_FLAG_FUSION_SUMMON		= 0x400000000,
 };
-enum effect_flag2 : uint64 {
+enum effect_flag2 : uint64_t {
 	EFFECT_FLAG2_REPEAT_UPDATE			= 0x0001,
 	EFFECT_FLAG2_COF					= 0x0002,
 	EFFECT_FLAG2_WICKED					= 0x0004,
 	EFFECT_FLAG2_OPTION					= 0x0008,
 };
 constexpr effect_flag operator|(effect_flag flag1, effect_flag flag2) {
-	return static_cast<effect_flag>(static_cast<uint64>(flag1) | static_cast<uint64>(flag2));
+	return static_cast<effect_flag>(static_cast<uint64_t>(flag1) | static_cast<uint64_t>(flag2));
 }
-constexpr uint64 INTERNAL_FLAGS = EFFECT_FLAG_INITIAL | EFFECT_FLAG_COPY | EFFECT_FLAG_FUNC_VALUE | EFFECT_FLAG_COUNT_LIMIT | EFFECT_FLAG_FIELD_ONLY | EFFECT_FLAG_ABSOLUTE_TARGET;
+constexpr uint64_t INTERNAL_FLAGS = EFFECT_FLAG_INITIAL | EFFECT_FLAG_COPY | EFFECT_FLAG_FUNC_VALUE | EFFECT_FLAG_COUNT_LIMIT | EFFECT_FLAG_FIELD_ONLY | EFFECT_FLAG_ABSOLUTE_TARGET;
 
 //Category
-enum effect_category : uint64 {
+enum effect_category : uint64_t {
 	CATEGORY_DESTROY		= 0x1,
 	CATEGORY_RELEASE		= 0x2,
 	CATEGORY_REMOVE			= 0x4,
@@ -266,7 +266,7 @@ enum effect_category : uint64 {
 	CATEGORY_TOEXTRA		= 0x80000000,
 };
 
-const std::map<uint64, uint64> category_checklist{
+const std::map<uint64_t, uint64_t> category_checklist{
 	{CATEGORY_COIN, EFFECT_FLAG_COIN},
 	{CATEGORY_DICE, EFFECT_FLAG_DICE},
 	{CATEGORY_FUSION_SUMMON, EFFECT_FLAG_FUSION_SUMMON},
