@@ -659,7 +659,7 @@ static const struct luaL_Reg effectlib[] = {
 	{ "GetActivateSequence", scriptlib::effect_get_activate_sequence },
 	{ "CheckCountLimit", scriptlib::effect_check_count_limit },
 	{ "UseCountLimit", scriptlib::effect_use_count_limit },
-	{ NULL, NULL }
+	{ nullptr, nullptr }
 };
 void scriptlib::open_effectlib(lua_State *L) {
 	luaL_newlib(L, effectlib);

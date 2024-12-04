@@ -2371,7 +2371,7 @@ int32 scriptlib::card_is_can_be_placed_on_field(lua_State *L) {
 	if(lua_gettop(L) >= 3)
 		tolocation = (uint32)lua_tointeger(L, 3);
 	if(pcard->is_status(STATUS_FORBIDDEN)
-		|| pcard->pduel->game_field->check_unique_onfield(pcard, toplayer, tolocation, NULL))
+		|| pcard->pduel->game_field->check_unique_onfield(pcard, toplayer, tolocation, nullptr))
 		lua_pushboolean(L, 0);
 	else
 		lua_pushboolean(L, 1);
@@ -3696,7 +3696,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "ResetNegateEffect", scriptlib::card_reset_negate_effect },
 	{ "AssumeProperty", scriptlib::card_assume_prop },
 	{ "SetSPSummonOnce", scriptlib::card_set_spsummon_once },
-	{ NULL, NULL }
+	{ nullptr, nullptr }
 };
 void scriptlib::open_cardlib(lua_State *L) {
 	luaL_newlib(L, cardlib);

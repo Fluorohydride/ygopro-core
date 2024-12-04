@@ -936,7 +936,7 @@ static const struct luaL_Reg grouplib[] = {
 	{ "__sub", scriptlib::group_meta_sub },
 	{ "__band", scriptlib::group_meta_band },
 	{ "__bxor", scriptlib::group_meta_bxor },
-	{ NULL, NULL }
+	{ nullptr, nullptr }
 };
 void scriptlib::open_grouplib(lua_State *L) {
 	luaL_newlib(L, grouplib);

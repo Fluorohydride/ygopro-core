@@ -5030,7 +5030,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsAbleToEnterBP", scriptlib::duel_is_able_to_enter_bp },
 	{ "SwapDeckAndGrave", scriptlib::duel_swap_deck_and_grave },
 	{ "MajesticCopy", scriptlib::duel_majestic_copy },
-	{ NULL, NULL }
+	{ nullptr, nullptr }
 };
 void scriptlib::open_duellib(lua_State *L) {
 	luaL_newlib(L, duellib);

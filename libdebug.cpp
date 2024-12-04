@@ -204,7 +204,7 @@ static const struct luaL_Reg debuglib[] = {
 	{ "ReloadFieldEnd", scriptlib::debug_reload_field_end },
 	{ "SetAIName", scriptlib::debug_set_ai_name },
 	{ "ShowHint", scriptlib::debug_show_hint },
-	{ NULL, NULL }
+	{ nullptr, nullptr }
 };
 void scriptlib::open_debuglib(lua_State *L) {
 	luaL_newlib(L, debuglib);
