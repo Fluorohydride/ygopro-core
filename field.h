@@ -532,9 +532,9 @@ public:
 	int32 check_event(uint32 code, tevent* pe = nullptr);
 	int32 check_event_c(effect* peffect, uint8 playerid, int32 neglect_con, int32 neglect_cost, int32 copy_info, tevent* pe = nullptr);
 	int32 check_hint_timing(effect* peffect);
-	int32 process_phase_event(int16 step, int32 phase_event);
-	int32 process_point_event(int16 step, int32 skip_trigger, int32 skip_freechain, int32 skip_new);
-	int32 process_quick_effect(int16 step, int32 skip_freechain, uint8 priority);
+	int32 process_phase_event(int16_t step, int32 phase_event);
+	int32 process_point_event(int16_t step, int32 skip_trigger, int32 skip_freechain, int32 skip_new);
+	int32 process_quick_effect(int16_t step, int32 skip_freechain, uint8 priority);
 	int32 process_instant_event();
 	int32 process_single_event();
 	int32 process_single_event(effect* peffect, const tevent& e, chain_list& tp, chain_list& ntp);
@@ -621,10 +621,10 @@ public:
 	int32 change_position(uint16 step, group* targets, effect* reason_effect, uint8 reason_player, uint32 enable);
 	int32 operation_replace(uint16 step, effect* replace_effect, group* targets, card* target, int32 is_destroy);
 	int32 activate_effect(uint16 step, effect* peffect);
-	int32 select_synchro_material(int16 step, uint8 playerid, card* pcard, int32 min, int32 max, card* smat, group* mg, int32 filter1, int32 filter2);
-	int32 select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* pcard, int32 min, int32 max);
-	int32 select_release_cards(int16 step, uint8 playerid, uint8 cancelable, int32 min, int32 max);
-	int32 select_tribute_cards(int16 step, card* target, uint8 playerid, uint8 cancelable, int32 min, int32 max, uint8 toplayer, uint32 zone);
+	int32 select_synchro_material(int16_t step, uint8 playerid, card* pcard, int32 min, int32 max, card* smat, group* mg, int32 filter1, int32 filter2);
+	int32 select_xyz_material(int16_t step, uint8 playerid, uint32 lv, card* pcard, int32 min, int32 max);
+	int32 select_release_cards(int16_t step, uint8 playerid, uint8 cancelable, int32 min, int32 max);
+	int32 select_tribute_cards(int16_t step, card* target, uint8 playerid, uint8 cancelable, int32 min, int32 max, uint8 toplayer, uint32 zone);
 	int32 toss_coin(uint16 step, effect* reason_effect, uint8 reason_player, uint8 playerid, int32 count);
 	int32 toss_dice(uint16 step, effect* reason_effect, uint8 reason_player, uint8 playerid, uint8 count1, uint8 count2);
 	int32 rock_paper_scissors(uint16 step, uint8 repeat);
@@ -642,12 +642,12 @@ public:
 	int32 select_position(uint16 step, uint8 playerid, uint32 code, uint8 positions);
 	int32 select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max);
 	int32 select_counter(uint16 step, uint8 playerid, uint16 countertype, uint16 count, uint8 s, uint8 o);
-	int32 select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 min, int32 max);
-	int32 sort_card(int16 step, uint8 playerid);
-	int32 announce_race(int16 step, uint8 playerid, int32 count, int32 available);
-	int32 announce_attribute(int16 step, uint8 playerid, int32 count, int32 available);
-	int32 announce_card(int16 step, uint8 playerid);
-	int32 announce_number(int16 step, uint8 playerid);
+	int32 select_with_sum_limit(int16_t step, uint8 playerid, int32 acc, int32 min, int32 max);
+	int32 sort_card(int16_t step, uint8 playerid);
+	int32 announce_race(int16_t step, uint8 playerid, int32 count, int32 available);
+	int32 announce_attribute(int16_t step, uint8 playerid, int32 count, int32 available);
+	int32 announce_card(int16_t step, uint8 playerid);
+	int32 announce_number(int16_t step, uint8 playerid);
 };
 
 //Location Use Reason

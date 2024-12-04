@@ -5282,7 +5282,7 @@ int32 field::activate_effect(uint16 step, effect* peffect) {
 	}
 	return TRUE;
 }
-int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, int32 min, int32 max, card* smat, group* mg, int32 filter1, int32 filter2) {
+int32 field::select_synchro_material(int16_t step, uint8 playerid, card* pcard, int32 min, int32 max, card* smat, group* mg, int32 filter1, int32 filter2) {
 	switch(step) {
 	case 0: {
 		if(core.select_cards.size() == 0)
@@ -5632,7 +5632,7 @@ int32 field::select_synchro_material(int16 step, uint8 playerid, card* pcard, in
 	}
 	return TRUE;
 }
-int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* scard, int32 min, int32 max) {
+int32 field::select_xyz_material(int16_t step, uint8 playerid, uint32 lv, card* scard, int32 min, int32 max) {
 	switch(step) {
 	case 0: {
 		core.operated_set.clear();
@@ -6064,7 +6064,7 @@ int32 field::select_xyz_material(int16 step, uint8 playerid, uint32 lv, card* sc
 	}
 	return TRUE;
 }
-int32 field::select_release_cards(int16 step, uint8 playerid, uint8 cancelable, int32 min, int32 max) {
+int32 field::select_release_cards(int16_t step, uint8 playerid, uint8 cancelable, int32 min, int32 max) {
 	switch(step) {
 	case 0: {
 		core.operated_set.clear();
@@ -6165,7 +6165,7 @@ int32 field::select_release_cards(int16 step, uint8 playerid, uint8 cancelable, 
 	}
 	return TRUE;
 }
-int32 field::select_tribute_cards(int16 step, card* target, uint8 playerid, uint8 cancelable, int32 min, int32 max, uint8 toplayer, uint32 zone) {
+int32 field::select_tribute_cards(int16_t step, card* target, uint8 playerid, uint8 cancelable, int32 min, int32 max, uint8 toplayer, uint32 zone) {
 	switch(step) {
 	case 0: {
 		core.operated_set.clear();

@@ -17,7 +17,6 @@ typedef unsigned char uint8;
 typedef unsigned char byte;
 typedef long long int64;
 typedef int int32;
-typedef short int16;
 
 #define MATCH_ALL(x,y) (((x)&(y))==(y))
 #define MATCH_ANY(x,y) ((x)&(y))

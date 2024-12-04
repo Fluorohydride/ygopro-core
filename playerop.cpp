@@ -640,7 +640,7 @@ static int32 select_sum_check1(const uint32* oparam, int32 size, int32 index, in
 	return (acc > o1 && select_sum_check1(oparam, size, index + 1, acc - o1, std::min(o1, opmin)))
 	       || (o2 > 0 && acc > o2 && select_sum_check1(oparam, size, index + 1, acc - o2, std::min(o2, opmin)));
 }
-int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 min, int32 max) {
+int32 field::select_with_sum_limit(int16_t step, uint8 playerid, int32 acc, int32 min, int32 max) {
 	if(step == 0) {
 		returns.bvalue[0] = 0;
 		if(core.select_cards.empty())
@@ -746,7 +746,7 @@ int32 field::select_with_sum_limit(int16 step, uint8 playerid, int32 acc, int32 
 	}
 	return TRUE;
 }
-int32 field::sort_card(int16 step, uint8 playerid) {
+int32 field::sort_card(int16_t step, uint8 playerid) {
 	if(step == 0) {
 		returns.bvalue[0] = 0;
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
@@ -784,7 +784,7 @@ int32 field::sort_card(int16 step, uint8 playerid) {
 	}
 	return TRUE;
 }
-int32 field::announce_race(int16 step, uint8 playerid, int32 count, int32 available) {
+int32 field::announce_race(int16_t step, uint8 playerid, int32 count, int32 available) {
 	if(step == 0) {
 		int32 scount = 0;
 		for(uint32 ft = 0x1; ft < (0x1U << RACES_COUNT); ft <<= 1) {
@@ -824,7 +824,7 @@ int32 field::announce_race(int16 step, uint8 playerid, int32 count, int32 availa
 	}
 	return TRUE;
 }
-int32 field::announce_attribute(int16 step, uint8 playerid, int32 count, int32 available) {
+int32 field::announce_attribute(int16_t step, uint8 playerid, int32 count, int32 available) {
 	if(step == 0) {
 		int32 scount = 0;
 		for(int32 ft = 0x1; ft != 0x80; ft <<= 1) {
@@ -995,7 +995,7 @@ static int32 is_declarable(card_data const& cd, const std::vector<uint32>& opcod
 	return cd.code == CARD_MARINE_DOLPHIN || cd.code == CARD_TWINKLE_MOSS
 		|| (!cd.alias && (cd.type & (TYPE_MONSTER | TYPE_TOKEN)) != (TYPE_MONSTER | TYPE_TOKEN));
 }
-int32 field::announce_card(int16 step, uint8 playerid) {
+int32 field::announce_card(int16_t step, uint8 playerid) {
 	if(step == 0) {
 		pduel->write_buffer8(MSG_ANNOUNCE_CARD);
 		pduel->write_buffer8(playerid);
@@ -1024,7 +1024,7 @@ int32 field::announce_card(int16 step, uint8 playerid) {
 	}
 	return TRUE;
 }
-int32 field::announce_number(int16 step, uint8 playerid) {
+int32 field::announce_number(int16_t step, uint8 playerid) {
 	if(step == 0) {
 		if (core.select_options.size() > UINT8_MAX)
 			core.select_options.resize(UINT8_MAX);

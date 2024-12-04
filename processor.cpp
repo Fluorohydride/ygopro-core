@@ -990,7 +990,7 @@ int32 field::check_hint_timing(effect* peffect) {
 		return (peffect->hint_timing[0] & core.hint_timing[1]) || (peffect->hint_timing[1] & core.hint_timing[0]);
 }
 // core.spe_effect[p]: # of optional trigger effects, activate/quick effect with hints
-int32 field::process_phase_event(int16 step, int32 phase) {
+int32 field::process_phase_event(int16_t step, int32 phase) {
 	tevent test_event;
 	test_event.event_code = EVENT_PHASE + phase;
 	test_event.event_player = infos.turn_player;
@@ -1280,7 +1280,7 @@ int32 field::process_phase_event(int16 step, int32 phase) {
 	}
 	return TRUE;
 }
-int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_freechain, int32 skip_new) {
+int32 field::process_point_event(int16_t step, int32 skip_trigger, int32 skip_freechain, int32 skip_new) {
 	switch(step) {
 	case 0: {
 		core.select_chains.clear();
@@ -1580,7 +1580,7 @@ int32 field::process_point_event(int16 step, int32 skip_trigger, int32 skip_free
 	}
 	return TRUE;
 }
-int32 field::process_quick_effect(int16 step, int32 skip_freechain, uint8 priority) {
+int32 field::process_quick_effect(int16_t step, int32 skip_freechain, uint8 priority) {
 	switch(step) {
 	case 0: {
 		uint8 check_player = infos.turn_player;
