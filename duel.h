@@ -57,7 +57,7 @@ public:
 	int32_t read_buffer(byte* buf);
 	void write_buffer(const void* data, int size);
 	void write_buffer32(uint32 value);
-	void write_buffer16(uint16 value);
+	void write_buffer16(uint16_t value);
 	void write_buffer8(uint8 value);
 	void clear_buffer();
 	void set_responsei(uint32 resp);

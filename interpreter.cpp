@@ -534,7 +534,7 @@ int32_t interpreter::get_function_value(int32_t f, uint32 param_count, std::vect
 	}
 	return is_success;
 }
-int32_t interpreter::call_coroutine(int32_t f, uint32 param_count, int32_t* yield_value, uint16 step) {
+int32_t interpreter::call_coroutine(int32_t f, uint32 param_count, int32_t* yield_value, uint16_t step) {
 	*yield_value = 0;
 	if (!f) {
 		sprintf(pduel->strbuffer, "\"CallCoroutine\": attempt to call a null function");

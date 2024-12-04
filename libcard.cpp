@@ -1754,8 +1754,8 @@ int32_t scriptlib::card_get_tuner_limit(lua_State *L) {
 			lua_pushinteger(L, peffect->value);
 		else
 			lua_pushnil(L);
-		uint16 min = 0;
-		uint16 max = 99;
+		uint16_t min = 0;
+		uint16_t max = 99;
 		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
 			if(peffect->s_range && peffect->s_range > min)
 				min = peffect->s_range;
@@ -1781,8 +1781,8 @@ int32_t scriptlib::card_get_hand_synchro(lua_State *L) {
 			interpreter::function2value(L, peffect->target);
 		else
 			lua_pushnil(L);
-		uint16 min = 0;
-		uint16 max = 99;
+		uint16_t min = 0;
+		uint16_t max = 99;
 		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
 			if(peffect->s_range && peffect->s_range > min)
 				min = peffect->s_range;
@@ -1800,8 +1800,8 @@ int32_t scriptlib::card_get_hand_synchro(lua_State *L) {
 			interpreter::function2value(L, peffect->target);
 		else
 			lua_pushnil(L);
-		uint16 min = 0;
-		uint16 max = 99;
+		uint16_t min = 0;
+		uint16_t max = 99;
 		if(peffect->is_flag(EFFECT_FLAG_SPSUM_PARAM)) {
 			if(peffect->s_range && peffect->s_range > min)
 				min = peffect->s_range;

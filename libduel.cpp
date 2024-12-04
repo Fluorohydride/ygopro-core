@@ -2328,7 +2328,7 @@ int32_t scriptlib::duel_is_phase(lua_State *L) {
 }
 int32_t scriptlib::duel_is_main_phase(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
-	uint16 phase = pduel->game_field->infos.phase;
+	uint16_t phase = pduel->game_field->infos.phase;
 	if(phase == PHASE_MAIN1 || phase == PHASE_MAIN2)
 		lua_pushboolean(L, 1);
 	else
@@ -2337,7 +2337,7 @@ int32_t scriptlib::duel_is_main_phase(lua_State *L) {
 }
 int32_t scriptlib::duel_is_battle_phase(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
-	uint16 phase = pduel->game_field->infos.phase;
+	uint16_t phase = pduel->game_field->infos.phase;
 	if((phase >= PHASE_BATTLE_START) && (phase <= PHASE_BATTLE))
 		lua_pushboolean(L, 1);
 	else
@@ -3893,7 +3893,7 @@ int32_t scriptlib::duel_select_field(lua_State* L) {
 	uint32 location1 = (uint32)lua_tointeger(L, 3);
 	uint32 location2 = (uint32)lua_tointeger(L, 4);
 	uint32 filter = (uint32)lua_tointeger(L, 5);
-	uint16 type = PROCESSOR_SELECT_DISFIELD;
+	uint16_t type = PROCESSOR_SELECT_DISFIELD;
 	duel* pduel = interpreter::get_duel_info(L);
 	if(lua_gettop(L) >= 6) {
 		type = PROCESSOR_SELECT_PLACE;

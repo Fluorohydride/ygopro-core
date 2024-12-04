@@ -28,7 +28,7 @@ bool field::check_response(size_t vector_size, int32_t min_len, int32_t max_len)
 	}
 	return true;
 }
-int32_t field::select_battle_command(uint16 step, uint8 playerid) {
+int32_t field::select_battle_command(uint16_t step, uint8 playerid) {
 	if(step == 0) {
 		pduel->write_buffer8(MSG_SELECT_BATTLECMD);
 		pduel->write_buffer8(playerid);
@@ -80,7 +80,7 @@ int32_t field::select_battle_command(uint16 step, uint8 playerid) {
 		return TRUE;
 	}
 }
-int32_t field::select_idle_command(uint16 step, uint8 playerid) {
+int32_t field::select_idle_command(uint16_t step, uint8 playerid) {
 	if(step == 0) {
 		pduel->write_buffer8(MSG_SELECT_IDLECMD);
 		pduel->write_buffer8(playerid);
@@ -172,7 +172,7 @@ int32_t field::select_idle_command(uint16 step, uint8 playerid) {
 		return TRUE;
 	}
 }
-int32_t field::select_effect_yes_no(uint16 step, uint8 playerid, uint32 description, card* pcard) {
+int32_t field::select_effect_yes_no(uint16_t step, uint8 playerid, uint32 description, card* pcard) {
 	if(step == 0) {
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
 			returns.ivalue[0] = 1;
@@ -193,7 +193,7 @@ int32_t field::select_effect_yes_no(uint16 step, uint8 playerid, uint32 descript
 		return TRUE;
 	}
 }
-int32_t field::select_yes_no(uint16 step, uint8 playerid, uint32 description) {
+int32_t field::select_yes_no(uint16_t step, uint8 playerid, uint32 description) {
 	if(step == 0) {
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
 			returns.ivalue[0] = 1;
@@ -212,7 +212,7 @@ int32_t field::select_yes_no(uint16 step, uint8 playerid, uint32 description) {
 		return TRUE;
 	}
 }
-int32_t field::select_option(uint16 step, uint8 playerid) {
+int32_t field::select_option(uint16_t step, uint8 playerid) {
 	if(step == 0) {
 		returns.ivalue[0] = -1;
 		if(core.select_options.size() == 0)
@@ -235,7 +235,7 @@ int32_t field::select_option(uint16 step, uint8 playerid) {
 		return TRUE;
 	}
 }
-int32_t field::select_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max) {
+int32_t field::select_card(uint16_t step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max) {
 	if(step == 0) {
 		returns.bvalue[0] = 0;
 		if(max == 0 || core.select_cards.empty())
@@ -281,7 +281,7 @@ int32_t field::select_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 
 		return TRUE;
 	}
 }
-int32_t field::select_unselect_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max, uint8 finishable) {
+int32_t field::select_unselect_card(uint16_t step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max, uint8 finishable) {
 	if(step == 0) {
 		returns.bvalue[0] = 0;
 		if(core.select_cards.empty() && core.unselect_cards.empty())
@@ -330,7 +330,7 @@ int32_t field::select_unselect_card(uint16 step, uint8 playerid, uint8 cancelabl
 		return TRUE;
 	}
 }
-int32_t field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 forced) {
+int32_t field::select_chain(uint16_t step, uint8 playerid, uint8 spe_count, uint8 forced) {
 	if(step == 0) {
 		returns.ivalue[0] = -1;
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
@@ -386,7 +386,7 @@ int32_t field::select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 
 		return TRUE;
 	}
 }
-int32_t field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count) {
+int32_t field::select_place(uint16_t step, uint8 playerid, uint32 flag, uint8 count) {
 	if(step == 0) {
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
 			flag = ~flag;
@@ -468,7 +468,7 @@ int32_t field::select_place(uint16 step, uint8 playerid, uint32 flag, uint8 coun
 		return TRUE;
 	}
 }
-int32_t field::select_position(uint16 step, uint8 playerid, uint32 code, uint8 positions) {
+int32_t field::select_position(uint16_t step, uint8 playerid, uint32 code, uint8 positions) {
 	if(step == 0) {
 		if(positions == 0) {
 			returns.ivalue[0] = POS_FACEUP_ATTACK;
@@ -505,7 +505,7 @@ int32_t field::select_position(uint16 step, uint8 playerid, uint32 code, uint8 p
 		return TRUE;
 	}
 }
-int32_t field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max) {
+int32_t field::select_tribute(uint16_t step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max) {
 	if(step == 0) {
 		returns.bvalue[0] = 0;
 		if(max == 0 || core.select_cards.empty())
@@ -568,7 +568,7 @@ int32_t field::select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uin
 		return TRUE;
 	}
 }
-int32_t field::select_counter(uint16 step, uint8 playerid, uint16 countertype, uint16 count, uint8 s, uint8 o) {
+int32_t field::select_counter(uint16_t step, uint8 playerid, uint16_t countertype, uint16_t count, uint8 s, uint8 o) {
 	if(step == 0) {
 		if(count == 0)
 			return TRUE;

@@ -75,7 +75,7 @@ public:
 	int32_t get_operation_value(card* pcard, int32_t findex, int32_t extraargs);
 	int32_t get_function_value(int32_t f, uint32 param_count);
 	int32_t get_function_value(int32_t f, uint32 param_count, std::vector<lua_Integer>& result);
-	int32_t call_coroutine(int32_t f, uint32 param_count, int32_t* yield_value, uint16 step);
+	int32_t call_coroutine(int32_t f, uint32 param_count, int32_t* yield_value, uint16_t step);
 	int32_t clone_function_ref(int32_t func_ref);
 	void* get_ref_object(int32_t ref_handler);
 

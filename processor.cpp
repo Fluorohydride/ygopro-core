@@ -14,7 +14,7 @@
 #include "ocgapi.h"
 #include <iterator>
 
-void field::add_process(uint16 type, uint16 step, effect* peffect, group* target, int32_t arg1, int32_t arg2, int32_t arg3, int32_t arg4, void* ptr1, void* ptr2) {
+void field::add_process(uint16_t type, uint16_t step, effect* peffect, group* target, int32_t arg1, int32_t arg2, int32_t arg3, int32_t arg4, void* ptr1, void* ptr2) {
 	processor_unit new_unit;
 	new_unit.type = type;
 	new_unit.step = step;
@@ -727,7 +727,7 @@ uint32 field::process() {
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-int32_t field::execute_cost(uint16 step, effect * triggering_effect, uint8 triggering_player) {
+int32_t field::execute_cost(uint16_t step, effect * triggering_effect, uint8 triggering_player) {
 	if(!triggering_effect->cost) {
 		core.solving_event.splice(core.solving_event.begin(), core.sub_solving_event);
 		pduel->lua->params.clear();
@@ -780,7 +780,7 @@ int32_t field::execute_cost(uint16 step, effect * triggering_effect, uint8 trigg
 	}
 	return FALSE;
 }
-int32_t field::execute_operation(uint16 step, effect * triggering_effect, uint8 triggering_player) {
+int32_t field::execute_operation(uint16_t step, effect * triggering_effect, uint8 triggering_player) {
 	if(!triggering_effect->operation) {
 		core.solving_event.splice(core.solving_event.begin(), core.sub_solving_event);
 		pduel->lua->params.clear();
@@ -836,7 +836,7 @@ int32_t field::execute_operation(uint16 step, effect * triggering_effect, uint8 
 	}
 	return FALSE;
 }
-int32_t field::execute_target(uint16 step, effect * triggering_effect, uint8 triggering_player) {
+int32_t field::execute_target(uint16_t step, effect * triggering_effect, uint8 triggering_player) {
 	if(!triggering_effect->target) {
 		core.solving_event.splice(core.solving_event.begin(), core.sub_solving_event);
 		pduel->lua->params.clear();
@@ -2053,7 +2053,7 @@ int32_t field::process_single_event(effect* peffect, const tevent& e, chain_list
 	}
 	return TRUE;
 }
-int32_t field::process_idle_command(uint16 step) {
+int32_t field::process_idle_command(uint16_t step) {
 	tevent free_event;
 	free_event.event_code = EVENT_FREE_CHAIN;
 	switch(step) {
@@ -2382,7 +2382,7 @@ int32_t field::process_idle_command(uint16 step) {
 	}
 	return TRUE;
 }
-int32_t field::process_battle_command(uint16 step) {
+int32_t field::process_battle_command(uint16_t step) {
 	tevent free_event;
 	free_event.event_code = EVENT_FREE_CHAIN;
 	switch(step) {
@@ -3261,7 +3261,7 @@ int32_t field::process_battle_command(uint16 step) {
 	}
 	return TRUE;
 }
-int32_t field::process_damage_step(uint16 step, uint32 new_attack) {
+int32_t field::process_damage_step(uint16_t step, uint32 new_attack) {
 	switch(step) {
 	case 0: {
 		if(core.effect_damage_step && !new_attack)
@@ -3329,7 +3329,7 @@ int32_t field::process_damage_step(uint16 step, uint32 new_attack) {
 		if(core.attack_target)
 			core.attack_target->set_status(STATUS_ATTACK_CANCELED, TRUE);
 		core.effect_damage_step = 0;
-		infos.phase = (uint16)core.units.begin()->arg1;
+		infos.phase = (uint16_t)core.units.begin()->arg1;
 		return TRUE;
 	}
 	}
@@ -3652,7 +3652,7 @@ void field::calculate_battle_damage(effect** pdamchange, card** preason_card, ui
 		battle_destroyed[1] = bd[1];
 	}
 }
-int32_t field::process_turn(uint16 step, uint8 turn_player) {
+int32_t field::process_turn(uint16_t step, uint8 turn_player) {
 	switch(step) {
 	case 0: {
 		//Pre Draw
@@ -3974,7 +3974,7 @@ int32_t field::process_turn(uint16 step, uint8 turn_player) {
 	}
 	return TRUE;
 }
-int32_t field::add_chain(uint16 step) {
+int32_t field::add_chain(uint16_t step) {
 	switch (step) {
 	case 0: {
 		if (!core.new_chains.size())
@@ -4271,7 +4271,7 @@ void field::solve_continuous(uint8 playerid, effect* peffect, const tevent& e) {
 	core.sub_solving_continuous.push_back(newchain);
 	add_process(PROCESSOR_SOLVE_CONTINUOUS, 0, 0, 0, 0, 0);
 }
-int32_t field::solve_continuous(uint16 step) {
+int32_t field::solve_continuous(uint16_t step) {
 	switch(step) {
 	case 0: {
 		core.solving_continuous.splice(core.solving_continuous.begin(), core.sub_solving_continuous);
@@ -4353,7 +4353,7 @@ int32_t field::solve_continuous(uint16 step) {
 	}
 	return TRUE;
 }
-int32_t field::solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2) {
+int32_t field::solve_chain(uint16_t step, uint32 chainend_arg1, uint32 chainend_arg2) {
 	if(core.current_chain.size() == 0 && step == 0)
 		return TRUE;
 	auto cait = core.current_chain.rbegin();
@@ -4626,7 +4626,7 @@ void field::refresh_location_info_instant() {
 		pduel->write_buffer32(dis2);
 	}
 }
-int32_t field::refresh_location_info(uint16 step) {
+int32_t field::refresh_location_info(uint16_t step) {
 	switch(step) {
 	case 0: {
 		effect_set eset;
@@ -4789,7 +4789,7 @@ int32_t field::refresh_location_info(uint16 step) {
 	}
 	return TRUE;
 }
-int32_t field::adjust_step(uint16 step) {
+int32_t field::adjust_step(uint16_t step) {
 	switch(step) {
 	case 0: {
 		core.re_adjust = FALSE;
@@ -5085,7 +5085,7 @@ int32_t field::adjust_step(uint16 step) {
 			}
 			if(core.attack_rollback)
 				return FALSE;
-			std::set<uint16> fidset;
+			std::set<uint16_t> fidset;
 			for(auto& pcard : player[1 - infos.turn_player].list_mzone) {
 				if(pcard)
 					fidset.insert(pcard->fieldid_r);

@@ -112,13 +112,13 @@ const material_info null_info;
 class card {
 public:
 	struct effect_relation_hash {
-		inline std::size_t operator()(const std::pair<effect*, uint16>& v) const {
-			return std::hash<uint16>()(v.second);
+		inline std::size_t operator()(const std::pair<effect*, uint16_t>& v) const {
+			return std::hash<uint16_t>()(v.second);
 		}
 	};
-	using effect_relation = std::unordered_set<std::pair<effect*, uint16>, effect_relation_hash>;
+	using effect_relation = std::unordered_set<std::pair<effect*, uint16_t>, effect_relation_hash>;
 	using relation_map = std::unordered_map<card*, uint32>;
-	using counter_map = std::map<uint16, uint16>;
+	using counter_map = std::map<uint16_t, uint16_t>;
 	using effect_count = std::map<uint32, int32_t>;
 	class attacker_map : public std::unordered_map<uint32, std::pair<card*, uint32>> {
 	public:
@@ -168,11 +168,11 @@ public:
 	uint8 attacked_count;
 	uint8 attack_all_target;
 	uint8 attack_controler;
-	uint16 cardid;
+	uint16_t cardid;
 	uint32 fieldid;
 	uint32 fieldid_r;
-	uint16 turnid;
-	uint16 turn_counter;
+	uint16_t turnid;
+	uint16_t turn_counter;
 	uint8 unique_pos[2];
 	uint32 unique_fieldid;
 	uint32 unique_code;
@@ -180,7 +180,7 @@ public:
 	int32_t unique_function;
 	effect* unique_effect;
 	uint32 spsummon_code;
-	uint16 spsummon_counter[2];
+	uint16_t spsummon_counter[2];
 	uint8 assume_type;
 	uint32 assume_value;
 	card* equiping_target;
@@ -293,7 +293,7 @@ public:
 	void refresh_disable_status();
 	std::tuple<uint8, effect*> refresh_control_status();
 
-	void count_turn(uint16 ct);
+	void count_turn(uint16_t ct);
 	void create_relation(card* target, uint32 reset);
 	int32_t is_has_relation(card* target);
 	void release_relation(card* target);
@@ -306,11 +306,11 @@ public:
 	void release_relation(effect* peffect);
 	int32_t leave_field_redirect(uint32 reason);
 	int32_t destination_redirect(uint8 destination, uint32 reason);
-	int32_t add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly);
-	int32_t remove_counter(uint16 countertype, uint16 count);
-	int32_t is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 loc);
-	int32_t is_can_have_counter(uint16 countertype);
-	int32_t get_counter(uint16 countertype);
+	int32_t add_counter(uint8 playerid, uint16_t countertype, uint16_t count, uint8 singly);
+	int32_t remove_counter(uint16_t countertype, uint16_t count);
+	int32_t is_can_add_counter(uint8 playerid, uint16_t countertype, uint16_t count, uint8 singly, uint32 loc);
+	int32_t is_can_have_counter(uint16_t countertype);
+	int32_t get_counter(uint16_t countertype);
 	void set_material(card_set* materials);
 	void add_card_target(card* pcard);
 	void cancel_card_target(card* pcard);

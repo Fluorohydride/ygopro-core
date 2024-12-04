@@ -55,11 +55,11 @@ struct optarget {
 };
 struct chain {
 	using opmap = std::unordered_map<uint32, optarget>;
-	uint16 chain_id{ 0 };
+	uint16_t chain_id{ 0 };
 	uint8 chain_count{ 0 };
 	uint8 triggering_player{ PLAYER_NONE };
 	uint8 triggering_controler{ PLAYER_NONE };
-	uint16 triggering_location{ 0 };
+	uint16_t triggering_location{ 0 };
 	uint8 triggering_sequence{ 0 };
 	uint8 triggering_position{ 0 };
 	card_state triggering_state;
@@ -126,11 +126,11 @@ struct field_effect {
 };
 struct field_info {
 	int32_t field_id{ 1 };
-	uint16 copy_id{ 1 };
-	uint16 turn_id{};
-	uint16 turn_id_by_player[2]{};
-	uint16 card_id{ 1 };
-	uint16 phase{};
+	uint16_t copy_id{ 1 };
+	uint16_t turn_id{};
+	uint16_t turn_id_by_player[2]{};
+	uint16_t card_id{ 1 };
+	uint16_t phase{};
 	uint8 turn_player{};
 	uint8 priorities[2]{};
 	uint8 can_shuffle{ TRUE };
@@ -141,8 +141,8 @@ struct lpcost {
 	int32_t lpstack[8]{};
 };
 struct processor_unit {
-	uint16 type{ 0 };
-	uint16 step{ 0 };
+	uint16_t type{ 0 };
+	uint16_t step{ 0 };
 	effect* peffect{ nullptr };
 	group* ptarget{ nullptr };
 	uint32 arg1{ 0 };
@@ -163,7 +163,7 @@ constexpr int SIZE_IVALUE = SIZE_RETURN_VALUE / 4;
 constexpr int SIZE_LVALUE = SIZE_RETURN_VALUE / 8;
 union return_value {
 	uint8 bvalue[SIZE_RETURN_VALUE];
-	uint16 svalue[SIZE_SVALUE];
+	uint16_t svalue[SIZE_SVALUE];
 	int32_t ivalue[SIZE_IVALUE];
 	int64_t lvalue[SIZE_LVALUE];
 };
@@ -263,8 +263,8 @@ struct processor {
 
 	int32_t temp_var[4]{};
 	uint32 global_flag{ 0 };
-	uint16 pre_field[2]{};
-	std::set<uint16> opp_mzone;
+	uint16_t pre_field[2]{};
+	std::set<uint16_t> opp_mzone;
 	chain_limit_list chain_limit;
 	chain_limit_list chain_limit_p;
 	uint8 chain_solving{ FALSE };
@@ -387,7 +387,7 @@ public:
 	void move_card(uint8 playerid, card* pcard, uint8 location, uint8 sequence, uint8 pzone = FALSE);
 	void swap_card(card* pcard1, card* pcard2, uint8 new_sequence1, uint8 new_sequence2);
 	void swap_card(card* pcard1, card* pcard2);
-	void set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 reset_count);
+	void set_control(card* pcard, uint8 playerid, uint16_t reset_phase, uint8 reset_count);
 
 	int32_t get_pzone_sequence(uint8 pseq) const;
 	card* get_field_card(uint8 playerid, uint32 general_location, uint8 sequence) const;
@@ -467,7 +467,7 @@ public:
 	void restore_lp_cost() {}
 	int32_t pay_lp_cost(uint32 step, uint8 playerid, uint32 cost, uint32 must_pay);
 
-	uint32 get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype);
+	uint32 get_field_counter(uint8 self, uint8 s, uint8 o, uint16_t countertype);
 	int32_t effect_replace_check(uint32 code, const tevent& e);
 	int32_t get_attack_target(card* pcard, card_vector* v, uint8 chain_attack = FALSE, bool select_target = true);
 	bool confirm_attack_target();
@@ -501,9 +501,9 @@ public:
 	int32_t is_player_can_spsummon_monster(uint8 playerid, uint8 toplayer, uint8 sumpos, uint32 sumtype, card_data* pdata);
 	int32_t is_player_can_spsummon_count(uint8 playerid, uint32 count);
 	int32_t is_player_can_release(uint8 playerid, card* pcard, uint32 reason);
-	int32_t is_player_can_place_counter(uint8 playerid, card* pcard, uint16 countertype, uint16 count);
-	int32_t is_player_can_remove_counter(uint8 playerid, card* pcard, uint8 s, uint8 o, uint16 countertype, uint16 count, uint32 reason);
-	int32_t is_player_can_remove_overlay_card(uint8 playerid, card* pcard, uint8 s, uint8 o, uint16 count, uint32 reason);
+	int32_t is_player_can_place_counter(uint8 playerid, card* pcard, uint16_t countertype, uint16_t count);
+	int32_t is_player_can_remove_counter(uint8 playerid, card* pcard, uint8 s, uint8 o, uint16_t countertype, uint16_t count, uint32 reason);
+	int32_t is_player_can_remove_overlay_card(uint8 playerid, card* pcard, uint8 s, uint8 o, uint16_t count, uint32 reason);
 	int32_t is_player_can_send_to_grave(uint8 playerid, card* pcard);
 	int32_t is_player_can_send_to_hand(uint8 playerid, card* pcard);
 	int32_t is_player_can_send_to_deck(uint8 playerid, card* pcard);
@@ -521,11 +521,11 @@ public:
 	int32_t check_spself_from_hand_trigger(const chain& ch) const;
 	int32_t is_able_to_enter_bp();
 
-	void add_process(uint16 type, uint16 step, effect* peffect, group* target, int32_t arg1, int32_t arg2, int32_t arg3 = 0, int32_t arg4 = 0, void* ptr1 = nullptr, void* ptr2 = nullptr);
+	void add_process(uint16_t type, uint16_t step, effect* peffect, group* target, int32_t arg1, int32_t arg2, int32_t arg3 = 0, int32_t arg4 = 0, void* ptr1 = nullptr, void* ptr2 = nullptr);
 	uint32 process();
-	int32_t execute_cost(uint16 step, effect* peffect, uint8 triggering_player);
-	int32_t execute_operation(uint16 step, effect* peffect, uint8 triggering_player);
-	int32_t execute_target(uint16 step, effect* peffect, uint8 triggering_player);
+	int32_t execute_cost(uint16_t step, effect* peffect, uint8 triggering_player);
+	int32_t execute_operation(uint16_t step, effect* peffect, uint8 triggering_player);
+	int32_t execute_target(uint16_t step, effect* peffect, uint8 triggering_player);
 	void raise_event(card* event_card, uint32 event_code, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 event_player, uint32 event_value);
 	void raise_event(const card_set& event_cards, uint32 event_code, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 event_player, uint32 event_value);
 	void raise_single_event(card* trigger_card, card_set* event_cards, uint32 event_code, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 event_player, uint32 event_value);
@@ -538,22 +538,22 @@ public:
 	int32_t process_instant_event();
 	int32_t process_single_event();
 	int32_t process_single_event(effect* peffect, const tevent& e, chain_list& tp, chain_list& ntp);
-	int32_t process_idle_command(uint16 step);
-	int32_t process_battle_command(uint16 step);
-	int32_t process_damage_step(uint16 step, uint32 new_attack);
+	int32_t process_idle_command(uint16_t step);
+	int32_t process_battle_command(uint16_t step);
+	int32_t process_damage_step(uint16_t step, uint32 new_attack);
 	void calculate_battle_damage(effect** pdamchange, card** preason_card, uint8* battle_destroyed);
-	int32_t process_turn(uint16 step, uint8 turn_player);
+	int32_t process_turn(uint16_t step, uint8 turn_player);
 
-	int32_t add_chain(uint16 step);
+	int32_t add_chain(uint16_t step);
 	void solve_continuous(uint8 playerid, effect* peffect, const tevent& e);
-	int32_t solve_continuous(uint16 step);
-	int32_t solve_chain(uint16 step, uint32 chainend_arg1, uint32 chainend_arg2);
+	int32_t solve_continuous(uint16_t step);
+	int32_t solve_chain(uint16_t step, uint32 chainend_arg1, uint32 chainend_arg2);
 	int32_t break_effect();
 	void adjust_instant();
 	void adjust_all();
 	void refresh_location_info_instant();
-	int32_t refresh_location_info(uint16 step);
-	int32_t adjust_step(uint16 step);
+	int32_t refresh_location_info(uint16_t step);
+	int32_t adjust_step(uint16_t step);
 
 	//operations
 	int32_t negate_chain(uint8 chaincount);
@@ -563,7 +563,7 @@ public:
 	void change_target_player(uint8 chaincount, uint8 playerid);
 	void change_target_param(uint8 chaincount, int32_t param);
 	void remove_counter(uint32 reason, card* pcard, uint32 rplayer, uint32 s, uint32 o, uint32 countertype, uint32 count);
-	void remove_overlay_card(uint32 reason, card* pcard, uint32 rplayer, uint32 s, uint32 o, uint16 min, uint16 max);
+	void remove_overlay_card(uint32 reason, card* pcard, uint32 rplayer, uint32 s, uint32 o, uint16_t min, uint16_t max);
 	void get_control(const card_set& targets, effect* reason_effect, uint32 reason_player, uint32 playerid, uint32 reset_phase, uint32 reset_count, uint32 zone);
 	void get_control(card* target, effect* reason_effect, uint32 reason_player, uint32 playerid, uint32 reset_phase, uint32 reset_count, uint32 zone);
 	void swap_control(effect* reason_effect, uint32 reason_player, const card_set& targets1, const card_set& targets2, uint32 reset_phase, uint32 reset_count);
@@ -591,57 +591,57 @@ public:
 	void select_tribute_cards(card* target, uint8 playerid, uint8 cancelable, int32_t min, int32_t max, uint8 toplayer, uint32 zone);
 
 	// summon
-	int32_t summon(uint16 step, uint8 sumplayer, card* target, effect* proc, uint8 ignore_count, uint8 min_tribute, uint32 zone, uint32 action_type);
-	int32_t mset(uint16 step, uint8 setplayer, card* ptarget, effect* proc, uint8 ignore_count, uint8 min_tribute, uint32 zone, uint32 action_type);
-	int32_t flip_summon(uint16 step, uint8 sumplayer, card* target, uint32 action_type);
-	int32_t special_summon_rule(uint16 step, uint8 sumplayer, card* target, uint32 summon_type, uint32 action_type);
+	int32_t summon(uint16_t step, uint8 sumplayer, card* target, effect* proc, uint8 ignore_count, uint8 min_tribute, uint32 zone, uint32 action_type);
+	int32_t mset(uint16_t step, uint8 setplayer, card* ptarget, effect* proc, uint8 ignore_count, uint8 min_tribute, uint32 zone, uint32 action_type);
+	int32_t flip_summon(uint16_t step, uint8 sumplayer, card* target, uint32 action_type);
+	int32_t special_summon_rule(uint16_t step, uint8 sumplayer, card* target, uint32 summon_type, uint32 action_type);
 
-	int32_t remove_counter(uint16 step, uint32 reason, card* pcard, uint8 rplayer, uint8 s, uint8 o, uint16 countertype, uint16 count);
-	int32_t remove_overlay_card(uint16 step, uint32 reason, card* pcard, uint8 rplayer, uint8 s, uint8 o, uint16 min, uint16 max);
-	int32_t get_control(uint16 step, effect* reason_effect, uint8 reason_player, group* targets, uint8 playerid, uint16 reset_phase, uint8 reset_count, uint32 zone);
-	int32_t swap_control(uint16 step, effect* reason_effect, uint8 reason_player, group* targets1, group* targets2, uint16 reset_phase, uint8 reset_count);
-	int32_t self_destroy(uint16 step, card* ucard, int32_t p);
-	int32_t trap_monster_adjust(uint16 step);
-	int32_t equip(uint16 step, uint8 equip_player, card* equip_card, card* target, uint32 up, uint32 is_step);
-	int32_t draw(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, int32_t count);
-	int32_t damage(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, card* reason_card, uint8 playerid, int32_t amount, uint32 is_step);
-	int32_t recover(uint16 step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, int32_t amount, uint32 is_step);
-	int32_t sset(uint16 step, uint8 setplayer, uint8 toplayer, card* ptarget, effect* reason_effect);
-	int32_t sset_g(uint16 step, uint8 setplayer, uint8 toplayer, group* ptarget, uint8 confirm, effect* reason_effect);
-	int32_t special_summon_step(uint16 step, group* targets, card* target, uint32 zone);
-	int32_t special_summon(uint16 step, effect* reason_effect, uint8 reason_player, group* targets, uint32 zone);
-	int32_t destroy_replace(uint16 step, group* targets, card* target, uint8 battle);
-	int32_t destroy(uint16 step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player);
-	int32_t release_replace(uint16 step, group* targets, card* target);
-	int32_t release(uint16 step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player);
-	int32_t send_replace(uint16 step, group* targets, card* target);
-	int32_t send_to(uint16 step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 send_activating);
-	int32_t discard_deck(uint16 step, uint8 playerid, uint8 count, uint32 reason);
-	int32_t move_to_field(uint16 step, card* target, uint32 enable, uint32 ret, uint32 pzone, uint32 zone);
-	int32_t change_position(uint16 step, group* targets, effect* reason_effect, uint8 reason_player, uint32 enable);
-	int32_t operation_replace(uint16 step, effect* replace_effect, group* targets, card* target, int32_t is_destroy);
-	int32_t activate_effect(uint16 step, effect* peffect);
+	int32_t remove_counter(uint16_t step, uint32 reason, card* pcard, uint8 rplayer, uint8 s, uint8 o, uint16_t countertype, uint16_t count);
+	int32_t remove_overlay_card(uint16_t step, uint32 reason, card* pcard, uint8 rplayer, uint8 s, uint8 o, uint16_t min, uint16_t max);
+	int32_t get_control(uint16_t step, effect* reason_effect, uint8 reason_player, group* targets, uint8 playerid, uint16_t reset_phase, uint8 reset_count, uint32 zone);
+	int32_t swap_control(uint16_t step, effect* reason_effect, uint8 reason_player, group* targets1, group* targets2, uint16_t reset_phase, uint8 reset_count);
+	int32_t self_destroy(uint16_t step, card* ucard, int32_t p);
+	int32_t trap_monster_adjust(uint16_t step);
+	int32_t equip(uint16_t step, uint8 equip_player, card* equip_card, card* target, uint32 up, uint32 is_step);
+	int32_t draw(uint16_t step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, int32_t count);
+	int32_t damage(uint16_t step, effect* reason_effect, uint32 reason, uint8 reason_player, card* reason_card, uint8 playerid, int32_t amount, uint32 is_step);
+	int32_t recover(uint16_t step, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 playerid, int32_t amount, uint32 is_step);
+	int32_t sset(uint16_t step, uint8 setplayer, uint8 toplayer, card* ptarget, effect* reason_effect);
+	int32_t sset_g(uint16_t step, uint8 setplayer, uint8 toplayer, group* ptarget, uint8 confirm, effect* reason_effect);
+	int32_t special_summon_step(uint16_t step, group* targets, card* target, uint32 zone);
+	int32_t special_summon(uint16_t step, effect* reason_effect, uint8 reason_player, group* targets, uint32 zone);
+	int32_t destroy_replace(uint16_t step, group* targets, card* target, uint8 battle);
+	int32_t destroy(uint16_t step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player);
+	int32_t release_replace(uint16_t step, group* targets, card* target);
+	int32_t release(uint16_t step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player);
+	int32_t send_replace(uint16_t step, group* targets, card* target);
+	int32_t send_to(uint16_t step, group* targets, effect* reason_effect, uint32 reason, uint8 reason_player, uint8 send_activating);
+	int32_t discard_deck(uint16_t step, uint8 playerid, uint8 count, uint32 reason);
+	int32_t move_to_field(uint16_t step, card* target, uint32 enable, uint32 ret, uint32 pzone, uint32 zone);
+	int32_t change_position(uint16_t step, group* targets, effect* reason_effect, uint8 reason_player, uint32 enable);
+	int32_t operation_replace(uint16_t step, effect* replace_effect, group* targets, card* target, int32_t is_destroy);
+	int32_t activate_effect(uint16_t step, effect* peffect);
 	int32_t select_synchro_material(int16_t step, uint8 playerid, card* pcard, int32_t min, int32_t max, card* smat, group* mg, int32_t filter1, int32_t filter2);
 	int32_t select_xyz_material(int16_t step, uint8 playerid, uint32 lv, card* pcard, int32_t min, int32_t max);
 	int32_t select_release_cards(int16_t step, uint8 playerid, uint8 cancelable, int32_t min, int32_t max);
 	int32_t select_tribute_cards(int16_t step, card* target, uint8 playerid, uint8 cancelable, int32_t min, int32_t max, uint8 toplayer, uint32 zone);
-	int32_t toss_coin(uint16 step, effect* reason_effect, uint8 reason_player, uint8 playerid, int32_t count);
-	int32_t toss_dice(uint16 step, effect* reason_effect, uint8 reason_player, uint8 playerid, uint8 count1, uint8 count2);
-	int32_t rock_paper_scissors(uint16 step, uint8 repeat);
+	int32_t toss_coin(uint16_t step, effect* reason_effect, uint8 reason_player, uint8 playerid, int32_t count);
+	int32_t toss_dice(uint16_t step, effect* reason_effect, uint8 reason_player, uint8 playerid, uint8 count1, uint8 count2);
+	int32_t rock_paper_scissors(uint16_t step, uint8 repeat);
 
 	bool check_response(size_t vector_size, int32_t min_len, int32_t max_len) const;
-	int32_t select_battle_command(uint16 step, uint8 playerid);
-	int32_t select_idle_command(uint16 step, uint8 playerid);
-	int32_t select_effect_yes_no(uint16 step, uint8 playerid, uint32 description, card* pcard);
-	int32_t select_yes_no(uint16 step, uint8 playerid, uint32 description);
-	int32_t select_option(uint16 step, uint8 playerid);
-	int32_t select_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max);
-	int32_t select_unselect_card(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max, uint8 finishable);
-	int32_t select_chain(uint16 step, uint8 playerid, uint8 spe_count, uint8 forced);
-	int32_t select_place(uint16 step, uint8 playerid, uint32 flag, uint8 count);
-	int32_t select_position(uint16 step, uint8 playerid, uint32 code, uint8 positions);
-	int32_t select_tribute(uint16 step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max);
-	int32_t select_counter(uint16 step, uint8 playerid, uint16 countertype, uint16 count, uint8 s, uint8 o);
+	int32_t select_battle_command(uint16_t step, uint8 playerid);
+	int32_t select_idle_command(uint16_t step, uint8 playerid);
+	int32_t select_effect_yes_no(uint16_t step, uint8 playerid, uint32 description, card* pcard);
+	int32_t select_yes_no(uint16_t step, uint8 playerid, uint32 description);
+	int32_t select_option(uint16_t step, uint8 playerid);
+	int32_t select_card(uint16_t step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max);
+	int32_t select_unselect_card(uint16_t step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max, uint8 finishable);
+	int32_t select_chain(uint16_t step, uint8 playerid, uint8 spe_count, uint8 forced);
+	int32_t select_place(uint16_t step, uint8 playerid, uint32 flag, uint8 count);
+	int32_t select_position(uint16_t step, uint8 playerid, uint32 code, uint8 positions);
+	int32_t select_tribute(uint16_t step, uint8 playerid, uint8 cancelable, uint8 min, uint8 max);
+	int32_t select_counter(uint16_t step, uint8 playerid, uint16_t countertype, uint16_t count, uint8 s, uint8 o);
 	int32_t select_with_sum_limit(int16_t step, uint8 playerid, int32_t acc, int32_t min, int32_t max);
 	int32_t sort_card(int16_t step, uint8 playerid);
 	int32_t announce_race(int16_t step, uint8 playerid, int32_t count, int32_t available);

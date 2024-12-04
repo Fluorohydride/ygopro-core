@@ -2212,7 +2212,7 @@ std::tuple<uint8, effect*> card::refresh_control_status() {
 	}
 	return std::make_tuple(final, ceffect);
 }
-void card::count_turn(uint16 ct) {
+void card::count_turn(uint16_t ct) {
 	turn_counter = ct;
 	pduel->write_buffer8(MSG_CARD_HINT);
 	pduel->write_buffer32(get_info_location());
@@ -2255,7 +2255,7 @@ void card::create_relation(effect* peffect) {
 			return;
 		}
 	}
-	relate_effect.emplace(peffect, (uint16)0);
+	relate_effect.emplace(peffect, (uint16_t)0);
 }
 int32_t card::is_has_relation(effect* peffect) {
 	for(auto& it : relate_effect) {
@@ -2271,7 +2271,7 @@ void card::release_relation(effect* peffect) {
 			return;
 		}
 	}
-	relate_effect.erase(std::make_pair(peffect, (uint16)0));
+	relate_effect.erase(std::make_pair(peffect, (uint16_t)0));
 }
 int32_t card::leave_field_redirect(uint32 reason) {
 	effect_set es;
@@ -2331,10 +2331,10 @@ int32_t card::destination_redirect(uint8 destination, uint32 reason) {
 	}
 	return 0;
 }
-int32_t card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly) {
+int32_t card::add_counter(uint8 playerid, uint16_t countertype, uint16_t count, uint8 singly) {
 	if(!is_can_add_counter(playerid, countertype, count, singly, 0))
 		return FALSE;
-	uint16 cttype = countertype;
+	uint16_t cttype = countertype;
 	auto pr = counters.emplace(cttype, 0);
 	auto cmit = pr.first;
 	auto pcount = count;
@@ -2349,7 +2349,7 @@ int32_t card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint
 			if (mcount < 0)
 				mcount = 0;
 			if (pcount > mcount)
-				pcount = (uint16)mcount;
+				pcount = (uint16_t)mcount;
 		}
 	}
 	cmit->second += pcount;
@@ -2363,7 +2363,7 @@ int32_t card::add_counter(uint8 playerid, uint16 countertype, uint16 count, uint
 	pduel->game_field->process_single_event();
 	return TRUE;
 }
-int32_t card::remove_counter(uint16 countertype, uint16 count) {
+int32_t card::remove_counter(uint16_t countertype, uint16_t count) {
 	auto cmit = counters.find(countertype);
 	if(cmit == counters.end())
 		return FALSE;
@@ -2384,7 +2384,7 @@ int32_t card::remove_counter(uint16 countertype, uint16 count) {
 	return TRUE;
 }
 // return: the player can put a counter on this or not
-int32_t card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 count, uint8 singly, uint32 loc) {
+int32_t card::is_can_add_counter(uint8 playerid, uint16_t countertype, uint16_t count, uint8 singly, uint32 loc) {
 	effect_set eset;
 	if (!pduel->game_field->is_player_can_place_counter(playerid, this, countertype, count))
 		return FALSE;
@@ -2419,7 +2419,7 @@ int32_t card::is_can_add_counter(uint8 playerid, uint16 countertype, uint16 coun
 	return TRUE;
 }
 // return: this have a EFFECT_COUNTER_PERMIT of countertype or not
-int32_t card::is_can_have_counter(uint16 countertype) {
+int32_t card::is_can_have_counter(uint16_t countertype) {
 	effect_set eset;
 	if (countertype & COUNTER_WITHOUT_PERMIT)
 		return FALSE;
@@ -2439,7 +2439,7 @@ int32_t card::is_can_have_counter(uint16 countertype) {
 	}
 	return FALSE;
 }
-int32_t card::get_counter(uint16 countertype) {
+int32_t card::get_counter(uint16_t countertype) {
 	auto cmit = counters.find(countertype);
 	if(cmit == counters.end())
 		return 0;

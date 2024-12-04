@@ -124,7 +124,7 @@ void duel::write_buffer(const void* data, int size) {
 void duel::write_buffer32(uint32 value) {
 	vector_write<uint32_t>(message_buffer, value);
 }
-void duel::write_buffer16(uint16 value) {
+void duel::write_buffer16(uint16_t value) {
 	vector_write<uint16_t>(message_buffer, value);
 }
 void duel::write_buffer8(uint8 value) {

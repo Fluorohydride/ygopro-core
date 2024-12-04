@@ -462,7 +462,7 @@ void field::swap_card(card* pcard1, card* pcard2, uint8 new_sequence1, uint8 new
 void field::swap_card(card* pcard1, card* pcard2) {
 	return swap_card(pcard1, pcard2, pcard1->current.sequence, pcard2->current.sequence);
 }
-void field::set_control(card* pcard, uint8 playerid, uint16 reset_phase, uint8 reset_count) {
+void field::set_control(card* pcard, uint8 playerid, uint16_t reset_phase, uint8 reset_count) {
 	if((core.remove_brainwashing && pcard->is_affected_by_effect(EFFECT_REMOVE_BRAINWASHING)) || std::get<uint8>(pcard->refresh_control_status()) == playerid)
 		return;
 	effect* peffect = pduel->new_effect();
@@ -1386,7 +1386,7 @@ void field::filter_affected_cards(effect* peffect, card_set* cset) {
 	if (!check_playerid(self))
 		return;
 	std::vector<card_vector*> cvec;
-	uint16 range = peffect->s_range;
+	uint16_t range = peffect->s_range;
 	for(uint32 p = 0; p < 2; ++p) {
 		if(range & LOCATION_MZONE)
 			cvec.push_back(&player[self].list_mzone);
@@ -1418,7 +1418,7 @@ void field::filter_inrange_cards(effect* peffect, card_set* cset) {
 	uint8 self = peffect->get_handler_player();
 	if (!check_playerid(self))
 		return;
-	uint16 range = peffect->s_range;
+	uint16_t range = peffect->s_range;
 	std::vector<card_vector*> cvec;
 	for(int32_t p = 0; p < 2; ++p) {
 		if(range & LOCATION_MZONE)
@@ -2286,7 +2286,7 @@ int32_t field::check_spsummon_counter(uint8 playerid, uint8 ct) {
 	if(core.global_flag & GLOBALFLAG_SPSUMMON_COUNT) {
 		for(auto& peffect : effects.spsummon_count_eff) {
 			card* pcard = peffect->get_handler();
-			uint16 val = (uint16)peffect->value;
+			uint16_t val = (uint16_t)peffect->value;
 			if(peffect->is_available()) {
 				if(pcard->spsummon_counter[playerid] + ct > val)
 					return FALSE;
@@ -2345,7 +2345,7 @@ void field::restore_lp_cost() {
 	}
 }
 */
-uint32 field::get_field_counter(uint8 self, uint8 s, uint8 o, uint16 countertype) {
+uint32 field::get_field_counter(uint8 self, uint8 s, uint8 o, uint16_t countertype) {
 	uint8 c = s;
 	uint32 count = 0;
 	for(int32_t p = 0; p < 2; ++p) {
@@ -3271,7 +3271,7 @@ int32_t field::is_player_can_spsummon_count(uint8 playerid, uint32 count) {
 	}
 	return check_spsummon_counter(playerid, count);
 }
-int32_t field::is_player_can_place_counter(uint8 playerid, card * pcard, uint16 countertype, uint16 count) {
+int32_t field::is_player_can_place_counter(uint8 playerid, card * pcard, uint16_t countertype, uint16_t count) {
 	effect_set eset;
 	filter_player_effect(playerid, EFFECT_CANNOT_PLACE_COUNTER, &eset);
 	for(int32_t i = 0; i < eset.size(); ++i) {
@@ -3285,7 +3285,7 @@ int32_t field::is_player_can_place_counter(uint8 playerid, card * pcard, uint16 
 	}
 	return TRUE;
 }
-int32_t field::is_player_can_remove_counter(uint8 playerid, card * pcard, uint8 s, uint8 o, uint16 countertype, uint16 count, uint32 reason) {
+int32_t field::is_player_can_remove_counter(uint8 playerid, card * pcard, uint8 s, uint8 o, uint16_t countertype, uint16_t count, uint32 reason) {
 	if((pcard && pcard->get_counter(countertype) >= count) || (!pcard && get_field_counter(playerid, s, o, countertype) >= count))
 		return TRUE;
 	auto pr = effects.continuous_effect.equal_range(EFFECT_RCOUNTER_REPLACE + countertype);
@@ -3304,7 +3304,7 @@ int32_t field::is_player_can_remove_counter(uint8 playerid, card * pcard, uint8 
 	}
 	return FALSE;
 }
-int32_t field::is_player_can_remove_overlay_card(uint8 playerid, card * pcard, uint8 s, uint8 o, uint16 min, uint32 reason) {
+int32_t field::is_player_can_remove_overlay_card(uint8 playerid, card * pcard, uint8 s, uint8 o, uint16_t min, uint32 reason) {
 	if((pcard && (int32_t)pcard->xyz_materials.size() >= min) || (!pcard && get_overlay_count(playerid, s, o) >= min))
 		return TRUE;
 	auto pr = effects.continuous_effect.equal_range(EFFECT_OVERLAY_REMOVE_REPLACE);
