@@ -162,7 +162,7 @@ int32_t effect::is_single_ready() {
 // reset_count: count of effect reset
 // count_limit: left count of activation
 // count_limit_max: max count of activation
-int32_t effect::check_count_limit(uint8 playerid) {
+int32_t effect::check_count_limit(uint8_t playerid) {
 	if(is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
 		if(count_limit == 0)
 			return FALSE;
@@ -182,7 +182,7 @@ int32_t effect::check_count_limit(uint8 playerid) {
 	return TRUE;
 }
 // check activate in hand/in set turn
-int32_t effect::get_required_handorset_effects(effect_set* eset, uint8 playerid, const tevent& e, int32_t neglect_loc) {
+int32_t effect::get_required_handorset_effects(effect_set* eset, uint8_t playerid, const tevent& e, int32_t neglect_loc) {
 	eset->clear();
 	if(!(type & EFFECT_TYPE_ACTIVATE))
 		return 1;
@@ -213,7 +213,7 @@ int32_t effect::get_required_handorset_effects(effect_set* eset, uint8 playerid,
 	if(!tmp_eset.size())
 		return available;
 	effect* oreason = pduel->game_field->core.reason_effect;
-	uint8 op = pduel->game_field->core.reason_player;
+	uint8_t op = pduel->game_field->core.reason_player;
 	pduel->game_field->core.reason_player = playerid;
 	pduel->game_field->save_lp_cost();
 	for(int32_t i = 0; i < tmp_eset.size(); ++i) {
@@ -243,7 +243,7 @@ int32_t effect::get_required_handorset_effects(effect_set* eset, uint8 playerid,
 }
 // check if an EFFECT_TYPE_ACTIONS effect can be activated
 // for triggering effects, it checks EFFECT_FLAG_DAMAGE_STEP, EFFECT_FLAG_SET_AVAILABLE
-int32_t effect::is_activateable(uint8 playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target, int32_t neglect_loc, int32_t neglect_faceup) {
+int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target, int32_t neglect_loc, int32_t neglect_faceup) {
 	if(!(type & EFFECT_TYPE_ACTIONS))
 		return FALSE;
 	if(!check_count_limit(playerid))
@@ -361,7 +361,7 @@ int32_t effect::is_activateable(uint8 playerid, const tevent& e, int32_t neglect
 	}
 	pduel->game_field->save_lp_cost();
 	effect* oreason = pduel->game_field->core.reason_effect;
-	uint8 op = pduel->game_field->core.reason_player;
+	uint8_t op = pduel->game_field->core.reason_player;
 	pduel->game_field->core.reason_effect = this;
 	pduel->game_field->core.reason_player = playerid;
 	int32_t result = TRUE;
@@ -375,7 +375,7 @@ int32_t effect::is_activateable(uint8 playerid, const tevent& e, int32_t neglect
 	return result;
 }
 // check functions: value of EFFECT_CANNOT_ACTIVATE, target, cost of EFFECT_ACTIVATE_COST
-int32_t effect::is_action_check(uint8 playerid) {
+int32_t effect::is_action_check(uint8_t playerid) {
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, EFFECT_CANNOT_ACTIVATE, &eset);
 	for(int32_t i = 0; i < eset.size(); ++i) {
@@ -401,7 +401,7 @@ int32_t effect::is_action_check(uint8 playerid) {
 	return TRUE;
 }
 // check functions: condition, cost(chk=0), target(chk=0)
-int32_t effect::is_activate_ready(effect* reason_effect, uint8 playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target) {
+int32_t effect::is_activate_ready(effect* reason_effect, uint8_t playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target) {
 	if(!neglect_cond && condition) {
 		pduel->lua->add_param(reason_effect, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
@@ -453,18 +453,18 @@ int32_t effect::is_activate_ready(effect* reason_effect, uint8 playerid, const t
 	reason_effect->cost_checked = FALSE;
 	return TRUE;
 }
-int32_t effect::is_activate_ready(uint8 playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target) {
+int32_t effect::is_activate_ready(uint8_t playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target) {
 	return is_activate_ready(this, playerid, e, neglect_cond, neglect_cost, neglect_target);
 }
 // check functions: condition
-int32_t effect::is_condition_check(uint8 playerid, const tevent& e) {
+int32_t effect::is_condition_check(uint8_t playerid, const tevent& e) {
 	card* phandler = get_handler();
 	if(!(type & EFFECT_TYPE_ACTIVATE) && (phandler->current.location & (LOCATION_ONFIELD | LOCATION_REMOVED)) && !phandler->is_position(POS_FACEUP))
 		return FALSE;
 	if(!condition)
 		return TRUE;
 	effect* oreason = pduel->game_field->core.reason_effect;
-	uint8 op = pduel->game_field->core.reason_player;
+	uint8_t op = pduel->game_field->core.reason_player;
 	pduel->game_field->core.reason_effect = this;
 	pduel->game_field->core.reason_player = playerid;
 	pduel->game_field->save_lp_cost();
@@ -487,10 +487,10 @@ int32_t effect::is_condition_check(uint8 playerid, const tevent& e) {
 	pduel->game_field->core.reason_player = op;
 	return TRUE;
 }
-int32_t effect::is_activate_check(uint8 playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target) {
+int32_t effect::is_activate_check(uint8_t playerid, const tevent& e, int32_t neglect_cond, int32_t neglect_cost, int32_t neglect_target) {
 	pduel->game_field->save_lp_cost();
 	effect* oreason = pduel->game_field->core.reason_effect;
-	uint8 op = pduel->game_field->core.reason_player;
+	uint8_t op = pduel->game_field->core.reason_player;
 	pduel->game_field->core.reason_effect = this;
 	pduel->game_field->core.reason_player = playerid;
 	int32_t result = is_activate_ready(playerid, e, neglect_cond, neglect_cost, neglect_target);
@@ -545,10 +545,10 @@ int32_t effect::is_fit_target_function(card* pcard) {
 	}
 	return TRUE;
 }
-int32_t effect::is_target_player(uint8 playerid) {
+int32_t effect::is_target_player(uint8_t playerid) {
 	if(!is_flag(EFFECT_FLAG_PLAYER_TARGET))
 		return FALSE;
-	uint8 self = get_handler_player();
+	uint8_t self = get_handler_player();
 	if(is_flag(EFFECT_FLAG_ABSOLUTE_TARGET)) {
 		if(s_range && playerid == 0)
 			return TRUE;
@@ -585,7 +585,7 @@ int32_t effect::is_immuned(card* pcard) {
 	}
 	return FALSE;
 }
-int32_t effect::is_chainable(uint8 tp) {
+int32_t effect::is_chainable(uint8_t tp) {
 	if(!(type & EFFECT_TYPE_ACTIONS))
 		return FALSE;
 	int32_t sp = get_speed();
@@ -648,8 +648,8 @@ int32_t effect::reset(uint32_t reset_level, uint32_t reset_type) {
 	case RESET_PHASE: {
 		if(!(reset_flag & RESET_PHASE))
 			return FALSE;
-		uint8 pid = get_owner_player();
-		uint8 tp = handler->pduel->game_field->infos.turn_player;
+		uint8_t pid = get_owner_player();
+		uint8_t tp = handler->pduel->game_field->infos.turn_player;
 		if((((reset_flag & RESET_SELF_TURN) && pid == tp) || ((reset_flag & RESET_OPPO_TURN) && pid != tp))
 				&& (reset_level & 0x3ff & reset_flag))
 			--reset_count;
@@ -669,7 +669,7 @@ int32_t effect::reset(uint32_t reset_level, uint32_t reset_type) {
 	}
 	return FALSE;
 }
-void effect::dec_count(uint8 playerid) {
+void effect::dec_count(uint8_t playerid) {
 	if(!is_flag(EFFECT_FLAG_COUNT_LIMIT))
 		return;
 	if(count_limit == 0)
@@ -814,7 +814,7 @@ card* effect::get_owner() const {
 		return handler->overlay_target;
 	return owner;
 }
-uint8 effect::get_owner_player() const {
+uint8_t effect::get_owner_player() const {
 	if(effect_owner != PLAYER_NONE)
 		return effect_owner;
 	return get_owner()->current.controler;
@@ -826,7 +826,7 @@ card* effect::get_handler() const {
 		return handler->overlay_target;
 	return handler;
 }
-uint8 effect::get_handler_player() const {
+uint8_t effect::get_handler_player() const {
 	if(is_flag(EFFECT_FLAG_FIELD_ONLY))
 		return effect_owner;
 	return get_handler()->current.controler;
@@ -852,7 +852,7 @@ void effect::set_active_type() {
 	if(active_type & TYPE_TRAPMONSTER)
 		active_type &= ~TYPE_TRAP;
 }
-uint32_t effect::get_active_type(uint8 uselast) {
+uint32_t effect::get_active_type(uint8_t uselast) {
 	if(type & EFFECT_TYPES_CHAIN_LINK) {
 		if(active_type && uselast)
 			return active_type;

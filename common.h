@@ -10,7 +10,6 @@
 
 #include <stdint.h>
 #include <assert.h>
-typedef unsigned char uint8;
 typedef unsigned char byte;
 
 #define MATCH_ALL(x,y) (((x)&(y))==(y))

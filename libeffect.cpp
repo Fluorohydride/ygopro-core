@@ -556,7 +556,7 @@ int32_t scriptlib::effect_set_cost_check(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint8 cost_check = lua_toboolean(L, 2);
+	uint8_t cost_check = lua_toboolean(L, 2);
 	peffect->cost_checked = cost_check;
 	return 0;
 }

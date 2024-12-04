@@ -90,9 +90,9 @@ int32_t scriptlib::debug_pre_summon(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32_t summon_type = (uint32_t)lua_tointeger(L, 2);
-	uint8 summon_location = 0;
+	uint8_t summon_location = 0;
 	if(lua_gettop(L) > 2)
-		summon_location = (uint8)lua_tointeger(L, 3);
+		summon_location = (uint8_t)lua_tointeger(L, 3);
 	pcard->summon_info = summon_type | (summon_location << 16);
 	return 0;
 }

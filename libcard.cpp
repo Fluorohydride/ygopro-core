@@ -2430,9 +2430,9 @@ int32_t scriptlib::card_is_able_to_remove(lua_State *L) {
 	uint32_t p = pcard->pduel->game_field->core.reason_player;
 	if(lua_gettop(L) >= 2)
 		p = (uint32_t)lua_tointeger(L, 2);
-	uint8 pos = POS_FACEUP;
+	uint8_t pos = POS_FACEUP;
 	if(lua_gettop(L) >= 3)
-		pos = (uint8)lua_tointeger(L, 3);
+		pos = (uint8_t)lua_tointeger(L, 3);
 	uint32_t reason = REASON_EFFECT;
 	if(lua_gettop(L) >= 4)
 		reason = (uint32_t)lua_tointeger(L, 4);
@@ -2503,9 +2503,9 @@ int32_t scriptlib::card_is_able_to_remove_as_cost(lua_State *L) {
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32_t p = pcard->pduel->game_field->core.reason_player;
-	uint8 pos = POS_FACEUP;
+	uint8_t pos = POS_FACEUP;
 	if(lua_gettop(L) >= 2)
-		pos = (uint8)lua_tointeger(L, 2);
+		pos = (uint8_t)lua_tointeger(L, 2);
 	if(pcard->is_removeable_as_cost(p, pos))
 		lua_pushboolean(L, 1);
 	else
@@ -2900,7 +2900,7 @@ int32_t scriptlib::card_add_counter(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32_t countertype = (uint32_t)lua_tointeger(L, 2);
 	uint32_t count = (uint32_t)lua_tointeger(L, 3);
-	uint8 singly = FALSE;
+	uint8_t singly = FALSE;
 	if(lua_gettop(L) > 3)
 		singly = lua_toboolean(L, 4);
 	if(pcard->is_affect_by_effect(pcard->pduel->game_field->core.reason_effect))
@@ -3005,7 +3005,7 @@ int32_t scriptlib::card_is_can_add_counter(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	uint32_t countertype = (uint32_t)lua_tointeger(L, 2);
 	uint32_t count = (uint32_t)lua_tointeger(L, 3);
-	uint8 singly = FALSE;
+	uint8_t singly = FALSE;
 	if(lua_gettop(L) > 3)
 		singly = lua_toboolean(L, 4);
 	uint32_t loc = 0;
@@ -3039,9 +3039,9 @@ int32_t scriptlib::card_is_can_overlay(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	uint8 playerid = pcard->pduel->game_field->core.reason_player;
+	uint8_t playerid = pcard->pduel->game_field->core.reason_player;
 	if(lua_gettop(L) > 1 && !lua_isnil(L, 2))
-		playerid = (uint8)lua_tointeger(L, 2);
+		playerid = (uint8_t)lua_tointeger(L, 2);
 	lua_pushboolean(L, pcard->is_capable_overlay(playerid));
 	return 1;
 }
@@ -3130,7 +3130,7 @@ int32_t scriptlib::card_check_fusion_material(lua_State *L) {
 	}
 	if(lua_gettop(L) > 3)
 		chkf = (uint32_t)lua_tointeger(L, 4);
-	uint8 not_material = FALSE;
+	uint8_t not_material = FALSE;
 	if(lua_gettop(L) > 4)
 		not_material = lua_toboolean(L, 5);
 	lua_pushboolean(L, pcard->fusion_check(pgroup, cg, chkf, not_material));
@@ -3308,7 +3308,7 @@ int32_t scriptlib::card_get_attackable_target(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	duel* pduel = pcard->pduel;
 	card_vector targets;
-	uint8 chain_attack = FALSE;
+	uint8_t chain_attack = FALSE;
 	if(pduel->game_field->core.chain_attacker_id == pcard->fieldid)
 		chain_attack = TRUE;
 	pduel->game_field->get_attack_target(pcard, &targets, chain_attack);
@@ -3353,8 +3353,8 @@ int32_t scriptlib::card_set_unique_onfield(lua_State *L) {
 	check_param_count(L, 4);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	pcard->unique_pos[0] = (uint8)lua_tointeger(L, 2);
-	pcard->unique_pos[1] = (uint8)lua_tointeger(L, 3);
+	pcard->unique_pos[0] = (uint8_t)lua_tointeger(L, 2);
+	pcard->unique_pos[1] = (uint8_t)lua_tointeger(L, 3);
 	if(lua_isfunction(L, 4)) {
 		pcard->unique_code = 1;
 		pcard->unique_function = interpreter::get_function_handle(L, 4);
@@ -3403,7 +3403,7 @@ int32_t scriptlib::card_assume_prop(lua_State *L) {
 	check_param_count(L, 3);
 	check_param(L, PARAM_TYPE_CARD, 1);
 	card* pcard = *(card**) lua_touserdata(L, 1);
-	pcard->assume_type = (uint8)lua_tointeger(L, 2);
+	pcard->assume_type = (uint8_t)lua_tointeger(L, 2);
 	pcard->assume_value = (uint32_t)lua_tointeger(L, 3);
 	pcard->pduel->assumes.insert(pcard);
 	return 0;

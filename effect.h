@@ -33,7 +33,7 @@ public:
 	duel* pduel{ nullptr };
 	card* owner{ nullptr };
 	card* handler{ nullptr };
-	uint8 effect_owner{ PLAYER_NONE };
+	uint8_t effect_owner{ PLAYER_NONE };
 	uint32_t description{ 0 };
 	uint32_t code{ 0 };
 	uint32_t id{ 0 };
@@ -42,8 +42,8 @@ public:
 	uint16_t range{ 0 };
 	uint16_t s_range{ 0 };
 	uint16_t o_range{ 0 };
-	uint8 count_limit{ 0 };
-	uint8 count_limit_max{ 0 };
+	uint8_t count_limit{ 0 };
+	uint8_t count_limit_max{ 0 };
 	uint16_t status{ 0 };
 	int32_t reset_count{ 0 };
 	uint32_t reset_flag{ 0 };
@@ -63,7 +63,7 @@ public:
 	int32_t target{ 0 };
 	int32_t value{ 0 };
 	int32_t operation{ 0 };
-	uint8 cost_checked{ FALSE };
+	uint8_t cost_checked{ FALSE };
 	effect_set required_handorset_effects;
 	LuaParamType object_type{ PARAM_TYPE_INT };
 
@@ -76,25 +76,25 @@ public:
 	int32_t is_available(int32_t neglect_disabled = FALSE);
 	int32_t limit_counter_is_available();
 	int32_t is_single_ready();
-	int32_t check_count_limit(uint8 playerid);
-	int32_t get_required_handorset_effects(effect_set* eset, uint8 playerid, const tevent& e, int32_t neglect_loc = FALSE);
-	int32_t is_activateable(uint8 playerid, const tevent &e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE, int32_t neglect_loc = FALSE, int32_t neglect_faceup = FALSE);
-	int32_t is_action_check(uint8 playerid);
-	int32_t is_activate_ready(effect* reason_effect, uint8 playerid, const tevent& e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE);
-	int32_t is_activate_ready(uint8 playerid, const tevent& e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE);
-	int32_t is_condition_check(uint8 playerid, const tevent& e);
-	int32_t is_activate_check(uint8 playerid, const tevent& e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE);
+	int32_t check_count_limit(uint8_t playerid);
+	int32_t get_required_handorset_effects(effect_set* eset, uint8_t playerid, const tevent& e, int32_t neglect_loc = FALSE);
+	int32_t is_activateable(uint8_t playerid, const tevent &e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE, int32_t neglect_loc = FALSE, int32_t neglect_faceup = FALSE);
+	int32_t is_action_check(uint8_t playerid);
+	int32_t is_activate_ready(effect* reason_effect, uint8_t playerid, const tevent& e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE);
+	int32_t is_activate_ready(uint8_t playerid, const tevent& e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE);
+	int32_t is_condition_check(uint8_t playerid, const tevent& e);
+	int32_t is_activate_check(uint8_t playerid, const tevent& e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE);
 	int32_t is_target(card* pcard);
 	int32_t is_fit_target_function(card* pcard);
-	int32_t is_target_player(uint8 playerid);
+	int32_t is_target_player(uint8_t playerid);
 	int32_t is_player_effect_target(card* pcard);
 	int32_t is_immuned(card* pcard);
-	int32_t is_chainable(uint8 tp);
+	int32_t is_chainable(uint8_t tp);
 	int32_t is_hand_trigger() const;
 	int32_t is_initial_single() const;
 	int32_t is_monster_effect() const;
 	int32_t reset(uint32_t reset_level, uint32_t reset_type);
-	void dec_count(uint8 playerid = PLAYER_NONE);
+	void dec_count(uint8_t playerid = PLAYER_NONE);
 	void recharge();
 	int32_t get_value(uint32_t extraargs = 0);
 	int32_t get_value(card* pcard, uint32_t extraargs = 0);
@@ -108,14 +108,14 @@ public:
 	int32_t get_speed();
 	effect* clone();
 	card* get_owner() const;
-	uint8 get_owner_player() const;
+	uint8_t get_owner_player() const;
 	card* get_handler() const;
-	uint8 get_handler_player() const;
+	uint8_t get_handler_player() const;
 	int32_t in_range(card* pcard) const;
 	int32_t in_range(const chain& ch) const;
 	void set_activate_location();
 	void set_active_type();
-	uint32_t get_active_type(uint8 uselast = TRUE);
+	uint32_t get_active_type(uint8_t uselast = TRUE);
 	code_type get_code_type() const;
 
 	bool is_flag(effect_flag x) const {

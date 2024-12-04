@@ -97,7 +97,7 @@ extern "C" DECL_DLLEXPORT void start_duel(intptr_t pduel, uint32_t options) {
 			pd->game_field->player[0].tag_list_hand.push_back(pcard);
 			pcard->current.controler = 0;
 			pcard->current.location = LOCATION_HAND;
-			pcard->current.sequence = (uint8)pd->game_field->player[0].tag_list_hand.size() - 1;
+			pcard->current.sequence = (uint8_t)pd->game_field->player[0].tag_list_hand.size() - 1;
 			pcard->current.position = POS_FACEDOWN;
 		}
 		for(int i = 0; i < pd->game_field->player[1].start_count && pd->game_field->player[1].tag_list_main.size(); ++i) {
@@ -106,7 +106,7 @@ extern "C" DECL_DLLEXPORT void start_duel(intptr_t pduel, uint32_t options) {
 			pd->game_field->player[1].tag_list_hand.push_back(pcard);
 			pcard->current.controler = 1;
 			pcard->current.location = LOCATION_HAND;
-			pcard->current.sequence = (uint8)pd->game_field->player[1].tag_list_hand.size() - 1;
+			pcard->current.sequence = (uint8_t)pd->game_field->player[1].tag_list_hand.size() - 1;
 			pcard->current.position = POS_FACEDOWN;
 		}
 	}
@@ -148,7 +148,7 @@ extern "C" DECL_DLLEXPORT uint32_t process(intptr_t pduel) {
 	} while ((result & PROCESSOR_BUFFER_LEN) == 0 && (result & PROCESSOR_FLAG) == 0);
 	return result;
 }
-extern "C" DECL_DLLEXPORT void new_card(intptr_t pduel, uint32_t code, uint8 owner, uint8 playerid, uint8 location, uint8 sequence, uint8 position) {
+extern "C" DECL_DLLEXPORT void new_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t playerid, uint8_t location, uint8_t sequence, uint8_t position) {
 	if (!check_playerid(owner) || !check_playerid(playerid))
 		return;
 	duel* ptduel = (duel*)pduel;
@@ -166,7 +166,7 @@ extern "C" DECL_DLLEXPORT void new_card(intptr_t pduel, uint32_t code, uint8 own
 		}
 	}
 }
-extern "C" DECL_DLLEXPORT void new_tag_card(intptr_t pduel, uint32_t code, uint8 owner, uint8 location) {
+extern "C" DECL_DLLEXPORT void new_tag_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t location) {
 	duel* ptduel = (duel*)pduel;
 	if(owner > 1 || !(location & (LOCATION_DECK | LOCATION_EXTRA)))
 		return;
@@ -177,7 +177,7 @@ extern "C" DECL_DLLEXPORT void new_tag_card(intptr_t pduel, uint32_t code, uint8
 		pcard->owner = owner;
 		pcard->current.controler = owner;
 		pcard->current.location = LOCATION_DECK;
-		pcard->current.sequence = (uint8)ptduel->game_field->player[owner].tag_list_main.size() - 1;
+		pcard->current.sequence = (uint8_t)ptduel->game_field->player[owner].tag_list_main.size() - 1;
 		pcard->current.position = POS_FACEDOWN_DEFENSE;
 		break;
 	case LOCATION_EXTRA:
@@ -185,12 +185,12 @@ extern "C" DECL_DLLEXPORT void new_tag_card(intptr_t pduel, uint32_t code, uint8
 		pcard->owner = owner;
 		pcard->current.controler = owner;
 		pcard->current.location = LOCATION_EXTRA;
-		pcard->current.sequence = (uint8)ptduel->game_field->player[owner].tag_list_extra.size() - 1;
+		pcard->current.sequence = (uint8_t)ptduel->game_field->player[owner].tag_list_extra.size() - 1;
 		pcard->current.position = POS_FACEDOWN_DEFENSE;
 		break;
 	}
 }
-extern "C" DECL_DLLEXPORT int32_t query_card(intptr_t pduel, uint8 playerid, uint8 location, uint8 sequence, int32_t query_flag, byte* buf, int32_t use_cache) {
+extern "C" DECL_DLLEXPORT int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, int32_t query_flag, byte* buf, int32_t use_cache) {
 	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
@@ -225,7 +225,7 @@ extern "C" DECL_DLLEXPORT int32_t query_card(intptr_t pduel, uint8 playerid, uin
 		return LEN_EMPTY;
 	}
 }
-extern "C" DECL_DLLEXPORT int32_t query_field_count(intptr_t pduel, uint8 playerid, uint8 location) {
+extern "C" DECL_DLLEXPORT int32_t query_field_count(intptr_t pduel, uint8_t playerid, uint8_t location) {
 	duel* ptduel = (duel*)pduel;
 	if (!check_playerid(playerid))
 		return 0;
@@ -256,7 +256,7 @@ extern "C" DECL_DLLEXPORT int32_t query_field_count(intptr_t pduel, uint8 player
 	}
 	return 0;
 }
-extern "C" DECL_DLLEXPORT int32_t query_field_card(intptr_t pduel, uint8 playerid, uint8 location, uint32_t query_flag, byte* buf, int32_t use_cache) {
+extern "C" DECL_DLLEXPORT int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint32_t query_flag, byte* buf, int32_t use_cache) {
 	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
@@ -307,7 +307,7 @@ extern "C" DECL_DLLEXPORT int32_t query_field_info(intptr_t pduel, byte* buf) {
 	duel* ptduel = (duel*)pduel;
 	byte* p = buf;
 	*p++ = MSG_RELOAD_FIELD;
-	*p++ = (uint8)ptduel->game_field->core.duel_rule;
+	*p++ = (uint8_t)ptduel->game_field->core.duel_rule;
 	for(int playerid = 0; playerid < 2; ++playerid) {
 		auto& player = ptduel->game_field->player[playerid];
 		buffer_write<int32_t>(p, player.lp);
@@ -315,7 +315,7 @@ extern "C" DECL_DLLEXPORT int32_t query_field_info(intptr_t pduel, byte* buf) {
 			if(pcard) {
 				*p++ = 1;
 				*p++ = pcard->current.position;
-				*p++ = (uint8)pcard->xyz_materials.size();
+				*p++ = (uint8_t)pcard->xyz_materials.size();
 			} else {
 				*p++ = 0;
 			}
@@ -328,20 +328,20 @@ extern "C" DECL_DLLEXPORT int32_t query_field_info(intptr_t pduel, byte* buf) {
 				*p++ = 0;
 			}
 		}
-		*p++ = (uint8)player.list_main.size();
-		*p++ = (uint8)player.list_hand.size();
-		*p++ = (uint8)player.list_grave.size();
-		*p++ = (uint8)player.list_remove.size();
-		*p++ = (uint8)player.list_extra.size();
-		*p++ = (uint8)player.extra_p_count;
+		*p++ = (uint8_t)player.list_main.size();
+		*p++ = (uint8_t)player.list_hand.size();
+		*p++ = (uint8_t)player.list_grave.size();
+		*p++ = (uint8_t)player.list_remove.size();
+		*p++ = (uint8_t)player.list_extra.size();
+		*p++ = (uint8_t)player.extra_p_count;
 	}
-	*p++ = (uint8)ptduel->game_field->core.current_chain.size();
+	*p++ = (uint8_t)ptduel->game_field->core.current_chain.size();
 	for(const auto& ch : ptduel->game_field->core.current_chain) {
 		effect* peffect = ch.triggering_effect;
 		buffer_write<uint32_t>(p, peffect->get_handler()->data.code);
 		buffer_write<uint32_t>(p, peffect->get_handler()->get_info_location());
 		*p++ = ch.triggering_controler;
-		*p++ = (uint8)ch.triggering_location;
+		*p++ = (uint8_t)ch.triggering_location;
 		*p++ = ch.triggering_sequence;
 		buffer_write<uint32_t>(p, peffect->description);
 	}

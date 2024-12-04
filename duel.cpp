@@ -127,7 +127,7 @@ void duel::write_buffer32(uint32_t value) {
 void duel::write_buffer16(uint16_t value) {
 	vector_write<uint16_t>(message_buffer, value);
 }
-void duel::write_buffer8(uint8 value) {
+void duel::write_buffer8(uint8_t value) {
 	vector_write<unsigned char>(message_buffer, value);
 }
 void duel::clear_buffer() {
