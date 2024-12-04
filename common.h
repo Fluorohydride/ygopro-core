@@ -39,10 +39,6 @@ typedef signed char int8;
 #define PROCESSOR_WAITING		0x10000000
 #define PROCESSOR_END			0x20000000
 
-#ifndef NULL
-#define NULL 0
-#endif
-
 #define MASTER_RULE3		3	//Master Rule 3 (2014)
 #define NEW_MASTER_RULE		4	//New Master Rule (2017)
 #define MASTER_RULE_2020	5	//Master Rule 2020
