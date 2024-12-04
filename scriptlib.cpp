@@ -7,9 +7,9 @@
 #include "scriptlib.h"
 #include "duel.h"
 
-static int32 check_data_type(lua_State* L, int32 index, const char* tname) {
+static int32_t check_data_type(lua_State* L, int32_t index, const char* tname) {
 	luaL_checkstack(L, 2, nullptr);
-	int32 result = FALSE;
+	int32_t result = FALSE;
 	if(lua_getmetatable(L, index)) {
 		lua_getglobal(L, tname);
 		if(lua_rawequal(L, -1, -2))
@@ -18,11 +18,11 @@ static int32 check_data_type(lua_State* L, int32 index, const char* tname) {
 	}
 	return result;
 }
-int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 retfalse) {
+int32_t scriptlib::check_param(lua_State* L, int32_t param_type, int32_t index, int32_t retfalse) {
 	switch (param_type) {
 	case PARAM_TYPE_CARD: {
 		luaL_checkstack(L, 1, nullptr);
-		int32 result = FALSE;
+		int32_t result = FALSE;
 		if(lua_isuserdata(L, index) && lua_getmetatable(L, index)) {
 			result = check_data_type(L, -1, "Card");
 			lua_pop(L, 1);
@@ -70,12 +70,12 @@ int32 scriptlib::check_param(lua_State* L, int32 param_type, int32 index, int32 
 	return FALSE;
 }
 
-int32 scriptlib::check_param_count(lua_State* L, int32 count) {
+int32_t scriptlib::check_param_count(lua_State* L, int32_t count) {
 	if (lua_gettop(L) < count)
 		return luaL_error(L, "%d Parameters are needed.", count);
 	return TRUE;
 }
-int32 scriptlib::check_action_permission(lua_State* L) {
+int32_t scriptlib::check_action_permission(lua_State* L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	if(pduel->lua->no_action)
 		return luaL_error(L, "Action is not allowed here.");

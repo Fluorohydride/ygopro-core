@@ -20,102 +20,102 @@ class effect;
 struct tevent;
 struct effect_set;
 struct effect_set_v;
-enum effect_flag : uint64;
-enum effect_flag2 : uint64;
-enum effect_category :uint64;
-enum code_type : int32;
+enum effect_flag : uint64_t;
+enum effect_flag2 : uint64_t;
+enum effect_category :uint64_t;
+enum code_type : int32_t;
 
-bool is_continuous_event(uint32 code);
+bool is_continuous_event(uint32_t code);
 
 class effect {
 public:
-	int32 ref_handle{ 0 };
+	int32_t ref_handle{ 0 };
 	duel* pduel{ nullptr };
 	card* owner{ nullptr };
 	card* handler{ nullptr };
-	uint8 effect_owner{ PLAYER_NONE };
-	uint32 description{ 0 };
-	uint32 code{ 0 };
-	uint32 id{ 0 };
-	uint32 type{ 0 };
-	uint16 copy_id{ 0 };
-	uint16 range{ 0 };
-	uint16 s_range{ 0 };
-	uint16 o_range{ 0 };
-	uint8 count_limit{ 0 };
-	uint8 count_limit_max{ 0 };
-	uint16 status{ 0 };
-	int32 reset_count{ 0 };
-	uint32 reset_flag{ 0 };
-	uint32 count_code{ 0 };
-	uint64 category{ 0 };
-	uint64 flag[2]{};
-	uint32 hint_timing[2]{};
-	uint32 card_type{ 0 };
-	uint32 active_type{ 0 };
-	uint16 active_location{ 0 };
-	uint16 active_sequence{ 0 };
+	uint8_t effect_owner{ PLAYER_NONE };
+	uint32_t description{ 0 };
+	uint32_t code{ 0 };
+	uint32_t id{ 0 };
+	uint32_t type{ 0 };
+	uint16_t copy_id{ 0 };
+	uint16_t range{ 0 };
+	uint16_t s_range{ 0 };
+	uint16_t o_range{ 0 };
+	uint8_t count_limit{ 0 };
+	uint8_t count_limit_max{ 0 };
+	uint16_t status{ 0 };
+	int32_t reset_count{ 0 };
+	uint32_t reset_flag{ 0 };
+	uint32_t count_code{ 0 };
+	uint64_t category{ 0 };
+	uint64_t flag[2]{};
+	uint32_t hint_timing[2]{};
+	uint32_t card_type{ 0 };
+	uint32_t active_type{ 0 };
+	uint16_t active_location{ 0 };
+	uint16_t active_sequence{ 0 };
 	card* active_handler{ nullptr };
 	std::vector<lua_Integer> label;
-	int32 label_object{ 0 };
-	int32 condition{ 0 };
-	int32 cost{ 0 };
-	int32 target{ 0 };
-	int32 value{ 0 };
-	int32 operation{ 0 };
-	uint8 cost_checked{ FALSE };
+	int32_t label_object{ 0 };
+	int32_t condition{ 0 };
+	int32_t cost{ 0 };
+	int32_t target{ 0 };
+	int32_t value{ 0 };
+	int32_t operation{ 0 };
+	uint8_t cost_checked{ FALSE };
 	effect_set required_handorset_effects;
 	LuaParamType object_type{ PARAM_TYPE_INT };
 
 	explicit effect(duel* pd);
 	~effect() = default;
 
-	int32 is_disable_related() const;
-	int32 is_self_destroy_related() const;
-	int32 is_can_be_forbidden() const;
-	int32 is_available(int32 neglect_disabled = FALSE);
-	int32 limit_counter_is_available();
-	int32 is_single_ready();
-	int32 check_count_limit(uint8 playerid);
-	int32 get_required_handorset_effects(effect_set* eset, uint8 playerid, const tevent& e, int32 neglect_loc = FALSE);
-	int32 is_activateable(uint8 playerid, const tevent &e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE, int32 neglect_loc = FALSE, int32 neglect_faceup = FALSE);
-	int32 is_action_check(uint8 playerid);
-	int32 is_activate_ready(effect* reason_effect, uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
-	int32 is_activate_ready(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
-	int32 is_condition_check(uint8 playerid, const tevent& e);
-	int32 is_activate_check(uint8 playerid, const tevent& e, int32 neglect_cond = FALSE, int32 neglect_cost = FALSE, int32 neglect_target = FALSE);
-	int32 is_target(card* pcard);
-	int32 is_fit_target_function(card* pcard);
-	int32 is_target_player(uint8 playerid);
-	int32 is_player_effect_target(card* pcard);
-	int32 is_immuned(card* pcard);
-	int32 is_chainable(uint8 tp);
-	int32 is_hand_trigger() const;
-	int32 is_initial_single() const;
-	int32 is_monster_effect() const;
-	int32 reset(uint32 reset_level, uint32 reset_type);
-	void dec_count(uint8 playerid = PLAYER_NONE);
+	int32_t is_disable_related() const;
+	int32_t is_self_destroy_related() const;
+	int32_t is_can_be_forbidden() const;
+	int32_t is_available(int32_t neglect_disabled = FALSE);
+	int32_t limit_counter_is_available();
+	int32_t is_single_ready();
+	int32_t check_count_limit(uint8_t playerid);
+	int32_t get_required_handorset_effects(effect_set* eset, uint8_t playerid, const tevent& e, int32_t neglect_loc = FALSE);
+	int32_t is_activateable(uint8_t playerid, const tevent &e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE, int32_t neglect_loc = FALSE, int32_t neglect_faceup = FALSE);
+	int32_t is_action_check(uint8_t playerid);
+	int32_t is_activate_ready(effect* reason_effect, uint8_t playerid, const tevent& e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE);
+	int32_t is_activate_ready(uint8_t playerid, const tevent& e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE);
+	int32_t is_condition_check(uint8_t playerid, const tevent& e);
+	int32_t is_activate_check(uint8_t playerid, const tevent& e, int32_t neglect_cond = FALSE, int32_t neglect_cost = FALSE, int32_t neglect_target = FALSE);
+	int32_t is_target(card* pcard);
+	int32_t is_fit_target_function(card* pcard);
+	int32_t is_target_player(uint8_t playerid);
+	int32_t is_player_effect_target(card* pcard);
+	int32_t is_immuned(card* pcard);
+	int32_t is_chainable(uint8_t tp);
+	int32_t is_hand_trigger() const;
+	int32_t is_initial_single() const;
+	int32_t is_monster_effect() const;
+	int32_t reset(uint32_t reset_level, uint32_t reset_type);
+	void dec_count(uint8_t playerid = PLAYER_NONE);
 	void recharge();
-	int32 get_value(uint32 extraargs = 0);
-	int32 get_value(card* pcard, uint32 extraargs = 0);
-	int32 get_value(effect* peffect, uint32 extraargs = 0);
-	void get_value(uint32 extraargs, std::vector<lua_Integer>& result);
-	void get_value(card* pcard, uint32 extraargs, std::vector<lua_Integer>& result);
-	void get_value(effect* peffect, uint32 extraargs, std::vector<lua_Integer>& result);
-	int32 get_integer_value();
-	int32 check_value_condition(uint32 extraargs = 0);
+	int32_t get_value(uint32_t extraargs = 0);
+	int32_t get_value(card* pcard, uint32_t extraargs = 0);
+	int32_t get_value(effect* peffect, uint32_t extraargs = 0);
+	void get_value(uint32_t extraargs, std::vector<lua_Integer>& result);
+	void get_value(card* pcard, uint32_t extraargs, std::vector<lua_Integer>& result);
+	void get_value(effect* peffect, uint32_t extraargs, std::vector<lua_Integer>& result);
+	int32_t get_integer_value();
+	int32_t check_value_condition(uint32_t extraargs = 0);
 	void* get_label_object();
-	int32 get_speed();
+	int32_t get_speed();
 	effect* clone();
 	card* get_owner() const;
-	uint8 get_owner_player() const;
+	uint8_t get_owner_player() const;
 	card* get_handler() const;
-	uint8 get_handler_player() const;
-	int32 in_range(card* pcard) const;
-	int32 in_range(const chain& ch) const;
+	uint8_t get_handler_player() const;
+	int32_t in_range(card* pcard) const;
+	int32_t in_range(const chain& ch) const;
 	void set_activate_location();
 	void set_active_type();
-	uint32 get_active_type(uint8 uselast = TRUE);
+	uint32_t get_active_type(uint8_t uselast = TRUE);
 	code_type get_code_type() const;
 
 	bool is_flag(effect_flag x) const {
@@ -159,7 +159,7 @@ public:
 #define RESET_OVERLAY		0x04000000
 #define RESET_MSCHANGE		0x08000000
 
-constexpr uint32 RESETS_STANDARD = RESET_TOFIELD | RESET_LEAVE | RESET_TODECK | RESET_TOHAND | RESET_TEMP_REMOVE | RESET_REMOVE | RESET_TOGRAVE | RESET_TURN_SET;
+constexpr uint32_t RESETS_STANDARD = RESET_TOFIELD | RESET_LEAVE | RESET_TODECK | RESET_TOHAND | RESET_TEMP_REMOVE | RESET_REMOVE | RESET_TOGRAVE | RESET_TURN_SET;
 
 //========== Types ==========
 #define EFFECT_TYPE_SINGLE			0x0001	//
@@ -178,11 +178,11 @@ constexpr uint32 RESETS_STANDARD = RESET_TOFIELD | RESET_LEAVE | RESET_TODECK | 
 #define EFFECT_TYPE_GRANT			0x2000	//
 #define EFFECT_TYPE_TARGET			0x4000	//
 
-constexpr uint32 EFFECT_TYPES_TRIGGER_LIKE = EFFECT_TYPE_ACTIVATE | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F;
-constexpr uint32 EFFECT_TYPES_CHAIN_LINK = EFFECT_TYPES_TRIGGER_LIKE | EFFECT_TYPE_FLIP | EFFECT_TYPE_IGNITION;
+constexpr uint32_t EFFECT_TYPES_TRIGGER_LIKE = EFFECT_TYPE_ACTIVATE | EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F | EFFECT_TYPE_QUICK_O | EFFECT_TYPE_QUICK_F;
+constexpr uint32_t EFFECT_TYPES_CHAIN_LINK = EFFECT_TYPES_TRIGGER_LIKE | EFFECT_TYPE_FLIP | EFFECT_TYPE_IGNITION;
 
 //========== Flags ==========
-enum effect_flag : uint64 {
+enum effect_flag : uint64_t {
 	EFFECT_FLAG_INITIAL				= 0x0001,
 	EFFECT_FLAG_FUNC_VALUE			= 0x0002,
 	EFFECT_FLAG_COUNT_LIMIT			= 0x0004,
@@ -219,19 +219,19 @@ enum effect_flag : uint64 {
 	EFFECT_FLAG_DICE				= 0x200000000,
 	EFFECT_FLAG_FUSION_SUMMON		= 0x400000000,
 };
-enum effect_flag2 : uint64 {
+enum effect_flag2 : uint64_t {
 	EFFECT_FLAG2_REPEAT_UPDATE			= 0x0001,
 	EFFECT_FLAG2_COF					= 0x0002,
 	EFFECT_FLAG2_WICKED					= 0x0004,
 	EFFECT_FLAG2_OPTION					= 0x0008,
 };
 constexpr effect_flag operator|(effect_flag flag1, effect_flag flag2) {
-	return static_cast<effect_flag>(static_cast<uint64>(flag1) | static_cast<uint64>(flag2));
+	return static_cast<effect_flag>(static_cast<uint64_t>(flag1) | static_cast<uint64_t>(flag2));
 }
-constexpr uint64 INTERNAL_FLAGS = EFFECT_FLAG_INITIAL | EFFECT_FLAG_COPY | EFFECT_FLAG_FUNC_VALUE | EFFECT_FLAG_COUNT_LIMIT | EFFECT_FLAG_FIELD_ONLY | EFFECT_FLAG_ABSOLUTE_TARGET;
+constexpr uint64_t INTERNAL_FLAGS = EFFECT_FLAG_INITIAL | EFFECT_FLAG_COPY | EFFECT_FLAG_FUNC_VALUE | EFFECT_FLAG_COUNT_LIMIT | EFFECT_FLAG_FIELD_ONLY | EFFECT_FLAG_ABSOLUTE_TARGET;
 
 //Category
-enum effect_category : uint64 {
+enum effect_category : uint64_t {
 	CATEGORY_DESTROY		= 0x1,
 	CATEGORY_RELEASE		= 0x2,
 	CATEGORY_REMOVE			= 0x4,
@@ -266,7 +266,7 @@ enum effect_category : uint64 {
 	CATEGORY_TOEXTRA		= 0x80000000,
 };
 
-const std::map<uint64, uint64> category_checklist{
+const std::map<uint64_t, uint64_t> category_checklist{
 	{CATEGORY_COIN, EFFECT_FLAG_COIN},
 	{CATEGORY_DICE, EFFECT_FLAG_DICE},
 	{CATEGORY_FUSION_SUMMON, EFFECT_FLAG_FUSION_SUMMON},
@@ -606,22 +606,22 @@ const std::map<uint64, uint64> category_checklist{
 #define EVENT_REMOVE_COUNTER		0x20000
 #define EVENT_CUSTOM				0x10000000
 
-constexpr int32 DOUBLE_DAMAGE = 0x80000000;
-constexpr int32 HALF_DAMAGE = 0x80000001;
+constexpr int32_t DOUBLE_DAMAGE = 0x80000000;
+constexpr int32_t HALF_DAMAGE = 0x80000001;
 
 // flag effect
 #define EFFECT_FLAG_EFFECT	0x20000000
 #define MAX_CARD_ID			0xfffffff
 
 // The type of effect code
-enum code_type : int32 {
+enum code_type : int32_t {
 	CODE_CUSTOM = 1,	// header + id (28 bits)
 	CODE_COUNTER,		// header + counter_id (16 bits)
 	CODE_PHASE,			// header + phase_id (12 bits)
 	CODE_VALUE,			// numeric value, max = 4095
 };
 
-const std::unordered_set<uint32> continuous_event{
+const std::unordered_set<uint32_t> continuous_event{
 	EVENT_ADJUST,
 	EVENT_BREAK_EFFECT,
 	EVENT_TURN_END,
@@ -629,7 +629,7 @@ const std::unordered_set<uint32> continuous_event{
 	EVENT_SPSUMMON_SUCCESS_G_P,
 };
 
-const std::unordered_set<uint32> affect_summoning_effect{
+const std::unordered_set<uint32_t> affect_summoning_effect{
 	EFFECT_CANNOT_DISABLE_SUMMON,
 	EFFECT_CANNOT_DISABLE_SPSUMMON,
 	EVENT_BE_PRE_MATERIAL,
