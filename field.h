@@ -165,7 +165,7 @@ union return_value {
 	uint8 bvalue[SIZE_RETURN_VALUE];
 	uint16 svalue[SIZE_SVALUE];
 	int32_t ivalue[SIZE_IVALUE];
-	int64 lvalue[SIZE_LVALUE];
+	int64_t lvalue[SIZE_LVALUE];
 };
 struct processor {
 	using option_vector = std::vector<uint32>;
