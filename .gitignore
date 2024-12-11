@@ -1,4 +1,5 @@
-.vscode/
-/premake5.exe
-/build
-/lua
+/.vscode/
+/premake5*
+/build/
+/lua/
+/temp/
