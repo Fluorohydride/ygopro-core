@@ -143,34 +143,9 @@ uint32_t card::attacker_map::findcard(card* pcard) {
 	else
 		return it->second.second;
 }
-card::card(duel* pd) {
-	ref_handle = 0;
-	pduel = pd;
-	owner = PLAYER_NONE;
-	sendto_param.clear();
-	release_param = 0;
-	sum_param = 0;
-	position_param = 0;
-	spsummon_param = 0;
-	to_field_param = 0;
-	direct_attackable = 0;
-	summon_info = 0;
-	status = 0;
-	equiping_target = 0;
-	pre_equip_target = 0;
-	overlay_target = 0;
-	current = {};
-	previous = {};
-	spsummon = {};
+card::card(duel* pd)
+	:pduel(pd) {
 	temp.init_state();
-	unique_pos[0] = unique_pos[1] = 0;
-	spsummon_counter[0] = spsummon_counter[1] = 0;
-	unique_code = 0;
-	unique_fieldid = 0;
-	assume_type = 0;
-	assume_value = 0;
-	spsummon_code = 0;
-	xyz_materials_previous_count_onfield = 0;
 	current.controler = PLAYER_NONE;
 }
 inline void update_cache(uint32_t tdata, uint32_t& cache, byte*& p, uint32_t& query_flag, uint32_t flag) {
