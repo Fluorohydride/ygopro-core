@@ -27,8 +27,8 @@ public:
 	duel* pduel;
 	card_set container;
 	card_set::iterator it;
-	int32 ref_handle{ 0 };
-	uint32 is_readonly{ GTYPE_DEFAULT };
+	int32_t ref_handle{ 0 };
+	uint32_t is_readonly{ GTYPE_DEFAULT };
 	bool is_iterator_dirty{ true };
 	
 	bool has_card(card* c) {

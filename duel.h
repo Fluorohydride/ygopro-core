@@ -41,10 +41,10 @@ public:
 	~duel();
 	void clear();
 	
-	uint32 buffer_size() const {
-		return (uint32)message_buffer.size() & PROCESSOR_BUFFER_LEN;
+	uint32_t buffer_size() const {
+		return (uint32_t)message_buffer.size() & PROCESSOR_BUFFER_LEN;
 	}
-	card* new_card(uint32 code);
+	card* new_card(uint32_t code);
 	group* new_group();
 	group* new_group(card* pcard);
 	group* new_group(const card_set& cset);
@@ -54,15 +54,15 @@ public:
 	void delete_effect(effect* peffect);
 	void release_script_group();
 	void restore_assumes();
-	int32 read_buffer(byte* buf);
+	int32_t read_buffer(byte* buf);
 	void write_buffer(const void* data, int size);
-	void write_buffer32(uint32 value);
-	void write_buffer16(uint16 value);
-	void write_buffer8(uint8 value);
+	void write_buffer32(uint32_t value);
+	void write_buffer16(uint16_t value);
+	void write_buffer8(uint8_t value);
 	void clear_buffer();
-	void set_responsei(uint32 resp);
+	void set_responsei(uint32_t resp);
 	void set_responseb(byte* resp);
-	int32 get_next_integer(int32 l, int32 h);
+	int32_t get_next_integer(int32_t l, int32_t h);
 private:
 	group* register_group(group* pgroup);
 };
