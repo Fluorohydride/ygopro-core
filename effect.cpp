@@ -30,8 +30,8 @@ bool is_continuous_event(uint32_t code) {
 		return continuous_event.find(code) != continuous_event.end();
 }
 
-effect::effect(duel* pd) {
-	pduel = pd;
+effect::effect(duel* pd)
+	: pduel(pd) {
 	label.reserve(4);
 }
 int32_t effect::is_disable_related() const {

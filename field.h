@@ -362,7 +362,7 @@ struct processor {
 };
 class field {
 public:
-	duel* pduel;
+	duel* pduel{};
 	player_info player[2];
 	card* temp_card{};
 	field_info infos;
@@ -373,7 +373,7 @@ public:
 	tevent nil_event;
 
 	static int32_t field_used_count[32];
-	explicit field(duel* pduel);
+	explicit field(duel* pd);
 	~field() = default;
 	void reload_field_info();
 
