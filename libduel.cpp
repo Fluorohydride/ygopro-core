@@ -4639,47 +4639,29 @@ int32_t scriptlib::duel_add_custom_activity_counter(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	switch(activity_type) {
 		case ACTIVITY_SUMMON: {
-			auto iter = pduel->game_field->core.summon_counter.find(counter_id);
-			if(iter != pduel->game_field->core.summon_counter.end())
-				break;
-			pduel->game_field->core.summon_counter[counter_id] = std::make_pair(counter_filter, 0);
+			pduel->game_field->core.summon_counter.emplace(counter_id, activity_map::mapped_type(counter_filter, 0));
 			break;
 		}
 		case ACTIVITY_NORMALSUMMON: {
-			auto iter = pduel->game_field->core.normalsummon_counter.find(counter_id);
-			if(iter != pduel->game_field->core.normalsummon_counter.end())
-				break;
-			pduel->game_field->core.normalsummon_counter[counter_id] = std::make_pair(counter_filter, 0);
+			pduel->game_field->core.normalsummon_counter.emplace(counter_id, activity_map::mapped_type(counter_filter, 0));
 			break;
 		}
 		case ACTIVITY_SPSUMMON: {
-			auto iter = pduel->game_field->core.spsummon_counter.find(counter_id);
-			if(iter != pduel->game_field->core.spsummon_counter.end())
-				break;
-			pduel->game_field->core.spsummon_counter[counter_id] = std::make_pair(counter_filter, 0);
+			pduel->game_field->core.spsummon_counter.emplace(counter_id, activity_map::mapped_type(counter_filter, 0));
 			break;
 		}
 		case ACTIVITY_FLIPSUMMON: {
-			auto iter = pduel->game_field->core.flipsummon_counter.find(counter_id);
-			if(iter != pduel->game_field->core.flipsummon_counter.end())
-				break;
-			pduel->game_field->core.flipsummon_counter[counter_id] = std::make_pair(counter_filter, 0);
+			pduel->game_field->core.flipsummon_counter.emplace(counter_id, activity_map::mapped_type(counter_filter, 0));
 			break;
 		}
 		case ACTIVITY_ATTACK: {
-			auto iter = pduel->game_field->core.attack_counter.find(counter_id);
-			if(iter != pduel->game_field->core.attack_counter.end())
-				break;
-			pduel->game_field->core.attack_counter[counter_id] = std::make_pair(counter_filter, 0);
+			pduel->game_field->core.attack_counter.emplace(counter_id, activity_map::mapped_type(counter_filter, 0));
 			break;
 		}
 		case ACTIVITY_BATTLE_PHASE:
 			break;
 		case ACTIVITY_CHAIN: {
-			auto iter = pduel->game_field->core.chain_counter.find(counter_id);
-			if(iter != pduel->game_field->core.chain_counter.end())
-				break;
-			pduel->game_field->core.chain_counter[counter_id] = std::make_pair(counter_filter, 0);
+			pduel->game_field->core.chain_counter.emplace(counter_id, activity_map::mapped_type(counter_filter, 0));
 			break;
 		}
 		default:
@@ -4693,7 +4675,7 @@ int32_t scriptlib::duel_get_custom_activity_count(lua_State *L) {
 	int32_t playerid = (int32_t)lua_tointeger(L, 2);
 	int32_t activity_type = (int32_t)lua_tointeger(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
-	int32_t val = 0;
+	uint32_t val = 0;
 	switch(activity_type) {
 		case ACTIVITY_SUMMON: {
 			auto iter = pduel->game_field->core.summon_counter.find(counter_id);

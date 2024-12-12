@@ -112,7 +112,7 @@ const material_info null_info;
 class card {
 public:
 	struct effect_relation_hash {
-		inline std::size_t operator()(const std::pair<effect*, uint16_t>& v) const {
+		std::size_t operator()(const std::pair<effect*, uint16_t>& v) const {
 			return std::hash<uint16_t>()(v.second);
 		}
 	};

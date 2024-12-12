@@ -132,7 +132,7 @@ bool card::check_card_setcode(uint32_t code, uint32_t value) {
 }
 void card::attacker_map::addcard(card* pcard) {
 	auto fid = pcard ? pcard->fieldid_r : 0;
-	auto pr = emplace(fid, std::make_pair(pcard, 0));
+	auto pr = emplace(fid, mapped_type(pcard, 0));
 	++pr.first->second.second;
 }
 uint32_t card::attacker_map::findcard(card* pcard) {
@@ -2238,12 +2238,12 @@ void card::create_relation(const chain& ch) {
 	relate_effect.emplace(ch.triggering_effect, ch.chain_id);
 }
 int32_t card::is_has_relation(const chain& ch) {
-	if (relate_effect.find(std::make_pair(ch.triggering_effect, ch.chain_id)) != relate_effect.end())
+	if (relate_effect.find(effect_relation::value_type(ch.triggering_effect, ch.chain_id)) != relate_effect.end())
 		return TRUE;
 	return FALSE;
 }
 void card::release_relation(const chain& ch) {
-	relate_effect.erase(std::make_pair(ch.triggering_effect, ch.chain_id));
+	relate_effect.erase(effect_relation::value_type(ch.triggering_effect, ch.chain_id));
 }
 void card::clear_relate_effect() {
 	relate_effect.clear();
@@ -2271,7 +2271,7 @@ void card::release_relation(effect* peffect) {
 			return;
 		}
 	}
-	relate_effect.erase(std::make_pair(peffect, (uint16_t)0));
+	relate_effect.erase(effect_relation::value_type(peffect, 0));
 }
 int32_t card::leave_field_redirect(uint32_t reason) {
 	effect_set es;
