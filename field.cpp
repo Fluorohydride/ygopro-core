@@ -53,8 +53,8 @@ void chain::set_triggering_state(card* pcard) {
 bool tevent::operator< (const tevent& v) const {
 	return std::memcmp(this, &v, sizeof(tevent)) < 0;
 }
-field::field(duel* pduel) {
-	this->pduel = pduel;
+field::field(duel* pd)
+	: pduel(pd) {
 	for (int32_t i = 0; i < 2; ++i) {
 		player[i].list_mzone.resize(7, 0);
 		player[i].list_szone.resize(8, 0);
