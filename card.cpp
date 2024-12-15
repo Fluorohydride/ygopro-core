@@ -167,7 +167,7 @@ int32_t card::get_infos(byte* buf, uint32_t query_flag, int32_t use_cache) {
 		base_atk_def = get_base_atk_def();
 	}
 	//first 8 bytes: data length, query flag
-	p += 8;
+	p += 2 * sizeof(uint32_t);
 	if (query_flag & QUERY_CODE) {
 		buffer_write<uint32_t>(p, data.code);
 	}

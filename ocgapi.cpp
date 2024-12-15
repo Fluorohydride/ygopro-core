@@ -190,6 +190,11 @@ extern "C" DECL_DLLEXPORT void new_tag_card(intptr_t pduel, uint32_t code, uint8
 		break;
 	}
 }
+/**
+* @brief Get card information.
+* @param buf uint32_t array
+* @return buffer length in bytes
+*/
 extern "C" DECL_DLLEXPORT int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, int32_t query_flag, byte* buf, int32_t use_cache) {
 	if (!check_playerid(playerid))
 		return LEN_FAIL;
