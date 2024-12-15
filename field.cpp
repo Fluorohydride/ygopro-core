@@ -13,10 +13,6 @@
 #include "interpreter.h"
 #include <cstring>
 
-bool check_playerid(int32_t playerid) {
-	return playerid >= 0 && playerid <= 1;
-}
-
 int32_t field::field_used_count[32] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5};
 
 bool chain::chain_operation_sort(const chain& c1, const chain& c2) {

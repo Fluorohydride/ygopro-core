@@ -33,8 +33,6 @@ class effect;
 
 using effect_vector = std::vector<effect*>;
 
-bool check_playerid(int32_t playerid);
-
 struct tevent {
 	card* trigger_card{ nullptr };
 	group* event_cards{ nullptr };
