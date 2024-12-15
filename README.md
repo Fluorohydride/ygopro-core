@@ -23,44 +23,44 @@ These functions create the game itself and then manipulate it.
 - `intptr_t create_duel(uint_fast32_t seed);`  
 Create a the instance of the duel with a PRNG seed.
 
-- `void start_duel(intptr_t pduel, uint32 options);`  
+- `void start_duel(intptr_t pduel, uint32_t options);`  
 Start the duel.
 
 - `void end_duel(intptr_t pduel);`  
 End the duel.
 
-- `void set_player_info(intptr_t pduel, int32 playerid, int32 lp, int32 startcount, int32 drawcount);`  
+- `void set_player_info(intptr_t pduel, int32_t playerid, int32_t lp, int32_t startcount, int32_t drawcount);`  
 Set up the duel information.
 
 - `void get_log_message(intptr_t pduel, char* buf);`
 
-- `int32 get_message(intptr_t pduel, byte* buf);`
+- `int32_t get_message(intptr_t pduel, byte* buf);`
 
-- `int32 process(intptr_t pduel);`  
+- `int32_t process(intptr_t pduel);`  
 Do a game tick.
 
-- `void new_card(intptr_t pduel, uint32 code, uint8 owner, uint8 playerid, uint8 location, uint8 sequence, uint8 position);`  
+- `void new_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t playerid, uint8_t location, uint8_t sequence, uint8_t position);`  
 Add a card to the duel state.
 
-- `void new_tag_card(intptr_t pduel, uint32 code, uint8 owner, uint8 location);`  
+- `void new_tag_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t location);`  
 Add a new card to the tag pool.
 
-- `int32 query_field_card(intptr_t pduel, uint8 playerid, uint8 location, uint32 query_flag, byte* buf, int32 use_cache);`  
+- `int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint32_t query_flag, byte* buf, int32_t use_cache);`  
 Get a card in a specific location.
 
-- `int32 query_field_count(intptr_t pduel, uint8 playerid, uint8 location);`  
+- `int32_t query_field_count(intptr_t pduel, uint8_t playerid, uint8_t location);`  
 Get the number of cards in a specific location.
 
-- `int32 query_field_card(intptr_t pduel, uint8 playerid, uint8 location, uint32 query_flag, byte* buf, int32 use_cache);`  
+- `int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint32_t query_flag, byte* buf, int32_t use_cache);`  
 Get all cards in some location.
 
-- `int32 query_field_info(intptr_t pduel, byte* buf);`
+- `int32_t query_field_info(intptr_t pduel, byte* buf);`
 
-- `void set_responsei(intptr_t pduel, int32 value);`
+- `void set_responsei(intptr_t pduel, int32_t value);`
 
 - `void set_responseb(intptr_t pduel, byte* buf);`
 
-- `int32 preload_script(intptr_t pduel, const char* script_name);`
+- `int32_t preload_script(intptr_t pduel, const char* script_name);`
 
 
 # Lua functions
