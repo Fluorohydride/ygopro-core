@@ -12,6 +12,10 @@
 #include <assert.h>
 typedef unsigned char byte;
 
+inline bool check_playerid(int32_t playerid) {
+	return playerid >= 0 && playerid <= 1;
+}
+
 #define MATCH_ALL(x,y) (((x)&(y))==(y))
 #define MATCH_ANY(x,y) ((x)&(y))
 #define ADD_BIT(x,y) ((x)|=(y))
