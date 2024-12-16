@@ -2665,6 +2665,7 @@ int32_t field::process_battle_command(uint16_t step) {
 		}
 		if(core.units.begin()->arg3) {//attack announce failed
 			++core.attacker->announce_count;
+			core.attacker->set_status(STATUS_FORM_CHANGED, TRUE);
 			core.chain_attack = FALSE;
 			core.units.begin()->step = -1;
 		}
@@ -2739,6 +2740,7 @@ int32_t field::process_battle_command(uint16_t step) {
 		// go to damage step
 		if(!core.attack_rollback) {
 			++core.attacker->announce_count;
+			core.attacker->set_status(STATUS_FORM_CHANGED, TRUE);
 			core.attacker->announced_cards.addcard(core.attack_target);
 			attack_all_target_check();
 			core.units.begin()->step = 18;
@@ -2771,6 +2773,7 @@ int32_t field::process_battle_command(uint16_t step) {
 	case 13: {
 		if(core.attacker->fieldid_r == core.pre_field[0]) {
 			++core.attacker->announce_count;
+			core.attacker->set_status(STATUS_FORM_CHANGED, TRUE);
 			core.attacker->announced_cards.addcard(core.attack_target);
 			attack_all_target_check();
 		}
@@ -3323,6 +3326,7 @@ int32_t field::process_damage_step(uint16_t step, uint32_t new_attack) {
 		if(core.attacker) {
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
 			++core.attacker->announce_count;
+			core.attacker->set_status(STATUS_FORM_CHANGED, TRUE);
 			core.attacker->announced_cards.addcard(core.attack_target);
 			attack_all_target_check();
 		}
