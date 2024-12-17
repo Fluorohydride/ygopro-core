@@ -192,7 +192,7 @@ extern "C" DECL_DLLEXPORT void new_tag_card(intptr_t pduel, uint32_t code, uint8
 }
 /**
 * @brief Get card information.
-* @param buf uint32_t array
+* @param buf int32_t array
 * @return buffer length in bytes
 */
 extern "C" DECL_DLLEXPORT int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, int32_t query_flag, byte* buf, int32_t use_cache) {
@@ -351,6 +351,80 @@ extern "C" DECL_DLLEXPORT int32_t query_field_info(intptr_t pduel, byte* buf) {
 		buffer_write<uint32_t>(p, peffect->description);
 	}
 	return (int32_t)(p - buf);
+}
+extern "C" DECL_DLLEXPORT bool check_infos(uint8_t location, byte* buf, int32_t size) {
+	int32_t infos[1024]{};
+	if (size <= 0 || size > sizeof infos)
+		return false;
+	if (size % sizeof(int32_t))
+		return false;
+	std::memcpy(infos, buf, size);
+	int32_t len = size / sizeof(int32_t);
+	int32_t current{};
+	while (current < len) {
+		int32_t block_begin = current;
+		int32_t block_size = infos[current];
+		current += 1;
+		if (block_size <= 0 || block_size % sizeof(int32_t))
+			return false;
+		if (block_size == LEN_EMPTY) {
+			if (location != LOCATION_MZONE && location != LOCATION_SZONE)
+				return false;
+			continue;
+		}
+		if (block_size == LEN_HEADER) {
+			current += 1;
+			continue;
+		}
+		int32_t block_len = block_size / sizeof(int32_t);
+		if (block_len > len - block_begin)
+			return false;
+		int32_t block_end = block_begin + block_len;
+		uint32_t query_flag = infos[current];
+		current += 1;
+		for (uint32_t flag = 0x1; flag < QUERY_TARGET_CARD; flag <<= 1) {
+			if (query_flag & flag)
+				current += 1;
+		}
+		if (current > block_end)
+			return false;
+		if (query_flag & QUERY_TARGET_CARD) {
+			if (current + 1 > block_end)
+				return false;
+			int32_t count = infos[current];
+			current += 1;
+			if (count < 0 || count > block_end - current)
+				return false;
+			current += count;
+		}
+		if (query_flag & QUERY_OVERLAY_CARD) {
+			if (current + 1 > len)
+				return false;
+			int32_t count = infos[current];
+			current += 1;
+			if (count < 0 || count > block_end - current)
+				return false;
+			current += count;
+		}
+		if (query_flag & QUERY_COUNTERS) {
+			if (current + 1 > len)
+				return false;
+			int32_t count = infos[current];
+			current += 1;
+			if (count < 0 || count > block_end - current)
+				return false;
+			current += count;
+		}
+		for (uint32_t flag = QUERY_OWNER; flag <= QUERY_RSCALE; flag <<= 1) {
+			if (query_flag & flag)
+				current += 1;
+		}
+		if (query_flag & QUERY_LINK)
+			current += 2;
+		if (current > block_end)
+			return false;
+	}
+	return true;
 }
 extern "C" DECL_DLLEXPORT void set_responsei(intptr_t pduel, int32_t value) {
 	((duel*)pduel)->set_responsei(value);
