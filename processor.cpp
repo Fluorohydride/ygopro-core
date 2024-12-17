@@ -2316,7 +2316,7 @@ int32_t field::process_idle_command(uint16_t step) {
 			return FALSE;
 		} else
 			add_process(PROCESSOR_FLIP_SUMMON, 0, 0, (group*)target, target->current.controler, 0);
-		target->set_status(STATUS_FORM_CHANGED, TRUE);
+		target->set_status(STATUS_CANNOT_CHANGE_FORM, TRUE);
 		core.units.begin()->step = -1;
 		return FALSE;
 	}
@@ -2375,7 +2375,7 @@ int32_t field::process_idle_command(uint16_t step) {
 			adjust_all();
 			add_process(PROCESSOR_POINT_EVENT, 0, 0, 0, FALSE, 0);
 		}
-		target->set_status(STATUS_FORM_CHANGED, TRUE);
+		target->set_status(STATUS_CANNOT_CHANGE_FORM, TRUE);
 		core.units.begin()->step = -1;
 		return FALSE;
 	}
@@ -2665,7 +2665,7 @@ int32_t field::process_battle_command(uint16_t step) {
 		}
 		if(core.units.begin()->arg3) {//attack announce failed
 			++core.attacker->announce_count;
-			core.attacker->set_status(STATUS_FORM_CHANGED, TRUE);
+			core.attacker->set_status(STATUS_CANNOT_CHANGE_FORM, TRUE);
 			core.chain_attack = FALSE;
 			core.units.begin()->step = -1;
 		}
@@ -2740,7 +2740,7 @@ int32_t field::process_battle_command(uint16_t step) {
 		// go to damage step
 		if(!core.attack_rollback) {
 			++core.attacker->announce_count;
-			core.attacker->set_status(STATUS_FORM_CHANGED, TRUE);
+			core.attacker->set_status(STATUS_CANNOT_CHANGE_FORM, TRUE);
 			core.attacker->announced_cards.addcard(core.attack_target);
 			attack_all_target_check();
 			core.units.begin()->step = 18;
@@ -2773,7 +2773,7 @@ int32_t field::process_battle_command(uint16_t step) {
 	case 13: {
 		if(core.attacker->fieldid_r == core.pre_field[0]) {
 			++core.attacker->announce_count;
-			core.attacker->set_status(STATUS_FORM_CHANGED, TRUE);
+			core.attacker->set_status(STATUS_CANNOT_CHANGE_FORM, TRUE);
 			core.attacker->announced_cards.addcard(core.attack_target);
 			attack_all_target_check();
 		}
@@ -3326,7 +3326,7 @@ int32_t field::process_damage_step(uint16_t step, uint32_t new_attack) {
 		if(core.attacker) {
 			core.attacker->set_status(STATUS_ATTACK_CANCELED, TRUE);
 			++core.attacker->announce_count;
-			core.attacker->set_status(STATUS_FORM_CHANGED, TRUE);
+			core.attacker->set_status(STATUS_CANNOT_CHANGE_FORM, TRUE);
 			core.attacker->announced_cards.addcard(core.attack_target);
 			attack_all_target_check();
 		}
@@ -3678,7 +3678,7 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 				pcard->set_status(STATUS_FLIP_SUMMON_TURN, FALSE);
 				pcard->set_status(STATUS_SPSUMMON_TURN, FALSE);
 				pcard->set_status(STATUS_SET_TURN, FALSE);
-				pcard->set_status(STATUS_FORM_CHANGED, FALSE);
+				pcard->set_status(STATUS_CANNOT_CHANGE_FORM, FALSE);
 				pcard->indestructable_effects.clear();
 				pcard->attack_announce_count = 0;
 				pcard->announce_count = 0;

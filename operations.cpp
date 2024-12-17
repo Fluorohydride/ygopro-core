@@ -1938,7 +1938,7 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 		target->set_status(STATUS_SUMMONING, FALSE);
 		target->set_status(STATUS_FLIP_SUMMONING, FALSE);
 		target->set_status(STATUS_SUMMON_TURN, TRUE);
-		target->set_status(STATUS_FORM_CHANGED, TRUE);
+		target->set_status(STATUS_CANNOT_CHANGE_FORM, TRUE);
 		target->enable_field_effect(true);
 		if(target->is_status(STATUS_DISABLED))
 			target->reset(RESET_DISABLE, RESET_EVENT);
@@ -2049,7 +2049,7 @@ int32_t field::flip_summon(uint16_t step, uint8_t sumplayer, card * target, uint
 		if(target->is_status(STATUS_DISABLED))
 			target->reset(RESET_DISABLE, RESET_EVENT);
 		target->set_status(STATUS_FLIP_SUMMON_TURN, TRUE);
-		target->set_status(STATUS_FORM_CHANGED, TRUE);
+		target->set_status(STATUS_CANNOT_CHANGE_FORM, TRUE);
 		return FALSE;
 	}
 	case 4: {
@@ -2397,7 +2397,7 @@ int32_t field::mset(uint16_t step, uint8_t setplayer, card* target, effect* proc
 		++core.normalsummon_state_count[setplayer];
 		check_card_counter(target, ACTIVITY_NORMALSUMMON, setplayer);
 		target->set_status(STATUS_SUMMON_TURN, TRUE);
-		target->set_status(STATUS_FORM_CHANGED, TRUE);
+		target->set_status(STATUS_CANNOT_CHANGE_FORM, TRUE);
 		pduel->write_buffer8(MSG_SET);
 		pduel->write_buffer32(target->data.code);
 		pduel->write_buffer32(target->get_info_location());
@@ -3139,7 +3139,7 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		for(auto& pcard : pgroup->container) {
 			pcard->set_status(STATUS_SUMMONING, FALSE);
 			pcard->set_status(STATUS_SPSUMMON_TURN, TRUE);
-			pcard->set_status(STATUS_FORM_CHANGED, TRUE);
+			pcard->set_status(STATUS_CANNOT_CHANGE_FORM, TRUE);
 			pcard->enable_field_effect(true);
 			if(pcard->is_status(STATUS_DISABLED))
 				pcard->reset(RESET_DISABLE, RESET_EVENT);
@@ -3356,7 +3356,7 @@ int32_t field::special_summon(uint16_t step, effect* reason_effect, uint8_t reas
 		for(auto& pcard : targets->container) {
 			pcard->set_status(STATUS_SPSUMMON_STEP, FALSE);
 			pcard->set_status(STATUS_SPSUMMON_TURN, TRUE);
-			pcard->set_status(STATUS_FORM_CHANGED, TRUE);
+			pcard->set_status(STATUS_CANNOT_CHANGE_FORM, TRUE);
 			if(pcard->is_position(POS_FACEUP))
 				pcard->enable_field_effect(true);
 		}
@@ -4272,7 +4272,7 @@ int32_t field::send_to(uint16_t step, group * targets, effect * reason_effect, u
 			if(nloc == LOCATION_REMOVED || ((pcard->data.type & TYPE_TOKEN) && pcard->sendto_param.location == LOCATION_REMOVED)) {
 				if(pcard->current.reason & REASON_TEMPORARY) {
 					pcard->reset(RESET_TEMP_REMOVE, RESET_EVENT);
-					pcard->set_status(STATUS_FORM_CHANGED, FALSE);
+					pcard->set_status(STATUS_CANNOT_CHANGE_FORM, FALSE);
 				}
 				else
 					pcard->reset(RESET_REMOVE, RESET_EVENT);
@@ -4654,7 +4654,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint32_t enable, uint3
 			target->clear_relate_effect();
 		if(ret == RETURN_TEMP_REMOVE_TO_FIELD) {
 			target->current.reason &= ~REASON_TEMPORARY;
-			target->set_status(STATUS_FORM_CHANGED, FALSE);
+			target->set_status(STATUS_CANNOT_CHANGE_FORM, FALSE);
 		}
 		if(ret == 0 && location != target->current.location
 			|| ret == RETURN_TEMP_REMOVE_TO_FIELD && target->turnid != infos.turn_id) {
@@ -4662,7 +4662,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint32_t enable, uint3
 			target->set_status(STATUS_FLIP_SUMMON_TURN, FALSE);
 			target->set_status(STATUS_SPSUMMON_TURN, FALSE);
 			target->set_status(STATUS_SET_TURN, FALSE);
-			target->set_status(STATUS_FORM_CHANGED, FALSE);
+			target->set_status(STATUS_CANNOT_CHANGE_FORM, FALSE);
 		}
 		target->temp.sequence = seq;
 		if(location != LOCATION_MZONE) {

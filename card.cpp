@@ -3419,7 +3419,7 @@ int32_t card::get_set_tribute_count() {
 	return min + (max << 16);
 }
 int32_t card::is_can_be_flip_summoned(uint8_t playerid) {
-	if(is_status(STATUS_FORM_CHANGED))
+	if(is_status(STATUS_CANNOT_CHANGE_FORM))
 		return FALSE;
 	if(current.location != LOCATION_MZONE)
 		return FALSE;
@@ -3947,7 +3947,7 @@ int32_t card::is_capable_attack_announce(uint8_t playerid) {
 	return TRUE;
 }
 int32_t card::is_capable_change_position(uint8_t playerid) {
-	if(is_status(STATUS_FORM_CHANGED))
+	if(is_status(STATUS_CANNOT_CHANGE_FORM))
 		return FALSE;
 	if(data.type & TYPE_LINK)
 		return FALSE;
