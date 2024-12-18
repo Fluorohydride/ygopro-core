@@ -201,7 +201,7 @@ extern "C" DECL_DLLEXPORT int32_t query_card(intptr_t pduel, uint8_t playerid, u
 	duel* ptduel = (duel*)pduel;
 	card* pcard = nullptr;
 	location &= 0x7f;
-	if(location & LOCATION_ONFIELD)
+	if (location == LOCATION_MZONE || location == LOCATION_SZONE)
 		pcard = ptduel->game_field->get_field_card(playerid, location, sequence);
 	else {
 		card_vector* lst = nullptr;
@@ -217,10 +217,9 @@ extern "C" DECL_DLLEXPORT int32_t query_card(intptr_t pduel, uint8_t playerid, u
 			lst = &ptduel->game_field->player[playerid].list_main;
 		else
 			return LEN_FAIL;
-		if(sequence >= (int32_t)lst->size())
-			pcard = nullptr;
-		else
-			pcard = (*lst)[sequence];
+		if (sequence >= (int32_t)lst->size())
+			return LEN_FAIL;
+		pcard = (*lst)[sequence];
 	}
 	if (pcard) {
 		return pcard->get_infos(buf, query_flag, use_cache);
