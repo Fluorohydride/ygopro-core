@@ -2037,7 +2037,7 @@ int32_t scriptlib::duel_get_szone_count(lua_State *L) {
 		} else
 			return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
 		for(int32_t p = 0; p < 2; p++) {
-			uint32_t digit = 0x1U;
+			uint32_t digit = 0x100U;
 			for(auto& pcard : pduel->game_field->player[p].list_szone) {
 				if(pcard && pcard != mcard && !(mgroup && mgroup->container.find(pcard) != mgroup->container.end())) {
 					used_location[p] |= digit;
@@ -2046,7 +2046,7 @@ int32_t scriptlib::duel_get_szone_count(lua_State *L) {
 					list_szone[p].push_back(nullptr);
 				digit <<= 1;
 			}
-			used_location[p] |= pduel->game_field->player[p].used_location & 0xff00;
+			used_location[p] |= pduel->game_field->player[p].used_location & 0xff;
 			std::swap(used_location[p], pduel->game_field->player[p].used_location);
 			pduel->game_field->player[p].list_szone.swap(list_szone[p]);
 		}
