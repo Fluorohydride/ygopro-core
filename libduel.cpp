@@ -2017,6 +2017,61 @@ int32_t scriptlib::duel_get_mzone_count(lua_State *L) {
 	}
 	return 2;
 }
+// Return usable count in zone of playerid's SZONE after card or group leaves the field.
+int32_t scriptlib::duel_get_szone_count(lua_State *L) {
+	check_param_count(L, 1);
+	int32_t playerid = (int32_t)lua_tointeger(L, 1);
+	if(playerid != 0 && playerid != 1)
+		return 0;
+	duel* pduel = interpreter::get_duel_info(L);
+	bool swapped = false;
+	card* mcard = nullptr;
+	group* mgroup = nullptr;
+	uint32_t used_location[2] = { 0, 0 };
+	card_vector list_szone[2];
+	if(lua_gettop(L) >= 2 && !lua_isnil(L, 2)) {
+		if(check_param(L, PARAM_TYPE_CARD, 2, TRUE)) {
+			mcard = *(card**)lua_touserdata(L, 2);
+		} else if(check_param(L, PARAM_TYPE_GROUP, 2, TRUE)) {
+			mgroup = *(group**)lua_touserdata(L, 2);
+		} else
+			return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
+		for(int32_t p = 0; p < 2; p++) {
+			uint32_t digit = 0x1U;
+			for(auto& pcard : pduel->game_field->player[p].list_szone) {
+				if(pcard && pcard != mcard && !(mgroup && mgroup->container.find(pcard) != mgroup->container.end())) {
+					used_location[p] |= digit;
+					list_szone[p].push_back(pcard);
+				} else
+					list_szone[p].push_back(nullptr);
+				digit <<= 1;
+			}
+			used_location[p] |= pduel->game_field->player[p].used_location & 0xff00;
+			std::swap(used_location[p], pduel->game_field->player[p].used_location);
+			pduel->game_field->player[p].list_szone.swap(list_szone[p]);
+		}
+		swapped = true;
+	}
+	uint32_t uplayer = pduel->game_field->core.reason_player;
+	uint32_t reason = LOCATION_REASON_TOFIELD;
+	uint32_t zone = 0xff;
+	if(lua_gettop(L) >= 3)
+		uplayer = (uint32_t)lua_tointeger(L, 3);
+	if(lua_gettop(L) >= 4)
+		reason = (uint32_t)lua_tointeger(L, 4);
+	if(lua_gettop(L) >= 5)
+		zone = (uint32_t)lua_tointeger(L, 5);
+	uint32_t list = 0;
+	lua_pushinteger(L, pduel->game_field->get_useable_count(nullptr, playerid, LOCATION_SZONE, uplayer, reason, zone, &list));
+	lua_pushinteger(L, list);
+	if(swapped) {
+		pduel->game_field->player[0].used_location = used_location[0];
+		pduel->game_field->player[1].used_location = used_location[1];
+		pduel->game_field->player[0].list_szone.swap(list_szone[0]);
+		pduel->game_field->player[1].list_szone.swap(list_szone[1]);
+	}
+	return 2;
+}
 // Condition: uplayer moves scard or any card with type from Extra Deck to playerid's field
 // Return usable count in zone of playerid's MZONE after mcard or mgroup leaves the field
 int32_t scriptlib::duel_get_location_count_fromex(lua_State *L) {
@@ -4876,6 +4931,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "CheckSummonedCount", scriptlib::duel_check_summon_count },
 	{ "GetLocationCount", scriptlib::duel_get_location_count },
 	{ "GetMZoneCount", scriptlib::duel_get_mzone_count },
+	{ "GetSZoneCount", scriptlib::duel_get_szone_count },
 	{ "GetLocationCountFromEx", scriptlib::duel_get_location_count_fromex },
 	{ "GetUsableMZoneCount", scriptlib::duel_get_usable_mzone_count },
 	{ "GetLinkedGroup", scriptlib::duel_get_linked_group },
