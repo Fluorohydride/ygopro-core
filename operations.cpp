@@ -2932,6 +2932,7 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		}
 		target->set_status(STATUS_SUMMONING, FALSE);
 		target->set_status(STATUS_PROC_COMPLETE | STATUS_SPSUMMON_TURN, TRUE);
+		target->set_status(STATUS_CANNOT_CHANGE_FORM, TRUE);
 		target->enable_field_effect(true);
 		if(target->is_status(STATUS_DISABLED))
 			target->reset(RESET_DISABLE, RESET_EVENT);
