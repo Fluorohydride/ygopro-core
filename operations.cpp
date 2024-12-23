@@ -4271,10 +4271,8 @@ int32_t field::send_to(uint16_t step, group * targets, effect * reason_effect, u
 			if(nloc == LOCATION_GRAVE)
 				pcard->reset(RESET_TOGRAVE, RESET_EVENT);
 			if(nloc == LOCATION_REMOVED || ((pcard->data.type & TYPE_TOKEN) && pcard->sendto_param.location == LOCATION_REMOVED)) {
-				if(pcard->current.reason & REASON_TEMPORARY) {
+				if(pcard->current.reason & REASON_TEMPORARY)
 					pcard->reset(RESET_TEMP_REMOVE, RESET_EVENT);
-					pcard->set_status(STATUS_CANNOT_CHANGE_FORM, FALSE);
-				}
 				else
 					pcard->reset(RESET_REMOVE, RESET_EVENT);
 			}
@@ -4655,10 +4653,8 @@ int32_t field::move_to_field(uint16_t step, card* target, uint32_t enable, uint3
 			target->clear_relate_effect();
 		if(ret == RETURN_TEMP_REMOVE_TO_FIELD) {
 			target->current.reason &= ~REASON_TEMPORARY;
-			target->set_status(STATUS_CANNOT_CHANGE_FORM, FALSE);
 		}
-		if(ret == 0 && location != target->current.location
-			|| ret == RETURN_TEMP_REMOVE_TO_FIELD && target->turnid != infos.turn_id) {
+		if(ret == 0 && location != target->current.location || ret == RETURN_TEMP_REMOVE_TO_FIELD) {
 			target->set_status(STATUS_SUMMON_TURN, FALSE);
 			target->set_status(STATUS_FLIP_SUMMON_TURN, FALSE);
 			target->set_status(STATUS_SPSUMMON_TURN, FALSE);
