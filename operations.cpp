@@ -3773,7 +3773,7 @@ int32_t field::destroy(uint16_t step, group * targets, effect * reason_effect, u
 	return TRUE;
 }
 int32_t field::release_replace(uint16_t step, group* targets, card* target) {
-	if(!(target->current.location & (LOCATION_ONFIELD | LOCATION_HAND))) {
+	if(!(target->current.location & (LOCATION_ONFIELD | LOCATION_HAND | LOCATION_DECK))) {
 		target->current.reason = target->temp.reason;
 		target->current.reason_effect = target->temp.reason_effect;
 		target->current.reason_player = target->temp.reason_player;
@@ -3830,7 +3830,7 @@ int32_t field::release(uint16_t step, group * targets, effect * reason_effect, u
 		if(cv.size() > 1)
 			std::sort(cv.begin(), cv.end(), card::card_operation_sort);
 		for (auto& pcard : cv) {
-			if(!(pcard->current.location & (LOCATION_ONFIELD | LOCATION_HAND))) {
+			if(!(pcard->current.location & (LOCATION_ONFIELD | LOCATION_HAND | LOCATION_DECK))) {
 				pcard->current.reason = pcard->temp.reason;
 				pcard->current.reason_effect = pcard->temp.reason_effect;
 				pcard->current.reason_player = pcard->temp.reason_player;
