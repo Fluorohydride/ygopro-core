@@ -529,6 +529,7 @@ const std::map<uint64_t, uint64_t> category_checklist{
 #define EFFECT_TUNER					369
 #define EFFECT_KAISER_COLOSSEUM			370
 #define EFFECT_REPLACE_DAMAGE			371
+#define EFFECT_CANNOT_BE_RITUAL_MATERIAL	372
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
