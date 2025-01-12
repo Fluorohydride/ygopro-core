@@ -455,7 +455,7 @@ public:
 	int32_t check_spsummon_counter(uint8_t playerid, uint8_t ct = 1);
 	bool is_select_hide_deck_sequence(uint8_t playerid);
 
-	int32_t check_lp_cost(uint8_t playerid, uint32_t cost, uint32_t must_pay);
+	int32_t check_lp_cost(uint8_t playerid, int32_t cost, uint32_t must_pay);
 	void save_lp_cost() {}
 	void restore_lp_cost() {}
 	int32_t pay_lp_cost(uint32_t step, uint8_t playerid, uint32_t cost, uint32_t must_pay);

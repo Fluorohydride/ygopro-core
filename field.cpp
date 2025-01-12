@@ -2294,9 +2294,9 @@ int32_t field::check_spsummon_counter(uint8_t playerid, uint8_t ct) {
 bool field::is_select_hide_deck_sequence(uint8_t playerid) {
 	return !core.select_deck_sequence_revealed && !(core.duel_options & DUEL_REVEAL_DECK_SEQ) && playerid == core.selecting_player;
 }
-int32_t field::check_lp_cost(uint8_t playerid, uint32_t lp, uint32_t must_pay) {
+int32_t field::check_lp_cost(uint8_t playerid, int32_t cost, uint32_t must_pay) {
 	effect_set eset;
-	int32_t val = lp;
+	int32_t val = cost;
 	filter_player_effect(playerid, EFFECT_LPCOST_CHANGE, &eset);
 	for(int32_t i = 0; i < eset.size(); ++i) {
 		pduel->lua->add_param(core.reason_effect, PARAM_TYPE_EFFECT);
@@ -2313,7 +2313,7 @@ int32_t field::check_lp_cost(uint8_t playerid, uint32_t lp, uint32_t must_pay) {
 		tevent e;
 		e.event_cards = 0;
 		e.event_player = playerid;
-		e.event_value = lp;
+		e.event_value = cost;
 		e.reason = 0;
 		e.reason_effect = core.reason_effect;
 		e.reason_player = playerid;
