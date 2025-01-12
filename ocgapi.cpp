@@ -41,8 +41,8 @@ uint32_t read_card(uint32_t code, card_data* data) {
 	}
 	return creader(code, data);
 }
-uint32_t handle_message(void* pduel, uint32_t msg_type) {
-	return mhandler((intptr_t)pduel, msg_type);
+uint32_t handle_message(void* pduel, uint32_t message_type) {
+	return mhandler((intptr_t)pduel, message_type);
 }
 byte* default_script_reader(const char* script_name, int* slen) {
 	FILE *fp;
