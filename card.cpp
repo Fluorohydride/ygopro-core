@@ -1052,14 +1052,22 @@ uint32_t card::check_xyz_level(card* pcard, uint32_t lv) {
 			return lev;
 		return 0;
 	}
+	uint32_t maxctlimit = 0;
+	for (int32_t i = 0; i < eset.size(); ++i) {
+		pduel->lua->add_param(this, PARAM_TYPE_CARD);
+		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+		uint32_t ctlimit = (eset[i]->get_value(2) >> 12) & 0xf;
+		if (ctlimit > 0)
+			maxctlimit = maxctlimit > ctlimit ? maxctlimit : ctlimit;
+	}
 	for(int32_t i = 0; i < eset.size(); ++i) {
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 		uint32_t lev = eset[i]->get_value(2);
 		if(((lev & 0xfff) == lv))
-			return lev & 0xffff;
+			return (lev & 0xfff) | (maxctlimit << 12);
 		if(((lev >> 16) & 0xfff) == lv)
-			return (lev >> 16) & 0xffff;
+			return ((lev >> 16) & 0xffff) | (maxctlimit << 12);
 	}
 	return 0;
 }

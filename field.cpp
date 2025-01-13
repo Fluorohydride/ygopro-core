@@ -1941,6 +1941,7 @@ void field::ritual_release(const card_set& material) {
 }
 void field::get_xyz_material(lua_State* L, card* scard, int32_t findex, uint32_t lv, int32_t maxc, group* mg) {
 	core.xmaterial_lst.clear();
+	core.xmaterial_lst_origin.clear();
 	uint32_t xyz_level;
 	if(mg) {
 		for (auto& pcard : mg->container) {
@@ -1969,6 +1970,7 @@ void field::get_xyz_material(lua_State* L, card* scard, int32_t findex, uint32_t
 		auto iter = core.xmaterial_lst.lower_bound(maxc);
 		core.xmaterial_lst.erase(core.xmaterial_lst.begin(), iter);
 	}
+	core.xmaterial_lst_origin.insert(core.xmaterial_lst.begin(), core.xmaterial_lst.end());
 }
 void field::get_overlay_group(uint8_t self, uint8_t s, uint8_t o, card_set* pset) {
 	if (!check_playerid(self))
