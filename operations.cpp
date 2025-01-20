@@ -5942,6 +5942,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 		min = 0;
 		if(pv - (int32_t)core.operated_set.size() > min)
 			min = pv - (int32_t)core.operated_set.size();
+		core.units.begin()->arg3 = core.units.begin()->arg2;
 		core.units.begin()->arg2 = min + (max << 16);
 		if(min == 0) {
 			add_process(PROCESSOR_SELECT_YESNO, 0, 0, 0, playerid, 93);
@@ -5967,15 +5968,24 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 		if(min == 0)
 			min = 1;
 		if(min + (int32_t)core.operated_set.size() >= maxv)
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, min + (max << 16));
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + ((uint32_t)1 << 16), min + (max << 16));
 		else {
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid, min + (min << 16));
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, playerid + ((uint32_t)1 << 16), min + (min << 16));
 			core.units.begin()->step = 7;
 		}
 		return FALSE;
 	}
 	case 10: {
 		group* pgroup = pduel->new_group(core.operated_set);
+		if (returns.ivalue[0] == -1) {
+			core.units.begin()->arg2 = core.units.begin()->arg3;
+			core.units.begin()->arg3 = 0;
+			core.units.begin()->step = -1;
+			core.operated_set.clear();
+			core.xmaterial_lst.clear();
+			core.xmaterial_lst.insert(core.xmaterial_lst_origin.begin(), core.xmaterial_lst_origin.end());
+			return FALSE;
+		}
 		for(int32_t i = 0; i < returns.bvalue[0]; ++i) {
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
 			pgroup->container.insert(pcard);
