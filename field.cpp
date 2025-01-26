@@ -12,6 +12,7 @@
 #include "effect.h"
 #include "interpreter.h"
 #include <cstring>
+#include <algorithm>
 
 int32_t field::field_used_count[32] = {0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4, 1, 2, 2, 3, 2, 3, 3, 4, 2, 3, 3, 4, 3, 4, 4, 5};
 
@@ -1094,11 +1095,9 @@ void field::reverse_deck(uint8_t playerid) {
 	if(count == 0)
 		return;
 	for(int32_t i = 0; i < count / 2; ++i) {
-		card* tmp = player[playerid].list_main[i];
-		tmp->current.sequence = count - 1 - i;
+		player[playerid].list_main[i]->current.sequence = count - 1 - i;
 		player[playerid].list_main[count - 1 - i]->current.sequence = i;
-		player[playerid].list_main[i] = player[playerid].list_main[count - 1 - i];
-		player[playerid].list_main[count - 1 - i] = tmp;
+		std::swap(player[playerid].list_main[i], player[playerid].list_main[count - 1 - i]);
 	}
 }
 void field::refresh_player_info(uint8_t playerid) {

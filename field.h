@@ -348,7 +348,7 @@ struct processor {
 	uint8_t current_player{ PLAYER_NONE };
 	uint8_t conti_player{ PLAYER_NONE };
 	uint8_t select_deck_sequence_revealed{ FALSE };
-	uint8_t selecting_player{ PLAYER_NONE };
+	uint8_t selecting_player{ 0 };
 	activity_map summon_counter;
 	activity_map normalsummon_counter;
 	activity_map spsummon_counter;
