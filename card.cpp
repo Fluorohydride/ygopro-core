@@ -4090,8 +4090,13 @@ int32_t card::is_can_be_synchro_material(card* scard, card* tuner) {
 int32_t card::is_can_be_ritual_material(card* scard) {
 	if(!(get_type() & TYPE_MONSTER))
 		return FALSE;
+	effect_set eset;
+	filter_effect(EFFECT_CANNOT_BE_RITUAL_MATERIAL, &eset);
+	for(int32 i = 0; i < eset.size(); ++i)
+		if(eset[i]->get_value(scard))
+			return FALSE;
 	if(current.location == LOCATION_GRAVE) {
-		effect_set eset;
+		eset.clear();
 		filter_effect(EFFECT_EXTRA_RITUAL_MATERIAL, &eset);
 		for(int32_t i = 0; i < eset.size(); ++i)
 			if(eset[i]->get_value(scard))
