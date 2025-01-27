@@ -90,9 +90,9 @@ bool card::card_operation_sort(card* c1, card* c2) {
 	} else if (c1->current.location == LOCATION_DECK && pduel->game_field->is_select_hide_deck_sequence(cp1)) {
 		// if deck reversed and the card being at the top, it should go first
 		if(pduel->game_field->core.deck_reversed) {
-			if(c1->current.sequence == pduel->game_field->player[cp1].list_main.size() - 1)
+			if(c1 == pduel->game_field->player[cp1].list_main.back())
 				return false;
-			if(c2->current.sequence == pduel->game_field->player[cp2].list_main.size() - 1)
+			if(c2 == pduel->game_field->player[cp2].list_main.back())
 				return true;
 		}
 		// faceup deck cards should go at the very first
