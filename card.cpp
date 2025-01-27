@@ -1367,7 +1367,7 @@ int32_t card::is_extra_link_state() {
 		uint32_t checking = linked_zone & ~checked;
 		if(!checking)
 			return FALSE;
-		uint32_t rightmost = checking & (-checking);
+		uint32_t rightmost = checking & (~checking + 1);
 		checked |= rightmost;
 		if(rightmost < 0x10000U) {
 			for(int32_t i = 0; i < 7; ++i) {
