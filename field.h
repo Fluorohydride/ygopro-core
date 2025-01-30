@@ -255,9 +255,9 @@ struct processor {
 	std::set<effect*> reseted_effects;
 	std::unordered_map<card*, uint32_t> readjust_map;
 	std::unordered_set<card*> unique_cards[2];
-	std::unordered_map<uint32_t, uint32_t> effect_count_code;
-	std::unordered_map<uint32_t, uint32_t> effect_count_code_duel;
-	std::unordered_map<uint32_t, uint32_t> effect_count_code_chain;
+	std::unordered_map<uint32_t, int32_t> effect_count_code[3];
+	std::unordered_map<uint32_t, int32_t> effect_count_code_duel[3];
+	std::unordered_map<uint32_t, int32_t> effect_count_code_chain[3];
 	std::unordered_map<uint32_t, uint32_t> spsummon_once_map[2];
 	std::multimap<int32_t, card*, std::greater<int32_t>> xmaterial_lst;
 

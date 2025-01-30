@@ -1498,7 +1498,9 @@ int32_t field::process_point_event(int16_t step, int32_t skip_trigger, int32_t s
 			for(auto& ch_lim_p : core.chain_limit_p)
 				luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim_p.function);
 			core.chain_limit_p.clear();
-			core.effect_count_code_chain.clear();
+			core.effect_count_code_chain[0].clear();
+			core.effect_count_code_chain[1].clear();
+			core.effect_count_code_chain[PLAYER_NONE].clear();
 			reset_chain();
 			returns.ivalue[0] = FALSE;
 		}
@@ -3669,7 +3671,9 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 			pduel->delete_effect(peffect);
 		}
 		core.reseted_effects.clear();
-		core.effect_count_code.clear();
+		core.effect_count_code[0].clear();
+		core.effect_count_code[1].clear();
+		core.effect_count_code[PLAYER_NONE].clear();
 		for(uint8_t p = 0; p < 2; ++p) {
 			for(auto& pcard : player[p].list_mzone) {
 				if(!pcard)
@@ -4544,7 +4548,9 @@ int32_t field::solve_chain(uint16_t step, uint32_t chainend_arg1, uint32_t chain
 		for(auto& ch_lim_p : core.chain_limit_p)
 			luaL_unref(pduel->lua->lua_state, LUA_REGISTRYINDEX, ch_lim_p.function);
 		core.chain_limit_p.clear();
-		core.effect_count_code_chain.clear();
+		core.effect_count_code_chain[0].clear();
+		core.effect_count_code_chain[1].clear();
+		core.effect_count_code_chain[PLAYER_NONE].clear();
 		reset_chain();
 		if (core.summoning_card)
 			core.subunits.push_back(core.summon_reserved);

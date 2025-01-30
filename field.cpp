@@ -1330,35 +1330,35 @@ void field::reset_chain() {
 	}
 }
 void field::add_effect_code(uint32_t code, uint32_t playerid) {
-	auto* count_map = &core.effect_count_code;
-	if(code & EFFECT_COUNT_CODE_DUEL)
-		count_map = &core.effect_count_code_duel;
-	else if(code & EFFECT_COUNT_CODE_CHAIN)
-		count_map = &core.effect_count_code_chain;
-	(*count_map)[code + (playerid << 30)]++;
+	auto count_map = &core.effect_count_code[playerid];
+	if (code & EFFECT_COUNT_CODE_DUEL)
+		count_map = &core.effect_count_code_duel[playerid];
+	else if (code & EFFECT_COUNT_CODE_CHAIN)
+		count_map = &core.effect_count_code_chain[playerid];
+	(*count_map)[code]++;
 }
 uint32_t field::get_effect_code(uint32_t code, uint32_t playerid) {
-	auto* count_map = &core.effect_count_code;
+	auto count_map = &core.effect_count_code[playerid];
 	if(code & EFFECT_COUNT_CODE_DUEL)
-		count_map = &core.effect_count_code_duel;
+		count_map = &core.effect_count_code_duel[playerid];
 	else if(code & EFFECT_COUNT_CODE_CHAIN)
-		count_map = &core.effect_count_code_chain;
-	auto iter = count_map->find(code + (playerid << 30));
+		count_map = &core.effect_count_code_chain[playerid];
+	auto iter = count_map->find(code);
 	if(iter == count_map->end())
 		return 0;
 	return iter->second;
 }
 void field::dec_effect_code(uint32_t code, uint32_t playerid) {
-	auto* count_map = &core.effect_count_code;
-	if(code & EFFECT_COUNT_CODE_DUEL)
-		count_map = &core.effect_count_code_duel;
-	else if(code & EFFECT_COUNT_CODE_CHAIN)
-		count_map = &core.effect_count_code_chain;
-	auto iter = count_map->find(code + (playerid << 30));
+	auto count_map = &core.effect_count_code[playerid];
+	if (code & EFFECT_COUNT_CODE_DUEL)
+		count_map = &core.effect_count_code_duel[playerid];
+	else if (code & EFFECT_COUNT_CODE_CHAIN)
+		count_map = &core.effect_count_code_chain[playerid];
+	auto iter = count_map->find(code);
 	if(iter == count_map->end())
 		return;
-	if(iter->second > 0)
-		--iter->second;
+	if (iter->second > 0)
+		iter->second--;
 }
 void field::filter_field_effect(uint32_t code, effect_set* eset, uint8_t sort) {
 	auto rg = effects.aura_effect.equal_range(code);
