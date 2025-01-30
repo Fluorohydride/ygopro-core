@@ -1329,7 +1329,9 @@ void field::reset_chain() {
 			(*rm)->handler->remove_effect((*rm));
 	}
 }
-void field::add_effect_code(uint32_t code, uint32_t playerid) {
+void field::add_effect_code(uint32_t code, int32_t playerid) {
+	if (playerid < 0 || playerid > PLAYER_NONE)
+		return;
 	auto count_map = &core.effect_count_code[playerid];
 	if (code & EFFECT_COUNT_CODE_DUEL)
 		count_map = &core.effect_count_code_duel[playerid];
@@ -1337,7 +1339,9 @@ void field::add_effect_code(uint32_t code, uint32_t playerid) {
 		count_map = &core.effect_count_code_chain[playerid];
 	(*count_map)[code]++;
 }
-uint32_t field::get_effect_code(uint32_t code, uint32_t playerid) {
+int32_t field::get_effect_code(uint32_t code, int32_t playerid) {
+	if (playerid < 0 || playerid > PLAYER_NONE)
+		return 0;
 	auto count_map = &core.effect_count_code[playerid];
 	if(code & EFFECT_COUNT_CODE_DUEL)
 		count_map = &core.effect_count_code_duel[playerid];
@@ -1348,7 +1352,9 @@ uint32_t field::get_effect_code(uint32_t code, uint32_t playerid) {
 		return 0;
 	return iter->second;
 }
-void field::dec_effect_code(uint32_t code, uint32_t playerid) {
+void field::dec_effect_code(uint32_t code, int32_t playerid) {
+	if (playerid < 0 || playerid > PLAYER_NONE)
+		return;
 	auto count_map = &core.effect_count_code[playerid];
 	if (code & EFFECT_COUNT_CODE_DUEL)
 		count_map = &core.effect_count_code_duel[playerid];

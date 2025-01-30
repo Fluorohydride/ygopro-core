@@ -415,9 +415,9 @@ public:
 	void release_oath_relation(effect* reason_effect);
 	void reset_phase(uint32_t phase);
 	void reset_chain();
-	void add_effect_code(uint32_t code, uint32_t playerid);
-	uint32_t get_effect_code(uint32_t code, uint32_t playerid);
-	void dec_effect_code(uint32_t code, uint32_t playerid);
+	void add_effect_code(uint32_t code, int32_t playerid);
+	int32_t get_effect_code(uint32_t code, int32_t playerid);
+	void dec_effect_code(uint32_t code, int32_t playerid);
 
 	void filter_field_effect(uint32_t code, effect_set* eset, uint8_t sort = TRUE);
 	void filter_affected_cards(effect* peffect, card_set* cset);
