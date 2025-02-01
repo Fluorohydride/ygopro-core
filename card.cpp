@@ -974,13 +974,13 @@ uint32_t card::get_level() {
 		temp.level = level + up;
 	}
 	level += up;
-	if(level < 1 && (get_type() & TYPE_MONSTER))
+	if (level < 1)
 		level = 1;
 	temp.level = UINT32_MAX;
 	return level;
 }
 uint32_t card::get_rank() {
-	if(!(data.type & TYPE_XYZ) || (status & STATUS_NO_LEVEL))
+	if (!(data.type & TYPE_XYZ))
 		return 0;
 	if(assume_type == ASSUME_RANK)
 		return assume_value;
@@ -1007,13 +1007,13 @@ uint32_t card::get_rank() {
 		temp.level = rank + up;
 	}
 	rank += up;
-	if(rank < 1 && (get_type() & TYPE_MONSTER))
+	if (rank < 1)
 		rank = 1;
 	temp.level = UINT32_MAX;
 	return rank;
 }
 uint32_t card::get_link() {
-	if(!(data.type & TYPE_LINK) || (status & STATUS_NO_LEVEL))
+	if (!(data.type & TYPE_LINK))
 		return 0;
 	return data.level;
 }
