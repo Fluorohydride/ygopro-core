@@ -1372,10 +1372,10 @@ void field::filter_field_effect(uint32_t code, effect_set* eset, uint8_t sort) {
 		effect* peffect = rg.first->second;
 		++rg.first;
 		if (peffect->is_available())
-			eset->add_item(peffect);
+			eset->push_back(peffect);
 	}
 	if(sort)
-		eset->sort();
+		std::sort(eset->begin(), eset->end(), effect_sort_id);
 }
 //Get all cards in the target range of a EFFECT_TYPE_FIELD effect
 void field::filter_affected_cards(effect* peffect, card_set* cset) {
@@ -1451,10 +1451,10 @@ void field::filter_player_effect(uint8_t playerid, uint32_t code, effect_set* es
 	for (; rg.first != rg.second; ++rg.first) {
 		effect* peffect = rg.first->second;
 		if (peffect->is_target_player(playerid) && peffect->is_available())
-			eset->add_item(peffect);
+			eset->push_back(peffect);
 	}
 	if(sort)
-		eset->sort();
+		std::sort(eset->begin(), eset->end(), effect_sort_id);
 }
 int32_t field::filter_matching_card(lua_State* L, int32_t findex, uint8_t self, uint32_t location1, uint32_t location2, group* pgroup, card* pexception, group* pexgroup, uint32_t extraargs, card** pret, int32_t fcount, int32_t is_target) {
 	if(self != 0 && self != 1)

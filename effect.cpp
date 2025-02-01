@@ -232,7 +232,7 @@ int32_t effect::get_required_handorset_effects(effect_set* eset, uint8_t playeri
 			pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
 			if(pduel->lua->check_condition(peffect->cost, 10)) {
 				available = 2;
-				eset->add_item(peffect);
+				eset->push_back(peffect);
 			}
 		}
 	}
