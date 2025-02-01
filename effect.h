@@ -606,8 +606,8 @@ const std::map<uint64_t, uint64_t> category_checklist{
 #define EVENT_REMOVE_COUNTER		0x20000
 #define EVENT_CUSTOM				0x10000000
 
-constexpr int32_t DOUBLE_DAMAGE = 0x80000000;
-constexpr int32_t HALF_DAMAGE = 0x80000001;
+constexpr int32_t DOUBLE_DAMAGE = INT32_MIN;
+constexpr int32_t HALF_DAMAGE = INT32_MIN + 1;
 
 // flag effect
 #define EFFECT_FLAG_EFFECT	0x20000000U
