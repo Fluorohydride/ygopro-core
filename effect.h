@@ -529,6 +529,7 @@ const std::map<uint64_t, uint64_t> category_checklist{
 #define EFFECT_TUNER					369
 #define EFFECT_KAISER_COLOSSEUM			370
 #define EFFECT_REPLACE_DAMAGE			371
+#define EFFECT_XYZ_MIN_COUNT			372
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
@@ -608,6 +609,9 @@ const std::map<uint64_t, uint64_t> category_checklist{
 
 constexpr int32_t DOUBLE_DAMAGE = INT32_MIN;
 constexpr int32_t HALF_DAMAGE = INT32_MIN + 1;
+
+constexpr uint32_t MAX_PARAMETER = 0xffffU;
+constexpr uint32_t MAX_XYZ_LEVEL = 0x0fffU;
 
 // flag effect
 #define EFFECT_FLAG_EFFECT	0x20000000U

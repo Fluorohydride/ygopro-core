@@ -1044,22 +1044,42 @@ uint32_t card::get_ritual_level(card* pcard) {
 uint32_t card::check_xyz_level(card* pcard, uint32_t lv) {
 	if(status & STATUS_NO_LEVEL)
 		return 0;
+	int32_t min_count = 0;
+	effect_set mset;
+	filter_effect(EFFECT_XYZ_MIN_COUNT, &mset);
+	for (int32_t i = 0; i < mset.size(); ++i) {
+		pduel->lua->add_param(this, PARAM_TYPE_CARD);
+		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
+		int32_t count = mset[i]->get_value(2);
+		if (count > min_count)
+			min_count = count;
+	}
+	if (min_count > 0xf)
+		min_count = 0xf;
 	effect_set eset;
 	filter_effect(EFFECT_XYZ_LEVEL, &eset);
 	if(!eset.size()) {
-		uint32_t lev = get_level();
-		if(lev == lv)
-			return lev;
+		uint32_t card_lv = get_level();
+		if (card_lv == lv)
+			return (card_lv & MAX_XYZ_LEVEL) | (min_count << 12);
 		return 0;
 	}
 	for(int32_t i = 0; i < eset.size(); ++i) {
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 		uint32_t lev = eset[i]->get_value(2);
-		if(((lev & 0xfff) == lv))
-			return lev & 0xffff;
-		if(((lev >> 16) & 0xfff) == lv)
-			return (lev >> 16) & 0xffff;
+		uint16_t lv1 = lev & MAX_XYZ_LEVEL;
+		uint16_t count1 = (lev & MAX_PARAMETER) >> 12;
+		if (count1 < min_count)
+			count1 = min_count;
+		if (lv1 == lv)
+			return lv1 | (count1 << 12);
+		uint16_t lv2 = (lev >> 16) & MAX_XYZ_LEVEL;
+		uint16_t count2 = lev >> 28;
+		if (count2 < min_count)
+			count2 = min_count;
+		if (lv2 == lv)
+			return lv2 | (count2 << 12);
 	}
 	return 0;
 }
