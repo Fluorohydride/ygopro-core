@@ -1061,7 +1061,7 @@ uint32_t card::check_xyz_level(card* pcard, uint32_t lv) {
 	if(!eset.size()) {
 		uint32_t card_lv = get_level();
 		if (card_lv == lv)
-			return (card_lv & MAX_XYZ_LEVEL) | (min_count << 12);
+			return (card_lv & MAX_XYZ_LEVEL) | ((uint32_t)min_count << 12);
 		return 0;
 	}
 	for(int32_t i = 0; i < eset.size(); ++i) {
@@ -1073,13 +1073,13 @@ uint32_t card::check_xyz_level(card* pcard, uint32_t lv) {
 		if (count1 < min_count)
 			count1 = min_count;
 		if (lv1 == lv)
-			return lv1 | (count1 << 12);
+			return lv1 | ((uint32_t)count1 << 12);
 		uint16_t lv2 = (lev >> 16) & MAX_XYZ_LEVEL;
 		uint16_t count2 = lev >> 28;
 		if (count2 < min_count)
 			count2 = min_count;
 		if (lv2 == lv)
-			return lv2 | (count2 << 12);
+			return lv2 | ((uint32_t)count2 << 12);
 	}
 	return 0;
 }
