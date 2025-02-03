@@ -1069,13 +1069,14 @@ uint32_t card::check_xyz_level(card* pcard, uint32_t lv) {
 		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
 		uint32_t lev = eset[i]->get_value(2);
 		uint16_t lv1 = lev & MAX_XYZ_LEVEL;
-		uint16_t count1 = (lev & MAX_PARAMETER) >> 12;
+		uint16_t count1 = (lev & 0xf000) >> 12;
 		if (count1 < min_count)
 			count1 = min_count;
 		if (lv1 == lv)
 			return lv1 | ((uint32_t)count1 << 12);
-		uint16_t lv2 = (lev >> 16) & MAX_XYZ_LEVEL;
-		uint16_t count2 = lev >> 28;
+		lev >>= 16;
+		uint16_t lv2 = lev & MAX_XYZ_LEVEL;
+		uint16_t count2 = (lev & 0xf000) >> 12;
 		if (count2 < min_count)
 			count2 = min_count;
 		if (lv2 == lv)
