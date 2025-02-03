@@ -22,7 +22,7 @@ constexpr uint32_t GTYPE_DEFAULT = 0;
 constexpr uint32_t GTYPE_READ_ONLY = 1;
 constexpr uint32_t GTYPE_KEEP_ALIVE = 2;
 
-class group {
+class alignas(8) group {
 public:
 	int32_t ref_handle{ 0 };
 	uint32_t is_readonly{ GTYPE_DEFAULT };
