@@ -123,11 +123,11 @@ struct field_effect {
 	grant_effect_container grant_effect;
 };
 struct field_info {
+	uint64_t card_id{ 1 };
 	int32_t field_id{ 1 };
 	uint16_t copy_id{ 1 };
 	uint16_t turn_id{};
 	uint16_t turn_id_by_player[2]{};
-	uint16_t card_id{ 1 };
 	uint16_t phase{};
 	uint8_t turn_player{};
 	uint8_t priorities[2]{};

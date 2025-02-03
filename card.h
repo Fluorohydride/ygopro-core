@@ -54,10 +54,10 @@ struct card_state {
 	uint8_t sequence{ 0 };
 	uint8_t position{ 0 };
 	uint32_t reason{ 0 };
-	bool pzone{ false };
 	card* reason_card{ nullptr };
-	uint8_t reason_player{ PLAYER_NONE };
 	effect* reason_effect{ nullptr };
+	uint8_t reason_player{ PLAYER_NONE };
+	bool pzone{ false };
 
 	bool is_location(uint32_t loc) const;
 	bool is_main_mzone() const {
@@ -168,7 +168,7 @@ public:
 	uint8_t attacked_count{};
 	uint8_t attack_all_target{};
 	uint8_t attack_controler{};
-	uint16_t cardid{};
+	uint64_t cardid{};
 	uint32_t fieldid{};
 	uint32_t fieldid_r{};
 	uint16_t turnid{};

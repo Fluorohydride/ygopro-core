@@ -18,17 +18,17 @@ class duel;
 
 using card_set = std::set<card*, card_sort>;
 
-constexpr int GTYPE_DEFAULT = 0;
-constexpr int GTYPE_READ_ONLY = 1;
-constexpr int GTYPE_KEEP_ALIVE = 2;
+constexpr uint32_t GTYPE_DEFAULT = 0;
+constexpr uint32_t GTYPE_READ_ONLY = 1;
+constexpr uint32_t GTYPE_KEEP_ALIVE = 2;
 
-class group {
+class alignas(8) group {
 public:
+	int32_t ref_handle{ 0 };
+	uint32_t is_readonly{ GTYPE_DEFAULT };
 	duel* pduel;
 	card_set container;
 	card_set::iterator it;
-	int32_t ref_handle{ 0 };
-	uint32_t is_readonly{ GTYPE_DEFAULT };
 	bool is_iterator_dirty{ true };
 	
 	bool has_card(card* c) {
