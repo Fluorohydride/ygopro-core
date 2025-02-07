@@ -1047,10 +1047,10 @@ uint32_t card::check_xyz_level(card* pcard, uint32_t lv) {
 	int32_t min_count = 0;
 	effect_set mset;
 	filter_effect(EFFECT_XYZ_MIN_COUNT, &mset);
-	for (int32_t i = 0; i < mset.size(); ++i) {
+	for (auto& peffect: mset) {
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
-		int32_t count = mset[i]->get_value(2);
+		int32_t count = peffect->get_value(2);
 		if (count > min_count)
 			min_count = count;
 	}
@@ -1064,10 +1064,10 @@ uint32_t card::check_xyz_level(card* pcard, uint32_t lv) {
 			return (card_lv & MAX_XYZ_LEVEL) | ((uint32_t)min_count << 12);
 		return 0;
 	}
-	for(effect_set::size_type i = 0; i < eset.size(); ++i) {
+	for (auto& peffect: mset) {
 		pduel->lua->add_param(this, PARAM_TYPE_CARD);
 		pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
-		uint32_t lev = eset[i]->get_value(2);
+		uint32_t lev = peffect->get_value(2);
 		uint16_t lv1 = lev & MAX_XYZ_LEVEL;
 		uint16_t count1 = (lev & 0xf000) >> 12;
 		if (count1 < min_count)
