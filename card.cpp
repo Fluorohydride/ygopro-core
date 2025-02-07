@@ -2608,11 +2608,11 @@ void card::filter_effect_container(const effect_container& container, uint32_t c
 }
 void card::filter_effect(uint32_t code, effect_set* eset, uint8_t sort) {
 	filter_effect_container(single_effect, code, default_single_filter, *eset);
-	for (const auto& pcard : equiping_cards)
+	for (auto& pcard : equiping_cards)
 		filter_effect_container(pcard->equip_effect, code, default_equip_filter, *eset);
-	for (const auto& pcard : effect_target_owner)
+	for (auto& pcard : effect_target_owner)
 		filter_effect_container(pcard->target_effect, code, default_target_filter, *eset);
-	for (const auto& pcard : xyz_materials)
+	for (auto& pcard : xyz_materials)
 		filter_effect_container(pcard->xmaterial_effect, code, default_xmaterial_filter, *eset);
 	filter_effect_container(pduel->game_field->effects.aura_effect, code, default_aura_filter, *eset);
 	if(sort)
@@ -2620,17 +2620,17 @@ void card::filter_effect(uint32_t code, effect_set* eset, uint8_t sort) {
 }
 void card::filter_single_continuous_effect(uint32_t code, effect_set* eset, uint8_t sort) {
 	filter_effect_container(single_effect, code, accept_filter, *eset);
-	for (const auto& pcard : equiping_cards)
+	for (auto& pcard : equiping_cards)
 		filter_effect_container(pcard->equip_effect, code, accept_filter, *eset);
 	auto target_filter = [](card* c, effect* peffect) -> bool {
 		return peffect->is_target(c);
 	};
-	for (const auto& pcard : effect_target_owner)
+	for (auto& pcard : effect_target_owner)
 		filter_effect_container(pcard->target_effect, code, target_filter, *eset);
 	auto xmaterial_filter = [](card* c, effect* peffect) -> bool {
 		return !(peffect->type & EFFECT_TYPE_FIELD);
 	};
-	for (const auto& pcard : xyz_materials)
+	for (auto& pcard : xyz_materials)
 		filter_effect_container(pcard->xmaterial_effect, code, xmaterial_filter, *eset);
 	if(sort)
 		eset->sort();
@@ -2643,7 +2643,7 @@ void card::filter_self_effect(uint32_t code, effect_set* eset, uint8_t sort) {
 	auto xmaterial_filter = [](card* c, effect* peffect) -> bool {
 		return !(peffect->type & EFFECT_TYPE_FIELD);
 	};
-	for (const auto& pcard : xyz_materials)
+	for (auto& pcard : xyz_materials)
 		filter_effect_container(pcard->xmaterial_effect, code, xmaterial_filter, *eset);
 	if (sort)
 		eset->sort();
@@ -2652,17 +2652,17 @@ void card::filter_self_effect(uint32_t code, effect_set* eset, uint8_t sort) {
 void card::filter_immune_effect() {
 	immune_effect.clear();
 	filter_effect_container(single_effect, EFFECT_IMMUNE_EFFECT, accept_filter, immune_effect);
-	for (const auto& pcard : equiping_cards)
+	for (auto& pcard : equiping_cards)
 		filter_effect_container(pcard->equip_effect, EFFECT_IMMUNE_EFFECT, accept_filter, immune_effect);
 	auto target_filter = [](card* c, effect* peffect) -> bool {
 		return peffect->is_target(c);
 	};
-	for (const auto& pcard : effect_target_owner)
+	for (auto& pcard : effect_target_owner)
 		filter_effect_container(pcard->target_effect, EFFECT_IMMUNE_EFFECT, target_filter, immune_effect);
 	auto xmaterial_filter = [](card* c, effect* peffect) -> bool {
 		return !(peffect->type & EFFECT_TYPE_FIELD);
 	};
-	for (const auto& pcard : xyz_materials)
+	for (auto& pcard : xyz_materials)
 		filter_effect_container(pcard->xmaterial_effect, EFFECT_IMMUNE_EFFECT, xmaterial_filter, immune_effect);
 	filter_effect_container(pduel->game_field->effects.aura_effect, EFFECT_IMMUNE_EFFECT, target_filter, immune_effect);
 	immune_effect.sort();
@@ -2930,17 +2930,17 @@ effect* card::is_affected_by_effect(uint32_t code) {
 	effect* peffect = find_effect(single_effect, code, default_single_filter);
 	if (peffect)
 		return peffect;
-	for (const auto& pcard : equiping_cards) {
+	for (auto& pcard : equiping_cards) {
 		peffect = find_effect(pcard->equip_effect, code, default_equip_filter);
 		if (peffect)
 			return peffect;
 	}
-	for (const auto& pcard : effect_target_owner) {
+	for (auto& pcard : effect_target_owner) {
 		peffect = find_effect(pcard->target_effect, code, default_target_filter);
 		if (peffect)
 			return peffect;
 	}
-	for (const auto& pcard : xyz_materials) {
+	for (auto& pcard : xyz_materials) {
 		peffect = find_effect(pcard->xmaterial_effect, code, default_xmaterial_filter);
 		if (peffect)
 			return peffect;
@@ -2960,7 +2960,7 @@ effect* card::is_affected_by_effect(int32_t code, card* target) {
 	auto equip_filter = [](card* c, effect* peffect, card* target) -> bool {
 		return default_equip_filter(c, peffect) && peffect->get_value(target);
 	};
-	for (const auto& pcard : equiping_cards) {
+	for (auto& pcard : equiping_cards) {
 		peffect = find_effect_with_target(pcard->equip_effect, code, equip_filter, target);
 		if (peffect)
 			return peffect;
@@ -2968,7 +2968,7 @@ effect* card::is_affected_by_effect(int32_t code, card* target) {
 	auto target_filter = [](card* c, effect* peffect, card* target) -> bool {
 		return default_target_filter(c, peffect) && peffect->get_value(target);
 	};
-	for (const auto& pcard : effect_target_owner) {
+	for (auto& pcard : effect_target_owner) {
 		peffect = find_effect_with_target(pcard->target_effect, code, target_filter, target);
 		if (peffect)
 			return peffect;
@@ -2976,7 +2976,7 @@ effect* card::is_affected_by_effect(int32_t code, card* target) {
 	auto xmaterial_filter = [](card* c, effect* peffect, card* target) -> bool {
 		return default_xmaterial_filter(c, peffect) && peffect->get_value(target);
 	};
-	for (const auto& pcard : xyz_materials) {
+	for (auto& pcard : xyz_materials) {
 		peffect = find_effect_with_target(pcard->xmaterial_effect, code, xmaterial_filter, target);
 		if (peffect)
 			return peffect;
@@ -4151,7 +4151,7 @@ int32_t card::is_can_be_link_material(card* scard) {
 * @param filter Lua function filter(e)
 */
 int32_t card::is_original_effect_property(int32_t filter) {
-	for (const auto& peffect : initial_effect) {
+	for (auto& peffect : initial_effect) {
 		pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
 		if (pduel->lua->check_condition(filter, 1))
 			return TRUE;
@@ -4162,7 +4162,7 @@ int32_t card::is_original_effect_property(int32_t filter) {
 * @param filter Lua function filter(e)
 */
 int32_t card::is_effect_property(int32_t filter) {
-	for (const auto& peffect : initial_effect) {
+	for (auto& peffect : initial_effect) {
 		if (current.is_location(LOCATION_MZONE) && !peffect->is_monster_effect())
 			continue;
 		if (current.is_location(LOCATION_SZONE) && !peffect->in_range(this))
@@ -4171,7 +4171,7 @@ int32_t card::is_effect_property(int32_t filter) {
 		if(pduel->lua->check_condition(filter, 1))
 			return TRUE;
 	}
-	for (const auto& peffect : owning_effect) {
+	for (auto& peffect : owning_effect) {
 		if (current.is_location(LOCATION_MZONE) && !peffect->is_monster_effect())
 			continue;
 		if (current.is_location(LOCATION_SZONE) && !peffect->in_range(this))

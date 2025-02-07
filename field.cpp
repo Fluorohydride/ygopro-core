@@ -801,11 +801,11 @@ int32_t field::get_szone_limit(uint8_t playerid, uint8_t uplayer, uint32_t reaso
 }
 uint32_t field::get_linked_zone(int32_t playerid) {
 	uint32_t zones = 0;
-	for(const auto& pcard : player[playerid].list_mzone) {
+	for(auto& pcard : player[playerid].list_mzone) {
 		if(pcard)
 			zones |= pcard->get_linked_zone() & 0xffff;
 	}
-	for(const auto& pcard : player[1 - playerid].list_mzone) {
+	for(auto& pcard : player[1 - playerid].list_mzone) {
 		if(pcard)
 			zones |= pcard->get_linked_zone() >> 16;
 	}
@@ -1932,7 +1932,7 @@ void field::ritual_release(const card_set& material) {
 	card_set rel;
 	card_set rem;
 	card_set tgy;
-	for(const auto& pcard : material) {
+	for(auto& pcard : material) {
 		if(pcard->current.location == LOCATION_GRAVE)
 			rem.insert(pcard);
 		else if(pcard->current.location == LOCATION_OVERLAY || pcard->current.location == LOCATION_EXTRA)
