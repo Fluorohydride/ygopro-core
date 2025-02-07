@@ -397,13 +397,13 @@ int32_t field::draw(uint16_t step, effect* reason_effect, uint32_t reason, uint8
 			pduel->write_buffer8(MSG_DRAW);
 			pduel->write_buffer8(playerid);
 			pduel->write_buffer8((uint8_t)cv.size());
-			for (const auto& pcard : cv)
+			for (auto& pcard : cv)
 				pduel->write_buffer32(pcard->data.code | (pcard->is_position(POS_FACEUP) ? 0x80000000 : 0));
 			if(core.deck_reversed && (public_count < cv.size())) {
 				pduel->write_buffer8(MSG_CONFIRM_CARDS);
 				pduel->write_buffer8(1 - playerid);
 				pduel->write_buffer8((uint8_t)drawed_set->size());
-				for(const auto& pcard : *drawed_set) {
+				for(auto& pcard : *drawed_set) {
 					pduel->write_buffer32(pcard->data.code);
 					pduel->write_buffer8(pcard->current.controler);
 					pduel->write_buffer8(pcard->current.location);
