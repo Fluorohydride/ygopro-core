@@ -4959,6 +4959,7 @@ int32_t field::change_position(uint16_t step, group * targets, effect * reason_e
 				move_to_field(pcard, pcard->current.controler, pcard->current.controler, LOCATION_SZONE, POS_FACEDOWN, FALSE, RETURN_TRAP_MONSTER_TO_SZONE);
 				raise_single_event(pcard, 0, EVENT_SSET, reason_effect, 0, reason_player, 0, 0);
 				ssets.insert(pcard);
+				targets->container.erase(pcard);
 			}
 		}
 		adjust_instant();
