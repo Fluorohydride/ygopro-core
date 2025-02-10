@@ -70,13 +70,14 @@ extern "C" DECL_DLLEXPORT intptr_t create_duel(uint_fast32_t seed) {
 }
 extern "C" DECL_DLLEXPORT void start_duel(intptr_t pduel, uint32_t options) {
 	duel* pd = (duel*)pduel;
-	pd->game_field->core.duel_options |= options & 0xffff;
-	int32_t duel_rule = options >> 16;
+	uint16_t duel_rule = options >> 16;
+	uint16_t duel_options = options & 0xffff;
+	pd->game_field->core.duel_options |= duel_options;
 	if (duel_rule >= 1 && duel_rule <= CURRENT_RULE)
 		pd->game_field->core.duel_rule = duel_rule;
 	else if(options & DUEL_OBSOLETE_RULING)		//provide backward compatibility with replay
 		pd->game_field->core.duel_rule = 1;
-	else
+	if (pd->game_field->core.duel_rule < 1 || pd->game_field->core.duel_rule > CURRENT_RULE)
 		pd->game_field->core.duel_rule = CURRENT_RULE;
 	if (pd->game_field->core.duel_rule == MASTER_RULE3) {
 		pd->game_field->player[0].szone_size = 8;
