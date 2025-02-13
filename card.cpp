@@ -1020,14 +1020,14 @@ uint32_t card::get_link() {
 uint32_t card::get_synchro_level(card* pcard) {
 	if (status & STATUS_NO_LEVEL)
 		return 0;
-	uint32_t lev;
 	effect_set eset;
 	filter_effect(EFFECT_SYNCHRO_LEVEL, &eset);
-	if(eset.size())
-		lev = eset[0]->get_value(pcard);
-	else
-		lev = get_level();
-	return lev;
+	for (int i = 0; i < eset.size(); ++i) {
+		uint32_t lev = eset[i]->get_value(pcard);
+		if (lev)
+			return lev;
+	}
+	return get_level();
 }
 uint32_t card::get_ritual_level(card* pcard) {
 	if (status & STATUS_NO_LEVEL)
