@@ -4077,7 +4077,7 @@ int32_t card::is_can_be_fusion_material(card* fcard, uint32_t summon_type) {
 	return TRUE;
 }
 int32_t card::is_can_be_synchro_material(card* scard, card* tuner) {
-	if ((data.type & (TYPE_XYZ | TYPE_LINK)) && !is_affected_by_effect(EFFECT_SYNCHRO_LEVEL))
+	if ((data.type & (TYPE_XYZ | TYPE_LINK)) && !is_affected_by_effect(EFFECT_ALLOW_FOR_SYNCHRO))
 		return FALSE;
 	if(!(get_synchro_type() & TYPE_MONSTER))
 		return FALSE;
