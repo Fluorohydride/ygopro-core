@@ -1018,7 +1018,7 @@ uint32_t card::get_link() {
 	return data.level;
 }
 uint32_t card::get_synchro_level(card* pcard) {
-	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL))
+	if (status & STATUS_NO_LEVEL)
 		return 0;
 	uint32_t lev;
 	effect_set eset;
@@ -1030,7 +1030,7 @@ uint32_t card::get_synchro_level(card* pcard) {
 	return lev;
 }
 uint32_t card::get_ritual_level(card* pcard) {
-	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL))
+	if (status & STATUS_NO_LEVEL)
 		return 0;
 	uint32_t lev;
 	effect_set eset;
@@ -4077,7 +4077,7 @@ int32_t card::is_can_be_fusion_material(card* fcard, uint32_t summon_type) {
 	return TRUE;
 }
 int32_t card::is_can_be_synchro_material(card* scard, card* tuner) {
-	if(data.type & (TYPE_XYZ | TYPE_LINK))
+	if ((data.type & (TYPE_XYZ | TYPE_LINK)) && !is_affected_by_effect(EFFECT_SYNCHRO_LEVEL))
 		return FALSE;
 	if(!(get_synchro_type() & TYPE_MONSTER))
 		return FALSE;
