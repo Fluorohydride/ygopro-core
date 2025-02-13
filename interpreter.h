@@ -8,9 +8,7 @@
 #ifndef INTERPRETER_H_
 #define INTERPRETER_H_
 
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+#include <lua.hpp>
 #include "common.h"
 #include <unordered_map>
 #include <list>
@@ -42,7 +40,7 @@ public:
 	};
 	using coroutine_map = std::unordered_map<int32_t, std::pair<lua_State*, int32_t>>;
 	using param_list = std::list<std::pair<lua_param, LuaParamType>>;
-	
+
 	duel* pduel;
 	char msgbuf[64];
 	lua_State* lua_state;
