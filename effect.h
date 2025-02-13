@@ -530,6 +530,7 @@ const std::map<uint64_t, uint64_t> category_checklist{
 #define EFFECT_KAISER_COLOSSEUM			370
 #define EFFECT_REPLACE_DAMAGE			371
 #define EFFECT_XYZ_MIN_COUNT			372
+#define EFFECT_ALLOW_FOR_SYNCHRO		373
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
