@@ -1033,7 +1033,10 @@ uint32_t card::get_mat_level_from_effect(card* pcard, uint32_t effect_code) {
 uint32_t card::get_mat_level(card* pcard, uint32_t level_effect_code, uint32_t allow_effect_code) {
 	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL))
 		return get_mat_level_from_effect(pcard, allow_effect_code);
-	return get_mat_level_from_effect(pcard, level_effect_code) || get_level();
+	auto lv = get_mat_level_from_effect(pcard, level_effect_code);
+	if(lv)
+		return lv;
+	return get_level();
 }
 uint32_t card::get_synchro_level(card* pcard) {
 	return get_mat_level(pcard, EFFECT_SYNCHRO_LEVEL, EFFECT_ALLOW_FOR_SYNCHRO);
