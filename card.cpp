@@ -1022,7 +1022,7 @@ uint32_t get_mat_level_from_effect(card* pcard, uint32_t effect_code) {
 	if(!effect_code)
 		return 0;
 	effect_set eset;
-	pduel->game_field->filter_effect(effect_code, &eset);
+	filter_effect(effect_code, &eset);
 	for(int32_t i = 0; i < eset.size(); ++i) {
 		uint32_t lev = eset[i]->get_value(pcard);
 		if(lev)
