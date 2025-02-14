@@ -1018,7 +1018,7 @@ uint32_t card::get_link() {
 	return data.level;
 }
 
-uint32_t get_mat_level_from_effect(card* pcard, uint32_t effect_code) {
+uint32_t card::get_mat_level_from_effect(card* pcard, uint32_t effect_code) {
 	if(!effect_code)
 		return 0;
 	effect_set eset;
