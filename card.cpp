@@ -4077,7 +4077,6 @@ int32_t card::is_can_be_fusion_material(card* fcard, uint32_t summon_type) {
 	return TRUE;
 }
 int32_t card::is_can_be_synchro_material(card* scard, card* tuner) {
-	effect_set eset;
 	if((data.type & (TYPE_XYZ | TYPE_LINK)) && !get_synchro_level(scard))
 		return FALSE;
 	if(!(get_synchro_type() & TYPE_MONSTER))
@@ -4089,7 +4088,7 @@ int32_t card::is_can_be_synchro_material(card* scard, card* tuner) {
 		if(is_affected_by_effect(EFFECT_SCRAP_CHIMERA, tuner))
 			return false;
 	}
-	eset.clear();
+	effect_set eset;
 	filter_effect(EFFECT_CANNOT_BE_SYNCHRO_MATERIAL, &eset);
 	for(int32_t i = 0; i < eset.size(); ++i)
 		if(eset[i]->get_value(scard))
