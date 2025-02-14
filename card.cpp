@@ -4078,18 +4078,7 @@ int32_t card::is_can_be_fusion_material(card* fcard, uint32_t summon_type) {
 }
 int32_t card::is_can_be_synchro_material(card* scard, card* tuner) {
 	effect_set eset;
-	if(data.type & (TYPE_XYZ | TYPE_LINK)) {
-		filter_effect(EFFECT_ALLOW_FOR_SYNCHRO, &eset);
-		auto found = FALSE;
-		for(int32_t i = 0; i < eset.size(); ++i) {
-			if(eset[i]->get_value(scard)) {
-				found = TRUE;
-				break;
-			}
-		}
-		if(!found)
-			return FALSE;
-	}
+	if((data.type & (TYPE_XYZ | TYPE_LINK)) && !get_synchro_level(scard))
 		return FALSE;
 	if(!(get_synchro_type() & TYPE_MONSTER))
 		return FALSE;
