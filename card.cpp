@@ -1018,8 +1018,7 @@ uint32_t card::get_link() {
 	return data.level;
 }
 uint32_t card::get_synchro_level(card* pcard) {
-	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL))
-	{
+	if((data.type & (TYPE_XYZ | TYPE_LINK)) || (status & STATUS_NO_LEVEL)) {
 		effect_set eset;
 		filter_effect(EFFECT_ALLOW_FOR_SYNCHRO, &eset);
 		for(int32_t i = 0; i < eset.size(); ++i) {
@@ -1030,7 +1029,6 @@ uint32_t card::get_synchro_level(card* pcard) {
 		}
 		return 0;
 	}
-		//return 0;
 	uint32_t lev;
 	effect_set eset;
 	filter_effect(EFFECT_SYNCHRO_LEVEL, &eset);
