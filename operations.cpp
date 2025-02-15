@@ -2005,6 +2005,7 @@ int32_t field::flip_summon(uint16_t step, uint8_t sumplayer, card * target, uint
 		target->summon_player = sumplayer;
 		target->summon_info |= SUMMON_TYPE_FLIP;
 		target->fieldid = infos.field_id++;
+		target->activate_count_id = target->fieldid;
 		core.phase_action = TRUE;
 		pduel->write_buffer8(MSG_FLIPSUMMONING);
 		pduel->write_buffer32(target->data.code);
@@ -4909,6 +4910,7 @@ int32_t field::change_position(uint16_t step, group * targets, effect * reason_e
 			core.hint_timing[pcard->current.controler] |= TIMING_POS_CHANGE;
 			if((opos & POS_FACEDOWN) && (npos & POS_FACEUP)) {
 				pcard->fieldid = infos.field_id++;
+				pcard->activate_count_id = pcard->fieldid;
 				if(check_unique_onfield(pcard, pcard->current.controler, pcard->current.location))
 					pcard->unique_fieldid = UINT_MAX;
 				if(pcard->current.location == LOCATION_MZONE) {

@@ -168,7 +168,7 @@ int32_t effect::check_count_limit(uint8_t playerid) {
 			uint32_t limit_type = count_code & 0xf0000000U;
 			int32_t count = count_limit_max;
 			if(limit_code == EFFECT_COUNT_CODE_SINGLE) {
-				if(pduel->game_field->get_effect_code(limit_type | get_handler()->fieldid, PLAYER_NONE) >= count)
+				if(pduel->game_field->get_effect_code(limit_type | get_handler()->activate_count_id, PLAYER_NONE) >= count)
 					return FALSE;
 			} else {
 				if(pduel->game_field->get_effect_code(count_code, playerid) >= count)
@@ -677,7 +677,7 @@ void effect::dec_count(uint8_t playerid) {
 		uint32_t limit_code = count_code & MAX_CARD_ID;
 		uint32_t limit_type = count_code & 0xf0000000;
 		if(limit_code == EFFECT_COUNT_CODE_SINGLE)
-			pduel->game_field->add_effect_code(limit_type | get_handler()->fieldid, PLAYER_NONE);
+			pduel->game_field->add_effect_code(limit_type | get_handler()->activate_count_id, PLAYER_NONE);
 		else
 			pduel->game_field->add_effect_code(count_code, playerid);
 	}
