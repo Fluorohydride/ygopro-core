@@ -183,7 +183,7 @@ int32_t scriptlib::duel_get_flag_effect_label(lua_State *L) {
 		lua_pushnil(L);
 		return 1;
 	}
-	for(int32_t i = 0; i < eset.size(); ++i)
+	for(effect_set::size_type i = 0; i < eset.size(); ++i)
 		lua_pushinteger(L, eset[i]->label.size() ? eset[i]->label[0] : 0);
 	return eset.size();
 }
@@ -1249,7 +1249,7 @@ int32_t scriptlib::duel_is_environment(lua_State *L) {
 		effect_set eset;
 		pduel->game_field->filter_field_effect(EFFECT_CHANGE_ENVIRONMENT, &eset);
 		if(eset.size()) {
-			effect* peffect = eset.get_last();
+			effect* peffect = eset.back();
 			if(code == (uint32_t)peffect->get_value() && (playerid == peffect->get_handler_player() || playerid == PLAYER_ALL))
 				ret = 1;
 		}
@@ -4281,7 +4281,7 @@ int32_t scriptlib::duel_is_player_affected_by_effect(lua_State *L) {
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, code, &eset);
 	int32_t size = 0;
-	for(int32_t i = 0; i < eset.size(); ++i) {
+	for(effect_set::size_type i = 0; i < eset.size(); ++i) {
 		if(eset[i]->check_count_limit(playerid)) {
 			interpreter::effect2value(L, eset[i]);
 			++size;
