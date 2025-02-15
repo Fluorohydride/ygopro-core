@@ -63,7 +63,7 @@ int32_t scriptlib::card_get_fusion_code(lua_State *L) {
 		return count;
 	effect_set eset;
 	pcard->filter_effect(EFFECT_ADD_FUSION_CODE, &eset);
-	for(int32_t i = 0; i < eset.size(); ++i)
+	for(effect_set::size_type i = 0; i < eset.size(); ++i)
 		lua_pushinteger(L, eset[i]->get_value(pcard));
 	return count + eset.size();
 }
@@ -80,7 +80,7 @@ int32_t scriptlib::card_get_link_code(lua_State *L) {
 	}
 	effect_set eset;
 	pcard->filter_effect(EFFECT_ADD_LINK_CODE, &eset);
-	for(int32_t i = 0; i < eset.size(); ++i)
+	for(effect_set::size_type i = 0; i < eset.size(); ++i)
 		lua_pushinteger(L, eset[i]->get_value(pcard));
 	return count + eset.size();
 }
@@ -98,7 +98,7 @@ int32_t scriptlib::card_is_fusion_code(lua_State *L) {
 	fcode.insert(code1);
 	if(code2)
 		fcode.insert(code2);
-	for(int32_t i = 0; i < eset.size(); ++i)
+	for(effect_set::size_type i = 0; i < eset.size(); ++i)
 		fcode.insert(eset[i]->get_value(pcard));
 	uint32_t count = lua_gettop(L) - 1;
 	uint32_t result = FALSE;
@@ -128,7 +128,7 @@ int32_t scriptlib::card_is_link_code(lua_State *L) {
 	fcode.insert(code1);
 	if(code2)
 		fcode.insert(code2);
-	for(int32_t i = 0; i < eset.size(); ++i)
+	for(effect_set::size_type i = 0; i < eset.size(); ++i)
 		fcode.insert(eset[i]->get_value(pcard));
 	uint32_t count = lua_gettop(L) - 1;
 	uint32_t result = FALSE;
@@ -1858,7 +1858,7 @@ int32_t scriptlib::card_is_has_effect(lua_State *L) {
 			check_player = PLAYER_NONE;
 	}
 	int32_t size = 0;
-	for(int32_t i = 0; i < eset.size(); ++i) {
+	for(effect_set::size_type i = 0; i < eset.size(); ++i) {
 		if(check_player == PLAYER_NONE || eset[i]->check_count_limit(check_player)) {
 			interpreter::effect2value(L, eset[i]);
 			++size;

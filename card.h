@@ -170,7 +170,8 @@ public:
 	uint8_t attack_controler{};
 	uint64_t cardid{};
 	uint32_t fieldid{};
-	uint32_t fieldid_r{};
+	uint32_t fieldid_r{};	//real field id, updated when moving to new location
+	uint32_t activate_count_id{};	//updated when moving to new location or flipping
 	uint16_t turnid{};
 	uint16_t turn_counter{};
 	uint8_t unique_pos[2]{};
@@ -243,6 +244,8 @@ public:
 	uint32_t get_level();
 	uint32_t get_rank();
 	uint32_t get_link();
+	uint32_t get_mat_level_from_effect(card* pcard, uint32_t effect_code);
+	uint32_t get_mat_level(card* pcard, uint32_t level_effect_code, uint32_t allow_effect_code = 0);
 	uint32_t get_synchro_level(card* pcard);
 	uint32_t get_ritual_level(card* pcard);
 	uint32_t check_xyz_level(card* pcard, uint32_t lv);

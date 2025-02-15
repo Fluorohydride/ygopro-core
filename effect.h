@@ -18,8 +18,6 @@ class duel;
 class group;
 class effect;
 struct tevent;
-struct effect_set;
-struct effect_set_v;
 enum effect_flag : uint64_t;
 enum effect_flag2 : uint64_t;
 enum effect_category :uint64_t;
@@ -42,8 +40,8 @@ public:
 	uint16_t range{ 0 };
 	uint16_t s_range{ 0 };
 	uint16_t o_range{ 0 };
-	uint8_t count_limit{ 0 };
-	uint8_t count_limit_max{ 0 };
+	uint8_t count_limit{ 0 };	//left count of activation
+	uint8_t count_limit_max{ 0 };	//max count of activation
 	uint16_t status{ 0 };
 	int32_t reset_count{ 0 };
 	uint32_t reset_flag{ 0 };
@@ -530,6 +528,8 @@ const std::map<uint64_t, uint64_t> category_checklist{
 #define EFFECT_KAISER_COLOSSEUM			370
 #define EFFECT_REPLACE_DAMAGE			371
 #define EFFECT_XYZ_MIN_COUNT			372
+#define EFFECT_SYNCHRO_LEVEL_EX		373
+#define EFFECT_RITUAL_LEVEL_EX		374
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

@@ -159,9 +159,6 @@ int32_t effect::is_single_ready() {
 	int32_t res = pduel->lua->check_condition(condition, 1);
 	return res;
 }
-// reset_count: count of effect reset
-// count_limit: left count of activation
-// count_limit_max: max count of activation
 int32_t effect::check_count_limit(uint8_t playerid) {
 	if(is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
 		if(count_limit == 0)
@@ -171,7 +168,7 @@ int32_t effect::check_count_limit(uint8_t playerid) {
 			uint32_t limit_type = count_code & 0xf0000000U;
 			int32_t count = count_limit_max;
 			if(limit_code == EFFECT_COUNT_CODE_SINGLE) {
-				if(pduel->game_field->get_effect_code(limit_type | get_handler()->fieldid, PLAYER_NONE) >= count)
+				if(pduel->game_field->get_effect_code(limit_type | get_handler()->activate_count_id, PLAYER_NONE) >= count)
 					return FALSE;
 			} else {
 				if(pduel->game_field->get_effect_code(count_code, playerid) >= count)
@@ -216,7 +213,7 @@ int32_t effect::get_required_handorset_effects(effect_set* eset, uint8_t playeri
 	uint8_t op = pduel->game_field->core.reason_player;
 	pduel->game_field->core.reason_player = playerid;
 	pduel->game_field->save_lp_cost();
-	for(int32_t i = 0; i < tmp_eset.size(); ++i) {
+	for(effect_set::size_type i = 0; i < tmp_eset.size(); ++i) {
 		auto peffect = tmp_eset[i];
 		if(peffect->check_count_limit(playerid)) {
 			pduel->game_field->core.reason_effect = peffect;
@@ -232,7 +229,7 @@ int32_t effect::get_required_handorset_effects(effect_set* eset, uint8_t playeri
 			pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
 			if(pduel->lua->check_condition(peffect->cost, 10)) {
 				available = 2;
-				eset->add_item(peffect);
+				eset->push_back(peffect);
 			}
 		}
 	}
@@ -378,7 +375,7 @@ int32_t effect::is_activateable(uint8_t playerid, const tevent& e, int32_t negle
 int32_t effect::is_action_check(uint8_t playerid) {
 	effect_set eset;
 	pduel->game_field->filter_player_effect(playerid, EFFECT_CANNOT_ACTIVATE, &eset);
-	for(int32_t i = 0; i < eset.size(); ++i) {
+	for(effect_set::size_type i = 0; i < eset.size(); ++i) {
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		if(eset[i]->check_value_condition(2))
@@ -386,7 +383,7 @@ int32_t effect::is_action_check(uint8_t playerid) {
 	}
 	eset.clear();
 	pduel->game_field->filter_player_effect(playerid, EFFECT_ACTIVATE_COST, &eset);
-	for(int32_t i = 0; i < eset.size(); ++i) {
+	for(effect_set::size_type i = 0; i < eset.size(); ++i) {
 		pduel->lua->add_param(eset[i], PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
@@ -574,7 +571,7 @@ int32_t effect::is_player_effect_target(card* pcard) {
 }
 int32_t effect::is_immuned(card* pcard) {
 	const effect_set_v& effects = pcard->immune_effect;
-	for (int32_t i = 0; i < effects.size(); ++i) {
+	for (effect_set::size_type i = 0; i < effects.size(); ++i) {
 		effect* peffect = effects[i];
 		if(peffect->is_available() && peffect->value) {
 			pduel->lua->add_param(this, PARAM_TYPE_EFFECT);
@@ -680,7 +677,7 @@ void effect::dec_count(uint8_t playerid) {
 		uint32_t limit_code = count_code & MAX_CARD_ID;
 		uint32_t limit_type = count_code & 0xf0000000;
 		if(limit_code == EFFECT_COUNT_CODE_SINGLE)
-			pduel->game_field->add_effect_code(limit_type | get_handler()->fieldid, PLAYER_NONE);
+			pduel->game_field->add_effect_code(limit_type | get_handler()->activate_count_id, PLAYER_NONE);
 		else
 			pduel->game_field->add_effect_code(count_code, playerid);
 	}
