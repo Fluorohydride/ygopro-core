@@ -1039,10 +1039,10 @@ uint32_t card::get_mat_level(card* pcard, uint32_t level_effect_code, uint32_t a
 	return get_level();
 }
 uint32_t card::get_synchro_level(card* pcard) {
-	return get_mat_level(pcard, EFFECT_SYNCHRO_LEVEL, EFFECT_ALLOW_FOR_SYNCHRO);
+	return get_mat_level(pcard, EFFECT_SYNCHRO_LEVEL, EFFECT_SYNCHRO_LEVEL_EX);
 }
 uint32_t card::get_ritual_level(card* pcard) {
-	return get_mat_level(pcard, EFFECT_RITUAL_LEVEL, EFFECT_ALLOW_FOR_RITUAL);
+	return get_mat_level(pcard, EFFECT_RITUAL_LEVEL, EFFECT_RITUAL_LEVEL_EX);
 }
 uint32_t card::check_xyz_level(card* pcard, uint32_t lv) {
 	if(status & STATUS_NO_LEVEL)

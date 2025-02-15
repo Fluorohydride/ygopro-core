@@ -1842,18 +1842,18 @@ void field::get_ritual_material(uint8_t playerid, effect* peffect, card_set* mat
 	for(auto& pcard : player[playerid].list_mzone) {
 		if(pcard && pcard->is_affect_by_effect(peffect)
 		        && pcard->is_releasable_by_nonsummon(playerid, REASON_EFFECT) && pcard->is_releasable_by_effect(playerid, peffect)
-				&& (no_level || pcard->get_level() > 0 || pcard->is_affected_by_effect(EFFECT_ALLOW_FOR_RITUAL)))
+				&& (no_level || pcard->get_level() > 0 || pcard->is_affected_by_effect(EFFECT_RITUAL_LEVEL_EX)))
 			material->insert(pcard);
 		if(pcard && pcard->is_affected_by_effect(EFFECT_OVERLAY_RITUAL_MATERIAL))
 			for(auto& mcard : pcard->xyz_materials)
-				if (no_level || mcard->get_level() > 0 || pcard->is_affected_by_effect(EFFECT_ALLOW_FOR_RITUAL))
+				if (no_level || mcard->get_level() > 0 || pcard->is_affected_by_effect(EFFECT_RITUAL_LEVEL_EX))
 					material->insert(mcard);
 	}
 	for(auto& pcard : player[1 - playerid].list_mzone) {
 		if(pcard && pcard->is_affect_by_effect(peffect)
 		        && pcard->is_affected_by_effect(EFFECT_EXTRA_RELEASE) && pcard->is_position(POS_FACEUP)
 		        && pcard->is_releasable_by_nonsummon(playerid, REASON_EFFECT) && pcard->is_releasable_by_effect(playerid, peffect)
-				&& (no_level || pcard->get_level() > 0 || pcard->is_affected_by_effect(EFFECT_ALLOW_FOR_RITUAL)))
+				&& (no_level || pcard->get_level() > 0 || pcard->is_affected_by_effect(EFFECT_RITUAL_LEVEL_EX)))
 			material->insert(pcard);
 	}
 	for(auto& pcard : player[playerid].list_hand)
@@ -1862,11 +1862,11 @@ void field::get_ritual_material(uint8_t playerid, effect* peffect, card_set* mat
 	for(auto& pcard : player[playerid].list_grave)
 		if((pcard->data.type & TYPE_MONSTER)
 				&& pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL) && pcard->is_removeable(playerid, POS_FACEUP, REASON_EFFECT)
-				&& (no_level || pcard->get_level() > 0 || pcard->is_affected_by_effect(EFFECT_ALLOW_FOR_RITUAL)))
+				&& (no_level || pcard->get_level() > 0 || pcard->is_affected_by_effect(EFFECT_RITUAL_LEVEL_EX)))
 			material->insert(pcard);
 	for(auto& pcard : player[playerid].list_extra)
 		if(pcard->is_affected_by_effect(EFFECT_EXTRA_RITUAL_MATERIAL)
-				&& (no_level || pcard->get_level() > 0 || pcard->is_affected_by_effect(EFFECT_ALLOW_FOR_RITUAL)))
+				&& (no_level || pcard->get_level() > 0 || pcard->is_affected_by_effect(EFFECT_RITUAL_LEVEL_EX)))
 			material->insert(pcard);
 }
 void field::get_fusion_material(uint8_t playerid, card_set* material_all, card_set* material_base, uint32_t location) {
