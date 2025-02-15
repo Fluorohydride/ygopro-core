@@ -170,7 +170,8 @@ public:
 	uint8_t attack_controler{};
 	uint64_t cardid{};
 	uint32_t fieldid{};
-	uint32_t fieldid_r{};
+	uint32_t fieldid_r{};	//real field id, updated when moving to new location
+	uint32_t activate_count_id{};	//updated when moving to new location or flipping
 	uint16_t turnid{};
 	uint16_t turn_counter{};
 	uint8_t unique_pos[2]{};
