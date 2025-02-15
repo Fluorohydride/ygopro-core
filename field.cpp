@@ -183,6 +183,7 @@ void field::add_card(uint8_t playerid, card* pcard, uint8_t location, uint8_t se
 	pcard->apply_field_effect();
 	pcard->fieldid = infos.field_id++;
 	pcard->fieldid_r = pcard->fieldid;
+	pcard->activate_count_id = pcard->fieldid;
 	if(check_unique_onfield(pcard, pcard->current.controler, pcard->current.location))
 		pcard->unique_fieldid = UINT_MAX;
 	pcard->turnid = infos.turn_id;
