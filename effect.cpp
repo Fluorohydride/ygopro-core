@@ -159,9 +159,6 @@ int32_t effect::is_single_ready() {
 	int32_t res = pduel->lua->check_condition(condition, 1);
 	return res;
 }
-// reset_count: count of effect reset
-// count_limit: left count of activation
-// count_limit_max: max count of activation
 int32_t effect::check_count_limit(uint8_t playerid) {
 	if(is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
 		if(count_limit == 0)
