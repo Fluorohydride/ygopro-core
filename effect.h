@@ -18,8 +18,6 @@ class duel;
 class group;
 class effect;
 struct tevent;
-struct effect_set;
-struct effect_set_v;
 enum effect_flag : uint64_t;
 enum effect_flag2 : uint64_t;
 enum effect_category :uint64_t;
