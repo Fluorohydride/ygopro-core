@@ -4965,8 +4965,12 @@ int32_t field::change_position(uint16_t step, group * targets, effect * reason_e
 		process_single_event();
 		if(flips.size())
 			raise_event(flips, EVENT_FLIP, reason_effect, 0, reason_player, 0, 0);
-		if(ssets.size())
+		if(ssets.size()) {
+			for(auto& pcard : ssets) {
+				targets->container.erase(pcard);
+			}
 			raise_event(ssets, EVENT_SSET, reason_effect, 0, reason_player, 0, 0);
+		}
 		if(pos_changed.size())
 			raise_event(pos_changed, EVENT_CHANGE_POS, reason_effect, 0, reason_player, 0, 0);
 		process_instant_event();
