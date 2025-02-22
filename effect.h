@@ -40,8 +40,8 @@ public:
 	uint16_t range{ 0 };
 	uint16_t s_range{ 0 };
 	uint16_t o_range{ 0 };
-	uint8_t count_limit{ 0 };
-	uint8_t count_limit_max{ 0 };
+	uint8_t count_limit{ 0 };	//left count of activation
+	uint8_t count_limit_max{ 0 };	//max count of activation
 	uint16_t status{ 0 };
 	int32_t reset_count{ 0 };
 	uint32_t reset_flag{ 0 };
