@@ -1023,9 +1023,9 @@ uint32_t card::get_mat_level_from_effect(card* pcard, uint32_t effect_code) {
 		return 0;
 	effect_set eset;
 	filter_effect(effect_code, &eset);
-	for(int32_t i = 0; i < eset.size(); ++i) {
-		uint32_t lev = eset[i]->get_value(pcard);
-		if(lev)
+	for (auto& peffect : eset) {
+		uint32_t lev = peffect->get_value(pcard);
+		if (lev)
 			return lev;
 	}
 	return 0;
