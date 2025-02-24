@@ -17,7 +17,8 @@ jobs:
         fetch-depth: 0
 
     - name: Download dependencies
-      run: bash -c " \
+      run: |
+        bash -c " \
         curl -Z --retry 5 --connect-timeout 30 --location \
         --create-dirs --output-dir temp --remote-name-all \
         https://www.lua.org/ftp/lua-5.4.7.tar.gz \
