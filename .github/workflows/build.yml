@@ -16,16 +16,24 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install lua
+    - name: Download dependencies
       run: |
-        bash -c "curl -Z --retry 5 --connect-timeout 30 --location --create-dirs --output-dir temp --remote-name-all https://www.lua.org/ftp/lua-5.4.7.tar.gz https://github.com/premake/premake-core/releases/download/v5.0.0-beta2/premake-5.0.0-beta2-windows.zip ; exit 0"
+        bash -c " \
+        curl -Z --retry 5 --connect-timeout 30 --location \
+        --create-dirs --output-dir temp --remote-name-all \
+        https://www.lua.org/ftp/lua-5.4.7.tar.gz \
+        https://github.com/premake/premake-core/releases/download/v5.0.0-beta5/premake-5.0.0-beta5-windows.zip \
+        ; exit 0"
+
+    - name: Lua
+      run: |
         tar -xzf temp/lua-5.4.7.tar.gz
         move lua-5.4.7 lua
 
     - name: Premake
       run: |
         mkdir premake-5
-        tar -C premake-5 -xzf temp/premake-5.0.0-beta2-windows.zip
+        tar -C premake-5 -xzf temp/premake-5.0.0-beta5-windows.zip
         copy premake\lua.lua lua\premake5.lua
         copy premake\dll.lua dll.lua
         .\premake-5\premake5.exe vs2022 --file=dll.lua
