@@ -9,6 +9,7 @@ on:
 jobs:
   build-windows:
     runs-on: windows-2022
+    continue-on-error: true
 
     steps:
     - name: Checkout
@@ -45,12 +46,10 @@ jobs:
       uses: microsoft/setup-msbuild@v2
 
     - name: Build x32
-      continue-on-error: true
       run: |
         msbuild build\ocgcoredll.sln /t:Build /p:"Configuration=Release;Platform=Win32"
 
     - name: Build x64
-      continue-on-error: true
       run: |
         msbuild build\ocgcoredll.sln /t:Build /p:"Configuration=Release;Platform=x64"
 
@@ -76,6 +75,7 @@ jobs:
 
   build-linux:
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     steps:
     - name: Checkout
@@ -115,14 +115,12 @@ jobs:
         ./premake-5/premake5 gmake --file=dll.lua
 
     - name: Build x32
-      continue-on-error: true
       run: |
         cd build
         make -j 4 config=release_x32
         cd ..
 
     - name: Build x64
-      continue-on-error: true
       run: |
         cd build
         make -j 4 config=release_x64
