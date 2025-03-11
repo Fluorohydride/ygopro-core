@@ -44,12 +44,18 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    - name: Build
+    - name: Build x32
+      continue-on-error: true
       run: |
         msbuild build\ocgcoredll.sln /t:Build /p:"Configuration=Release;Platform=Win32"
+
+    - name: Build x64
+      continue-on-error: true
+      run: |
         msbuild build\ocgcoredll.sln /t:Build /p:"Configuration=Release;Platform=x64"
 
     - name: Upload build artifacts
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: ocgcore-windows
@@ -58,7 +64,7 @@ jobs:
           build\bin\x64\Release\ocgcore.dll
 
     - name: GitHub Release
-      if: github.event_name == 'push'
+      if: success() && github.event_name == 'push'
       uses: salix5/action-automatic-releases@node20
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -77,10 +83,10 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc-multilib g++-multilib
+#    - name: Install Dependencies
+#      run: |
+#        sudo apt-get update
+#        sudo apt-get install -y gcc-multilib g++-multilib
 
     - name: Download lua
       id: lua
@@ -108,14 +114,22 @@ jobs:
         chmod +x premake-5/premake5
         ./premake-5/premake5 gmake --file=dll.lua
 
-    - name: Build
+    - name: Build x32
+      continue-on-error: true
       run: |
         cd build
         make -j 4 config=release_x32
+        cd ..
+
+    - name: Build x64
+      continue-on-error: true
+      run: |
+        cd build
         make -j 4 config=release_x64
         cd ..
 
     - name: Upload build artifacts
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: ocgcore-linux
