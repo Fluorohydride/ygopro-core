@@ -24,6 +24,7 @@ jobs:
 
     - name: Lua
       run: |
+        mkdir lua
         tar -C lua -xzf ${{ steps.lua.outputs.filepath }}
 
     - name: Download premake
@@ -35,7 +36,7 @@ jobs:
     - name: Premake
       run: |
         mkdir premake-5
-        tar -C premake-5 -xzf ${{ steps.lua.outputs.filepath }}
+        tar -C premake-5 -xzf ${{ steps.premake.outputs.filepath }}
         copy premake\lua.lua lua\premake5.lua
         copy premake\dll.lua dll.lua
         .\premake-5\premake5.exe vs2022 --file=dll.lua
@@ -83,6 +84,7 @@ jobs:
 
     - name: Lua
       run: |
+        mkdir lua
         tar -C lua -xzf ${{ steps.lua.outputs.filepath }}
 
     - name: Download premake
@@ -94,7 +96,7 @@ jobs:
     - name: Premake
       run: |
         mkdir premake-5
-        tar -C premake-5 -xzf ${{ steps.lua.outputs.filepath }}
+        tar -C premake-5 -xzf ${{ steps.premake.outputs.filepath }}
         cp premake/lua.lua lua/premake5.lua
         cp premake/dll.lua dll.lua
         chmod +x premake-5/premake5
