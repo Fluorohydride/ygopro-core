@@ -52,6 +52,7 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
+        name: ocgcore-windows
         path: |
           build\bin\x32\Release\ocgcore.dll
           build\bin\x64\Release\ocgcore.dll
@@ -117,6 +118,7 @@ jobs:
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
+        name: ocgcore-linux
         path: |
           build/bin/x32/Release/libocgcore.so
           build/bin/x64/Release/libocgcore.so
