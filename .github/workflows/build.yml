@@ -24,8 +24,8 @@ jobs:
 
     - name: Lua
       run: |
-        mkdir lua
-        tar -C lua -xzf ${{ steps.lua.outputs.filepath }}
+        tar -xzf ${{ steps.lua.outputs.filepath }}
+        move lua-5.4.7 lua
 
     - name: Download premake
       id: premake
@@ -89,8 +89,8 @@ jobs:
 
     - name: Lua
       run: |
-        mkdir lua
-        tar -C lua -xzf ${{ steps.lua.outputs.filepath }}
+        tar -xzf ${{ steps.lua.outputs.filepath }}
+        mv lua-5.4.7 lua
 
     - name: Download premake
       id: premake
