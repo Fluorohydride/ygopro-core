@@ -3,6 +3,8 @@ project "lua"
 
     files { "src/*.c", "src/*.h", "src/*.hpp" }
     removefiles { "src/lua.c", "src/luac.c" }
+    cdialect "C11"
+    cppdialect "C++14"
 
     filter "action:vs*"
         buildoptions { "/TP" }
