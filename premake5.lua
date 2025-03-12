@@ -1,7 +1,7 @@
 project "ocgcore"
     kind "StaticLib"
     cdialect "C11"
-    cppdialect "C++14"
+    cppdialect "C++17"
 
     files { "*.cpp", "*.h" }
     links { LUA_LIB_NAME }
