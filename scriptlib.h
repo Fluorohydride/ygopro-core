@@ -406,6 +406,7 @@ public:
 	static void open_grouplib(lua_State *L);
 
 	//Duel functions
+	static int32_t duel_load_script(lua_State *L);
 	static int32_t duel_enable_global_flag(lua_State *L);
 	static int32_t duel_get_lp(lua_State *L);
 	static int32_t duel_set_lp(lua_State *L);
