@@ -1,6 +1,5 @@
 project "lua"
     kind "StaticLib"
-    cdialect "C11"
     cppdialect "C++17"
 
     files { "src/*.c", "src/*.h", "src/*.hpp" }
