@@ -22,3 +22,4 @@ project "lua"
 
     filter "system:linux"
         defines { "LUA_USE_LINUX" }
+        buildoptions { "-fPIC" }
