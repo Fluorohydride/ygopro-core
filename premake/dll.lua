@@ -50,6 +50,7 @@ include(LUA_DIR)
 project "ocgcore"
 
     kind "SharedLib"
+    cppdialect "C++14"
 
     files { "*.cpp", "*.h" }
     links { "lua" }
