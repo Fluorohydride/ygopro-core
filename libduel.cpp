@@ -4844,7 +4844,7 @@ int32_t scriptlib::duel_load_script(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L); 
 	const char* pstr = lua_tostring(L, 1);
 	char filename[64];
-	sprintf(filename, "./script/%s", pstr);
+	interpreter::sprintf(filename, "./script/%s", pstr);
 	lua_pushboolean(L, pduel->lua->load_script(filename));
 	return 1;
 }
