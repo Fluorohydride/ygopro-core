@@ -12,6 +12,7 @@ end
 workspace "ocgcoredll"
     location "build"
     language "C++"
+    cppdialect "C++14"
 
     configurations { "Release", "Debug" }
     platforms { "x32", "x64" }
@@ -46,6 +47,19 @@ workspace "ocgcoredll"
     filter "action:vs*"
         buildoptions { "/utf-8" }
         defines { "_CRT_SECURE_NO_WARNINGS" }
+
+    filter "not action:vs*"
+        buildoptions { }
+
+    filter "system:bsd"
+        defines { "LUA_USE_POSIX" }
+
+    filter "system:macosx"
+        defines { "LUA_USE_MACOSX" }
+
+    filter "system:linux"
+        defines { "LUA_USE_LINUX" }
+        buildoptions { "-fPIC" }
 
 filter {}
 
