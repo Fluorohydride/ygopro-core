@@ -12,7 +12,7 @@ end
 workspace "ocgcoredll"
     location "build"
     language "C++"
-    cppdialect "C++14"
+    cppdialect "C++17"
 
     configurations { "Release", "Debug" }
     platforms { "x32", "x64" }
