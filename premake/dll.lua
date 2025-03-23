@@ -45,6 +45,8 @@ workspace "ocgcoredll"
         disablewarnings { "4334" }
 
     filter "action:vs*"
+        cdialect "C11"
+        conformancemode "On"
         buildoptions { "/utf-8" }
         defines { "_CRT_SECURE_NO_WARNINGS" }
 
