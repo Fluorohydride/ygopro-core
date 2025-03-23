@@ -1,5 +1,7 @@
 newoption { trigger = "lua-dir", description = "", value = "PATH", default = "./lua" }
 
+os.execute('echo 111123123')
+
 function GetParam(param)
     return _OPTIONS[param] or os.getenv(string.upper(string.gsub(param,"-","_")))
 end
