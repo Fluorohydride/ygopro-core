@@ -61,7 +61,7 @@ workspace "ocgcoredll"
 
     filter "system:linux"
         defines { "LUA_USE_LINUX" }
-        buildoptions { "-fPIC" }
+        pic "On"
 
 filter {}
 
