@@ -14,6 +14,7 @@
 #include "ocgapi.h"
 
 int32_t scriptlib::debug_message(lua_State *L) {
+	check_param_count(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
 	lua_getglobal(L, "tostring");
 	lua_pushvalue(L, -2);
