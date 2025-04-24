@@ -1299,9 +1299,9 @@ int32_t field::trap_monster_adjust(uint16_t step) {
 		if(fcount <= 0) {
 			for(auto& pcard : core.trap_monster_adjust_set[check_player]) {
 				to_grave_set->insert(pcard);
-				core.units.begin()->step = 2;
 			}
 			core.trap_monster_adjust_set[check_player].clear();
+			core.units.begin()->step = 2;
 		} else if((int32_t)core.trap_monster_adjust_set[check_player].size() > fcount) {
 			uint32_t ct = (uint32_t)core.trap_monster_adjust_set[check_player].size() - fcount;
 			core.select_cards.clear();
