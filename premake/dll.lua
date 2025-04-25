@@ -49,9 +49,6 @@ workspace "ocgcoredll"
         buildoptions { "/utf-8" }
         defines { "_CRT_SECURE_NO_WARNINGS" }
 
-    filter "not action:vs*"
-        buildoptions { }
-
     filter "system:bsd"
         defines { "LUA_USE_POSIX" }
 
