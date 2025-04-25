@@ -31,7 +31,6 @@ workspace "ocgcoredll"
         defines "_DEBUG"
 
     filter "system:windows"
-        defines { "WIN32", "_WIN32" }
         systemversion "latest"
         startproject "ocgcore"
 
