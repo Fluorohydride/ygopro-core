@@ -12,9 +12,6 @@ project "ocgcore"
         libdirs { LUA_LIB_DIR }
     end
 
-    filter "not action:vs*"
-        buildoptions { }
-
     filter "system:bsd"
         defines { "LUA_USE_POSIX" }
 
