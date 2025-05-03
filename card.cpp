@@ -2285,8 +2285,14 @@ int32_t card::leave_field_redirect(uint32_t reason) {
 			redirects |= redirect;
 		else if((redirect & LOCATION_DECK) && !is_affected_by_effect(EFFECT_CANNOT_TO_DECK) && pduel->game_field->is_player_can_send_to_deck(es[i]->get_handler_player(), this))
 			redirects |= redirect;
-		else if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(es[i]->get_handler_player(), this, REASON_EFFECT))
+		else if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(es[i]->get_handler_player(), this, REASON_EFFECT)) {
 			redirects |= redirect;
+      if (es[i]->is_flag(EFFECT_FLAG_CANNOT_DISABLE) and es[i]->is_flag(EFFECT_FLAG_UNCOPYABLE)) {
+      }
+      else {
+        this->current.reason |= REASON_EFFECT;
+      }
+    }
 	}
 	if(redirects & LOCATION_REMOVED)
 		return LOCATION_REMOVED;
