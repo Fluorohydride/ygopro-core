@@ -2479,8 +2479,16 @@ int32_t field::process_battle_command(uint16_t step) {
 		return FALSE;
 	}
 	case 1: {
-		int32_t ctype = returns.ivalue[0] & 0xffff;
-		int32_t sel = returns.ivalue[0] >> 16;
+  
+      static int32_t ctype;
+      static int32_t sel;
+      static int32_t step;
+      static std::set<card*> processed;
+      if (step == 0) {
+        ctype = returns.ivalue[0] & 0xffff;
+        sel = returns.ivalue[0] >> 16;
+      }
+  
 		if(ctype == 0) {
 			chain newchain = core.select_chains[sel];
 			effect* peffect = newchain.triggering_effect;
@@ -2526,14 +2534,68 @@ int32_t field::process_battle_command(uint16_t step) {
 			effect_set eset;
 			filter_player_effect(infos.turn_player, EFFECT_ATTACK_COST, &eset, FALSE);
 			core.attacker->filter_effect(EFFECT_ATTACK_COST, &eset);
-			for(effect_set::size_type i = 0; i < eset.size(); ++i) {
-				if(eset[i]->operation) {
-					core.attack_cancelable = FALSE;
-					core.sub_solving_event.push_back(nil_event);
-					add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, infos.turn_player, 0);
-					adjust_all();
-				}
-			}
+      
+      
+      
+        if (step == 0) {
+          core.units.begin()->step = 0;
+          step = 1;
+        }
+        else if (step == 1) {
+          core.select_cards.clear();
+          for (effect_set::size_type i = 0; i < eset.size(); ++i) {
+            if (auto search = processed.find(eset[i]->owner); search != processed.end()) {
+            }
+            else {
+            core.select_cards.push_back(eset[i]->owner);
+            }
+          }
+          pduel->write_buffer8(MSG_HINT);
+          pduel->write_buffer8(HINT_SELECTMSG);
+          pduel->write_buffer8(infos.turn_player);
+          pduel->write_buffer32(568);
+          uint32_t min = 1;
+          uint32_t max = 1;
+          add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player, min + (max << 16));
+          core.units.begin()->step = 0;
+          step = 2;
+        }
+        else if (step == 2) {
+          for (int32_t i = 0; i < eset.size(); ++i) {
+            if (eset[i]->owner == core.select_cards[0]) {
+              if (auto search = processed.find(eset[i]->owner); search != processed.end()) {
+              }
+              else {
+                if (eset[i]->operation) {
+                  core.attack_cancelable = FALSE;
+                  core.sub_solving_event.push_back(nil_event);
+                  add_process(PROCESSOR_EXECUTE_OPERATION, 0, eset[i], 0, infos.turn_player, 0);
+                  adjust_all();
+                  processed.insert(eset[i]->owner);
+                }
+              }
+            }
+          }
+          core.units.begin()->step = 0;
+          step = 3;
+        }
+        else if (step == 3) {
+          for (int32_t i = 0; i < eset.size(); ++i) {
+              if (auto search = processed.find(eset[i]->owner); search != processed.end()) {
+              }
+              else {
+              
+                core.units.begin()->step = 0;
+                step = 1;
+                break;
+              }
+          }
+          if (not(step == 1)) {
+            processed.clear();
+            core.units.begin()->step = 2;
+            step = 0;
+          }
+        }
 			return FALSE;
 		} else {
 			core.units.begin()->step = 39;
