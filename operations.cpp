@@ -343,6 +343,10 @@ int32_t field::draw(uint16_t step, effect* reason_effect, uint32_t reason, uint8
 			returns.ivalue[0] = 0;
 			return TRUE;
 		}
+		if(count == 0) {
+			returns.ivalue[0] = 0;
+			return TRUE;
+		}
 		core.overdraw[playerid] = FALSE;
 		for(int32_t i = 0; i < count; ++i) {
 			if(player[playerid].list_main.empty()) {
