@@ -630,7 +630,7 @@ public:
 	int32_t select_option(uint16_t step, uint8_t playerid);
 	int32_t select_card(uint16_t step, uint8_t playerid, uint8_t cancelable, uint8_t min, uint8_t max);
 	int32_t select_unselect_card(uint16_t step, uint8_t playerid, uint8_t cancelable, uint8_t min, uint8_t max, uint8_t finishable);
-	int32_t select_chain(uint16_t step, uint8_t playerid, uint8_t spe_count, uint8_t forced);
+	int32_t select_chain(uint16_t step, uint8_t playerid, uint8_t spe_count);
 	int32_t select_place(uint16_t step, uint8_t playerid, uint32_t flag, uint8_t count);
 	int32_t select_position(uint16_t step, uint8_t playerid, uint32_t code, uint8_t positions);
 	int32_t select_tribute(uint16_t step, uint8_t playerid, uint8_t cancelable, uint8_t min, uint8_t max);
@@ -653,7 +653,7 @@ public:
 #define CHAIN_CONTINUOUS_CARD	0x08
 #define CHAIN_ACTIVATING		0x10
 #define CHAIN_HAND_TRIGGER		0x20
-//#define CHAIN_DECK_EFFECT		0x40
+#define CHAIN_FORCED			0x40
 #define CHAININFO_CHAIN_COUNT			0x01
 #define CHAININFO_TRIGGERING_EFFECT		0x02
 #define CHAININFO_TRIGGERING_PLAYER		0x04
