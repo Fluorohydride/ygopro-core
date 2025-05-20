@@ -337,9 +337,9 @@ inline bool check_playerid(int32_t playerid) {
 #define MSG_ANNOUNCE_NUMBER		143
 #define MSG_CARD_HINT			160
 #define MSG_TAG_SWAP			161
-#define MSG_RELOAD_FIELD		162	// Debug.ReloadFieldEnd()
-#define MSG_AI_NAME				163
-#define MSG_SHOW_HINT			164
+#define MSG_RELOAD_FIELD		162	// Debug.ReloadFieldEnd() or query_field_info()
+#define MSG_AI_NAME				163	// Debug.AIName()
+#define MSG_SHOW_HINT			164	// Debug.ShowHint()
 #define MSG_PLAYER_HINT			165
 #define MSG_MATCH_KILL			170
 #define MSG_CUSTOM_MSG			180
