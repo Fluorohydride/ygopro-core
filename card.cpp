@@ -1665,6 +1665,8 @@ void card::xyz_add(card* mat) {
 		effect* peffect = eit.second;
 		if(peffect->type & EFFECT_TYPE_FIELD)
 			pduel->game_field->add_effect(peffect);
+		if (peffect->type & EFFECT_TYPES_CHAIN_LINK)
+			peffect->active_handler = this;
 	}
 }
 void card::xyz_remove(card* mat) {

@@ -4056,7 +4056,6 @@ int32_t field::add_chain(uint16_t step) {
 		if((peffect->card_type & (TYPE_TRAP | TYPE_MONSTER)) == (TYPE_TRAP | TYPE_MONSTER))
 			peffect->card_type -= TYPE_TRAP;
 		peffect->set_active_type();
-		peffect->active_handler = peffect->handler->overlay_target;
 		clit.chain_count = (uint8_t)core.current_chain.size() + 1;
 		clit.target_cards = 0;
 		clit.target_player = PLAYER_NONE;
@@ -4504,7 +4503,6 @@ int32_t field::solve_chain(uint16_t step, uint32_t chainend_arg1, uint32_t chain
 		}
 		// keep last active_type until the next activate, for the using in script
 		// peffect->active_type = 0;
-		peffect->active_handler = 0;
 		pcard->release_relation(*cait);
 		if(cait->target_cards)
 			pduel->delete_group(cait->target_cards);
