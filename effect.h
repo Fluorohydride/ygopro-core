@@ -54,6 +54,7 @@ public:
 	uint16_t active_location{ 0 };
 	uint16_t active_sequence{ 0 };
 	card* active_handler{ nullptr };
+	card* last_handler{ nullptr };
 	std::vector<lua_Integer> label;
 	int32_t label_object{ 0 };
 	int32_t condition{ 0 };
