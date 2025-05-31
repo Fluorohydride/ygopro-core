@@ -14,25 +14,39 @@
 
 class mt19937 {
 public:
-	const unsigned int rand_max;
+	const unsigned int rand_max{ std::mt19937::max() };
 
 	mt19937() :
-		rng(), rand_max(rng.max()) {}
-	explicit mt19937(uint_fast32_t seed) :
-		rng(seed), rand_max(rng.max()) {}
+		rng() {}
+	explicit mt19937(uint_fast32_t value) :
+		rng(value) {}
+	mt19937(uint32_t seq[], size_t len) {
+		std::seed_seq q(seq, seq + len);
+		rng.seed(q);
+	}
+	
+	mt19937(const mt19937& other) = delete;
+	void operator=(const mt19937& other) = delete;
 
 	// mersenne_twister_engine
-	void reset(uint_fast32_t seed) {
-		rng.seed(seed);
+	void seed(uint32_t seq[], size_t len) {
+		std::seed_seq q(seq, seq + len);
+		rng.seed(q);
+	}
+	void seed(uint_fast32_t value) {
+		rng.seed(value);
 	}
 	uint_fast32_t rand() {
 		return rng();
 	}
+	void discard(unsigned long long z) {
+		rng.discard(z);
+	}
 
-	// uniform_int_distribution
-	int get_random_integer(int l, int h) {
-		uint_fast32_t range = (uint_fast32_t)(h - l + 1);
-		uint_fast32_t secureMax = rng.max() - rng.max() % range;
+	// old vesion, discard too many numbers
+	int get_random_integer_v1(int l, int h) {
+		uint32_t range = (h - l + 1);
+		uint32_t secureMax = rand_max - rand_max % range;
 		uint_fast32_t x;
 		do {
 			x = rng();
