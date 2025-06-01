@@ -16,6 +16,12 @@
 #include "interpreter.h"
 #include "buffer.h"
 
+static uint32_t default_card_reader(uint32_t code, card_data* data) {
+	return 0;
+}
+static uint32_t default_message_handler(intptr_t pduel, uint32_t message_type) {
+	return 0;
+}
 static script_reader sreader = default_script_reader;
 static card_reader creader = default_card_reader;
 static message_handler mhandler = default_message_handler;
@@ -55,12 +61,6 @@ byte* default_script_reader(const char* script_name, int* slen) {
 		return nullptr;
 	*slen = (int)len;
 	return buffer;
-}
-uint32_t default_card_reader(uint32_t code, card_data* data) {
-	return 0;
-}
-uint32_t default_message_handler(intptr_t pduel, uint32_t message_type) {
-	return 0;
 }
 extern "C" DECL_DLLEXPORT intptr_t create_duel(uint_fast32_t seed) {
 	duel* pduel = new duel();

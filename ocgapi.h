@@ -52,7 +52,5 @@ extern "C" DECL_DLLEXPORT void set_responsei(intptr_t pduel, int32_t value);
 extern "C" DECL_DLLEXPORT void set_responseb(intptr_t pduel, byte* buf);
 extern "C" DECL_DLLEXPORT int32_t preload_script(intptr_t pduel, const char* script_name);
 byte* default_script_reader(const char* script_name, int* len);
-uint32_t default_card_reader(uint32_t code, card_data* data);
-uint32_t default_message_handler(intptr_t pduel, uint32_t msg_type);
 
 #endif /* OCGAPI_H_ */
