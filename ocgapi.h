@@ -21,15 +21,11 @@
 #define LEN_HEADER	8
 #define TEMP_CARD_ID	0
 
-class card;
 struct card_data;
-class group;
-class effect;
-class interpreter;
 
-typedef byte* (*script_reader)(const char*, int*);
-typedef uint32_t (*card_reader)(uint32_t, card_data*);
-typedef uint32_t (*message_handler)(intptr_t, uint32_t);
+typedef byte* (*script_reader)(const char* script_name, int* len);
+typedef uint32_t (*card_reader)(uint32_t code, card_data* data);
+typedef uint32_t (*message_handler)(intptr_t pduel, uint32_t msg_type);
 
 extern "C" DECL_DLLEXPORT void set_script_reader(script_reader f);
 extern "C" DECL_DLLEXPORT void set_card_reader(card_reader f);
