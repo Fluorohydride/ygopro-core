@@ -500,7 +500,7 @@ public:
 	int32_t is_player_can_send_to_grave(uint8_t playerid, card* pcard);
 	int32_t is_player_can_send_to_hand(uint8_t playerid, card* pcard);
 	int32_t is_player_can_send_to_deck(uint8_t playerid, card* pcard);
-	int32_t is_player_can_remove(uint8_t playerid, card* pcard, uint32_t reason);
+	int32_t is_player_can_remove(uint8_t playerid, card* pcard, uint32_t reason, effect* reason_effect = nullptr);
 	int32_t is_chain_negatable(uint8_t chaincount);
 	int32_t is_chain_disablable(uint8_t chaincount);
 	int32_t is_chain_disabled(uint8_t chaincount);
