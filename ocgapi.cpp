@@ -28,13 +28,13 @@ static message_handler mhandler = default_message_handler;
 static byte buffer[0x100000];
 static std::set<duel*> duel_set;
 
-OCGAPI void set_script_reader(script_reader f) {
+OCGCORE_API void set_script_reader(script_reader f) {
 	sreader = f;
 }
-OCGAPI void set_card_reader(card_reader f) {
+OCGCORE_API void set_card_reader(card_reader f) {
 	creader = f;
 }
-OCGAPI void set_message_handler(message_handler f) {
+OCGCORE_API void set_message_handler(message_handler f) {
 	mhandler = f;
 }
 byte* read_script(const char* script_name, int* len) {
@@ -50,7 +50,7 @@ uint32_t read_card(uint32_t code, card_data* data) {
 uint32_t handle_message(void* pduel, uint32_t message_type) {
 	return mhandler((intptr_t)pduel, message_type);
 }
-OCGAPI byte* default_script_reader(const char* script_name, int* slen) {
+OCGCORE_API byte* default_script_reader(const char* script_name, int* slen) {
 	FILE *fp;
 	fp = std::fopen(script_name, "rb");
 	if (!fp)
@@ -62,13 +62,13 @@ OCGAPI byte* default_script_reader(const char* script_name, int* slen) {
 	*slen = (int)len;
 	return buffer;
 }
-OCGAPI intptr_t create_duel(uint_fast32_t seed) {
+OCGCORE_API intptr_t create_duel(uint_fast32_t seed) {
 	duel* pduel = new duel();
 	duel_set.insert(pduel);
 	pduel->random.reset(seed);
 	return (intptr_t)pduel;
 }
-OCGAPI void start_duel(intptr_t pduel, uint32_t options) {
+OCGCORE_API void start_duel(intptr_t pduel, uint32_t options) {
 	duel* pd = (duel*)pduel;
 	uint16_t duel_rule = options >> 16;
 	uint16_t duel_options = options & 0xffff;
@@ -113,14 +113,14 @@ OCGAPI void start_duel(intptr_t pduel, uint32_t options) {
 	}
 	pd->game_field->add_process(PROCESSOR_TURN, 0, 0, 0, 0, 0);
 }
-OCGAPI void end_duel(intptr_t pduel) {
+OCGCORE_API void end_duel(intptr_t pduel) {
 	duel* pd = (duel*)pduel;
 	if(duel_set.count(pd)) {
 		duel_set.erase(pd);
 		delete pd;
 	}
 }
-OCGAPI void set_player_info(intptr_t pduel, int32_t playerid, int32_t lp, int32_t startcount, int32_t drawcount) {
+OCGCORE_API void set_player_info(intptr_t pduel, int32_t playerid, int32_t lp, int32_t startcount, int32_t drawcount) {
 	if (!check_playerid(playerid))
 		return;
 	duel* pd = (duel*)pduel;
@@ -131,17 +131,17 @@ OCGAPI void set_player_info(intptr_t pduel, int32_t playerid, int32_t lp, int32_
 	if(drawcount >= 0)
 		pd->game_field->player[playerid].draw_count = drawcount;
 }
-OCGAPI void get_log_message(intptr_t pduel, char* buf) {
+OCGCORE_API void get_log_message(intptr_t pduel, char* buf) {
 	duel* pd = (duel*)pduel;
 	buf[0] = '\0';
 	std::strncat(buf, pd->strbuffer, sizeof pd->strbuffer - 1);
 }
-OCGAPI int32_t get_message(intptr_t pduel, byte* buf) {
+OCGCORE_API int32_t get_message(intptr_t pduel, byte* buf) {
 	int32_t len = ((duel*)pduel)->read_buffer(buf);
 	((duel*)pduel)->clear_buffer();
 	return len;
 }
-OCGAPI uint32_t process(intptr_t pduel) {
+OCGCORE_API uint32_t process(intptr_t pduel) {
 	duel* pd = (duel*)pduel;
 	uint32_t result = 0; 
 	do {
@@ -149,7 +149,7 @@ OCGAPI uint32_t process(intptr_t pduel) {
 	} while ((result & PROCESSOR_BUFFER_LEN) == 0 && (result & PROCESSOR_FLAG) == 0);
 	return result;
 }
-OCGAPI void new_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t playerid, uint8_t location, uint8_t sequence, uint8_t position) {
+OCGCORE_API void new_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t playerid, uint8_t location, uint8_t sequence, uint8_t position) {
 	if (!check_playerid(owner) || !check_playerid(playerid))
 		return;
 	duel* ptduel = (duel*)pduel;
@@ -167,7 +167,7 @@ OCGAPI void new_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t playe
 		}
 	}
 }
-OCGAPI void new_tag_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t location) {
+OCGCORE_API void new_tag_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t location) {
 	duel* ptduel = (duel*)pduel;
 	if(owner > 1 || !(location & (LOCATION_DECK | LOCATION_EXTRA)))
 		return;
@@ -196,7 +196,7 @@ OCGAPI void new_tag_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t l
 * @param buf int32_t array
 * @return buffer length in bytes
 */
-OCGAPI int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, int32_t query_flag, byte* buf, int32_t use_cache) {
+OCGCORE_API int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, int32_t query_flag, byte* buf, int32_t use_cache) {
 	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
@@ -230,7 +230,7 @@ OCGAPI int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, ui
 		return LEN_EMPTY;
 	}
 }
-OCGAPI int32_t query_field_count(intptr_t pduel, uint8_t playerid, uint8_t location) {
+OCGCORE_API int32_t query_field_count(intptr_t pduel, uint8_t playerid, uint8_t location) {
 	duel* ptduel = (duel*)pduel;
 	if (!check_playerid(playerid))
 		return 0;
@@ -261,7 +261,7 @@ OCGAPI int32_t query_field_count(intptr_t pduel, uint8_t playerid, uint8_t locat
 	}
 	return 0;
 }
-OCGAPI int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint32_t query_flag, byte* buf, int32_t use_cache) {
+OCGCORE_API int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint32_t query_flag, byte* buf, int32_t use_cache) {
 	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
@@ -308,7 +308,7 @@ OCGAPI int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t locati
 	}
 	return (int32_t)(p - buf);
 }
-OCGAPI int32_t query_field_info(intptr_t pduel, byte* buf) {
+OCGCORE_API int32_t query_field_info(intptr_t pduel, byte* buf) {
 	duel* ptduel = (duel*)pduel;
 	byte* p = buf;
 	*p++ = MSG_RELOAD_FIELD;
@@ -352,12 +352,12 @@ OCGAPI int32_t query_field_info(intptr_t pduel, byte* buf) {
 	}
 	return (int32_t)(p - buf);
 }
-OCGAPI void set_responsei(intptr_t pduel, int32_t value) {
+OCGCORE_API void set_responsei(intptr_t pduel, int32_t value) {
 	((duel*)pduel)->set_responsei(value);
 }
-OCGAPI void set_responseb(intptr_t pduel, byte* buf) {
+OCGCORE_API void set_responseb(intptr_t pduel, byte* buf) {
 	((duel*)pduel)->set_responseb(buf);
 }
-OCGAPI int32_t preload_script(intptr_t pduel, const char* script_name) {
+OCGCORE_API int32_t preload_script(intptr_t pduel, const char* script_name) {
 	return ((duel*)pduel)->lua->load_script(script_name);
 }
