@@ -19,7 +19,7 @@
 #ifdef _WIN32
 #define OCGCORE_API EXTERN_C __declspec(dllexport)
 #else
-#define OCGAPI EXTERN_C __attribute__ ((visibility ("default")))
+#define OCGCORE_API EXTERN_C __attribute__ ((visibility ("default")))
 #endif
 
 #define LEN_FAIL	0
