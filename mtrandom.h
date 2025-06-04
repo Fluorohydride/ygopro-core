@@ -53,33 +53,28 @@ public:
 		} while (x >= secureMax);
 		return l + (int)(x % range);
 	}
-	int get_random_integer_old(int l, int h) {
-		int result = (int)((double)rng() / rng.max() * ((double)h - l + 1)) + l;
-		if (result > h)
-			result = h;
-		return result;
-	}
-	
-	// Fisher-Yates shuffle v[a]~v[b]
-	template<typename T>
-	void shuffle_vector(std::vector<T>& v, int a = -1, int b = -1) {
-		if (a < 0)
-			a = 0;
-		if (b < 0)
-			b = (int)v.size() - 1;
-		for (int i = a; i < b; ++i) {
-			int r = get_random_integer(i, b);
-			std::swap(v[i], v[r]);
+
+	// N % k == (N - k) % k, discard the leftmost numbers
+	int get_random_integer_v2(int l, int h) {
+		uint32_t range = (h - l + 1);
+		uint32_t bound = -range % range;
+		auto x = rng();
+		while (x < bound) {
+			x = rng();
 		}
+		return l + (int)(x % range);
 	}
+
+	// Fisher-Yates shuffle [first, last)
 	template<typename T>
-	void shuffle_vector_old(std::vector<T>& v, int a = -1, int b = -1) {
-		if (a < 0)
-			a = 0;
-		if (b < 0)
-			b = (int)v.size() - 1;
-		for (int i = a; i < b; ++i) {
-			int r = get_random_integer_old(i, b);
+	void shuffle_vector(std::vector<T>& v, int first = 0, int last = INT32_MAX, int version = 2) {
+		if ((size_t)last > v.size())
+			last = v.size();
+		auto distribution = &mt19937::get_random_integer_v2;
+		if (version == 1)
+			distribution = &mt19937::get_random_integer_v1;
+		for (int i = first; i < last - 1; ++i) {
+			int r = (this->*distribution)(i, last - 1);
 			std::swap(v[i], v[r]);
 		}
 	}
