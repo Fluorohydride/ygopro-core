@@ -26,8 +26,11 @@ inline bool check_playerid(int32_t playerid) {
 #define OPERATION_CANCELED -1
 #define TRUE 1
 #define FALSE 0
+
 #define SIZE_MESSAGE_BUFFER 0x2000
 #define SIZE_RETURN_VALUE 512
+#define SIZE_AI_NAME 128
+#define SIZE_HINT_MSG	1024
 
 #define PROCESSOR_BUFFER_LEN	0x0fffffff
 #define PROCESSOR_FLAG			0xf0000000
