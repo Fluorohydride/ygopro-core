@@ -65,7 +65,7 @@ OCGCORE_API byte* default_script_reader(const char* script_name, int* slen) {
 OCGCORE_API intptr_t create_duel(uint_fast32_t seed) {
 	duel* pduel = new duel();
 	duel_set.insert(pduel);
-	pduel->random.reset(seed);
+	pduel->random.seed(seed);
 	return (intptr_t)pduel;
 }
 OCGCORE_API void start_duel(intptr_t pduel, uint32_t options) {
@@ -83,6 +83,8 @@ OCGCORE_API void start_duel(intptr_t pduel, uint32_t options) {
 		pd->game_field->player[0].szone_size = 8;
 		pd->game_field->player[1].szone_size = 8;
 	}
+	if (options & DUEL_OLD_REPLAY)
+		pd->rng_version = 1;
 	pd->game_field->core.shuffle_hand_check[0] = FALSE;
 	pd->game_field->core.shuffle_hand_check[1] = FALSE;
 	pd->game_field->core.shuffle_deck_check[0] = FALSE;
