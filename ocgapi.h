@@ -22,6 +22,8 @@
 #define OCGCORE_API EXTERN_C __attribute__ ((visibility ("default")))
 #endif
 
+#define SEED_COUNT	8
+
 #define LEN_FAIL	0
 #define LEN_EMPTY	4
 #define LEN_HEADER	8
@@ -42,6 +44,7 @@ uint32_t read_card(uint32_t code, card_data* data);
 uint32_t handle_message(void* pduel, uint32_t message_type);
 
 OCGCORE_API intptr_t create_duel(uint_fast32_t seed);
+OCGCORE_API intptr_t create_duel_v2(uint32_t seed_sequence[]);
 OCGCORE_API void start_duel(intptr_t pduel, uint32_t options);
 OCGCORE_API void end_duel(intptr_t pduel);
 OCGCORE_API void set_player_info(intptr_t pduel, int32_t playerid, int32_t lp, int32_t startcount, int32_t drawcount);
