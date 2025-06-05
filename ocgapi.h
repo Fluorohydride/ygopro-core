@@ -43,7 +43,7 @@ byte* read_script(const char* script_name, int* len);
 uint32_t read_card(uint32_t code, card_data* data);
 uint32_t handle_message(void* pduel, uint32_t message_type);
 
-[[deprecated]]OCGCORE_API intptr_t create_duel(uint_fast32_t seed);
+[[deprecated]] OCGCORE_API intptr_t create_duel(uint_fast32_t seed);
 OCGCORE_API intptr_t create_duel_v2(uint32_t seed_sequence[]);
 OCGCORE_API void start_duel(intptr_t pduel, uint32_t options);
 OCGCORE_API void end_duel(intptr_t pduel);
