@@ -18,12 +18,14 @@ public:
 
 	mt19937() :
 		rng() {}
-	explicit mt19937(uint_fast32_t value) :
-		rng(value) {}
 	mt19937(uint32_t seq[], size_t len) {
 		std::seed_seq q(seq, seq + len);
 		rng.seed(q);
 	}
+	explicit mt19937(uint_fast32_t value) :
+		rng(value) {}
+	mt19937(std::seed_seq& q) :
+		rng(q) {}
 	
 	mt19937(const mt19937& other) = delete;
 	void operator=(const mt19937& other) = delete;
@@ -35,6 +37,9 @@ public:
 	}
 	void seed(uint_fast32_t value) {
 		rng.seed(value);
+	}
+	void seed(std::seed_seq& q) {
+		rng.seed(q);
 	}
 	uint_fast32_t rand() {
 		return rng();
