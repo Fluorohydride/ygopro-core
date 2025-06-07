@@ -143,10 +143,7 @@ void duel::set_responseb(byte* resp) {
 	std::memcpy(game_field->returns.bvalue, resp, SIZE_RETURN_VALUE);
 }
 int32_t duel::get_next_integer(int32_t l, int32_t h) {
-	if (game_field->core.duel_options & DUEL_OLD_REPLAY) {
-		return random.get_random_integer_old(l, h);
-	}
-	else {
-		return random.get_random_integer(l, h);
-	}
+	if (rng_version == 1)
+		return random.get_random_integer_v1(l, h);
+	return random.get_random_integer_v2(l, h);
 }
