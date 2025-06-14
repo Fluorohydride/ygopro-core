@@ -62,6 +62,8 @@ Get all cards in some location.
 
 - `int32_t preload_script(intptr_t pduel, const char* script_name);`
 
+- `byte* default_script_reader(const char* script_name, int* len);`  
+The default script reader using `fread`.
 
 # Lua functions
 - `libcard.cpp`
