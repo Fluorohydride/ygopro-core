@@ -1,6 +1,7 @@
 #ifndef CARD_DATA_H_
 #define CARD_DATA_H_
 
+#include <cstring>
 #include <unordered_map>
 #include "common.h"
 
@@ -38,26 +39,14 @@ struct card_data {
 	uint32_t link_marker{};
 
 	void clear() {
-		code = 0;
-		alias = 0;
-		for (auto& x : setcode)
-			x = 0;
-		type = 0;
-		level = 0;
-		attribute = 0;
-		race = 0;
-		attack = 0;
-		defense = 0;
-		lscale = 0;
-		rscale = 0;
-		link_marker = 0;
+		std::memset(this, 0, sizeof(card_data));
 	}
 
 	bool is_setcode(uint32_t value) const {
-		uint16_t settype = value & 0x0fff;
-		uint16_t setsubtype = value & 0xf000;
+		const uint16_t settype = value & 0x0fff;
+		const uint16_t setsubtype = value & 0xf000;
 		for (auto& x : setcode) {
-			if ((x & 0x0fff) == settype && (x & 0xf000 & setsubtype) == setsubtype)
+			if ((x & 0x0fff) == settype && (x & setsubtype) == setsubtype)
 				return true;
 			if (!x)
 				return false;
@@ -80,8 +69,8 @@ struct card_data {
 			}
 			value >>= 16;
 		}
-		for (int i = ctr; i < SIZE_SETCODE; ++i)
-			setcode[i] = 0;
+		if (ctr < SIZE_SETCODE)
+			std::memset(setcode + ctr, 0, (SIZE_SETCODE - ctr) * sizeof(uint16_t));
 	}
 
 	uint32_t get_original_code() const {
