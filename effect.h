@@ -93,6 +93,7 @@ public:
 	int32_t is_monster_effect() const;
 	int32_t reset(uint32_t reset_level, uint32_t reset_type);
 	void dec_count(uint8_t playerid = PLAYER_NONE);
+	void inc_count(uint8_t playerid = PLAYER_NONE);
 	void recharge();
 	int32_t get_value(uint32_t extraargs = 0);
 	int32_t get_value(card* pcard, uint32_t extraargs = 0);

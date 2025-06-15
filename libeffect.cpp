@@ -582,6 +582,7 @@ int32_t scriptlib::effect_check_count_limit(lua_State *L) {
 	lua_pushboolean(L, peffect->check_count_limit(p));
 	return 1;
 }
+
 int32_t scriptlib::effect_use_count_limit(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
@@ -595,9 +596,36 @@ int32_t scriptlib::effect_use_count_limit(lua_State *L) {
 		if (lua_gettop(L) > 3)
 			oath_only = lua_toboolean(L, 4);
 	}
+	// guard around negative count
+	if (count < 0)
+		count = 0;
 	if (!oath_only || code & EFFECT_COUNT_CODE_OATH)
 		while(count) {
 			peffect->dec_count(p);
+			--count;
+		}
+	return 0;
+}
+
+int32_t scriptlib::effect_restore_count_limit(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	int32_t p = (int32_t)lua_tointeger(L, 2);
+	int32_t count = 1;
+	int32_t oath_only = 0;
+	uint32_t code = peffect->count_code;
+	if(lua_gettop(L) > 2) {
+		count = (int32_t)lua_tointeger(L, 3);
+		if (lua_gettop(L) > 3)
+			oath_only = lua_toboolean(L, 4);
+	}
+	// guard around negative count
+	if (count < 0)
+		count = 0;
+	if (!oath_only || code & EFFECT_COUNT_CODE_OATH)
+		while(count) {
+			peffect->inc_count(p);
 			--count;
 		}
 	return 0;
@@ -659,6 +687,7 @@ static const struct luaL_Reg effectlib[] = {
 	{ "GetActivateSequence", scriptlib::effect_get_activate_sequence },
 	{ "CheckCountLimit", scriptlib::effect_check_count_limit },
 	{ "UseCountLimit", scriptlib::effect_use_count_limit },
+	{ "RestoreCountLimit", scriptlib::effect_restore_count_limit },
 	{ nullptr, nullptr }
 };
 void scriptlib::open_effectlib(lua_State *L) {
