@@ -133,8 +133,8 @@ OCGCORE_API void set_player_info(intptr_t pduel, int32_t playerid, int32_t lp, i
 }
 OCGCORE_API void get_log_message(intptr_t pduel, char* buf) {
 	duel* pd = (duel*)pduel;
-	buf[0] = '\0';
-	std::strncat(buf, pd->strbuffer, sizeof pd->strbuffer - 1);
+	std::strncpy(buf, pd->strbuffer, sizeof pd->strbuffer - 1);
+	buf[sizeof pd->strbuffer - 1] = 0;
 }
 OCGCORE_API int32_t get_message(intptr_t pduel, byte* buf) {
 	int32_t len = ((duel*)pduel)->read_buffer(buf);
