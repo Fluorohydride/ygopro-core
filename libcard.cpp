@@ -65,7 +65,7 @@ int32_t scriptlib::card_get_fusion_code(lua_State *L) {
 	pcard->filter_effect(EFFECT_ADD_FUSION_CODE, &eset);
 	for(effect_set::size_type i = 0; i < eset.size(); ++i)
 		lua_pushinteger(L, eset[i]->get_value(pcard));
-	return count + eset.size();
+	return count + (int32_t)eset.size();
 }
 int32_t scriptlib::card_get_link_code(lua_State *L) {
 	check_param_count(L, 1);
@@ -82,7 +82,7 @@ int32_t scriptlib::card_get_link_code(lua_State *L) {
 	pcard->filter_effect(EFFECT_ADD_LINK_CODE, &eset);
 	for(effect_set::size_type i = 0; i < eset.size(); ++i)
 		lua_pushinteger(L, eset[i]->get_value(pcard));
-	return count + eset.size();
+	return count + (int32_t)eset.size();
 }
 int32_t scriptlib::card_is_fusion_code(lua_State *L) {
 	check_param_count(L, 2);
