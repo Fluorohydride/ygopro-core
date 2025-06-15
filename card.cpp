@@ -3484,7 +3484,7 @@ int32_t card::is_special_summonable(uint8_t playerid, uint32_t summon_type, mate
 	effect_set eset;
 	filter_spsummon_procedure(playerid, &eset, summon_type, info);
 	pduel->game_field->restore_lp_cost();
-	return eset.size();
+	return !!eset.size();
 }
 int32_t card::is_can_be_special_summoned(effect* reason_effect, uint32_t sumtype, uint8_t sumpos, uint8_t sumplayer, uint8_t toplayer, uint8_t nocheck, uint8_t nolimit, uint32_t zone) {
 	if(reason_effect->get_handler() == this)

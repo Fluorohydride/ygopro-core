@@ -6321,7 +6321,7 @@ int32_t field::select_tribute_cards(int16_t step, card* target, uint8_t playerid
 		pduel->write_buffer8(HINT_SELECTMSG);
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer32(500);
-		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, ((uint32_t)cancelable << 16) + playerid, (core.release_cards_ex.size() << 16) + core.release_cards_ex.size());
+		add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, ((uint32_t)cancelable << 16) + playerid, ((uint32_t)core.release_cards_ex.size() << 16) | (uint32_t)core.release_cards_ex.size());
 		return FALSE;
 	}
 	case 6: {

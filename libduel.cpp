@@ -185,7 +185,7 @@ int32_t scriptlib::duel_get_flag_effect_label(lua_State *L) {
 	}
 	for(effect_set::size_type i = 0; i < eset.size(); ++i)
 		lua_pushinteger(L, eset[i]->label.size() ? eset[i]->label[0] : 0);
-	return eset.size();
+	return (int32_t)eset.size();
 }
 int32_t scriptlib::duel_destroy(lua_State *L) {
 	check_action_permission(L);
