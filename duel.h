@@ -29,7 +29,7 @@ public:
 	int32_t rng_version{ 2 };
 	interpreter* lua;
 	field* game_field;
-	mt19937 random;
+	mtrandom random;
 
 	std::vector<byte> message_buffer;
 	std::unordered_set<card*> cards;

@@ -12,23 +12,23 @@
 #include <vector>
 #include <utility>
 
-class mt19937 {
+class mtrandom {
 public:
 	const unsigned int rand_max{ std::mt19937::max() };
 
-	mt19937() :
+	mtrandom() :
 		rng() {}
-	mt19937(uint32_t seq[], size_t len) {
+	mtrandom(uint32_t seq[], size_t len) {
 		std::seed_seq q(seq, seq + len);
 		rng.seed(q);
 	}
-	explicit mt19937(uint_fast32_t value) :
+	explicit mtrandom(uint_fast32_t value) :
 		rng(value) {}
-	mt19937(std::seed_seq& q) :
+	mtrandom(std::seed_seq& q) :
 		rng(q) {}
 	
-	mt19937(const mt19937& other) = delete;
-	void operator=(const mt19937& other) = delete;
+	mtrandom(const mtrandom& other) = delete;
+	void operator=(const mtrandom& other) = delete;
 
 	// mersenne_twister_engine
 	void seed(uint32_t seq[], size_t len) {
@@ -75,9 +75,9 @@ public:
 	void shuffle_vector(std::vector<T>& v, int first = 0, int last = INT32_MAX, int version = 2) {
 		if ((size_t)last > v.size())
 			last = v.size();
-		auto distribution = &mt19937::get_random_integer_v2;
+		auto distribution = &mtrandom::get_random_integer_v2;
 		if (version == 1)
-			distribution = &mt19937::get_random_integer_v1;
+			distribution = &mtrandom::get_random_integer_v1;
 		for (int i = first; i < last - 1; ++i) {
 			int r = (this->*distribution)(i, last - 1);
 			std::swap(v[i], v[r]);
