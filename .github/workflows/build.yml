@@ -20,18 +20,18 @@ jobs:
       id: lua
       uses: mercury233/action-cache-download-file@v1.0.0
       with:
-        url: https://www.lua.org/ftp/lua-5.4.7.tar.gz
+        url: https://www.lua.org/ftp/lua-5.4.8.tar.gz
 
     - name: Lua
       run: |
         tar -xzf ${{ steps.lua.outputs.filepath }}
-        move lua-5.4.7 lua
+        move lua-5.4.8 lua
 
     - name: Download premake
       id: premake
       uses: mercury233/action-cache-download-file@v1.0.0
       with:
-        url: https://github.com/premake/premake-core/releases/download/v5.0.0-beta5/premake-5.0.0-beta5-windows.zip
+        url: https://github.com/premake/premake-core/releases/download/v5.0.0-beta7/premake-5.0.0-beta7-windows.zip
 
     - name: Premake
       run: |
@@ -89,18 +89,18 @@ jobs:
       id: lua
       uses: mercury233/action-cache-download-file@v1.0.0
       with:
-        url: https://www.lua.org/ftp/lua-5.4.7.tar.gz
+        url: https://www.lua.org/ftp/lua-5.4.8.tar.gz
 
     - name: Lua
       run: |
         tar -xzf ${{ steps.lua.outputs.filepath }}
-        mv lua-5.4.7 lua
+        mv lua-5.4.8 lua
 
     - name: Download premake
       id: premake
       uses: mercury233/action-cache-download-file@v1.0.0
       with:
-        url: https://github.com/premake/premake-core/releases/download/v5.0.0-beta5/premake-5.0.0-beta5-linux.tar.gz
+        url: https://github.com/premake/premake-core/releases/download/v5.0.0-beta7/premake-5.0.0-beta7-linux.tar.gz
 
     - name: Premake
       run: |
