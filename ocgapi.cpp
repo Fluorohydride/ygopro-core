@@ -65,15 +65,7 @@ OCGCORE_API byte* default_script_reader(const char* script_name, int* slen) {
 OCGCORE_API intptr_t create_duel(uint_fast32_t seed) {
 	duel* pduel = new duel();
 	duel_set.insert(pduel);
-	pduel->random.seed(seed);
-	pduel->rng_version = 1;
-	return (intptr_t)pduel;
-}
-OCGCORE_API intptr_t create_duel_v2(uint32_t seed_sequence[]) {
-	duel* pduel = new duel();
-	duel_set.insert(pduel);
-	pduel->random.seed(seed_sequence, SEED_COUNT);
-	pduel->rng_version = 2;
+	pduel->random.reset(seed);
 	return (intptr_t)pduel;
 }
 OCGCORE_API void start_duel(intptr_t pduel, uint32_t options) {
