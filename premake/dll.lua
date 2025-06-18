@@ -35,11 +35,7 @@ workspace "ocgcoredll"
         startproject "ocgcore"
 
     filter { "configurations:Release", "action:vs*" }
-        if linktimeoptimization then
-            linktimeoptimization "On"
-        else
-            flags { "LinkTimeOptimization" }
-        end
+        linktimeoptimization "On"
         staticruntime "On"
         disablewarnings { "4146", "4334" }
 
