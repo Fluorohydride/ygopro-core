@@ -25,13 +25,11 @@ using card_set = std::set<card*, card_sort>;
 
 class duel {
 public:
-	char strbuffer[256]{};
-	int32_t rng_version{ 2 };
+	char strbuffer[256];
+	std::vector<byte> message_buffer;
 	interpreter* lua;
 	field* game_field;
-	mtrandom random;
-
-	std::vector<byte> message_buffer;
+	mt19937 random;
 	std::unordered_set<card*> cards;
 	std::unordered_set<card*> assumes;
 	std::unordered_set<group*> groups;

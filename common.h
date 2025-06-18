@@ -409,7 +409,7 @@ inline bool check_playerid(int32_t playerid) {
 //Options
 #define DUEL_TEST_MODE			0x01
 #define DUEL_ATTACK_FIRST_TURN	0x02
-//#define DUEL_OLD_REPLAY			0x04
+#define DUEL_OLD_REPLAY			0x04
 #define DUEL_OBSOLETE_RULING	0x08
 #define DUEL_PSEUDO_SHUFFLE		0x10
 #define DUEL_TAG_MODE			0x20

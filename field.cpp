@@ -957,7 +957,10 @@ void field::shuffle(uint8_t playerid, uint8_t location) {
 		if(location == LOCATION_EXTRA)
 			s = s - (int32_t)player[playerid].extra_p_count;
 		if(s > 1) {
-			pduel->random.shuffle_vector(svector, 0, s, pduel->rng_version);
+			if (core.duel_options & DUEL_OLD_REPLAY)
+				pduel->random.shuffle_vector_old(svector, 0, s - 1);
+			else
+				pduel->random.shuffle_vector(svector, 0, s - 1);
 			reset_sequence(playerid, location);
 		}
 	}

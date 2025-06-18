@@ -41,7 +41,7 @@ workspace "ocgcoredll"
             flags { "LinkTimeOptimization" }
         end
         staticruntime "On"
-        disablewarnings { "4146", "4334" }
+        disablewarnings { "4334" }
 
     filter "action:vs*"
         cdialect "C11"
