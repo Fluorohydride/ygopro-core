@@ -12,7 +12,8 @@ inline void buffer_read_block(unsigned char*& p, void* dest, size_t size) {
 template<typename T>
 inline T buffer_read(unsigned char*& p) {
 	T ret{};
-	buffer_read_block(p, &ret, sizeof(T));
+	std::memcpy(&ret, p, sizeof(T));
+	p += sizeof(T);
 	return ret;
 }
 
@@ -22,7 +23,8 @@ inline void buffer_write_block(unsigned char*& p, const void* src, size_t size) 
 }
 template<typename T>
 inline void buffer_write(unsigned char*& p, T value) {
-	buffer_write_block(p, &value, sizeof(T));
+	std::memcpy(p, &value, sizeof(T));
+	p += sizeof(T);
 }
 
 inline void vector_write_block(std::vector<unsigned char>& buffer, const void* src, size_t size) {

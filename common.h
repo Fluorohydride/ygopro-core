@@ -26,8 +26,11 @@ inline bool check_playerid(int32_t playerid) {
 #define OPERATION_CANCELED -1
 #define TRUE 1
 #define FALSE 0
+
 #define SIZE_MESSAGE_BUFFER 0x2000
 #define SIZE_RETURN_VALUE 512
+#define SIZE_AI_NAME 128
+#define SIZE_HINT_MSG	1024
 
 #define PROCESSOR_BUFFER_LEN	0x0fffffff
 #define PROCESSOR_FLAG			0xf0000000
@@ -337,9 +340,9 @@ inline bool check_playerid(int32_t playerid) {
 #define MSG_ANNOUNCE_NUMBER		143
 #define MSG_CARD_HINT			160
 #define MSG_TAG_SWAP			161
-#define MSG_RELOAD_FIELD		162	// Debug.ReloadFieldEnd()
-#define MSG_AI_NAME				163
-#define MSG_SHOW_HINT			164
+#define MSG_RELOAD_FIELD		162	// Debug.ReloadFieldEnd() or query_field_info()
+#define MSG_AI_NAME				163	// Debug.AIName()
+#define MSG_SHOW_HINT			164	// Debug.ShowHint()
 #define MSG_PLAYER_HINT			165
 #define MSG_MATCH_KILL			170
 #define MSG_CUSTOM_MSG			180
@@ -406,7 +409,7 @@ inline bool check_playerid(int32_t playerid) {
 //Options
 #define DUEL_TEST_MODE			0x01
 #define DUEL_ATTACK_FIRST_TURN	0x02
-#define DUEL_OLD_REPLAY			0x04
+//#define DUEL_OLD_REPLAY			0x04
 #define DUEL_OBSOLETE_RULING	0x08
 #define DUEL_PSEUDO_SHUFFLE		0x10
 #define DUEL_TAG_MODE			0x20
