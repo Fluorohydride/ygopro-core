@@ -366,6 +366,7 @@ public:
 	static int32_t effect_get_activate_sequence(lua_State *L);
 	static int32_t effect_check_count_limit(lua_State *L);
 	static int32_t effect_use_count_limit(lua_State *L);
+	static int32_t effect_restore_count_limit(lua_State* L);
 	static void open_effectlib(lua_State *L);
 
 	//Group functions
