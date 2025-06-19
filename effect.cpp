@@ -805,10 +805,14 @@ effect* effect::clone() {
 	return ceffect;
 }
 card* effect::get_owner() const {
-	if(active_handler)
-		return active_handler;
-	if(type & EFFECT_TYPE_XMATERIAL)
-		return handler->overlay_target;
+	if (type & EFFECT_TYPE_XMATERIAL) {
+		if (active_handler)
+			return active_handler;
+		if (handler->overlay_target)
+			return handler->overlay_target;
+		if (last_handler)
+			return last_handler;
+	}
 	return owner;
 }
 uint8_t effect::get_owner_player() const {
@@ -817,10 +821,14 @@ uint8_t effect::get_owner_player() const {
 	return get_owner()->current.controler;
 }
 card* effect::get_handler() const {
-	if(active_handler)
-		return active_handler;
-	if(type & EFFECT_TYPE_XMATERIAL)
-		return handler->overlay_target;
+	if (type & EFFECT_TYPE_XMATERIAL) {
+		if (active_handler)
+			return active_handler;
+		if (handler->overlay_target)
+			return handler->overlay_target;
+		if (last_handler)
+			return last_handler;
+	}
 	return handler;
 }
 uint8_t effect::get_handler_player() const {
