@@ -630,19 +630,11 @@ int32_t field::select_counter(uint16_t step, uint8_t playerid, uint16_t countert
 	}
 	return TRUE;
 }
-static void get_sum_params(uint32_t sum_param, int32_t& op1, int32_t& op2) {
-	op1 = sum_param & 0xffff;
-	op2 = (sum_param >> 16) & 0xffff;
-	if(op2 & 0x8000) {
-		op1 = sum_param & 0x7fffffff;
-		op2 = 0;
-	}
-}
 static int32_t select_sum_check1(const uint32_t* oparam, int32_t size, int32_t index, int32_t acc, int32_t opmin) {
 	if(acc == 0 || index == size)
 		return FALSE;
 	int32_t o1, o2;
-	get_sum_params(oparam[index], o1, o2);
+	field::get_sum_params(oparam[index], o1, o2);
 	if(index == size - 1)
 		return (acc == o1 && acc + opmin > o1) || (o2 && acc == o2 && acc + opmin > o2);
 	return (acc > o1 && select_sum_check1(oparam, size, index + 1, acc - o1, std::min(o1, opmin)))
@@ -720,7 +712,7 @@ int32_t field::select_with_sum_limit(int16_t step, uint8_t playerid, int32_t acc
 			int32_t sum = 0, mx = 0, mn = 0x7fffffff;
 			for(int32_t i = 0; i < mcount; ++i) {
 				int32_t o1, o2;
-				get_sum_params(core.must_select_cards[i]->sum_param, o1, o2);
+				field::get_sum_params(core.must_select_cards[i]->sum_param, o1, o2);
 				int32_t ms = (o2 && o2 < o1) ? o2 : o1;
 				sum += ms;
 				mx += std::max(o1, o2);
@@ -736,7 +728,7 @@ int32_t field::select_with_sum_limit(int16_t step, uint8_t playerid, int32_t acc
 				}
 				c.insert(v);
 				int32_t o1, o2;
-				get_sum_params(core.select_cards[v]->sum_param, o1, o2);
+				field::get_sum_params(core.select_cards[v]->sum_param, o1, o2);
 				int32_t ms = (o2 && o2 < o1) ? o2 : o1;
 				sum += ms;
 				mx += std::max(o1, o2);

@@ -2887,7 +2887,7 @@ int32_t field::check_tribute(card* pcard, int32_t min, int32_t max, group* mg, u
 		return FALSE;
 	return TRUE;
 }
-static void get_sum_params(uint32_t sum_param, int32_t& op1, int32_t& op2) {
+void field::get_sum_params(uint32_t sum_param, int32_t& op1, int32_t& op2) {
 	op1 = sum_param & 0xffff;
 	op2 = (sum_param >> 16) & 0xffff;
 	if(op2 & 0x8000) {
