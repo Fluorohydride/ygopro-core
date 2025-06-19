@@ -9,16 +9,12 @@
 #define COMMON_H_
 
 #include <stdint.h>
-typedef unsigned long long uint64;
-typedef unsigned int uint32;
-typedef unsigned short uint16;
-typedef unsigned char uint8;
+#include <assert.h>
 typedef unsigned char byte;
-typedef long long int64;
-typedef int int32;
-typedef short int16;
-typedef signed char int8;
-typedef int BOOL;
+
+inline bool check_playerid(int32_t playerid) {
+	return playerid >= 0 && playerid <= 1;
+}
 
 #define MATCH_ALL(x,y) (((x)&(y))==(y))
 #define MATCH_ANY(x,y) ((x)&(y))
@@ -30,25 +26,35 @@ typedef int BOOL;
 #define OPERATION_CANCELED -1
 #define TRUE 1
 #define FALSE 0
-#ifndef NULL
-#define NULL 0
-#endif
-struct card_sort {
-	bool operator()(void* const & c1, void* const & c2) const;
-};
+
+#define SIZE_MESSAGE_BUFFER 0x2000
+#define SIZE_RETURN_VALUE 512
+#define SIZE_AI_NAME 128
+#define SIZE_HINT_MSG	1024
+
+#define PROCESSOR_BUFFER_LEN	0x0fffffff
+#define PROCESSOR_FLAG			0xf0000000
+#define PROCESSOR_NONE			0
+#define PROCESSOR_WAITING		0x10000000
+#define PROCESSOR_END			0x20000000
+
+#define MASTER_RULE3		3	//Master Rule 3 (2014)
+#define NEW_MASTER_RULE		4	//New Master Rule (2017)
+#define MASTER_RULE_2020	5	//Master Rule 2020
+#define CURRENT_RULE		5
 
 //Locations
-#define LOCATION_DECK		0x01		//
-#define LOCATION_HAND		0x02		//
-#define LOCATION_MZONE		0x04		//
-#define LOCATION_SZONE		0x08		//
-#define LOCATION_GRAVE		0x10		//
-#define LOCATION_REMOVED	0x20		//
-#define LOCATION_EXTRA		0x40		//
-#define LOCATION_OVERLAY	0x80		//
-#define LOCATION_ONFIELD	0x0c		//
-#define LOCATION_FZONE		0x100		//
-#define LOCATION_PZONE		0x200		//
+#define LOCATION_DECK		0x01U
+#define LOCATION_HAND		0x02U
+#define LOCATION_MZONE		0x04U
+#define LOCATION_SZONE		0x08U
+#define LOCATION_GRAVE		0x10U
+#define LOCATION_REMOVED	0x20U
+#define LOCATION_EXTRA		0x40U
+#define LOCATION_OVERLAY	0x80U
+#define LOCATION_ONFIELD	(LOCATION_MZONE | LOCATION_SZONE)
+#define LOCATION_FZONE		0x100U
+#define LOCATION_PZONE		0x200U
 //For redirect
 #define LOCATION_DECKBOT	0x10001		//Return to deck bottom
 #define LOCATION_DECKSHF	0x20001		//Return to deck and shuffle
@@ -68,6 +74,10 @@ struct card_sort {
 #define POS_DEFENSE				0xc
 //Flip effect flags
 #define NO_FLIP_EFFECT			0x10000
+
+//Move to field flags
+#define RETURN_TEMP_REMOVE_TO_FIELD		1
+#define RETURN_TRAP_MONSTER_TO_SZONE	2
 
 //Types
 #define TYPE_MONSTER		0x1			//
@@ -96,7 +106,10 @@ struct card_sort {
 #define TYPE_SPSUMMON		0x2000000	//
 #define TYPE_LINK			0x4000000	//
 
+#define TYPES_EXTRA_DECK	(TYPE_FUSION | TYPE_SYNCHRO | TYPE_XYZ | TYPE_LINK)
+
 //Attributes
+#define ATTRIBUTES_COUNT	7
 #define ATTRIBUTE_ALL		0x7f		//
 #define ATTRIBUTE_EARTH		0x01		//
 #define ATTRIBUTE_WATER		0x02		//
@@ -107,6 +120,8 @@ struct card_sort {
 #define ATTRIBUTE_DEVINE	0x40		//
 
 //Races
+#define RACES_COUNT			26
+#define RACE_ALL			0x3ffffff
 #define RACE_WARRIOR		0x1			//
 #define RACE_SPELLCASTER	0x2			//
 #define RACE_FAIRY			0x4			//
@@ -132,6 +147,7 @@ struct card_sort {
 #define RACE_CREATORGOD		0x400000	//
 #define RACE_WYRM			0x800000	//
 #define RACE_CYBERSE		0x1000000	//
+#define RACE_ILLUSION		0x2000000	//
 
 //Reason
 #define REASON_DESTROY		0x1		//
@@ -162,29 +178,33 @@ struct card_sort {
 #define REASON_REVEAL		0x8000000	//
 #define REASON_LINK			0x10000000	//
 #define REASON_LOST_OVERLAY	0x20000000	//
+#define REASON_MAINTENANCE	0x40000000	//
+#define REASON_ACTION		0x80000000	//
+
+#define REASONS_PROCEDURE	(REASON_SYNCHRO | REASON_XYZ | REASON_LINK)
 
 //Status
-#define STATUS_DISABLED				0x0001	//
-#define STATUS_TO_ENABLE			0x0002	//
-#define STATUS_TO_DISABLE			0x0004	//
-#define STATUS_PROC_COMPLETE		0x0008	//
-#define STATUS_SET_TURN				0x0010	//
-#define STATUS_NO_LEVEL				0x0020	//
-#define STATUS_BATTLE_RESULT		0x0040	//
-#define STATUS_SPSUMMON_STEP		0x0080	//
-#define STATUS_FORM_CHANGED			0x0100	//
-#define STATUS_SUMMONING			0x0200	//
-#define STATUS_EFFECT_ENABLED		0x0400	//
-#define STATUS_SUMMON_TURN			0x0800	//
-#define STATUS_DESTROY_CONFIRMED	0x1000	//
-#define STATUS_LEAVE_CONFIRMED		0x2000	//
-#define STATUS_BATTLE_DESTROYED		0x4000	//
-#define STATUS_COPYING_EFFECT		0x8000	//
-#define STATUS_CHAINING				0x10000	//
-#define STATUS_SUMMON_DISABLED		0x20000	//
-#define STATUS_ACTIVATE_DISABLED	0x40000	//
+#define STATUS_DISABLED				0x0001
+#define STATUS_TO_ENABLE			0x0002
+#define STATUS_TO_DISABLE			0x0004
+#define STATUS_PROC_COMPLETE		0x0008
+#define STATUS_SET_TURN				0x0010
+#define STATUS_NO_LEVEL				0x0020
+#define STATUS_BATTLE_RESULT		0x0040
+#define STATUS_SPSUMMON_STEP		0x0080
+#define STATUS_CANNOT_CHANGE_FORM	0x0100
+#define STATUS_SUMMONING			0x0200
+#define STATUS_EFFECT_ENABLED		0x0400
+#define STATUS_SUMMON_TURN			0x0800
+#define STATUS_DESTROY_CONFIRMED	0x1000
+#define STATUS_LEAVE_CONFIRMED		0x2000
+#define STATUS_BATTLE_DESTROYED		0x4000
+#define STATUS_COPYING_EFFECT		0x8000
+#define STATUS_CHAINING				0x10000
+#define STATUS_SUMMON_DISABLED		0x20000
+#define STATUS_ACTIVATE_DISABLED	0x40000
 #define STATUS_EFFECT_REPLACED		0x80000
-#define STATUS_FUTURE_FUSION		0x100000
+#define STATUS_FLIP_SUMMONING		0x100000
 #define STATUS_ATTACK_CANCELED		0x200000
 #define STATUS_INITIALIZING			0x400000
 #define STATUS_TO_HAND_WITHOUT_CONFIRM	0x800000
@@ -195,6 +215,7 @@ struct card_sort {
 #define STATUS_OPPO_BATTLE			0x10000000
 #define STATUS_FLIP_SUMMON_TURN		0x20000000
 #define STATUS_SPSUMMON_TURN		0x40000000
+#define STATUS_FLIP_SUMMON_DISABLED	0x80000000
 
 //Query list
 #define QUERY_CODE			0x1
@@ -234,12 +255,12 @@ struct card_sort {
 //Messages
 #define MSG_RETRY				1
 #define MSG_HINT				2
-#define MSG_WAITING				3
-#define MSG_START				4
+//#define MSG_WAITING			3
+//#define MSG_START				4
 #define MSG_WIN					5
-#define MSG_UPDATE_DATA			6
-#define MSG_UPDATE_CARD			7
-#define MSG_REQUEST_DECK		8
+//#define MSG_UPDATE_DATA		6
+//#define MSG_UPDATE_CARD		7
+//#define MSG_REQUEST_DECK		8
 #define MSG_SELECT_BATTLECMD	10
 #define MSG_SELECT_IDLECMD		11
 #define MSG_SELECT_EFFECTYN		12
@@ -250,7 +271,6 @@ struct card_sort {
 #define MSG_SELECT_PLACE		18
 #define MSG_SELECT_POSITION		19
 #define MSG_SELECT_TRIBUTE		20
-//#define MSG_SORT_CHAIN			21
 #define MSG_SELECT_COUNTER		22
 #define MSG_SELECT_SUM			23
 #define MSG_SELECT_DISFIELD		24
@@ -260,7 +280,7 @@ struct card_sort {
 #define MSG_CONFIRM_CARDS		31
 #define MSG_SHUFFLE_DECK		32
 #define MSG_SHUFFLE_HAND		33
-#define MSG_REFRESH_DECK		34
+//#define MSG_REFRESH_DECK		34
 #define MSG_SWAP_GRAVE_DECK		35
 #define MSG_SHUFFLE_SET_CARD	36
 #define MSG_REVERSE_DECK		37
@@ -287,7 +307,7 @@ struct card_sort {
 #define MSG_CHAIN_END			74
 #define MSG_CHAIN_NEGATED		75
 #define MSG_CHAIN_DISABLED		76
-#define MSG_CARD_SELECTED		80
+//#define MSG_CARD_SELECTED		80
 #define MSG_RANDOM_SELECTED		81
 #define MSG_BECOME_TARGET		83
 #define MSG_DRAW				90
@@ -295,7 +315,7 @@ struct card_sort {
 #define MSG_RECOVER				92
 #define MSG_EQUIP				93
 #define MSG_LPUPDATE			94
-#define MSG_UNEQUIP				95
+//#define MSG_UNEQUIP			95
 #define MSG_CARD_TARGET			96
 #define MSG_CANCEL_TARGET		97
 #define MSG_PAY_LPCOST			100
@@ -307,9 +327,9 @@ struct card_sort {
 #define MSG_DAMAGE_STEP_START	113
 #define MSG_DAMAGE_STEP_END		114
 #define MSG_MISSED_EFFECT		120
-#define MSG_BE_CHAIN_TARGET		121
-#define MSG_CREATE_RELATION		122
-#define MSG_RELEASE_RELATION	123
+//#define MSG_BE_CHAIN_TARGET	121
+//#define MSG_CREATE_RELATION	122
+//#define MSG_RELEASE_RELATION	123
 #define MSG_TOSS_COIN			130
 #define MSG_TOSS_DICE			131
 #define MSG_ROCK_PAPER_SCISSORS	132
@@ -320,9 +340,9 @@ struct card_sort {
 #define MSG_ANNOUNCE_NUMBER		143
 #define MSG_CARD_HINT			160
 #define MSG_TAG_SWAP			161
-#define MSG_RELOAD_FIELD		162	// Debug.ReloadFieldEnd()
-#define MSG_AI_NAME				163
-#define MSG_SHOW_HINT			164
+#define MSG_RELOAD_FIELD		162	// Debug.ReloadFieldEnd() or query_field_info()
+#define MSG_AI_NAME				163	// Debug.AIName()
+#define MSG_SHOW_HINT			164	// Debug.ShowHint()
 #define MSG_PLAYER_HINT			165
 #define MSG_MATCH_KILL			170
 #define MSG_CUSTOM_MSG			180
@@ -389,12 +409,13 @@ struct card_sort {
 //Options
 #define DUEL_TEST_MODE			0x01
 #define DUEL_ATTACK_FIRST_TURN	0x02
-#define DUEL_OLD_REPLAY			0x04
+//#define DUEL_OLD_REPLAY			0x04
 #define DUEL_OBSOLETE_RULING	0x08
 #define DUEL_PSEUDO_SHUFFLE		0x10
 #define DUEL_TAG_MODE			0x20
 #define DUEL_SIMPLE_AI			0x40
 #define DUEL_RETURN_DECK_TOP	0x80
+#define DUEL_REVEAL_DECK_SEQ	0x100
 
 //Activity
 #define ACTIVITY_SUMMON			1
