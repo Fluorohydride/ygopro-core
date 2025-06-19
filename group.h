@@ -9,22 +9,29 @@
 #define GROUP_H_
 
 #include "common.h"
+#include "sort.h"
 #include <set>
 #include <list>
 
 class card;
 class duel;
 
-class group {
+using card_set = std::set<card*, card_sort>;
+
+constexpr uint32_t GTYPE_DEFAULT = 0;
+constexpr uint32_t GTYPE_READ_ONLY = 1;
+constexpr uint32_t GTYPE_KEEP_ALIVE = 2;
+
+class alignas(8) group {
 public:
-	using card_set = std::set<card*, card_sort>;
-	int32 ref_handle;
+	int32_t ref_handle{ 0 };
+	uint32_t is_readonly{ GTYPE_DEFAULT };
 	duel* pduel;
 	card_set container;
 	card_set::iterator it;
-	uint32 is_readonly;
+	bool is_iterator_dirty{ true };
 	
-	inline bool has_card(card* c) {
+	bool has_card(card* c) {
 		return container.find(c) != container.end();
 	}
 	
