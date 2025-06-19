@@ -62,7 +62,7 @@ public:
 	// N % k == (N - k) % k, discard the leftmost numbers
 	int get_random_integer_v2(int l, int h) {
 		uint32_t range = (h - l + 1);
-		uint32_t bound = (0u- range) % range;
+		uint32_t bound = (0u - range) % range;
 		auto x = rng();
 		while (x < bound) {
 			x = rng();
