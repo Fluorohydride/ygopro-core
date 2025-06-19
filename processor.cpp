@@ -129,7 +129,7 @@ uint32_t field::process() {
 		}
 	}
 	case PROCESSOR_SELECT_CHAIN: {
-		if (select_chain(it->step, it->arg1, (it->arg2 & 0xffff), it->arg2 >> 16)) {
+		if (select_chain(it->step, it->arg1, it->arg2 & 0xffff)) {
 			core.units.pop_front();
 			return pduel->buffer_size();
 		} else {
@@ -1008,7 +1008,6 @@ int32_t field::process_phase_event(int16_t step, int32_t phase) {
 		int32_t check_player = infos.turn_player;
 		if(core.units.begin()->arg2 & 0x2)
 			check_player = 1 - infos.turn_player;
-		chain newchain;
 		core.select_chains.clear();
 		int32_t tf_count = 0, to_count = 0, fc_count = 0, cn_count = 0;
 		auto pr = effects.trigger_f_effect.equal_range(phase_event);
@@ -1019,7 +1018,9 @@ int32_t field::process_phase_event(int16_t step, int32_t phase) {
 			if(!peffect->is_activateable(check_player, test_event))
 				continue;
 			peffect->id = infos.field_id++;
+			chain newchain;
 			newchain.triggering_effect = peffect;
+			newchain.flag |= CHAIN_FORCED;
 			core.select_chains.push_back(newchain);
 			++tf_count;
 		}
@@ -1031,7 +1032,9 @@ int32_t field::process_phase_event(int16_t step, int32_t phase) {
 			if(peffect->get_handler_player() != check_player || !peffect->is_activateable(check_player, test_event))
 				continue;
 			peffect->id = infos.field_id++;
+			chain newchain;
 			newchain.triggering_effect = peffect;
+			newchain.flag |= CHAIN_FORCED;
 			core.select_chains.push_back(newchain);
 			++cn_count;
 		}
@@ -1052,7 +1055,9 @@ int32_t field::process_phase_event(int16_t step, int32_t phase) {
 			card* phandler = peffect->get_handler();
 			if(peffect->get_value(phandler) != phandler->current.controler)
 				continue;
+			chain newchain;
 			newchain.triggering_effect = peffect;
+			newchain.flag |= CHAIN_FORCED;
 			core.select_chains.push_back(newchain);
 			++cn_count;
 		}
@@ -1066,6 +1071,7 @@ int32_t field::process_phase_event(int16_t step, int32_t phase) {
 				if(!peffect->is_activateable(check_player, test_event))
 					continue;
 				peffect->id = infos.field_id++;
+				chain newchain;
 				newchain.triggering_effect = peffect;
 				core.select_chains.push_back(newchain);
 				++to_count;
@@ -1089,6 +1095,7 @@ int32_t field::process_phase_event(int16_t step, int32_t phase) {
 				if(!peffect->is_chainable(check_player) || !peffect->is_activateable(check_player, test_event))
 					continue;
 				peffect->id = infos.field_id++;
+				chain newchain;
 				newchain.triggering_effect = peffect;
 				if(check_hint_timing(peffect) || check_cteffect_hint(peffect, check_player))
 					++core.spe_effect[check_player];
@@ -1103,6 +1110,7 @@ int32_t field::process_phase_event(int16_t step, int32_t phase) {
 				if(!peffect->is_chainable(check_player) || !peffect->is_activateable(check_player, test_event))
 					continue;
 				peffect->id = infos.field_id++;
+				chain newchain;
 				newchain.triggering_effect = peffect;
 				if(check_hint_timing(peffect))
 					++core.spe_effect[check_player];
@@ -1116,6 +1124,7 @@ int32_t field::process_phase_event(int16_t step, int32_t phase) {
 				if(peffect->get_handler_player() != check_player || !peffect->is_activateable(check_player, test_event))
 					continue;
 				peffect->id = infos.field_id++;
+				chain newchain;
 				newchain.triggering_effect = peffect;
 				core.select_chains.push_back(newchain);
 				++fc_count;
@@ -1147,7 +1156,7 @@ int32_t field::process_phase_event(int16_t step, int32_t phase) {
 				add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.select_chains[0].triggering_effect->get_handler(), check_player, 0);
 				return FALSE;
 			} else {
-				add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, check_player, core.spe_effect[check_player] | (tf_count + cn_count ? 0x10000 : 0));
+				add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, check_player, core.spe_effect[check_player]);
 				core.units.begin()->step = 1;
 				return FALSE;
 			}
@@ -1316,8 +1325,10 @@ int32_t field::process_point_event(int16_t step, int32_t skip_trigger, int32_t s
 			uint8_t tp = clit->triggering_player;
 			if(check_trigger_effect(*clit) && peffect->is_chainable(tp)
 				&& peffect->is_activateable(tp, clit->evt, !peffect->is_flag(EFFECT_FLAG_ACTIVATE_CONDITION))) {
-				if(tp == core.current_player)
+				if(tp == core.current_player) {
+					clit->flag |= CHAIN_FORCED;
 					core.select_chains.push_back(*clit);
+				}
 			} else {
 				peffect->active_type = 0;
 				clit = core.new_fchain_s.erase(clit);
@@ -1330,7 +1341,7 @@ int32_t field::process_point_event(int16_t step, int32_t skip_trigger, int32_t s
 		} else if(core.select_chains.size() == 1) {
 			returns.ivalue[0] = 0;
 		} else {
-			add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, core.current_player, 0x7f | 0x10000);
+			add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, core.current_player, 0x7f);
 		}
 		return FALSE;
 	}
@@ -1594,8 +1605,10 @@ int32_t field::process_quick_effect(int16_t step, int32_t skip_freechain, uint8_
 			card* phandler = peffect->get_handler();
 			if(peffect->is_chainable(ifit->second.triggering_player) && peffect->check_count_limit(ifit->second.triggering_player)
 					&& phandler->is_has_relation(ifit->second)) {
-				if(ifit->second.triggering_player == check_player)
+				if(ifit->second.triggering_player == check_player) {
+					ifit->second.flag |= CHAIN_FORCED;
 					core.select_chains.push_back(ifit->second);
+				}
 			} else {
 				ifit = core.quick_f_chain.erase(ifit);
 				continue;
@@ -1607,7 +1620,7 @@ int32_t field::process_quick_effect(int16_t step, int32_t skip_freechain, uint8_
 		else if(core.select_chains.size() == 1)
 			returns.ivalue[0] = 0;
 		else
-			add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, check_player, 0x10000);
+			add_process(PROCESSOR_SELECT_CHAIN, 0, 0, 0, check_player, 0);
 		return FALSE;
 	}
 	case 1: {
