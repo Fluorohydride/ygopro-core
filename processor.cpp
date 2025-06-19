@@ -4069,7 +4069,10 @@ int32_t field::add_chain(uint16_t step) {
 		if((peffect->card_type & (TYPE_TRAP | TYPE_MONSTER)) == (TYPE_TRAP | TYPE_MONSTER))
 			peffect->card_type -= TYPE_TRAP;
 		peffect->set_active_type();
-		peffect->active_handler = peffect->handler->overlay_target;
+		if (peffect->type & EFFECT_TYPE_XMATERIAL) {
+			peffect->active_handler = peffect->handler->overlay_target;
+			peffect->last_handler = peffect->handler->overlay_target;
+		}
 		clit.chain_count = (uint8_t)core.current_chain.size() + 1;
 		clit.target_cards = 0;
 		clit.target_player = PLAYER_NONE;
