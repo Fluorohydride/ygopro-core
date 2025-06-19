@@ -1057,8 +1057,12 @@ int32_t scriptlib::duel_confirm_cards(lua_State *L) {
 		pduel = pgroup->pduel;
 	} else
 		return luaL_error(L, "Parameter %d should be \"Card\" or \"Group\".", 2);
+	uint8_t skip_panel = 0;
+	if(lua_gettop(L) >= 3)
+		skip_panel = lua_toboolean(L, 3);
 	pduel->write_buffer8(MSG_CONFIRM_CARDS);
 	pduel->write_buffer8(playerid);
+	pduel->write_buffer8(skip_panel);
 	if(pcard) {
 		pduel->write_buffer8(1);
 		pduel->write_buffer32(pcard->data.code);
