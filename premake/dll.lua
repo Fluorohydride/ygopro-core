@@ -37,7 +37,7 @@ workspace "ocgcoredll"
     filter { "configurations:Release", "action:vs*" }
         linktimeoptimization "On"
         staticruntime "On"
-        disablewarnings { "4146", "4334" }
+        disablewarnings { "4334" }
 
     filter "action:vs*"
         cdialect "C11"
