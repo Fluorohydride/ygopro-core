@@ -1,6 +1,5 @@
 project "ocgcore"
     kind "StaticLib"
-    cppdialect "C++14"
 
     files { "*.cpp", "*.h" }
     
