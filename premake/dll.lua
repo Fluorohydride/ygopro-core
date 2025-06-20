@@ -12,7 +12,6 @@ end
 workspace "ocgcoredll"
     location "build"
     language "C++"
-    cppdialect "C++14"
 
     configurations { "Release", "Debug" }
     platforms { "x32", "x64" }
@@ -62,7 +61,6 @@ include(LUA_DIR)
 project "ocgcore"
 
     kind "SharedLib"
-    cppdialect "C++14"
 
     files { "*.cpp", "*.h" }
     links { "lua" }
