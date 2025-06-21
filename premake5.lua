@@ -9,6 +9,9 @@ project "ocgcore"
         includedirs { LUA_INCLUDE_DIR }
     end
 
+    filter "not action:vs*"
+        cppdialect "C++14"
+
     filter "system:bsd"
         defines { "LUA_USE_POSIX" }
 
