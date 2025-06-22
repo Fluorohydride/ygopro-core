@@ -1,6 +1,5 @@
 project "ocgcore"
     kind "StaticLib"
-    cppdialect "C++14"
 
     files { "*.cpp", "*.h" }
     
@@ -9,6 +8,9 @@ project "ocgcore"
     else
         includedirs { LUA_INCLUDE_DIR }
     end
+
+    filter "not action:vs*"
+        cppdialect "C++14"
 
     filter "system:bsd"
         defines { "LUA_USE_POSIX" }
