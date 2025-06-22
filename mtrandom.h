@@ -59,18 +59,19 @@ public:
 		return l + (int)(x % range);
 	}
 
-	// N % k == (N - k) % k, discard the leftmost numbers
+	// N % k = (N - k) % k = (-k) % k
+	// discard (N % range) numbers from the left end so that it is a multiple of range
+#pragma warning(disable:4146)
 	int get_random_integer_v2(int l, int h) {
 		uint32_t range = (h - l + 1);
-#pragma warning(disable:4146)
 		uint32_t bound = -range % range;
-#pragma warning(default:4146)
 		auto x = rng();
 		while (x < bound) {
 			x = rng();
 		}
 		return l + (int)(x % range);
 	}
+#pragma warning(default:4146)
 
 	// Fisher-Yates shuffle [first, last)
 	template<typename T>
