@@ -531,6 +531,7 @@ const std::map<uint64_t, uint64_t> category_checklist{
 #define EFFECT_XYZ_MIN_COUNT			372
 #define EFFECT_SYNCHRO_LEVEL_EX		373
 #define EFFECT_RITUAL_LEVEL_EX		374
+#define EFFECT_DOUBLE_XMATERIAL		375
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
