@@ -77,7 +77,7 @@ public:
 	template<typename T>
 	void shuffle_vector(std::vector<T>& v, int first = 0, int last = INT32_MAX, int version = 2) {
 		if ((size_t)last > v.size())
-			last = v.size();
+			last = (int)v.size();
 		auto distribution = &mtrandom::get_random_integer_v2;
 		if (version == 1)
 			distribution = &mtrandom::get_random_integer_v1;
