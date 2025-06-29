@@ -330,14 +330,12 @@ int32_t field::select_unselect_card(uint16_t step, uint8_t playerid, uint8_t can
 		return TRUE;
 	}
 }
-int32_t field::select_chain(uint16_t step, uint8_t playerid, uint8_t spe_count, uint8_t forced) {
+int32_t field::select_chain(uint16_t step, uint8_t playerid, uint8_t spe_count) {
 	if(step == 0) {
 		returns.ivalue[0] = -1;
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
 			if(core.select_chains.size() == 0)
 				returns.ivalue[0] = -1;
-			else if(forced)
-				returns.ivalue[0] = 0;
 			else {
 				bool act = true;
 				for(const auto& ch : core.current_chain)
@@ -354,7 +352,6 @@ int32_t field::select_chain(uint16_t step, uint8_t playerid, uint8_t spe_count, 
 		pduel->write_buffer8(playerid);
 		pduel->write_buffer8((uint8_t)core.select_chains.size());
 		pduel->write_buffer8(spe_count);
-		pduel->write_buffer8(forced);
 		pduel->write_buffer32(pduel->game_field->core.hint_timing[playerid]);
 		pduel->write_buffer32(pduel->game_field->core.hint_timing[1 - playerid]);
 		std::sort(core.select_chains.begin(), core.select_chains.end(), chain::chain_operation_sort);
@@ -367,17 +364,24 @@ int32_t field::select_chain(uint16_t step, uint8_t playerid, uint8_t spe_count, 
 				pduel->write_buffer8(EDESC_RESET);
 			else
 				pduel->write_buffer8(0);
+			if(ch.flag & CHAIN_FORCED)
+				pduel->write_buffer8(1);
+			else
+				pduel->write_buffer8(0);
 			pduel->write_buffer32(pcard->data.code);
 			pduel->write_buffer32(pcard->get_info_location());
 			pduel->write_buffer32(peffect->description);
 		}
 		return FALSE;
 	} else {
-		if (returns.ivalue[0] == -1) {
-			if (!forced)
-				return TRUE;
-			pduel->write_buffer8(MSG_RETRY);
-			return FALSE;
+		if(returns.ivalue[0] == -1) {
+			for(const auto& ch : core.select_chains) {
+				if(ch.flag & CHAIN_FORCED) {
+					pduel->write_buffer8(MSG_RETRY);
+					return FALSE;
+				}
+			}
+			return TRUE;
 		}
 		if(returns.ivalue[0] < 0 || returns.ivalue[0] >= (int32_t)core.select_chains.size()) {
 			pduel->write_buffer8(MSG_RETRY);
