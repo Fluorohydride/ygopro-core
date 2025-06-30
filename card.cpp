@@ -455,11 +455,6 @@ uint32_t card::get_another_code() {
 		return otcode;
 	return 0;
 }
-inline bool check_setcode(uint16_t setcode, uint32_t value) {
-	const uint32_t settype = value & 0x0fffU;
-	const uint32_t setsubtype = value & 0xf000U;
-	return (setcode & 0x0fffU) == settype && (setcode & setsubtype) == setsubtype;
-}
 int32_t card::is_set_card(uint32_t set_code) {
 	uint32_t code1 = get_code();
 	card_data dat1;
