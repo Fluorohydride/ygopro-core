@@ -24,6 +24,33 @@ const std::unordered_map<uint32_t, uint32_t> second_code = {
 	{CARD_HERMOS, 10000070u},
 };
 
+inline bool check_setcode(uint16_t setcode, uint32_t value) {
+	const uint32_t settype = value & 0x0fffU;
+	const uint32_t setsubtype = value & 0xf000U;
+	return setcode && (setcode & 0x0fffU) == settype && (setcode & setsubtype) == setsubtype;
+}
+
+inline void write_setcode(uint16_t list[], uint64_t value) {
+	if (!list)
+		return;
+	int len = 0;
+	while (value) {
+		if (value & 0xffff) {
+			list[len] = value & 0xffff;
+			++len;
+		}
+		value >>= 16;
+	}
+	if (len < SIZE_SETCODE)
+		std::memset(list + len, 0, (SIZE_SETCODE - len) * sizeof(uint16_t));
+}
+
+inline bool is_alternative(uint32_t code, uint32_t alias) {
+	if (code == CARD_BLACK_LUSTER_SOLDIER2)
+		return false;
+	return alias && (alias < code + CARD_ARTWORK_VERSIONS_OFFSET) && (code < alias + CARD_ARTWORK_VERSIONS_OFFSET);
+}
+
 struct card_data {
 	uint32_t code{};
 	uint32_t alias{};
@@ -43,38 +70,17 @@ struct card_data {
 	}
 
 	bool is_setcode(uint32_t value) const {
-		const uint16_t settype = value & 0x0fff;
-		const uint16_t setsubtype = value & 0xf000;
 		for (auto& x : setcode) {
-			if ((x & 0x0fff) == settype && (x & setsubtype) == setsubtype)
-				return true;
 			if (!x)
 				return false;
+			if (check_setcode(x, value))
+				return true;
 		}
 		return false;
 	}
 
-	bool is_alternative() const {
-		if (code == CARD_BLACK_LUSTER_SOLDIER2)
-			return false;
-		return alias && (alias < code + CARD_ARTWORK_VERSIONS_OFFSET) && (code < alias + CARD_ARTWORK_VERSIONS_OFFSET);
-	}
-
-	void set_setcode(uint64_t value) {
-		int ctr = 0;
-		while (value) {
-			if (value & 0xffff) {
-				setcode[ctr] = value & 0xffff;
-				++ctr;
-			}
-			value >>= 16;
-		}
-		if (ctr < SIZE_SETCODE)
-			std::memset(setcode + ctr, 0, (SIZE_SETCODE - ctr) * sizeof(uint16_t));
-	}
-
 	uint32_t get_original_code() const {
-		return is_alternative() ? alias : code;
+		return is_alternative(code, alias) ? alias : code;
 	}
 };
 
