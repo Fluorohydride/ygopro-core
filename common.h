@@ -150,8 +150,7 @@ inline bool check_playerid(int32_t playerid) {
 #define RACE_ILLUSION		0x2000000	//
 
 //Reason
-#define 
-_DESTROY		0x1		//
+#define REASON_DESTROY		0x1		//
 #define REASON_RELEASE		0x2		//
 #define REASON_TEMPORARY	0x4		//
 #define REASON_MATERIAL		0x8		//
