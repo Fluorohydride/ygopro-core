@@ -178,6 +178,7 @@ inline bool check_playerid(int32_t playerid) {
 #define REASON_REVEAL		0x8000000	//
 #define REASON_LINK			0x10000000	//
 #define REASON_LOST_OVERLAY	0x20000000	//
+// #define REASONPENDULUM	0x40000000	// no bits here
 #define REASON_MAINTENANCE	0x40000000	//
 #define REASON_ACTION		0x80000000	//
 
