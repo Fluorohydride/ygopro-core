@@ -15,7 +15,8 @@
 #include "interpreter.h"
 
 interpreter::interpreter(duel* pd): coroutines(256) {
-	lua_state = luaL_newstate();
+	mem_tracker = new LuaMemTracker(YGOPRO_LUA_MEMORY_SIZE);
+	lua_state = lua_newstate(LuaMemTracker::AllocThunk, mem_tracker);
 	current_state = lua_state;
 	pduel = pd;
 	std::memcpy(lua_getextraspace(lua_state), &pd, LUA_EXTRASPACE); //set_duel_info
@@ -54,6 +55,7 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 }
 interpreter::~interpreter() {
 	lua_close(lua_state);
+	delete mem_tracker;
 }
 void interpreter::register_card(card *pcard) {
 	if (!pcard)
