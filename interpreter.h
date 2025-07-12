@@ -16,6 +16,7 @@
 #include <list>
 #include <vector>
 #include <cstdio>
+#include "LuaMemTracker.h"
 
 class card;
 struct card_data;
@@ -47,6 +48,7 @@ public:
 	char msgbuf[64];
 	lua_State* lua_state;
 	lua_State* current_state;
+	LuaMemTracker* mem_tracker;
 	param_list params;
 	param_list resumes;
 	coroutine_map coroutines;
@@ -96,5 +98,9 @@ public:
 #define COROUTINE_FINISH	1
 #define COROUTINE_YIELD		2
 #define COROUTINE_ERROR		3
+
+#ifndef YGOPRO_LUA_MEMORY_SIZE
+#define YGOPRO_LUA_MEMORY_SIZE 67108864 // 64 MB
+#endif
 
 #endif /* INTERPRETER_H_ */
