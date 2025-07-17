@@ -53,7 +53,7 @@ public:
 	int32_t no_action;
 	int32_t call_depth;
 
-	explicit interpreter(duel* pd);
+	explicit interpreter(duel* pd, bool enable_unsafe_libraries);
 	~interpreter();
 
 	void register_card(card* pcard);

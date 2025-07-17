@@ -16,7 +16,7 @@
 #include "buffer.h"
 
 duel::duel() {
-	lua = new interpreter(this);
+	lua = new interpreter(this, false);
 	game_field = new field(this);
 	game_field->temp_card = new_card(TEMP_CARD_ID);
 	message_buffer.reserve(SIZE_MESSAGE_BUFFER);
