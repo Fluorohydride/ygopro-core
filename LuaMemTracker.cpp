@@ -35,7 +35,7 @@ void* LuaMemTracker::AllocThunk(void* ud, void* ptr, size_t osize, size_t nsize)
 
 void* LuaMemTracker::Alloc(void* ptr, size_t osize, size_t nsize) {
 	if (nsize == 0) {
-		if (ptr && osize <= total_allocated) {
+		if (ptr) {
 			total_allocated -= osize;
 		}
 		return real_alloc(real_ud, ptr, osize, nsize);
