@@ -16,6 +16,17 @@ inline bool check_playerid(int32_t playerid) {
 	return playerid >= 0 && playerid <= 1;
 }
 
+enum LuaParamType : int32_t {
+	PARAM_TYPE_INT = 0x01,
+	PARAM_TYPE_STRING = 0x02,
+	PARAM_TYPE_CARD = 0x04,
+	PARAM_TYPE_GROUP = 0x08,
+	PARAM_TYPE_EFFECT = 0x10,
+	PARAM_TYPE_FUNCTION = 0x20,
+	PARAM_TYPE_BOOLEAN = 0x40,
+	PARAM_TYPE_INDEX = 0x80,
+};
+
 #define MATCH_ALL(x,y) (((x)&(y))==(y))
 #define MATCH_ANY(x,y) ((x)&(y))
 #define ADD_BIT(x,y) ((x)|=(y))
