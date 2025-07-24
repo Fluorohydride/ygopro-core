@@ -4841,6 +4841,86 @@ int32_t scriptlib::duel_majestic_copy(lua_State *L) {
 	}
 	return 0;
 }
+int32_t scriptlib::duel_get_meta_value(lua_State *L) {
+	auto pduel = interpreter::get_duel_info(L);
+	return pduel->meta.luaop_get(L);
+}
+int32_t scriptlib::duel_set_meta_value(lua_State *L) {
+	auto pduel = interpreter::get_duel_info(L);
+	return pduel->meta.luaop_set(L);
+}
+int32_t scriptlib::duel_has_meta_value(lua_State *L) {
+	auto pduel = interpreter::get_duel_info(L);
+	return pduel->meta.luaop_has(L);
+}
+int32_t scriptlib::duel_get_meta_keys(lua_State *L) {
+	auto pduel = interpreter::get_duel_info(L);
+	return pduel->meta.luaop_keys(L);
+}
+int32_t scriptlib::duel_clear_meta(lua_State *L) {
+	auto pduel = interpreter::get_duel_info(L);
+	return pduel->meta.luaop_clear();
+}
+int32_t scriptlib::duel_get_chain_meta_value(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_INT, 1);
+	auto pduel = interpreter::get_duel_info(L);
+	auto c = (uint32_t)lua_tointeger(L, 1);
+	auto ch = pduel->game_field->get_chain(c);
+	if(!ch) {
+		lua_pushnil(L);
+		return 1;
+	}
+	return ch->meta.luaop_get(L, 1);
+}
+int32_t scriptlib::duel_set_chain_meta_value(lua_State *L) {
+	check_param_count(L, 3);
+	check_param(L, PARAM_TYPE_INT, 1);
+	auto pduel = interpreter::get_duel_info(L);
+	auto c = (uint32_t)lua_tointeger(L, 1);
+	auto ch = pduel->game_field->get_chain(c);
+	if(!ch) {
+		lua_pushnil(L);
+		return 1;
+	}
+	return ch->meta.luaop_set(L, 1);
+}
+int32_t scriptlib::duel_has_chain_meta_value(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_INT, 1);
+	auto pduel = interpreter::get_duel_info(L);
+	auto c = (uint32_t)lua_tointeger(L, 1);
+	auto ch = pduel->game_field->get_chain(c);
+	if(!ch) {
+		lua_pushnil(L);
+		return 1;
+	}
+	return ch->meta.luaop_has(L, 1);
+}
+int32_t scriptlib::duel_get_chain_meta_keys(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_INT, 1);
+	auto pduel = interpreter::get_duel_info(L);
+	auto c = (uint32_t)lua_tointeger(L, 1);
+	auto ch = pduel->game_field->get_chain(c);
+	if(!ch) {
+		lua_pushnil(L);
+		return 1;
+	}
+	return ch->meta.luaop_keys(L);
+}
+int32_t scriptlib::duel_clear_chain_meta(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_INT, 1);
+	auto pduel = interpreter::get_duel_info(L);
+	auto c = (uint32_t)lua_tointeger(L, 1);
+	auto ch = pduel->game_field->get_chain(c);
+	if(!ch) {
+		lua_pushnil(L);
+		return 1;
+	}
+	return ch->meta.luaop_clear();
+}
 
 static const struct luaL_Reg duellib[] = {
 	{ "EnableGlobalFlag", scriptlib::duel_enable_global_flag },
@@ -5072,6 +5152,16 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsAbleToEnterBP", scriptlib::duel_is_able_to_enter_bp },
 	{ "SwapDeckAndGrave", scriptlib::duel_swap_deck_and_grave },
 	{ "MajesticCopy", scriptlib::duel_majestic_copy },
+	{ "GetMetaValue", scriptlib::duel_get_meta_value },
+	{ "SetMetaValue", scriptlib::duel_set_meta_value },
+	{ "HasMetaValue", scriptlib::duel_has_meta_value },
+	{ "ClearMeta", scriptlib::duel_clear_meta },
+	{ "GetMetaKeys", scriptlib::duel_get_meta_keys },
+	{ "GetChainMetaValue", scriptlib::duel_get_chain_meta_value },
+	{ "SetChainMetaValue", scriptlib::duel_set_chain_meta_value },
+	{ "HasChainMetaValue", scriptlib::duel_has_chain_meta_value },
+	{ "ClearChainMeta", scriptlib::duel_clear_chain_meta },
+	{ "GetChainMetaKeys", scriptlib::duel_get_chain_meta_keys },
 	{ nullptr, nullptr }
 };
 void scriptlib::open_duellib(lua_State *L) {

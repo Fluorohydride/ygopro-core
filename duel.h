@@ -11,6 +11,7 @@
 #include "common.h"
 #include "sort.h"
 #include "mtrandom.h"
+#include "metadata.h"
 #include <set>
 #include <unordered_set>
 #include <vector>
@@ -30,6 +31,7 @@ public:
 	interpreter* lua;
 	field* game_field;
 	mtrandom random;
+	metadata meta;
 
 	std::vector<byte> message_buffer;
 	std::unordered_set<card*> cards;
