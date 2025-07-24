@@ -2352,6 +2352,29 @@ int32_t scriptlib::duel_get_chain_event(lua_State *L) {
 	lua_pushinteger(L, ch->evt.reason_player);
 	return 6;
 }
+int32_t scriptlib::duel_is_triggering_set_card(lua_State *L) {
+	check_param_count(L, 2);
+	uint32_t c = (uint32_t)lua_tointeger(L, 1);
+	duel* pduel = interpreter::get_duel_info(L);
+	chain* ch = pduel->game_field->get_chain(c);
+	if(!ch) {
+		lua_pushboolean(L, FALSE);
+		return 1;
+	}
+	uint32_t count = lua_gettop(L) - 1;
+	uint32_t result = FALSE;
+	for(uint32_t i = 0; i < count; ++i) {
+		if(lua_isnil(L, i + 2))
+			continue;
+		uint32_t set_code = (uint32_t)lua_tointeger(L, i + 2);
+		if(ch->is_triggering_set_card(set_code)) {
+			result = TRUE;
+			break;
+		}
+	}
+	lua_pushboolean(L, result);
+	return 1;
+}
 int32_t scriptlib::duel_get_first_target(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	chain* ch = pduel->game_field->get_chain(0);
@@ -4947,6 +4970,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "GetReadyChain", scriptlib::duel_get_ready_chain },
 	{ "GetChainInfo", scriptlib::duel_get_chain_info },
 	{ "GetChainEvent", scriptlib::duel_get_chain_event },
+	{ "IsTriggeringSetCard", scriptlib::duel_is_triggering_set_card },
 	{ "GetFirstTarget", scriptlib::duel_get_first_target },
 	{ "GetTargetsRelateToChain", scriptlib::duel_get_targets_relate_to_chain },
 	{ "IsPhase", scriptlib::duel_is_phase },

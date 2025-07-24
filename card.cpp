@@ -455,6 +455,16 @@ uint32_t card::get_another_code() {
 		return otcode;
 	return 0;
 }
+std::vector<uint16_t> card::get_extra_setcodes() {
+	std::vector<uint16_t> setcodes;
+	effect_set eset;
+	filter_effect(EFFECT_ADD_SETCODE, &eset);
+	for(effect_set::size_type i = 0; i < eset.size(); ++i) {
+		uint32_t value = eset[i]->get_value(this);
+		setcodes.push_back(value & 0xffff);
+	}
+	return setcodes;
+}
 int32_t card::is_set_card(uint32_t set_code) {
 	uint32_t code1 = get_code();
 	card_data dat1;
@@ -470,12 +480,8 @@ int32_t card::is_set_card(uint32_t set_code) {
 	if (code2 && check_card_setcode(code2, set_code))
 		return TRUE;
 	//add set code
-	effect_set eset;
-	filter_effect(EFFECT_ADD_SETCODE, &eset);
-	for(effect_set::size_type i = 0; i < eset.size(); ++i) {
-		uint32_t value = eset[i]->get_value(this);
-		uint16_t new_setcode = value & 0xffff;
-		if (check_setcode(new_setcode, set_code))
+	for(auto& ex : get_extra_setcodes()) {
+		if (check_setcode(ex, set_code))
 			return TRUE;
 	}
 	return FALSE;

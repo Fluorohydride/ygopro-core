@@ -37,6 +37,7 @@ void chain::set_triggering_state(card* pcard) {
 		triggering_location = pcard->current.location;
 	triggering_sequence = pcard->current.sequence;
 	triggering_position = pcard->current.position;
+	triggering_exsetcodes = pcard->get_extra_setcodes();
 	triggering_state.code = pcard->get_code();
 	triggering_state.code2 = pcard->get_another_code();
 	triggering_state.level = pcard->get_level();
@@ -46,6 +47,17 @@ void chain::set_triggering_state(card* pcard) {
 	std::pair<int32_t, int32_t> atk_def = pcard->get_atk_def();
 	triggering_state.attack = atk_def.first;
 	triggering_state.defense = atk_def.second;
+}
+uint8_t chain::is_triggering_set_card(uint32_t set_code) {
+	if(card::check_card_setcode(triggering_state.code, set_code))
+		return TRUE;
+	if(triggering_state.code2 && card::check_card_setcode(triggering_state.code2, set_code))
+		return TRUE;
+	for (auto& ex : triggering_exsetcodes) {
+		if (check_setcode(ex, set_code))
+			return TRUE;
+	}
+	return FALSE;
 }
 bool tevent::operator< (const tevent& v) const {
 	return std::memcmp(this, &v, sizeof(tevent)) < 0;
