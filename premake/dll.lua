@@ -14,13 +14,16 @@ workspace "ocgcoredll"
     language "C++"
 
     configurations { "Release", "Debug" }
-    platforms { "x32", "x64" }
+    platforms { "x32", "x64", "arm64", "wasm" }
     
     filter "platforms:x32"
         architecture "x32"
 
     filter "platforms:x64"
         architecture "x64"
+
+    filter "platforms:arm64"
+        architecture "ARM64"
 
     filter "configurations:Release"
         optimize "Speed"
@@ -54,6 +57,11 @@ workspace "ocgcoredll"
         defines { "LUA_USE_LINUX" }
         pic "On"
 
+    filter "platforms:wasm"
+        toolset "emcc"
+        defines { "LUA_USE_C89", "LUA_USE_LONGJMP" }
+        pic "On"
+
 filter {}
 
 include(LUA_DIR)
@@ -66,3 +74,7 @@ project "ocgcore"
     links { "lua" }
     
     includedirs { LUA_DIR .. "/src" }
+
+    filter "platforms:wasm"
+        targetextension ".wasm"
+        linkoptions { "-s MODULARIZE=1", "-s EXPORT_NAME=\"createOcgcore\"", "--no-entry", "-s ENVIRONMENT=web,node", "-s EXPORTED_RUNTIME_METHODS=[\"ccall\",\"cwrap\",\"addFunction\",\"removeFunction\"]", "-s EXPORTED_FUNCTIONS=[\"_malloc\",\"_free\"]", "-s ALLOW_TABLE_GROWTH=1", "-s ALLOW_MEMORY_GROWTH=1", "-o ../build/bin/wasm/Release/libocgcore.js" }
