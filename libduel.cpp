@@ -4837,15 +4837,12 @@ int32_t scriptlib::duel_majestic_copy(lua_State *L) {
 	}
 	return 0;
 }
+
 int32_t scriptlib::duel_load_script(lua_State *L) {
 	check_param_count(L, 1);
 	check_param(L, PARAM_TYPE_STRING, 1);
-	duel* pduel = interpreter::get_duel_info(L);
-	const char* pstr = lua_tolstring(L, 1, nullptr);
-	if (!pstr)
-		return 0;
-	if (std::strchr(pstr, '/') || std::strchr(pstr, '\\'))
-		return 0;
+	duel* pduel = interpreter::get_duel_info(L); 
+	const char* pstr = lua_tostring(L, 1);
 	char filename[64];
 	interpreter::sprintf(filename, "./script/%s", pstr);
 	lua_pushboolean(L, pduel->lua->load_script(filename));
