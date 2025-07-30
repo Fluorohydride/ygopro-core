@@ -14,7 +14,7 @@
 #include "ocgapi.h"
 #include "interpreter.h"
 
-interpreter::interpreter(duel* pd): coroutines(256) {
+interpreter::interpreter(duel* pd, bool enable_unsafe_libraries): coroutines(256) {
 	mem_tracker = new LuaMemTracker(YGOPRO_LUA_MEMORY_SIZE);
 	lua_state = lua_newstate(LuaMemTracker::AllocThunk, mem_tracker);
 	current_state = lua_state;
@@ -33,15 +33,20 @@ interpreter::interpreter(duel* pd): coroutines(256) {
 	lua_pop(lua_state, 1);
 	luaL_requiref(lua_state, "math", luaopen_math, 1);
 	lua_pop(lua_state, 1);
+	if (enable_unsafe_libraries) {
+		luaL_requiref(lua_state, "io", luaopen_io, 1);
+		lua_pop(lua_state, 1);
+	}
+
 	auto nil_out = [&](const char* name) {
 		lua_pushnil(lua_state);
 		lua_setglobal(lua_state, name);
 	};
 	nil_out("collectgarbage");
-#ifndef ENABLE_UNSAFE_LIBRARIES
-	nil_out("dofile");
-	nil_out("loadfile");
-#endif // ENABLE_UNSAFE_LIBRARIES
+	if (!enable_unsafe_libraries) {
+		nil_out("dofile");
+		nil_out("loadfile");
+	}
 	//open all libs
 	scriptlib::open_cardlib(lua_state);
 	scriptlib::open_effectlib(lua_state);
