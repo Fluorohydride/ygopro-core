@@ -777,6 +777,36 @@ int32_t scriptlib::group_get_bin_class_count(lua_State *L) {
 	lua_pushinteger(L, ans);
 	return 1;
 }
+int32_t scriptlib::group_get_meta_value(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_GROUP, 1);
+	group* pgroup = *(group**) lua_touserdata(L, 1);
+	return pgroup->meta.luaop_get(L, 1);
+}
+int32_t scriptlib::group_set_meta_value(lua_State *L) {
+	check_param_count(L, 3);
+	check_param(L, PARAM_TYPE_GROUP, 1);
+	group* pgroup = *(group**) lua_touserdata(L, 1);
+	return pgroup->meta.luaop_set(L, 1);
+}
+int32_t scriptlib::group_has_meta_value(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_GROUP, 1);
+	group* pgroup = *(group**) lua_touserdata(L, 1);
+	return pgroup->meta.luaop_has(L, 1);
+}
+int32_t scriptlib::group_get_meta_keys(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_GROUP, 1);
+	group* pgroup = *(group**) lua_touserdata(L, 1);
+	return pgroup->meta.luaop_keys(L);
+}
+int32_t scriptlib::group_clear_meta(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_GROUP, 1);
+	group* pgroup = *(group**) lua_touserdata(L, 1);
+	return pgroup->meta.luaop_clear();
+}
 int32_t scriptlib::group_meta_add(lua_State* L) {
 	check_param_count(L, 2);
 	if(!check_param(L, PARAM_TYPE_CARD, 1, TRUE) && !check_param(L, PARAM_TYPE_GROUP, 1, TRUE))
@@ -931,6 +961,11 @@ static const struct luaL_Reg grouplib[] = {
 	{ "IsContains", scriptlib::group_is_contains },
 	{ "SearchCard", scriptlib::group_search_card },
 	{ "GetBinClassCount", scriptlib::group_get_bin_class_count },
+	{ "GetMetaValue", scriptlib::group_get_meta_value },
+	{ "SetMetaValue", scriptlib::group_set_meta_value },
+	{ "HasMetaValue", scriptlib::group_has_meta_value },
+	{ "ClearMeta", scriptlib::group_clear_meta },
+	{ "GetMetaKeys", scriptlib::group_get_meta_keys },
 	{ "__add", scriptlib::group_meta_add },
 	{ "__bor", scriptlib::group_meta_add },
 	{ "__sub", scriptlib::group_meta_sub },
