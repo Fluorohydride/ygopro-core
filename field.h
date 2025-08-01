@@ -60,6 +60,7 @@ struct chain {
 	uint16_t triggering_location{ 0 };
 	uint8_t triggering_sequence{ 0 };
 	uint8_t triggering_position{ 0 };
+	std::vector<uint16_t> triggering_exsetcodes;
 	card_state triggering_state;
 	effect* triggering_effect{ nullptr };
 	group* target_cards{ nullptr };
@@ -75,6 +76,7 @@ struct chain {
 
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
 	void set_triggering_state(card* pcard);
+	uint8_t is_triggering_set_card(uint32_t set_code);
 };
 
 struct player_info {

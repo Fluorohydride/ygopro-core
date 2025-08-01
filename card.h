@@ -222,6 +222,7 @@ public:
 	std::tuple<uint32_t, uint32_t> get_original_code_rule() const;
 	uint32_t get_code();
 	uint32_t get_another_code();
+	std::vector<uint16_t> get_extra_setcodes();
 	int32_t is_set_card(uint32_t set_code);
 	int32_t is_origin_set_card(uint32_t set_code);
 	int32_t is_pre_set_card(uint32_t set_code);
