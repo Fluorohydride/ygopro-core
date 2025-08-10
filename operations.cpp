@@ -45,8 +45,7 @@ int32_t field::disable_chain(uint8_t chaincount, uint8_t forced) {
 	chain& pchain = core.current_chain[chaincount - 1];
 	card* phandler = pchain.triggering_effect->get_handler();
 	if(!(pchain.flag & CHAIN_DISABLE_EFFECT) && is_chain_disablable(pchain.chain_count)
-		&& (!phandler->is_has_relation(pchain) || phandler->is_affect_by_effect(core.reason_effect))
-		&& !(phandler->is_has_relation(pchain) && phandler->is_status(STATUS_DISABLED) && !forced)) {
+		&& (!phandler->is_has_relation(pchain) || phandler->is_affect_by_effect(core.reason_effect))) {
 		core.current_chain[chaincount - 1].flag |= CHAIN_DISABLE_EFFECT;
 		core.current_chain[chaincount - 1].disable_reason = core.reason_effect;
 		core.current_chain[chaincount - 1].disable_player = core.reason_player;
