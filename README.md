@@ -21,7 +21,11 @@ Interface provided function that handles error messages.
 
 These functions create the game itself and then manipulate it.
 - `intptr_t create_duel(uint_fast32_t seed);`  
-Create a the instance of the duel with a PRNG seed.
+(Deprecated) Create an instance of `duel` with 1 uint32 PRNG seed.  
+This function is reserved for replay mode only.
+
+- `intptr_t create_duel_v2(uint32_t seed_sequence[]);`  
+Create an instance of `duel` with PRNG seed `seed_sequence[]` of length `SEED_COUNT`.
 
 - `void start_duel(intptr_t pduel, uint32_t options);`  
 Start the duel.
