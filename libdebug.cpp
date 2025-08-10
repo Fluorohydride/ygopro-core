@@ -149,6 +149,10 @@ int32_t scriptlib::debug_reload_field_begin(lua_State *L) {
 		pduel->game_field->core.duel_rule = 1;
 	else
 		pduel->game_field->core.duel_rule = CURRENT_RULE;
+	if (pduel->game_field->core.duel_rule == MASTER_RULE3) {
+		pduel->game_field->player[0].szone_size = 8;
+		pduel->game_field->player[1].szone_size = 8;
+	}
 	return 0;
 }
 int32_t scriptlib::debug_reload_field_end(lua_State *L) {
