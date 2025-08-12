@@ -30,19 +30,17 @@ inline bool check_setcode(uint16_t setcode, uint32_t value) {
 	return setcode && (setcode & 0x0fffU) == settype && (setcode & setsubtype) == setsubtype;
 }
 
-inline void write_setcode(uint16_t list[], uint64_t value) {
+inline void write_setcode(uint16_t list[], uint64_t value, uint8_t offset = 0) {
 	if (!list)
 		return;
-	int len = 0;
+	int pos = offset;
 	while (value) {
-		if (value & 0xffff) {
-			list[len] = value & 0xffff;
-			++len;
-		}
+		if (value & 0xffff)
+			list[pos++] = value & 0xffff;
 		value >>= 16;
 	}
-	if (len < SIZE_SETCODE)
-		std::memset(list + len, 0, (SIZE_SETCODE - len) * sizeof(uint16_t));
+	if (pos < SIZE_SETCODE)
+		std::memset(list + pos, 0, (SIZE_SETCODE - pos) * sizeof(uint16_t));
 }
 
 inline bool is_alternative(uint32_t code, uint32_t alias) {
