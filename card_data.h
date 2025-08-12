@@ -33,7 +33,7 @@ inline bool check_setcode(uint16_t setcode, uint32_t value) {
 inline void write_setcode(uint16_t list[], uint64_t value, uint8_t offset = 0) {
 	if (!list)
 		return;
-	int pos = offset;
+	uint8_t pos = offset;
 	while (value) {
 		if (value & 0xffff)
 			list[pos++] = value & 0xffff;
