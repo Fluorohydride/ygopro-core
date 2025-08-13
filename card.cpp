@@ -4103,7 +4103,6 @@ int32_t card::is_can_be_synchro_material(card* scard, card* tuner) {
 				if(eset[i]->get_value(scard))
 					return TRUE;
 			}
-			return FALSE;
 		}
 	}
 	return TRUE;
