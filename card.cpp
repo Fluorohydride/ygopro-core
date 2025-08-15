@@ -4093,19 +4093,6 @@ int32_t card::is_can_be_synchro_material(card* scard, card* tuner) {
 	for(effect_set::size_type i = 0; i < eset.size(); ++i)
 		if(eset[i]->get_value(scard))
 			return FALSE;
-	if(scard && !(current.location == LOCATION_MZONE && current.controler == scard->current.controler)) {
-		eset.clear();
-		filter_effect(EFFECT_EXTRA_SYNCHRO_MATERIAL, &eset);
-		if(eset.size()) {
-			for(effect_set::size_type i = 0; i < eset.size(); ++i) {
-				if(!eset[i]->check_count_limit(scard->current.controler))
-					continue;
-				if(eset[i]->get_value(scard))
-					return TRUE;
-			}
-			return FALSE;
-		}
-	}
 	return TRUE;
 }
 int32_t card::is_can_be_ritual_material(card* scard) {
