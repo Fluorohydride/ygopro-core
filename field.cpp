@@ -1164,6 +1164,8 @@ void field::add_effect(effect* peffect, uint8_t owner_player) {
 		return;
 	if (effects.indexer.find(peffect) != effects.indexer.end())
 		return;
+	if (peffect->type & EFFECT_TYPES_CHAIN_LINK && peffect->owner == temp_card)
+		return;
 	effect_container::iterator it;
 	if (!(peffect->type & EFFECT_TYPE_ACTIONS)) {
 		it = effects.aura_effect.emplace(peffect->code, peffect);

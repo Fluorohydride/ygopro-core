@@ -1754,6 +1754,8 @@ int32_t card::add_effect(effect* peffect) {
 		return 0;
 	if (peffect->type & EFFECT_TYPES_TRIGGER_LIKE && is_continuous_event(peffect->code))
 		return 0;
+	if (peffect->type & EFFECT_TYPES_CHAIN_LINK && peffect->owner == pduel->game_field->temp_card)
+		return 0;
 	// the trigger effect in phase is "once per turn" by default
 	if (peffect->get_code_type() == CODE_PHASE && peffect->code & (PHASE_DRAW | PHASE_STANDBY | PHASE_END)
 		&& peffect->type & (EFFECT_TYPE_TRIGGER_O | EFFECT_TYPE_TRIGGER_F) && !peffect->is_flag(EFFECT_FLAG_COUNT_LIMIT)) {
