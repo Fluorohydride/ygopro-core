@@ -34,24 +34,64 @@ void* LuaMemTracker::AllocThunk(void* ud, void* ptr, size_t osize, size_t nsize)
 }
 
 void* LuaMemTracker::Alloc(void* ptr, size_t osize, size_t nsize) {
-	if (nsize == 0) {
+	auto shrink = [&](size_t dec) {
+		// Clamp subtraction to avoid size_t underflow.
+		if (dec > total_allocated) {
+			total_allocated = 0;
+		} else {
+			total_allocated -= dec;
+		}
+	};
+
+	if (nsize == 0) {  // free
 		if (ptr) {
-			total_allocated -= osize;
+			shrink(osize);
 		}
 		return real_alloc(real_ud, ptr, osize, nsize);
-	} else {
-		size_t projected = total_allocated - osize + nsize;
-		if (limit && projected > limit) {
-			return nullptr;  // over limit
+	}
+
+	// Unified path:
+	// - grow > 0: check limit using safe inequality, then alloc; on success add 'grow'
+	// - grow = 0: just alloc; accounting unchanged
+	// - shrink > 0: shrink first, alloc; on failure, rollback the shrink
+	auto do_alloc = [&](size_t grow_amount, size_t shrink_amount) -> void* {
+		if (grow_amount > 0 && limit) {
+			if (total_allocated >= limit || grow_amount > (limit - total_allocated)) {
+				return nullptr;
+			}
 		}
-		void* newptr = real_alloc(real_ud, ptr, osize, nsize);
-		if (newptr) {
-			total_allocated = projected;
+
+		auto result = real_alloc(real_ud, ptr, osize, nsize);
+		if (result) {
+			if (shrink_amount > 0)
+				shrink(shrink_amount);
+			if (grow_amount > 0)
+				total_allocated += grow_amount;
 #ifdef YGOPRO_LOG_LUA_MEMORY_SIZE
 			write_log();
 #endif
 		}
-		return newptr;
+
+		return result;
+	};
+
+	if (ptr) {
+		// realloc path: osize is the real old size
+		if (nsize > osize) {
+			// growth
+			size_t grow = nsize - osize;
+			return do_alloc(grow, 0);
+		} else if (nsize < osize) {
+			// shrink
+			size_t dec = osize - nsize;
+			return do_alloc(0, dec);
+		} else {
+			// no net change
+			return do_alloc(0, 0);
+		}
+	} else {
+		// malloc path: osize is a type tag; only count nsize
+		return do_alloc(nsize, 0);
 	}
 }
 
