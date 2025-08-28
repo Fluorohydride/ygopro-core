@@ -511,6 +511,7 @@ public:
 	static int32_t duel_get_ready_chain(lua_State* L);
 	static int32_t duel_get_chain_info(lua_State *L);
 	static int32_t duel_get_chain_event(lua_State *L);
+	static int32_t duel_is_triggering_set_card(lua_State *L);
 	static int32_t duel_get_first_target(lua_State *L);
 	static int32_t duel_get_targets_relate_to_chain(lua_State *L);
 	static int32_t duel_is_phase(lua_State *L);
