@@ -3418,6 +3418,15 @@ int32_t scriptlib::card_set_spsummon_once(lua_State *L) {
 	pcard->pduel->game_field->core.global_flag |= GLOBALFLAG_SPSUMMON_ONCE;
 	return 0;
 }
+int32_t scriptlib::card_check_spsummon_once(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	auto playerid = (int32_t)lua_tointeger(L, 2);
+	auto pduel = pcard->pduel;
+	lua_pushboolean(L, pduel->game_field->check_spsummon_once(pcard, playerid));
+	return 1;
+}
 
 static const struct luaL_Reg cardlib[] = {
 	{ "GetCode", scriptlib::card_get_code },
@@ -3696,6 +3705,7 @@ static const struct luaL_Reg cardlib[] = {
 	{ "ResetNegateEffect", scriptlib::card_reset_negate_effect },
 	{ "AssumeProperty", scriptlib::card_assume_prop },
 	{ "SetSPSummonOnce", scriptlib::card_set_spsummon_once },
+	{ "CheckSPSummonOnce", scriptlib::card_check_spsummon_once },
 	{ nullptr, nullptr }
 };
 void scriptlib::open_cardlib(lua_State *L) {
