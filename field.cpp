@@ -2624,6 +2624,16 @@ int32_t field::check_tuner_material(lua_State* L, card* pcard, card* tuner, int3
 			return FALSE;
 		}
 	}
+	effect* extra_synchro_material_effect = tuner->is_affected_by_effect(EFFECT_EXTRA_SYNCHRO_MATERIAL);
+	if (extra_synchro_material_effect) {
+		if (!extra_synchro_material_effect->check_count_limit(playerid)) {
+			return FALSE;
+		}
+		int32_t value = extra_synchro_material_effect->get_value(pcard);
+		if (value <= 0) {
+			return FALSE;
+		}
+	}
 	int32_t mzone_limit = get_mzone_limit(playerid, playerid, LOCATION_REASON_TOFIELD);
 	if(mzone_limit < 0) {
 		if(location == LOCATION_HAND) {
