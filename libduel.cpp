@@ -22,7 +22,7 @@ int32_t scriptlib::duel_enable_global_flag(lua_State *L) {
 }
 int32_t scriptlib::duel_is_global_flag(lua_State *L) {
 	check_param_count(L, 1);
-	int32_t flag = (int32_t)lua_tointeger(L, 1);
+	uint32_t flag = (uint32_t)lua_tointeger(L, 1);
 	duel* pduel = interpreter::get_duel_info(L);
 	lua_pushboolean(L, (pduel->game_field->core.global_flag & flag) == flag);
 	return 1;
