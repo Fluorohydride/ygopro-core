@@ -14,13 +14,10 @@
 #include "ocgapi.h"
 #include "interpreter.h"
 
-interpreter::interpreter(duel* pd, bool enable_unsafe_libraries): coroutines(256) {
+interpreter::interpreter(duel* pd, bool enable_unsafe_libraries) : coroutines(256), pduel(pd) {
 	lua_state = luaL_newstate();
 	current_state = lua_state;
-	pduel = pd;
 	std::memcpy(lua_getextraspace(lua_state), &pd, LUA_EXTRASPACE); //set_duel_info
-	no_action = 0;
-	call_depth = 0;
 	//Initial
 	luaL_requiref(lua_state, "base", luaopen_base, 0);
 	lua_pop(lua_state, 1);
