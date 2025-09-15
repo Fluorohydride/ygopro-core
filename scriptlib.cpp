@@ -21,7 +21,13 @@ static int32_t check_data_type(lua_State* L, int32_t index, const char* tname) {
 int32_t scriptlib::check_param(lua_State* L, int32_t param_type, int32_t index, int32_t retfalse) {
 	switch (param_type) {
 	case PARAM_TYPE_CARD: {
-		if(lua_isuserdata(L, index) && check_data_type(L, index, "Card"))
+		luaL_checkstack(L, 1, nullptr);
+		int32_t result = FALSE;
+		if(lua_isuserdata(L, index) && lua_getmetatable(L, index)) {
+			result = check_data_type(L, -1, "Card");
+			lua_pop(L, 1);
+		}
+		if(result)
 			return TRUE;
 		if(retfalse)
 			return FALSE;
