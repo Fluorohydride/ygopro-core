@@ -31,8 +31,8 @@ duel::~duel() {
 		delete pgroup;
 	for(auto& peffect : effects)
 		delete peffect;
-	delete lua;
 	delete game_field;
+	delete lua;
 }
 void duel::clear() {
 	for(auto& pcard : cards)
