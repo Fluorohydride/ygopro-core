@@ -1918,12 +1918,24 @@ void field::get_fusion_material(uint8_t playerid, card_set* material_all, card_s
 				material_base->insert(pcard);
 		}
 	}
+	// Fullmetalfoes Alkahest etc
 	for(auto& pcard : player[playerid].list_szone) {
 		if(pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
 			material_all->insert(pcard);
 	}
+	// Lunalight Masquerade etc
 	for(auto& pcard : player[playerid].list_grave) {
 		if(pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
+			material_all->insert(pcard);
+	}
+	// Curse of the Shadow Prison
+	for (auto& pcard : player[1-playerid].list_mzone) {
+		if (pcard && pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
+			material_all->insert(pcard);
+	}
+	// Amazoness Secret Arts
+	for (auto& pcard : player[playerid].list_extra) {
+		if (pcard->is_affected_by_effect(EFFECT_EXTRA_FUSION_MATERIAL))
 			material_all->insert(pcard);
 	}
 	material_all->insert(material_base->begin(), material_base->end());
