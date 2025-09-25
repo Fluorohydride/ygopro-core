@@ -52,6 +52,7 @@ public:
 	coroutine_map coroutines;
 	int32_t no_action{};
 	int32_t call_depth{};
+	bool enable_unsafe_feature{};
 
 	explicit interpreter(duel* pd, bool enable_unsafe_libraries);
 	~interpreter();
