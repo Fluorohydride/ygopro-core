@@ -331,11 +331,11 @@ int32_t scriptlib::group_random_select(lua_State *L) {
 	check_param(L, PARAM_TYPE_GROUP, 1);
 	group* pgroup = *(group**) lua_touserdata(L, 1);
 	int32_t playerid = (int32_t)lua_tointeger(L, 2);
-	uint32_t count = (uint32_t)lua_tointeger(L, 3);
+	int32_t count = (int32_t)lua_tointeger(L, 3);
 	duel* pduel = pgroup->pduel;
 	group* newgroup = pduel->new_group();
-	if(count > pgroup->container.size())
-		count = (uint32_t)pgroup->container.size();
+	if (count > (int32_t)pgroup->container.size())
+		count = (int32_t)pgroup->container.size();
 	if(count == 0) {
 		interpreter::group2value(L, newgroup);
 		return 1;
@@ -343,12 +343,13 @@ int32_t scriptlib::group_random_select(lua_State *L) {
 	if(count == pgroup->container.size())
 		newgroup->container = pgroup->container;
 	else {
-		while(newgroup->container.size() < count) {
-			int32_t i = pduel->get_next_integer(0, (int32_t)pgroup->container.size() - 1);
-			auto cit = pgroup->container.begin();
-			std::advance(cit, i);
-			newgroup->container.insert(*cit);
+		card_vector cv(pgroup->container.begin(), pgroup->container.end());
+		int32_t back = (int32_t)cv.size() - 1;
+		for (int32_t i = 0; i < count; ++i) {
+			int32_t r = pduel->get_next_integer(i, back);
+			std::swap(cv[i], cv[r]);
 		}
+		newgroup->container.insert(cv.begin(), cv.begin() + count);
 	}
 	pduel->write_buffer8(MSG_RANDOM_SELECTED);
 	pduel->write_buffer8(playerid);
