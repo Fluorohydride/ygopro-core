@@ -343,12 +343,10 @@ int32_t scriptlib::group_random_select(lua_State *L) {
 	if(count == pgroup->container.size())
 		newgroup->container = pgroup->container;
 	else {
-		while(newgroup->container.size() < count) {
-			int32_t i = pduel->get_next_integer(0, (int32_t)pgroup->container.size() - 1);
-			auto cit = pgroup->container.begin();
-			std::advance(cit, i);
-			newgroup->container.insert(*cit);
-		}
+		card_vector cv(pgroup->container.begin(), pgroup->container.end());
+		pduel->random.shuffle_vector(cv);
+		for (uint32_t i = 0; i < count; ++i)
+			newgroup->container.insert(cv[i]);
 	}
 	pduel->write_buffer8(MSG_RANDOM_SELECTED);
 	pduel->write_buffer8(playerid);
