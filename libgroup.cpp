@@ -343,11 +343,28 @@ int32_t scriptlib::group_random_select(lua_State *L) {
 	if(count == pgroup->container.size())
 		newgroup->container = pgroup->container;
 	else {
-		while(newgroup->container.size() < count) {
-			int32_t i = pduel->get_next_integer(0, (int32_t)pgroup->container.size() - 1);
-			auto cit = pgroup->container.begin();
-			std::advance(cit, i);
-			newgroup->container.insert(*cit);
+		uint32_t total = (uint32_t)pgroup->container.size();
+		auto random_pick_into = [&](card_set& target, uint32_t k) {
+			std::vector<card*> pool;
+			pool.reserve(total);
+			for(auto& pcard : pgroup->container)
+				pool.push_back(pcard);
+			for(uint32_t i = 0; i < k; ++i) {
+				int32_t j = pduel->get_next_integer((int32_t)i, (int32_t)total - 1);
+				std::swap(pool[i], pool[j]);
+				target.insert(pool[i]);
+			}
+		};
+		constexpr double kBigSideThreshold = 0.70;
+		if(count > total * kBigSideThreshold) {
+			uint32_t exclude = total - count;
+			card_set ex;
+			random_pick_into(ex, exclude);
+			newgroup->container = pgroup->container;
+			for(auto& pcard : ex)
+				newgroup->container.erase(pcard);
+		} else {
+			random_pick_into(newgroup->container, count);
 		}
 	}
 	pduel->write_buffer8(MSG_RANDOM_SELECTED);
