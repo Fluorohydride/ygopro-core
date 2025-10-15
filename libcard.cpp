@@ -3418,6 +3418,36 @@ int32_t scriptlib::card_set_spsummon_once(lua_State *L) {
 	pcard->pduel->game_field->core.global_flag |= GLOBALFLAG_SPSUMMON_ONCE;
 	return 0;
 }
+int32_t scriptlib::card_get_meta_value(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	return pcard->meta.luaop_get(L, 1);
+}
+int32_t scriptlib::card_set_meta_value(lua_State *L) {
+	check_param_count(L, 3);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	return pcard->meta.luaop_set(L, 1);
+}
+int32_t scriptlib::card_has_meta_value(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	return pcard->meta.luaop_has(L, 1);
+}
+int32_t scriptlib::card_get_meta_keys(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	return pcard->meta.luaop_keys(L);
+}
+int32_t scriptlib::card_clear_meta(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_CARD, 1);
+	card* pcard = *(card**) lua_touserdata(L, 1);
+	return pcard->meta.luaop_clear();
+}
 
 static const struct luaL_Reg cardlib[] = {
 	{ "GetCode", scriptlib::card_get_code },
@@ -3696,6 +3726,11 @@ static const struct luaL_Reg cardlib[] = {
 	{ "ResetNegateEffect", scriptlib::card_reset_negate_effect },
 	{ "AssumeProperty", scriptlib::card_assume_prop },
 	{ "SetSPSummonOnce", scriptlib::card_set_spsummon_once },
+	{ "GetMetaValue", scriptlib::card_get_meta_value },
+	{ "SetMetaValue", scriptlib::card_set_meta_value },
+	{ "HasMetaValue", scriptlib::card_has_meta_value },
+	{ "ClearMeta", scriptlib::card_clear_meta },
+	{ "GetMetaKeys", scriptlib::card_get_meta_keys },
 	{ nullptr, nullptr }
 };
 void scriptlib::open_cardlib(lua_State *L) {

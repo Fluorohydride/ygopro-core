@@ -602,6 +602,36 @@ int32_t scriptlib::effect_use_count_limit(lua_State *L) {
 		}
 	return 0;
 }
+int32_t scriptlib::effect_get_meta_value(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	return peffect->meta.luaop_get(L, 1);
+}
+int32_t scriptlib::effect_set_meta_value(lua_State *L) {
+	check_param_count(L, 3);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	return peffect->meta.luaop_set(L, 1);
+}
+int32_t scriptlib::effect_has_meta_value(lua_State *L) {
+	check_param_count(L, 2);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	return peffect->meta.luaop_has(L, 1);
+}
+int32_t scriptlib::effect_get_meta_keys(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	return peffect->meta.luaop_keys(L);
+}
+int32_t scriptlib::effect_clear_meta(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_EFFECT, 1);
+	effect* peffect = *(effect**) lua_touserdata(L, 1);
+	return peffect->meta.luaop_clear();
+}
 
 static const struct luaL_Reg effectlib[] = {
 	{ "CreateEffect", scriptlib::effect_new },
@@ -659,6 +689,11 @@ static const struct luaL_Reg effectlib[] = {
 	{ "GetActivateSequence", scriptlib::effect_get_activate_sequence },
 	{ "CheckCountLimit", scriptlib::effect_check_count_limit },
 	{ "UseCountLimit", scriptlib::effect_use_count_limit },
+	{ "GetMetaValue", scriptlib::effect_get_meta_value },
+	{ "SetMetaValue", scriptlib::effect_set_meta_value },
+	{ "HasMetaValue", scriptlib::effect_has_meta_value },
+	{ "ClearMeta", scriptlib::effect_clear_meta },
+	{ "GetMetaKeys", scriptlib::effect_get_meta_keys },
 	{ nullptr, nullptr }
 };
 void scriptlib::open_effectlib(lua_State *L) {
