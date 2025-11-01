@@ -6422,7 +6422,7 @@ int32_t field::toss_coin(uint16_t step, effect * reason_effect, uint8_t reason_p
 				pduel->write_buffer8(MSG_TOSS_COIN);
 				pduel->write_buffer8(playerid);
 				pduel->write_buffer8((uint8_t)count);
-				core.coin_count = (uint8_t)count;
+				core.coin_count = count;
 				core.coin_result = gen_bits(count);
 				for (int32_t i = 0; i < count; ++i) {
 					pduel->write_buffer8((uint8_t)((core.coin_result >> i) & 1u));
@@ -6438,7 +6438,7 @@ int32_t field::toss_coin(uint16_t step, effect * reason_effect, uint8_t reason_p
 						break;
 					}
 				}
-				core.coin_count = (uint8_t)((first_zero == -1) ? MAX_COIN_COUNT : (first_zero + 1));
+				core.coin_count = (first_zero == -1) ? MAX_COIN_COUNT : (first_zero + 1);
 				core.coin_result = bits;
 				pduel->write_buffer8(MSG_TOSS_COIN);
 				pduel->write_buffer8(playerid);

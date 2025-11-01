@@ -312,7 +312,7 @@ struct processor {
 	uint8_t set_group_seq[7]{};
 	uint8_t dice_result[5]{};
 	uint32_t coin_result{ 0 };
-	uint8_t coin_count{ 0 };
+	int32_t coin_count{ 0 };
 	bool is_target_ready{ false };
 	bool is_gemini_summoning{ false };
 	bool is_summon_negated{ false };
