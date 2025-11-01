@@ -4258,7 +4258,6 @@ int32_t scriptlib::duel_set_coin_result(lua_State * L) {
 	pduel->game_field->core.coin_result = 0;
 	if(coin_count > MAX_COIN_COUNT)
 		coin_count = MAX_COIN_COUNT;
-	pduel->game_field->core.coin_count = (uint8_t)coin_count;
 	for(int32_t i = 0; i < coin_count; ++i) {
 		res = (int32_t)lua_tointeger(L, i + 1);
 		if(res != 0 && res != 1)
