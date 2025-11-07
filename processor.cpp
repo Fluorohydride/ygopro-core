@@ -675,15 +675,15 @@ uint32_t field::process() {
 			++it->step;
 		} else {
 			if(returns.bvalue[0] != 0xff) {
-				card* tc[16];
+				card* tc[256];
 				for(i = 0; i < count; ++i)
 					player[target_player].list_main.pop_back();
 				for(i = 0; i < count; ++i)
 					tc[returns.bvalue[i]] = core.select_cards[i];
 				for(i = 0; i < count; ++i) {
-					player[target_player].list_main.push_back(tc[count - i - 1]);
-					tc[count - i - 1]->current.sequence = (uint8_t)player[target_player].list_main.size() - 1;
+					player[target_player].list_main.push_back(tc[count - 1 - i]);
 				}
+				reset_sequence(target_player, LOCATION_DECK);
 				auto clit = player[target_player].list_main.rbegin();
 				for(i = 0; i < count; ++i, ++clit) {
 					card* pcard = *clit;

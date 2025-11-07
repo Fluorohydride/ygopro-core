@@ -1084,14 +1084,14 @@ int32_t scriptlib::duel_confirm_cards(lua_State *L) {
 int32_t scriptlib::duel_sort_decktop(lua_State *L) {
 	check_action_permission(L);
 	check_param_count(L, 3);
-	uint32_t sort_player = (uint32_t)lua_tointeger(L, 1);
-	uint32_t target_player = (uint32_t)lua_tointeger(L, 2);
-	uint32_t count = (uint32_t)lua_tointeger(L, 3);
-	if(sort_player != 0 && sort_player != 1)
+	int32_t sort_player = (int32_t)lua_tointeger(L, 1);
+	int32_t target_player = (int32_t)lua_tointeger(L, 2);
+	int32_t count = (int32_t)lua_tointeger(L, 3);
+	if (!check_playerid(sort_player))
 		return 0;
-	if(target_player != 0 && target_player != 1)
+	if (!check_playerid(target_player))
 		return 0;
-	if(count < 1 || count > 16)
+	if (count < 1)
 		return 0;
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->game_field->add_process(PROCESSOR_SORT_DECK, 0, 0, 0, sort_player + (target_player << 16), count);
