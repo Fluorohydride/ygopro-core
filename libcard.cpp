@@ -3200,69 +3200,32 @@ int32_t scriptlib::card_add_monster_attribute(lua_State *L) {
 	card* pcard = *(card**) lua_touserdata(L, 1);
 	duel* pduel = pcard->pduel;
 	pcard->set_status(STATUS_NO_LEVEL, FALSE);
-	// pre-monster
-	effect* peffect = pduel->new_effect();
-	peffect->owner = pcard;
-	peffect->type = EFFECT_TYPE_SINGLE;
-	peffect->code = EFFECT_PRE_MONSTER;
-	peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
-	peffect->reset_flag = RESET_CHAIN + RESET_EVENT + 0x47e0000;
-	peffect->value = type;
-	pcard->add_effect(peffect);
-	//attribute
+	effect* peffect;
+	auto add_temp_effect = [&](uint32_t code, int32_t value, uint32_t extra_reset_flag = 0) {
+		peffect = pduel->new_effect();
+		peffect->owner = pcard;
+		peffect->type = EFFECT_TYPE_SINGLE;
+		peffect->code = code;
+		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
+		peffect->reset_flag = RESET_EVENT | 0x47e0000 | extra_reset_flag;
+		peffect->value = value;
+		pcard->add_effect(peffect);
+	};
+	add_temp_effect(EFFECT_PRE_MONSTER, type, RESET_CHAIN);
 	if(attribute) {
-		peffect = pduel->new_effect();
-		peffect->owner = pcard;
-		peffect->type = EFFECT_TYPE_SINGLE;
-		peffect->code = EFFECT_ADD_ATTRIBUTE;
-		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
-		peffect->reset_flag = RESET_EVENT + 0x47e0000;
-		peffect->value = attribute;
-		pcard->add_effect(peffect);
+		add_temp_effect(EFFECT_CHANGE_ATTRIBUTE, attribute);
 	}
-	//race
 	if(race) {
-		peffect = pduel->new_effect();
-		peffect->owner = pcard;
-		peffect->type = EFFECT_TYPE_SINGLE;
-		peffect->code = EFFECT_ADD_RACE;
-		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
-		peffect->reset_flag = RESET_EVENT + 0x47e0000;
-		peffect->value = race;
-		pcard->add_effect(peffect);
+		add_temp_effect(EFFECT_CHANGE_RACE, race);
 	}
-	//level
 	if(level) {
-		peffect = pduel->new_effect();
-		peffect->owner = pcard;
-		peffect->type = EFFECT_TYPE_SINGLE;
-		peffect->code = EFFECT_CHANGE_LEVEL;
-		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
-		peffect->reset_flag = RESET_EVENT + 0x47e0000;
-		peffect->value = level;
-		pcard->add_effect(peffect);
+		add_temp_effect(EFFECT_CHANGE_LEVEL, level);
 	}
-	//atk
 	if(atk) {
-		peffect = pduel->new_effect();
-		peffect->owner = pcard;
-		peffect->type = EFFECT_TYPE_SINGLE;
-		peffect->code = EFFECT_SET_BASE_ATTACK;
-		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
-		peffect->reset_flag = RESET_EVENT + 0x47e0000;
-		peffect->value = atk;
-		pcard->add_effect(peffect);
+		add_temp_effect(EFFECT_SET_BASE_ATTACK, atk);
 	}
-	//def
 	if(def) {
-		peffect = pduel->new_effect();
-		peffect->owner = pcard;
-		peffect->type = EFFECT_TYPE_SINGLE;
-		peffect->code = EFFECT_SET_BASE_DEFENSE;
-		peffect->flag[0] = EFFECT_FLAG_CANNOT_DISABLE;
-		peffect->reset_flag = RESET_EVENT + 0x47e0000;
-		peffect->value = def;
-		pcard->add_effect(peffect);
+		add_temp_effect(EFFECT_SET_BASE_DEFENSE, def);
 	}
 	return 0;
 }
