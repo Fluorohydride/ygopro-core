@@ -22,7 +22,7 @@ jobs:
 
     - name: Download lua
       id: lua
-      uses: mercury233/action-cache-download-file@v1.0.0
+      uses: mercury233/action-cache-download-file@f5fef0ebfbee835266c4a7ae6f173d74a33980da # v1.0.0
       with:
         url: https://www.lua.org/ftp/lua-5.4.8.tar.gz
 
@@ -33,7 +33,7 @@ jobs:
 
     - name: Download premake
       id: premake
-      uses: mercury233/action-cache-download-file@v1.0.0
+      uses: mercury233/action-cache-download-file@f5fef0ebfbee835266c4a7ae6f173d74a33980da
       with:
         url: https://github.com/premake/premake-core/releases/download/v5.0.0-beta7/premake-5.0.0-beta7-windows.zip
 
@@ -66,7 +66,7 @@ jobs:
 
     - name: GitHub Release
       if: github.event_name == 'push'
-      uses: salix5/action-automatic-releases@node20
+      uses: salix5/action-automatic-releases@e0545bc14e9677f38aa573f1a52563022f987356 # node24
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "latest"
@@ -91,7 +91,7 @@ jobs:
 
     - name: Download lua
       id: lua
-      uses: mercury233/action-cache-download-file@v1.0.0
+      uses: mercury233/action-cache-download-file@f5fef0ebfbee835266c4a7ae6f173d74a33980da
       with:
         url: https://www.lua.org/ftp/lua-5.4.8.tar.gz
 
@@ -102,7 +102,7 @@ jobs:
 
     - name: Download premake
       id: premake
-      uses: mercury233/action-cache-download-file@v1.0.0
+      uses: mercury233/action-cache-download-file@f5fef0ebfbee835266c4a7ae6f173d74a33980da
       with:
         url: https://github.com/premake/premake-core/releases/download/v5.0.0-beta7/premake-5.0.0-beta7-linux.tar.gz
 
