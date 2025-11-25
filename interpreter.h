@@ -44,14 +44,15 @@ public:
 	using param_list = std::list<std::pair<lua_param, LuaParamType>>;
 	
 	duel* pduel;
-	char msgbuf[64];
+	char msgbuf[64]{};
 	lua_State* lua_state;
 	lua_State* current_state;
 	param_list params;
 	param_list resumes;
 	coroutine_map coroutines;
-	int32_t no_action;
-	int32_t call_depth;
+	int32_t no_action{};
+	int32_t call_depth{};
+	bool enable_unsafe_feature{};
 
 	explicit interpreter(duel* pd, bool enable_unsafe_libraries);
 	~interpreter();
