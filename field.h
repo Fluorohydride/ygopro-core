@@ -72,6 +72,7 @@ struct chain {
 	opmap opinfos;
 	uint32_t flag{ 0 };
 	effect_set required_handorset_effects;
+	metadata meta;
 
 	static bool chain_operation_sort(const chain& c1, const chain& c2);
 	void set_triggering_state(card* pcard);
