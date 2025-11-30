@@ -4148,6 +4148,7 @@ int32_t field::add_chain(uint16_t step) {
 		clit.triggering_effect = peffect;
 		clit.evt = ch.evt;
 		phandler->create_relation(clit);
+		peffect->set_active_type();
 		peffect->dec_count(playerid);
 		if(!(peffect->type & EFFECT_TYPE_ACTIVATE)) {
 			peffect->type |= EFFECT_TYPE_ACTIVATE;
