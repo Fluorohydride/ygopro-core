@@ -4068,14 +4068,6 @@ int32_t card::is_can_be_fusion_material(card* fcard, uint32_t summon_type) {
 		if(eset[i]->get_value(fcard, 1))
 			return FALSE;
 	}
-	eset.clear();
-	filter_effect(EFFECT_EXTRA_FUSION_MATERIAL, &eset);
-	if(eset.size()) {
-		for(effect_set::size_type i = 0; i < eset.size(); ++i)
-			if(eset[i]->get_value(fcard))
-				return TRUE;
-		return FALSE;
-	}
 	return TRUE;
 }
 int32_t card::is_can_be_synchro_material(card* scard, card* tuner) {
