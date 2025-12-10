@@ -87,7 +87,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-multilib g++-multilib
+        sudo apt-get install -y gcc-multilib g++-multilib emscripten
 
     - name: Download lua
       id: lua
@@ -127,6 +127,16 @@ jobs:
         make -j 4 config=release_x64
         cd ..
 
+    - name: Premake for wasm
+      run: |
+        ./premake-5/premake5 gmake --file=dll.lua --os=emscripten
+
+    - name: Build wasm
+      run: |
+        cd build
+        make -j 4 config=release_wasm
+        cd ..
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -134,3 +144,5 @@ jobs:
         path: |
           build/bin/x32/Release/libocgcore.so
           build/bin/x64/Release/libocgcore.so
+          build/bin/wasm/Release/libocgcore.wasm
+          build/bin/wasm/Release/libocgcore.js
