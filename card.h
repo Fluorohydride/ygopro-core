@@ -417,6 +417,18 @@ public:
 //Gemini Summon
 #define SUMMON_TYPE_DUAL		0x12000000U
 
+static uint32_t get_summon_reason(uint32_t summon_info) {
+	uint32_t summontype = summon_info & 0xff000000;
+	if(summontype == SUMMON_TYPE_FUSION)	return REASON_FUSION;
+	if(summontype == SUMMON_TYPE_RITUAL)	return REASON_RITUAL;
+	if(summontype == SUMMON_TYPE_SYNCHRO)	return REASON_SYNCHRO;
+	if(summontype == SUMMON_TYPE_XYZ)		return REASON_XYZ;
+  // there used to be REASON_PENDULUM but bit used up
+  // if(summontype == SUMMON_TYPE_PENDULUM)		return REASON_PENDULUM;
+	if(summontype == SUMMON_TYPE_LINK)		return REASON_LINK;
+	return 0;
+}
+
 //bitfield blocks
 #define SUMMON_VALUE_MAIN_TYPE		0xf0000000U
 #define SUMMON_VALUE_SUB_TYPE		0x0f000000U
