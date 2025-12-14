@@ -4842,6 +4842,17 @@ int32_t scriptlib::duel_majestic_copy(lua_State *L) {
 	return 0;
 }
 
+int32_t scriptlib::duel_load_script(lua_State *L) {
+	check_param_count(L, 1);
+	check_param(L, PARAM_TYPE_STRING, 1);
+	duel* pduel = interpreter::get_duel_info(L); 
+	const char* pstr = lua_tostring(L, 1);
+	char filename[64];
+	interpreter::sprintf(filename, "./script/%s", pstr);
+	lua_pushboolean(L, pduel->lua->load_script(filename));
+	return 1;
+}
+
 static const struct luaL_Reg duellib[] = {
 	{ "EnableGlobalFlag", scriptlib::duel_enable_global_flag },
 	{ "GetLP", scriptlib::duel_get_lp },
@@ -5072,6 +5083,7 @@ static const struct luaL_Reg duellib[] = {
 	{ "IsAbleToEnterBP", scriptlib::duel_is_able_to_enter_bp },
 	{ "SwapDeckAndGrave", scriptlib::duel_swap_deck_and_grave },
 	{ "MajesticCopy", scriptlib::duel_majestic_copy },
+	{ "LoadScript", scriptlib::duel_load_script },
 	{ nullptr, nullptr }
 };
 void scriptlib::open_duellib(lua_State *L) {
