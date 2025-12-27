@@ -59,9 +59,9 @@ public:
 		return l + (int)(x % range);
 	}
 
+#pragma warning(disable:4146)
 	// N % k = (N - k) % k = (-k) % k
 	// discard (N % range) numbers from the left end so that it is a multiple of range
-#pragma warning(disable:4146)
 	int get_random_integer_v2(int l, int h) {
 		uint32_t range = (h - l + 1);
 		uint32_t bound = -range % range;
@@ -75,7 +75,7 @@ public:
 
 	// Fisher-Yates shuffle [first, last)
 	template<typename T>
-	void shuffle_vector(std::vector<T>& v, int first = 0, int last = INT32_MAX, int version = 2) {
+	void shuffle_vector(std::vector<T>& v, int first, int last, int version) {
 		if ((size_t)last > v.size())
 			last = (int)v.size();
 		auto distribution = &mtrandom::get_random_integer_v2;
@@ -85,6 +85,16 @@ public:
 			int r = (this->*distribution)(i, last - 1);
 			std::swap(v[i], v[r]);
 		}
+	}
+
+	template<typename T>
+	void shuffle_vector(std::vector<T>& v) {
+		shuffle_vector(v, 0, (int)v.size(), 2);
+	}
+
+	template<typename T>
+	void shuffle_vector(std::vector<T>& v, int first, int last) {
+		shuffle_vector(v, first, last, 2);
 	}
 
 private:
