@@ -383,6 +383,7 @@ public:
 	void set_control(card* pcard, uint8_t playerid, uint16_t reset_phase, uint8_t reset_count);
 
 	int32_t get_pzone_sequence(uint8_t pseq) const;
+	const card_vector* get_field_vector(uint8_t playerid, uint8_t location) const;
 	card* get_field_card(uint8_t playerid, uint32_t general_location, uint8_t sequence) const;
 	int32_t is_location_useable(uint8_t playerid, uint32_t general_location, uint8_t sequence) const;
 	int32_t get_useable_count(card* pcard, uint8_t playerid, uint8_t location, uint8_t uplayer, uint32_t reason, uint32_t zone = 0xff, uint32_t* list = nullptr);
