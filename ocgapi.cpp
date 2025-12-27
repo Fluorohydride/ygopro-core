@@ -204,7 +204,7 @@ OCGCORE_API void new_tag_card(intptr_t pduel, uint32_t code, uint8_t owner, uint
 * @param buf int32_t array
 * @return buffer length in bytes
 */
-OCGCORE_API int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, int32_t query_flag, byte* buf, int32_t use_cache) {
+OCGCORE_API int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, uint32_t query_flag, byte* buf, int32_t use_cache) {
 	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
