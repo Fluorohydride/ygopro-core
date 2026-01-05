@@ -3919,6 +3919,9 @@ int32_t field::process_turn(uint16_t step, uint8_t turn_player) {
 			}
 			return FALSE;
 		}
+		// ensure "entered 2nd Battle Phase" marker stored in `arg2` do not carry over into Main Phase 2.
+		core.units.begin()->arg2 = 0;
+		
 		core.skip_m2 = FALSE;
 		if(returns.ivalue[0] == 3) { // End Phase
 			core.skip_m2 = TRUE;
