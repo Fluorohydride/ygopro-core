@@ -20,7 +20,7 @@ int32_t scriptlib::get_effect_property(lua_State* L, effect_member type) {
 	if (peffect) {
 		switch (type) {
 		case MEMBER_CATEGORY:
-			value = peffect->category;
+			value = (lua_Integer)peffect->category;
 			break;
 		case MEMBER_CODE:
 			value = peffect->code;
