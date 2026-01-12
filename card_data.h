@@ -33,13 +33,17 @@ inline bool check_setcode(uint16_t setcode, uint32_t value) {
 inline void write_setcode(uint16_t list[], uint64_t value) {
 	if (!list)
 		return;
-	int len = 0;
-	while (value) {
-		if (value & 0xffff) {
-			list[len] = value & 0xffff;
+	if (!value) {
+		std::memset(list, 0, SIZE_SETCODE * sizeof(uint16_t));
+		return;
+	}
+	int32_t len = 0;
+	for (int32_t i = 0; i < 4; ++i) {
+		uint16_t section = (value >> (16 * i)) & 0xffff;
+		if (section) {
+			list[len] = section;
 			++len;
 		}
-		value >>= 16;
 	}
 	if (len < SIZE_SETCODE)
 		std::memset(list + len, 0, (SIZE_SETCODE - len) * sizeof(uint16_t));
