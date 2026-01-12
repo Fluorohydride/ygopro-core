@@ -263,6 +263,8 @@ enum effect_category : uint64_t {
 	CATEGORY_ANNOUNCE		= 0x20000000,
 	CATEGORY_FUSION_SUMMON	= 0x40000000,
 	CATEGORY_TOEXTRA		= 0x80000000,
+	CATEGORY_MSET			= 0x100000000,
+	CATEGORY_SSET			= 0x200000000,
 };
 
 const std::map<uint64_t, uint64_t> category_checklist{
