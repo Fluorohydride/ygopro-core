@@ -3620,7 +3620,7 @@ int32_t field::destroy(uint16_t step, group * targets, effect * reason_effect, u
 			core.hint_timing[pcard->current.controler] |= TIMING_DESTROY;
 			raise_single_event(pcard, 0, EVENT_DESTROY, pcard->current.reason_effect, pcard->current.reason, pcard->current.reason_player, 0, 0);
 		}
-		adjust_instant();
+		adjust_disable_check_list();
 		process_single_event();
 		raise_event(targets->container, EVENT_DESTROY, reason_effect, reason, reason_player, 0, 0);
 		process_instant_event();
@@ -3655,6 +3655,7 @@ int32_t field::destroy(uint16_t step, group * targets, effect * reason_effect, u
 		}
 		returns.ivalue[0] = (int32_t)core.operated_set.size();
 		pduel->delete_group(targets);
+		adjust_self_destroy_set();
 		return TRUE;
 	}
 	case 10: {
