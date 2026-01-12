@@ -53,7 +53,7 @@ OCGCORE_API int32_t get_message(intptr_t pduel, byte* buf);
 OCGCORE_API uint32_t process(intptr_t pduel);
 OCGCORE_API void new_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t playerid, uint8_t location, uint8_t sequence, uint8_t position);
 OCGCORE_API void new_tag_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t location);
-OCGCORE_API int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, int32_t query_flag, byte* buf, int32_t use_cache);
+OCGCORE_API int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, uint32_t query_flag, byte* buf, int32_t use_cache);
 OCGCORE_API int32_t query_field_count(intptr_t pduel, uint8_t playerid, uint8_t location);
 OCGCORE_API int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint32_t query_flag, byte* buf, int32_t use_cache);
 OCGCORE_API int32_t query_field_info(intptr_t pduel, byte* buf);

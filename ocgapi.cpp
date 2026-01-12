@@ -204,7 +204,7 @@ OCGCORE_API void new_tag_card(intptr_t pduel, uint32_t code, uint8_t owner, uint
 * @param buf int32_t array
 * @return buffer length in bytes
 */
-OCGCORE_API int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, int32_t query_flag, byte* buf, int32_t use_cache) {
+OCGCORE_API int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, uint32_t query_flag, byte* buf, int32_t use_cache) {
 	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
@@ -213,22 +213,13 @@ OCGCORE_API int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t locatio
 	if (location == LOCATION_MZONE || location == LOCATION_SZONE)
 		pcard = ptduel->game_field->get_field_card(playerid, location, sequence);
 	else {
-		card_vector* lst = nullptr;
-		if (location == LOCATION_HAND)
-			lst = &ptduel->game_field->player[playerid].list_hand;
-		else if (location == LOCATION_GRAVE)
-			lst = &ptduel->game_field->player[playerid].list_grave;
-		else if (location == LOCATION_REMOVED)
-			lst = &ptduel->game_field->player[playerid].list_remove;
-		else if (location == LOCATION_EXTRA)
-			lst = &ptduel->game_field->player[playerid].list_extra;
-		else if (location == LOCATION_DECK)
-			lst = &ptduel->game_field->player[playerid].list_main;
-		else
+		auto ptr = ptduel->game_field->get_field_vector(playerid, location);
+		if(!ptr)
 			return LEN_FAIL;
-		if (sequence >= (int32_t)lst->size())
+		auto& lst = *ptr;
+		if (sequence >= lst.size())
 			return LEN_FAIL;
-		pcard = (*lst)[sequence];
+		pcard = lst[sequence];
 	}
 	if (pcard) {
 		return pcard->get_infos(buf, query_flag, use_cache);
