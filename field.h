@@ -311,7 +311,7 @@ struct processor {
 	uint32_t set_group_used_zones{ 0 };
 	uint8_t set_group_seq[7]{};
 	uint8_t dice_result[5]{};
-	uint8_t coin_result[MAX_COIN_COUNT]{};
+	uint32_t coin_result{ 0 };
 	int32_t coin_count{ 0 };
 	bool is_target_ready{ false };
 	bool is_gemini_summoning{ false };
