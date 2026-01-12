@@ -20,7 +20,7 @@ int32_t scriptlib::get_effect_property(lua_State* L, effect_member type) {
 	if (peffect) {
 		switch (type) {
 		case MEMBER_CATEGORY:
-			value = peffect->category;
+			value = (lua_Integer)peffect->category;
 			break;
 		case MEMBER_CODE:
 			value = peffect->code;
@@ -271,7 +271,7 @@ int32_t scriptlib::effect_set_category(lua_State *L) {
 	check_param_count(L, 2);
 	check_param(L, PARAM_TYPE_EFFECT, 1);
 	effect* peffect = *(effect**) lua_touserdata(L, 1);
-	uint32_t v = (uint32_t)lua_tointeger(L, 2);
+	uint64_t v = (uint64_t)lua_tointeger(L, 2);
 	peffect->category = v;
 	return 0;
 }
