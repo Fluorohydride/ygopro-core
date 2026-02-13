@@ -49,7 +49,7 @@ Add a card to the duel state.
 - `void new_tag_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t location);`  
 Add a new card to the tag pool.
 
-- `int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint32_t query_flag, byte* buf, int32_t use_cache);`  
+- `int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, uint32_t query_flag, byte* buf, int32_t use_cache);`  
 Get a card in a specific location.
 
 - `int32_t query_field_count(intptr_t pduel, uint8_t playerid, uint8_t location);`  
