@@ -905,7 +905,7 @@ static int32_t is_declarable(card_data const& cd, const std::vector<uint32_t>& o
 				stack.pop();
 				int32_t lhs = stack.top();
 				stack.pop();
-				stack.push(lhs / rhs);
+				stack.push(rhs != 0 ? lhs / rhs : 0);
 			}
 			break;
 		}
