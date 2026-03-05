@@ -12,6 +12,7 @@
 #include "effectset.h"
 #include "card_data.h"
 #include "sort.h"
+#include "metadata.h"
 #include <set>
 #include <map>
 #include <unordered_set>
@@ -146,6 +147,7 @@ public:
 
 	int32_t ref_handle{};
 	duel* pduel{};
+	metadata meta;
 	card_data data;
 	card_state previous;
 	card_state temp;
