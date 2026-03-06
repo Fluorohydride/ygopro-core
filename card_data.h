@@ -5,9 +5,7 @@
 #include <unordered_map>
 #include "common.h"
 
-constexpr int CARD_ARTWORK_VERSIONS_OFFSET = 20;
 constexpr int SIZE_SETCODE = 16;
-constexpr uint32_t CARD_BLACK_LUSTER_SOLDIER2 = 5405695;
 
 //double name
 constexpr uint32_t CARD_MARINE_DOLPHIN = 78734254;
