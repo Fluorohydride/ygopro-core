@@ -64,6 +64,7 @@ struct card_data {
 	uint32_t lscale{};
 	uint32_t rscale{};
 	uint32_t link_marker{};
+	uint32_t rule_code{};
 
 	void clear() {
 		std::memset(this, 0, sizeof(card_data));

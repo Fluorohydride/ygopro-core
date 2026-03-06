@@ -412,10 +412,11 @@ std::tuple<uint32_t, uint32_t> card::get_original_code_rule() const {
 		return std::make_tuple(data.code, it->second);
 	}
 	else {
+		if (data.rule_code)
+			return std::make_tuple(data.rule_code, 0);
 		if (data.alias)
 			return std::make_tuple(data.alias, 0);
-		else
-			return std::make_tuple(data.code, 0);
+		return std::make_tuple(data.code, 0);
 	}
 }
 // return: the current card name

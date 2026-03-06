@@ -865,7 +865,9 @@ int32_t field::announce_attribute(int16_t step, uint8_t playerid, int32_t count,
 	}
 	return TRUE;
 }
-static int32_t is_declarable(card_data const& cd, const std::vector<uint32_t>& opcode) {
+static int32_t is_declarable(const card_data& cd, const std::vector<uint32_t>& opcode) {
+	if (cd.alias)
+		return FALSE;
 	std::stack<int32_t> stack;
 	for(auto& it : opcode) {
 		switch(it) {
@@ -994,8 +996,9 @@ static int32_t is_declarable(card_data const& cd, const std::vector<uint32_t>& o
 	}
 	if(stack.size() != 1 || stack.top() == 0)
 		return FALSE;
-	return cd.code == CARD_MARINE_DOLPHIN || cd.code == CARD_TWINKLE_MOSS
-		|| (!cd.alias && (cd.type & (TYPE_MONSTER | TYPE_TOKEN)) != (TYPE_MONSTER | TYPE_TOKEN));
+	if (!second_code.count(cd.code) && (cd.rule_code || (cd.type & TYPE_TOKEN)))
+		return FALSE;
+	return TRUE;
 }
 int32_t field::announce_card(int16_t step, uint8_t playerid) {
 	if(step == 0) {
