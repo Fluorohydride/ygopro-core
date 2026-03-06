@@ -4445,6 +4445,7 @@ int32_t scriptlib::duel_is_player_can_spsummon_monster(lua_State * L) {
 	::read_card(code, &dat);
 	dat.code = code;
 	dat.rule_code = 0;
+	dat.alias = 0;
 	if(lua_gettop(L) >= 3 && !lua_isnil(L, 3))
 		write_setcode(dat.setcode, lua_tointeger(L, 3));
 	if(lua_gettop(L) >= 4 && !lua_isnil(L, 4))
