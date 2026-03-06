@@ -3,7 +3,7 @@
 
 #include <cstring>
 #include <unordered_map>
-#include "common.h"
+#include "callback_type.h"
 
 constexpr int CARD_ARTWORK_VERSIONS_OFFSET = 20;
 constexpr int SIZE_SETCODE = 16;
@@ -82,6 +82,20 @@ struct card_data {
 	uint32_t get_original_code() const {
 		return is_alternative(code, alias) ? alias : code;
 	}
+	uint32_t get_original_code_rule(card_reader reader = nullptr) const;
 };
+
+inline uint32_t get_original_code_rule(uint32_t code, uint32_t alias, card_reader reader = nullptr) {
+	if (reader && is_alternative(code, alias)) {
+		card_data alias_data{};
+		reader(alias, &alias_data);
+		return get_original_code_rule(alias_data.code, alias_data.alias, nullptr);
+	}
+	return alias ? alias : code;
+}
+
+inline uint32_t card_data::get_original_code_rule(card_reader reader) const {
+	return ::get_original_code_rule(code, alias, reader);
+}
 
 #endif /* CARD_DATA_H_ */

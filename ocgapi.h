@@ -8,7 +8,7 @@
 #ifndef OCGAPI_H_
 #define OCGAPI_H_
 
-#include "common.h"
+#include "callback_type.h"
 
 #ifdef __cplusplus
 #define EXTERN_C extern "C"
@@ -28,12 +28,6 @@
 #define LEN_EMPTY	4
 #define LEN_HEADER	8
 #define TEMP_CARD_ID	0
-
-struct card_data;
-
-typedef byte* (*script_reader)(const char* script_name, int* len);
-typedef uint32_t (*card_reader)(uint32_t code, card_data* data);
-typedef uint32_t (*message_handler)(intptr_t pduel, uint32_t msg_type);
 
 OCGCORE_API void set_script_reader(script_reader f);
 OCGCORE_API void set_card_reader(card_reader f);
