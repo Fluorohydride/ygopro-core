@@ -46,9 +46,7 @@ inline void write_setcode(uint16_t list[], uint64_t value) {
 }
 
 inline bool is_alternative(uint32_t code, uint32_t alias) {
-	if (code == CARD_BLACK_LUSTER_SOLDIER2)
-		return false;
-	return alias && (alias < code + CARD_ARTWORK_VERSIONS_OFFSET) && (code < alias + CARD_ARTWORK_VERSIONS_OFFSET);
+	return alias != 0;
 }
 
 struct card_data {
