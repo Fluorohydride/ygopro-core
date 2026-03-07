@@ -136,7 +136,7 @@ void duel::write_buffer8(uint8_t value) {
 void duel::clear_buffer() {
 	message_buffer.clear();
 }
-void duel::set_responsei(uint32_t resp) {
+void duel::set_responsei(int32_t resp) {
 	game_field->returns.ivalue[0] = resp;
 }
 void duel::set_responseb(byte* resp) {
