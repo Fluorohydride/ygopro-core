@@ -156,9 +156,9 @@ struct processor_unit {
 	void* ptr3{ nullptr };
 	void* ptr4{ nullptr };
 };
-constexpr int SIZE_SVALUE = SIZE_RETURN_VALUE / 2;
-constexpr int SIZE_IVALUE = SIZE_RETURN_VALUE / 4;
-constexpr int SIZE_LVALUE = SIZE_RETURN_VALUE / 8;
+constexpr size_t SIZE_SVALUE = SIZE_RETURN_VALUE / 2;
+constexpr size_t SIZE_IVALUE = SIZE_RETURN_VALUE / 4;
+constexpr size_t SIZE_LVALUE = SIZE_RETURN_VALUE / 8;
 union return_value {
 	uint8_t bvalue[SIZE_RETURN_VALUE];
 	uint16_t svalue[SIZE_SVALUE];
