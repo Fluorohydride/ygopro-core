@@ -35,8 +35,10 @@ duel::~duel() {
 	delete lua;
 }
 void duel::clear() {
-	for(auto& pcard : cards)
+	for(auto& pcard : cards) {
+		lua->unregister_card(pcard);
 		delete pcard;
+	}
 	for(auto& pgroup : groups) {
 		lua->unregister_group(pgroup);
 		delete pgroup;

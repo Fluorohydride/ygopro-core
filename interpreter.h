@@ -58,6 +58,7 @@ public:
 	~interpreter();
 
 	void register_card(card* pcard);
+	void unregister_card(card* pcard);
 	void register_effect(effect* peffect);
 	void unregister_effect(effect* peffect);
 	void register_group(group* pgroup);
