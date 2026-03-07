@@ -57,7 +57,7 @@ public:
 	void release_script_group();
 	void restore_assumes();
 	int32_t read_buffer(byte* buf);
-	void write_buffer(const void* data, int size);
+	void write_buffer(const void* data, size_t size);
 	void write_buffer32(uint32_t value);
 	void write_buffer16(uint16_t value);
 	void write_buffer8(uint8_t value);
