@@ -92,6 +92,7 @@ effect* duel::new_effect() {
 	return peffect;
 }
 void duel::delete_card(card* pcard) {
+	lua->unregister_card(pcard);
 	cards.erase(pcard);
 	delete pcard;
 }
