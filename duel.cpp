@@ -37,10 +37,14 @@ duel::~duel() {
 void duel::clear() {
 	for(auto& pcard : cards)
 		delete pcard;
-	for(auto& pgroup : groups)
+	for(auto& pgroup : groups) {
+		lua->unregister_group(pgroup);
 		delete pgroup;
-	for(auto& peffect : effects)
+	}
+	for(auto& peffect : effects) {
+		lua->unregister_effect(peffect);
 		delete peffect;
+	}
 	delete game_field;
 	cards.clear();
 	groups.clear();
