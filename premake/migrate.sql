@@ -7,7 +7,7 @@ SET rule_code = alias, alias = 0
 WHERE id IN (
     SELECT id
 	FROM datas
-    WHERE NOT type & 0x4000 AND alias != 0 AND abs(id - alias) >= 20
+    WHERE NOT (type & 0x4000) AND alias != 0 AND abs(id - alias) >= 20
 );
 
 --step 3: update special cards
