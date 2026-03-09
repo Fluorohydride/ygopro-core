@@ -1,4 +1,4 @@
-# YGOPro script engine.
+# YGOPro script engine
 
 ## Introduction
 The core logic and lua script processor of YGOPro. This library can be made external of the project and used to power server technologies. It maintains a state engine that is manipulated by Lua scripts using manipulation functions it exposes.
@@ -14,7 +14,7 @@ The 3 functions need to be provided to the core so it can get card and database 
 Interface provided returns scripts based on number that corresponds to a lua file, send in a string.
 
 - `void set_card_reader(card_reader f);`  
-Interface provided function that provides database information from the `data` table of `cards.cdb`.
+Interface provided function that provides database information from the `datas` table of `cards.cdb`.
 
 - `void set_message_handler(message_handler f);`  
 Interface provided function that handles error messages.
