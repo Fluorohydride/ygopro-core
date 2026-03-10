@@ -2609,9 +2609,21 @@ int32_t field::process_battle_command(uint16_t step) {
 			core.units.begin()->step = 6;
 			return FALSE;
 		}
-		// must attack monster
-		if(atype == 3 || is_player_affected_by_effect(infos.turn_player, EFFECT_PATRICIAN_OF_DARKNESS)) {
-			if(core.select_cards.size() == 1)
+		// must attack monster - attacker selects
+		if (atype == 3 && !is_player_affected_by_effect(infos.turn_player, EFFECT_PATRICIAN_OF_DARKNESS)) {
+			if (core.select_cards.size() == 1)
+				returns.bvalue[1] = 0;
+			else {
+				pduel->write_buffer8(MSG_HINT);
+				pduel->write_buffer8(HINT_SELECTMSG);
+				pduel->write_buffer8(infos.turn_player);
+				pduel->write_buffer32(549);
+				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player, 0x10001);
+			}
+		}
+		// opponent selects target (PATRICIAN_OF_DARKNESS effect)
+		else if (is_player_affected_by_effect(infos.turn_player, EFFECT_PATRICIAN_OF_DARKNESS)) {
+			if (core.select_cards.size() == 1)
 				returns.bvalue[1] = 0;
 			else {
 				pduel->write_buffer8(MSG_BECOME_TARGET);
@@ -2623,7 +2635,9 @@ int32_t field::process_battle_command(uint16_t step) {
 				pduel->write_buffer32(549);
 				add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, 1 - infos.turn_player, 0x10001);
 			}
-		} else {
+		}
+		// normal case - attacker selects with cancel option
+		else {
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(infos.turn_player);
