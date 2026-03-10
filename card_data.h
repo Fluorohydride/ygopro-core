@@ -83,9 +83,7 @@ struct card_data {
 
 	// get the code used in duel
 	uint32_t get_duel_code() const {
-		if (rule_code && !second_code.count(get_original_code()))
-			return rule_code;
-		return get_original_code();
+		return rule_code ? rule_code : get_original_code();
 	}
 };
 
