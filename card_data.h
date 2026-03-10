@@ -80,6 +80,13 @@ struct card_data {
 	uint32_t get_original_code() const {
 		return alias ? alias : code;
 	}
+
+	// get the code used in duel
+	uint32_t get_duel_code() const {
+		if (rule_code && !second_code.count(get_original_code()))
+			return rule_code;
+		return get_original_code();
+	}
 };
 
 static_assert(sizeof(card_data) == 80);
