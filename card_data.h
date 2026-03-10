@@ -76,8 +76,9 @@ struct card_data {
 		return false;
 	}
 
+	// get the printed code on card
 	uint32_t get_original_code() const {
-		return is_alternative(code, alias) ? alias : code;
+		return alias ? alias : code;
 	}
 };
 
