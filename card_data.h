@@ -43,10 +43,6 @@ inline void write_setcode(uint16_t list[], uint64_t value) {
 		std::memset(list + len, 0, (SIZE_SETCODE - len) * sizeof(uint16_t));
 }
 
-inline bool is_alternative(uint32_t code, uint32_t alias) {
-	return alias != 0;
-}
-
 struct card_data {
 	uint32_t code{};
 	uint32_t alias{};
