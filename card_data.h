@@ -83,6 +83,6 @@ struct card_data {
 	}
 };
 
-static_assert(sizeof(card_data) == 80);
+static_assert(sizeof(card_data) == 80, "card_data size error");
 
 #endif /* CARD_DATA_H_ */
