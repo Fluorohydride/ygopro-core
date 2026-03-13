@@ -48,11 +48,11 @@ jobs:
 
     - name: Build x32
       run: |
-        msbuild build\ocgcoredll.sln /t:Build /p:"Configuration=Release;Platform=Win32"
+        msbuild build\ocgcoredll.sln /m /t:Build /p:"Configuration=Release;Platform=Win32"
 
     - name: Build x64
       run: |
-        msbuild build\ocgcoredll.sln /t:Build /p:"Configuration=Release;Platform=x64"
+        msbuild build\ocgcoredll.sln /m /t:Build /p:"Configuration=Release;Platform=x64"
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
