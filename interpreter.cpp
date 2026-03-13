@@ -83,6 +83,12 @@ void interpreter::register_card(card *pcard) {
 	}
 	pcard->cardid = pduel->game_field->infos.card_id++;
 }
+void interpreter::unregister_card(card *pcard) {
+	if (!pcard)
+		return;
+	luaL_unref(lua_state, LUA_REGISTRYINDEX, pcard->ref_handle);
+	pcard->ref_handle = 0;
+}
 void interpreter::register_effect(effect *peffect) {
 	if (!peffect)
 		return;
