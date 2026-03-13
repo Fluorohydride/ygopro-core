@@ -4189,8 +4189,21 @@ int32_t field::send_to(uint16_t step, group * targets, effect * reason_effect, u
 			pduel->write_buffer32(pcard->get_info_location());
 			pduel->write_buffer32(pcard->current.reason);
 		}
-		if((core.deck_reversed && pcard->current.location == LOCATION_DECK) || (pcard->current.position == POS_FACEUP_DEFENSE))
-			param->show_decktop[pcard->current.controler] = true;
+		// Deck-top visibility may change when a card moves from/to the deck.
+		// Recompute it from the actual top card
+		// (e.g. 寄生虫パラサイド can be face-up in the deck).
+		if (oloc == LOCATION_DECK || dest == LOCATION_DECK) {
+			uint8_t pl = pcard->current.controler;
+			if (core.deck_reversed) {
+				param->show_decktop[pl] = true;
+			}
+			else if (!player[pl].list_main.empty()) {
+				card* ptop = *player[pl].list_main.rbegin();
+				if (ptop->current.position == POS_FACEUP_DEFENSE)
+					param->show_decktop[pl] = true;
+			}
+		}
+
 		pcard->set_status(STATUS_LEAVE_CONFIRMED, FALSE);
 		pcard->set_status(STATUS_FLIP_SUMMONING, FALSE);
 		pcard->set_status(STATUS_FLIP_SUMMON_DISABLED, FALSE);
@@ -4271,7 +4284,7 @@ int32_t field::send_to(uint16_t step, group * targets, effect * reason_effect, u
 	case 9: {
 		exargs* param = (exargs*)targets;
 		if(core.global_flag & GLOBALFLAG_DECK_REVERSE_CHECK) {
-			if(param->show_decktop[0]) {
+			if(param->show_decktop[0] && !player[0].list_main.empty()) {
 				card* ptop = *player[0].list_main.rbegin();
 				pduel->write_buffer8(MSG_DECK_TOP);
 				pduel->write_buffer8(0);
@@ -4281,7 +4294,7 @@ int32_t field::send_to(uint16_t step, group * targets, effect * reason_effect, u
 				else
 					pduel->write_buffer32(ptop->data.code | 0x80000000);
 			}
-			if(param->show_decktop[1]) {
+			if(param->show_decktop[1] && !player[1].list_main.empty()) {
 				card* ptop = *player[1].list_main.rbegin();
 				pduel->write_buffer8(MSG_DECK_TOP);
 				pduel->write_buffer8(1);
