@@ -27,10 +27,10 @@ inline bool check_playerid(int32_t playerid) {
 #define TRUE 1
 #define FALSE 0
 
-#define SIZE_MESSAGE_BUFFER 0x2000
-#define SIZE_RETURN_VALUE 512
-#define SIZE_AI_NAME 128
-#define SIZE_HINT_MSG	1024
+#define SIZE_MESSAGE_BUFFER 0x2000u
+#define SIZE_RETURN_VALUE 512u
+#define SIZE_AI_NAME 128u
+#define SIZE_HINT_MSG	1024u
 
 #define PROCESSOR_BUFFER_LEN	0x0fffffff
 #define PROCESSOR_FLAG			0xf0000000

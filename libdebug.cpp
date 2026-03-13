@@ -170,9 +170,10 @@ int32_t scriptlib::debug_set_ai_name(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	pduel->write_buffer8(MSG_AI_NAME);
 	const char* pstr = lua_tostring(L, 1);
-	int len = (int)std::strlen(pstr);
-	if(len > SIZE_AI_NAME -1)
-		len = SIZE_AI_NAME - 1;
+	size_t length = std::strlen(pstr);
+	if(length > SIZE_AI_NAME - 1)
+		length = SIZE_AI_NAME - 1;
+	uint16_t len = (uint16_t)length;
 	pduel->write_buffer16(len);
 	pduel->write_buffer(pstr, len);
 	pduel->write_buffer8(0);
@@ -186,9 +187,10 @@ int32_t scriptlib::debug_show_hint(lua_State *L) {
 	lua_pcall(L, 1, 1, 0);
 	pduel->write_buffer8(MSG_SHOW_HINT);
 	const char* pstr = lua_tostring(L, -1);
-	int len = (int)std::strlen(pstr);
-	if (len > SIZE_HINT_MSG - 1)
-		len = SIZE_HINT_MSG - 1;
+	size_t length = std::strlen(pstr);
+	if (length > SIZE_HINT_MSG - 1)
+		length = SIZE_HINT_MSG - 1;
+	uint16_t len = (uint16_t)length;
 	pduel->write_buffer16(len);
 	pduel->write_buffer(pstr, len);
 	pduel->write_buffer8(0);

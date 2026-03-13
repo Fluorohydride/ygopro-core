@@ -67,11 +67,11 @@ int32_t field::select_battle_command(uint16_t step, uint8_t playerid) {
 			pduel->write_buffer8(0);
 		return FALSE;
 	} else {
-		int32_t t = (uint32_t)returns.ivalue[0] & 0xffff;
-		int32_t s = (uint32_t)returns.ivalue[0] >> 16;
-		if(t < 0 || t > 3 || s < 0
-		        || (t == 0 && s >= (int32_t)core.select_chains.size())
-		        || (t == 1 && s >= (int32_t)core.attackable_cards.size())
+		uint32_t t = (uint32_t)returns.ivalue[0] & 0xffff;
+		uint32_t s = (uint32_t)returns.ivalue[0] >> 16;
+		if(t > 3
+		        || (t == 0 && s >= (uint32_t)core.select_chains.size())
+		        || (t == 1 && s >= (uint32_t)core.attackable_cards.size())
 		        || (t == 2 && !core.to_m2)
 		        || (t == 3 && !core.to_ep)) {
 			pduel->write_buffer8(MSG_RETRY);
