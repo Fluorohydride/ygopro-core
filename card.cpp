@@ -407,16 +407,11 @@ uint32_t card::get_original_code() const {
 }
 // get the original code in duel (can be different from printed code)
 std::tuple<uint32_t, uint32_t> card::get_original_code_rule() const {
-	auto it = second_code.find(data.code);
+	auto it = second_code.find(data.get_original_code());
 	if (it != second_code.end()) {
-		return std::make_tuple(data.code, it->second);
+		return std::make_tuple(data.get_original_code(), it->second);
 	}
-	else {
-		if (data.alias)
-			return std::make_tuple(data.alias, 0);
-		else
-			return std::make_tuple(data.code, 0);
-	}
+	return std::make_tuple(data.get_duel_code(), 0);
 }
 // return: the current card name
 // for double-name cards, it returns printed name
