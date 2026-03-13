@@ -17,8 +17,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
     - name: Download lua
       id: lua
@@ -81,8 +79,6 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
     - name: Install Dependencies
       run: |
@@ -118,13 +114,13 @@ jobs:
     - name: Build x32
       run: |
         cd build
-        make -j 4 config=release_x32
+        make -j $(nproc) config=release_x32
         cd ..
 
     - name: Build x64
       run: |
         cd build
-        make -j 4 config=release_x64
+        make -j $(nproc) config=release_x64
         cd ..
 
     - name: Upload build artifacts
