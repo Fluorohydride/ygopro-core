@@ -5,9 +5,7 @@
 #include <unordered_map>
 #include "common.h"
 
-constexpr int CARD_ARTWORK_VERSIONS_OFFSET = 20;
 constexpr int SIZE_SETCODE = 16;
-constexpr uint32_t CARD_BLACK_LUSTER_SOLDIER2 = 5405695;
 
 //double name
 constexpr uint32_t CARD_MARINE_DOLPHIN = 78734254;
@@ -45,12 +43,6 @@ inline void write_setcode(uint16_t list[], uint64_t value) {
 		std::memset(list + len, 0, (SIZE_SETCODE - len) * sizeof(uint16_t));
 }
 
-inline bool is_alternative(uint32_t code, uint32_t alias) {
-	if (code == CARD_BLACK_LUSTER_SOLDIER2)
-		return false;
-	return alias && (alias < code + CARD_ARTWORK_VERSIONS_OFFSET) && (code < alias + CARD_ARTWORK_VERSIONS_OFFSET);
-}
-
 struct card_data {
 	uint32_t code{};
 	uint32_t alias{};
@@ -64,6 +56,7 @@ struct card_data {
 	uint32_t lscale{};
 	uint32_t rscale{};
 	uint32_t link_marker{};
+	uint32_t rule_code{};
 
 	void clear() {
 		std::memset(this, 0, sizeof(card_data));
@@ -79,9 +72,17 @@ struct card_data {
 		return false;
 	}
 
+	// get the printed code on card
 	uint32_t get_original_code() const {
-		return is_alternative(code, alias) ? alias : code;
+		return alias ? alias : code;
+	}
+
+	// get the code used in duel
+	uint32_t get_duel_code() const {
+		return rule_code ? rule_code : get_original_code();
 	}
 };
+
+static_assert(sizeof(card_data) == 80, "card_data size error");
 
 #endif /* CARD_DATA_H_ */
