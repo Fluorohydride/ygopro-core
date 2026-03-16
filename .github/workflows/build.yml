@@ -59,8 +59,8 @@ jobs:
       with:
         name: ocgcore-windows
         path: |
-          build\bin\x32\Release\ocgcore.dll
-          build\bin\x64\Release\ocgcore.dll
+          build/bin/x32/Release/ocgcore.dll
+          build/bin/x64/Release/ocgcore.dll
 
     - name: GitHub Release
       if: github.event_name == 'push'
