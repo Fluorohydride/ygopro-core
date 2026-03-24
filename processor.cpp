@@ -2609,8 +2609,14 @@ int32_t field::process_battle_command(uint16_t step) {
 			core.units.begin()->step = 6;
 			return FALSE;
 		}
-		// must attack monster
-		if(atype == 3 || is_player_affected_by_effect(infos.turn_player, EFFECT_PATRICIAN_OF_DARKNESS)) {
+		bool must_attack_monster = atype == 3;
+		bool oppo_select = is_player_affected_by_effect(infos.turn_player, EFFECT_PATRICIAN_OF_DARKNESS);
+		if(!oppo_select && must_attack_monster && core.select_cards.size() > 1) {
+			effect_set eset;
+			core.attacker->filter_effect(EFFECT_MUST_ATTACK_MONSTER, &eset);
+			oppo_select = eset.size() > 1;
+		}
+		if(oppo_select) {
 			if(core.select_cards.size() == 1)
 				returns.bvalue[1] = 0;
 			else {
@@ -2628,7 +2634,7 @@ int32_t field::process_battle_command(uint16_t step) {
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(infos.turn_player);
 			pduel->write_buffer32(549);
-			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + (core.attack_cancelable ? 0x20000 : 0), 0x10001);
+			add_process(PROCESSOR_SELECT_CARD, 0, 0, 0, infos.turn_player + (core.attack_cancelable && !must_attack_monster ? 0x20000 : 0), 0x10001);
 		}
 		core.units.begin()->step = 5;
 		return FALSE;
