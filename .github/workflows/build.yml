@@ -16,11 +16,11 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Download lua
       id: lua
-      uses: mercury233/action-cache-download-file@f5fef0ebfbee835266c4a7ae6f173d74a33980da # v1.0.0
+      uses: mercury233/action-cache-download-file@0e2b8bab566270adae95bd3cd298744402b667eb # v1.1.0
       with:
         url: https://www.lua.org/ftp/lua-5.4.8.tar.gz
 
@@ -31,7 +31,7 @@ jobs:
 
     - name: Download premake
       id: premake
-      uses: mercury233/action-cache-download-file@f5fef0ebfbee835266c4a7ae6f173d74a33980da
+      uses: mercury233/action-cache-download-file@0e2b8bab566270adae95bd3cd298744402b667eb
       with:
         url: https://github.com/premake/premake-core/releases/download/v5.0.0-beta7/premake-5.0.0-beta7-windows.zip
 
@@ -44,7 +44,7 @@ jobs:
         .\premake-5\premake5.exe vs2022 --file=dll.lua
 
     - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v2
+      uses: microsoft/setup-msbuild@v3
 
     - name: Build x32
       run: |
@@ -55,7 +55,7 @@ jobs:
         msbuild build\ocgcoredll.sln /m /t:Build /p:"Configuration=Release;Platform=x64"
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ocgcore-windows
         path: |
@@ -78,7 +78,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Install Dependencies
       run: |
@@ -87,7 +87,7 @@ jobs:
 
     - name: Download lua
       id: lua
-      uses: mercury233/action-cache-download-file@f5fef0ebfbee835266c4a7ae6f173d74a33980da
+      uses: mercury233/action-cache-download-file@0e2b8bab566270adae95bd3cd298744402b667eb
       with:
         url: https://www.lua.org/ftp/lua-5.4.8.tar.gz
 
@@ -98,7 +98,7 @@ jobs:
 
     - name: Download premake
       id: premake
-      uses: mercury233/action-cache-download-file@f5fef0ebfbee835266c4a7ae6f173d74a33980da
+      uses: mercury233/action-cache-download-file@0e2b8bab566270adae95bd3cd298744402b667eb
       with:
         url: https://github.com/premake/premake-core/releases/download/v5.0.0-beta7/premake-5.0.0-beta7-linux.tar.gz
 
@@ -124,7 +124,7 @@ jobs:
         cd ..
 
     - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ocgcore-linux
         path: |
