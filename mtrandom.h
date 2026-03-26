@@ -78,11 +78,13 @@ public:
 	void shuffle_vector(std::vector<T>& v, int first, int last, int version) {
 		if ((size_t)last > v.size())
 			last = (int)v.size();
-		auto distribution = &mtrandom::get_random_integer_v2;
-		if (version == 1)
-			distribution = &mtrandom::get_random_integer_v1;
+		auto distribution = [this, version](int l, int h) {
+			if (version == 1)
+				return get_random_integer_v1(l, h);
+			return get_random_integer_v2(l, h);
+			};
 		for (int i = first; i < last - 1; ++i) {
-			int r = (this->*distribution)(i, last - 1);
+			int r = distribution(i, last - 1);
 			std::swap(v[i], v[r]);
 		}
 	}
