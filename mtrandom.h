@@ -16,16 +16,15 @@ class mtrandom {
 public:
 	const unsigned int rand_max{ std::mt19937::max() };
 
-	mtrandom() :
-		rng() {}
-	mtrandom(uint32_t seq[], size_t len) {
-		std::seed_seq q(seq, seq + len);
-		rng.seed(q);
-	}
-	explicit mtrandom(uint_fast32_t value) :
-		rng(value) {}
-	mtrandom(std::seed_seq& q) :
-		rng(q) {}
+	mtrandom() = default;
+	explicit mtrandom(uint_fast32_t value)
+		: rng(value) {}
+	explicit mtrandom(std::seed_seq& q)
+		: rng(q) {}
+	explicit mtrandom(std::seed_seq&& q)
+		: rng(q) {}
+	mtrandom(uint32_t seq[], size_t len)
+		: mtrandom(std::seed_seq(seq, seq + len)) {}
 	
 	mtrandom(const mtrandom& other) = delete;
 	void operator=(const mtrandom& other) = delete;
