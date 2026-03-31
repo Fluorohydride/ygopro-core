@@ -8,6 +8,7 @@
 #ifndef MTRANDOM_H_
 #define MTRANDOM_H_
 
+#include <cstdint>
 #include <random>
 #include <vector>
 #include <utility>
@@ -77,13 +78,16 @@ public:
 	void shuffle_vector(std::vector<T>& v, int first, int last, int version) {
 		if ((size_t)last > v.size())
 			last = (int)v.size();
-		auto distribution = &mtrandom::get_random_integer_v2;
+		auto shuffle = [&](auto&& distribution) {
+			for (int i = first; i < last - 1; ++i) {
+				int r = distribution(i, last - 1);
+				std::swap(v[i], v[r]);
+			}
+		};
 		if (version == 1)
-			distribution = &mtrandom::get_random_integer_v1;
-		for (int i = first; i < last - 1; ++i) {
-			int r = (this->*distribution)(i, last - 1);
-			std::swap(v[i], v[r]);
-		}
+			shuffle([this](int l, int h) { return get_random_integer_v1(l, h); });
+		else
+			shuffle([this](int l, int h) { return get_random_integer_v2(l, h); });
 	}
 
 	template<typename T>
