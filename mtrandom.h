@@ -24,14 +24,14 @@ public:
 		: rng(q) {}
 	explicit mtrandom(std::seed_seq&& q)
 		: rng(q) {}
-	mtrandom(uint32_t seq[], size_t len)
+	mtrandom(const uint32_t seq[], size_t len)
 		: mtrandom(std::seed_seq(seq, seq + len)) {}
 	
 	mtrandom(const mtrandom& other) = delete;
 	void operator=(const mtrandom& other) = delete;
 
 	// mersenne_twister_engine
-	void seed(uint32_t seq[], size_t len) {
+	void seed(const uint32_t seq[], size_t len) {
 		std::seed_seq q(seq, seq + len);
 		rng.seed(q);
 	}
