@@ -28,14 +28,16 @@ inline bool check_setcode(uint16_t setcode, uint32_t value) {
 	return setcode && (setcode & 0x0fffU) == settype && (setcode & setsubtype) == setsubtype;
 }
 
-inline void write_setcode(uint16_t list[], uint64_t value) {
+inline void write_setcode(uint16_t list[], uint64_t value, size_t begin = 0) {
 	if (!list)
 		return;
+	if (begin % 4 || begin > SIZE_SETCODE - 4)
+		return;
 	if (!value) {
-		std::memset(list, 0, SIZE_SETCODE * sizeof(uint16_t));
+		std::memset(list + begin, 0, sizeof(uint64_t));
 		return;
 	}
-	int32_t len = 0;
+	size_t len = begin;
 	for (int32_t i = 0; i < 4; ++i) {
 		uint16_t section = (value >> (16 * i)) & 0xffff;
 		if (section) {
@@ -43,8 +45,6 @@ inline void write_setcode(uint16_t list[], uint64_t value) {
 			++len;
 		}
 	}
-	if (len < SIZE_SETCODE)
-		std::memset(list + len, 0, (SIZE_SETCODE - len) * sizeof(uint16_t));
 }
 
 struct card_data {
