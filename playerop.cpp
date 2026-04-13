@@ -334,19 +334,11 @@ int32_t field::select_chain(uint16_t step, uint8_t playerid, uint8_t spe_count) 
 	if(step == 0) {
 		returns.ivalue[0] = -1;
 		if((playerid == 1) && (core.duel_options & DUEL_SIMPLE_AI)) {
-			if(core.select_chains.size() == 0)
-				returns.ivalue[0] = -1;
-			else {
-				bool act = true;
-				for(const auto& ch : core.current_chain)
-					if(ch.triggering_player == 1)
-						act = false;
-				if(act)
-					returns.ivalue[0] = 0;
+				if(core.select_chains.size() == 0)
+						returns.ivalue[0] = -1;
 				else
-					returns.ivalue[0] = -1;
-			}
-			return TRUE;
+						returns.ivalue[0] = 0;
+				return TRUE;
 		}
 		pduel->write_buffer8(MSG_SELECT_CHAIN);
 		pduel->write_buffer8(playerid);
