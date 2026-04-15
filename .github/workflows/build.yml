@@ -69,11 +69,8 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         git fetch --tags origin
-        tags=$(git tag)
-        for tag in $tags; do
-          if [[ "$tag" == dev-* ]]; then
-            gh release delete "$tag" --cleanup-tag -y || true
-          fi
+        for tag in $(git tag -l 'dev-*'); do
+          gh release delete "$tag" --cleanup-tag -y || true
         done
         TAG_NAME="dev-$(echo ${{ github.sha }} | cut -c1-7)"
         gh release create "$TAG_NAME" build/bin/x64/Release/ocgcore.dll --title "Development Build"
