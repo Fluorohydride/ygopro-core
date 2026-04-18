@@ -64,14 +64,16 @@ jobs:
 
     - name: GitHub Release
       if: github.event_name == 'push'
-      uses: salix5/action-automatic-releases@e0545bc14e9677f38aa573f1a52563022f987356 # node24
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
-        prerelease: true
-        title: "Development Build"
-        files: |
-          build/bin/x64/Release/ocgcore.dll
+      shell: bash
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        git fetch --tags origin
+        for tag in $(git tag -l 'dev-*'); do
+          gh release delete "$tag" --cleanup-tag -y || true
+        done
+        TAG_NAME="dev-${GITHUB_SHA:0:10}"
+        gh release create "$TAG_NAME" build/bin/x64/Release/ocgcore.dll --title "Development Build"
 
   build-linux:
     runs-on: ubuntu-latest
