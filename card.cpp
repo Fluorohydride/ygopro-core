@@ -173,6 +173,8 @@ int32_t card::get_infos(byte* buf, uint32_t query_flag, int32_t use_cache) {
 	}
 	if (query_flag & QUERY_POSITION) {
 		uint32_t tdata = get_info_location();
+		if((current.location & (LOCATION_ONFIELD | LOCATION_EXTRA | LOCATION_REMOVED)) && is_affected_by_effect(EFFECT_PUBLIC))
+			tdata |= (static_cast<uint32_t>(POS_REVEAL) << 24);
 		buffer_write<uint32_t>(p, tdata);
 		if (q_cache.info_location != tdata) {
 			q_cache.clear_cache();
