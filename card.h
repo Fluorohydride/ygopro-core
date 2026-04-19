@@ -218,6 +218,7 @@ public:
 
 	int32_t get_infos(byte* buf, uint32_t query_flag, int32_t use_cache = TRUE);
 	uint32_t get_info_location() const;
+	uint32_t get_public_info_location() const;
 	uint32_t get_original_code() const;
 	std::tuple<uint32_t, uint32_t> get_original_code_rule() const;
 	uint32_t get_code();
