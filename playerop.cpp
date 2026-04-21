@@ -341,6 +341,9 @@ int32_t field::select_chain(uint16_t step, uint8_t playerid, uint8_t spe_count) 
 				for(const auto& ch : core.current_chain)
 					if(ch.triggering_player == 1)
 						act = false;
+				for(const auto& ch : core.select_chains)
+					if(ch.flag & CHAIN_FORCED)
+						act = true;
 				if(act)
 					returns.ivalue[0] = 0;
 				else
