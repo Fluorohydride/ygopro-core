@@ -1,12 +1,14 @@
-newoption { trigger = "lua-dir", description = "", value = "PATH", default = "./lua" }
+LUA_DIR = "./lua"
+
+newoption { trigger = "lua-dir", description = "", value = "PATH" }
 
 function GetParam(param)
     return _OPTIONS[param] or os.getenv(string.upper(string.gsub(param,"-","_")))
 end
 
-LUA_DIR=GetParam("lua-dir")
+LUA_DIR = GetParam("lua-dir") or LUA_DIR
 if not os.isdir(LUA_DIR) then
-    LUA_DIR="../lua"
+    LUA_DIR = "../lua"
 end
 
 workspace "ocgcoredll"
