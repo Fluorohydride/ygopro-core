@@ -403,7 +403,7 @@ uint32_t card::get_info_location() const {
 }
 uint32_t card::get_public_info_location() {
 	uint32_t info = get_info_location();
-	if((current.location & LOCATION_ONFIELD) && is_affected_by_effect(EFFECT_MIND_SCAN))
+	if((current.location & LOCATION_ONFIELD) && is_affected_by_effect(EFFECT_REVEAL_ONFIELD))
 		info |= (static_cast<uint32_t>(POS_REVEAL) << 24);
 	return info;
 }
