@@ -504,8 +504,8 @@ int32_t effect::is_target(card* pcard) {
 	if((type & EFFECT_TYPE_TARGET) && !(type & EFFECT_TYPE_FIELD)) {
 		return is_fit_target_function(pcard);
 	}
-	if(!is_flag(EFFECT_FLAG_SET_AVAILABLE) && code != EFFECT_PUBLIC && (pcard->current.location & LOCATION_ONFIELD)
-			&& !pcard->is_position(POS_FACEUP))
+	if(!is_flag(EFFECT_FLAG_SET_AVAILABLE) && code != EFFECT_REVEAL_ONFIELD
+			&& (pcard->current.location & LOCATION_ONFIELD) && !pcard->is_position(POS_FACEUP))
 		return FALSE;
 	if(!is_flag(EFFECT_FLAG_IGNORE_RANGE)) {
 		if(pcard->is_treated_as_not_on_field())

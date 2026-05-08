@@ -401,9 +401,9 @@ uint32_t card::get_info_location() const {
 		return c | (l << 8) | (s << 16) | (ss << 24);
 	}
 }
-uint32_t card::get_public_info_location() const {
+uint32_t card::get_public_info_location() {
 	uint32_t info = get_info_location();
-	if((current.location & LOCATION_ONFIELD) && const_cast<card*>(this)->is_affected_by_effect(EFFECT_PUBLIC))
+	if((current.location & LOCATION_ONFIELD) && is_affected_by_effect(EFFECT_REVEAL_ONFIELD))
 		info |= (static_cast<uint32_t>(POS_REVEAL) << 24);
 	return info;
 }
