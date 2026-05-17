@@ -4196,7 +4196,7 @@ int32_t scriptlib::duel_toss_coin(lua_State * L) {
 		duel* pduel = (duel*)ctx;
 		int32_t count = pduel->game_field->core.coin_count;
 		for(int32_t i = 0; i < count; ++i)
-			lua_pushinteger(L, pduel->game_field->core.coin_result[i]);
+			lua_pushinteger(L, (pduel->game_field->core.coin_result >> i) & 1u);
 		return count;
 	});
 }
@@ -4242,7 +4242,7 @@ int32_t scriptlib::duel_rock_paper_scissors(lua_State * L) {
 int32_t scriptlib::duel_get_coin_result(lua_State * L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	for(int32_t i = 0; i < pduel->game_field->core.coin_count; ++i)
-		lua_pushinteger(L, pduel->game_field->core.coin_result[i]);
+		lua_pushinteger(L, (pduel->game_field->core.coin_result >> i) & 1u);
 	return pduel->game_field->core.coin_count;
 }
 int32_t scriptlib::duel_get_dice_result(lua_State * L) {
@@ -4254,11 +4254,16 @@ int32_t scriptlib::duel_get_dice_result(lua_State * L) {
 int32_t scriptlib::duel_set_coin_result(lua_State * L) {
 	duel* pduel = interpreter::get_duel_info(L);
 	int32_t res;
-	for(int32_t i = 0; i < MAX_COIN_COUNT; ++i) {
+	auto coin_count = lua_gettop(L);
+	pduel->game_field->core.coin_result = 0;
+	if(coin_count > MAX_COIN_COUNT)
+		coin_count = MAX_COIN_COUNT;
+	for(int32_t i = 0; i < coin_count; ++i) {
 		res = (int32_t)lua_tointeger(L, i + 1);
 		if(res != 0 && res != 1)
 			res = 0;
-		pduel->game_field->core.coin_result[i] = res;
+		if(res)
+			pduel->game_field->core.coin_result |= (1u << i);
 	}
 	return 0;
 }
