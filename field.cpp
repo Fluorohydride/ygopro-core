@@ -307,7 +307,7 @@ void field::move_card(uint8_t playerid, card* pcard, uint8_t location, uint8_t s
 				}
 				if(preplayer == playerid) {
 					refresh_player_info(playerid);
-					pduel->write_buffer32(pcard->get_info_location());
+					pduel->write_buffer32(pcard->get_public_info_location());
 					pduel->write_buffer32(pcard->current.reason);
 				} else {
 					refresh_player_info(preplayer);
@@ -437,23 +437,23 @@ void field::swap_card(card* pcard1, card* pcard2, uint8_t new_sequence1, uint8_t
 		pduel->write_buffer8(MSG_MOVE);
 		pduel->write_buffer32(pcard1->data.code);
 		pduel->write_buffer32(info1);
-		pduel->write_buffer32(pcard1->get_info_location());
+		pduel->write_buffer32(pcard1->get_public_info_location());
 		pduel->write_buffer32(0);
 		pduel->write_buffer8(MSG_MOVE);
 		pduel->write_buffer32(pcard2->data.code);
 		pduel->write_buffer32(info2);
-		pduel->write_buffer32(pcard2->get_info_location());
+		pduel->write_buffer32(pcard2->get_public_info_location());
 		pduel->write_buffer32(0);
 	} else {
 		pduel->write_buffer8(MSG_MOVE);
 		pduel->write_buffer32(pcard2->data.code);
 		pduel->write_buffer32(info2);
-		pduel->write_buffer32(pcard2->get_info_location());
+		pduel->write_buffer32(pcard2->get_public_info_location());
 		pduel->write_buffer32(0);
 		pduel->write_buffer8(MSG_MOVE);
 		pduel->write_buffer32(pcard1->data.code);
 		pduel->write_buffer32(info1);
-		pduel->write_buffer32(pcard1->get_info_location());
+		pduel->write_buffer32(pcard1->get_public_info_location());
 		pduel->write_buffer32(0);
 	}
 }

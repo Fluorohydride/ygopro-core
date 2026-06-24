@@ -72,6 +72,7 @@ inline bool check_playerid(int32_t playerid) {
 #define POS_FACEDOWN			0xa
 #define POS_ATTACK				0x3
 #define POS_DEFENSE				0xc
+#define POS_REVEAL				0x80
 //Flip effect flags
 #define NO_FLIP_EFFECT			0x10000
 
