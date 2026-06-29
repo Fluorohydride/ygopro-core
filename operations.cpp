@@ -6512,37 +6512,3 @@ int32_t field::toss_dice(uint16_t step, effect * reason_effect, uint8_t reason_p
 	}
 	return TRUE;
 }
-int32_t field::rock_paper_scissors(uint16_t step, uint8_t repeat) {
-	switch (step) {
-	case 0: {
-		pduel->write_buffer8(MSG_ROCK_PAPER_SCISSORS);
-		pduel->write_buffer8(0);
-		return FALSE;
-	}
-	case 1: {
-		core.units.begin()->value1 = returns.ivalue[0];
-		pduel->write_buffer8(MSG_ROCK_PAPER_SCISSORS);
-		pduel->write_buffer8(1);
-		return FALSE;
-	}
-	case 2: {
-		int32_t hand0 = core.units.begin()->value1;
-		int32_t hand1 = returns.ivalue[0];
-		pduel->write_buffer8(MSG_HAND_RES);
-		pduel->write_buffer8(hand0 + (hand1 << 2));
-		if(hand0 == hand1) {
-			if(repeat) {
-				core.units.begin()->step = -1;
-				return FALSE;
-			} else
-				returns.ivalue[0] = PLAYER_NONE;
-		} else if((hand0 == 1 && hand1 == 2) || (hand0 == 2 && hand1 == 3) || (hand0 == 3 && hand1 == 1)) {
-			returns.ivalue[0] = 1;
-		} else {
-			returns.ivalue[0] = 0;
-		}
-		return TRUE;
-	}
-	}
-	return TRUE;
-}
