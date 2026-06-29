@@ -2920,7 +2920,9 @@ int32_t scriptlib::card_remove_counter(lua_State *L) {
 	duel* pduel = pcard->pduel;
 	if(countertype == 0) {
 		// c38834303: remove all counters
+		int32_t result = FALSE;
 		for(const auto& cmit : pcard->counters) {
+			result = TRUE;
 			pduel->write_buffer8(MSG_REMOVE_COUNTER);
 			pduel->write_buffer16(cmit.first);
 			pduel->write_buffer8(pcard->current.controler);
@@ -2929,7 +2931,8 @@ int32_t scriptlib::card_remove_counter(lua_State *L) {
 			pduel->write_buffer16(cmit.second);
 		}
 		pcard->counters.clear();
-		return 0;
+		lua_pushboolean(L, result);
+		return 1;
 	} else {
 		pduel->game_field->remove_counter(reason, pcard, rplayer, 0, 0, countertype, count);
 		return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32_t status, lua_KContext ctx) {
