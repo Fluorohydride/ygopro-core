@@ -32,6 +32,14 @@ inline bool check_playerid(int32_t playerid) {
 #define SIZE_AI_NAME 128u
 #define SIZE_HINT_MSG	1024u
 
+#define SEED_COUNT	8
+
+#define LEN_FAIL	0
+#define LEN_EMPTY	4
+#define LEN_HEADER	8
+
+#define TEMP_CARD_ID	0
+
 #define PROCESSOR_BUFFER_LEN	0x0fffffff
 #define PROCESSOR_FLAG			0xf0000000
 #define PROCESSOR_NONE			0

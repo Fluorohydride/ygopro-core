@@ -20,13 +20,6 @@
 #define OCGCORE_API
 #endif
 
-#define SEED_COUNT	8
-
-#define LEN_FAIL	0
-#define LEN_EMPTY	4
-#define LEN_HEADER	8
-#define TEMP_CARD_ID	0
-
 struct card_data;
 
 typedef byte* (*script_reader)(const char* script_name, int* len);
