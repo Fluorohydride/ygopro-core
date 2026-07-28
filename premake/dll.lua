@@ -64,6 +64,7 @@ project "ocgcore"
 
     kind "SharedLib"
 
+    defines { "OCGCORE_EXPORT_FUNCTIONS" }
     files { "*.cpp", "*.h" }
     links { "lua" }
     

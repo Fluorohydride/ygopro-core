@@ -16,10 +16,14 @@
 #define EXTERN_C
 #endif
 
+#if defined(OCGCORE_EXPORT_FUNCTIONS)
 #ifdef _WIN32
 #define OCGCORE_API EXTERN_C __declspec(dllexport)
 #else
 #define OCGCORE_API EXTERN_C __attribute__ ((visibility ("default")))
+#endif
+#else
+#define OCGCORE_API EXTERN_C
 #endif
 
 #define SEED_COUNT	8
@@ -61,5 +65,8 @@ OCGCORE_API void set_responsei(intptr_t pduel, int32_t value);
 OCGCORE_API void set_responseb(intptr_t pduel, byte* buf);
 OCGCORE_API int32_t preload_script(intptr_t pduel, const char* script_name);
 OCGCORE_API byte* default_script_reader(const char* script_name, int* len);
+
+#undef OCGCORE_API
+#undef EXTERN_C
 
 #endif /* OCGAPI_H_ */
