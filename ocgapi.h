@@ -65,7 +65,7 @@ OCGCORE_API int32_t preload_script(intptr_t pduel, const char* script_name);
 OCGCORE_API byte* default_script_reader(const char* script_name, int* len);
 
 #ifdef __cplusplus
-}
+} /* end of the 'extern "C"' block */
 #endif
 
 #endif /* OCGAPI_H_ */
