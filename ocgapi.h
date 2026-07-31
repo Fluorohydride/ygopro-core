@@ -14,7 +14,7 @@
 #ifdef _WIN32
 #define OCGCORE_API __declspec(dllexport)
 #else
-#define OCGCORE_API __attribute__ ((visibility ("default")))
+#define OCGCORE_API [[gnu::visibility("default")]]
 #endif
 #else
 #define OCGCORE_API
