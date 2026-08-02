@@ -74,6 +74,8 @@ int32_t effect::is_available(int32_t neglect_disabled) {
 			return FALSE;
 		if(powner == phandler && !(is_flag(EFFECT_FLAG_CANNOT_DISABLE) || neglect_disabled) && phandler->get_status(STATUS_DISABLED))
 			return FALSE;
+		if(phandler->is_status(STATUS_BATTLE_DESTROYED))
+				return FALSE;
 	}
 	if (type & EFFECT_TYPE_EQUIP) {
 		if(handler->current.controler == PLAYER_NONE)
