@@ -148,7 +148,7 @@ card::card(duel* pd)
 	temp.init_state();
 	current.controler = PLAYER_NONE;
 }
-inline void update_cache(uint32_t tdata, uint32_t& cache, byte*& p, uint32_t& query_flag, uint32_t flag) {
+inline void update_cache(uint32_t tdata, uint32_t& cache, uint8_t*& p, uint32_t& query_flag, uint32_t flag) {
 	if (tdata != cache) {
 		cache = tdata;
 		buffer_write<uint32_t>(p, tdata);
@@ -156,8 +156,8 @@ inline void update_cache(uint32_t tdata, uint32_t& cache, byte*& p, uint32_t& qu
 	else
 		query_flag &= ~flag;
 }
-int32_t card::get_infos(byte* buf, uint32_t query_flag, int32_t use_cache) {
-	byte* p = buf;
+int32_t card::get_infos(uint8_t* buf, uint32_t query_flag, int32_t use_cache) {
+	uint8_t* p = buf;
 	std::pair<int32_t, int32_t> atk_def(-10, -10);
 	std::pair<int32_t, int32_t> base_atk_def(-10, -10);
 	if ((query_flag & QUERY_ATTACK) || (query_flag & QUERY_DEFENSE)) {
@@ -381,7 +381,7 @@ int32_t card::get_infos(byte* buf, uint32_t query_flag, int32_t use_cache) {
 				query_flag &= ~QUERY_LINK;
 		}
 	}
-	byte* finalize = buf;
+	uint8_t* finalize = buf;
 	buffer_write<int32_t>(finalize, (int32_t)(p - buf));
 	buffer_write<uint32_t>(finalize, query_flag);
 	return (int32_t)(p - buf);

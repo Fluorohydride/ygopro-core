@@ -218,7 +218,7 @@ public:
 	static bool check_card_setcode(uint32_t code, uint32_t value);
 	bool is_extra_deck_monster() const { return !!(data.type & TYPES_EXTRA_DECK); }
 
-	int32_t get_infos(byte* buf, uint32_t query_flag, int32_t use_cache = TRUE);
+	int32_t get_infos(uint8_t* buf, uint32_t query_flag, int32_t use_cache = TRUE);
 	uint32_t get_info_location() const;
 	uint32_t get_public_info_location();
 	uint32_t get_original_code() const;

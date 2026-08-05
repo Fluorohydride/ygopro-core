@@ -31,7 +31,7 @@ public:
 	field* game_field;
 	mtrandom random;
 
-	std::vector<byte> message_buffer;
+	std::vector<uint8_t> message_buffer;
 	std::unordered_set<card*> cards;
 	std::unordered_set<card*> assumes;
 	std::unordered_set<group*> groups;
@@ -56,14 +56,14 @@ public:
 	void delete_effect(effect* peffect);
 	void release_script_group();
 	void restore_assumes();
-	int32_t read_buffer(byte* buf);
+	int32_t read_buffer(uint8_t* buf);
 	void write_buffer(const void* data, size_t size);
 	void write_buffer32(uint32_t value);
 	void write_buffer16(uint16_t value);
 	void write_buffer8(uint8_t value);
 	void clear_buffer();
 	void set_responsei(int32_t resp);
-	void set_responseb(byte* resp);
+	void set_responseb(uint8_t* resp);
 	int32_t get_next_integer(int32_t l, int32_t h);
 private:
 	group* register_group(group* pgroup);
