@@ -3424,7 +3424,7 @@ int32_t field::is_player_can_remove(uint8_t playerid, card* pcard, uint32_t reas
 }
 int32_t field::is_chain_negatable(uint8_t chaincount) {
 	effect_set eset;
-	if(chaincount < 0 || chaincount > core.current_chain.size())
+	if(chaincount > core.current_chain.size())
 		return FALSE;
 	effect* peffect;
 	if(chaincount == 0)
@@ -3443,7 +3443,7 @@ int32_t field::is_chain_negatable(uint8_t chaincount) {
 }
 int32_t field::is_chain_disablable(uint8_t chaincount) {
 	effect_set eset;
-	if(chaincount < 0 || chaincount > core.current_chain.size())
+	if(chaincount > core.current_chain.size())
 		return FALSE;
 	effect* peffect;
 	if(chaincount == 0)
@@ -3463,7 +3463,7 @@ int32_t field::is_chain_disablable(uint8_t chaincount) {
 	return TRUE;
 }
 int32_t field::is_chain_disabled(uint8_t chaincount) {
-	if(chaincount < 0 || chaincount > core.current_chain.size())
+	if(chaincount > core.current_chain.size())
 		return FALSE;
 	chain* pchain;
 	if(chaincount == 0)
@@ -3484,7 +3484,7 @@ int32_t field::is_chain_disabled(uint8_t chaincount) {
 	return FALSE;
 }
 int32_t field::check_chain_target(uint8_t chaincount, card * pcard) {
-	if(chaincount < 0 || chaincount > core.current_chain.size())
+	if(chaincount > core.current_chain.size())
 		return FALSE;
 	chain* pchain;
 	if(chaincount == 0)

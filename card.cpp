@@ -458,7 +458,6 @@ uint32_t card::get_another_code() {
 }
 int32_t card::is_set_card(uint32_t set_code) {
 	uint32_t code1 = get_code();
-	card_data dat1;
 	if (code1 == data.code) {
 		if (data.is_setcode(set_code))
 			return TRUE;
