@@ -556,18 +556,40 @@ int32_t card::is_special_summon_set_card(uint32_t set_code) {
 	}
 	return FALSE;
 }
+uint32_t card::get_card_type() {
+	if(temp_card_type != UINT32_MAX) // prevent recursion, return the former value
+		return temp_card_type;
+	effect_set effects;
+	uint32_t type = data.type;
+	temp_card_type = data.type;
+	filter_effect(EFFECT_ADD_CARD_TYPE, &effects, FALSE);
+	filter_effect(EFFECT_REMOVE_CARD_TYPE, &effects, FALSE);
+	filter_effect(EFFECT_CHANGE_CARD_TYPE, &effects);
+	for (effect_set::size_type i = 0; i < effects.size(); ++i) {
+		if (effects[i]->code == EFFECT_ADD_CARD_TYPE)
+			type |= effects[i]->get_value(this);
+		else if (effects[i]->code == EFFECT_REMOVE_CARD_TYPE)
+			type &= ~(effects[i]->get_value(this));
+		else
+			type = effects[i]->get_value(this);
+		temp_card_type = type;
+	}
+	temp_card_type = UINT32_MAX;
+	return type;
+}
 uint32_t card::get_type() {
 	if(assume_type == ASSUME_TYPE)
 		return assume_value;
 	if(!(current.location & (LOCATION_ONFIELD | LOCATION_HAND | LOCATION_GRAVE)))
-		return data.type;
+		return get_card_type();
 	if(current.is_location(LOCATION_PZONE))
 		return TYPE_PENDULUM + TYPE_SPELL;
 	if(temp.type != UINT32_MAX) // prevent recursion, return the former value
 		return temp.type;
 	effect_set effects;
-	int32_t type = data.type;
-	temp.type = data.type;
+	uint32_t card_type = get_card_type();
+	uint32_t type = card_type;
+	temp.type = card_type;
 	filter_effect(EFFECT_ADD_TYPE, &effects, FALSE);
 	filter_effect(EFFECT_REMOVE_TYPE, &effects, FALSE);
 	filter_effect(EFFECT_CHANGE_TYPE, &effects);

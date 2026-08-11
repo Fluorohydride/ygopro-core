@@ -535,6 +535,9 @@ const std::map<uint64_t, uint64_t> category_checklist{
 #define EFFECT_RITUAL_LEVEL_EX		374
 #define EFFECT_DOUBLE_XMATERIAL		375
 #define EFFECT_REVEAL_ONFIELD			376
+#define EFFECT_ADD_CARD_TYPE			377
+#define EFFECT_REMOVE_CARD_TYPE		378
+#define EFFECT_CHANGE_CARD_TYPE		379
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

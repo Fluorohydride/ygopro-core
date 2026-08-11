@@ -43,6 +43,7 @@ public:
 	static int32_t card_is_fusion_set_card(lua_State *L);
 	static int32_t card_is_link_set_card(lua_State *L);
 	static int32_t card_is_special_summon_set_card(lua_State *L);
+	static int32_t card_get_card_type(lua_State *L);
 	static int32_t card_get_type(lua_State *L);
 	static int32_t card_get_origin_type(lua_State *L);
 	static int32_t card_get_fusion_type(lua_State *L);
@@ -124,6 +125,8 @@ public:
 	static int32_t card_get_fieldidr(lua_State *L);
 	static int32_t card_is_origin_code_rule(lua_State *L);
 	static int32_t card_is_code(lua_State *L);
+	static int32_t card_is_card_type(lua_State *L);
+	static int32_t card_is_all_card_types(lua_State *L);
 	static int32_t card_is_type(lua_State *L);
 	static int32_t card_is_all_types(lua_State *L);
 	static int32_t card_is_fusion_type(lua_State *L);

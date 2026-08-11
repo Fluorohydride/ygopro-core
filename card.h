@@ -151,6 +151,7 @@ public:
 	card_data data;
 	card_state previous;
 	card_state temp;
+	uint32_t temp_card_type{ UINT32_MAX };
 	card_state current;
 	card_state spsummon;
 	query_cache q_cache;
@@ -231,6 +232,7 @@ public:
 	int32_t is_fusion_set_card(uint32_t set_code);
 	int32_t is_link_set_card(uint32_t set_code);
 	int32_t is_special_summon_set_card(uint32_t set_code);
+	uint32_t get_card_type();
 	uint32_t get_type();
 	uint32_t get_fusion_type();
 	uint32_t get_synchro_type();
