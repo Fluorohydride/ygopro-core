@@ -3490,8 +3490,6 @@ int32_t card::is_can_be_special_summoned(effect* reason_effect, uint32_t sumtype
 		reason_effect->status |= EFFECT_STATUS_SPSELF;
 	if(current.location == LOCATION_MZONE)
 		return FALSE;
-	if(current.location == LOCATION_REMOVED && (current.position & POS_FACEDOWN))
-		return FALSE;
 	if(is_affected_by_effect(EFFECT_REVIVE_LIMIT) && !is_status(STATUS_PROC_COMPLETE)) {
 		if((!nolimit && (current.location & (LOCATION_GRAVE | LOCATION_REMOVED | LOCATION_SZONE)))
 			|| (!nocheck && !nolimit && (current.location & (LOCATION_DECK | LOCATION_HAND))))
