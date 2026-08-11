@@ -16,6 +16,7 @@
 #include <map>
 #include <unordered_set>
 #include <unordered_map>
+#include <functional>
 #include <tuple>
 
 class card;
@@ -29,6 +30,7 @@ using card_vector = std::vector<card*>;
 using effect_container = std::multimap<uint32_t, effect*>;
 using effect_indexer = std::unordered_map<effect*, effect_container::iterator>;
 using effect_collection = std::unordered_set<effect*>;
+using bin_effect_callback = std::function<uint32_t(uint32_t, effect*)>;
 
 using effect_filter = bool(*)(card* self, effect* peffect);
 using effect_filter_target = bool(*)(card* self, effect* peffect, card* target);
@@ -232,6 +234,13 @@ public:
 	int32_t is_fusion_set_card(uint32_t set_code);
 	int32_t is_link_set_card(uint32_t set_code);
 	int32_t is_special_summon_set_card(uint32_t set_code);
+	uint32_t resolve_bin_effects(
+		uint32_t initial,
+		uint32_t add,
+		uint32_t remove,
+		uint32_t change,
+		uint32_t* temp = nullptr,
+		bin_effect_callback callback = nullptr);
 	uint32_t get_card_type();
 	uint32_t get_type();
 	uint32_t get_fusion_type();
