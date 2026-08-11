@@ -39,6 +39,7 @@ struct card_state {
 	uint32_t code{ 0 };
 	uint32_t code2{ 0 };
 	std::vector<uint16_t> setcode;
+	uint32_t card_type{ 0 };
 	uint32_t type{ 0 };
 	uint32_t level{ 0 };
 	uint32_t rank{ 0 };
@@ -153,7 +154,6 @@ public:
 	card_data data;
 	card_state previous;
 	card_state temp;
-	uint32_t temp_card_type{ UINT32_MAX };
 	card_state current;
 	card_state spsummon;
 	query_cache q_cache;

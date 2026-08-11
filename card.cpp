@@ -30,6 +30,7 @@ bool card_state::is_location(uint32_t loc) const {
 void card_state::init_state() {
 	code = UINT32_MAX;
 	code2 = UINT32_MAX;
+	card_type = UINT32_MAX;
 	type = UINT32_MAX;
 	level = UINT32_MAX;
 	rank = UINT32_MAX;
@@ -599,7 +600,7 @@ uint32_t card::get_card_type() {
 		EFFECT_ADD_CARD_TYPE,
 		EFFECT_REMOVE_CARD_TYPE,
 		EFFECT_CHANGE_CARD_TYPE,
-		&temp_card_type);
+		&temp.card_type);
 }
 uint32_t card::get_type() {
 	if(assume_type == ASSUME_TYPE)
