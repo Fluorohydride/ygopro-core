@@ -40,7 +40,7 @@ jobs:
     - name: Premake
       run: |
         mkdir premake-5
-        tar -C premake-5 -xzf ${{ steps.premake.outputs.filepath }}
+        7z x ${{ steps.premake.outputs.filepath }} -opremake-5
         copy premake\lua.lua lua\premake5.lua
         copy premake\dll.lua dll.lua
         .\premake-5\premake5.exe vs2022 --file=dll.lua
