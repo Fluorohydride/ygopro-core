@@ -20,9 +20,10 @@ jobs:
 
     - name: Download lua
       id: lua
-      uses: mercury233/action-cache-download-file@0e2b8bab566270adae95bd3cd298744402b667eb # v1.1.0
+      uses: mercury233/action-cache-download-file@42a33307a0e00b163efaf26f29149a62d7bbd37d # v1.3.0
       with:
         url: https://www.lua.org/ftp/lua-5.4.8.tar.gz
+        sha256: 4f18ddae154e793e46eeab727c59ef1c0c0c2b744e7b94219710d76f530629ae
 
     - name: Lua
       run: |
@@ -31,9 +32,10 @@ jobs:
 
     - name: Download premake
       id: premake
-      uses: mercury233/action-cache-download-file@0e2b8bab566270adae95bd3cd298744402b667eb
+      uses: mercury233/action-cache-download-file@42a33307a0e00b163efaf26f29149a62d7bbd37d
       with:
-        url: https://github.com/premake/premake-core/releases/download/v5.0.0-beta7/premake-5.0.0-beta7-windows.zip
+        url: https://github.com/premake/premake-core/releases/download/v5.0.0-beta8/premake-5.0.0-beta8-windows.zip
+        sha256: e64ce2ed8778e0098f63674cca61fe33941b5f0c8d9a4afd651152bdea3758ab
 
     - name: Premake
       run: |
@@ -76,9 +78,10 @@ jobs:
 
     - name: Download lua
       id: lua
-      uses: mercury233/action-cache-download-file@0e2b8bab566270adae95bd3cd298744402b667eb
+      uses: mercury233/action-cache-download-file@42a33307a0e00b163efaf26f29149a62d7bbd37d
       with:
         url: https://www.lua.org/ftp/lua-5.4.8.tar.gz
+        sha256: 4f18ddae154e793e46eeab727c59ef1c0c0c2b744e7b94219710d76f530629ae
 
     - name: Lua
       run: |
@@ -87,9 +90,10 @@ jobs:
 
     - name: Download premake
       id: premake
-      uses: mercury233/action-cache-download-file@0e2b8bab566270adae95bd3cd298744402b667eb
+      uses: mercury233/action-cache-download-file@42a33307a0e00b163efaf26f29149a62d7bbd37d
       with:
-        url: https://github.com/premake/premake-core/releases/download/v5.0.0-beta7/premake-5.0.0-beta7-linux.tar.gz
+        url: https://github.com/premake/premake-core/releases/download/v5.0.0-beta8/premake-5.0.0-beta8-linux.tar.gz
+        sha256: 63edd3e7461eebdd45b500a3c7e8ad4e7a67d68f230010f9a97cbb71b4ec59c8
 
     - name: Premake
       run: |
