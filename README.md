@@ -38,7 +38,7 @@ Set up the duel information.
 
 - `void get_log_message(intptr_t pduel, char* buf);`
 
-- `int32_t get_message(intptr_t pduel, byte* buf);`
+- `int32_t get_message(intptr_t pduel, uint8_t* buf);`
 
 - `int32_t process(intptr_t pduel);`  
 Do a game tick.
@@ -49,24 +49,24 @@ Add a card to the duel state.
 - `void new_tag_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t location);`  
 Add a new card to the tag pool.
 
-- `int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, uint32_t query_flag, byte* buf, int32_t use_cache);`  
+- `int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, uint32_t query_flag, uint8_t* buf, int32_t use_cache);`  
 Get a card in a specific location.
 
 - `int32_t query_field_count(intptr_t pduel, uint8_t playerid, uint8_t location);`  
 Get the number of cards in a specific location.
 
-- `int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint32_t query_flag, byte* buf, int32_t use_cache);`  
+- `int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint32_t query_flag, uint8_t* buf, int32_t use_cache);`  
 Get all cards in some location.
 
-- `int32_t query_field_info(intptr_t pduel, byte* buf);`
+- `int32_t query_field_info(intptr_t pduel, uint8_t* buf);`
 
 - `void set_responsei(intptr_t pduel, int32_t value);`
 
-- `void set_responseb(intptr_t pduel, byte* buf);`
+- `void set_responseb(intptr_t pduel, uint8_t* buf);`
 
 - `int32_t preload_script(intptr_t pduel, const char* script_name);`
 
-- `byte* default_script_reader(const char* script_name, int* len);`  
+- `uint8_t* default_script_reader(const char* script_name, int* len);`  
 The default script reader using `fread`.
 
 # Lua functions
