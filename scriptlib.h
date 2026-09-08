@@ -306,6 +306,7 @@ public:
 	static int32_t card_reset_negate_effect(lua_State *L);
 	static int32_t card_assume_prop(lua_State *L);
 	static int32_t card_set_spsummon_once(lua_State *L);
+	static int32_t card_check_spsummon_once(lua_State *L);
 	static void open_cardlib(lua_State *L);
 
 	//Effect functions
@@ -407,6 +408,7 @@ public:
 
 	//Duel functions
 	static int32_t duel_enable_global_flag(lua_State *L);
+	static int32_t duel_is_global_flag(lua_State *L);
 	static int32_t duel_get_lp(lua_State *L);
 	static int32_t duel_set_lp(lua_State *L);
 	static int32_t duel_is_turn_player(lua_State *L);
