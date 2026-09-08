@@ -10,6 +10,7 @@
 
 #include "common.h"
 #include "sort.h"
+#include "metadata.h"
 #include <set>
 #include <list>
 
@@ -27,6 +28,7 @@ public:
 	int32_t ref_handle{ 0 };
 	uint32_t is_readonly{ GTYPE_DEFAULT };
 	duel* pduel;
+	metadata meta;
 	card_set container;
 	card_set::iterator it;
 	bool is_iterator_dirty{ true };
