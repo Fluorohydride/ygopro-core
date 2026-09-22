@@ -535,6 +535,7 @@ const std::map<uint64_t, uint64_t> category_checklist{
 #define EFFECT_RITUAL_LEVEL_EX		374
 #define EFFECT_DOUBLE_XMATERIAL		375
 #define EFFECT_REVEAL_ONFIELD			376
+#define EFFECT_OPPONENT_SELECT_SPSUMMON_ZONE	380	// 特殊召唤落点改由对手选择
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

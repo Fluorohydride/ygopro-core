@@ -285,10 +285,15 @@ void field::send_to(card* target, effect* reason_effect, uint32_t reason, uint32
 	send_to(tset, reason_effect, reason, reason_player, playerid, destination, sequence, position, send_activating);
 }
 void field::move_to_field(card* target, uint32_t move_player, uint32_t playerid, uint32_t destination, uint32_t positions, uint32_t enable, uint32_t ret, uint32_t pzone, uint32_t zone) {
-	if(!(destination & LOCATION_ONFIELD) || !positions)
+	if(!(destination & LOCATION_ONFIELD) || !positions) {
+		// 没有真正入队时清掉一次性标记，避免下一次无关移动被当成特殊召唤选格
+		target->spsummon_zone_select = 0;
 		return;
-	if(destination == target->current.location && playerid == target->current.controler && target->current.pzone == !!pzone)
+	}
+	if(destination == target->current.location && playerid == target->current.controler && target->current.pzone == !!pzone) {
+		target->spsummon_zone_select = 0;
 		return;
+	}
 	target->to_field_param = (move_player << 24) + (playerid << 16) + (destination << 8) + positions;
 	add_process(PROCESSOR_MOVETOFIELD, 0, 0, (group*)target, enable, ret + (pzone << 8), zone);
 }
@@ -2854,6 +2859,8 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		uint32_t zone = retval.size() > 1 ? static_cast<uint32_t>(retval[1]) : 0xff;
 		target->summon_info = (summon_info & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_SPECIAL | ((uint32_t)target->current.location << 16);
 		target->enable_field_effect(false);
+		// 规则特召、同调、超量、连接：这次落点才允许对手选格
+		target->spsummon_zone_select = 1;
 		move_to_field(target, sumplayer, targetplayer, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
 		target->current.reason = REASON_SPSUMMON;
 		target->current.reason_effect = peffect;
@@ -3088,6 +3095,8 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 				zone = flag1;
 		}
 		uint8_t positions = pcard->get_spsummonable_position(peffect, ((peffect->get_value(pcard) & 0xff00ffff) | SUMMON_TYPE_SPECIAL), POS_FACEUP, sumplayer, sumplayer);
+		// 灵摆召唤每只怪兽单独落点
+		pcard->spsummon_zone_select = 1;
 		move_to_field(pcard, sumplayer, sumplayer, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
 		return FALSE;
 	}
@@ -3298,6 +3307,8 @@ int32_t field::special_summon_step(uint16_t step, group* targets, card* target, 
 			}
 		}
 		uint8_t sumpositions = target->get_spsummonable_position(core.reason_effect, target->summon_info & DEFAULT_SUMMON_TYPE, positions, target->summon_player, playerid);
+		// Duel.SpecialSummon / SpecialSummonStep
+		target->spsummon_zone_select = 1;
 		move_to_field(target, target->summon_player, playerid, LOCATION_MZONE, sumpositions, FALSE, 0, FALSE, zone);
 		return FALSE;
 	}
@@ -4543,6 +4554,9 @@ int32_t field::move_to_field(uint16_t step, card* target, uint32_t enable, uint3
 	uint32_t positions = (target->to_field_param) & 0xff;
 	switch(step) {
 	case 0: {
+		// 只消费这一次特殊召唤落点。通常召唤、盖放、换控制不会设置该标记
+		uint8_t spsummon_zone = target->spsummon_zone_select;
+		target->spsummon_zone_select = 0;
 		returns.ivalue[0] = FALSE;
 		if((ret == RETURN_TEMP_REMOVE_TO_FIELD) && (!(target->current.reason & REASON_TEMPORARY) || (target->current.reason_effect->owner != core.reason_effect->owner)))
 			return TRUE;
@@ -4617,11 +4631,40 @@ int32_t field::move_to_field(uint16_t step, card* target, uint32_t enable, uint3
 					flag = ((flag & 0xff) << 16) | 0xff00ffff;
 			}
 			flag |= 0xe080e080;
+			uint8_t select_player = (uint8_t)move_player;
+			// 可用格仍按召唤方计算。受影响的是召唤方时，改由对手在同一批格子里点选
+			if(location == LOCATION_MZONE && spsummon_zone && ret != RETURN_TEMP_REMOVE_TO_FIELD) {
+				effect_set eset;
+				filter_player_effect((uint8_t)move_player, EFFECT_OPPONENT_SELECT_SPSUMMON_ZONE, &eset);
+				for(effect_set::size_type i = 0; i < eset.size(); ++i) {
+					effect* peffect = eset[i];
+					int32_t apply = TRUE;
+					if(peffect->target) {
+						// 无 target 时不调用 check_condition：该函数在函数引用为空时会直接返回成立
+						uint32_t sumtype = target->summon_info & DEFAULT_SUMMON_TYPE;
+						uint32_t sumloc = (target->summon_info & SUMMON_VALUE_LOCATION) >> 16;
+						pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
+						pduel->lua->add_param(target, PARAM_TYPE_CARD);
+						pduel->lua->add_param(sumtype, PARAM_TYPE_INT);
+						pduel->lua->add_param(sumloc, PARAM_TYPE_INT);
+						pduel->lua->add_param(move_player, PARAM_TYPE_INT);
+						pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+						apply = pduel->lua->check_condition(peffect->target, 6);
+					}
+					if(apply) {
+						select_player = 1 - (uint8_t)move_player;
+						break;
+					}
+				}
+			}
+			// flag 按 move_player 视角编码，换人后高低 16 位对调，落点控制者不变
+			if(select_player != move_player)
+				flag = (flag << 16) | (flag >> 16);
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_SELECTMSG);
-			pduel->write_buffer8(move_player);
+			pduel->write_buffer8(select_player);
 			pduel->write_buffer32(target->data.code);
-			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1);
+			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, select_player, flag, 1);
 		}
 		return FALSE;
 	}
