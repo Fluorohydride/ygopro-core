@@ -157,8 +157,6 @@ public:
 	uint8_t owner{ PLAYER_NONE };
 	uint8_t summon_player{ PLAYER_NONE };
 	uint32_t summon_info{};
-	// 仅表示“下一次 move_to_field 是特殊召唤落点”。step 0 读取后立即清掉，避免换控制等后续移动误用
-	uint8_t spsummon_zone_select{ 0 };
 	uint32_t status{};
 	sendto_param_t sendto_param;
 	uint32_t release_param{};

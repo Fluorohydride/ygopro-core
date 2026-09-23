@@ -582,7 +582,7 @@ public:
 	void release(card* target, effect* reason_effect, uint32_t reason, uint32_t reason_player);
 	void send_to(const card_set& targets, effect* reason_effect, uint32_t reason, uint32_t reason_player, uint32_t playerid, uint32_t destination, uint32_t sequence, uint32_t position, uint8_t send_activating = FALSE);
 	void send_to(card* target, effect* reason_effect, uint32_t reason, uint32_t reason_player, uint32_t playerid, uint32_t destination, uint32_t sequence, uint32_t position, uint8_t send_activating = FALSE);
-	void move_to_field(card* target, uint32_t move_player, uint32_t playerid, uint32_t destination, uint32_t positions, uint32_t enable = FALSE, uint32_t ret = 0, uint32_t pzone = FALSE, uint32_t zone = 0xff);
+	void move_to_field(card* target, uint32_t move_player, uint32_t playerid, uint32_t destination, uint32_t positions, uint32_t enable = FALSE, uint32_t ret = 0, uint32_t pzone = FALSE, uint32_t zone = 0xff, uint32_t flag = 0);
 	void change_position(const card_set& targets, effect* reason_effect, uint32_t reason_player, uint32_t au, uint32_t ad, uint32_t du, uint32_t dd, uint32_t flag, uint32_t enable = FALSE);
 	void change_position(card* target, effect* reason_effect, uint32_t reason_player, uint32_t npos, uint32_t flag, uint32_t enable = FALSE);
 	void operation_replace(int32_t type, int32_t step, group* targets);
@@ -615,7 +615,7 @@ public:
 	int32_t send_replace(uint16_t step, group* targets, card* target);
 	int32_t send_to(uint16_t step, group* targets, effect* reason_effect, uint32_t reason, uint8_t reason_player, uint8_t send_activating);
 	int32_t discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint32_t reason);
-	int32_t move_to_field(uint16_t step, card* target, uint32_t enable, uint32_t ret, uint32_t pzone, uint32_t zone);
+	int32_t move_to_field(uint16_t step, card* target, uint32_t enable, uint32_t ret, uint32_t pzone, uint32_t zone, uint32_t move_flag);
 	int32_t change_position(uint16_t step, group* targets, effect* reason_effect, uint8_t reason_player, uint32_t enable);
 	int32_t operation_replace(uint16_t step, effect* replace_effect, group* targets, card* target, int32_t is_destroy);
 	int32_t activate_effect(uint16_t step, effect* peffect);
@@ -765,6 +765,7 @@ public:
 #define PROCESSOR_RELEASE			51
 #define PROCESSOR_SENDTO			52
 #define PROCESSOR_MOVETOFIELD		53
+#define MOVETOFIELD_IS_SPSUMMON		0x1
 #define PROCESSOR_CHANGEPOS			54
 #define PROCESSOR_OPERATION_REPLACE	55
 #define PROCESSOR_DESTROY_REPLACE	56
