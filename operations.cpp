@@ -284,13 +284,13 @@ void field::send_to(card* target, effect* reason_effect, uint32_t reason, uint32
 	card_set tset{ target };
 	send_to(tset, reason_effect, reason, reason_player, playerid, destination, sequence, position, send_activating);
 }
-void field::move_to_field(card* target, uint32_t move_player, uint32_t playerid, uint32_t destination, uint32_t positions, uint32_t enable, uint32_t ret, uint32_t pzone, uint32_t zone) {
+void field::move_to_field(card* target, uint32_t move_player, uint32_t playerid, uint32_t destination, uint32_t positions, uint32_t enable, uint32_t ret, uint32_t pzone, uint32_t zone, uint32_t flag) {
 	if(!(destination & LOCATION_ONFIELD) || !positions)
 		return;
 	if(destination == target->current.location && playerid == target->current.controler && target->current.pzone == !!pzone)
 		return;
 	target->to_field_param = (move_player << 24) + (playerid << 16) + (destination << 8) + positions;
-	add_process(PROCESSOR_MOVETOFIELD, 0, 0, (group*)target, enable, ret + (pzone << 8), zone);
+	add_process(PROCESSOR_MOVETOFIELD, 0, 0, (group*)target, enable, ret + (pzone << 8), zone, flag);
 }
 void field::change_position(const card_set& targets, effect* reason_effect, uint32_t reason_player, uint32_t au, uint32_t ad, uint32_t du, uint32_t dd, uint32_t flag, uint32_t enable) {
 	group* ng = pduel->new_group(targets);
@@ -2855,7 +2855,7 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		uint32_t zone = retval.size() > 1 ? static_cast<uint32_t>(retval[1]) : 0xff;
 		target->summon_info = (summon_info & (SUMMON_VALUE_SUB_TYPE | SUMMON_VALUE_CUSTOM_TYPE)) | SUMMON_TYPE_SPECIAL | ((uint32_t)target->current.location << 16);
 		target->enable_field_effect(false);
-		move_to_field(target, sumplayer, targetplayer, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
+		move_to_field(target, sumplayer, targetplayer, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone, MOVETOFIELD_IS_SPSUMMON);
 		target->current.reason = REASON_SPSUMMON;
 		target->current.reason_effect = peffect;
 		target->current.reason_player = sumplayer;
@@ -3089,7 +3089,7 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 				zone = flag1;
 		}
 		uint8_t positions = pcard->get_spsummonable_position(peffect, ((peffect->get_value(pcard) & 0xff00ffff) | SUMMON_TYPE_SPECIAL), POS_FACEUP, sumplayer, sumplayer);
-		move_to_field(pcard, sumplayer, sumplayer, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone);
+		move_to_field(pcard, sumplayer, sumplayer, LOCATION_MZONE, positions, FALSE, 0, FALSE, zone, MOVETOFIELD_IS_SPSUMMON);
 		return FALSE;
 	}
 	case 24: {
@@ -3299,7 +3299,7 @@ int32_t field::special_summon_step(uint16_t step, group* targets, card* target, 
 			}
 		}
 		uint8_t sumpositions = target->get_spsummonable_position(core.reason_effect, target->summon_info & DEFAULT_SUMMON_TYPE, positions, target->summon_player, playerid);
-		move_to_field(target, target->summon_player, playerid, LOCATION_MZONE, sumpositions, FALSE, 0, FALSE, zone);
+		move_to_field(target, target->summon_player, playerid, LOCATION_MZONE, sumpositions, FALSE, 0, FALSE, zone, MOVETOFIELD_IS_SPSUMMON);
 		return FALSE;
 	}
 	case 2: {
@@ -4539,11 +4539,12 @@ int32_t field::discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint
 // move a card from anywhere to field, including sp_summon, Duel.MoveToField(), Duel.ReturnToField()
 // ret: 0 = default, 1 = return after temporarily banished, 2 = trap_monster return to LOCATION_SZONE
 // call move_card() in step 2
-int32_t field::move_to_field(uint16_t step, card* target, uint32_t enable, uint32_t ret, uint32_t pzone, uint32_t zone) {
+int32_t field::move_to_field(uint16_t step, card* target, uint32_t enable, uint32_t ret, uint32_t pzone, uint32_t zone, uint32_t move_flag) {
 	uint32_t move_player = (target->to_field_param >> 24) & 0xff;
 	uint32_t playerid = (target->to_field_param >> 16) & 0xff;
 	uint32_t location = (target->to_field_param >> 8) & 0xff;
 	uint32_t positions = (target->to_field_param) & 0xff;
+	uint8_t is_spsummon = move_flag & MOVETOFIELD_IS_SPSUMMON;
 	switch(step) {
 	case 0: {
 		returns.ivalue[0] = FALSE;
@@ -4620,11 +4621,36 @@ int32_t field::move_to_field(uint16_t step, card* target, uint32_t enable, uint3
 					flag = ((flag & 0xff) << 16) | 0xff00ffff;
 			}
 			flag |= 0xe080e080;
+			uint8_t select_player = (uint8_t)move_player;
+			if(location == LOCATION_MZONE && is_spsummon && ret != RETURN_TEMP_REMOVE_TO_FIELD) {
+				effect_set eset;
+				filter_player_effect((uint8_t)move_player, EFFECT_OPPO_SELECT_SPSUMMON_ZONE, &eset);
+				for(effect_set::size_type i = 0; i < eset.size(); ++i) {
+					effect* peffect = eset[i];
+					int32_t apply = TRUE;
+					if(peffect->target) {
+						pduel->lua->add_param(peffect, PARAM_TYPE_EFFECT);
+						pduel->lua->add_param(target, PARAM_TYPE_CARD);
+						pduel->lua->add_param(move_player, PARAM_TYPE_INT);
+						pduel->lua->add_param(target->summon_info & DEFAULT_SUMMON_TYPE, PARAM_TYPE_INT);
+						pduel->lua->add_param(positions, PARAM_TYPE_INT);
+						pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+						pduel->lua->add_param(target->current.reason_effect, PARAM_TYPE_EFFECT);
+						apply = pduel->lua->check_condition(peffect->target, 7);
+					}
+					if(apply) {
+						select_player = 1 - (uint8_t)move_player;
+						break;
+					}
+				}
+			}
+			if(select_player != move_player)
+				flag = (flag << 16) | (flag >> 16);
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_SELECTMSG);
-			pduel->write_buffer8(move_player);
+			pduel->write_buffer8(select_player);
 			pduel->write_buffer32(target->data.code);
-			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, move_player, flag, 1);
+			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, select_player, flag, 1);
 		}
 		return FALSE;
 	}
