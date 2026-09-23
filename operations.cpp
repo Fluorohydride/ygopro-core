@@ -442,6 +442,7 @@ int32_t field::draw(uint16_t step, effect* reason_effect, uint32_t reason, uint8
 		card_set* drawed_set = (card_set*)core.units.begin()->ptr1;
 		core.operated_set.swap(*drawed_set);
 		delete drawed_set;
+		refresh_hand_public_status();
 		returns.ivalue[0] = (int32_t)core.operated_set.size();
 		return TRUE;
 	}
@@ -3977,6 +3978,7 @@ int32_t field::send_to(uint16_t step, group * targets, effect * reason_effect, u
 				if(pcard->current.position & POS_FACEUP) {
 					pcard->previous.code = pcard->get_code();
 					pcard->previous.code2 = pcard->get_another_code();
+					pcard->previous.card_type = pcard->get_card_type();
 					pcard->previous.type = pcard->get_type();
 					if(pcard->current.location & LOCATION_MZONE) {
 						pcard->previous.level = pcard->get_level();
@@ -3991,6 +3993,7 @@ int32_t field::send_to(uint16_t step, group * targets, effect * reason_effect, u
 					auto codes = pcard->get_original_code_rule();
 					pcard->previous.code = std::get<0>(codes);
 					pcard->previous.code2 = std::get<1>(codes);
+					pcard->previous.card_type = pcard->data.type;
 					pcard->previous.type = pcard->data.type;
 					pcard->previous.level = pcard->data.level;
 					pcard->previous.rank = pcard->data.level;

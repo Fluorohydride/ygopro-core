@@ -30,6 +30,7 @@ bool card_state::is_location(uint32_t loc) const {
 void card_state::init_state() {
 	code = UINT32_MAX;
 	code2 = UINT32_MAX;
+	card_type = UINT32_MAX;
 	type = UINT32_MAX;
 	level = UINT32_MAX;
 	rank = UINT32_MAX;
@@ -556,34 +557,73 @@ int32_t card::is_special_summon_set_card(uint32_t set_code) {
 	}
 	return FALSE;
 }
+uint32_t card::resolve_bitmask_effects(
+		uint32_t initial,
+		uint32_t add,
+		uint32_t remove,
+		uint32_t change,
+		uint32_t* temp,
+		bitmask_resolve_callback callback) {
+	if(temp && *temp != UINT32_MAX) // prevent recursion, return the former value
+		return *temp;
+	effect_set effects;
+	uint32_t value = initial;
+	if(callback)
+		value = callback(initial);
+	if(temp)
+		*temp = value;
+	if(add)
+		filter_effect(add, &effects, FALSE);
+	if(remove)
+		filter_effect(remove, &effects, FALSE);
+	if(change)
+		filter_effect(change, &effects, FALSE);
+	std::sort(effects.begin(), effects.end(), effect_sort_id);
+	for(auto& peffect : effects) {
+		if(peffect->code == add)
+			value |= peffect->get_value(this);
+		else if(peffect->code == remove)
+			value &= ~(peffect->get_value(this));
+		else if(peffect->code == change)
+			value = peffect->get_value(this);
+		if(callback)
+			value = callback(value);
+		if(temp)
+			*temp = value;
+	}
+	if(temp)
+		*temp = UINT32_MAX;
+	return value;
+}
+uint32_t card::get_card_type() {
+	return resolve_bitmask_effects(
+		data.type,
+		EFFECT_ADD_CARD_TYPE,
+		EFFECT_REMOVE_CARD_TYPE,
+		EFFECT_CHANGE_CARD_TYPE,
+		&temp.card_type);
+}
 uint32_t card::get_type() {
 	if(assume_type == ASSUME_TYPE)
 		return assume_value;
-	if(!(current.location & (LOCATION_ONFIELD | LOCATION_HAND | LOCATION_GRAVE)))
-		return data.type;
 	if(current.is_location(LOCATION_PZONE))
 		return TYPE_PENDULUM + TYPE_SPELL;
 	if(temp.type != UINT32_MAX) // prevent recursion, return the former value
 		return temp.type;
-	effect_set effects;
-	int32_t type = data.type;
-	temp.type = data.type;
-	filter_effect(EFFECT_ADD_TYPE, &effects, FALSE);
-	filter_effect(EFFECT_REMOVE_TYPE, &effects, FALSE);
-	filter_effect(EFFECT_CHANGE_TYPE, &effects);
-	for (effect_set::size_type i = 0; i < effects.size(); ++i) {
-		if (effects[i]->code == EFFECT_ADD_TYPE)
-			type |= effects[i]->get_value(this);
-		else if (effects[i]->code == EFFECT_REMOVE_TYPE)
-			type &= ~(effects[i]->get_value(this));
-		else
-			type = effects[i]->get_value(this);
-		temp.type = type;
-	}
-	temp.type = UINT32_MAX;
-	if (data.type & TYPE_TOKEN)
-		type |= TYPE_TOKEN;
-	return type;
+	uint32_t card_type = get_card_type();
+	if(!(current.location & (LOCATION_ONFIELD | LOCATION_HAND | LOCATION_GRAVE)))
+		return card_type;
+	return resolve_bitmask_effects(
+		card_type,
+		EFFECT_ADD_TYPE,
+		EFFECT_REMOVE_TYPE,
+		EFFECT_CHANGE_TYPE,
+		&temp.type,
+		[this](uint32_t value) {
+			if(data.type & TYPE_TOKEN)
+				value |= TYPE_TOKEN;
+			return value;
+		});
 }
 uint32_t card::get_fusion_type() {
 	if(current.location == LOCATION_SZONE && (data.type & TYPE_MONSTER) && !pduel->game_field->core.not_material)
@@ -1087,25 +1127,12 @@ uint32_t card::get_attribute() {
 		return assume_value;
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
-	if(temp.attribute != UINT32_MAX) // prevent recursion, return the former value
-		return temp.attribute;
-	effect_set effects;
-	auto attribute = data.attribute;
-	temp.attribute = data.attribute;
-	filter_effect(EFFECT_ADD_ATTRIBUTE, &effects, FALSE);
-	filter_effect(EFFECT_REMOVE_ATTRIBUTE, &effects, FALSE);
-	filter_effect(EFFECT_CHANGE_ATTRIBUTE, &effects);
-	for (effect_set::size_type i = 0; i < effects.size(); ++i) {
-		if (effects[i]->code == EFFECT_ADD_ATTRIBUTE)
-			attribute |= effects[i]->get_value(this);
-		else if (effects[i]->code == EFFECT_REMOVE_ATTRIBUTE)
-			attribute &= ~(effects[i]->get_value(this));
-		else if (effects[i]->code == EFFECT_CHANGE_ATTRIBUTE)
-			attribute = effects[i]->get_value(this);
-		temp.attribute = attribute;
-	}
-	temp.attribute = UINT32_MAX;
-	return attribute;
+	return resolve_bitmask_effects(
+		data.attribute,
+		EFFECT_ADD_ATTRIBUTE,
+		EFFECT_REMOVE_ATTRIBUTE,
+		EFFECT_CHANGE_ATTRIBUTE,
+		&temp.attribute);
 }
 uint32_t card::get_fusion_attribute(uint8_t playerid) {
 	effect_set effects;
@@ -1154,25 +1181,12 @@ uint32_t card::get_race() {
 		return assume_value;
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
-	if(temp.race != UINT32_MAX) // prevent recursion, return the former value
-		return temp.race;
-	effect_set effects;
-	auto race = data.race;
-	temp.race = data.race;
-	filter_effect(EFFECT_ADD_RACE, &effects, FALSE);
-	filter_effect(EFFECT_REMOVE_RACE, &effects, FALSE);
-	filter_effect(EFFECT_CHANGE_RACE, &effects);
-	for (effect_set::size_type i = 0; i < effects.size(); ++i) {
-		if (effects[i]->code == EFFECT_ADD_RACE)
-			race |= effects[i]->get_value(this);
-		else if (effects[i]->code == EFFECT_REMOVE_RACE)
-			race &= ~(effects[i]->get_value(this));
-		else if (effects[i]->code == EFFECT_CHANGE_RACE)
-			race = effects[i]->get_value(this);
-		temp.race = race;
-	}
-	temp.race = UINT32_MAX;
-	return race;
+	return resolve_bitmask_effects(
+		data.race,
+		EFFECT_ADD_RACE,
+		EFFECT_REMOVE_RACE,
+		EFFECT_CHANGE_RACE,
+		&temp.race);
 }
 uint32_t card::get_link_race(uint8_t playerid) {
 	effect_set effects;
