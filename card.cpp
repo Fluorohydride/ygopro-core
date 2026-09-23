@@ -557,20 +557,21 @@ int32_t card::is_special_summon_set_card(uint32_t set_code) {
 	}
 	return FALSE;
 }
-uint32_t card::resolve_bin_effects(
+uint32_t card::resolve_bitmask_effects(
 		uint32_t initial,
 		uint32_t add,
 		uint32_t remove,
 		uint32_t change,
 		uint32_t* temp,
-		bin_effect_callback callback) {
+		bitmask_resolve_callback callback) {
 	if(temp && *temp != UINT32_MAX) // prevent recursion, return the former value
 		return *temp;
 	effect_set effects;
+	uint32_t value = initial;
 	if(callback)
-		initial = callback(initial, nullptr);
+		value = callback(initial);
 	if(temp)
-		*temp = initial;
+		*temp = value;
 	if(add)
 		filter_effect(add, &effects, FALSE);
 	if(remove)
@@ -580,22 +581,22 @@ uint32_t card::resolve_bin_effects(
 	std::sort(effects.begin(), effects.end(), effect_sort_id);
 	for(auto& peffect : effects) {
 		if(peffect->code == add)
-			initial |= peffect->get_value(this);
+			value |= peffect->get_value(this);
 		else if(peffect->code == remove)
-			initial &= ~(peffect->get_value(this));
+			value &= ~(peffect->get_value(this));
 		else if(peffect->code == change)
-			initial = peffect->get_value(this);
+			value = peffect->get_value(this);
 		if(callback)
-			initial = callback(initial, peffect);
+			value = callback(value);
 		if(temp)
-			*temp = initial;
+			*temp = value;
 	}
 	if(temp)
 		*temp = UINT32_MAX;
-	return initial;
+	return value;
 }
 uint32_t card::get_card_type() {
-	return resolve_bin_effects(
+	return resolve_bitmask_effects(
 		data.type,
 		EFFECT_ADD_CARD_TYPE,
 		EFFECT_REMOVE_CARD_TYPE,
@@ -605,17 +606,20 @@ uint32_t card::get_card_type() {
 uint32_t card::get_type() {
 	if(assume_type == ASSUME_TYPE)
 		return assume_value;
-	if(!(current.location & (LOCATION_ONFIELD | LOCATION_HAND | LOCATION_GRAVE)))
-		return get_card_type();
 	if(current.is_location(LOCATION_PZONE))
 		return TYPE_PENDULUM + TYPE_SPELL;
-	return resolve_bin_effects(
-		get_card_type(),
+	if(temp.type != UINT32_MAX) // prevent recursion, return the former value
+		return temp.type;
+	uint32_t card_type = get_card_type();
+	if(!(current.location & (LOCATION_ONFIELD | LOCATION_HAND | LOCATION_GRAVE)))
+		return card_type;
+	return resolve_bitmask_effects(
+		card_type,
 		EFFECT_ADD_TYPE,
 		EFFECT_REMOVE_TYPE,
 		EFFECT_CHANGE_TYPE,
 		&temp.type,
-		[this](uint32_t value, effect*) {
+		[this](uint32_t value) {
 			if(data.type & TYPE_TOKEN)
 				value |= TYPE_TOKEN;
 			return value;
@@ -1123,7 +1127,7 @@ uint32_t card::get_attribute() {
 		return assume_value;
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
-	return resolve_bin_effects(
+	return resolve_bitmask_effects(
 		data.attribute,
 		EFFECT_ADD_ATTRIBUTE,
 		EFFECT_REMOVE_ATTRIBUTE,
@@ -1177,7 +1181,7 @@ uint32_t card::get_race() {
 		return assume_value;
 	if(!(data.type & TYPE_MONSTER) && !(get_type() & TYPE_MONSTER) && !is_affected_by_effect(EFFECT_PRE_MONSTER))
 		return 0;
-	return resolve_bin_effects(
+	return resolve_bitmask_effects(
 		data.race,
 		EFFECT_ADD_RACE,
 		EFFECT_REMOVE_RACE,
