@@ -1007,6 +1007,16 @@ void field::shuffle(uint8_t playerid, uint8_t location) {
 		}
 	}
 }
+void field::refresh_hand_public_status() {
+	for(int32_t p = 0; p < 2; ++p) {
+		for(auto& pcard : player[p].list_hand) {
+			effect* pub = pcard->is_affected_by_effect(EFFECT_PUBLIC);
+			if(!pub && pcard->is_position(POS_FACEUP))
+				core.shuffle_hand_check[p] = TRUE;
+			pcard->current.position = pub ? POS_FACEUP : POS_FACEDOWN;
+		}
+	}
+}
 void field::reset_sequence(uint8_t playerid, uint8_t location) {
 	if(location & (LOCATION_ONFIELD))
 		return;

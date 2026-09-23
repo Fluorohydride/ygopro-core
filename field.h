@@ -549,6 +549,7 @@ public:
 	int32_t break_effect();
 	void adjust_instant();
 	void adjust_all();
+	void refresh_hand_public_status();
 	void refresh_location_info_instant();
 	int32_t refresh_location_info(uint16_t step);
 	int32_t adjust_step(uint16_t step);

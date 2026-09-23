@@ -5051,18 +5051,7 @@ int32_t field::adjust_step(uint16_t step) {
 	}
 	case 12: {
 		//shuffle check
-		for(auto& pcard : player[0].list_hand) {
-			effect* pub = pcard->is_affected_by_effect(EFFECT_PUBLIC);
-			if(!pub && pcard->is_position(POS_FACEUP))
-				core.shuffle_hand_check[0] = TRUE;
-			pcard->current.position = pub ? POS_FACEUP : POS_FACEDOWN;
-		}
-		for(auto& pcard : player[1].list_hand) {
-			effect* pub = pcard->is_affected_by_effect(EFFECT_PUBLIC);
-			if(!pub && pcard->is_position(POS_FACEUP))
-				core.shuffle_hand_check[1] = TRUE;
-			pcard->current.position = pub ? POS_FACEUP : POS_FACEDOWN;
-		}
+		refresh_hand_public_status();
 		if(core.shuffle_hand_check[infos.turn_player])
 			shuffle(infos.turn_player, LOCATION_HAND);
 		if(core.shuffle_hand_check[1 - infos.turn_player])
