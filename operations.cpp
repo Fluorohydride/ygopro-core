@@ -4031,6 +4031,7 @@ int32_t field::send_to(uint16_t step, group * targets, effect * reason_effect, u
 				redirect &= 0xffff;
 			}
 			if(redirect) {
+				uint32_t prev_dest = dest;
 				pcard->current.reason &= ~REASON_TEMPORARY;
 				pcard->current.reason |= REASON_REDIRECT;
 				pcard->sendto_param.location = redirect;
@@ -4041,6 +4042,12 @@ int32_t field::send_to(uint16_t step, group * targets, effect * reason_effect, u
 						pcard->sendto_param.position = (pcard->sendto_param.position & ~POS_FACEDOWN_ATTACK) | POS_FACEUP_ATTACK;
 					if(pcard->sendto_param.position & POS_FACEDOWN_DEFENSE)
 						pcard->sendto_param.position = (pcard->sendto_param.position & ~POS_FACEDOWN_DEFENSE) | POS_FACEUP_DEFENSE;
+				// need to confirm the ruling of redirecting pendulum monster to extra deck
+				} else if(dest == LOCATION_EXTRA && prev_dest != LOCATION_EXTRA) {
+					if((pcard->data.type & TYPE_PENDULUM) && (prev_dest & LOCATION_GRAVE))
+						pcard->sendto_param.position = POS_FACEUP_DEFENSE;
+					else
+						pcard->sendto_param.position = POS_FACEDOWN_DEFENSE;
 				}
 			}
 			redirect = pcard->destination_redirect(dest, pcard->current.reason);

@@ -2285,6 +2285,8 @@ int32_t card::leave_field_redirect(uint32_t reason) {
 			redirects |= redirect;
 		else if((redirect & LOCATION_REMOVED) && !is_affected_by_effect(EFFECT_CANNOT_REMOVE) && pduel->game_field->is_player_can_remove(es[i]->get_handler_player(), this, REASON_EFFECT | REASON_REDIRECT, peffect))
 			redirects |= redirect;
+		else if((redirect & LOCATION_EXTRA) && is_capable_send_to_extra(es[i]->get_handler_player()))
+			redirects |= redirect;
 	}
 	if(redirects & LOCATION_REMOVED)
 		return LOCATION_REMOVED;
@@ -2296,6 +2298,8 @@ int32_t card::leave_field_redirect(uint32_t reason) {
 			return LOCATION_DECKSHF;
 		return LOCATION_DECK;
 	}
+	if(redirects & LOCATION_EXTRA)
+		return LOCATION_EXTRA;
 	if(redirects & LOCATION_HAND)
 		return LOCATION_HAND;
 	return 0;
@@ -3937,7 +3941,7 @@ int32_t card::is_capable_cost_to_extra(uint8_t playerid) {
 	if(redirect)
 		dest = redirect;
 	sendto_param = op_param;
-	if(dest != LOCATION_DECK)
+	if(dest != LOCATION_DECK && dest != LOCATION_EXTRA)
 		return FALSE;
 	return TRUE;
 }
