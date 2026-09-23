@@ -4631,16 +4631,6 @@ void field::adjust_all() {
 	core.readjust_map.clear();
 	add_process(PROCESSOR_ADJUST, 0, 0, 0, 0, 0);
 }
-void field::refresh_hand_public_status() {
-	for(int32_t p = 0; p < 2; ++p) {
-		for(auto& pcard : player[p].list_hand) {
-			effect* pub = pcard->is_affected_by_effect(EFFECT_PUBLIC);
-			if(!pub && pcard->is_position(POS_FACEUP))
-				core.shuffle_hand_check[p] = TRUE;
-			pcard->current.position = pub ? POS_FACEUP : POS_FACEDOWN;
-		}
-	}
-}
 void field::refresh_location_info_instant() {
 	effect_set eset;
 	uint32_t dis1 = player[0].disabled_location | (player[1].disabled_location << 16);
