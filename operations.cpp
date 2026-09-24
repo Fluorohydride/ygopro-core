@@ -4404,7 +4404,7 @@ int32_t field::send_to(uint16_t step, group * targets, effect * reason_effect, u
 	}
 	return TRUE;
 }
-int32_t field::discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint32_t reason) {
+int32_t field::discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint32_t reason, uint8_t reason_player) {
 	switch(step) {
 	case 0: {
 		if(is_player_affected_by_effect(playerid, EFFECT_CANNOT_DISCARD_DECK)) {
@@ -4417,7 +4417,7 @@ int32_t field::discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint
 			uint32_t dest = LOCATION_GRAVE;
 			(*cit)->sendto_param.location = LOCATION_GRAVE;
 			(*cit)->current.reason_effect = core.reason_effect;
-			(*cit)->current.reason_player = core.reason_player;
+			(*cit)->current.reason_player = reason_player;
 			(*cit)->current.reason = reason;
 			uint32_t redirect = (*cit)->destination_redirect(dest, reason) & 0xffff;
 			if(redirect) {
@@ -4513,14 +4513,14 @@ int32_t field::discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint
 			core.discarded_set.insert(pcard);
 		}
 		if(tohand.size())
-			raise_event(tohand, EVENT_TO_HAND, core.reason_effect, reason, core.reason_player, 0, 0);
+			raise_event(tohand, EVENT_TO_HAND, core.reason_effect, reason, reason_player, 0, 0);
 		if(todeck.size())
-			raise_event(todeck, EVENT_TO_DECK, core.reason_effect, reason, core.reason_player, 0, 0);
+			raise_event(todeck, EVENT_TO_DECK, core.reason_effect, reason, reason_player, 0, 0);
 		if(tograve.size())
-			raise_event(tograve, EVENT_TO_GRAVE, core.reason_effect, reason, core.reason_player, 0, 0);
+			raise_event(tograve, EVENT_TO_GRAVE, core.reason_effect, reason, reason_player, 0, 0);
 		if(remove.size())
-			raise_event(remove, EVENT_REMOVE, core.reason_effect, reason, core.reason_player, 0, 0);
-		raise_event(core.discarded_set, EVENT_MOVE, core.reason_effect, reason, core.reason_player, 0, 0);
+			raise_event(remove, EVENT_REMOVE, core.reason_effect, reason, reason_player, 0, 0);
+		raise_event(core.discarded_set, EVENT_MOVE, core.reason_effect, reason, reason_player, 0, 0);
 		process_single_event();
 		process_instant_event();
 		adjust_instant();

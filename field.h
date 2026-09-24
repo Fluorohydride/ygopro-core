@@ -615,7 +615,7 @@ public:
 	int32_t release(uint16_t step, group* targets, effect* reason_effect, uint32_t reason, uint8_t reason_player);
 	int32_t send_replace(uint16_t step, group* targets, card* target);
 	int32_t send_to(uint16_t step, group* targets, effect* reason_effect, uint32_t reason, uint8_t reason_player, uint8_t send_activating);
-	int32_t discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint32_t reason);
+	int32_t discard_deck(uint16_t step, uint8_t playerid, uint8_t count, uint32_t reason, uint8_t reason_player);
 	int32_t move_to_field(uint16_t step, card* target, uint32_t enable, uint32_t ret, uint32_t pzone, uint32_t zone);
 	int32_t change_position(uint16_t step, group* targets, effect* reason_effect, uint8_t reason_player, uint32_t enable);
 	int32_t operation_replace(uint16_t step, effect* replace_effect, group* targets, card* target, int32_t is_destroy);

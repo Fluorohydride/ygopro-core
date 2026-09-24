@@ -654,7 +654,7 @@ uint32_t field::process() {
 		return pduel->buffer_size();
 	}
 	case PROCESSOR_DISCARD_DECK: {
-		if(discard_deck(it->step, it->arg1 & 0xff, it->arg1 >> 16, it->arg2)) {
+		if(discard_deck(it->step, it->arg1 & 0xff, it->arg1 >> 16, it->arg2, it->arg3)) {
 			core.units.pop_front();
 		} else {
 			++it->step;
