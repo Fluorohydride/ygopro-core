@@ -596,7 +596,12 @@ uint32_t card::get_card_type() {
 		EFFECT_ADD_CARD_TYPE,
 		EFFECT_REMOVE_CARD_TYPE,
 		EFFECT_CHANGE_CARD_TYPE,
-		temp.card_type);
+		temp.card_type,
+		[this](uint32_t value) {
+			if (data.type & TYPE_TOKEN)
+				value |= TYPE_TOKEN;
+			return value;
+		});
 }
 uint32_t card::get_type() {
 	if(assume_type == ASSUME_TYPE)
