@@ -239,7 +239,7 @@ public:
 		uint32_t add,
 		uint32_t remove,
 		uint32_t change,
-		uint32_t* temp = nullptr,
+		uint32_t& temp,
 		bitmask_resolve_callback callback = nullptr);
 	uint32_t get_card_type();
 	uint32_t get_type();
