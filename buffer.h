@@ -2,6 +2,7 @@
 #define CORE_BUFFER_H
 
 #include <cstdio>
+#include <cstdint>
 #include <cstring>
 #include <vector>
 
