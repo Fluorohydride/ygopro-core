@@ -4544,7 +4544,6 @@ int32_t field::move_to_field(uint16_t step, card* target, uint32_t enable, uint3
 	uint32_t playerid = (target->to_field_param >> 16) & 0xff;
 	uint32_t location = (target->to_field_param >> 8) & 0xff;
 	uint32_t positions = (target->to_field_param) & 0xff;
-	uint8_t is_spsummon = move_flag & MOVETOFIELD_IS_SPSUMMON;
 	switch(step) {
 	case 0: {
 		returns.ivalue[0] = FALSE;
@@ -4622,7 +4621,7 @@ int32_t field::move_to_field(uint16_t step, card* target, uint32_t enable, uint3
 			}
 			flag |= 0xe080e080;
 			uint8_t select_player = (uint8_t)move_player;
-			if(location == LOCATION_MZONE && is_spsummon && ret != RETURN_TEMP_REMOVE_TO_FIELD) {
+			if(location == LOCATION_MZONE && (move_flag & MOVETOFIELD_IS_SPSUMMON) && ret != RETURN_TEMP_REMOVE_TO_FIELD) {
 				effect_set eset;
 				filter_player_effect((uint8_t)move_player, EFFECT_OPPO_SELECT_SPSUMMON_ZONE, &eset);
 				for(effect_set::size_type i = 0; i < eset.size(); ++i) {
@@ -4644,12 +4643,19 @@ int32_t field::move_to_field(uint16_t step, card* target, uint32_t enable, uint3
 					}
 				}
 			}
-			if(select_player != move_player)
+			int32_t code = target->data.code;
+			if(select_player != move_player) {
+				core.units.begin()->arg4 |= MOVETOFIELD_OPPO_SELECT_PLACE;
 				flag = (flag << 16) | (flag >> 16);
+				if((positions & POS_FACEUP) == 0) {
+					// TODO: The official ruling is not available, assuming the monster summoned face-down don't reveal its code.
+					code = -1;
+				}
+			}
 			pduel->write_buffer8(MSG_HINT);
 			pduel->write_buffer8(HINT_SELECTMSG);
 			pduel->write_buffer8(select_player);
-			pduel->write_buffer32(target->data.code);
+			pduel->write_buffer32((uint32_t)code);
 			add_process(PROCESSOR_SELECT_PLACE, 0, 0, 0, select_player, flag, 1);
 		}
 		return FALSE;
@@ -4658,6 +4664,17 @@ int32_t field::move_to_field(uint16_t step, card* target, uint32_t enable, uint3
 		uint32_t seq = returns.bvalue[2];
 		if(location == LOCATION_SZONE && zone == 0x1U << 5 && (target->data.type & TYPE_FIELD) && (target->data.type & TYPE_SPELL))
 			seq = 5;
+		if(move_flag & MOVETOFIELD_OPPO_SELECT_PLACE) {
+			uint32_t flag = 0x1U << seq;
+			if(location == LOCATION_SZONE)
+				flag <<= 8;
+			if(playerid != move_player)
+				flag <<= 16;
+			pduel->write_buffer8(MSG_HINT);
+			pduel->write_buffer8(HINT_ZONE);
+			pduel->write_buffer8(move_player);
+			pduel->write_buffer32(flag);
+		}
 		if(ret != RETURN_TEMP_REMOVE_TO_FIELD) {
 			if(location != target->current.location) {
 				uint32_t resetflag = 0;
