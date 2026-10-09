@@ -336,7 +336,7 @@ uint32_t field::process() {
 		return pduel->buffer_size();
 	}
 	case PROCESSOR_MOVETOFIELD: {
-		if (move_to_field(it->step, (card*)it->ptarget, it->arg1, it->arg2 & 0xff, (it->arg2 >> 8) & 0xff, it->arg3))
+		if (move_to_field(it->step, (card*)it->ptarget, it->arg1, it->arg2 & 0xff, (it->arg2 >> 8) & 0xff, it->arg3, it->arg4))
 			core.units.pop_front();
 		else
 			++it->step;
