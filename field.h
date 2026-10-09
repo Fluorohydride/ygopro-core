@@ -654,6 +654,7 @@ public:
 #define LOCATION_REASON_CONTROL	0x2
 //move_to_field() flags
 #define MOVETOFIELD_IS_SPSUMMON	0x1
+#define MOVETOFIELD_OPPO_SELECT_PLACE	0x2
 //Chain Info
 #define CHAIN_DISABLE_ACTIVATE	0x01
 #define CHAIN_DISABLE_EFFECT	0x02
