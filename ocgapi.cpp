@@ -25,7 +25,7 @@ static uint32_t default_message_handler(intptr_t pduel, uint32_t message_type) {
 static script_reader sreader = default_script_reader;
 static card_reader creader = default_card_reader;
 static message_handler mhandler = default_message_handler;
-static byte buffer[0x100000];
+static uint8_t buffer[0x100000];
 static std::set<duel*> duel_set;
 
 void set_script_reader(script_reader f) {
@@ -37,7 +37,7 @@ void set_card_reader(card_reader f) {
 void set_message_handler(message_handler f) {
 	mhandler = f;
 }
-byte* read_script(const char* script_name, int* len) {
+uint8_t* read_script(const char* script_name, int* len) {
 	return sreader(script_name, len);
 }
 uint32_t read_card(uint32_t code, card_data* data) {
@@ -50,7 +50,7 @@ uint32_t read_card(uint32_t code, card_data* data) {
 uint32_t handle_message(void* pduel, uint32_t message_type) {
 	return mhandler((intptr_t)pduel, message_type);
 }
-byte* default_script_reader(const char* script_name, int* slen) {
+uint8_t* default_script_reader(const char* script_name, int* slen) {
 	FILE *fp;
 	fp = std::fopen(script_name, "rb");
 	if (!fp)
@@ -144,7 +144,7 @@ void get_log_message(intptr_t pduel, char* buf) {
 	std::strncpy(buf, pd->strbuffer, sizeof pd->strbuffer - 1);
 	buf[sizeof pd->strbuffer - 1] = 0;
 }
-int32_t get_message(intptr_t pduel, byte* buf) {
+int32_t get_message(intptr_t pduel, uint8_t* buf) {
 	int32_t len = ((duel*)pduel)->read_buffer(buf);
 	((duel*)pduel)->clear_buffer();
 	return len;
@@ -204,7 +204,7 @@ void new_tag_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t location
 * @param buf int32_t array
 * @return buffer length in bytes
 */
-int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, uint32_t query_flag, byte* buf, int32_t use_cache) {
+int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t sequence, uint32_t query_flag, uint8_t* buf, int32_t use_cache) {
 	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
@@ -260,12 +260,12 @@ int32_t query_field_count(intptr_t pduel, uint8_t playerid, uint8_t location) {
 	}
 	return 0;
 }
-int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint32_t query_flag, byte* buf, int32_t use_cache) {
+int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint32_t query_flag, uint8_t* buf, int32_t use_cache) {
 	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
 	auto& player = ptduel->game_field->player[playerid];
-	byte* p = buf;
+	uint8_t* p = buf;
 	if(location == LOCATION_MZONE) {
 		for(auto& pcard : player.list_mzone) {
 			if(pcard) {
@@ -307,9 +307,9 @@ int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uin
 	}
 	return (int32_t)(p - buf);
 }
-int32_t query_field_info(intptr_t pduel, byte* buf) {
+int32_t query_field_info(intptr_t pduel, uint8_t* buf) {
 	duel* ptduel = (duel*)pduel;
-	byte* p = buf;
+	uint8_t* p = buf;
 	*p++ = MSG_RELOAD_FIELD;
 	*p++ = (uint8_t)ptduel->game_field->core.duel_rule;
 	for(int playerid = 0; playerid < 2; ++playerid) {
@@ -354,7 +354,7 @@ int32_t query_field_info(intptr_t pduel, byte* buf) {
 void set_responsei(intptr_t pduel, int32_t value) {
 	((duel*)pduel)->set_responsei(value);
 }
-void set_responseb(intptr_t pduel, byte* buf) {
+void set_responseb(intptr_t pduel, uint8_t* buf) {
 	((duel*)pduel)->set_responseb(buf);
 }
 int32_t preload_script(intptr_t pduel, const char* script_name) {

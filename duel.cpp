@@ -107,7 +107,7 @@ void duel::delete_effect(effect* peffect) {
 	effects.erase(peffect);
 	delete peffect;
 }
-int32_t duel::read_buffer(byte* buf) {
+int32_t duel::read_buffer(uint8_t* buf) {
 	auto size = buffer_size();
 	if (size)
 		std::memcpy(buf, message_buffer.data(), size);
@@ -138,7 +138,7 @@ void duel::write_buffer16(uint16_t value) {
 	vector_write<uint16_t>(message_buffer, value);
 }
 void duel::write_buffer8(uint8_t value) {
-	vector_write<unsigned char>(message_buffer, value);
+	vector_write<uint8_t>(message_buffer, value);
 }
 void duel::clear_buffer() {
 	message_buffer.clear();
@@ -146,7 +146,7 @@ void duel::clear_buffer() {
 void duel::set_responsei(int32_t resp) {
 	game_field->returns.ivalue[0] = resp;
 }
-void duel::set_responseb(byte* resp) {
+void duel::set_responseb(uint8_t* resp) {
 	std::memcpy(game_field->returns.bvalue, resp, SIZE_RETURN_VALUE);
 }
 int32_t duel::get_next_integer(int32_t l, int32_t h) {
