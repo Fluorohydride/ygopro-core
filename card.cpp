@@ -1519,7 +1519,7 @@ uint32_t card::get_select_info_location(uint8_t *deck_seq_pointer) {
 		uint32_t ss = current.position;
 		return c + (l << 8) + (s << 16) + (ss << 24);
 	} else {
-		return get_info_location();
+		return get_public_info_location();
 	}
 }
 int32_t card::is_treated_as_not_on_field() const {
