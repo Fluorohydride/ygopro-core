@@ -1491,7 +1491,10 @@ int32_t scriptlib::duel_discard_deck(lua_State *L) {
 	uint32_t count = (uint32_t)lua_tointeger(L, 2);
 	uint32_t reason = (uint32_t)lua_tointeger(L, 3);
 	duel* pduel = interpreter::get_duel_info(L);
-	pduel->game_field->add_process(PROCESSOR_DISCARD_DECK, 0, 0, 0, playerid + (count << 16), reason);
+	uint32_t reason_player = pduel->game_field->core.reason_player;
+	if(lua_gettop(L) >= 4)
+		reason_player = (uint32_t)lua_tointeger(L, 4);
+	pduel->game_field->add_process(PROCESSOR_DISCARD_DECK, 0, 0, 0, playerid + (count << 16), reason, reason_player);
 	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State *L, int32_t status, lua_KContext ctx) {
 		duel* pduel = (duel*)ctx;
 		lua_pushinteger(L, pduel->game_field->returns.ivalue[0]);
