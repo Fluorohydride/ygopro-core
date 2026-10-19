@@ -4553,8 +4553,10 @@ int32_t field::solve_chain(uint16_t step, uint32_t chainend_arg1, uint32_t chain
 			core.chain_limit.clear();
 			return FALSE;
 		}
-		if(core.summoning_card)
+		if(core.summoning_card) {
 			core.subunits.push_back(core.summon_reserved);
+			adjust_all();
+		}
 		core.summoning_card = 0;
 		core.units.begin()->step = -1;
 		return FALSE;
