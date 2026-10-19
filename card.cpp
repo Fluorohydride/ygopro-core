@@ -568,6 +568,8 @@ uint32_t card::resolve_bitmask_effects(
 		return temp;
 	effect_set effects;
 	uint32_t value = initial;
+	if(callback)
+		value = callback(initial);
 	temp = initial;
 	if(add)
 		filter_effect(add, &effects, FALSE);
@@ -596,12 +598,7 @@ uint32_t card::get_card_type() {
 		EFFECT_ADD_CARD_TYPE,
 		EFFECT_REMOVE_CARD_TYPE,
 		EFFECT_CHANGE_CARD_TYPE,
-		temp.card_type,
-		[this](uint32_t value) {
-			if (data.type & TYPE_TOKEN)
-				value |= TYPE_TOKEN;
-			return value;
-		});
+		temp.card_type);
 }
 uint32_t card::get_type() {
 	if(assume_type == ASSUME_TYPE)
