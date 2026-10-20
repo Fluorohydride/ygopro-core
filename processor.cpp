@@ -4564,13 +4564,6 @@ int32_t field::solve_chain(uint16_t step, uint32_t chainend_arg1, uint32_t chain
 		return FALSE;
 	}
 	case 11: {
-		// if the last chain link reserved a summon, the resolved cards stay on the field until step 13 or add_chain,
-		// otherwise send them here, before MSG_CHAIN_END and before a reserved damage step resumes
-		if(!core.summoning_card)
-			send_leave_confirmed();
-		return FALSE;
-	}
-	case 12: {
 		core.used_event.splice(core.used_event.end(), core.point_event);
 		pduel->write_buffer8(MSG_CHAIN_END);
 		for(auto& ch_lim_p : core.chain_limit_p)
@@ -4587,11 +4580,13 @@ int32_t field::solve_chain(uint16_t step, uint32_t chainend_arg1, uint32_t chain
 		core.summoning_card = 0;
 		return FALSE;
 	}
-	case 13: {
+	case 12: {
+		// the resolved cards leave the field after the summon or the damage step reserved by the chain,
+		// or in add_chain if a chain is built before that
 		send_leave_confirmed();
 		return FALSE;
 	}
-	case 14: {
+	case 13: {
 		raise_event(nullptr, EVENT_CHAIN_END, 0, 0, 0, 0, 0);
 		process_instant_event();
 		adjust_all();
