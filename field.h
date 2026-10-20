@@ -548,6 +548,7 @@ public:
 	int32_t solve_chain(uint16_t step, uint32_t chainend_arg1, uint32_t chainend_arg2);
 	int32_t break_effect();
 	void adjust_instant();
+	bool send_leave_confirmed();
 	void adjust_all();
 	void refresh_hand_public_status();
 	void refresh_location_info_instant();

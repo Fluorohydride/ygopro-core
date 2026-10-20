@@ -4011,6 +4011,10 @@ int32_t field::add_chain(uint16_t step) {
 	case 0: {
 		if (!core.new_chains.size())
 			return TRUE;
+		if (core.current_chain.empty() && send_leave_confirmed()) {
+			core.units.begin()->step = -1;
+			return FALSE;
+		}
 		auto& clit = core.new_chains.front();
 		effect* peffect = clit.triggering_effect;
 		card* phandler = peffect->get_handler();
@@ -4560,17 +4564,6 @@ int32_t field::solve_chain(uint16_t step, uint32_t chainend_arg1, uint32_t chain
 		return FALSE;
 	}
 	case 11: {
-		for(auto cit = core.leave_confirmed.begin(); cit != core.leave_confirmed.end();) {
-			if(!(*cit)->is_status(STATUS_LEAVE_CONFIRMED))
-				cit = core.leave_confirmed.erase(cit);
-			else
-				++cit;
-		}
-		if(core.leave_confirmed.size())
-			send_to(core.leave_confirmed, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
-		return FALSE;
-	}
-	case 12: {
 		core.used_event.splice(core.used_event.end(), core.point_event);
 		pduel->write_buffer8(MSG_CHAIN_END);
 		for(auto& ch_lim_p : core.chain_limit_p)
@@ -4585,6 +4578,12 @@ int32_t field::solve_chain(uint16_t step, uint32_t chainend_arg1, uint32_t chain
 		if (core.effect_damage_step == 1)
 			core.subunits.push_back(core.damage_step_reserved);
 		core.summoning_card = 0;
+		return FALSE;
+	}
+	case 12: {
+		// the resolved cards leave the field after the summon or the damage step reserved by the chain,
+		// or in add_chain if a chain is built before that
+		send_leave_confirmed();
 		return FALSE;
 	}
 	case 13: {
@@ -4626,6 +4625,18 @@ int32_t field::break_effect() {
 void field::adjust_instant() {
 	adjust_disable_check_list();
 	adjust_self_destroy_set();
+}
+bool field::send_leave_confirmed() {
+	for(auto cit = core.leave_confirmed.begin(); cit != core.leave_confirmed.end();) {
+		if(!(*cit)->is_status(STATUS_LEAVE_CONFIRMED))
+			cit = core.leave_confirmed.erase(cit);
+		else
+			++cit;
+	}
+	if(core.leave_confirmed.empty())
+		return false;
+	send_to(core.leave_confirmed, 0, REASON_RULE, PLAYER_NONE, PLAYER_NONE, LOCATION_GRAVE, 0, POS_FACEUP);
+	return true;
 }
 void field::adjust_all() {
 	core.readjust_map.clear();
