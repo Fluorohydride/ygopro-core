@@ -4564,8 +4564,8 @@ int32_t field::solve_chain(uint16_t step, uint32_t chainend_arg1, uint32_t chain
 		return FALSE;
 	}
 	case 11: {
-		// the summon reserved by the last chain link is performed before the resolved cards leave the field,
-		// they are sent after the summon, or when a chain is built against the summon
+		// if the last chain link reserved a summon, the resolved cards stay on the field until step 13 or add_chain,
+		// otherwise send them here, before MSG_CHAIN_END and before a reserved damage step resumes
 		if(!core.summoning_card)
 			send_leave_confirmed();
 		return FALSE;
