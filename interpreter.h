@@ -42,11 +42,14 @@ public:
 	};
 	using coroutine_map = std::unordered_map<int32_t, std::pair<lua_State*, int32_t>>;
 	using param_list = std::list<std::pair<lua_param, LuaParamType>>;
+	enum class param_context { PROCESS, EXTERNAL };
 	
 	duel* pduel;
 	lua_State* lua_state;
 	lua_State* current_state;
 	param_list params;
+	param_list inactive_params;
+	param_context current_param_context{ param_context::PROCESS };
 	coroutine_map coroutines;
 	int32_t no_action{};
 	int32_t call_depth{};
@@ -64,6 +67,7 @@ public:
 
 	int32_t load_script(const char* script_name);
 	int32_t load_card_script(uint32_t code);
+	void use_param_context(param_context context);
 	void add_param(void* param, LuaParamType type, bool front = false);
 	void add_param(int32_t param, LuaParamType type, bool front = false);
 	void push_param(lua_State* L, bool is_coroutine = false);

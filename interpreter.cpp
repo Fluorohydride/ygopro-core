@@ -201,6 +201,13 @@ int32_t interpreter::load_card_script(uint32_t code) {
 	}
 	return OPERATION_SUCCESS;
 }
+void interpreter::use_param_context(param_context context) {
+	if(current_param_context == context)
+		return;
+	// Processor arguments may survive a message return; host calls use their own list.
+	params.swap(inactive_params);
+	current_param_context = context;
+}
 void interpreter::add_param(void* param, LuaParamType type, bool front) {
 	lua_param p;
 	p.ptr = param;
