@@ -28,10 +28,6 @@ static message_handler mhandler = default_message_handler;
 static uint8_t buffer[0x100000];
 static std::set<duel*> duel_set;
 
-// Lua-capable host entry points explicitly select EXTERNAL until process()
-// resumes. Calls are sequential and non-reentrant. Buffer/log/registry readers
-// do not touch params or switch contexts.
-
 void set_script_reader(script_reader f) {
 	sreader = f;
 }
