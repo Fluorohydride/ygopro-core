@@ -78,6 +78,7 @@ intptr_t create_duel_v2(uint32_t seed_sequence[]) {
 }
 void start_duel(intptr_t pduel, uint32_t options) {
 	duel* pd = (duel*)pduel;
+	pd->lua->use_param_context(interpreter::param_context::EXTERNAL);
 	uint16_t duel_rule = options >> 16;
 	uint16_t duel_options = options & 0xffff;
 	pd->game_field->core.duel_options |= duel_options;
@@ -151,6 +152,7 @@ int32_t get_message(intptr_t pduel, uint8_t* buf) {
 }
 uint32_t process(intptr_t pduel) {
 	duel* pd = (duel*)pduel;
+	pd->lua->use_param_context(interpreter::param_context::PROCESS);
 	uint32_t result = 0; 
 	do {
 		result = pd->game_field->process();
@@ -161,6 +163,7 @@ void new_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t playerid, ui
 	if (!check_playerid(owner) || !check_playerid(playerid))
 		return;
 	duel* ptduel = (duel*)pduel;
+	ptduel->lua->use_param_context(interpreter::param_context::EXTERNAL);
 	if(ptduel->game_field->is_location_useable(playerid, location, sequence)) {
 		card* pcard = ptduel->new_card(code);
 		pcard->owner = owner;
@@ -177,6 +180,7 @@ void new_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t playerid, ui
 }
 void new_tag_card(intptr_t pduel, uint32_t code, uint8_t owner, uint8_t location) {
 	duel* ptduel = (duel*)pduel;
+	ptduel->lua->use_param_context(interpreter::param_context::EXTERNAL);
 	if(owner > 1 || !(location & (LOCATION_DECK | LOCATION_EXTRA)))
 		return;
 	card* pcard = ptduel->new_card(code);
@@ -208,6 +212,7 @@ int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t s
 	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
+	ptduel->lua->use_param_context(interpreter::param_context::EXTERNAL);
 	card* pcard = nullptr;
 	location &= 0x7f;
 	if (location == LOCATION_MZONE || location == LOCATION_SZONE)
@@ -231,6 +236,7 @@ int32_t query_card(intptr_t pduel, uint8_t playerid, uint8_t location, uint8_t s
 }
 int32_t query_field_count(intptr_t pduel, uint8_t playerid, uint8_t location) {
 	duel* ptduel = (duel*)pduel;
+	ptduel->lua->use_param_context(interpreter::param_context::EXTERNAL);
 	if (!check_playerid(playerid))
 		return 0;
 	auto& player = ptduel->game_field->player[playerid];
@@ -264,6 +270,7 @@ int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uin
 	if (!check_playerid(playerid))
 		return LEN_FAIL;
 	duel* ptduel = (duel*)pduel;
+	ptduel->lua->use_param_context(interpreter::param_context::EXTERNAL);
 	auto& player = ptduel->game_field->player[playerid];
 	uint8_t* p = buf;
 	if(location == LOCATION_MZONE) {
@@ -309,6 +316,7 @@ int32_t query_field_card(intptr_t pduel, uint8_t playerid, uint8_t location, uin
 }
 int32_t query_field_info(intptr_t pduel, uint8_t* buf) {
 	duel* ptduel = (duel*)pduel;
+	ptduel->lua->use_param_context(interpreter::param_context::EXTERNAL);
 	uint8_t* p = buf;
 	*p++ = MSG_RELOAD_FIELD;
 	*p++ = (uint8_t)ptduel->game_field->core.duel_rule;
@@ -358,5 +366,7 @@ void set_responseb(intptr_t pduel, uint8_t* buf) {
 	((duel*)pduel)->set_responseb(buf);
 }
 int32_t preload_script(intptr_t pduel, const char* script_name) {
-	return ((duel*)pduel)->lua->load_script(script_name);
+	duel* pd = (duel*)pduel;
+	pd->lua->use_param_context(interpreter::param_context::EXTERNAL);
+	return pd->lua->load_script(script_name);
 }
