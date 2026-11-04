@@ -538,6 +538,7 @@ const std::map<uint64_t, uint64_t> category_checklist{
 #define EFFECT_ADD_CARD_TYPE			377
 #define EFFECT_REMOVE_CARD_TYPE		378
 #define EFFECT_CHANGE_CARD_TYPE		379
+#define EFFECT_OPPO_SELECT_SPSUMMON_ZONE	380
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001
