@@ -1403,7 +1403,10 @@ int32_t field::process_point_event(int16_t step, int32_t skip_trigger, int32_t s
 			returns.ivalue[0] = -1;
 			core.units.begin()->step = 5;
 			return FALSE;
-		} else if(core.select_chains.size() == 1 && !core.current_chain.size()) {
+		}
+		if(core.duel_options & DUEL_TCG_SEGOC_NONPUBLIC)
+			core.new_ochain_h.clear();
+		if(core.select_chains.size() == 1 && !core.current_chain.size()) {
 			add_process(PROCESSOR_SELECT_EFFECTYN, 0, 0, (group*)core.select_chains[0].triggering_effect->get_handler(), core.current_player, 221);
 			return FALSE;
 		} else {

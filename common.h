@@ -424,6 +424,7 @@ inline bool check_playerid(int32_t playerid) {
 #define DUEL_SIMPLE_AI			0x40
 #define DUEL_RETURN_DECK_TOP	0x80
 #define DUEL_REVEAL_DECK_SEQ	0x100
+#define DUEL_TCG_SEGOC_NONPUBLIC	0x200	//TCG: non-public trigger effects join SEGOC
 
 //Activity
 #define ACTIVITY_SUMMON			1

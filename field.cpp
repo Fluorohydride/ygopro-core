@@ -3631,9 +3631,10 @@ int32_t field::check_nonpublic_trigger(chain& ch) {
 			|| (peffect->range & (LOCATION_HAND | LOCATION_DECK)))) {
 		ch.flag |= CHAIN_HAND_TRIGGER;
 		core.new_ochain_h.push_back(ch);
-		if(ch.triggering_location == LOCATION_HAND && phandler->is_position(POS_FACEDOWN)
-			|| ch.triggering_location == LOCATION_DECK
-			|| peffect->range && !peffect->in_range(ch))
+		if(!(core.duel_options & DUEL_TCG_SEGOC_NONPUBLIC)
+			&& (ch.triggering_location == LOCATION_HAND && phandler->is_position(POS_FACEDOWN)
+				|| ch.triggering_location == LOCATION_DECK
+				|| peffect->range && !peffect->in_range(ch)))
 			return FALSE;
 	}
 	return TRUE;
