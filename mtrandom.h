@@ -57,7 +57,10 @@ public:
 		return l + static_cast<int>(x % range);
 	}
 
+#ifdef _MSC_VER
+#pragma warning(push)
 #pragma warning(disable:4146)
+#endif
 	// N % k = (N - k) % k = (-k) % k
 	// discard (N % range) numbers from the left end so that it is a multiple of range
 	int get_random_integer_v2(int l, int h) {
@@ -75,7 +78,9 @@ public:
 		}
 		return static_cast<int>(l + x % range);
 	}
-#pragma warning(default:4146)
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 	// Fisher-Yates shuffle [first, last)
 	template<typename T>
