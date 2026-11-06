@@ -61,13 +61,19 @@ public:
 	// N % k = (N - k) % k = (-k) % k
 	// discard (N % range) numbers from the left end so that it is a multiple of range
 	int get_random_integer_v2(int l, int h) {
-		uint32_t range = (h - l + 1);
-		uint32_t bound = -range % range;
-		auto x = rng();
-		while (x < bound) {
-			x = rng();
+		uint32_t delta = static_cast<uint32_t>(h) - static_cast<uint32_t>(l);
+		if (delta == UINT32_MAX) {
+			return static_cast<int32_t>(rng());
 		}
-		return l + (int)(x % range);
+		uint32_t range = delta + 1;
+		auto x = rng();
+		if (x < range) {
+			uint32_t bound = -range % range;
+			while (x < bound) {
+				x = rng();
+			}
+		}
+		return static_cast<int>(l + x % range);
 	}
 #pragma warning(default:4146)
 
