@@ -15,10 +15,11 @@
 
 class mtrandom {
 public:
-	const unsigned int rand_max{ std::mt19937::max() };
+	static constexpr uint32_t min() { return 0; }
+	static constexpr uint32_t max() { return UINT32_MAX; }
 
 	mtrandom() = default;
-	explicit mtrandom(uint_fast32_t value)
+	explicit mtrandom(uint32_t value)
 		: rng(value) {}
 	explicit mtrandom(std::seed_seq& q)
 		: rng(q) {}
@@ -33,13 +34,13 @@ public:
 		std::seed_seq q(seq, seq + len);
 		rng.seed(q);
 	}
-	void seed(uint_fast32_t value) {
+	void seed(uint32_t value) {
 		rng.seed(value);
 	}
 	void seed(std::seed_seq& q) {
 		rng.seed(q);
 	}
-	uint_fast32_t rand() {
+	uint32_t rand() {
 		return rng();
 	}
 	void discard(unsigned long long z) {
@@ -49,8 +50,8 @@ public:
 	// old vesion, discard too many numbers
 	int get_random_integer_v1(int l, int h) {
 		uint32_t range = (h - l + 1);
-		uint32_t secureMax = rand_max - rand_max % range;
-		uint_fast32_t x;
+		uint32_t secureMax = max() - max() % range;
+		uint32_t x;
 		do {
 			x = rng();
 		} while (x >= secureMax);
