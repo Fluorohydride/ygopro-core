@@ -54,7 +54,7 @@ public:
 		do {
 			x = rng();
 		} while (x >= secureMax);
-		return l + (int)(x % range);
+		return l + static_cast<int>(x % range);
 	}
 
 #pragma warning(disable:4146)
@@ -80,8 +80,8 @@ public:
 	// Fisher-Yates shuffle [first, last)
 	template<typename T>
 	void shuffle_vector(std::vector<T>& v, int first, int last, int version) {
-		if ((size_t)last > v.size())
-			last = (int)v.size();
+		if (static_cast<size_t>(last) > v.size())
+			last = static_cast<int>(v.size());
 		auto shuffle = [&](auto&& distribution) {
 			for (int i = first; i < last - 1; ++i) {
 				int r = distribution(i, last - 1);
@@ -96,7 +96,7 @@ public:
 
 	template<typename T>
 	void shuffle_vector(std::vector<T>& v) {
-		shuffle_vector(v, 0, (int)v.size(), 2);
+		shuffle_vector(v, 0, static_cast<int>(v.size()), 2);
 	}
 
 	template<typename T>
