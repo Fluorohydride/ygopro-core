@@ -82,7 +82,7 @@ public:
 	void shuffle_vector(std::vector<T>& v, int first, int last, int version) {
 		if (static_cast<size_t>(last) > v.size())
 			last = static_cast<int>(v.size());
-		auto shuffle = [&](auto&& distribution) {
+		auto shuffle = [&v, first, last](auto&& distribution) {
 			for (int i = first; i < last - 1; ++i) {
 				int r = distribution(i, last - 1);
 				std::swap(v[i], v[r]);
