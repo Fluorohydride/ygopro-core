@@ -22,8 +22,6 @@ public:
 		: rng(value) {}
 	explicit mtrandom(std::seed_seq& q)
 		: rng(q) {}
-	explicit mtrandom(std::seed_seq&& q)
-		: rng(q) {}
 	mtrandom(const uint32_t seq[], size_t len)
 		: mtrandom(std::seed_seq(seq, seq + len)) {}
 	
@@ -102,6 +100,8 @@ public:
 
 private:
 	std::mt19937 rng;
+	explicit mtrandom(std::seed_seq&& q)
+		: rng(q) {}
 };
 
 
