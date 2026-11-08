@@ -591,7 +591,7 @@ int32_t effect::is_chainable(uint8_t tp) {
 		return FALSE;
 	if(pduel->game_field->core.current_chain.size()) {
 		if(!is_flag(EFFECT_FLAG_FIELD_ONLY) && (type & EFFECT_TYPE_TRIGGER_O)
-				&& (get_handler()->current.location == LOCATION_HAND)) {
+				&& (get_handler()->current.location & (LOCATION_HAND | LOCATION_DECK))) {
 			if(pduel->game_field->core.current_chain.rbegin()->triggering_effect->get_speed() > 2)
 				return FALSE;
 		} else if(sp < pduel->game_field->core.current_chain.rbegin()->triggering_effect->get_speed())
