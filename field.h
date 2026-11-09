@@ -520,6 +520,7 @@ public:
 	int32_t is_able_to_enter_bp();
 
 	void add_process(uint16_t type, uint16_t step, effect* peffect, group* target, int32_t arg1, int32_t arg2, int32_t arg3 = 0, int32_t arg4 = 0, void* ptr1 = nullptr, void* ptr2 = nullptr);
+	void add_process(const processor_unit& unit);
 	uint32_t process();
 	int32_t execute_cost(uint16_t step, effect* peffect, uint8_t triggering_player);
 	int32_t execute_operation(uint16_t step, effect* peffect, uint8_t triggering_player);
