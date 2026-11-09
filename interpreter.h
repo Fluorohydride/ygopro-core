@@ -66,8 +66,13 @@ public:
 
 	int32_t load_script(const char* script_name);
 	int32_t load_card_script(uint32_t code);
-	void add_param(void* param, LuaParamType type, bool front = false);
-	void add_param(int32_t param, LuaParamType type, bool front = false);
+	template <typename T>
+	void add_param(T param, LuaParamType type, bool front = false) {
+		if (front)
+			params.emplace_front(lua_param{ param }, type);
+		else
+			params.emplace_back(lua_param{ param }, type);
+	}
 	void push_param(lua_State* L, bool is_coroutine = false);
 	int32_t call_function(int32_t f, uint32_t param_count, int32_t ret_count);
 	int32_t call_card_function(card* pcard, const char* f, uint32_t param_count, int32_t ret_count);
