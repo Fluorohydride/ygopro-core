@@ -38,7 +38,9 @@ class interpreter {
 public:
 	union lua_param {
 		void* ptr;
-		int32_t integer;
+		lua_Integer integer;
+		constexpr explicit lua_param(void* p) noexcept : ptr(p) {}
+		constexpr explicit lua_param(lua_Integer i) noexcept : integer(i) {}
 	};
 	using coroutine_map = std::unordered_map<int32_t, std::pair<lua_State*, int32_t>>;
 	using param_list = std::list<std::pair<lua_param, LuaParamType>>;
