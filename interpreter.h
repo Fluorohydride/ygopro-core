@@ -73,6 +73,8 @@ public:
 		else
 			params.emplace_back(lua_param{ param }, type);
 	}
+	void add_params(const std::vector<std::pair<lua_param, LuaParamType>>& list);
+	void add_params(effect* triggering_effect, uint8_t triggering_player, const tevent& e);
 	void push_param(lua_State* L, bool is_coroutine = false);
 	int32_t call_function(int32_t f, uint32_t param_count, int32_t ret_count);
 	int32_t call_card_function(card* pcard, const char* f, uint32_t param_count, int32_t ret_count);

@@ -201,6 +201,19 @@ int32_t interpreter::load_card_script(uint32_t code) {
 	}
 	return OPERATION_SUCCESS;
 }
+void interpreter::add_params(const std::vector<std::pair<lua_param, LuaParamType>>& list) {
+	params.insert(params.end(), list.begin(), list.end());
+}
+void interpreter::add_params(effect* triggering_effect, uint8_t triggering_player, const tevent& e) {
+	add_param(triggering_effect, PARAM_TYPE_EFFECT);
+	add_param(triggering_player, PARAM_TYPE_INT);
+	add_param(e.event_cards, PARAM_TYPE_GROUP);
+	add_param(e.event_player, PARAM_TYPE_INT);
+	add_param(e.event_value, PARAM_TYPE_INT);
+	add_param(e.reason_effect, PARAM_TYPE_EFFECT);
+	add_param(e.reason, PARAM_TYPE_INT);
+	add_param(e.reason_player, PARAM_TYPE_INT);
+}
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	int32_t pushed = 0;
 	for (const auto& it : params) {
