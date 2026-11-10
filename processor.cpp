@@ -26,10 +26,10 @@ void field::add_process(uint16_t type, uint16_t step, effect* peffect, group* ta
 	new_unit.arg4 = arg4;
 	new_unit.ptr1 = ptr1;
 	new_unit.ptr2 = ptr2;
-	core.subunits.push_back(new_unit);
+	core.subunits.push_back(std::move(new_unit));
 }
-void field::add_process(const processor_unit& unit) {
-	core.subunits.push_back(unit);
+void field::add_process(processor_unit unit) {
+	core.subunits.push_back(std::move(unit));
 }
 #ifdef _MSC_VER
 #pragma warning(push)

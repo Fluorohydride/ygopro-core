@@ -155,6 +155,12 @@ struct processor_unit {
 	void* ptr2{ nullptr };
 	void* ptr3{ nullptr };
 	void* ptr4{ nullptr };
+	std::vector<std::pair<interpreter::lua_param, LuaParamType>> lua_params;
+
+	template <typename T>
+	void add_param(T param, LuaParamType type) {
+		lua_params.emplace_back(interpreter::lua_param{ param }, type);
+	}
 };
 constexpr size_t SIZE_SVALUE = SIZE_RETURN_VALUE / 2;
 constexpr size_t SIZE_IVALUE = SIZE_RETURN_VALUE / 4;
@@ -520,7 +526,7 @@ public:
 	int32_t is_able_to_enter_bp();
 
 	void add_process(uint16_t type, uint16_t step, effect* peffect, group* target, uint32_t arg1, uint32_t arg2, uint32_t arg3 = 0, uint32_t arg4 = 0, void* ptr1 = nullptr, void* ptr2 = nullptr);
-	void add_process(const processor_unit& unit);
+	void add_process(processor_unit unit);
 	uint32_t process();
 	int32_t execute_cost(uint16_t step, effect* peffect, uint8_t triggering_player);
 	int32_t execute_operation(uint16_t step, effect* peffect, uint8_t triggering_player);
