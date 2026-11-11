@@ -5716,7 +5716,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 	}
 	case 1: {
 		if(returns.ivalue[0] == -1) {
-			pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
+			core.select_xyz_result = nullptr;
 			return TRUE;
 		}
 		int32_t pv = 0;
@@ -5735,7 +5735,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 		max -= returns.bvalue[0];
 		if(max == 0 || core.xmaterial_lst.size() == 0) {
 			group* pgroup = pduel->new_group(core.operated_set);
-			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+			core.select_xyz_result = pgroup;
 			return TRUE;
 		}
 		min -= returns.bvalue[0];
@@ -5754,7 +5754,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 	case 2: {
 		if(!returns.ivalue[0]) {
 			group* pgroup = pduel->new_group(core.operated_set);
-			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+			core.select_xyz_result = pgroup;
 			return TRUE;
 		}
 		if(!(core.global_flag & GLOBALFLAG_TUNE_MAGICIAN))
@@ -5883,7 +5883,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 	}
 	case 4: {
 		if(returns.ivalue[0] == -1) {
-			pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
+			core.select_xyz_result = nullptr;
 			return TRUE;
 		}
 		card* pcard = core.select_cards[returns.bvalue[1]];
@@ -5900,7 +5900,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 		--max;
 		if(max == 0 || core.xmaterial_lst.size() == 0) {
 			group* pgroup = pduel->new_group(core.operated_set);
-			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+			core.select_xyz_result = pgroup;
 			return TRUE;
 		}
 		if(min > 0)
@@ -5918,7 +5918,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 	case 5: {
 		if(!returns.ivalue[0]) {
 			group* pgroup = pduel->new_group(core.operated_set);
-			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+			core.select_xyz_result = pgroup;
 			return TRUE;
 		}
 		int32_t maxv = 0;
@@ -5939,7 +5939,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 	}
 	case 6: {
 		if(returns.ivalue[0] == -1) {
-			pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
+			core.select_xyz_result = nullptr;
 			return TRUE;
 		}
 		group* pgroup = pduel->new_group(core.operated_set);
@@ -5947,7 +5947,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
 			pgroup->container.insert(pcard);
 		}
-		pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+		core.select_xyz_result = pgroup;
 		return TRUE;
 	}
 	case 7: {
@@ -5963,7 +5963,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 	}
 	case 8: {
 		if(returns.ivalue[0] == -1) {
-			pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
+			core.select_xyz_result = nullptr;
 			return TRUE;
 		}
 		int32_t pv = 0;
@@ -5982,7 +5982,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 		max -= returns.bvalue[0];
 		if(max == 0 || core.xmaterial_lst.size() == 0) {
 			group* pgroup = pduel->new_group(core.operated_set);
-			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+			core.select_xyz_result = pgroup;
 			return TRUE;
 		}
 		min = 0;
@@ -5999,7 +5999,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 	case 9: {
 		if(!returns.ivalue[0]) {
 			group* pgroup = pduel->new_group(core.operated_set);
-			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+			core.select_xyz_result = pgroup;
 			return TRUE;
 		}
 		core.select_cards.clear();
@@ -6026,7 +6026,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 			card* pcard = core.select_cards[returns.bvalue[i + 1]];
 			pgroup->container.insert(pcard);
 		}
-		pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+		core.select_xyz_result = pgroup;
 		return TRUE;
 	}
 	case 20: {
@@ -6069,7 +6069,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 	}
 	case 22: {
 		if(returns.ivalue[0] == -1) {
-			pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
+			core.select_xyz_result = nullptr;
 			return TRUE;
 		}
 		int32_t pv = 0;
@@ -6088,7 +6088,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 		--max;
 		if(max == 0 || core.xmaterial_lst.size() == 0) {
 			group* pgroup = pduel->new_group(core.operated_set);
-			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+			core.select_xyz_result = pgroup;
 			return TRUE;
 		}
 		if(min > 0)
@@ -6107,7 +6107,7 @@ int32_t field::select_xyz_material(int16_t step, uint8_t playerid, uint32_t lv, 
 	case 23: {
 		if(!returns.ivalue[0]) {
 			group* pgroup = pduel->new_group(core.operated_set);
-			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+			core.select_xyz_result = pgroup;
 			return TRUE;
 		}
 		core.units.begin()->step = 20;
