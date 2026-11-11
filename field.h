@@ -322,6 +322,8 @@ struct processor {
 	uint8_t dice_result[5]{};
 	uint8_t coin_result[MAX_COIN_COUNT]{};
 	int32_t coin_count{ 0 };
+	group* select_synchro_result{ nullptr };
+	group* select_xyz_result{ nullptr };
 	bool is_target_ready{ false };
 	bool is_gemini_summoning{ false };
 	bool is_summon_negated{ false };

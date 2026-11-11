@@ -5331,7 +5331,7 @@ int32_t field::select_synchro_material(int16_t step, uint8_t playerid, card* pca
 		if(core.summon_cancelable == FALSE && mg && min == max && mg->container.size() == min + 1) {
 			group* pgroup = pduel->new_group();
             pgroup->container.insert(mg->container.begin(), mg->container.end());
-			pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+			core.select_synchro_result = pgroup;
 			pduel->restore_assumes();
 			core.limit_tuner = 0;
 			return TRUE;
@@ -5345,7 +5345,7 @@ int32_t field::select_synchro_material(int16_t step, uint8_t playerid, card* pca
 	}
 	case 1: {
 		if(returns.ivalue[0] == -1) {
-			pduel->lua->add_param(nullptr, PARAM_TYPE_GROUP);
+			core.select_synchro_result = nullptr;
 			core.limit_tuner = 0;
 			return TRUE;
 		}
@@ -5377,7 +5377,7 @@ int32_t field::select_synchro_material(int16_t step, uint8_t playerid, card* pca
 	case 2: {
 		group* pgroup = pduel->new_group(core.synchro_materials);
 		pgroup->container.insert(core.limit_tuner);
-		pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+		core.select_synchro_result = pgroup;
 		pduel->restore_assumes();
 		core.limit_tuner = 0;
 		return TRUE;
@@ -5635,7 +5635,7 @@ int32_t field::select_synchro_material(int16_t step, uint8_t playerid, card* pca
 		}
 		pgroup->container.insert(core.must_select_cards.begin(), core.must_select_cards.end());
 		core.must_select_cards.clear();
-		pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+		core.select_synchro_result = pgroup;
 		pduel->restore_assumes();
 		core.limit_tuner = 0;
 		return TRUE;
@@ -5644,7 +5644,7 @@ int32_t field::select_synchro_material(int16_t step, uint8_t playerid, card* pca
 		group* pgroup = pduel->new_group();
 		pgroup->container.insert(core.limit_tuner);
 		pgroup->container.insert(smat);
-		pduel->lua->add_param(pgroup, PARAM_TYPE_GROUP);
+		core.select_synchro_result = pgroup;
 		pduel->restore_assumes();
 		core.limit_tuner = 0;
 		return TRUE;
