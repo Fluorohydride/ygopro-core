@@ -1764,14 +1764,18 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 		target->current.reason_player = sumplayer;
 		int32_t releasable = core.units.begin()->value1;
 		if(proc->operation) {
-			pduel->lua->add_param(target, PARAM_TYPE_CARD);
-			pduel->lua->add_param(min_tribute, PARAM_TYPE_INT);
-			pduel->lua->add_param(zone, PARAM_TYPE_INT);
-			pduel->lua->add_param(releasable, PARAM_TYPE_INT);
 			pduel->game_field->core.limit_extra_summon_zone = zone;
 			pduel->game_field->core.limit_extra_summon_releasable = releasable;
 			core.sub_solving_event.push_back(nil_event);
-			add_process(PROCESSOR_EXECUTE_OPERATION, 0, proc, 0, sumplayer, 0);
+			processor_unit unit;
+			unit.type = PROCESSOR_EXECUTE_OPERATION;
+			unit.peffect = proc;
+			unit.arg1 = sumplayer;
+			unit.add_param(target, PARAM_TYPE_CARD);
+			unit.add_param(min_tribute, PARAM_TYPE_INT);
+			unit.add_param(zone, PARAM_TYPE_INT);
+			unit.add_param(releasable, PARAM_TYPE_INT);
+			add_process(std::move(unit));
 		}
 		proc->dec_count(sumplayer);
 		return FALSE;
@@ -1795,9 +1799,13 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 			pduel->write_buffer8(0);
 			pduel->write_buffer32(pextra->handler->data.code);
 			if(pextra->operation) {
-				pduel->lua->add_param(target, PARAM_TYPE_CARD);
 				core.sub_solving_event.push_back(nil_event);
-				add_process(PROCESSOR_EXECUTE_OPERATION, 0, pextra, 0, sumplayer, 0);
+				processor_unit unit;
+				unit.type = PROCESSOR_EXECUTE_OPERATION;
+				unit.peffect = pextra;
+				unit.arg1 = sumplayer;
+				unit.add_param(target, PARAM_TYPE_CARD);
+				add_process(std::move(unit));
 			}
 		}
 		return FALSE;
@@ -1849,9 +1857,13 @@ int32_t field::summon(uint16_t step, uint8_t sumplayer, card* target, effect* pr
 			pduel->write_buffer8(0);
 			pduel->write_buffer32(pextra->handler->data.code);
 			if(pextra->operation) {
-				pduel->lua->add_param(target, PARAM_TYPE_CARD);
 				core.sub_solving_event.push_back(nil_event);
-				add_process(PROCESSOR_EXECUTE_OPERATION, 0, pextra, 0, sumplayer, 0);
+				processor_unit unit;
+				unit.type = PROCESSOR_EXECUTE_OPERATION;
+				unit.peffect = pextra;
+				unit.arg1 = sumplayer;
+				unit.add_param(target, PARAM_TYPE_CARD);
+				add_process(std::move(unit));
 			}
 		}
 		return FALSE;
@@ -2358,10 +2370,14 @@ int32_t field::mset(uint16_t step, uint8_t setplayer, card* target, effect* proc
 		target->summon_player = setplayer;
 		target->current.reason_effect = proc;
 		target->current.reason_player = setplayer;
-		pduel->lua->add_param(target, PARAM_TYPE_CARD);
 		core.sub_solving_event.push_back(nil_event);
-		add_process(PROCESSOR_EXECUTE_OPERATION, 0, proc, 0, setplayer, 0);
 		proc->dec_count(setplayer);
+		processor_unit unit;
+		unit.type = PROCESSOR_EXECUTE_OPERATION;
+		unit.peffect = proc;
+		unit.arg1 = setplayer;
+		unit.add_param(target, PARAM_TYPE_CARD);
+		add_process(std::move(unit));
 		return FALSE;
 	}
 	case 7: {
@@ -2378,9 +2394,13 @@ int32_t field::mset(uint16_t step, uint8_t setplayer, card* target, effect* proc
 			pduel->write_buffer8(0);
 			pduel->write_buffer32(pextra->handler->data.code);
 			if(pextra->operation) {
-				pduel->lua->add_param(target, PARAM_TYPE_CARD);
 				core.sub_solving_event.push_back(nil_event);
-				add_process(PROCESSOR_EXECUTE_OPERATION, 0, pextra, 0, setplayer, 0);
+				processor_unit unit;
+				unit.type = PROCESSOR_EXECUTE_OPERATION;
+				unit.peffect = pextra;
+				unit.arg1 = setplayer;
+				unit.add_param(target, PARAM_TYPE_CARD);
+				add_process(std::move(unit));
 			}
 		}
 		return FALSE;
@@ -2734,30 +2754,34 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		}
 		returns.ivalue[0] = TRUE;
 		if(peffect->target) {
-			pduel->lua->add_param(target, PARAM_TYPE_CARD);
+			processor_unit unit;
+			unit.type = PROCESSOR_EXECUTE_TARGET;
+			unit.peffect = peffect;
+			unit.arg1 = sumplayer;
+			unit.add_param(target, PARAM_TYPE_CARD);
 			if(core.limit_tuner || core.limit_syn) {
-				pduel->lua->add_param(core.limit_tuner, PARAM_TYPE_CARD);
-				pduel->lua->add_param(core.limit_syn, PARAM_TYPE_GROUP);
+				unit.add_param(core.limit_tuner, PARAM_TYPE_CARD);
+				unit.add_param(core.limit_syn, PARAM_TYPE_GROUP);
 				if(core.limit_syn_minc) {
-					pduel->lua->add_param(core.limit_syn_minc, PARAM_TYPE_INT);
-					pduel->lua->add_param(core.limit_syn_maxc, PARAM_TYPE_INT);
+					unit.add_param(core.limit_syn_minc, PARAM_TYPE_INT);
+					unit.add_param(core.limit_syn_maxc, PARAM_TYPE_INT);
 				}
 			} else if(core.limit_xyz) {
-				pduel->lua->add_param(core.limit_xyz, PARAM_TYPE_GROUP);
+				unit.add_param(core.limit_xyz, PARAM_TYPE_GROUP);
 				if(core.limit_xyz_minc) {
-					pduel->lua->add_param(core.limit_xyz_minc, PARAM_TYPE_INT);
-					pduel->lua->add_param(core.limit_xyz_maxc, PARAM_TYPE_INT);
+					unit.add_param(core.limit_xyz_minc, PARAM_TYPE_INT);
+					unit.add_param(core.limit_xyz_maxc, PARAM_TYPE_INT);
 				}
 			} else if(core.limit_link || core.limit_link_card) {
-				pduel->lua->add_param(core.limit_link, PARAM_TYPE_GROUP);
-				pduel->lua->add_param(core.limit_link_card, PARAM_TYPE_CARD);
+				unit.add_param(core.limit_link, PARAM_TYPE_GROUP);
+				unit.add_param(core.limit_link_card, PARAM_TYPE_CARD);
 				if(core.limit_link_minc) {
-					pduel->lua->add_param(core.limit_link_minc, PARAM_TYPE_INT);
-					pduel->lua->add_param(core.limit_link_maxc, PARAM_TYPE_INT);
+					unit.add_param(core.limit_link_minc, PARAM_TYPE_INT);
+					unit.add_param(core.limit_link_maxc, PARAM_TYPE_INT);
 				}
 			}
 			core.sub_solving_event.push_back(nil_event);
-			add_process(PROCESSOR_EXECUTE_TARGET, 0, peffect, 0, sumplayer, 0);
+			add_process(std::move(unit));
 		}
 		return FALSE;
 	}
@@ -2785,40 +2809,44 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		effect* peffect = core.units.begin()->peffect;
 		target->material_cards.clear();
 		if(peffect->operation) {
-			pduel->lua->add_param(target, PARAM_TYPE_CARD);
+			processor_unit unit;
+			unit.type = PROCESSOR_EXECUTE_OPERATION;
+			unit.peffect = peffect;
+			unit.arg1 = sumplayer;
+			unit.add_param(target, PARAM_TYPE_CARD);
 			if(core.limit_tuner || core.limit_syn) {
-				pduel->lua->add_param(core.limit_tuner, PARAM_TYPE_CARD);
-				pduel->lua->add_param(core.limit_syn, PARAM_TYPE_GROUP);
+				unit.add_param(core.limit_tuner, PARAM_TYPE_CARD);
+				unit.add_param(core.limit_syn, PARAM_TYPE_GROUP);
 				core.limit_tuner = 0;
 				if(core.limit_syn_minc) {
-					pduel->lua->add_param(core.limit_syn_minc, PARAM_TYPE_INT);
-					pduel->lua->add_param(core.limit_syn_maxc, PARAM_TYPE_INT);
+					unit.add_param(core.limit_syn_minc, PARAM_TYPE_INT);
+					unit.add_param(core.limit_syn_maxc, PARAM_TYPE_INT);
 					core.limit_syn_minc = 0;
 					core.limit_syn_maxc = 0;
 				}
 			}
 			if(core.limit_xyz) {
-				pduel->lua->add_param(core.limit_xyz, PARAM_TYPE_GROUP);
+				unit.add_param(core.limit_xyz, PARAM_TYPE_GROUP);
 				if(core.limit_xyz_minc) {
-					pduel->lua->add_param(core.limit_xyz_minc, PARAM_TYPE_INT);
-					pduel->lua->add_param(core.limit_xyz_maxc, PARAM_TYPE_INT);
+					unit.add_param(core.limit_xyz_minc, PARAM_TYPE_INT);
+					unit.add_param(core.limit_xyz_maxc, PARAM_TYPE_INT);
 					core.limit_xyz_minc = 0;
 					core.limit_xyz_maxc = 0;
 				}
 			}
 			if(core.limit_link || core.limit_link_card) {
-				pduel->lua->add_param(core.limit_link, PARAM_TYPE_GROUP);
-				pduel->lua->add_param(core.limit_link_card, PARAM_TYPE_CARD);
+				unit.add_param(core.limit_link, PARAM_TYPE_GROUP);
+				unit.add_param(core.limit_link_card, PARAM_TYPE_CARD);
 				core.limit_link_card = 0;
 				if(core.limit_link_minc) {
-					pduel->lua->add_param(core.limit_link_minc, PARAM_TYPE_INT);
-					pduel->lua->add_param(core.limit_link_maxc, PARAM_TYPE_INT);
+					unit.add_param(core.limit_link_minc, PARAM_TYPE_INT);
+					unit.add_param(core.limit_link_maxc, PARAM_TYPE_INT);
 					core.limit_link_minc = 0;
 					core.limit_link_maxc = 0;
 				}
 			}
 			core.sub_solving_event.push_back(nil_event);
-			add_process(PROCESSOR_EXECUTE_OPERATION, 0, peffect, 0, sumplayer, 0);
+			add_process(std::move(unit));
 		}
 		peffect->dec_count(sumplayer);
 		return FALSE;
@@ -3014,9 +3042,13 @@ int32_t field::special_summon_rule(uint16_t step, uint8_t sumplayer, card* targe
 		core.units.begin()->ptarget = pduel->new_group();
 		if(peffect->operation) {
 			core.sub_solving_event.push_back(nil_event);
-			pduel->lua->add_param(target, PARAM_TYPE_CARD);
-			pduel->lua->add_param(core.units.begin()->ptarget, PARAM_TYPE_GROUP);
-			add_process(PROCESSOR_EXECUTE_OPERATION, 0, peffect, 0, sumplayer, 0);
+			processor_unit unit;
+			unit.type = PROCESSOR_EXECUTE_OPERATION;
+			unit.peffect = peffect;
+			unit.arg1 = sumplayer;
+			unit.add_param(target, PARAM_TYPE_CARD);
+			unit.add_param(core.units.begin()->ptarget, PARAM_TYPE_GROUP);
+			add_process(std::move(unit));
 		}
 		peffect->dec_count(sumplayer);
 		return FALSE;
@@ -5327,12 +5359,16 @@ int32_t field::select_synchro_material(int16_t step, uint8_t playerid, card* pca
 			if(!peffect->operation)
 				return FALSE;
 			core.synchro_materials.clear();
-			pduel->lua->add_param(pcard, PARAM_TYPE_CARD);
-			pduel->lua->add_param(filter2, PARAM_TYPE_FUNCTION);
-			pduel->lua->add_param(min, PARAM_TYPE_INT);
-			pduel->lua->add_param(max, PARAM_TYPE_INT);
 			core.sub_solving_event.push_back(nil_event);
-			add_process(PROCESSOR_EXECUTE_OPERATION, 0, peffect, 0, playerid, 0);
+			processor_unit unit;
+			unit.type = PROCESSOR_EXECUTE_OPERATION;
+			unit.peffect = peffect;
+			unit.arg1 = playerid;
+			unit.add_param(pcard, PARAM_TYPE_CARD);
+			unit.add_param(filter2, PARAM_TYPE_FUNCTION);
+			unit.add_param(min, PARAM_TYPE_INT);
+			unit.add_param(max, PARAM_TYPE_INT);
+			add_process(std::move(unit));
 		} else {
 			core.units.begin()->step = 2;
 		}
