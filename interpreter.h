@@ -22,6 +22,7 @@ struct card_data;
 class effect;
 class group;
 class duel;
+struct tevent;
 
 enum LuaParamType : int32_t {
 	PARAM_TYPE_INT = 0x01,
