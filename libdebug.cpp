@@ -5,13 +5,16 @@
  *      Author: Argon
  */
 
-#include <cstring>
 #include "scriptlib.h"
+#include "interpreter.h"
 #include "duel.h"
 #include "field.h"
 #include "card.h"
 #include "effect.h"
 #include "ocgapi.h"
+#include <cstring>
+#include <lauxlib.h>
+#include <lualib.h>
 
 int32_t scriptlib::debug_message(lua_State *L) {
 	check_param_count(L, 1);
