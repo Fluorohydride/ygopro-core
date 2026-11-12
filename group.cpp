@@ -6,8 +6,6 @@
  */
 
 #include "group.h"
-#include "card.h"
-#include "duel.h"
 
 group::group(duel* pd) {
 	pduel = pd;
