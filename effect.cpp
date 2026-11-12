@@ -8,6 +8,7 @@
 #include "effect.h"
 #include "card.h"
 #include "duel.h"
+#include "field.h"
 #include "group.h"
 #include "interpreter.h"
 
