@@ -14,7 +14,7 @@
 #include "ocgapi.h"
 #include <iterator>
 
-void field::add_process(uint16_t type, uint16_t step, effect* peffect, group* target, int32_t arg1, int32_t arg2, int32_t arg3, int32_t arg4, void* ptr1, void* ptr2) {
+void field::add_process(uint16_t type, uint16_t step, effect* peffect, group* target, uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4, void* ptr1, void* ptr2) {
 	processor_unit new_unit;
 	new_unit.type = type;
 	new_unit.step = step;
@@ -26,7 +26,10 @@ void field::add_process(uint16_t type, uint16_t step, effect* peffect, group* ta
 	new_unit.arg4 = arg4;
 	new_unit.ptr1 = ptr1;
 	new_unit.ptr2 = ptr2;
-	core.subunits.push_back(new_unit);
+	core.subunits.push_back(std::move(new_unit));
+}
+void field::add_process(processor_unit unit) {
+	core.subunits.push_back(std::move(unit));
 }
 #ifdef _MSC_VER
 #pragma warning(push)
@@ -597,9 +600,13 @@ uint32_t field::process() {
 			}
 			core.not_material = it->arg2;
 			core.sub_solving_event.push_back(e);
-			pduel->lua->add_param(it->ptr1, PARAM_TYPE_CARD);
-			pduel->lua->add_param(it->arg1 >> 16, PARAM_TYPE_INT);
-			add_process(PROCESSOR_EXECUTE_OPERATION, 0, it->peffect, 0, it->arg1 & 0xffff, 0);
+			processor_unit unit;
+			unit.type = PROCESSOR_EXECUTE_OPERATION;
+			unit.peffect = it->peffect;
+			unit.arg1 = it->arg1 & 0xffff;
+			unit.add_param(it->ptr1, PARAM_TYPE_CARD);
+			unit.add_param(it->arg1 >> 16, PARAM_TYPE_INT);
+			add_process(std::move(unit));
 			++it->step;
 		} else {
 			core.not_material = 0;
@@ -736,15 +743,9 @@ int32_t field::execute_cost(uint16_t step, effect * triggering_effect, uint8_t t
 	if (step == 0) {
 		core.solving_event.splice(core.solving_event.begin(), core.sub_solving_event);
 		const tevent& e = core.solving_event.front();
-		pduel->lua->add_param(1, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.reason, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.reason_effect , PARAM_TYPE_EFFECT, true);
-		pduel->lua->add_param(e.event_value, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.event_player, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.event_cards , PARAM_TYPE_GROUP, true);
-		pduel->lua->add_param(triggering_player, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(triggering_effect, PARAM_TYPE_EFFECT, true);
+		pduel->lua->add_params(triggering_effect, triggering_player, e);
+		pduel->lua->add_param(1, PARAM_TYPE_INT);
+		pduel->lua->add_params(core.units.begin()->lua_params);
 		if(core.check_level == 0) {
 			core.shuffle_deck_check[0] = FALSE;
 			core.shuffle_deck_check[1] = FALSE;
@@ -789,14 +790,8 @@ int32_t field::execute_operation(uint16_t step, effect * triggering_effect, uint
 	if (step == 0) {
 		core.solving_event.splice(core.solving_event.begin(), core.sub_solving_event);
 		const tevent& e = core.solving_event.front();
-		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.reason, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.reason_effect , PARAM_TYPE_EFFECT, true);
-		pduel->lua->add_param(e.event_value, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.event_player, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.event_cards , PARAM_TYPE_GROUP, true);
-		pduel->lua->add_param(triggering_player, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(triggering_effect, PARAM_TYPE_EFFECT, true);
+		pduel->lua->add_params(triggering_effect, triggering_player, e);
+		pduel->lua->add_params(core.units.begin()->lua_params);
 		if(core.check_level == 0) {
 			core.shuffle_deck_check[0] = FALSE;
 			core.shuffle_deck_check[1] = FALSE;
@@ -845,15 +840,9 @@ int32_t field::execute_target(uint16_t step, effect * triggering_effect, uint8_t
 	if (step == 0) {
 		core.solving_event.splice(core.solving_event.begin(), core.sub_solving_event);
 		const tevent& e = core.solving_event.front();
-		pduel->lua->add_param(1, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.reason_player, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.reason, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.reason_effect , PARAM_TYPE_EFFECT, true);
-		pduel->lua->add_param(e.event_value, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.event_player, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(e.event_cards , PARAM_TYPE_GROUP, true);
-		pduel->lua->add_param(triggering_player, PARAM_TYPE_INT, true);
-		pduel->lua->add_param(triggering_effect, PARAM_TYPE_EFFECT, true);
+		pduel->lua->add_params(triggering_effect, triggering_player, e);
+		pduel->lua->add_param(1, PARAM_TYPE_INT);
+		pduel->lua->add_params(core.units.begin()->lua_params);
 		if(core.check_level == 0) {
 			core.shuffle_deck_check[0] = FALSE;
 			core.shuffle_deck_check[1] = FALSE;
@@ -4227,9 +4216,13 @@ int32_t field::add_chain(uint16_t step) {
 			pduel->write_buffer32(ceffect->description);
 		}
 		if(ceffect->cost) {
-			pduel->lua->add_param(clit.triggering_effect, PARAM_TYPE_EFFECT);
 			core.sub_solving_event.push_back(clit.evt);
-			add_process(PROCESSOR_EXECUTE_COST, 0, ceffect, 0, clit.triggering_player, 0);
+			processor_unit unit;
+			unit.type = PROCESSOR_EXECUTE_COST;
+			unit.peffect = ceffect;
+			unit.arg1 = clit.triggering_player;
+			unit.add_param(clit.triggering_effect, PARAM_TYPE_EFFECT);
+			add_process(std::move(unit));
 		}
 		return FALSE;
 	}

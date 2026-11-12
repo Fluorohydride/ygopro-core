@@ -3298,7 +3298,12 @@ int32_t scriptlib::duel_select_synchro_material(lua_State *L) {
 		pduel->game_field->core.select_cards.assign(select_cards.begin(), select_cards.end());
 		pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 0, nullptr, nullptr, playerid + 0x10000, min + (max << 16), filter1, filter2, pcard, smat);
 	}
-	return lua_yield(L, 0);
+	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State* L, int32_t status, lua_KContext ctx) {
+		duel* pduel = (duel*)ctx;
+		interpreter::group2value(L, pduel->game_field->core.select_synchro_result);
+		pduel->game_field->core.select_synchro_result = nullptr;
+		return 1;
+	});
 }
 int32_t scriptlib::duel_check_synchro_material(lua_State *L) {
 	check_param_count(L, 5);
@@ -3353,7 +3358,12 @@ int32_t scriptlib::duel_select_tuner_material(lua_State *L) {
 	auto filter1 = interpreter::get_function_handle(L, 4);
 	auto filter2 = interpreter::get_function_handle(L, 5);
 	pduel->game_field->add_process(PROCESSOR_SELECT_SYNCHRO, 1, nullptr, nullptr, playerid, min + (max << 16), filter1, filter2, pcard, mg);
-	return lua_yield(L, 0);
+	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State* L, int32_t status, lua_KContext ctx) {
+		duel* pduel = (duel*)ctx;
+		interpreter::group2value(L, pduel->game_field->core.select_synchro_result);
+		pduel->game_field->core.select_synchro_result = nullptr;
+		return 1;
+	});
 }
 int32_t scriptlib::duel_check_tuner_material(lua_State *L) {
 	check_param_count(L, 6);
@@ -3672,7 +3682,12 @@ int32_t scriptlib::duel_select_xyz_material(lua_State *L) {
 		return 0;
 	pduel->game_field->get_xyz_material(L, scard, findex, lv, maxc, mg);
 	scard->pduel->game_field->add_process(PROCESSOR_SELECT_XMATERIAL, 0, 0, (group*)scard, playerid + (lv << 16), minc + (maxc << 16));
-	return lua_yield(L, 0);
+	return lua_yieldk(L, 0, (lua_KContext)pduel, [](lua_State* L, int32_t status, lua_KContext ctx) {
+		duel* pduel = (duel*)ctx;
+		interpreter::group2value(L, pduel->game_field->core.select_xyz_result);
+		pduel->game_field->core.select_xyz_result = nullptr;
+		return 1;
+	});
 }
 int32_t scriptlib::duel_overlay(lua_State *L) {
 	check_action_permission(L);

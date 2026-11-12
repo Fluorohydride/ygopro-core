@@ -201,21 +201,18 @@ int32_t interpreter::load_card_script(uint32_t code) {
 	}
 	return OPERATION_SUCCESS;
 }
-void interpreter::add_param(void* param, LuaParamType type, bool front) {
-	lua_param p;
-	p.ptr = param;
-	if(front)
-		params.emplace_front(p, type);
-	else
-		params.emplace_back(p, type);
+void interpreter::add_params(const std::vector<std::pair<lua_param, LuaParamType>>& list) {
+	params.insert(params.end(), list.begin(), list.end());
 }
-void interpreter::add_param(int32_t param, LuaParamType type, bool front) {
-	lua_param p;
-	p.integer = param;
-	if(front)
-		params.emplace_front(p, type);
-	else
-		params.emplace_back(p, type);
+void interpreter::add_params(effect* triggering_effect, uint8_t triggering_player, const tevent& e) {
+	add_param(triggering_effect, PARAM_TYPE_EFFECT);
+	add_param(triggering_player, PARAM_TYPE_INT);
+	add_param(e.event_cards, PARAM_TYPE_GROUP);
+	add_param(e.event_player, PARAM_TYPE_INT);
+	add_param(e.event_value, PARAM_TYPE_INT);
+	add_param(e.reason_effect, PARAM_TYPE_EFFECT);
+	add_param(e.reason, PARAM_TYPE_INT);
+	add_param(e.reason_player, PARAM_TYPE_INT);
 }
 void interpreter::push_param(lua_State* L, bool is_coroutine) {
 	int32_t pushed = 0;
@@ -230,7 +227,7 @@ void interpreter::push_param(lua_State* L, bool is_coroutine) {
 			lua_pushstring(L, (const char*)it.first.ptr);
 			break;
 		case PARAM_TYPE_BOOLEAN:
-			lua_pushboolean(L, it.first.integer);
+			lua_pushboolean(L, it.first.integer != 0);
 			break;
 		case PARAM_TYPE_CARD: {
 			if (it.first.ptr)

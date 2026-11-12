@@ -22,6 +22,7 @@ struct card_data;
 class effect;
 class group;
 class duel;
+struct tevent;
 
 enum LuaParamType : int32_t {
 	PARAM_TYPE_INT = 0x01,
@@ -38,7 +39,9 @@ class interpreter {
 public:
 	union lua_param {
 		void* ptr;
-		int32_t integer;
+		lua_Integer integer;
+		constexpr explicit lua_param(void* p) noexcept : ptr(p) {}
+		constexpr explicit lua_param(lua_Integer i) noexcept : integer(i) {}
 	};
 	using coroutine_map = std::unordered_map<int32_t, std::pair<lua_State*, int32_t>>;
 	using param_list = std::list<std::pair<lua_param, LuaParamType>>;
@@ -64,8 +67,15 @@ public:
 
 	int32_t load_script(const char* script_name);
 	int32_t load_card_script(uint32_t code);
-	void add_param(void* param, LuaParamType type, bool front = false);
-	void add_param(int32_t param, LuaParamType type, bool front = false);
+	template <typename T>
+	void add_param(T param, LuaParamType type, bool front = false) {
+		if (front)
+			params.emplace_front(lua_param{ param }, type);
+		else
+			params.emplace_back(lua_param{ param }, type);
+	}
+	void add_params(const std::vector<std::pair<lua_param, LuaParamType>>& list);
+	void add_params(effect* triggering_effect, uint8_t triggering_player, const tevent& e);
 	void push_param(lua_State* L, bool is_coroutine = false);
 	int32_t call_function(int32_t f, uint32_t param_count, int32_t ret_count);
 	int32_t call_card_function(card* pcard, const char* f, uint32_t param_count, int32_t ret_count);
