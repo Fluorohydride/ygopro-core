@@ -44,7 +44,7 @@ public:
 		constexpr explicit lua_param(lua_Integer i) noexcept : integer(i) {}
 	};
 	using coroutine_map = std::unordered_map<int32_t, std::pair<lua_State*, int32_t>>;
-	using param_list = std::vector<std::pair<lua_param, LuaParamType>>;
+	using param_list = std::list<std::pair<lua_param, LuaParamType>>;
 	
 	duel* pduel;
 	lua_State* lua_state;
@@ -68,8 +68,11 @@ public:
 	int32_t load_script(const char* script_name);
 	int32_t load_card_script(uint32_t code);
 	template <typename T>
-	void add_param(T param, LuaParamType type) {
-		params.emplace_back(lua_param{ param }, type);
+	void add_param(T param, LuaParamType type, bool front = false) {
+		if (front)
+			params.emplace_front(lua_param{ param }, type);
+		else
+			params.emplace_back(lua_param{ param }, type);
 	}
 	void add_params(const std::vector<std::pair<lua_param, LuaParamType>>& list);
 	void add_params(effect* triggering_effect, uint8_t triggering_player, const tevent& e);
