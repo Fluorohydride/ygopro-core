@@ -9,9 +9,6 @@
 #define INTERPRETER_H_
 
 #include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
-#include "common.h"
 #include <unordered_map>
 #include <list>
 #include <vector>
