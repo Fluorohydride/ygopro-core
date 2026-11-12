@@ -8,6 +8,7 @@
 #ifndef GROUP_H_
 #define GROUP_H_
 
+#include "common.h"
 #include "sort.h"
 #include <set>
 
