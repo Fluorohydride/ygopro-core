@@ -9,14 +9,17 @@
 #define EFFECT_H_
 
 #include "common.h"
-#include "field.h"
 #include "effectset.h"
+#include "interpreter.h"
 #include <vector>
+#include <map>
+#include <unordered_set>
 
 class card;
 class duel;
 class group;
 class effect;
+struct chain;
 struct tevent;
 enum effect_flag : uint64_t;
 enum effect_flag2 : uint64_t;

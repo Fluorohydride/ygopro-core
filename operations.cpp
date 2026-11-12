@@ -11,6 +11,7 @@
 #include "group.h"
 #include "interpreter.h"
 #include <algorithm>
+#include <lauxlib.h>
 
 int32_t field::negate_chain(uint8_t chaincount) {
 	if(core.current_chain.size() == 0)
