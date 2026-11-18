@@ -14,7 +14,7 @@
 #include "field.h"
 #include <algorithm>
 #include <lauxlib.h>
-#include <lualib.h>
+#include <lua.h>
 
 int32_t scriptlib::group_new(lua_State *L) {
 	duel* pduel = interpreter::get_duel_info(L);

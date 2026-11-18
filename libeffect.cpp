@@ -13,7 +13,7 @@
 #include "effect.h"
 #include "group.h"
 #include <lauxlib.h>
-#include <lualib.h>
+#include <lua.h>
 
 int32_t scriptlib::get_effect_property(lua_State* L, effect_member type) {
 	check_param_count(L, 1);

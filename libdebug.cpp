@@ -14,7 +14,7 @@
 #include "ocgapi.h"
 #include <cstring>
 #include <lauxlib.h>
-#include <lualib.h>
+#include <lua.h>
 
 int32_t scriptlib::debug_message(lua_State *L) {
 	check_param_count(L, 1);
