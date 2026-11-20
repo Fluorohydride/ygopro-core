@@ -207,7 +207,7 @@ int32_t interpreter::load_card_script(uint32_t code) {
 void interpreter::add_params(const std::vector<std::pair<lua_param, LuaParamType>>& list) {
 	params.insert(params.end(), list.begin(), list.end());
 }
-void interpreter::add_params(effect* triggering_effect, uint8_t triggering_player, const tevent& e) {
+void interpreter::add_event_params(effect* triggering_effect, uint8_t triggering_player, const tevent& e) {
 	add_param(triggering_effect, PARAM_TYPE_EFFECT);
 	add_param(triggering_player, PARAM_TYPE_INT);
 	add_param(e.event_cards, PARAM_TYPE_GROUP);

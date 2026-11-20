@@ -745,7 +745,7 @@ int32_t field::execute_cost(uint16_t step, effect * triggering_effect, uint8_t t
 	if (step == 0) {
 		core.solving_event.splice(core.solving_event.begin(), core.sub_solving_event);
 		const tevent& e = core.solving_event.front();
-		pduel->lua->add_params(triggering_effect, triggering_player, e);
+		pduel->lua->add_event_params(triggering_effect, triggering_player, e);
 		pduel->lua->add_param(1, PARAM_TYPE_INT);
 		pduel->lua->add_params(core.units.begin()->lua_params);
 		if(core.check_level == 0) {
@@ -792,7 +792,7 @@ int32_t field::execute_operation(uint16_t step, effect * triggering_effect, uint
 	if (step == 0) {
 		core.solving_event.splice(core.solving_event.begin(), core.sub_solving_event);
 		const tevent& e = core.solving_event.front();
-		pduel->lua->add_params(triggering_effect, triggering_player, e);
+		pduel->lua->add_event_params(triggering_effect, triggering_player, e);
 		pduel->lua->add_params(core.units.begin()->lua_params);
 		if(core.check_level == 0) {
 			core.shuffle_deck_check[0] = FALSE;
@@ -842,7 +842,7 @@ int32_t field::execute_target(uint16_t step, effect * triggering_effect, uint8_t
 	if (step == 0) {
 		core.solving_event.splice(core.solving_event.begin(), core.sub_solving_event);
 		const tevent& e = core.solving_event.front();
-		pduel->lua->add_params(triggering_effect, triggering_player, e);
+		pduel->lua->add_event_params(triggering_effect, triggering_player, e);
 		pduel->lua->add_param(1, PARAM_TYPE_INT);
 		pduel->lua->add_params(core.units.begin()->lua_params);
 		if(core.check_level == 0) {
