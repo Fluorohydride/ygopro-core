@@ -6,6 +6,9 @@
  */
 #include "scriptlib.h"
 #include "duel.h"
+#include "interpreter.h"
+#include <lauxlib.h>
+#include <lualib.h>
 
 static int32_t check_data_type(lua_State* L, int32_t index, const char* tname) {
 	luaL_checkstack(L, 2, nullptr);
