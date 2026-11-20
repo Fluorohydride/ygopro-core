@@ -4850,14 +4850,19 @@ int32_t field::change_position(uint16_t step, group * targets, effect * reason_e
 			card* pcard = *cit;
 			uint8_t npos = pcard->position_param & 0xff;
 			uint8_t opos = pcard->current.position;
-			uint8_t forbidden_pos = reason_effect ? pcard->get_cannot_change_pos_e_positions() : 0;
 			if ((pcard->current.location != LOCATION_MZONE && pcard->current.location != LOCATION_SZONE)
 				|| (pcard->data.type & TYPE_LINK)
 				|| pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
 				|| !pcard->is_affect_by_effect(reason_effect) || npos == opos
-				|| (!(pcard->data.type & TYPE_TOKEN) && (opos & POS_FACEUP) && (npos & POS_FACEDOWN) && !pcard->is_capable_turn_set(reason_player))
-				|| forbidden_pos == 0xff || (forbidden_pos & npos)) {
+				|| (!(pcard->data.type & TYPE_TOKEN) && (opos & POS_FACEUP) && (npos & POS_FACEDOWN) && !pcard->is_capable_turn_set(reason_player))) {
 				cit = targets->container.erase(cit);
+			}
+			else if (reason_effect) {
+				uint8_t forbidden_pos = pcard->get_cannot_change_pos_e_positions(reason_effect, reason_player);
+				if (forbidden_pos == 0xff || (forbidden_pos & npos))
+					cit = targets->container.erase(cit);
+				else
+					++cit;
 			}
 			else
 				++cit;

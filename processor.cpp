@@ -5025,8 +5025,9 @@ int32_t field::adjust_step(uint16_t step) {
 				eset.clear();
 				pcard->filter_effect(EFFECT_SET_POSITION, &eset);
 				if(eset.size()) {
-					pos = eset.back()->get_value();
-					uint8_t forbidden_pos = pcard->get_cannot_change_pos_e_positions();
+					effect* peffect = eset.back();
+					pos = peffect->get_value();
+					uint8_t forbidden_pos = pcard->get_cannot_change_pos_e_positions(peffect, peffect->get_handler_player());
 					if(forbidden_pos == 0xff || (forbidden_pos & (pos & 0xff)))
 						continue;
 					if((pos & 0xff) != pcard->current.position) {
