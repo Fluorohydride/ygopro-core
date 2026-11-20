@@ -9,14 +9,17 @@
 #define EFFECT_H_
 
 #include "common.h"
-#include "field.h"
 #include "effectset.h"
+#include "interpreter.h"
 #include <vector>
+#include <map>
+#include <unordered_set>
 
 class card;
 class duel;
 class group;
 class effect;
+struct chain;
 struct tevent;
 enum effect_flag : uint64_t;
 enum effect_flag2 : uint64_t;
@@ -538,6 +541,7 @@ const std::map<uint64_t, uint64_t> category_checklist{
 #define EFFECT_ADD_CARD_TYPE			377
 #define EFFECT_REMOVE_CARD_TYPE		378
 #define EFFECT_CHANGE_CARD_TYPE		379
+#define EFFECT_OPPO_SELECT_SPSUMMON_ZONE	380
 
 //#define EVENT_STARTUP		1000
 #define EVENT_FLIP			1001

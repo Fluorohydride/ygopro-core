@@ -11,7 +11,6 @@
 #include "common.h"
 #include "sort.h"
 #include <set>
-#include <list>
 
 class card;
 class duel;

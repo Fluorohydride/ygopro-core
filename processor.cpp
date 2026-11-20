@@ -12,7 +12,9 @@
 #include "effect.h"
 #include "interpreter.h"
 #include "ocgapi.h"
+#include <algorithm>
 #include <iterator>
+#include <lauxlib.h>
 
 void field::add_process(uint16_t type, uint16_t step, effect* peffect, group* target, uint32_t arg1, uint32_t arg2, uint32_t arg3, uint32_t arg4, void* ptr1, void* ptr2) {
 	processor_unit new_unit;
@@ -339,7 +341,7 @@ uint32_t field::process() {
 		return pduel->buffer_size();
 	}
 	case PROCESSOR_MOVETOFIELD: {
-		if (move_to_field(it->step, (card*)it->ptarget, it->arg1, it->arg2 & 0xff, (it->arg2 >> 8) & 0xff, it->arg3))
+		if (move_to_field(it->step, (card*)it->ptarget, it->arg1, it->arg2 & 0xff, (it->arg2 >> 8) & 0xff, it->arg3, it->arg4))
 			core.units.pop_front();
 		else
 			++it->step;
