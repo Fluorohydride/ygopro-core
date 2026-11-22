@@ -26,10 +26,10 @@ workspace "ocgcoredll"
 
     filter "configurations:Release"
         optimize "Speed"
+        defines "NDEBUG"
 
     filter "configurations:Debug"
         symbols "On"
-        defines "_DEBUG"
 
     filter "system:windows"
         systemversion "latest"
@@ -39,6 +39,10 @@ workspace "ocgcoredll"
         linktimeoptimization "On"
         staticruntime "On"
         disablewarnings { "4334" }
+
+    filter { "configurations:Debug", "action:vs*" }
+        defines "_DEBUG"
+        staticruntime "On"
 
     filter "action:vs*"
         cdialect "C11"
