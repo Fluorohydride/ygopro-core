@@ -4009,8 +4009,6 @@ uint8_t card::get_cannot_change_position_by_effect_mask(effect* reason_effect, u
 		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
 		int32_t val = eset[i]->get_value(reason_effect, 1);
 		mask |= static_cast<uint8_t>(val & 0xff);
-		if(mask == 0xff)
-			return 0xff;
 	}
 	return mask;
 }
