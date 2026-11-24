@@ -3999,7 +3999,7 @@ int32_t card::is_capable_change_position_by_effect(uint8_t playerid) {
 		return FALSE;
 	return TRUE;
 }
-uint8_t card::get_cannot_change_pos_e_positions(effect* reason_effect, uint8_t playerid) {
+uint8_t card::get_cannot_change_position_by_effect_mask(effect* reason_effect, uint8_t playerid) {
 	effect_set eset;
 	filter_effect(EFFECT_CANNOT_CHANGE_POS_E, &eset, FALSE);
 	uint8_t mask = 0;

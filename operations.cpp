@@ -4858,7 +4858,7 @@ int32_t field::change_position(uint16_t step, group * targets, effect * reason_e
 				cit = targets->container.erase(cit);
 			}
 			else if (reason_effect) {
-				uint8_t forbidden_pos = pcard->get_cannot_change_pos_e_positions(reason_effect, reason_player);
+				uint8_t forbidden_pos = pcard->get_cannot_change_position_by_effect_mask(reason_effect, reason_player);
 				if (forbidden_pos == 0xff || (forbidden_pos & npos))
 					cit = targets->container.erase(cit);
 				else
