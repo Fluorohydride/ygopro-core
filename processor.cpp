@@ -5022,12 +5022,16 @@ int32_t field::adjust_step(uint16_t step) {
 		effect_set eset;
 		for(uint8_t p = 0; p < 2; ++p) {
 			for(auto& pcard : player[tp].list_mzone) {
-				if(!pcard || (pcard->data.type & TYPE_LINK) || pcard->is_affected_by_effect(EFFECT_CANNOT_CHANGE_POS_E))
+				if(!pcard || (pcard->data.type & TYPE_LINK))
 					continue;
 				eset.clear();
 				pcard->filter_effect(EFFECT_SET_POSITION, &eset);
 				if(eset.size()) {
-					pos = eset.back()->get_value();
+					effect* peffect = eset.back();
+					pos = peffect->get_value();
+					uint8_t forbidden_pos = pcard->get_cannot_change_position_by_effect_mask(peffect, peffect->get_handler_player());
+					if(forbidden_pos == 0xff || (forbidden_pos & (pos & 0xff)))
+						continue;
 					if((pos & 0xff) != pcard->current.position) {
 						pos_adjust.insert(pcard);
 						pcard->position_param = pos;
