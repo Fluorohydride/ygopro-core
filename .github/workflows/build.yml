@@ -10,6 +10,9 @@ on:
   pull_request:
     branches: [ "master" ]
 
+permissions:
+  contents: read
+
 jobs:
   build-windows:
     runs-on: windows-2022
@@ -71,11 +74,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v6
 
-    - name: Install Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc-multilib g++-multilib
-
     - name: Download lua
       id: lua
       uses: mercury233/action-cache-download-file@42a33307a0e00b163efaf26f29149a62d7bbd37d
@@ -104,12 +102,6 @@ jobs:
         chmod +x premake-5/premake5
         ./premake-5/premake5 gmake --file=dll.lua
 
-    - name: Build x32
-      run: |
-        cd build
-        make -j $(nproc) config=release_x32
-        cd ..
-
     - name: Build x64
       run: |
         cd build
@@ -121,5 +113,4 @@ jobs:
       with:
         name: ocgcore-linux
         path: |
-          build/bin/x32/Release/libocgcore.so
           build/bin/x64/Release/libocgcore.so

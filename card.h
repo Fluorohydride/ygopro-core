@@ -401,6 +401,7 @@ public:
 	int32_t is_capable_attack_announce(uint8_t playerid);
 	int32_t is_capable_change_position(uint8_t playerid);
 	int32_t is_capable_change_position_by_effect(uint8_t playerid);
+	uint8_t get_cannot_change_position_by_effect_mask(effect* reason_effect, uint8_t playerid);
 	int32_t is_capable_turn_set(uint8_t playerid);
 	int32_t is_capable_change_control();
 	int32_t is_control_can_be_changed(int32_t ignore_mzone, uint32_t zone);

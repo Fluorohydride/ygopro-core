@@ -3999,6 +3999,19 @@ int32_t card::is_capable_change_position_by_effect(uint8_t playerid) {
 		return FALSE;
 	return TRUE;
 }
+uint8_t card::get_cannot_change_position_by_effect_mask(effect* reason_effect, uint8_t playerid) {
+	effect_set eset;
+	filter_effect(EFFECT_CANNOT_CHANGE_POS_E, &eset, FALSE);
+	uint8_t mask = 0;
+	for(effect_set::size_type i = 0; i < eset.size(); ++i) {
+		if(!eset[i]->value)
+			return 0xff;
+		pduel->lua->add_param(playerid, PARAM_TYPE_INT);
+		int32_t val = eset[i]->get_value(reason_effect, 1);
+		mask |= static_cast<uint8_t>(val & 0xff);
+	}
+	return mask;
+}
 int32_t card::is_capable_turn_set(uint8_t playerid) {
 	if(data.type & (TYPE_LINK | TYPE_TOKEN))
 		return FALSE;

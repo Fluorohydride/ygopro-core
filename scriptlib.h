@@ -9,7 +9,8 @@
 #define SCRIPTLIB_H_
 
 #include "common.h"
-#include "interpreter.h"
+
+struct lua_State;
 
 constexpr bool match_all(uint32_t x, uint32_t y) {
 	return (x & y) == y;

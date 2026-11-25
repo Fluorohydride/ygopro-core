@@ -11,6 +11,7 @@
 #include "group.h"
 #include "interpreter.h"
 #include <algorithm>
+#include <lauxlib.h>
 
 int32_t field::negate_chain(uint8_t chaincount) {
 	if(core.current_chain.size() == 0)
@@ -4854,9 +4855,15 @@ int32_t field::change_position(uint16_t step, group * targets, effect * reason_e
 				|| (pcard->data.type & TYPE_LINK)
 				|| pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
 				|| !pcard->is_affect_by_effect(reason_effect) || npos == opos
-				|| ((opos & POS_FACEUP) && (npos & POS_FACEDOWN) && !pcard->is_capable_turn_set(reason_player))
-				|| (reason_effect && pcard->is_affected_by_effect(EFFECT_CANNOT_CHANGE_POS_E))) {
+				|| ((opos & POS_FACEUP) && (npos & POS_FACEDOWN) && !pcard->is_capable_turn_set(reason_player))) {
 				cit = targets->container.erase(cit);
+			}
+			else if (reason_effect) {
+				uint8_t forbidden_pos = pcard->get_cannot_change_position_by_effect_mask(reason_effect, reason_player);
+				if (forbidden_pos == 0xff || (forbidden_pos & npos))
+					cit = targets->container.erase(cit);
+				else
+					++cit;
 			}
 			else
 				++cit;
