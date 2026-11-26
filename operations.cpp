@@ -4855,7 +4855,7 @@ int32_t field::change_position(uint16_t step, group * targets, effect * reason_e
 				|| (pcard->data.type & TYPE_LINK)
 				|| pcard->get_status(STATUS_SUMMONING | STATUS_SPSUMMON_STEP)
 				|| !pcard->is_affect_by_effect(reason_effect) || npos == opos
-				|| (!(pcard->data.type & TYPE_TOKEN) && (opos & POS_FACEUP) && (npos & POS_FACEDOWN) && !pcard->is_capable_turn_set(reason_player))) {
+				|| ((opos & POS_FACEUP) && (npos & POS_FACEDOWN) && !pcard->is_capable_turn_set(reason_player))) {
 				cit = targets->container.erase(cit);
 			}
 			else if (reason_effect) {
@@ -4940,8 +4940,6 @@ int32_t field::change_position(uint16_t step, group * targets, effect * reason_e
 			uint8_t npos = pcard->position_param & 0xff;
 			uint8_t opos = pcard->current.position;
 			uint8_t flag = pcard->position_param >> 16;
-			if((pcard->data.type & TYPE_TOKEN) && (npos & POS_FACEDOWN))
-				npos = POS_FACEUP_DEFENSE;
 			pcard->previous.position = opos;
 			pcard->current.position = npos;
 			if((npos & POS_DEFENSE) && !pcard->is_affected_by_effect(EFFECT_DEFENSE_ATTACK))
